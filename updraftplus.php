@@ -9,8 +9,9 @@ Author URI: http://wordshell.net
 */ 
 
 //TODO:
-//Add a logging mechanism
+//Put DB and file backups onto separate schedules. If the option is set identically then do in one run, otherwise do separately.
 //Add DropBox support
+//Add more logging
 //Struggles with large uploads - runs out of time before finishing. Break into chunks? Resume download on later run? (Add a new scheduled event to check on progress? Separate the upload from the creation?). Add in some logging (in a .php file that exists first).
 //More logging
 //improve error reporting.  s3 and dir backup have decent reporting now, but not sure i know what to do from here
@@ -27,7 +28,6 @@ Author URI: http://wordshell.net
 /* More TODO:
 Are all directories in wp-content covered? No; only plugins, themes, content. We should check for others and allow the user the chance to choose which ones he wants
 Add turn-off-foreign-key-checks stuff into mysql dump (does WP even use these?)
-Put DB and file backups onto separate schedules
 Use only one entry in WP options database
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
 More verbose debug reports, send debug report in the email
@@ -113,7 +113,8 @@ class UpdraftPlus {
 		$updraft_dir = $this->backups_dir_location();
 		$this->logfile_name =  $updraft_dir. "/log." . $this->nonce . ".txt";
 		
-		$this->logfile_handle = fopen($this->logfile_name, 'w');
+		# Use append mode in case it already exists
+		$this->logfile_handle = fopen($this->logfile_name, 'a');
 		// Some information that may be helpful
 		global $wp_version;
 		$this->log("PHP version: ".phpversion()." WordPress version: ".$wp_version);
@@ -152,11 +153,12 @@ class UpdraftPlus {
 			if(get_option('updraft_debug_mode') && $this->logfile_name != "") {
 				$append_log .= "\r\nLog contents:\r\n".file_get_contents($this->logfile_name);
 			}
-			wp_mail($sendmail_to,'Backed up: '.get_bloginfo('name').' (UpdraftPlus) '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus WordPress backup is complete.\r\n".$append_log);
+			wp_mail($sendmail_to,'Backed up: '.get_bloginfo('name').' (UpdraftPlus) '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus WordPress backup is complete.\r\n'.$this->wordshell_random_advert(0).'\r\n".$append_log);
 		}
 		
 		// Close log file
 		close($this->logfile_handle);
+		if (!get_option('updraft_debug_mode')) { @unlink($this->logfile_name); }
 	}
 	
 	function save_last_backup($backup_array) {
@@ -168,14 +170,17 @@ class UpdraftPlus {
 	function cloud_backup($backup_array) {
 		switch(get_option('updraft_service')) {
 			case 's3':
+				@set_time_limit(900);
 				$this->log("Cloud backup: S3");
 				if (count($backup_array) >0) { $this->s3_backup($backup_array); }
 			break;
 			case 'ftp':
+				@set_time_limit(900);
 				$this->log("Cloud backup: FTP");
 				if (count($backup_array) >0) { $this->ftp_backup($backup_array); }
 			break;
 			case 'email':
+				@set_time_limit(900);
 				$this->log("Cloud backup: Email");
 				//files can easily get way too big for this...
 				foreach($backup_array as $type=>$file) {
@@ -313,6 +318,7 @@ class UpdraftPlus {
 		$backup_array = array();
 
 		# Plugins
+		@set_time_limit(900);
 		if (get_option('updraft_include_plugins', true)) {
 			$plugins = new PclZip($backup_file_base.'-plugins.zip');
 			if (!$plugins->create($wp_plugins_dir,PCLZIP_OPT_REMOVE_PATH,WP_CONTENT_DIR)) {
@@ -322,6 +328,7 @@ class UpdraftPlus {
 		}
 
 		# Themes
+		@set_time_limit(900);
 		if (get_option('updraft_include_themes', true)) {
 			$themes = new PclZip($backup_file_base.'-themes.zip');
 			if (!$themes->create($wp_themes_dir,PCLZIP_OPT_REMOVE_PATH,WP_CONTENT_DIR)) {
@@ -331,6 +338,7 @@ class UpdraftPlus {
 		}
 
 		# Uploads
+		@set_time_limit(900);
 		if (get_option('updraft_include_uploads', true)) {
 			$uploads = new PclZip($backup_file_base.'-uploads.zip');
 			if (!$uploads->create($wp_upload_dir,PCLZIP_OPT_REMOVE_PATH,WP_CONTENT_DIR)) {
@@ -682,7 +690,7 @@ class UpdraftPlus {
 	this function is both the backup scheduler and ostensibly a filter callback for saving the option.
 	it is called in the register_setting for the updraft_interval, which means when the admin settings 
 	are saved it is called.  it returns the actual result from wp_filter_nohtml_kses (a sanitization filter) 
-	so the option can be properly saved.  this is an UGLY HACK and there must be a better way.
+	so the option can be properly saved.
 	*/
 	function schedule_backup($interval) {
 		//clear schedule and add new so we don't stack up scheduled backups
@@ -1017,17 +1025,19 @@ class UpdraftPlus {
 		array($this,"settings_output"));
 	}
 
-	function wordshell_random_advert() {
+	function wordshell_random_advert($urls) {
+		$url_start = ($urls) ? '<a href="http://wordshell.net">' : "";
+		$url_end = ($urls) ? '</a>' : " (www.wordshell.net)";
 		if (rand(0,1) == 0) {
-			return 'Like automating WordPress operations? Use the CLI? <a href="http://wordshell.net">You will love WordShell</a> - saves time and money fast.';
+			return "Like automating WordPress operations? Use the CLI? ${url_start}You will love WordShell${url_end} - saves time and money fast.";
 		} else {
-			return '<a href="http://wordshell.net">Check out WordShell</a> - manage WordPress from the command line - huge time-saver';
+			return "${url_start}Check out WordShell${url_end} - manage WordPress from the command line - huge time-saver";
 		}
 	}
 
 	function settings_output() {
 
-		$ws_advert = $this->wordshell_random_advert();
+		$ws_advert = $this->wordshell_random_advert(1);
 		echo <<<ENDHERE
 <div class="updated fade" style="font-size:140%; padding:14px;">${ws_advert}</div>
 ENDHERE;
@@ -1412,7 +1422,7 @@ ENDHERE;
 				</tr>
 				<tr>
 					<th>Debug mode:</th>
-					<td><input type="checkbox" name="updraft_debug_mode" value="1" <?php echo $debug_mode; ?> /> <br />Check this for more information, if something is going wrong.</td>
+					<td><input type="checkbox" name="updraft_debug_mode" value="1" <?php echo $debug_mode; ?> /> <br />Check this for more information, if something is going wrong. Will also drop a log file in your backup directory which you can examine.</td>
 				</tr>
 				<tr>
 					<td>
