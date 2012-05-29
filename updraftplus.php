@@ -2,7 +2,7 @@
 /*
 Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
-Description: UpdraftPlus - Backup/Restore is a plugin designed to back up your WordPress blog.  Uploads, themes, plugins, and your DB can be backed up to Amazon S3, sent to an FTP server, or even emailed to you on a scheduled basis.
+Description: UpdraftPlus - Backup/Restore is a plugin designed to back up your WordPress site.  Uploads, themes, plugins, and your DB can be backed up to Amazon S3, sent to an FTP server, or even emailed to you on a scheduled basis.
 Author: David Anderson.
 Version: 0.7.7
 Author URI: http://wordshell.net
@@ -52,7 +52,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // TODO: Note this might *lower* the limit - should check first.
 
-@set_time_limit(900); //15 minutes max. i'm not sure how long a really big blog could take to back up?
+@set_time_limit(900); //15 minutes max. i'm not sure how long a really big site could take to back up?
 
 $updraft = new UpdraftPlus();
 
@@ -153,7 +153,7 @@ class UpdraftPlus {
 			if(get_option('updraft_debug_mode') && $this->logfile_name != "") {
 				$append_log .= "\r\nLog contents:\r\n".file_get_contents($this->logfile_name);
 			}
-			wp_mail($sendmail_to,'Backed up: '.get_bloginfo('name').' (UpdraftPlus) '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus WordPress backup is complete.\r\n'.$this->wordshell_random_advert(0).'\r\n".$append_log);
+			wp_mail($sendmail_to,'Backed up: '.get_bloginfo('name').' (UpdraftPlus) '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus WordPress backup is complete.\r\n".$this->wordshell_random_advert(0)."\r\n".$append_log);
 		}
 		
 		// Close log file
@@ -351,7 +351,7 @@ class UpdraftPlus {
 	}
 
 	function save_backup_history($backup_array) {
-		//this stores full paths right now.  should probably concatenate with ABSPATH to make it easier to move blogs
+		//this stores full paths right now.  should probably concatenate with ABSPATH to make it easier to move sites
 		$backup_history = get_option('updraft_backup_history');
 		$backup_history = (!is_array($backup_history))?array():$backup_history;
 		if(is_array($backup_array)) {
@@ -1180,7 +1180,7 @@ ENDHERE;
 			<div style="float:left;width:200px">
 				<form method="post" action="">
 					<input type="hidden" name="action" value="updraft_backup" />
-					<p><input type="submit" <?php echo $backup_disabled ?> class="button-primary" value="Backup Now!" style="padding-top:7px;padding-bottom:7px;font-size:24px !important" onclick="return(confirm('This will schedule a one time backup.  To trigger the backup immediately you may need to load a page on your blog.'))" /></p>
+					<p><input type="submit" <?php echo $backup_disabled ?> class="button-primary" value="Backup Now!" style="padding-top:7px;padding-bottom:7px;font-size:24px !important" onclick="return(confirm('This will schedule a one time backup.  To trigger the backup immediately you may need to load a page on your site.'))" /></p>
 				</form>
 				<div style="position:relative">
 					<div style="position:absolute;top:0;left:0">
@@ -1203,7 +1203,7 @@ ENDHERE;
 							</select>
 
 							<input type="hidden" name="action" value="updraft_restore" />
-							<input type="submit" <?php echo $restore_disabled ?> class="button-primary" value="Restore Now!" style="padding-top:7px;margin-top:5px;padding-bottom:7px;font-size:24px !important" onclick="return(confirm('Restoring from backup will replace this blog\'s themes, plugins, and uploads directories. DB restoration must be done separately at this time. Continue with the restoration process?'))" />
+							<input type="submit" <?php echo $restore_disabled ?> class="button-primary" value="Restore Now!" style="padding-top:7px;margin-top:5px;padding-bottom:7px;font-size:24px !important" onclick="return(confirm('Restoring from backup will replace this site\'s themes, plugins, and uploads directories. DB restoration must be done separately at this time. Continue with the restoration process?'))" />
 						</form>
 					</div>
 				</div>
