@@ -153,7 +153,7 @@ class UpdraftPlus {
 			if(get_option('updraft_debug_mode') && $this->logfile_name != "") {
 				$append_log .= "\r\nLog contents:\r\n".file_get_contents($this->logfile_name);
 			}
-			wp_mail($sendmail_to,'Backed up: '.get_bloginfo('name').' (UpdraftPlus) '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus WordPress backup is complete.\r\n".$this->wordshell_random_advert(0)."\r\n".$append_log);
+			wp_mail($sendmail_to,'Backed up: '.get_bloginfo('name').' (UpdraftPlus) '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus WordPress backup is complete.\r\n\r\n".$this->wordshell_random_advert(0)."\r\n".$append_log);
 		}
 		
 		// Close log file
