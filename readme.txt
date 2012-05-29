@@ -3,7 +3,7 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, ftp, cloud
 Requires at least: 3.2
 Tested up to: 3.3.2
-Stable tag: 0.7.4
+Stable tag: 0.7.7
 License: GPLv2 or later
 
 == Description ==
@@ -39,12 +39,15 @@ Nothing, probably. That's the point of an encryption key - people who don't have
 
 = I found a bug. What do I do? =
 
-Contact me! This is a complex plugin and the only way I can ensure it's robust is to get bug reports and fix the problems that crop up. Please include as much information as you can when reporting (PHP version, your blog's site, the error you saw and how you got to the page that caused it, etcetera). If you can send a patch, that's even better.
+Contact me! This is a complex plugin and the only way I can ensure it's robust is to get bug reports and fix the problems that crop up. Please turn on debugging mode and send me the log if you can find it. Include as much information as you can when reporting (PHP version, your blog's site, the error you saw and how you got to the page that caused it, etcetera). If you can send a patch, that's even better.
 
 == Upgrade Notice ==
-New fork of Updraft, fixing some serious bugs and adding new features
+Added a logging mechanism for easier development
 
 == Changelog ==
+
+= 0.7.7 - 05/29/2012 =
+* Implementation of a logging mechanism to allow easier debugging and development
 
 = 0.7.4 - 05/21/2012 =
 * Removed CloudFront method; I have no way of testing this

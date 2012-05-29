@@ -4,11 +4,13 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: UpdraftPlus - Backup/Restore is a plugin designed to back up your WordPress blog.  Uploads, themes, plugins, and your DB can be backed up to Amazon S3, sent to an FTP server, or even emailed to you on a scheduled basis.
 Author: David Anderson.
-Version: 0.7.4
+Version: 0.7.7
 Author URI: http://wordshell.net
 */ 
 
 //TODO:
+//Add a logging mechanism
+//Add DropBox support
 //Struggles with large uploads - runs out of time before finishing. Break into chunks? Resume download on later run? (Add a new scheduled event to check on progress? Separate the upload from the creation?). Add in some logging (in a .php file that exists first).
 //More logging
 //improve error reporting.  s3 and dir backup have decent reporting now, but not sure i know what to do from here
@@ -61,11 +63,13 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.7.4';
+	var $version = '0.7.7';
 
 	var $dbhandle;
 	var $errors = array();
 	var $nonce;
+	var $logfile_name = "";
+	var $logfile_handle = false;
 	var $backup_time;
 	
 	function __construct() {
@@ -92,37 +96,67 @@ class UpdraftPlus {
 		$this->backup_time = time();
 		$this->nonce = substr(md5(time().rand()),20);
 	}
+
+	# Logs the given line, adding date stamp and newline
+	function log($line) {
+		if ($this->logfile_handle) {
+			fwrite($this->logfile_handle,date('r')." ".$line."\n");
+		}
+	}
 	
 	//scheduled wp-cron events can have a race condition here if page loads are coming fast enough, but there's nothing we can do about it.
 	function backup() {
 		//generate backup information
 		$this->backup_time_nonce();
 		
+		//set log file name
+		$updraft_dir = $this->backups_dir_location();
+		$this->logfile_name =  $updraft_dir. "/log." . $this->nonce . ".txt";
+		
+		$this->logfile_handle = fopen($this->logfile_name, 'w');
+		// Some information that may be helpful
+		global $wp_version;
+		$this->log("PHP version: ".phpversion()." WordPress version: ".$wp_version);
 		//backup directories and return a numerically indexed array of file paths to the backup files
+		$this->log("Beginning backup of directories");
 		$backup_array = $this->backup_dirs();
 		//backup DB and return string of file path
+		$this->log("Beginning backup of database");
 		$db_backup = $this->backup_db();
 		//add db path to rest of files
 		if(is_array($backup_array)) {	$backup_array['db'] = $db_backup; }
 		//save this to our history so we can track backups for the retain feature
+		$this->log("Saving backup history");
 		$this->save_backup_history($backup_array);
 
 		//cloud operations (S3,FTP,email,nothing)
 		//this also calls the retain feature at the end (done in this method to reuse existing cloud connections)
 		if(is_array($backup_array) && count($backup_array) >0) {
+			$this->log("Beginning dispatch of backup to remote");
 			$this->cloud_backup($backup_array);
 		}
 		//delete local files if the pref is set
 		foreach($backup_array as $file) {
+			$this->log("Deleting local file: $file");
 			$this->delete_local($file);
 		}
 		
 		//save the last backup info, including errors, if any
+		$this->log("Saving last backup information into WordPress db");
 		$this->save_last_backup($backup_array);
 		
 		if(get_option('updraft_email') != "" && get_option('updraft_service') != 'email') {
-			wp_mail(get_option('updraft_email'),'Backed up: '.get_bloginfo('name').' (UpdraftPlus) '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus WordPress backup is complete.");
+			$sendmail_to = get_option('updraft_email');
+			$this->log("Sending email report to: ".$sendmail_to);
+			$append_log = "";
+			if(get_option('updraft_debug_mode') && $this->logfile_name != "") {
+				$append_log .= "\r\nLog contents:\r\n".file_get_contents($this->logfile_name);
+			}
+			wp_mail($sendmail_to,'Backed up: '.get_bloginfo('name').' (UpdraftPlus) '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus WordPress backup is complete.\r\n".$append_log);
 		}
+		
+		// Close log file
+		close($this->logfile_handle);
 	}
 	
 	function save_last_backup($backup_array) {
@@ -134,12 +168,15 @@ class UpdraftPlus {
 	function cloud_backup($backup_array) {
 		switch(get_option('updraft_service')) {
 			case 's3':
+				$this->log("Cloud backup: S3");
 				if (count($backup_array) >0) { $this->s3_backup($backup_array); }
 			break;
 			case 'ftp':
+				$this->log("Cloud backup: FTP");
 				if (count($backup_array) >0) { $this->ftp_backup($backup_array); }
 			break;
 			case 'email':
+				$this->log("Cloud backup: Email");
 				//files can easily get way too big for this...
 				foreach($backup_array as $type=>$file) {
 					$fullpath = trailingslashit(get_option('updraft_dir')).$file;
@@ -654,7 +691,7 @@ class UpdraftPlus {
 			case 'daily':
 			case 'weekly':
 			case 'monthly':
-				wp_schedule_event(time()+300, $interval, 'updraft_backup');
+				wp_schedule_event(time()+30, $interval, 'updraft_backup');
 			break;
 		}
 		return wp_filter_nohtml_kses($interval);
