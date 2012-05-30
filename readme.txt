@@ -46,6 +46,9 @@ Added a logging mechanism for easier development
 
 == Changelog ==
 
+= 0.7.8 - 05/30/2012 =
+* Tidied and improved retain behaviour
+
 = 0.7.7 - 05/29/2012 =
 * Implementation of a logging mechanism to allow easier debugging and development
 

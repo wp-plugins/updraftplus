@@ -2,20 +2,19 @@
 /*
 Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
-Description: UpdraftPlus - Backup/Restore is a plugin designed to back up your WordPress site.  Uploads, themes, plugins, and your DB can be backed up to Amazon S3, sent to an FTP server, or even emailed to you on a scheduled basis.
+Description: UpdraftPlus backs up your WordPress site.  Uploads, themes, plugins, and your DB can be backed up to Amazon S3, to an FTP server, or emailed to you on a scheduled basis.
 Author: David Anderson.
-Version: 0.7.7
+Version: 0.7.8
 Author URI: http://wordshell.net
 */ 
 
 //TODO:
-//Put DB and file backups onto separate schedules. If the option is set identically then do in one run, otherwise do separately.
+//Put DB and file backups onto separate schedules. If the option is set identically then do in one run (do during file run, do nothing during db run), otherwise do separately. Retain behaviour is already modified to allow this.
 //Add DropBox support
 //Add more logging
 //Struggles with large uploads - runs out of time before finishing. Break into chunks? Resume download on later run? (Add a new scheduled event to check on progress? Separate the upload from the creation?). Add in some logging (in a .php file that exists first).
 //More logging
 //improve error reporting.  s3 and dir backup have decent reporting now, but not sure i know what to do from here
-//better implementation of retain.  one that isn't dependent on being inside the cloud_backup method
 //list backups that aren't tracked (helps with double backup problem)
 //refactor db backup methods a bit.  give full credit to wp-db-backup
 //investigate $php_errormsg further
@@ -63,7 +62,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.7.7';
+	var $version = '0.7.8';
 
 	var $dbhandle;
 	var $errors = array();
@@ -77,7 +76,7 @@ class UpdraftPlus {
 		# Create admin page
 		add_action('admin_menu', array($this,'add_admin_pages'));
 		add_action('admin_init', array($this,'admin_init'));
-		add_action('updraft_backup', array($this,'backup'));
+		add_action('updraft_backup', array($this,'backup_all'));
 		add_action('wp_ajax_updraft_download_backup', array($this, 'updraft_download_backup'));
 		add_filter('cron_schedules', array($this,'modify_cron_schedules'));
 		add_filter('plugin_action_links', array($this, 'plugin_action_links'), 10, 2);
@@ -104,28 +103,39 @@ class UpdraftPlus {
 		}
 	}
 	
+	function backup_all() {
+		$this->backup(true,true);
+	}
+	
 	//scheduled wp-cron events can have a race condition here if page loads are coming fast enough, but there's nothing we can do about it.
-	function backup() {
+	function backup($backup_files, $backup_database) {
 		//generate backup information
 		$this->backup_time_nonce();
 		
-		//set log file name
+		//set log file name and open log file
 		$updraft_dir = $this->backups_dir_location();
 		$this->logfile_name =  $updraft_dir. "/log." . $this->nonce . ".txt";
-		
-		# Use append mode in case it already exists
+				// Use append mode in case it already exists
 		$this->logfile_handle = fopen($this->logfile_name, 'a');
-		// Some information that may be helpful
+
+		// Log some information that may be helpful
 		global $wp_version;
-		$this->log("PHP version: ".phpversion()." WordPress version: ".$wp_version);
+		$this->log("PHP version: ".phpversion()." WordPress version: ".$wp_version." Backup files: $backup_files Backup DB: $backup_database");
+
 		//backup directories and return a numerically indexed array of file paths to the backup files
-		$this->log("Beginning backup of directories");
-		$backup_array = $this->backup_dirs();
+		if ($backup_files) {
+			$this->log("Beginning backup of directories");
+			$backup_array = $this->backup_dirs();
+		}
+		
 		//backup DB and return string of file path
-		$this->log("Beginning backup of database");
-		$db_backup = $this->backup_db();
-		//add db path to rest of files
-		if(is_array($backup_array)) {	$backup_array['db'] = $db_backup; }
+		if ($backup_database) {
+			$this->log("Beginning backup of database");
+			$db_backup = $this->backup_db();
+			//add db path to rest of files
+			if(is_array($backup_array)) { $backup_array['db'] = $db_backup; }
+		}		
+
 		//save this to our history so we can track backups for the retain feature
 		$this->log("Saving backup history");
 		$this->save_backup_history($backup_array);
@@ -138,7 +148,6 @@ class UpdraftPlus {
 		}
 		//delete local files if the pref is set
 		foreach($backup_array as $file) {
-			$this->log("Deleting local file: $file");
 			$this->delete_local($file);
 		}
 		
@@ -189,23 +198,118 @@ class UpdraftPlus {
 				}
 				//we don't break here so it goes and executes all the default behavior below as well.  this gives us retain behavior for email
 			default:
-				/*retain behavior*/
-				$updraft_retain = get_option('updraft_retain');
-				$retain = (isset($updraft_retain))?get_option('updraft_retain'):1;
-				$backup_history = $this->get_backup_history();
-				while (count($backup_history) > $retain) {
-					$backup_to_delete = array_pop($backup_history);
-					foreach($backup_to_delete as $file) {
-						$fullpath = trailingslashit(get_option('updraft_dir')).$file;
-						@unlink($fullpath); //delete it if it's locally available
-					}
-				}
-				update_option('updraft_backup_history',$backup_history);
-				/*retain behavior*/
+				$this->prune_retained_backups("local");
 			break;
 		}
 	}
 
+	// Carries out retain behaviour. Pass in a valid S3 or FTP object and path if relevant.
+	function prune_retained_backups($updraft_service,$remote_object,$remote_path) {
+		$this->log("Retain: beginning examination of existing backup sets");
+		$updraft_retain = get_option('updraft_retain');
+		// Number of backups to retain
+		$retain = (isset($updraft_retain))?get_option('updraft_retain'):1;
+		$this->log("Retain: user setting: number to retain = $retain");
+		// Returns an array, most recent first, of backup sets
+		$backup_history = $this->get_backup_history();
+		$db_backups_found = 0; $file_backups_found = 0;
+		$this->log("Number of backup sets in history: ".count($backup_history));
+		foreach ($backup_history as $backup_datestamp => $backup_to_examine) {
+			// $backup_to_examine is an array of file names, keyed on db/plugins/themes/uploads
+			// The new backup_history array is saved afterwards, so remember to unset the ones that are to be deleted
+			$this->log("Examining backup set with datestamp: $backup_datestamp");
+			if (isset($backup_to_examine['db'])) {
+				$db_backups_found++;
+				$this->log("$backup_datestamp: this set includes a database (".$backup_to_examine['db']."); db count is now $db_backups_found");
+				if ($db_backups_found > $retain) {
+					$this->log("$backup_datestamp: over retain limit; will delete this database");
+					$file = $backup_to_examine['db'];
+					$this->log("$backup_datestamp: Delete this file: $file");
+					if ($file != '') {
+						$fullpath = trailingslashit(get_option('updraft_dir')).$file;
+						@unlink($fullpath); //delete it if it's locally available
+						if ($updraft_service == "s3") {
+							$this->log("$backup_datestamp: Delete remote: s3://$remote_path/$file");
+							if (!$remote_object->deleteObject($remote_path, $file)) {
+								$this->error("S3 Error: Failed to delete object $file. Error was ".$php_errormsg);
+							}
+						} elseif ($updraft_service = "ftp") {
+							$this->log("$backup_datestamp: Delete remote ftp: $remote_path/$file");
+							@$remote_object->delete($remote_path.$file);
+						}
+					}
+					unset($backup_to_examine['db']);
+				}
+			}
+			if (isset($backup_to_examine['plugins']) || isset($backup_to_examine['themes']) || isset($backup_to_examine['uploads'])) {
+				$file_backups_found++;
+				$this->log("$backup_datestamp: this set includes files; fileset count is now $file_backups_found");
+				if ($file_backups_found > $retain) {
+					$this->log("$backup_datestamp: over retain limit; will delete this file set");
+					$file = isset($backup_to_examine['plugins']) ? $backup_to_examine['plugins'] : "";
+					$file2 = isset($backup_to_examine['themes']) ? $backup_to_examine['themes'] : "";
+					$file3 = isset($backup_to_examine['uploads']) ? $backup_to_examine['uploads'] : "";
+					if ($file) {
+						$this->log("$backup_datestamp: Delete this file: $file");
+						$fullpath = trailingslashit(get_option('updraft_dir')).$file;
+						@unlink($fullpath); //delete it if it's locally available
+						if ($updraft_service == "s3") {
+							$this->log("$backup_datestamp: Delete remote: s3://$remote_path/$file");
+							if (!$remote_object->deleteObject($bucket_name, $file)) {
+								$this->error("S3 Error: Failed to delete object $file. Error was ".$php_errormsg);
+							}
+						} elseif ($updraft_service == "ftp") {
+							$this->log("$backup_datestamp: Delete remote ftp: $remote_path/$file");
+							@$remote_object->delete($remote_path.$file);
+						}
+					}
+					if ($file2) {
+						$this->log("$backup_datestamp: Delete this file: $file2");
+						$fullpath = trailingslashit(get_option('updraft_dir')).$file2;
+						@unlink($fullpath); //delete it if it's locally available
+						if ($updraft_service == "s3") {
+							$this->log("$backup_datestamp: Delete remote: s3://$remote_path/$file2");
+							if (!$remote_object->deleteObject($bucket_name, $file2)) {
+								$this->error("S3 Error: Failed to delete object $file2. Error was ".$php_errormsg);
+							}
+						} elseif ($updraft_service == "ftp") {
+							$this->log("$backup_datestamp: Delete remote ftp: $remote_path/$file2");
+							@$remote_object->delete($remote_path.$file2);
+						}
+
+					}
+					if ($file3) {
+						$this->log("$backup_datestamp: Delete this file: $file3");
+						$fullpath = trailingslashit(get_option('updraft_dir')).$file3;
+						@unlink($fullpath); //delete it if it's locally available
+						if ($updraft_service == "s3") {
+							$this->log("$backup_datestamp: Delete remote: s3://$remote_path/$file3");
+							if (!$remote_object->deleteObject($bucket_name, $file3)) {
+								$this->error("S3 Error: Failed to delete object $file3. Error was ".$php_errormsg);
+							}
+						} elseif ($updraft_service == "ftp") {
+							$this->log("$backup_datestamp: Delete remote ftp: $remote_path/$file3");
+							@$remote_object->delete($remote_path.$file3);
+						}
+					}
+					unset($backup_to_examine['plugins']);
+					unset($backup_to_examine['themes']);
+					unset($backup_to_examine['uploads']);
+				}
+			}
+			// Delete backup set completely if empty, o/w just remove DB
+			if (count($backup_to_examine)==0) {
+				$this->log("$backup_datestamp: this backup set is now empty; will remove from history");
+				unset($backup_history[$backup_datestamp]);
+			} else {
+				$this->log("$backup_datestamp: this backup set remains non-empty; will retain in history");
+				$backup_history[$backup_datestamp] = $backup_to_examine;
+			}
+		}
+		$this->log("Retain: saving new backup history (sets now: ".count($backup_history).") and finishing retain operation");
+		update_option('updraft_backup_history',$backup_history);
+	}
+	
 	function s3_backup($backup_array) {
 		if(!class_exists('S3')) {
 			require_once(dirname(__FILE__).'/includes/S3.php');
@@ -219,29 +323,10 @@ class UpdraftPlus {
 					$this->error("S3 Error: Failed to upload $fullpath. Error was ".$php_errormsg);
 				}
 			}
+			$this->prune_retained_backups('s3',$s3,$bucket_name);
 		} else {
 			$this->error("S3 Error: Failed to create bucket $bucket_name. Error was ".$php_errormsg);
 		}
-		/*retain behavior*/
-		$updraft_retain = get_option('updraft_retain');
-		$retain = (isset($updraft_retain))?get_option('updraft_retain'):1;
-		$backup_history = $this->get_backup_history();
-		while (count($backup_history) > $retain) {
-			$backup_to_delete = array_pop($backup_history);
-			foreach($backup_to_delete as $file) {
-				//if for some reason one of the backup files is an empty string let's skip it.
-				if($file == '') {
-					continue;
-				}
-				$fullpath = trailingslashit(get_option('updraft_dir')).$file;
-				@unlink($fullpath); //delete it if it's locally available
-				if (!$s3->deleteObject($bucket_name, $file)) {
-					$this->error("S3 Error: Failed to delete object $file. Error was ".$php_errormsg);
-				}
-			}
-		}
-		update_option('updraft_backup_history',$backup_history);
-		/*retain behavior*/
 	}
 	
 	function ftp_backup($backup_array) {
@@ -259,30 +344,13 @@ class UpdraftPlus {
 			$fullpath = trailingslashit(get_option('updraft_dir')).$file;
 			$ftp->put($fullpath,$ftp_remote_path.$file,FTP_BINARY);
 		}
-		
-		/*retain behavior*/
-		$updraft_retain = get_option('updraft_retain');
-		$retain = (isset($updraft_retain))?get_option('updraft_retain'):1;
-		$backup_history = $this->get_backup_history();
-		while (count($backup_history) > $retain) {
-			$backup_to_delete = array_pop($backup_history);
-			foreach($backup_to_delete as $file) {
-				//if for some reason one of the backup files is an empty string let's skip it.
-				if($file == '') {
-					continue;
-				}
-				$fullpath = trailingslashit(get_option('updraft_dir')).$file;
-				@unlink($fullpath); //delete it if it's locally available
-				@$ftp->delete($ftp_remote_path.$file);
-			}
-		}
-		update_option('updraft_backup_history',$backup_history);
-		/*retain behavior*/
+		$this->prune_retained_backups("ftp",$ftp,$ftp_remote_path);
 	}
 	
 	function delete_local($file) {
 		if(get_option('updraft_delete_local')) {
-			//need error checking so we don't delete what isn't successfully uploaded?
+			$this->log("Deleting local file: $file");
+		//need error checking so we don't delete what isn't successfully uploaded?
 			$fullpath = trailingslashit(get_option('updraft_dir')).$file;
 			return unlink($fullpath);
 		}
@@ -320,41 +388,49 @@ class UpdraftPlus {
 		# Plugins
 		@set_time_limit(900);
 		if (get_option('updraft_include_plugins', true)) {
+			$this->log("Beginning backup of plugins");
 			$plugins = new PclZip($backup_file_base.'-plugins.zip');
 			if (!$plugins->create($wp_plugins_dir,PCLZIP_OPT_REMOVE_PATH,WP_CONTENT_DIR)) {
 				$this->error('Could not create plugins zip. Error was '.$php_errmsg,'fatal');
 			}
 			$backup_array['plugins'] = basename($backup_file_base.'-plugins.zip');
+		} else {
+			$this->log("No backup of plugins: excluded by user's options");
 		}
-
+		
 		# Themes
 		@set_time_limit(900);
 		if (get_option('updraft_include_themes', true)) {
+			$this->log("Beginning backup of themes");
 			$themes = new PclZip($backup_file_base.'-themes.zip');
 			if (!$themes->create($wp_themes_dir,PCLZIP_OPT_REMOVE_PATH,WP_CONTENT_DIR)) {
 				$this->error('Could not create themes zip. Error was '.$php_errmsg,'fatal');
 			}
 			$backup_array['themes'] = basename($backup_file_base.'-themes.zip');
+		} else {
+			$this->log("No backup of themes: excluded by user's options");
 		}
 
 		# Uploads
 		@set_time_limit(900);
 		if (get_option('updraft_include_uploads', true)) {
+			$this->log("Beginning backup of uploads");
 			$uploads = new PclZip($backup_file_base.'-uploads.zip');
 			if (!$uploads->create($wp_upload_dir,PCLZIP_OPT_REMOVE_PATH,WP_CONTENT_DIR)) {
 				$this->error('Could not create uploads zip. Error was '.$php_errmsg,'fatal');
 			}
 			$backup_array['uploads'] = basename($backup_file_base.'-uploads.zip');
+		} else {
+			$this->log("No backup of uploads: excluded by user's options");
 		}
-
 		return $backup_array;
 	}
 
 	function save_backup_history($backup_array) {
 		//this stores full paths right now.  should probably concatenate with ABSPATH to make it easier to move sites
-		$backup_history = get_option('updraft_backup_history');
-		$backup_history = (!is_array($backup_history))?array():$backup_history;
 		if(is_array($backup_array)) {
+			$backup_history = get_option('updraft_backup_history');
+			$backup_history = (is_array($backup_history)) ? $backup_history : array();
 			$backup_history[$this->backup_time] = $backup_array;
 			update_option('updraft_backup_history',$backup_history);
 		} else {
@@ -409,7 +485,6 @@ class UpdraftPlus {
 			//$this->error(__('The backup directory is not writable!','wp-db-backup'));
 		}
 		
-
 		//Begin new backup of MySql
 		$this->stow("# " . __('WordPress MySQL database backup','wp-db-backup') . "\n");
 		$this->stow("#\n");
@@ -681,10 +756,6 @@ class UpdraftPlus {
 	} 
 
 	/*END OF WP-DB-BACKUP BLOCK */
-	/*END OF WP-DB-BACKUP BLOCK */
-	/*END OF WP-DB-BACKUP BLOCK */
-	/*END OF WP-DB-BACKUP BLOCK */
-	/*END OF WP-DB-BACKUP BLOCK */
 
 	/*
 	this function is both the backup scheduler and ostensibly a filter callback for saving the option.
@@ -879,7 +950,6 @@ class UpdraftPlus {
 		}
 		return true;
 	}
-
 
 	//deletes the -old directories that are created when a backup is restored.
 	function delete_old_dirs() {
@@ -1086,7 +1156,7 @@ ENDHERE;
 			wp_schedule_single_event(time()+3, 'updraft_backup');
 		}
 		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_all') {
-			$this->backup();
+			$this->backup(true,true);
 		}
 		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_db') {
 			$this->backup_db();
@@ -1322,7 +1392,7 @@ ENDHERE;
 					<td></td><td>By default only the most recent backup is retained. If you'd like to preserve more, specify the number here.</td>
 				</tr>
 				<tr>
-					<th>Encryption phrase:</th>
+					<th>Database encryption phrase:</th>
 					<?php
 					$updraft_encryptionphrase = get_option('updraft_encryptionphrase');
 					?>
@@ -1418,7 +1488,7 @@ ENDHERE;
 				</tr>
 				<tr class="deletelocal s3 ftp email" <?php echo $display_delete_local?>>
 					<th>Delete local backup:</th>
-					<td><input type="checkbox" name="updraft_delete_local" value="1" <?php echo $delete_local; ?> /> <br />Check this to delete the local backup file after it has been sent off the server.</td>
+					<td><input type="checkbox" name="updraft_delete_local" value="1" <?php echo $delete_local; ?> /> <br />Check this to delete the local backup file (only sensible if you have enabled a remote backup, otherwise you will have no backup remaining).</td>
 				</tr>
 				<tr>
 					<th>Debug mode:</th>
