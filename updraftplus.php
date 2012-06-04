@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, FTP server, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.7.13
+Version: 0.7.14
 Author URI: http://wordshell.net
 */ 
 
@@ -62,7 +62,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.7.13';
+	var $version = '0.7.14';
 
 	var $dbhandle;
 	var $errors = array();
@@ -1251,10 +1251,12 @@ ENDHERE;
 				<tr>
 					<?php
 					$next_scheduled_backup = wp_next_scheduled('updraft_backup');
-					if($next_scheduled_backup) {
-						$next_scheduled_backup = date('D, F j, Y H:i T',$next_scheduled_backup);
+					$next_scheduled_backup = ($next_scheduled_backup) ? date('D, F j, Y H:i T',$next_scheduled_backup) : 'No backups are scheduled at this time.';
+					$next_scheduled_backup_database = wp_next_scheduled('updraft_backup_database');
+					if (get_option('updraft_interval_database',get_option('updraft_interval')) == get_option('updraft_interval')) {
+						$next_scheduled_backup_database = "Will take place at the same time as the files backup.";
 					} else {
-						$next_scheduled_backup = 'No backups are scheduled at this time.';
+						$next_scheduled_backup_database = ($next_scheduled_backup_database) ? date('D, F j, Y H:i T',$next_scheduled_backup_database) : 'No backups are scheduled at this time.';
 					}
 					$current_time = date('D, F j, Y H:i T',time());
 					$updraft_last_backup = get_option('updraft_last_backup');
@@ -1284,8 +1286,12 @@ ENDHERE;
 					<td style="color:blue"><?php echo $current_time?></td>
 				</tr>
 				<tr>
-					<th>Next Scheduled Backup:</th>
+					<th>Next Scheduled Files Backup:</th>
 					<td style="color:blue"><?php echo $next_scheduled_backup?></td>
+				</tr>
+				<tr>
+					<th>Next Scheduled Files Database Backup:</th>
+					<td style="color:blue"><?php echo $next_scheduled_backup_database?></td>
 				</tr>
 				<tr>
 					<th>Last Backup:</th>
