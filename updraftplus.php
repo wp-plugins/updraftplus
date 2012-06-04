@@ -137,7 +137,7 @@ class UpdraftPlus {
 
 		# If the files and database schedules are the same, and if this the file one, then we rope in database too.
 		# On the other hand, if the schedules were the same and this was the database run, then there is nothing to do.
-		if (get_option('updraft_interval') == get_option('updraft_interval_database')) {
+		if (get_option('updraft_interval') == get_option('updraft_interval_database') || get_option('updraft_interval_database','xyz') == 'xyz' ) {
 			if ($backup_files == true)
 				{ $backup_database = true; }
 			else
@@ -1410,7 +1410,7 @@ ENDHERE;
 						$intervals = array ("manual", "daily", "weekly", "monthly");
 						foreach ($intervals as $ival) {
 							echo "<option value=\"$ival\" ";
-							if ($ival == get_option('updraft_interval_database','manual')) { echo 'selected="selected"';}
+							if ($ival == get_option('updraft_interval_database',get_option('updraft_interval'))) { echo 'selected="selected"';}
 							echo ">".ucfirst($ival)."</option>\n";
 						}
 						?>
