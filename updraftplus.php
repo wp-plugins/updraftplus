@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, FTP server, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.7.12
+Version: 0.7.13
 Author URI: http://wordshell.net
 */ 
 
@@ -62,7 +62,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.7.12';
+	var $version = '0.7.13';
 
 	var $dbhandle;
 	var $errors = array();
@@ -133,7 +133,7 @@ class UpdraftPlus {
 
 		// Log some information that may be helpful
 		global $wp_version;
-		$this->log("PHP version: ".phpversion()." WordPress version: ".$wp_version." Backup files: $backup_files Backup DB: $backup_database");
+		$this->log("PHP version: ".phpversion()." WordPress version: ".$wp_version." Backup files: $backup_files (schedule: ".get_option('updraft_interval','unset').") Backup DB: $backup_database (schedule: ".get_option('updraft_interval_database','unset').")");
 
 		# If the files and database schedules are the same, and if this the file one, then we rope in database too.
 		# On the other hand, if the schedules were the same and this was the database run, then there is nothing to do.
