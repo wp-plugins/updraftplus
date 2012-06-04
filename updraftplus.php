@@ -1443,7 +1443,7 @@ ENDHERE;
 					<td><input type="text" name="updraft_retain" value="<?php echo $retain ?>" style="width:50px" /></td>
 				</tr>
 				<tr class="backup-retain-description">
-					<td></td><td>By default only the most recent backup is retained. If you'd like to preserve more, specify the number here.</td>
+					<td></td><td>By default only the most recent backup is retained. If you'd like to preserve more, specify the number here. (This many of <strong>both</strong> files and database backups will be retained.)</td>
 				</tr>
 				<tr>
 					<th>Database encryption phrase:</th>
