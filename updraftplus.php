@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, FTP server, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.7.14
+Version: 0.7.16
 Author URI: http://wordshell.net
 */ 
 
@@ -62,7 +62,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.7.14';
+	var $version = '0.7.16';
 
 	var $dbhandle;
 	var $errors = array();
@@ -122,6 +122,7 @@ class UpdraftPlus {
 	
 	//scheduled wp-cron events can have a race condition here if page loads are coming fast enough, but there's nothing we can do about it.
 	function backup($backup_files, $backup_database) {
+
 		//generate backup information
 		$this->backup_time_nonce();
 		
@@ -487,6 +488,9 @@ class UpdraftPlus {
 	/*START OF WB-DB-BACKUP BLOCK*/
 
 	function backup_db() {
+
+		$total_tables = 0;
+
 		global $table_prefix, $wpdb;
 		if(!$this->backup_time) {
 			$this->backup_time_nonce();
@@ -534,6 +538,7 @@ class UpdraftPlus {
 		}
 
 		foreach ($all_tables as $table) {
+			$total_tables++;
 			// Increase script execution time-limit to 15 min for every table.
 			if ( !ini_get('safe_mode')) @set_time_limit(15*60);
 			if ( strpos($table, $table_prefix) == 0 ) {
@@ -587,6 +592,7 @@ class UpdraftPlus {
 				return basename($backup_file_base.'-db.gz');
 			}
 		}
+		$this->log("Total database tables backed up: $total_tables");
 		
 	} //wp_db_backup
 
@@ -602,6 +608,8 @@ class UpdraftPlus {
 	 */
 	function backup_table($table, $segment = 'none') {
 		global $wpdb;
+
+		$total_rows = 0;
 
 		$table_structure = $wpdb->get_results("DESCRIBE $table");
 		if (! $table_structure) {
@@ -686,6 +694,7 @@ class UpdraftPlus {
 				
 				if ( !ini_get('safe_mode')) @set_time_limit(15*60);
 				$table_data = $wpdb->get_results("SELECT * FROM $table $where LIMIT {$row_start}, {$row_inc}", ARRAY_A);
+				$table_rows++;
 				$entries = 'INSERT INTO ' . $this->backquote($table) . ' VALUES (';	
 				//    \x08\\x09, not required
 				$search = array("\x00", "\x0a", "\x0d", "\x1a");
@@ -718,6 +727,8 @@ class UpdraftPlus {
 			$this->stow("# --------------------------------------------------------\n");
 			$this->stow("\n");
 		}
+ 		$this->log("Table $TABLE: Total INSERT statements added: $total_rows");
+
 	} // end backup_table()
 
 
@@ -754,8 +765,6 @@ class UpdraftPlus {
 		}
 		return true;
 	}
-
-
 
 	/**
 	 * Add backquotes to tables and db-names in
@@ -1290,7 +1299,7 @@ ENDHERE;
 					<td style="color:blue"><?php echo $next_scheduled_backup?></td>
 				</tr>
 				<tr>
-					<th>Next Scheduled Files Database Backup:</th>
+					<th>Next Scheduled Database Backup:</th>
 					<td style="color:blue"><?php echo $next_scheduled_backup_database?></td>
 				</tr>
 				<tr>
