@@ -1,6 +1,6 @@
 === UpdraftPlus ===
 Contributors: David Anderson
-Tags: backup, restore, database, cloud, amazon, s3, ftp, cloud
+Tags: backup, restore, database, cloud, amazon, s3, ftp, cloud, updraft
 Requires at least: 3.2
 Tested up to: 3.3.2
 Stable tag: 0.7.7
@@ -8,7 +8,7 @@ License: GPLv2 or later
 
 == Description ==
 
-UpdraftPlus simplifies backups (and restoration) for your blog. Backup into the cloud (S3, FTP, and email) and restore with a single click. Backup 
+UpdraftPlus simplifies backups (and restoration) for your blog. Backup into the cloud (S3, FTP, and email) and restore with a single click. Backups of files and database can be upon separate schedules.
 
 == Installation ==
 
@@ -46,7 +46,7 @@ Added a logging mechanism for easier development
 
 == Changelog ==
 
-= 0.7.10 - 06/04/2012 =
+= 0.7.11 - 06/04/2012 =
 * New feature: backup files and database on separate schedules
 * Tidied and improved retain behaviour
 
