@@ -15,7 +15,6 @@ Author URI: http://wordshell.net
 //More logging
 //improve error reporting.  s3 and dir backup have decent reporting now, but not sure i know what to do from here
 //list backups that aren't tracked (helps with double backup problem)
-//refactor db backup methods a bit.  give full credit to wp-db-backup
 //investigate $php_errormsg further
 //pretty up return messages in admin area
 //check s3/ftp download
@@ -28,7 +27,6 @@ Are all directories in wp-content covered? No; only plugins, themes, content. We
 Add turn-off-foreign-key-checks stuff into mysql dump (does WP even use these?)
 Use only one entry in WP options database
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
-More verbose debug reports, send debug report in the email
 */
 
 /*  Portions copyright 2010 Paul Kehrer
