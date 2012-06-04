@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, FTP server, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.7.17
+Version: 0.7.18
 Author URI: http://wordshell.net
 */ 
 
@@ -61,7 +61,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.7.17';
+	var $version = '0.7.18';
 
 	var $dbhandle;
 	var $errors = array();
@@ -695,13 +695,13 @@ class UpdraftPlus {
 				
 				if ( !ini_get('safe_mode')) @set_time_limit(15*60);
 				$table_data = $wpdb->get_results("SELECT * FROM $table $where LIMIT {$row_start}, {$row_inc}", ARRAY_A);
-				$total_rows++;
 				$entries = 'INSERT INTO ' . $this->backquote($table) . ' VALUES (';	
 				//    \x08\\x09, not required
 				$search = array("\x00", "\x0a", "\x0d", "\x1a");
 				$replace = array('\0', '\n', '\r', '\Z');
 				if($table_data) {
 					foreach ($table_data as $row) {
+						$total_rows++;
 						$values = array();
 						foreach ($row as $key => $value) {
 							if ($ints[strtolower($key)]) {
@@ -728,7 +728,7 @@ class UpdraftPlus {
 			$this->stow("# --------------------------------------------------------\n");
 			$this->stow("\n");
 		}
- 		$this->log("Table $table: Total INSERT statements added: $total_rows");
+ 		$this->log("Table $table: Total rows added: $total_rows");
 
 	} // end backup_table()
 
@@ -1300,7 +1300,7 @@ ENDHERE;
 					<td style="color:blue"><?php echo $next_scheduled_backup?></td>
 				</tr>
 				<tr>
-					<th>Next Scheduled Database Backup:</th>
+					<th>Next Scheduled DB Backup:</th>
 					<td style="color:blue"><?php echo $next_scheduled_backup_database?></td>
 				</tr>
 				<tr>
@@ -1446,12 +1446,12 @@ ENDHERE;
 					$include_uploads = (get_option('updraft_include_uploads',true)) ? 'checked="checked"' : "";
 				?>
 				<tr>
-					<th>Include in Backup:</th>
+					<th>Include in Files Backup:</th>
 					<td>
 					<input type="checkbox" name="updraft_include_plugins" value="1" <?php echo $include_plugins; ?> /> Plugins<br />
 					<input type="checkbox" name="updraft_include_themes" value="1" <?php echo $include_themes; ?> /> Themes<br />
 					<input type="checkbox" name="updraft_include_uploads" value="1" <?php echo $include_uploads; ?> /> Uploads<br />
-					Include all of these, unless you are backing them up separately. Note that presently UpdraftPlus backs up these directories only - which is usually everything (except for WordPress core itself which you can download afresh from WordPress.org). But if you have made customised modifications outside of these directories, you need to back them up another way. The database is always included.<br />(<a href="http://wordshell.net">Use WordShell</a> for automatic backup, version control and patching).<br /></td>
+					Include all of these, unless you are backing them up separately. Note that presently UpdraftPlus backs up these directories only - which is usually everything (except for WordPress core itself which you can download afresh from WordPress.org). But if you have made customised modifications outside of these directories, you need to back them up another way.<br />(<a href="http://wordshell.net">Use WordShell</a> for automatic backup, version control and patching).<br /></td>
 					</td>
 				</tr>
 				<tr>

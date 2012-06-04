@@ -46,7 +46,7 @@ Added a logging mechanism for easier development
 
 == Changelog ==
 
-= 0.7.17 - 06/04/2012 =
+= 0.7.18 - 06/04/2012 =
 * New feature: backup files and database on separate schedules
 * Tidied and improved retain behaviour
 
