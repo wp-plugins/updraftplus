@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, FTP server, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.7.11
+Version: 0.7.12
 Author URI: http://wordshell.net
 */ 
 
@@ -62,7 +62,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.7.11';
+	var $version = '0.7.12';
 
 	var $dbhandle;
 	var $errors = array();
@@ -149,10 +149,13 @@ class UpdraftPlus {
 		# Possibly now nothing is to be done, except to close the log file
 		if ($backup_files || $backup_database) {
 
+			$backup_contains = "";
+
 			//backup directories and return a numerically indexed array of file paths to the backup files
 			if ($backup_files) {
 				$this->log("Beginning backup of directories");
 				$backup_array = $this->backup_dirs();
+				$backup_contains = "Files only (no database)";
 			}
 			
 			//backup DB and return string of file path
@@ -161,7 +164,8 @@ class UpdraftPlus {
 				$db_backup = $this->backup_db();
 				//add db path to rest of files
 				if(is_array($backup_array)) { $backup_array['db'] = $db_backup; }
-			}		
+				$backup_contains = ($backup_files) ? "Files and database" : "Database only (no files)";
+			}
 
 			//save this to our history so we can track backups for the retain feature
 			$this->log("Saving backup history");
@@ -189,7 +193,7 @@ class UpdraftPlus {
 				if(get_option('updraft_debug_mode') && $this->logfile_name != "") {
 					$append_log .= "\r\nLog contents:\r\n".file_get_contents($this->logfile_name);
 				}
-				wp_mail($sendmail_to,'Backed up: '.get_bloginfo('name').' (UpdraftPlus) '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus WordPress backup is complete.\r\n\r\n".$this->wordshell_random_advert(0)."\r\n".$append_log);
+				wp_mail($sendmail_to,'Backed up: '.get_bloginfo('name').' (UpdraftPlus) '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus WordPress backup is complete.\r\nBackup contained:\r\n\r\n".$this->wordshell_random_advert(0)."\r\n".$append_log);
 			}
 		}
 		
