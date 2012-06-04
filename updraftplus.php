@@ -4,12 +4,11 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, FTP server, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.7.16
+Version: 0.7.17
 Author URI: http://wordshell.net
 */ 
 
 //TODO:
-//Put DB and file backups onto separate schedules. If the option is set identically then do in one run (do during file run, do nothing during db run), otherwise do separately. Retain behaviour is already modified to allow this.
 //Add DropBox support
 //Add more logging
 //Struggles with large uploads - runs out of time before finishing. Break into chunks? Resume download on later run? (Add a new scheduled event to check on progress? Separate the upload from the creation?). Add in some logging (in a .php file that exists first).
@@ -62,7 +61,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.7.16';
+	var $version = '0.7.17';
 
 	var $dbhandle;
 	var $errors = array();
@@ -129,7 +128,7 @@ class UpdraftPlus {
 		//set log file name and open log file
 		$updraft_dir = $this->backups_dir_location();
 		$this->logfile_name =  $updraft_dir. "/log." . $this->nonce . ".txt";
-				// Use append mode in case it already exists
+		// Use append mode in case it already exists
 		$this->logfile_handle = fopen($this->logfile_name, 'a');
 
 		// Log some information that may be helpful
@@ -151,6 +150,8 @@ class UpdraftPlus {
 		if ($backup_files || $backup_database) {
 
 			$backup_contains = "";
+
+			$backup_array = array();
 
 			//backup directories and return a numerically indexed array of file paths to the backup files
 			if ($backup_files) {
@@ -194,7 +195,7 @@ class UpdraftPlus {
 				if(get_option('updraft_debug_mode') && $this->logfile_name != "") {
 					$append_log .= "\r\nLog contents:\r\n".file_get_contents($this->logfile_name);
 				}
-				wp_mail($sendmail_to,'Backed up: '.get_bloginfo('name').' (UpdraftPlus) '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus WordPress backup is complete.\r\nBackup contained:\r\n\r\n".$this->wordshell_random_advert(0)."\r\n".$append_log);
+				wp_mail($sendmail_to,'Backed up: '.get_bloginfo('name').' (UpdraftPlus) '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus WordPress backup is complete.\r\nBackup contains: $backup_contains\r\n\r\n".$this->wordshell_random_advert(0)."\r\n".$append_log);
 			}
 		}
 		
@@ -694,7 +695,7 @@ class UpdraftPlus {
 				
 				if ( !ini_get('safe_mode')) @set_time_limit(15*60);
 				$table_data = $wpdb->get_results("SELECT * FROM $table $where LIMIT {$row_start}, {$row_inc}", ARRAY_A);
-				$table_rows++;
+				$total_rows++;
 				$entries = 'INSERT INTO ' . $this->backquote($table) . ' VALUES (';	
 				//    \x08\\x09, not required
 				$search = array("\x00", "\x0a", "\x0d", "\x1a");
@@ -727,7 +728,7 @@ class UpdraftPlus {
 			$this->stow("# --------------------------------------------------------\n");
 			$this->stow("\n");
 		}
- 		$this->log("Table $TABLE: Total INSERT statements added: $total_rows");
+ 		$this->log("Table $table: Total INSERT statements added: $total_rows");
 
 	} // end backup_table()
 
