@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup tool: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, FTP server, or emailed.
 Author: David Anderson.
-Version: 0.7.9
+Version: 0.7.10
 Author URI: http://wordshell.net
 */ 
 
@@ -62,7 +62,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.7.9';
+	var $version = '0.7.10';
 
 	var $dbhandle;
 	var $errors = array();
