@@ -8,7 +8,7 @@ License: GPLv2 or later
 
 == Description ==
 
-UpdraftPlus simplifies backups (and restoration) for your blog. Backup into the cloud (S3, FTP, and email) and restore with a single click.
+UpdraftPlus simplifies backups (and restoration) for your blog. Backup into the cloud (S3, FTP, and email) and restore with a single click. Backup 
 
 == Installation ==
 
@@ -46,7 +46,8 @@ Added a logging mechanism for easier development
 
 == Changelog ==
 
-= 0.7.8 - 05/30/2012 =
+= 0.7.9 - 06/04/2012 =
+* New feature: backup files and database on separate schedules
 * Tidied and improved retain behaviour
 
 = 0.7.7 - 05/29/2012 =
@@ -59,7 +60,7 @@ Added a logging mechanism for easier development
 * Added ability to decrypt encrypted database backups
 * Added ability to opt out of backing up each file group
 * Now adds database character set, the lack of which before made database backups unusable without modifications
-* Version number bump to make sure that this is an improvement on the original Updraft, and is now tried and tested
+* Version number bump to make clear that this is an improvement on the original Updraft, and is now tried and tested
 
 = 0.1.3 - 01/16/2012 =
 * Force backup of all tables found in database (vanilla Updraft only backed up WP core tables)

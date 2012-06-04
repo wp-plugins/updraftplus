@@ -2,9 +2,9 @@
 /*
 Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
-Description: UpdraftPlus backs up your WordPress site.  Uploads, themes, plugins, and your DB can be backed up to Amazon S3, to an FTP server, or emailed to you on a scheduled basis.
+Description: Backup tool: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, FTP server, or emailed.
 Author: David Anderson.
-Version: 0.7.8
+Version: 0.7.9
 Author URI: http://wordshell.net
 */ 
 
@@ -62,7 +62,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.7.8';
+	var $version = '0.7.9';
 
 	var $dbhandle;
 	var $errors = array();
@@ -76,7 +76,10 @@ class UpdraftPlus {
 		# Create admin page
 		add_action('admin_menu', array($this,'add_admin_pages'));
 		add_action('admin_init', array($this,'admin_init'));
-		add_action('updraft_backup', array($this,'backup_all'));
+		add_action('updraft_backup', array($this,'backup_files'));
+		add_action('updraft_backup_database', array($this,'backup_database'));
+		# backup_all is used by the manual "Backup Now" button
+		add_action('updraft_backup_all', array($this,'backup_all'));
 		add_action('wp_ajax_updraft_download_backup', array($this, 'updraft_download_backup'));
 		add_filter('cron_schedules', array($this,'modify_cron_schedules'));
 		add_filter('plugin_action_links', array($this, 'plugin_action_links'), 10, 2);
@@ -107,6 +110,16 @@ class UpdraftPlus {
 		$this->backup(true,true);
 	}
 	
+	function backup_files() {
+		# Note that the "false" for database gets over-ridden automatically if they turn out to have the same schedules
+		$this->backup(true,false);
+	}
+	
+	function backup_database() {
+		# Note that nothing will happen if the file backup had the same schedule
+		$this->backup(false,true);
+	}
+	
 	//scheduled wp-cron events can have a race condition here if page loads are coming fast enough, but there's nothing we can do about it.
 	function backup($backup_files, $backup_database) {
 		//generate backup information
@@ -122,47 +135,62 @@ class UpdraftPlus {
 		global $wp_version;
 		$this->log("PHP version: ".phpversion()." WordPress version: ".$wp_version." Backup files: $backup_files Backup DB: $backup_database");
 
-		//backup directories and return a numerically indexed array of file paths to the backup files
-		if ($backup_files) {
-			$this->log("Beginning backup of directories");
-			$backup_array = $this->backup_dirs();
+		# If the files and database schedules are the same, and if this the file one, then we rope in database too.
+		# On the other hand, if the schedules were the same and this was the database run, then there is nothing to do.
+		if (get_option('updraft_interval') == get_option('updraft_interval_database')) {
+			if ($backup_files == true)
+				{ $backup_database = true; }
+			else
+				{ $backup_database = false; }
 		}
-		
-		//backup DB and return string of file path
-		if ($backup_database) {
-			$this->log("Beginning backup of database");
-			$db_backup = $this->backup_db();
-			//add db path to rest of files
-			if(is_array($backup_array)) { $backup_array['db'] = $db_backup; }
-		}		
 
-		//save this to our history so we can track backups for the retain feature
-		$this->log("Saving backup history");
-		$this->save_backup_history($backup_array);
+		$this->log("Processed schedules. Tasks now: Backup files: $backup_files Backup DB: $backup_database");
 
-		//cloud operations (S3,FTP,email,nothing)
-		//this also calls the retain feature at the end (done in this method to reuse existing cloud connections)
-		if(is_array($backup_array) && count($backup_array) >0) {
-			$this->log("Beginning dispatch of backup to remote");
-			$this->cloud_backup($backup_array);
-		}
-		//delete local files if the pref is set
-		foreach($backup_array as $file) {
-			$this->delete_local($file);
-		}
-		
-		//save the last backup info, including errors, if any
-		$this->log("Saving last backup information into WordPress db");
-		$this->save_last_backup($backup_array);
-		
-		if(get_option('updraft_email') != "" && get_option('updraft_service') != 'email') {
-			$sendmail_to = get_option('updraft_email');
-			$this->log("Sending email report to: ".$sendmail_to);
-			$append_log = "";
-			if(get_option('updraft_debug_mode') && $this->logfile_name != "") {
-				$append_log .= "\r\nLog contents:\r\n".file_get_contents($this->logfile_name);
+		# Possibly now nothing is to be done, except to close the log file
+		if ($backup_files || $backup_database) {
+
+			//backup directories and return a numerically indexed array of file paths to the backup files
+			if ($backup_files) {
+				$this->log("Beginning backup of directories");
+				$backup_array = $this->backup_dirs();
 			}
-			wp_mail($sendmail_to,'Backed up: '.get_bloginfo('name').' (UpdraftPlus) '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus WordPress backup is complete.\r\n\r\n".$this->wordshell_random_advert(0)."\r\n".$append_log);
+			
+			//backup DB and return string of file path
+			if ($backup_database) {
+				$this->log("Beginning backup of database");
+				$db_backup = $this->backup_db();
+				//add db path to rest of files
+				if(is_array($backup_array)) { $backup_array['db'] = $db_backup; }
+			}		
+
+			//save this to our history so we can track backups for the retain feature
+			$this->log("Saving backup history");
+			$this->save_backup_history($backup_array);
+
+			//cloud operations (S3,FTP,email,nothing)
+			//this also calls the retain feature at the end (done in this method to reuse existing cloud connections)
+			if(is_array($backup_array) && count($backup_array) >0) {
+				$this->log("Beginning dispatch of backup to remote");
+				$this->cloud_backup($backup_array);
+			}
+			//delete local files if the pref is set
+			foreach($backup_array as $file) {
+				$this->delete_local($file);
+			}
+			
+			//save the last backup info, including errors, if any
+			$this->log("Saving last backup information into WordPress db");
+			$this->save_last_backup($backup_array);
+			
+			if(get_option('updraft_email') != "" && get_option('updraft_service') != 'email') {
+				$sendmail_to = get_option('updraft_email');
+				$this->log("Sending email report to: ".$sendmail_to);
+				$append_log = "";
+				if(get_option('updraft_debug_mode') && $this->logfile_name != "") {
+					$append_log .= "\r\nLog contents:\r\n".file_get_contents($this->logfile_name);
+				}
+				wp_mail($sendmail_to,'Backed up: '.get_bloginfo('name').' (UpdraftPlus) '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus WordPress backup is complete.\r\n\r\n".$this->wordshell_random_advert(0)."\r\n".$append_log);
+			}
 		}
 		
 		// Close log file
@@ -776,6 +804,19 @@ class UpdraftPlus {
 		return wp_filter_nohtml_kses($interval);
 	}
 
+	function schedule_backup_database($interval) {
+		//clear schedule and add new so we don't stack up scheduled backups
+		wp_clear_scheduled_hook('updraft_backup_database');
+		switch($interval) {
+			case 'daily':
+			case 'weekly':
+			case 'monthly':
+				wp_schedule_event(time()+30, $interval, 'updraft_backup_database');
+			break;
+		}
+		return wp_filter_nohtml_kses($interval);
+	}
+
 	//wp-cron only has hourly, daily and twicedaily, so we need to add weekly and monthly. 
 	function modify_cron_schedules($schedules) {
 		$schedules['weekly'] = array(
@@ -1052,6 +1093,7 @@ class UpdraftPlus {
 		}
 		wp_enqueue_script('jquery');
 		register_setting( 'updraft-options-group', 'updraft_interval', array($this,'schedule_backup') );
+		register_setting( 'updraft-options-group', 'updraft_interval_database', array($this,'schedule_backup_database') );
 		register_setting( 'updraft-options-group', 'updraft_retain', array($this,'retain_range') );
 		register_setting( 'updraft-options-group', 'updraft_encryptionphrase', 'wp_filter_nohtml_kses' );
 		register_setting( 'updraft-options-group', 'updraft_service', 'wp_filter_nohtml_kses' );
@@ -1070,6 +1112,7 @@ class UpdraftPlus {
 		register_setting( 'updraft-options-group', 'updraft_include_themes', 'absint' );
 		register_setting( 'updraft-options-group', 'updraft_include_uploads', 'absint' );
 	
+		/* I see no need for this check; people can only download backups/logs if they can guess a nonce formed from a random number and if .htaccess files have no effect. The database will be encrypted. Very unlikely.
 		if (current_user_can('manage_options')) {
 			$updraft_dir = $this->backups_dir_location();
 			if(strpos($updraft_dir,WP_CONTENT_DIR) !== false) {
@@ -1083,12 +1126,10 @@ class UpdraftPlus {
 						add_action('admin_notices', array($this,'show_admin_warning_accessible') );
 					}
 				}
-				if (isset($dir_protection_info)) {
-				}
 			}
 		}
+		*/
 	}
-	
 
 	function add_admin_pages() {
 		add_submenu_page('options-general.php', "UpdraftPlus", "UpdraftPlus", "manage_options", "updraft-backuprestore.php",
@@ -1153,7 +1194,7 @@ ENDHERE;
 		}
 		
 		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup') {
-			wp_schedule_single_event(time()+3, 'updraft_backup');
+			wp_schedule_single_event(time()+3, 'updraft_backup_all');
 		}
 		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_all') {
 			$this->backup(true,true);
@@ -1350,20 +1391,33 @@ ENDHERE;
 					<td></td><td><?php echo $dir_info ?> This is where Updraft Backup/Restore will write the zip files it creates initially.  This directory must be writable by your web server.  Typically you'll want to have it inside your wp-content folder (this is the default).  <b>Do not</b> place it inside your uploads dir, as that will cause recursion issues (backups of backups of backups of...).</td>
 				</tr>
 				<tr>
-					<th>Backup Intervals:</th>
+					<th>File Backup Intervals:</th>
 					<td><select name="updraft_interval">
 						<?php
 						$intervals = array ("manual", "daily", "weekly", "monthly");
 						foreach ($intervals as $ival) {
 							echo "<option value=\"$ival\" ";
-							if ($ival == get_option('updraft_interval')) { echo 'selected="selected"';}
+							if ($ival == get_option('updraft_interval','manual')) { echo 'selected="selected"';}
+							echo ">".ucfirst($ival)."</option>\n";
+						}
+						?>
+						</select></td>
+				</tr>
+				<tr>
+					<th>Database Backup Intervals:</th>
+					<td><select name="updraft_interval_database">
+						<?php
+						$intervals = array ("manual", "daily", "weekly", "monthly");
+						foreach ($intervals as $ival) {
+							echo "<option value=\"$ival\" ";
+							if ($ival == get_option('updraft_interval_database','manual')) { echo 'selected="selected"';}
 							echo ">".ucfirst($ival)."</option>\n";
 						}
 						?>
 						</select></td>
 				</tr>
 				<tr class="backup-interval-description">
-					<td></td><td>If you would like to automatically schedule backups, choose a schedule from the dropdown above. Backups will occur at the interval specified starting five minutes after the current time.  If you choose manual you must click the &quot;Backup Now!&quot; button to cause a backup to occur.</td>
+					<td></td><td>If you would like to automatically schedule backups, choose a schedule from the dropdown above. Backups will occur at the interval specified starting just after the current time.  If you choose manual you must click the &quot;Backup Now!&quot; button whenever you wish a backup to occur.</td>
 				</tr>
 				<?php
 					# The true (default value if non-existent) here has the effect of forcing a default of on.
