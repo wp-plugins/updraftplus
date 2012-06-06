@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.8.12
+Version: 0.8.13
 Donate link: http://david.dw-perspective.org.uk/donate
 Author URI: http://wordshell.net
 */ 
@@ -55,7 +55,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.8.12';
+	var $version = '0.8.13';
 
 	var $dbhandle;
 	var $errors = array();
@@ -386,6 +386,9 @@ class UpdraftPlus {
 				)
 			);
 			$result = @file_get_contents('https://accounts.google.com/o/oauth2/token', false, stream_context_create($context));
+			# Oddly, sometimes fails and then trying again works...
+			if (!$result) { sleep(1); $result = @file_get_contents('https://accounts.google.com/o/oauth2/token', false, stream_context_create($context));}
+			if (!$result) { sleep(1); $result = @file_get_contents('https://accounts.google.com/o/oauth2/token', false, stream_context_create($context));}
 			if($result) {
 				$result = json_decode( $result, true );
 				if ( isset( $result['refresh_token'] ) ) {
@@ -393,12 +396,14 @@ class UpdraftPlus {
 					header('Location: '.admin_url('options-general.php?page=updraftplus&message=' . __( 'Authorization was successful.', 'updraftplus' ) ) );
 				}
 				else {
-					header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'No refresh token was received!', 'updraftplus' ) ) );
+				echo "<!--custard-->\n";
+				print_r(result);
+					#header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'No refresh token was received!', 'updraftplus' ) ) );
 				}
 			} else {
-echo "<!--custard-->\n";
-				print_r($context);
-				//header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'Bad response!', 'backup' ) ) );
+				//echo "<!--custard-->\n";
+				//print_r($context);
+				header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'Bad response!', 'backup' ) ) );
 			}
 		}
 		else {
@@ -1577,6 +1582,10 @@ ENDHERE;
 			return;
 		}
 		
+		if(isset($_GET['error'])) {
+			echo "<p><strong>ERROR:</strong> ".htmlspecialchars($_GET['error'])."</p>";
+		}
+
 		if(isset($_GET['action']) && $_GET['action'] == 'updraft_create_backup_dir') {
 			if(!$this->create_backup_dir()) {
 				echo '<p>Backup directory could not be created...</p><br/>';
