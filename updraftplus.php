@@ -1941,7 +1941,7 @@ ENDHERE;
 				</tr>
 				<tr class="googledrive" <?php echo $googledrive_display?>>
 					<th>Authenticate with Google:</th>
-					<td><a href="?page=updraftplus&action=auth&updraftplus_googleauth=doit"><strong>After</strong> you have saved your settings, then come back here once and click this link to complete authentication with Google</a></td>
+					<td><a href="?page=updraftplus&action=auth&updraftplus_googleauth=doit"><strong>After</strong> you have saved your settings (by clicking &quot;Save Chanegs&quot; below), then come back here once and click this link to complete authentication with Google</a></td>
 				</tr>
 				<tr class="googledrive" <?php echo $googledrive_display?>>
 				<th></th>
