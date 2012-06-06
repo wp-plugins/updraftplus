@@ -4,12 +4,14 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, FTP server, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.7.18
+Version: 0.7.19
+Donate link: http://david.dw-perspective.org.uk/donate
 Author URI: http://wordshell.net
 */ 
 
 //TODO:
 //Add DropBox support
+//GDrive support: https://developers.google.com/drive/examples/php
 //Add more logging
 //Struggles with large uploads - runs out of time before finishing. Break into chunks? Resume download on later run? (Add a new scheduled event to check on progress? Separate the upload from the creation?). Add in some logging (in a .php file that exists first).
 //More logging
@@ -18,9 +20,6 @@ Author URI: http://wordshell.net
 //investigate $php_errormsg further
 //pretty up return messages in admin area
 //check s3/ftp download
-//allow upload of backup files too. (specify 1-4 files to restore)
-//Add back donate link in readme.txt header. Donate link: URL
-//user permissions for WP users if ( function_exists('is_site_admin') && ! is_site_admin() ) around backups?
 
 /* More TODO:
 Are all directories in wp-content covered? No; only plugins, themes, content. We should check for others and allow the user the chance to choose which ones he wants
@@ -59,7 +58,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.7.18';
+	var $version = '0.7.19';
 
 	var $dbhandle;
 	var $errors = array();
@@ -85,7 +84,9 @@ class UpdraftPlus {
 	# Adds the settings link under the plugin on the plugin screen.
 	function plugin_action_links($links, $file) {
 		if ($file == plugin_basename(__FILE__)){
-			$settings_link = '<a href="'.site_url().'/wp-admin/options-general.php?page=updraft-backuprestore.php">'.__("Settings", "wp-updates-notifier").'</a>';
+			$settings_link = '<a href="'.site_url().'/wp-admin/options-general.php?page=updraft-backuprestore.php">'.__("Settings", "UpdraftPlus").'</a>';
+			array_unshift($links, $settings_link);
+			$settings_link = '<a href="http://david.dw-perspective.org.uk/donate">'.__("Donate","UpdraftPlus").'</a>';
 			array_unshift($links, $settings_link);
 		}
 		return $links;
@@ -1220,7 +1221,7 @@ ENDHERE;
 			<h2>UpdraftPlus - Backup/Restore</h2>
 
 			Version: <b><?php echo $this->version; ?></b><br />
-			Maintained by <b>David Anderson</b> (<a href="http://david.dw-perspective.org.uk">Homepage</a> | <a href="http://wordshell.net">WordShell - WordPress command line</a> )
+			Maintained by <b>David Anderson</b> (<a href="http://david.dw-perspective.org.uk">Homepage</a> | <a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate">Donate</a>)
 			<br />
 			Based on Updraft by <b>Paul Kehrer</b> (<a href="http://langui.sh" target="_blank">Blog</a> | <a href="http://twitter.com/reaperhulk" target="_blank">Twitter</a> )
 			<br />

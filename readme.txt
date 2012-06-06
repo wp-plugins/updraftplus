@@ -4,6 +4,7 @@ Tags: backup, restore, database, cloud, amazon, s3, ftp, cloud, updraft
 Requires at least: 3.2
 Tested up to: 3.3.2
 Stable tag: 0.7.7
+Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv2 or later
 
 == Description ==
@@ -46,7 +47,7 @@ Added a logging mechanism for easier development
 
 == Changelog ==
 
-= 0.7.18 - 06/04/2012 =
+= 0.7.19 - 06/06/2012 =
 * New feature: backup files and database on separate schedules
 * Tidied and improved retain behaviour
 
