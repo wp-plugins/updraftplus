@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.8.6
+Version: 0.8.7
 Donate link: http://david.dw-perspective.org.uk/donate
 Author URI: http://wordshell.net
 */ 
@@ -54,7 +54,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.8.6';
+	var $version = '0.8.7';
 
 	var $dbhandle;
 	var $errors = array();
@@ -84,10 +84,10 @@ class UpdraftPlus {
 			if ( isset( $_GET['state'] ) ) {
 				if ( $_GET['state'] == 'token' )
 					$this->auth_token();
-				else if ( $_GET['state'] == 'revoke' )
+				elseif ( $_GET['state'] == 'revoke' )
 					$this->auth_revoke();
 			}
-		} elseif (isset( $_GET['page'] ) && $_GET['page'] == 'updraftplus' && isset($_POST['updraft_googledrive_clientid']) && isset($_POST['updraft_googledrive_secret'])) {
+		} elseif (is_admin() && isset($_POST['updraft_googledrive_clientid']) && isset($_POST['updraft_googledrive_secret'])) {
 			$old_clientid = get_option('updraft_googledrive_clientid');
 			$old_secret = get_option('updraft_googledrive_secret');
 			if ($old_clientid != $_POST['updraft_googledrive_clientid'] || $old_secret != $_POST['updraft_googledrive_secret'] || isset($_POST['updraft_googledrive_reauth'])) {
