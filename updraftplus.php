@@ -1546,7 +1546,7 @@ class UpdraftPlus {
 			}
 		}
 		*/
-		if (current_user_can('manage_options') && get_option('updraft_googledrive_clientid') != "" && get_option('updraft_googledrive_tokenX','xyz') == 'xyz') {
+		if (current_user_can('manage_options') && get_option('updraft_googledrive_clientid') != "" && get_option('updraft_googledrive_token','xyz') == 'xyz') {
 			add_action('admin_notices', array($this,'show_admin_warning_googledrive') );
 		}
 	}
