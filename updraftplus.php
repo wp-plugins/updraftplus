@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.8.18
+Version: 0.8.19
 Donate link: http://david.dw-perspective.org.uk/donate
 Author URI: http://wordshell.net
 */ 
@@ -55,7 +55,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.8.18';
+	var $version = '0.8.19';
 
 	var $dbhandle;
 	var $errors = array();
@@ -616,10 +616,10 @@ class UpdraftPlus {
 							if (!$remote_object->deleteObject($remote_path, $file)) {
 								$this->error("S3 Error: Failed to delete object $file. Error was ".$php_errormsg);
 							}
-						} elseif ($updraft_service = "ftp") {
+						} elseif ($updraft_service == "ftp") {
 							$this->log("$backup_datestamp: Delete remote ftp: $remote_path/$file");
 							@$remote_object->delete($remote_path.$file);
-						} elseif ($updraft_service = "googledrive") {
+						} elseif ($updraft_service == "googledrive") {
 							$this->log("$backup_datestamp: Delete remote file from Google Drive: $remote_path/$file");
 							$this->googledrive_delete_file($remote_path.'/'.$file,$remote_object);
 						}
@@ -647,7 +647,7 @@ class UpdraftPlus {
 						} elseif ($updraft_service == "ftp") {
 							$this->log("$backup_datestamp: Delete remote ftp: $remote_path/$file");
 							@$remote_object->delete($remote_path.$file);
-						} elseif ($updraft_service = "googledrive") {
+						} elseif ($updraft_service == "googledrive") {
 							$this->log("$backup_datestamp: Delete remote file from Google Drive: $remote_path/$file");
 							$this->googledrive_delete_file($remote_path.'/'.$file,$remote_object);
 						}
@@ -664,7 +664,7 @@ class UpdraftPlus {
 						} elseif ($updraft_service == "ftp") {
 							$this->log("$backup_datestamp: Delete remote ftp: $remote_path/$file2");
 							@$remote_object->delete($remote_path.$file2);
-						} elseif ($updraft_service = "googledrive") {
+						} elseif ($updraft_service == "googledrive") {
 							$this->log("$backup_datestamp: Delete remote file from Google Drive: $remote_path/$file");
 							$this->googledrive_delete_file($remote_path.'/'.$file,$remote_object);
 						}
@@ -682,7 +682,7 @@ class UpdraftPlus {
 						} elseif ($updraft_service == "ftp") {
 							$this->log("$backup_datestamp: Delete remote ftp: $remote_path/$file3");
 							@$remote_object->delete($remote_path.$file3);
-						} elseif ($updraft_service = "googledrive") {
+						} elseif ($updraft_service == "googledrive") {
 							$this->log("$backup_datestamp: Delete remote file from Google Drive: $remote_path/$file");
 							$this->googledrive_delete_file($remote_path.'/'.$file,$remote_object);
 						}
@@ -732,7 +732,7 @@ class UpdraftPlus {
 				$this->log("$file_name: Attempting to upload to Google Drive");
 				$timer_start = microtime( true );
 				if ( ! $id = $this->googledrive_upload_file( $file_path, $file_name, get_option('updraft_googledrive_remotepath'), $access ) ) {
-					$this->log('ERROR: $file_name: Failed to upload to Google Drive' );
+					$this->log("ERROR: $file_name: Failed to upload to Google Drive" );
 				} else {
 					$this->log('OK: Archive ' . $file_name . ' uploaded to Google Drive in ' . ( microtime( true ) - $timer_start ) . ' seconds' );
 				}
