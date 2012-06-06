@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.8.9
+Version: 0.8.11
 Donate link: http://david.dw-perspective.org.uk/donate
 Author URI: http://wordshell.net
 */ 
@@ -55,7 +55,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.8.9';
+	var $version = '0.8.11';
 
 	var $dbhandle;
 	var $errors = array();
@@ -114,6 +114,7 @@ class UpdraftPlus {
 	function access_token( $token, $client_id, $client_secret ) {
 		$context = array(
 			'http' => array(
+				'timeout'  => 30,
 				'method'  => 'POST',
 				'header'  => 'Content-type: application/x-www-form-urlencoded',
 				'content' => http_build_query( array(
@@ -317,19 +318,19 @@ class UpdraftPlus {
 			elseif ( strpos( $response, '201' ) ) {
 				$xml = simplexml_load_string( $result );
 				if ( $xml === false ) {
-					backup_log( 'ERROR', 'Could not create SimpleXMLElement from ' . $result, __FILE__, __LINE__ );
+					$this->log('ERROR: Could not create SimpleXMLElement from ' . $result, __FILE__, __LINE__ );
 					return false;
 				}
 				else
 					return $xml;
 			}
 			else {
-				backup_log( 'ERROR', 'Bad response: ' . $response, __FILE__, __LINE__ );
+				$this->log('ERROR: Bad response: ' . $response, __FILE__, __LINE__ );
 				return false;
 			}
 		}
 		else {
-			backup_log( 'ERROR', 'Received no response from ' . $location . ' while trying to upload bytes ' . $bytes );
+			$this->log('ERROR: Received no response from ' . $location . ' while trying to upload bytes ' . $bytes );
 			return false;
 		}
 	}
@@ -399,7 +400,7 @@ class UpdraftPlus {
 			}
 		}
 		else {
-			header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'Authrization failed!', 'backup' ) ) );
+			header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'Authorisation failed!', 'backup' ) ) );
 		}
 	}
 
@@ -1929,15 +1930,15 @@ ENDHERE;
 				<!-- Google Drive -->
 				<tr class="googledrive" <?php echo $googledrive_display?>>
 					<th>Google Drive Client ID:</th>
-					<td><input type="text" autocomplete="off" style="width:292px" name="updraft_googledrive_clientid" value="<?php echo get_option('updraft_googledrive_clientid') ?>" /></td>
+					<td><input type="text" autocomplete="off" style="width:332px" name="updraft_googledrive_clientid" value="<?php echo get_option('updraft_googledrive_clientid') ?>" /></td>
 				</tr>
 				<tr class="googledrive" <?php echo $googledrive_display?>>
 					<th>Google Drive Client Secret:</th>
-					<td><input type="password" autocomplete="off" style="width:292px" name="updraft_googledrive_secret" value="<?php echo get_option('updraft_googledrive_secret'); ?>" /></td>
+					<td><input type="password" autocomplete="off" style="width:332px" name="updraft_googledrive_secret" value="<?php echo get_option('updraft_googledrive_secret'); ?>" /></td>
 				</tr>
 				<tr class="googledrive" <?php echo $googledrive_display?>>
 					<th>Google Drive Folder ID:</th>
-					<td><input type="text" style="width:292px" name="updraft_googledrive_remotepath" value="<?php echo get_option('updraft_googledrive_remotepath'); ?>" /></td>
+					<td><input type="text" style="width:332px" name="updraft_googledrive_remotepath" value="<?php echo get_option('updraft_googledrive_remotepath'); ?>" /></td>
 				</tr>
 				<tr class="googledrive" <?php echo $googledrive_display?>>
 					<th>Authenticate with Google:</th>
