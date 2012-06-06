@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.8.22
+Version: 0.8.23
 Donate link: http://david.dw-perspective.org.uk/donate
 Author URI: http://wordshell.net
 */ 
@@ -55,7 +55,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.8.22';
+	var $version = '0.8.23';
 
 	var $dbhandle;
 	var $errors = array();
@@ -104,7 +104,7 @@ class UpdraftPlus {
 			'scope' => 'https://www.googleapis.com/auth/drive.file https://docs.google.com/feeds/ https://docs.googleusercontent.com/ https://spreadsheets.google.com/feeds/',
 			'state' => 'token',
 			'access_type' => 'offline',
-			'approval_prompt' => 'force'
+			'approval_prompt' => 'auto'
 		);
 		header('Location: https://accounts.google.com/o/oauth2/auth?'.http_build_query($params));
 	}
@@ -181,10 +181,11 @@ class UpdraftPlus {
 		);
 
 		$url = $this->get_resumable_create_media_link( $token, $parent );
-		if ( $url )
+		if ( $url ) {
 			$url .= '?convert=false'; // needed to upload a file
-		else {
-		$this->log('Could not retrieve resumable create media link.', __FILE__, __LINE__ );
+			$this->log("Google Drive: resumable create media link: ".$url);
+		} else {
+			$this->log('Could not retrieve resumable create media link.', __FILE__, __LINE__ );
 			return false;
 		}
 
@@ -196,23 +197,29 @@ class UpdraftPlus {
 				foreach ( $http_response_header as $header_line ) {
 					list( $key, $value ) = explode( ':', $header_line, 2 );
 					$response_header[trim( $key )] = trim( $value );
+					#$this->log("Google Drive: header: ".trim($key).": ".trim($value));
 				}
 				if ( isset( $response_header['Location'] ) ) {
 					$next_location = $response_header['Location'];
 					$pointer = 0;
-					$max_chunk_size = 524288;
+					# 1Mb
+					$max_chunk_size = 524288*2;
 					while ( $pointer < $size - 1 ) {
-						$this->log("$file: Google Drive upload: pointer=$pointer (size=$size)");
+						$this->log(basename($file).": Google Drive upload: pointer=$pointer (size=$size)");
 						$chunk = file_get_contents( $file, false, NULL, $pointer, $max_chunk_size );
 						$next_location = $this->upload_chunk( $next_location, $chunk, $pointer, $size, $token );
-						$pointer += strlen( $chunk );
 						if( $next_location === false ) {
+							$this->log("Google Drive Upload: next_location is false (pointer: $pointer; chunk length: ".strlen($chunk).")");
 							return false;
-						}	
+						}
+						$pointer += strlen( $chunk );
 						// if object it means we have our simpleXMLElement response
 						if ( is_object( $next_location ) ) {
 							// return resource Id
-							return substr( $next_location->children( "http://schemas.google.com/g/2005" )->resourceId, 5 );
+							$this->log("Google Drive Upload: Success");
+							# Google Drive returns 501 not implemented for me for some reason instead of expected result...
+							#return substr( $next_location->children( "http://schemas.google.com/g/2005" )->resourceId, 5 );
+							return true;
 						}
 						
 					}
@@ -225,7 +232,10 @@ class UpdraftPlus {
 		}
 		else {
 			$this->log( 'Unable to request file from ' . $url, __FILE__, __LINE__ );
-		}	
+		}
+
+		return true;
+
 	}
 
 	/**
@@ -284,6 +294,7 @@ class UpdraftPlus {
 	function upload_chunk( $location, $chunk, $pointer, $size, $token ) {
 		$chunk_size = strlen( $chunk );
 		$bytes = (string)$pointer . '-' . (string)($pointer + $chunk_size - 1) . '/' . (string)$size;
+		$this->log("Google Drive chunk: location=$location, length=$chunk_size, range=$bytes");
 		$header = array(
 			'Authorization: Bearer ' . $token,
 			'Content-Length: ' . $chunk_size,
@@ -310,11 +321,11 @@ class UpdraftPlus {
 				list( $key, $value ) = explode( ':', $header_line, 2 );
 				$headers[trim( $key )] = trim( $value );
 			}
-			
+
 			if ( strpos( $response, '308' ) ) {
 				if ( isset( $headers['Location'] ) ) {
-					return $headers['Location'];
 					$this->log('Google Drive: 308 response: '.$headers['Location']);
+					return $headers['Location'];
 				}
 				else {
 					$this->log('Google Drive 308 response: no location header: '.$location);
@@ -322,15 +333,14 @@ class UpdraftPlus {
 				}
 			}
 			elseif ( strpos( $response, '201' ) ) {
+				$this->log("Google Drive response: ".$result);
 				$xml = simplexml_load_string( $result );
 				if ( $xml === false ) {
 					$this->log('ERROR: Could not create SimpleXMLElement from ' . $result, __FILE__, __LINE__ );
 					return false;
 				}
 				else {
-					if ($xml) {
-						return $xml;
-					} else { return true;}
+					return $xml;
 				}
 			}
 			else {
@@ -733,10 +743,10 @@ class UpdraftPlus {
 				$file_name = basename($file_path);
 				$this->log("$file_name: Attempting to upload to Google Drive");
 				$timer_start = microtime( true );
-				if ( ! $id = $this->googledrive_upload_file( $file_path, $file_name, get_option('updraft_googledrive_remotepath'), $access ) ) {
-					$this->log("ERROR: $file_name: Failed to upload to Google Drive" );
-				} else {
+				if ( $id = $this->googledrive_upload_file( $file_path, $file_name, get_option('updraft_googledrive_remotepath'), $access ) ) {
 					$this->log('OK: Archive ' . $file_name . ' uploaded to Google Drive in ' . ( microtime( true ) - $timer_start ) . ' seconds' );
+				} else {
+					$this->log("ERROR: $file_name: Failed to upload to Google Drive" );
 				}
 			}
 			$this->prune_retained_backups("googledrive",$access,get_option('updraft_googledrive_remotepath'));
@@ -951,6 +961,7 @@ class UpdraftPlus {
 			# Encrypt, if requested
 			$encryption = get_option('updraft_encryptionphrase');
 			if (strlen($encryption) > 0) {
+				$this->log("Database: applying encryption");
 				$encryption_error = 0;
 				require_once(dirname(__FILE__).'/includes/Rijndael.php');
 				$rijndael = new Crypt_Rijndael();
@@ -1973,6 +1984,7 @@ ENDHERE;
 					?>
 				</p>
 				<p>To get a folder's ID navigate to that folder in Google Drive and copy the ID from your browser's address bar. It is the part that comes after #folders/.</p>
+				<p><strong>N.B. : If you choose Google Drive, then no backups will be deleted - all will be retained.</strong></p>
 				</td>
 				</tr>
 				<tr class="googledrive" <?php echo $googledrive_display?>>
