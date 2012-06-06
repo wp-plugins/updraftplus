@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.8.19
+Version: 0.8.20
 Donate link: http://david.dw-perspective.org.uk/donate
 Author URI: http://wordshell.net
 */ 
@@ -55,7 +55,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.8.19';
+	var $version = '0.8.20';
 
 	var $dbhandle;
 	var $errors = array();
@@ -125,7 +125,7 @@ class UpdraftPlus {
 				) )
 			)
 		);
-		$this->log("Google Drive: requesting access token: refresh_token=$token, client_id=$client_id");
+		$this->log("Google Drive: requesting access token: client_id=$client_id");
 		$result = @file_get_contents('https://accounts.google.com/o/oauth2/token', false, stream_context_create($context));
 		if($result) {
 			$result = json_decode( $result, true );
@@ -165,7 +165,7 @@ class UpdraftPlus {
 			'Authorization: Bearer ' . $token,
 			'Content-Length: ' . strlen( $content ),
 			'Content-Type: application/atom+xml',
-			'X-Upload-Content-Type: application/zip',
+			'X-Upload-Content-Type: application/octet-stream',
 			'X-Upload-Content-Length: ' . $size,
 			'GData-Version: 3.0'
 		);
@@ -180,8 +180,6 @@ class UpdraftPlus {
 			)
 		);
 
-		$this->log('Internal: 1');
-
 		$url = $this->get_resumable_create_media_link( $token, $parent );
 		if ( $url )
 			$url .= '?convert=false'; // needed to upload a file
@@ -189,13 +187,10 @@ class UpdraftPlus {
 		$this->log('Could not retrieve resumable create media link.', __FILE__, __LINE__ );
 			return false;
 		}
-		$this->log('Internal: 2');
 
 		$result = @file_get_contents( $url, false, stream_context_create( $context ) );
-		$this->log('Internal: 3');
 
 		if ( $result !== FALSE ) {
-			$this->log('Internal: 4');
 			if ( strpos( $response = array_shift( $http_response_header ), '200' ) ) {
 				$response_header = array();
 				foreach ( $http_response_header as $header_line ) {
@@ -291,7 +286,7 @@ class UpdraftPlus {
 		$header = array(
 			'Authorization: Bearer ' . $token,
 			'Content-Length: ' . $chunk_size,
-			'Content-Type: application/zip',
+			'Content-Type: application/octet-stream',
 			'Content-Range: bytes ' . $bytes,
 			'GData-Version: 3.0'
 		);
