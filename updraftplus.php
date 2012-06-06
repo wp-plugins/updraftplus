@@ -54,7 +54,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.8.5;
+	var $version = '0.8.5';
 
 	var $dbhandle;
 	var $errors = array();
