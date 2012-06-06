@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.8.21
+Version: 0.8.22
 Donate link: http://david.dw-perspective.org.uk/donate
 Author URI: http://wordshell.net
 */ 
@@ -55,7 +55,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.8.21';
+	var $version = '0.8.22';
 
 	var $dbhandle;
 	var $errors = array();
@@ -205,6 +205,7 @@ class UpdraftPlus {
 						$this->log("$file: Google Drive upload: pointer=$pointer (size=$size)");
 						$chunk = file_get_contents( $file, false, NULL, $pointer, $max_chunk_size );
 						$next_location = $this->upload_chunk( $next_location, $chunk, $pointer, $size, $token );
+						$pointer += strlen( $chunk );
 						if( $next_location === false ) {
 							return false;
 						}	
@@ -213,7 +214,6 @@ class UpdraftPlus {
 							// return resource Id
 							return substr( $next_location->children( "http://schemas.google.com/g/2005" )->resourceId, 5 );
 						}
-						$pointer += strlen( $chunk );
 						
 					}
 				} 
@@ -314,9 +314,12 @@ class UpdraftPlus {
 			if ( strpos( $response, '308' ) ) {
 				if ( isset( $headers['Location'] ) ) {
 					return $headers['Location'];
+					$this->log('Google Drive: 308 response: '.$headers['Location']);
 				}
-				else 
+				else {
+					$this->log('Google Drive 308 response: no location header: '.$location);
 					return $location;
+				}
 			}
 			elseif ( strpos( $response, '201' ) ) {
 				$xml = simplexml_load_string( $result );
@@ -324,8 +327,11 @@ class UpdraftPlus {
 					$this->log('ERROR: Could not create SimpleXMLElement from ' . $result, __FILE__, __LINE__ );
 					return false;
 				}
-				else
-					return $xml;
+				else {
+					if ($xml) {
+						return $xml;
+					} else { return true;}
+				}
 			}
 			else {
 				$this->log('ERROR: Bad response: ' . $response, __FILE__, __LINE__ );
