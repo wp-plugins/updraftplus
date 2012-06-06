@@ -114,7 +114,6 @@ class UpdraftPlus {
 	function access_token( $token, $client_id, $client_secret ) {
 		$context = array(
 			'http' => array(
-				'timeout'  => 30,
 				'method'  => 'POST',
 				'header'  => 'Content-type: application/x-www-form-urlencoded',
 				'content' => http_build_query( array(
@@ -374,6 +373,7 @@ class UpdraftPlus {
 		if( isset( $_GET['code'] ) ) {
 			$context = array(
 				'http' => array(
+					'timeout' => 30,
 					'method'  => 'POST',
 					'header'  => 'Content-type: application/x-www-form-urlencoded',
 					'content' => http_build_query( array(
@@ -396,7 +396,9 @@ class UpdraftPlus {
 					header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'No refresh token was received!', 'updraftplus' ) ) );
 				}
 			} else {
-				header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'Bad response!', 'backup' ) ) );
+echo "<!--custard-->\n";
+				print_r($context);
+				//header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'Bad response!', 'backup' ) ) );
 			}
 		}
 		else {
