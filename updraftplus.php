@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.8.26
+Version: 0.8.27
 Donate link: http://david.dw-perspective.org.uk/donate
 Author URI: http://wordshell.net
 */ 
@@ -55,7 +55,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.8.26';
+	var $version = '0.8.27';
 
 	var $dbhandle;
 	var $errors = array();
@@ -1546,6 +1546,9 @@ class UpdraftPlus {
 			}
 		}
 		*/
+		if (current_user_can('manage_options') && get_option('updraft_googledrive_clientid') != "" && get_option('updraft_googledrive_tokenX','xyz') == 'xyz') {
+			add_action('admin_notices', array($this,'show_admin_warning_googledrive') );
+		}
 	}
 
 	function add_admin_pages() {
@@ -2144,6 +2147,9 @@ ENDHERE;
 	}
 	function show_admin_warning_accessible() {
 		$this->show_admin_warning("UpdraftPlus backup directory specified is accessible via the web.  This is a potential security problem (people may be able to download your backups - which is undesirable if your database is not encrypted and if you have non-public assets amongst the files). If using Apache, enable .htaccess support to allow web access to be denied; otherwise, you should deny access manually.");
+	}
+	function show_admin_warning_googledrive() {
+		$this->show_admin_warning('UpdraftPlus notice: <a href="?page=updraftplus&action=auth&updraftplus_googleauth=doit">Click here to authenticate your Google Drive account (you will not be able to back up to Google Drive without it).</a>');
 	}
 	function show_admin_warning_accessible_unknownresult() {
 		$this->show_admin_warning("UpdraftPlus tried to check if the backup directory is accessible via web, but the result was unknown.");
