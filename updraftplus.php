@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.8.13
+Version: 0.8.14
 Donate link: http://david.dw-perspective.org.uk/donate
 Author URI: http://wordshell.net
 */ 
@@ -55,7 +55,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.8.13';
+	var $version = '0.8.14';
 
 	var $dbhandle;
 	var $errors = array();
@@ -104,6 +104,7 @@ class UpdraftPlus {
 			'scope' => 'https://www.googleapis.com/auth/drive.file https://docs.google.com/feeds/ https://docs.googleusercontent.com/ https://spreadsheets.google.com/feeds/',
 			'state' => 'token',
 			'access_type' => 'offline',
+			'approval_prompt' => 'force'
 		);
 		header('Location: https://accounts.google.com/o/oauth2/auth?'.http_build_query($params));
 	}
@@ -387,8 +388,10 @@ class UpdraftPlus {
 			);
 			$result = @file_get_contents('https://accounts.google.com/o/oauth2/token', false, stream_context_create($context));
 			# Oddly, sometimes fails and then trying again works...
+			/*
 			if (!$result) { sleep(1); $result = @file_get_contents('https://accounts.google.com/o/oauth2/token', false, stream_context_create($context));}
 			if (!$result) { sleep(1); $result = @file_get_contents('https://accounts.google.com/o/oauth2/token', false, stream_context_create($context));}
+			*/
 			if($result) {
 				$result = json_decode( $result, true );
 				if ( isset( $result['refresh_token'] ) ) {
@@ -1953,7 +1956,7 @@ ENDHERE;
 				</tr>
 				<tr class="googledrive" <?php echo $googledrive_display?>>
 					<th>Authenticate with Google:</th>
-					<td><a href="?page=updraftplus&action=auth&updraftplus_googleauth=doit"><strong>After</strong> you have saved your settings (by clicking &quot;Save Chanegs&quot; below), then come back here once and click this link to complete authentication with Google</a></td>
+					<td><a href="?page=updraftplus&action=auth&updraftplus_googleauth=doit"><strong>After</strong> you have saved your settings (by clicking &quot;Save Changes&quot; below), then come back here once and click this link to complete authentication with Google</a></td>
 				</tr>
 				<tr class="googledrive" <?php echo $googledrive_display?>>
 				<th></th>
