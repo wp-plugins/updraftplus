@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.8.17
+Version: 0.8.18
 Donate link: http://david.dw-perspective.org.uk/donate
 Author URI: http://wordshell.net
 */ 
@@ -55,7 +55,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.8.17';
+	var $version = '0.8.18';
 
 	var $dbhandle;
 	var $errors = array();
@@ -731,7 +731,7 @@ class UpdraftPlus {
 				$file_name = basename($file_path);
 				$this->log("$file_name: Attempting to upload to Google Drive");
 				$timer_start = microtime( true );
-				if ( ! $id = $this->googledrive_upload_file( $file_path, $file_name, get_options('updraft_googledrive_remotepath'), $access ) ) {
+				if ( ! $id = $this->googledrive_upload_file( $file_path, $file_name, get_option('updraft_googledrive_remotepath'), $access ) ) {
 					$this->log('ERROR: $file_name: Failed to upload to Google Drive' );
 				} else {
 					$this->log('OK: Archive ' . $file_name . ' uploaded to Google Drive in ' . ( microtime( true ) - $timer_start ) . ' seconds' );
