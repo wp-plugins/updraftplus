@@ -1304,7 +1304,7 @@ class UpdraftPlus {
 			$this->delete_local($file);
 			exit; //we exit immediately because otherwise admin-ajax appends an additional zero to the end for some reason I don't understand. seriously, why die('0')?
 		} else {
-			echo 'Download failed.  File '.$fullpath.' did not exist or was unreadable.  If you delete local backups then S3  or FTP retrieval may have failed.';
+			echo 'Download failed.  File '.$fullpath.' did not exist or was unreadable.  If you delete local backups then S3  or Google Drive or FTP retrieval may have failed. (Note that Google Drive downloading is not yet supported - you need to download manually if you use Google Drive).';
 		}
 	}
 	
