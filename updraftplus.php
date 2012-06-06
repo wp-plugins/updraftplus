@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.8.2
+Version: 0.8.3
 Donate link: http://david.dw-perspective.org.uk/donate
 Author URI: http://wordshell.net
 */ 
@@ -54,7 +54,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.8.2';
+	var $version = '0.8.3';
 
 	var $dbhandle;
 	var $errors = array();
@@ -75,11 +75,11 @@ class UpdraftPlus {
 		add_action('wp_ajax_updraft_download_backup', array($this, 'updraft_download_backup'));
 		add_filter('cron_schedules', array($this,'modify_cron_schedules'));
 		add_filter('plugin_action_links', array($this, 'plugin_action_links'), 10, 2);
-		add_action('init', array($this, 'backup_auth'));
+		add_action('init', array($this, 'googledrive_backup_auth'));
 	}
 
 	// Handle Google OAuth 2.0
-	function backup_auth() {
+	function googledrive_backup_auth() {
 		if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] == 'updraftplus' && isset( $_GET['action'] ) && $_GET['action'] == 'auth' ) {
 			if ( isset( $_GET['state'] ) ) {
 				if ( $_GET['state'] == 'token' )
@@ -87,12 +87,11 @@ class UpdraftPlus {
 				else if ( $_GET['state'] == 'revoke' )
 					$this->auth_revoke();
 			}
-			else {
+		} elseif (isset( $_GET['page'] ) && $_GET['page'] == 'updraftplus' && isset($_POST['updraft_googledrive_clientid']) && isset($_POST['updraft_googledrive_secret'])) {
 				update_option('updraft_googledrive_clientid',$_POST['updraft_googledrive_clientid']);
 				update_option('updraft_googledrive_secret',$_POST['updraft_googledrive_secret']);
 				$this->auth_request();
 			}
-		}
 	}
 
 	/**
@@ -132,10 +131,11 @@ class UpdraftPlus {
 			if ( isset( $result['access_token'] ) )
 				return $result['access_token'];
 			else {
+				$this->log("Google Drive error when requesting access token: response does not contain access_token");
 				return false;
 			}
-		}
-		else {
+		} else {
+			$this->log("Google Drive error when requesting access token: no response");
 			return false;
 		}
 	}
@@ -724,8 +724,8 @@ class UpdraftPlus {
 			}
 			$this->prune_retained_backups("googledrive",$access,get_option('updraft_googledrive_remotepath'));
 		} else {
-				$this->log('ERROR: Did not receive an access token from Google', __FILE__, __LINE__ );
-			}
+			$this->log('ERROR: Did not receive an access token from Google', __FILE__, __LINE__ );
+		}
 	}
 	
 	function ftp_backup($backup_array) {
@@ -1667,7 +1667,7 @@ ENDHERE;
 						$dir_info = '<span style="color:red">Backup directory specified is <b>not</b> writable. <span style="font-size:110%;font-weight:bold"><a href="options-general.php?page=updraftplus&action=updraft_create_backup_dir">Click here</a></span> to attempt to create the directory and set the permissions.  If that is unsuccessful check the permissions on your server or change it to another directory that is writable by your web server process.</span>';
 					}
 					?>
-					<th>Current Time:</th>
+					<th>Now:</th>
 					<td style="color:blue"><?php echo $current_time?></td>
 				</tr>
 				<tr>
