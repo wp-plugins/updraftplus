@@ -2,19 +2,16 @@
 /*
 Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
-Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, FTP server, or emailed. Files and DB can be on separate schedules.
+Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.7.19
+Version: 0.8.0
 Donate link: http://david.dw-perspective.org.uk/donate
 Author URI: http://wordshell.net
 */ 
 
 //TODO:
 //Add DropBox support
-//GDrive support: https://developers.google.com/drive/examples/php
-//Add more logging
 //Struggles with large uploads - runs out of time before finishing. Break into chunks? Resume download on later run? (Add a new scheduled event to check on progress? Separate the upload from the creation?). Add in some logging (in a .php file that exists first).
-//More logging
 //improve error reporting.  s3 and dir backup have decent reporting now, but not sure i know what to do from here
 //list backups that aren't tracked (helps with double backup problem)
 //investigate $php_errormsg further
@@ -23,7 +20,6 @@ Author URI: http://wordshell.net
 
 /* More TODO:
 Are all directories in wp-content covered? No; only plugins, themes, content. We should check for others and allow the user the chance to choose which ones he wants
-Add turn-off-foreign-key-checks stuff into mysql dump (does WP even use these?)
 Use only one entry in WP options database
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
 */
@@ -58,7 +54,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.7.19';
+	var $version = '0.8.0';
 
 	var $dbhandle;
 	var $errors = array();
@@ -79,6 +75,341 @@ class UpdraftPlus {
 		add_action('wp_ajax_updraft_download_backup', array($this, 'updraft_download_backup'));
 		add_filter('cron_schedules', array($this,'modify_cron_schedules'));
 		add_filter('plugin_action_links', array($this, 'plugin_action_links'), 10, 2);
+		add_action('init', array($this, 'backup_auth'));
+	}
+
+	// Handle Google OAuth 2.0
+	function backup_auth() {
+		if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] == 'updraftplus' && isset( $_GET['action'] ) && $_GET['action'] == 'auth' ) {
+			if ( isset( $_GET['state'] ) ) {
+				if ( $_GET['state'] == 'token' )
+					$this->auth_token();
+				else if ( $_GET['state'] == 'revoke' )
+					$this->auth_revoke();
+			}
+			else {
+				update_option('updraft_googledrive_clientid',$_POST['updraft_googledrive_clientid']);
+				update_option('updraft_googledrive_secret',$_POST['updraft_googledrive_secret']);
+				$this->auth_request();
+			}
+		}
+	}
+
+	/**
+	* Acquire single-use authorization code from Google OAuth 2.0
+	*/
+	function auth_request() {
+		$params = array(
+			'response_type' => 'code',
+			'client_id' => get_option('updraft_googledrive_clientid'),
+			'redirect_uri' => admin_url('options-general.php?page=updraftplus&action=auth'),
+			'scope' => 'https://www.googleapis.com/auth/drive.file https://docs.google.com/feeds/ https://docs.googleusercontent.com/ https://spreadsheets.google.com/feeds/',
+			'state' => 'token',
+			'access_type' => 'offline',
+		);
+		header('Location: https://accounts.google.com/o/oauth2/auth?'.http_build_query($params));
+	}
+
+	/**
+	* Get a Google account access token using the refresh token
+	*/
+	function access_token( $token, $client_id, $client_secret ) {
+		$context = array(
+			'http' => array(
+				'method'  => 'POST',
+				'header'  => 'Content-type: application/x-www-form-urlencoded',
+				'content' => http_build_query( array(
+					'refresh_token' => $token,
+					'client_id' => $client_id,
+					'client_secret' => $client_secret,
+					'grant_type' => 'refresh_token'
+				) )
+			)
+		);
+		$result = @file_get_contents('https://accounts.google.com/o/oauth2/token', false, stream_context_create($context));
+		if($result) {
+			$result = json_decode( $result, true );
+			if ( isset( $result['access_token'] ) )
+				return $result['access_token'];
+			else {
+				return false;
+			}
+		}
+		else {
+			return false;
+		}
+	}
+
+	/**
+	* Function to upload a file to Google Drive
+	*
+	* @param  string  $file   Path to the file that is to be uploaded
+	* @param  string  $title  Title to be given to the file
+	* @param  string  $parent ID of the folder in which to upload the file
+	* @param  string  $token  Access token from Google Account
+	* @return boolean         Returns TRUE on success, FALSE on failure
+	*/
+	function googledrive_upload_file( $file, $title, $parent = '', $token) {
+
+		$size = filesize( $file );
+
+		$content = '<?xml version=\'1.0\' encoding=\'UTF-8\'?>
+	<entry xmlns="http://www.w3.org/2005/Atom" xmlns:docs="http://schemas.google.com/docs/2007">
+	<category scheme="http://schemas.google.com/g/2005#kind" term="http://schemas.google.com/docs/2007#file"/>
+	<title>' . $title . '</title>
+	</entry>';
+		
+		$header = array(
+			'Authorization: Bearer ' . $token,
+			'Content-Length: ' . strlen( $content ),
+			'Content-Type: application/atom+xml',
+			'X-Upload-Content-Type: application/zip',
+			'X-Upload-Content-Length: ' . $size,
+			'GData-Version: 3.0'
+		);
+
+		$context = array(
+			'http' => array(
+				'ignore_errors' => true,
+				'follow_location' => false,
+				'method'  => 'POST',
+				'header'  => join( "\r\n", $header ),
+				'content' => $content
+			)
+		);
+
+		$url = $this->get_resumable_create_media_link( $token, $parent );
+		if ( $url )
+			$url .= '?convert=false'; // needed to upload a file
+		else {
+		$this->log('Could not retrieve resumable create media link.', __FILE__, __LINE__ );
+			return false;
+		}
+		
+		$result = @file_get_contents( $url, false, stream_context_create( $context ) );
+		if ( $result !== FALSE ) {
+			if ( strpos( $response = array_shift( $http_response_header ), '200' ) ) {
+				$response_header = array();
+				foreach ( $http_response_header as $header_line ) {
+					list( $key, $value ) = explode( ':', $header_line, 2 );
+					$response_header[trim( $key )] = trim( $value );
+				}
+				if ( isset( $response_header['Location'] ) ) {
+					$next_location = $response_header['Location'];
+					$pointer = 0;
+					$max_chunk_size = 524288;
+					while ( $pointer < $size - 1 ) {
+						$chunk = file_get_contents( $file, false, NULL, $pointer, $max_chunk_size );
+						$next_location = $this->upload_chunk( $next_location, $chunk, $pointer, $size, $token );
+						if( $next_location === false ) {
+							return false;
+						}	
+						// if object it means we have our simpleXMLElement response
+						if ( is_object( $next_location ) ) {
+							// return resource Id
+							return substr( $next_location->children( "http://schemas.google.com/g/2005" )->resourceId, 5 );
+						}
+						$pointer += strlen( $chunk );
+						
+					}
+				} 
+			}
+			else {
+				$this->log( 'Bad response: ' . $response . ' Response header: ' . var_export( $response_header, true ) . ' Response body: ' . $result . ' Request URL: ' . $url, __FILE__, __LINE__ );
+				return false;
+			}
+		}
+		else {
+			$this->log( 'Unable to request file from ' . $url, __FILE__, __LINE__ );
+		}	
+	}
+
+	/**
+	* Get the resumable-create-media link needed to upload files
+	*
+	* @param  string $token  The Google Account access token
+	* @param  string $parent The Id of the folder where the upload is to be made. Default is empty string.
+	* @return string|boolean Returns a link on success, FALSE on failure. 
+	*/
+	function get_resumable_create_media_link( $token, $parent = '' ) {
+		$header = array(
+			'Authorization: Bearer ' . $token,
+			'GData-Version: 3.0'
+		);
+		$context = array(
+			'http' => array(
+				'ignore_errors' => true,
+				'method' => 'GET',
+				'header' => join( "\r\n", $header )
+			)
+		);
+		$url = 'https://docs.google.com/feeds/default/private/full';
+
+		if ( $parent ) {
+			$url .= '/' . $parent;
+		}
+
+		$result = @file_get_contents( $url, false, stream_context_create( $context ) );
+
+		if ( $result !== false ) {
+			$xml = simplexml_load_string( $result );
+			if ( $xml === false ) {
+				$this->log( 'Could not create SimpleXMLElement from ' . $result, __FILE__, __LINE__ );
+					return false;
+			}
+			else {
+				foreach ( $xml->link as $link ) {
+					if ( $link['rel'] == 'http://schemas.google.com/g/2005#resumable-create-media' ) { return $link['href']; }
+				}
+			}
+		}
+		return false;
+	}
+
+
+	/**
+	* Handles the upload to Google Drive of a single chunk of a file
+	*
+	* @param  string  $location URL where the chunk needs to be uploaded
+	* @param  string  $chunk	Part of the file to upload
+	* @param  integer $pointer  The byte number marking the beginning of the chunk in file
+	* @param  integer $size	 The size of the file the chunk is part of, in bytes
+	* @param  string  $token	Google Account access token
+	* @return string|boolean	The funcion returns the location where the next chunk needs to be uploaded, TRUE if the last chunk was uploaded or FALSE on failure
+	*/
+	function upload_chunk( $location, $chunk, $pointer, $size, $token ) {
+		$chunk_size = strlen( $chunk );
+		$bytes = (string)$pointer . '-' . (string)($pointer + $chunk_size - 1) . '/' . (string)$size;
+		$header = array(
+			'Authorization: Bearer ' . $token,
+			'Content-Length: ' . $chunk_size,
+			'Content-Type: application/zip',
+			'Content-Range: bytes ' . $bytes,
+			'GData-Version: 3.0'
+		);
+		$context = array(
+			'http' => array(
+				'ignore_errors' => true,
+				'follow_location' => false,
+				'method' => 'PUT',
+				'header' => join( "\r\n", $header ),
+				'content' => $chunk
+			)
+		);
+
+		$result = @file_get_contents( $location, false, stream_context_create( $context ) );
+
+		if ( isset( $http_response_header ) ) {
+			$response = array_shift( $http_response_header );
+			$headers = array();
+			foreach ( $http_response_header as $header_line ) {
+				list( $key, $value ) = explode( ':', $header_line, 2 );
+				$headers[trim( $key )] = trim( $value );
+			}
+			
+			if ( strpos( $response, '308' ) ) {
+				if ( isset( $headers['Location'] ) ) {
+					return $headers['Location'];
+				}
+				else 
+					return $location;
+			}
+			elseif ( strpos( $response, '201' ) ) {
+				$xml = simplexml_load_string( $result );
+				if ( $xml === false ) {
+					backup_log( 'ERROR', 'Could not create SimpleXMLElement from ' . $result, __FILE__, __LINE__ );
+					return false;
+				}
+				else
+					return $xml;
+			}
+			else {
+				backup_log( 'ERROR', 'Bad response: ' . $response, __FILE__, __LINE__ );
+				return false;
+			}
+		}
+		else {
+			backup_log( 'ERROR', 'Received no response from ' . $location . ' while trying to upload bytes ' . $bytes );
+			return false;
+		}
+	}
+
+	function googledrive_delete_file( $file, $token) {
+		$this->log("Delete from Google Drive: $file: not yet implemented");
+		# TODO - somehow, turn this into a Gdata resource ID, then despatch it to googledrive_delete_file_byid
+		return;
+	}
+
+	/**
+	* Deletes a file from Google Drive
+	*
+	* @param  string $id	Gdata resource Id of the file to be deleted
+	* @param  string $token Google Account access token
+	* @return boolean	   Returns TRUE on success, FALSE on failure
+	*/
+	function googledrive_delete_file_byid( $id, $token ) {
+		$header = array(
+			'If-Match: *',
+			'Authorization: Bearer ' . $token,
+			'GData-Version: 3.0'
+		);
+		$context = array(
+			'http' => array(
+				'method' => 'DELETE',
+				'header' => join( "\r\n", $header )
+			)
+		);
+		stream_context_set_default( $context );
+		$headers = get_headers( 'https://docs.google.com/feeds/default/private/full/' . $id . '?delete=true',1 );
+
+		if ( strpos( $headers[0], '200' ) ) { return true; }
+		return false;
+	}
+
+	/**
+	* Get a Google account refresh token using the code received from auth_request
+	*/
+	function auth_token() {
+		if( isset( $_GET['code'] ) ) {
+			$context = array(
+				'http' => array(
+					'method'  => 'POST',
+					'header'  => 'Content-type: application/x-www-form-urlencoded',
+					'content' => http_build_query( array(
+						'code' => $_GET['code'],
+						'client_id' => get_option('updraft_googledrive_clientid'),
+						'client_secret' => get_option('updraft_googledrive_secret'),
+						'redirect_uri' => admin_url('options-general.php?page=updraftplus&action=auth'),
+						'grant_type' => 'authorization_code'
+					) )
+				)
+			);
+			$result = @file_get_contents('https://accounts.google.com/o/oauth2/token', false, stream_context_create($context));
+			if($result) {
+				$result = json_decode( $result, true );
+				if ( isset( $result['refresh_token'] ) ) {
+					update_option('updraft_googledrive_token',$result['refresh_token']); // Save token
+					header('Location: '.admin_url('options-general.php?page=updraftplus&message=' . __( 'Authorization was successful.', 'updraftplus' ) ) );
+				}
+				else {
+					header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'No refresh token was received!', 'updraftplus' ) ) );
+				}
+			} else {
+				header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'Bad response!', 'backup' ) ) );
+			}
+		}
+		else {
+			header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'Authrization failed!', 'backup' ) ) );
+		}
+	}
+
+	/**
+	* Revoke a Google account refresh token
+	*/
+	function auth_revoke() {
+		@file_get_contents( 'https://accounts.google.com/o/oauth2/revoke?token=' . get_option('updraft_googledrive_token') );
+		update_option('updraft_googledrive_token','');
+		header( 'Location: '.admin_url( 'options-general.php?page=updraftplus&message=' . __( 'Authorization revoked.', 'backup' ) ) );
 	}
 
 	# Adds the settings link under the plugin on the plugin screen.
@@ -172,7 +503,7 @@ class UpdraftPlus {
 			$this->log("Saving backup history");
 			$this->save_backup_history($backup_array);
 
-			//cloud operations (S3,FTP,email,nothing)
+			//cloud operations (S3,Google Drive,FTP,email,nothing)
 			//this also calls the retain feature at the end (done in this method to reuse existing cloud connections)
 			if(is_array($backup_array) && count($backup_array) >0) {
 				$this->log("Beginning dispatch of backup to remote");
@@ -216,6 +547,10 @@ class UpdraftPlus {
 				$this->log("Cloud backup: S3");
 				if (count($backup_array) >0) { $this->s3_backup($backup_array); }
 			break;
+			case 'googledrive':
+				@set_time_limit(900);
+				$this->log("Cloud backup: Google Drive");
+				if (count($backup_array) >0) { $this->googledrive_backup($backup_array); }
 			case 'ftp':
 				@set_time_limit(900);
 				$this->log("Cloud backup: FTP");
@@ -269,6 +604,9 @@ class UpdraftPlus {
 						} elseif ($updraft_service = "ftp") {
 							$this->log("$backup_datestamp: Delete remote ftp: $remote_path/$file");
 							@$remote_object->delete($remote_path.$file);
+						} elseif ($updraft_service = "googledrive") {
+							$this->log("$backup_datestamp: Delete remote file from Google Drive: $remote_path/$file");
+							$this->googledrive_delete_file($remote_path.'/'.$file,$remote_object);
 						}
 					}
 					unset($backup_to_examine['db']);
@@ -294,6 +632,9 @@ class UpdraftPlus {
 						} elseif ($updraft_service == "ftp") {
 							$this->log("$backup_datestamp: Delete remote ftp: $remote_path/$file");
 							@$remote_object->delete($remote_path.$file);
+						} elseif ($updraft_service = "googledrive") {
+							$this->log("$backup_datestamp: Delete remote file from Google Drive: $remote_path/$file");
+							$this->googledrive_delete_file($remote_path.'/'.$file,$remote_object);
 						}
 					}
 					if ($file2) {
@@ -308,6 +649,9 @@ class UpdraftPlus {
 						} elseif ($updraft_service == "ftp") {
 							$this->log("$backup_datestamp: Delete remote ftp: $remote_path/$file2");
 							@$remote_object->delete($remote_path.$file2);
+						} elseif ($updraft_service = "googledrive") {
+							$this->log("$backup_datestamp: Delete remote file from Google Drive: $remote_path/$file");
+							$this->googledrive_delete_file($remote_path.'/'.$file,$remote_object);
 						}
 
 					}
@@ -323,6 +667,9 @@ class UpdraftPlus {
 						} elseif ($updraft_service == "ftp") {
 							$this->log("$backup_datestamp: Delete remote ftp: $remote_path/$file3");
 							@$remote_object->delete($remote_path.$file3);
+						} elseif ($updraft_service = "googledrive") {
+							$this->log("$backup_datestamp: Delete remote file from Google Drive: $remote_path/$file");
+							$this->googledrive_delete_file($remote_path.'/'.$file,$remote_object);
 						}
 					}
 					unset($backup_to_examine['plugins']);
@@ -360,6 +707,25 @@ class UpdraftPlus {
 		} else {
 			$this->error("S3 Error: Failed to create bucket $bucket_name. Error was ".$php_errormsg);
 		}
+	}
+	
+	function googledrive_backup($backup_array) {
+		if ( $access = $this->access_token( get_option('updraft_googledrive_token'), get_option('updraft_googledrive_clientid'), get_option('updraft_googledrive_secret') ) ) {
+			foreach ($backup_array as $file) {
+				$file_path = trailingslashit(get_option('updraft_dir')).$file;
+				$file_name = basename($file_path);
+				$this->log('$file_name: Attempting to upload to Google Drive');
+				$timer_start = microtime( true );
+				if ( ! $id = $this->googledrive_upload_file( $file_path, $file_name, get_options('updraft_googledrive_remotepath'), $access ) ) {
+					$this->log('ERROR: $file_name: Failed to upload to Google Drive' );
+				} else {
+					$this->log('OK: Archive ' . $file_name . ' uploaded to Google Drive in ' . ( microtime( true ) - $timer_start ) . ' seconds' );
+				}
+			}
+			$this->prune_retained_backups("googledrive",$access,get_option('updraft_googledrive_remotepath'));
+		} else {
+				$this->log('ERROR: Did not receive an access token from Google', __FILE__, __LINE__ );
+			}
 	}
 	
 	function ftp_backup($backup_array) {
@@ -1112,11 +1478,14 @@ class UpdraftPlus {
 		register_setting( 'updraft-options-group', 'updraft_service', 'wp_filter_nohtml_kses' );
 		register_setting( 'updraft-options-group', 'updraft_s3_login', 'wp_filter_nohtml_kses' );
 		register_setting( 'updraft-options-group', 'updraft_s3_pass', 'wp_filter_nohtml_kses' );
+		register_setting( 'updraft-options-group', 'updraft_s3_remote_path', 'wp_filter_nohtml_kses' );
+		register_setting( 'updraft-options-group', 'updraft_googledrive_clientid', 'wp_filter_nohtml_kses' );
+		register_setting( 'updraft-options-group', 'updraft_googledrive_secret', 'wp_filter_nohtml_kses' );
+		register_setting( 'updraft-options-group', 'updraft_googledrive_remotepath', 'wp_filter_nohtml_kses' );
 		register_setting( 'updraft-options-group', 'updraft_ftp_login', 'wp_filter_nohtml_kses' );
 		register_setting( 'updraft-options-group', 'updraft_ftp_pass', 'wp_filter_nohtml_kses' );
 		register_setting( 'updraft-options-group', 'updraft_dir', 'wp_filter_nohtml_kses' );
 		register_setting( 'updraft-options-group', 'updraft_email', 'wp_filter_nohtml_kses' );
-		register_setting( 'updraft-options-group', 'updraft_s3_remote_path', 'wp_filter_nohtml_kses' );
 		register_setting( 'updraft-options-group', 'updraft_ftp_remote_path', 'wp_filter_nohtml_kses' );
 		register_setting( 'updraft-options-group', 'updraft_server_address', 'wp_filter_nohtml_kses' );
 		register_setting( 'updraft-options-group', 'updraft_delete_local', 'absint' );
@@ -1483,28 +1852,36 @@ ENDHERE;
 						$debug_mode = (get_option('updraft_debug_mode')) ? 'checked="checked"' : "";
 
 						$display_none = 'style="display:none"';
-						$s3 = ""; $ftp = ""; $email = "";
+						$s3 = ""; $ftp = ""; $email = ""; $googledrive="";
 						$email_display="";
 						$display_email_complete = "";
 						$set = 'selected="selected"';
 						switch(get_option('updraft_service')) {
 							case 's3':
 								$s3 = $set;
+								$googledrive_display = $display_none;
+								$ftp_display = $display_none;
+							break;
+							case 'googledrive':
+								$googledrive = $set;
 								$ftp_display = $display_none;
 							break;
 							case 'ftp':
 								$ftp = $set;
+								$googledrive_display = $display_none;
 								$s3_display = $display_none;
 							break;
 							case 'email':
 								$email = $set;
 								$ftp_display = $display_none;
 								$s3_display = $display_none;
+								$googledrive_display = $display_none;
 								$display_email_complete = $display_none;
 							break;
 							default:
 								$none = $set;
 								$ftp_display = $display_none;
+								$googledrive_display = $display_none;
 								$s3_display = $display_none;
 								$display_delete_local = $display_none;
 							break;
@@ -1512,14 +1889,17 @@ ENDHERE;
 						?>
 						<option value="none" <?php echo $none?>>None</option>
 						<option value="s3" <?php echo $s3?>>Amazon S3</option>
+						<option value="googledrive" <?php echo $googledrive?>>Google Drive</option>
 						<option value="ftp" <?php echo $ftp?>>FTP</option>
 						<option value="email" <?php echo $email?>>E-mail</option>
 						</select></td>
 				</tr>
 				<tr class="backup-service-description">
-					<td></td><td>Choose which backup method you would like to employ.  Be aware that email servers tend to have strict file size limitations and it is possible you will not receive your backup emails (>10MB is a typical threshold).  Select none if you do not wish to send your backups anywhere.  <b>Not recommended.</b></td>
+					<td></td><td>Choose your backup method. Be aware that mail servers tend to have strict file size limitations; typically around 10-20Mb; backups larger than this may not arrive. Select none if you do not wish to send your backups anywhere <b>(not recommended)</b>.</td>
 				
 				</tr>
+
+				<!-- Amazon S3 -->
 				<tr class="s3" <?php echo $s3_display?>>
 					<th>S3 access key:</th>
 					<td><input type="text" autocomplete="off" style="width:292px" name="updraft_s3_login" value="<?php echo get_option('updraft_s3_login') ?>" /></td>
@@ -1536,6 +1916,29 @@ ENDHERE;
 				<th></th>
 				<td><p>Get your access key and secret key from your AWS page, then pick a (globally unique) bucket name (letters and numbers) to use for storage. (Do not enter the s3:// prefix).</p></td>
 				</tr>
+
+				<!-- Google Drive -->
+				<tr class="googledrive" <?php echo $googledrive_display?>>
+					<th>Google Drive Client ID:</th>
+					<td><input type="text" autocomplete="off" style="width:292px" name="updraft_googledrive_clientid" value="<?php echo get_option('updraft_googledrive_clientid') ?>" /></td>
+				</tr>
+				<tr class="googledrive" <?php echo $googledrive_display?>>
+					<th>Google Drive Client Secret:</th>
+					<td><input type="password" autocomplete="off" style="width:292px" name="updraft_googledrive_secret" value="<?php echo get_option('updraft_googledrive_secret'); ?>" /></td>
+				</tr>
+				<tr class="googledrive" <?php echo $googledrive_display?>>
+					<th>Google Drive Folder ID:</th>
+					<td><input type="text" style="width:292px" name="updraft_googledrive_remotepath" value="<?php echo get_option('updraft_googledrive_remotepath'); ?>" /></td>
+				</tr>
+				<tr class="googledrive" <?php echo $googledrive_display?>>
+				<th></th>
+				<td><p>Create a Client ID in the API Access section of your <a href="https://code.google.com/apis/console/">Google API Console</a>. Select 'Web Application' as the application type.</p><p>You must add <kbd><?php echo admin_url('options-general.php?page=updraftplus&action=auth'); ?></kbd> as the authorised redirect URI when asked.</p>
+				<?php
+					if (!class_exists('SimpleXMLElement')) { echo "<p><b>WARNING:</b> You do not have SimpleXMLElement installed. Google Drive backups will <b>not</b> work until you do.</p>"; }
+				?>
+				</td>
+				</tr>
+
 				<tr class="ftp" <?php echo $ftp_display?>>
 					<th><a href="#" title="Click for help!" onclick="jQuery('.ftp-description').toggle();return false;">FTP Server:</a></th>
 					<td><input type="text" style="width:260px" name="updraft_server_address" value="<?php echo get_option('updraft_server_address'); ?>" /></td>
@@ -1602,19 +2005,23 @@ ENDHERE;
 					jQuery('#updraft-service').change(function() {
 						switch(jQuery(this).val()) {
 							case 'none':
-								jQuery('.deletelocal,.s3,.ftp,.s3-description,.ftp-description').hide()
+								jQuery('.deletelocal,.s3,.ftp,.googledrive,.s3-description,.ftp-description').hide()
 								jQuery('.email,.email-complete').show()
 							break;
 							case 's3':
-								jQuery('.ftp,.ftp-description').hide()
+								jQuery('.ftp,.ftp-description,.googledrive').hide()
 								jQuery('.s3,.deletelocal,.email,.email-complete').show()
 							break;
+							case 'googledrive':
+								jQuery('.ftp,.ftp-description,.s3').hide()
+								jQuery('.googledrive,.deletelocal,.googledrive,.email,.email-complete').show()
+							break;
 							case 'ftp':
-								jQuery('.s3,.s3-description').hide()
+								jQuery('.googledrive,.s3,.s3-description').hide()
 								jQuery('.ftp,.deletelocal,.email,.email-complete').show()
 							break;
 							case 'email':
-								jQuery('.s3,.ftp,.s3-description,.ftp-description,.email-complete').hide()
+								jQuery('.s3,.ftp,.s3-description,.googledrive,.ftp-description,.email-complete').hide()
 								jQuery('.email,.deletelocal').show()
 							break;
 						}
