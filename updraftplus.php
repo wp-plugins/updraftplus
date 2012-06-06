@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.8.5
+Version: 0.8.6
 Donate link: http://david.dw-perspective.org.uk/donate
 Author URI: http://wordshell.net
 */ 
@@ -54,7 +54,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.8.5';
+	var $version = '0.8.6';
 
 	var $dbhandle;
 	var $errors = array();
@@ -87,7 +87,7 @@ class UpdraftPlus {
 				else if ( $_GET['state'] == 'revoke' )
 					$this->auth_revoke();
 			}
-		} elseif (isset( $_POST['page'] ) && $_POST['page'] == 'updraftplus' && isset($_POST['updraft_googledrive_clientid']) && isset($_POST['updraft_googledrive_secret'])) {
+		} elseif (isset( $_GET['page'] ) && $_GET['page'] == 'updraftplus' && isset($_POST['updraft_googledrive_clientid']) && isset($_POST['updraft_googledrive_secret'])) {
 			$old_clientid = get_option('updraft_googledrive_clientid');
 			$old_secret = get_option('updraft_googledrive_secret');
 			if ($old_clientid != $_POST['updraft_googledrive_clientid'] || $old_secret != $_POST['updraft_googledrive_secret'] || isset($_POST['updraft_googledrive_reauth'])) {
@@ -1945,7 +1945,7 @@ ENDHERE;
 					<td><input type="text" style="width:292px" name="updraft_googledrive_remotepath" value="<?php echo get_option('updraft_googledrive_remotepath'); ?>" /></td>
 				</tr>
 				<tr class="googledrive" <?php echo $googledrive_display?>>
-					<th>Reauthenticate:</th>
+					<th>Reauthenticate with Google:</th>
 					<td><input type="checkbox" name="updraft_googledrive_reauth" value="yes" /> Tick this box if you need to re-authenticate with Google (happens automatically when changing details)</td>
 				</tr>
 				<tr class="googledrive" <?php echo $googledrive_display?>>
