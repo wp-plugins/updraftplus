@@ -397,7 +397,7 @@ class UpdraftPlus {
 				}
 				else {
 				echo "<!--custard-->\n";
-				print_r(result);
+				print_r($result);
 					#header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'No refresh token was received!', 'updraftplus' ) ) );
 				}
 			} else {
