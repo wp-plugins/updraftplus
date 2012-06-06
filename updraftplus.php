@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.8.0
+Version: 0.8.1
 Donate link: http://david.dw-perspective.org.uk/donate
 Author URI: http://wordshell.net
 */ 
@@ -54,7 +54,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.8.0';
+	var $version = '0.8.1';
 
 	var $dbhandle;
 	var $errors = array();
@@ -415,7 +415,7 @@ class UpdraftPlus {
 	# Adds the settings link under the plugin on the plugin screen.
 	function plugin_action_links($links, $file) {
 		if ($file == plugin_basename(__FILE__)){
-			$settings_link = '<a href="'.site_url().'/wp-admin/options-general.php?page=updraft-backuprestore.php">'.__("Settings", "UpdraftPlus").'</a>';
+			$settings_link = '<a href="'.site_url().'/wp-admin/options-general.php?page=updraftplus">'.__("Settings", "UpdraftPlus").'</a>';
 			array_unshift($links, $settings_link);
 			$settings_link = '<a href="http://david.dw-perspective.org.uk/donate">'.__("Donate","UpdraftPlus").'</a>';
 			array_unshift($links, $settings_link);
@@ -1332,7 +1332,7 @@ class UpdraftPlus {
 			return false;
 		}
 
-		$credentials = request_filesystem_credentials("options-general.php?page=updraft-backuprestore.php&action=updraft_restore&backup_timestamp=$timestamp"); 
+		$credentials = request_filesystem_credentials("options-general.php?page=updraftplus&action=updraft_restore&backup_timestamp=$timestamp"); 
 		WP_Filesystem($credentials);
 		if ( $wp_filesystem->errors->get_error_code() ) { 
 			foreach ( $wp_filesystem->errors->get_error_messages() as $message )
@@ -1374,7 +1374,7 @@ class UpdraftPlus {
 	//deletes the -old directories that are created when a backup is restored.
 	function delete_old_dirs() {
 		global $wp_filesystem;
-		$credentials = request_filesystem_credentials("options-general.php?page=updraft-backuprestore.php&action=updraft_delete_old_dirs"); 
+		$credentials = request_filesystem_credentials("options-general.php?page=updraftplus&action=updraft_delete_old_dirs"); 
 		WP_Filesystem($credentials);
 		if ( $wp_filesystem->errors->get_error_code() ) { 
 			foreach ( $wp_filesystem->errors->get_error_messages() as $message )
@@ -1416,7 +1416,7 @@ class UpdraftPlus {
 	
 	function create_backup_dir() {
 		global $wp_filesystem;
-		$credentials = request_filesystem_credentials("options-general.php?page=updraft-backuprestore.php&action=updraft_create_backup_dir"); 
+		$credentials = request_filesystem_credentials("options-general.php?page=updraftplus&action=updraft_create_backup_dir"); 
 		WP_Filesystem($credentials);
 		if ( $wp_filesystem->errors->get_error_code() ) { 
 			foreach ( $wp_filesystem->errors->get_error_messages() as $message )
@@ -1514,7 +1514,7 @@ class UpdraftPlus {
 	}
 
 	function add_admin_pages() {
-		add_submenu_page('options-general.php', "UpdraftPlus", "UpdraftPlus", "manage_options", "updraft-backuprestore.php",
+		add_submenu_page('options-general.php', "UpdraftPlus", "UpdraftPlus", "manage_options", "updraftplus",
 		array($this,"settings_output"));
 	}
 
@@ -1544,15 +1544,15 @@ ENDHERE;
 			$backup_success = $this->restore_backup($_REQUEST['backup_timestamp']);
 			if(empty($this->errors) && $backup_success == true) {
 				echo '<p>Restore successful!</p><br/>';
-				echo '<b>Actions:</b> <a href="options-general.php?page=updraft-backuprestore.php&updraft_restore_success=true">Return to Updraft Configuration</a>.';
+				echo '<b>Actions:</b> <a href="options-general.php?page=updraftplus&updraft_restore_success=true">Return to Updraft Configuration</a>.';
 				return;
 			} else {
 				echo '<p>Restore failed...</p><br/>';
-				echo '<b>Actions:</b> <a href="options-general.php?page=updraft-backuprestore.php">Return to Updraft Configuration</a>.';
+				echo '<b>Actions:</b> <a href="options-general.php?page=updraftplus">Return to Updraft Configuration</a>.';
 				return;
 			}
 			//uncomment the below once i figure out how i want the flow of a restoration to work.
-			//echo '<b>Actions:</b> <a href="options-general.php?page=updraft-backuprestore.php">Return to Updraft Configuration</a>.';
+			//echo '<b>Actions:</b> <a href="options-general.php?page=updraftplus">Return to Updraft Configuration</a>.';
 		}
 		$deleted_old_dirs = false;
 		if(isset($_REQUEST['action']) && $_REQUEST['action'] == 'updraft_delete_old_dirs') {
@@ -1562,7 +1562,7 @@ ENDHERE;
 				echo '<p>Old directory removal failed for some reason. You may want to do this manually.</p><br/>';
 			}
 			echo '<p>Old directories successfully removed.</p><br/>';
-			echo '<b>Actions:</b> <a href="options-general.php?page=updraft-backuprestore.php">Return to Updraft Configuration</a>.';
+			echo '<b>Actions:</b> <a href="options-general.php?page=updraftplus">Return to Updraft Configuration</a>.';
 			return;
 		}
 		
@@ -1571,7 +1571,7 @@ ENDHERE;
 				echo '<p>Backup directory could not be created...</p><br/>';
 			}
 			echo '<p>Backup directory successfully created.</p><br/>';
-			echo '<b>Actions:</b> <a href="options-general.php?page=updraft-backuprestore.php">Return to Updraft Configuration</a>.';
+			echo '<b>Actions:</b> <a href="options-general.php?page=updraftplus">Return to Updraft Configuration</a>.';
 			return;
 		}
 		
@@ -1657,7 +1657,7 @@ ENDHERE;
 						$backup_disabled = "";
 					} else {
 						$backup_disabled = 'disabled="disabled"';
-						$dir_info = '<span style="color:red">Backup directory specified is <b>not</b> writable. <span style="font-size:110%;font-weight:bold"><a href="options-general.php?page=updraft-backuprestore.php&action=updraft_create_backup_dir">Click here</a></span> to attempt to create the directory and set the permissions.  If that is unsuccessful check the permissions on your server or change it to another directory that is writable by your web server process.</span>';
+						$dir_info = '<span style="color:red">Backup directory specified is <b>not</b> writable. <span style="font-size:110%;font-weight:bold"><a href="options-general.php?page=updraftplus&action=updraft_create_backup_dir">Click here</a></span> to attempt to create the directory and set the permissions.  If that is unsuccessful check the permissions on your server or change it to another directory that is writable by your web server process.</span>';
 					}
 					?>
 					<th>Current Time:</th>
@@ -1864,6 +1864,7 @@ ENDHERE;
 							break;
 							case 'googledrive':
 								$googledrive = $set;
+								$s3_display = $display_none;
 								$ftp_display = $display_none;
 							break;
 							case 'ftp':
