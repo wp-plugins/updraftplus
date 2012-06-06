@@ -87,10 +87,14 @@ class UpdraftPlus {
 				else if ( $_GET['state'] == 'revoke' )
 					$this->auth_revoke();
 			}
-		} elseif (isset( $_GET['page'] ) && $_GET['page'] == 'updraftplus' && isset($_POST['updraft_googledrive_clientid']) && isset($_POST['updraft_googledrive_secret'])) {
-			update_option('updraft_googledrive_clientid',$_POST['updraft_googledrive_clientid']);
-			update_option('updraft_googledrive_secret',$_POST['updraft_googledrive_secret']);
-			$this->auth_request();
+		} elseif (isset( $_POST['page'] ) && $_POST['page'] == 'updraftplus' && isset($_POST['updraft_googledrive_clientid']) && isset($_POST['updraft_googledrive_secret'])) {
+			$old_clientid = get_option('updraft_googledrive_clientid');
+			$old_secret = get_option('updraft_googledrive_secret');
+			if ($old_clientid != $_POST['updraft_googledrive_clientid'] || $old_secret != $_POST['updraft_googledrive_secret'] || isset($_POST['updraft_googledrive_reauth'])) {
+				update_option('updraft_googledrive_clientid',$_POST['updraft_googledrive_clientid']);
+				update_option('updraft_googledrive_secret',$_POST['updraft_googledrive_secret']);
+				$this->auth_request();
+			}
 		}
 	}
 
@@ -125,7 +129,7 @@ class UpdraftPlus {
 				) )
 			)
 		);
-		$this->log("Google Drive: requesting access token: refresh_token=$token, client_id=$client_id, client_secret=$client_secret");
+		$this->log("Google Drive: requesting access token: refresh_token=$token, client_id=$client_id");
 		$result = @file_get_contents('https://accounts.google.com/o/oauth2/token', false, stream_context_create($context));
 		if($result) {
 			$result = json_decode( $result, true );
@@ -1939,6 +1943,10 @@ ENDHERE;
 				<tr class="googledrive" <?php echo $googledrive_display?>>
 					<th>Google Drive Folder ID:</th>
 					<td><input type="text" style="width:292px" name="updraft_googledrive_remotepath" value="<?php echo get_option('updraft_googledrive_remotepath'); ?>" /></td>
+				</tr>
+				<tr class="googledrive" <?php echo $googledrive_display?>>
+					<th>Reauthenticate:</th>
+					<td><input type="checkbox" name="updraft_googledrive_reauth" value="yes" /> Tick this box if you need to re-authenticate with Google (happens automatically when changing details)</td>
 				</tr>
 				<tr class="googledrive" <?php echo $googledrive_display?>>
 				<th></th>
