@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.8.16
+Version: 0.8.17
 Donate link: http://david.dw-perspective.org.uk/donate
 Author URI: http://wordshell.net
 */ 
@@ -55,7 +55,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.8.16';
+	var $version = '0.8.17';
 
 	var $dbhandle;
 	var $errors = array();
@@ -129,10 +129,10 @@ class UpdraftPlus {
 		$result = @file_get_contents('https://accounts.google.com/o/oauth2/token', false, stream_context_create($context));
 		if($result) {
 			$result = json_decode( $result, true );
-			if ( isset( $result['access_token'] ) )
+			if ( isset( $result['access_token'] ) ) {
 				$this->log("Google Drive: successfully obtained access token");
 				return $result['access_token'];
-			else {
+			} else {
 				$this->log("Google Drive error when requesting access token: response does not contain access_token");
 				return false;
 			}
@@ -1605,7 +1605,7 @@ ENDHERE;
 		}
 		
 		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup') {
-			wp_schedule_single_event(time()+10, 'updraft_backup_all');
+			wp_schedule_single_event(time()+5, 'updraft_backup_all');
 		}
 		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_all') {
 			$this->backup(true,true);
