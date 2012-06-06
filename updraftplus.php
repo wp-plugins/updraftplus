@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.8.3
+Version: 0.8.4
 Donate link: http://david.dw-perspective.org.uk/donate
 Author URI: http://wordshell.net
 */ 
@@ -54,7 +54,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.8.3';
+	var $version = '0.8.4';
 
 	var $dbhandle;
 	var $errors = array();
@@ -88,10 +88,10 @@ class UpdraftPlus {
 					$this->auth_revoke();
 			}
 		} elseif (isset( $_GET['page'] ) && $_GET['page'] == 'updraftplus' && isset($_POST['updraft_googledrive_clientid']) && isset($_POST['updraft_googledrive_secret'])) {
-				update_option('updraft_googledrive_clientid',$_POST['updraft_googledrive_clientid']);
-				update_option('updraft_googledrive_secret',$_POST['updraft_googledrive_secret']);
-				$this->auth_request();
-			}
+			update_option('updraft_googledrive_clientid',$_POST['updraft_googledrive_clientid']);
+			update_option('updraft_googledrive_secret',$_POST['updraft_googledrive_secret']);
+			$this->auth_request();
+		}
 	}
 
 	/**
@@ -125,6 +125,7 @@ class UpdraftPlus {
 				) )
 			)
 		);
+		$this->log("Google Drive: requesting access token: refresh_token=$token, client_id=$client_id, client_secret=$client_secret");
 		$result = @file_get_contents('https://accounts.google.com/o/oauth2/token', false, stream_context_create($context));
 		if($result) {
 			$result = json_decode( $result, true );
@@ -551,6 +552,7 @@ class UpdraftPlus {
 				@set_time_limit(900);
 				$this->log("Cloud backup: Google Drive");
 				if (count($backup_array) >0) { $this->googledrive_backup($backup_array); }
+			break;
 			case 'ftp':
 				@set_time_limit(900);
 				$this->log("Cloud backup: FTP");
