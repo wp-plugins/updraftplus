@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.8.23
+Version: 0.8.25
 Donate link: http://david.dw-perspective.org.uk/donate
 Author URI: http://wordshell.net
 */ 
@@ -55,7 +55,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.8.23';
+	var $version = '0.8.25';
 
 	var $dbhandle;
 	var $errors = array();
@@ -333,7 +333,7 @@ class UpdraftPlus {
 				}
 			}
 			elseif ( strpos( $response, '201' ) ) {
-				$this->log("Google Drive response: ".$result);
+				#$this->log("Google Drive response: ".$result);
 				$xml = simplexml_load_string( $result );
 				if ( $xml === false ) {
 					$this->log('ERROR: Could not create SimpleXMLElement from ' . $result, __FILE__, __LINE__ );
@@ -744,7 +744,7 @@ class UpdraftPlus {
 				$this->log("$file_name: Attempting to upload to Google Drive");
 				$timer_start = microtime( true );
 				if ( $id = $this->googledrive_upload_file( $file_path, $file_name, get_option('updraft_googledrive_remotepath'), $access ) ) {
-					$this->log('OK: Archive ' . $file_name . ' uploaded to Google Drive in ' . ( microtime( true ) - $timer_start ) . ' seconds' );
+					$this->log('OK: Archive ' . $file_name . ' uploaded to Google Drive in ' . ( round(microtime( true ) - $timer_start,2) ) . ' seconds' );
 				} else {
 					$this->log("ERROR: $file_name: Failed to upload to Google Drive" );
 				}
@@ -1979,12 +1979,12 @@ ENDHERE;
 
 					<?php
 						if (get_option('updraft_googledrive_token','xyz') != 'xyz') {
-							echo " (you appear to be already authenticated)";
+							echo " (You appear to be already authenticated)";
 						}
 					?>
 				</p>
-				<p>To get a folder's ID navigate to that folder in Google Drive and copy the ID from your browser's address bar. It is the part that comes after #folders/.</p>
-				<p><strong>N.B. : If you choose Google Drive, then no backups will be deleted - all will be retained.</strong></p>
+				<p>To get a folder's ID navigate to that folder in Google Drive and copy the ID from your browser's address bar. It is the part that comes after <kbd>#folders/.</kbd></p>
+				<p><strong>N.B. : If you choose Google Drive, then no backups will be deleted - all will be retained. Patches welcome!</strong></p>
 				</td>
 				</tr>
 				<tr class="googledrive" <?php echo $googledrive_display?>>

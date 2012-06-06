@@ -47,7 +47,7 @@ Contact me! This is a complex plugin and the only way I can ensure it's robust i
 
 == Changelog ==
 
-= 0.8.23 - 06/06/2012 =
+= 0.8.25 - 06/06/2012 =
 * Now supports Google Drive (thanks to Sorin Iclanzan, code re-used from his Google Drive-only 'backup' plugin)
 * New feature: backup files and database on separate schedules
 * Tidied and improved retain behaviour
