@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.8.15
+Version: 0.8.16
 Donate link: http://david.dw-perspective.org.uk/donate
 Author URI: http://wordshell.net
 */ 
@@ -55,7 +55,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.8.15';
+	var $version = '0.8.16';
 
 	var $dbhandle;
 	var $errors = array();
@@ -130,6 +130,7 @@ class UpdraftPlus {
 		if($result) {
 			$result = json_decode( $result, true );
 			if ( isset( $result['access_token'] ) )
+				$this->log("Google Drive: successfully obtained access token");
 				return $result['access_token'];
 			else {
 				$this->log("Google Drive error when requesting access token: response does not contain access_token");
@@ -179,6 +180,8 @@ class UpdraftPlus {
 			)
 		);
 
+		$this->log('Internal: 1');
+
 		$url = $this->get_resumable_create_media_link( $token, $parent );
 		if ( $url )
 			$url .= '?convert=false'; // needed to upload a file
@@ -186,9 +189,13 @@ class UpdraftPlus {
 		$this->log('Could not retrieve resumable create media link.', __FILE__, __LINE__ );
 			return false;
 		}
-		
+		$this->log('Internal: 2');
+
 		$result = @file_get_contents( $url, false, stream_context_create( $context ) );
+		$this->log('Internal: 3');
+
 		if ( $result !== FALSE ) {
+			$this->log('Internal: 4');
 			if ( strpos( $response = array_shift( $http_response_header ), '200' ) ) {
 				$response_header = array();
 				foreach ( $http_response_header as $header_line ) {
@@ -722,7 +729,7 @@ class UpdraftPlus {
 			foreach ($backup_array as $file) {
 				$file_path = trailingslashit(get_option('updraft_dir')).$file;
 				$file_name = basename($file_path);
-				$this->log('$file_name: Attempting to upload to Google Drive');
+				$this->log("$file_name: Attempting to upload to Google Drive");
 				$timer_start = microtime( true );
 				if ( ! $id = $this->googledrive_upload_file( $file_path, $file_name, get_options('updraft_googledrive_remotepath'), $access ) ) {
 					$this->log('ERROR: $file_name: Failed to upload to Google Drive' );
@@ -1584,6 +1591,9 @@ ENDHERE;
 		if(isset($_GET['error'])) {
 			echo "<p><strong>ERROR:</strong> ".htmlspecialchars($_GET['error'])."</p>";
 		}
+		if(isset($_GET['message'])) {
+			echo "<p><strong>Note:</strong> ".htmlspecialchars($_GET['message'])."</p>";
+		}
 
 		if(isset($_GET['action']) && $_GET['action'] == 'updraft_create_backup_dir') {
 			if(!$this->create_backup_dir()) {
@@ -1595,7 +1605,7 @@ ENDHERE;
 		}
 		
 		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup') {
-			wp_schedule_single_event(time()+3, 'updraft_backup_all');
+			wp_schedule_single_event(time()+10, 'updraft_backup_all');
 		}
 		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_all') {
 			$this->backup(true,true);
@@ -1948,17 +1958,19 @@ ENDHERE;
 				</tr>
 				<tr class="googledrive" <?php echo $googledrive_display?>>
 					<th>Google Drive Folder ID:</th>
-					<td><input type="text" style="width:332px" name="updraft_googledrive_remotepath" value="<?php echo get_option('updraft_googledrive_remotepath'); ?>" /></td>
+					<td><input type="text" style="width:332px" name="updraft_googledrive_remotepath" value="<?php echo get_option('updraft_googledrive_remotepath'); ?>" /> <em>(Leave empty to use your root folder)</em></td>
 				</tr>
 				<tr class="googledrive" <?php echo $googledrive_display?>>
 					<th>Authenticate with Google:</th>
-					<td><a href="?page=updraftplus&action=auth&updraftplus_googleauth=doit"><strong>After</strong> you have saved your settings (by clicking &quot;Save Changes&quot; below), then come back here once and click this link to complete authentication with Google.</a>
+					<td><p><a href="?page=updraftplus&action=auth&updraftplus_googleauth=doit"><strong>After</strong> you have saved your settings (by clicking &quot;Save Changes&quot; below), then come back here once and click this link to complete authentication with Google.</a>
 
 					<?php
 						if (get_option('updraft_googledrive_token','xyz') != 'xyz') {
 							echo " (you appear to be already authenticated)";
 						}
 					?>
+				</p>
+				<p>To get a folder's ID navigate to that folder in Google Drive and copy the ID from your browser's address bar. It is the part that comes after #folders/.</p>
 				</td>
 				</tr>
 				<tr class="googledrive" <?php echo $googledrive_display?>>
