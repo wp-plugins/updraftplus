@@ -1,6 +1,6 @@
 === UpdraftPlus ===
 Contributors: David Anderson
-Tags: backup, restore, database, cloud, amazon, google drive, gdrive, s3, ftp, cloud, updraft
+Tags: backup, restore, database, cloud, amazon, s3, google drive, google, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.3.2
 Stable tag: 0.7.7
@@ -9,10 +9,10 @@ License: GPLv2 or later
 
 == Description ==
 
-UpdraftPlus simplifies backups (and restoration) for your blog. Backup into the cloud (S3, FTP, and email) and restore with a single click. Backups of files and database can be upon separate schedules.
+UpdraftPlus simplifies backups (and restoration) for your blog. Backup into the cloud (S3, Google Drive, FTP, and email) and restore with a single click. Backups of files and database can be upon separate schedules.
 
 == Upgrade Notice ==
-Added separate schedules and Google Drive support (0.8.0)
+Added separate schedules and Google Drive support
 
 == Installation ==
 
@@ -47,7 +47,7 @@ Contact me! This is a complex plugin and the only way I can ensure it's robust i
 
 == Changelog ==
 
-= 0.8.25 - 06/06/2012 =
+= 0.8.26 - 06/06/2012 =
 * Now supports Google Drive (thanks to Sorin Iclanzan, code re-used from his Google Drive-only 'backup' plugin)
 * New feature: backup files and database on separate schedules
 * Tidied and improved retain behaviour
