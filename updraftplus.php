@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.8.14
+Version: 0.8.15
 Donate link: http://david.dw-perspective.org.uk/donate
 Author URI: http://wordshell.net
 */ 
@@ -55,7 +55,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.8.14';
+	var $version = '0.8.15';
 
 	var $dbhandle;
 	var $errors = array();
@@ -399,13 +399,9 @@ class UpdraftPlus {
 					header('Location: '.admin_url('options-general.php?page=updraftplus&message=' . __( 'Authorization was successful.', 'updraftplus' ) ) );
 				}
 				else {
-				echo "<!--custard-->\n";
-				print_r($result);
-					#header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'No refresh token was received!', 'updraftplus' ) ) );
+					header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'No refresh token was received!', 'updraftplus' ) ) );
 				}
 			} else {
-				//echo "<!--custard-->\n";
-				//print_r($context);
 				header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'Bad response!', 'backup' ) ) );
 			}
 		}
@@ -1956,7 +1952,14 @@ ENDHERE;
 				</tr>
 				<tr class="googledrive" <?php echo $googledrive_display?>>
 					<th>Authenticate with Google:</th>
-					<td><a href="?page=updraftplus&action=auth&updraftplus_googleauth=doit"><strong>After</strong> you have saved your settings (by clicking &quot;Save Changes&quot; below), then come back here once and click this link to complete authentication with Google</a></td>
+					<td><a href="?page=updraftplus&action=auth&updraftplus_googleauth=doit"><strong>After</strong> you have saved your settings (by clicking &quot;Save Changes&quot; below), then come back here once and click this link to complete authentication with Google.</a>
+
+					<?php
+						if (get_option('updraft_googledrive_token','xyz') != 'xyz') {
+							echo " (you appear to be already authenticated)";
+						}
+					?>
+				</td>
 				</tr>
 				<tr class="googledrive" <?php echo $googledrive_display?>>
 				<th></th>
