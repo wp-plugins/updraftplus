@@ -1,14 +1,18 @@
 === UpdraftPlus ===
 Contributors: David Anderson
-Tags: backup, restore, database, cloud, amazon, s3, ftp, cloud
+Tags: backup, restore, database, cloud, amazon, s3, google drive, google, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.3.2
-Stable tag: 0.7.7
+Stable tag: 0.8.28
+Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv2 or later
 
 == Description ==
 
-UpdraftPlus simplifies backups (and restoration) for your blog. Backup into the cloud (S3, FTP, and email) and restore with a single click.
+UpdraftPlus simplifies backups (and restoration) for your blog. Backup into the cloud (S3, Google Drive, FTP, and email) and restore with a single click. Backups of files and database can be upon separate schedules.
+
+== Upgrade Notice ==
+Added separate schedules and Google Drive support
 
 == Installation ==
 
@@ -41,12 +45,11 @@ Nothing, probably. That's the point of an encryption key - people who don't have
 
 Contact me! This is a complex plugin and the only way I can ensure it's robust is to get bug reports and fix the problems that crop up. Please turn on debugging mode and send me the log if you can find it. Include as much information as you can when reporting (PHP version, your blog's site, the error you saw and how you got to the page that caused it, etcetera). If you can send a patch, that's even better.
 
-== Upgrade Notice ==
-Added a logging mechanism for easier development
-
 == Changelog ==
 
-= 0.7.8 - 05/30/2012 =
+= 0.8.28 - 06/06/2012 =
+* Now experimentally supports Google Drive (thanks to Sorin Iclanzan, code re-used from his Google Drive-only 'backup' plugin)
+* New feature: backup files and database on separate schedules
 * Tidied and improved retain behaviour
 
 = 0.7.7 - 05/29/2012 =
@@ -59,7 +62,7 @@ Added a logging mechanism for easier development
 * Added ability to decrypt encrypted database backups
 * Added ability to opt out of backing up each file group
 * Now adds database character set, the lack of which before made database backups unusable without modifications
-* Version number bump to make sure that this is an improvement on the original Updraft, and is now tried and tested
+* Version number bump to make clear that this is an improvement on the original Updraft, and is now tried and tested
 
 = 0.1.3 - 01/16/2012 =
 * Force backup of all tables found in database (vanilla Updraft only backed up WP core tables)
