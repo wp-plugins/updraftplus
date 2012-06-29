@@ -2,8 +2,8 @@
 Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, google drive, google, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
-Tested up to: 3.3.2
-Stable tag: 0.8.28
+Tested up to: 3.4.1
+Stable tag: 0.8.29
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv2 or later
 
@@ -12,7 +12,7 @@ License: GPLv2 or later
 UpdraftPlus simplifies backups (and restoration) for your blog. Backup into the cloud (S3, Google Drive, FTP, and email) and restore with a single click. Backups of files and database can be upon separate schedules.
 
 == Upgrade Notice ==
-Added separate schedules and Google Drive support
+Tested up to WordPress 3.4.1
 
 == Installation ==
 
@@ -46,6 +46,9 @@ Nothing, probably. That's the point of an encryption key - people who don't have
 Contact me! This is a complex plugin and the only way I can ensure it's robust is to get bug reports and fix the problems that crop up. Please turn on debugging mode and send me the log if you can find it. Include as much information as you can when reporting (PHP version, your blog's site, the error you saw and how you got to the page that caused it, etcetera). If you can send a patch, that's even better.
 
 == Changelog ==
+
+= 0.8.29 - 06/29/2012 =
+* Marking as tested up to WordPress 3.4.1
 
 = 0.8.28 - 06/06/2012 =
 * Now experimentally supports Google Drive (thanks to Sorin Iclanzan, code re-used from his Google Drive-only 'backup' plugin)
