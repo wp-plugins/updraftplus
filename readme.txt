@@ -47,6 +47,11 @@ Contact me! This is a complex plugin and the only way I can ensure it's robust i
 
 == Changelog ==
 
+= 0.8.31 - 09/08/2012 =
+* Fixed error deleting old S3 backups. If your expired S3 backups were not deleted, they should be in future - but you will need to delete manually those that expired before you installed this update.
+* Fixed minor bug closing log file
+* Marked as working with WordPress 3.4.2
+
 = 0.8.29 - 06/29/2012 =
 * Marking as tested up to WordPress 3.4.1
 
