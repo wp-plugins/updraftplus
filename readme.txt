@@ -2,8 +2,8 @@
 Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, Amazon S3, google drive, google, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
-Tested up to: 3.4.1
-Stable tag: 0.8.29
+Tested up to: 3.4.2
+Stable tag: 0.8.30
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv2 or later
 
@@ -12,7 +12,7 @@ License: GPLv2 or later
 UpdraftPlus simplifies backups (and restoration). Backup into the cloud (S3, Google Drive, FTP, and email) and restore with a single click. Backups of files and database can have separate schedules.
 
 == Upgrade Notice ==
-Tested up to WordPress 3.4.1
+Minor error closing log file fixed
 
 == Installation ==
 
