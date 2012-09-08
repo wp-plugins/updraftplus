@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.8.30
+Version: 0.8.31
 Donate link: http://david.dw-perspective.org.uk/donate
 Author URI: http://wordshell.net
 */ 
@@ -54,7 +54,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.8.30';
+	var $version = '0.8.31';
 
 	var $dbhandle;
 	var $errors = array();
@@ -652,7 +652,7 @@ class UpdraftPlus {
 						@unlink($fullpath); //delete it if it's locally available
 						if ($updraft_service == "s3") {
 							$this->log("$backup_datestamp: Delete remote: s3://$remote_path/$file");
-							if (!$remote_object->deleteObject($bucket_name, $file)) {
+							if (!$remote_object->deleteObject($remote_path, $file)) {
 								$this->error("S3 Error: Failed to delete object $file. Error was ".$php_errormsg);
 							}
 						} elseif ($updraft_service == "ftp") {
@@ -669,7 +669,7 @@ class UpdraftPlus {
 						@unlink($fullpath); //delete it if it's locally available
 						if ($updraft_service == "s3") {
 							$this->log("$backup_datestamp: Delete remote: s3://$remote_path/$file2");
-							if (!$remote_object->deleteObject($bucket_name, $file2)) {
+							if (!$remote_object->deleteObject($remote_path, $file2)) {
 								$this->error("S3 Error: Failed to delete object $file2. Error was ".$php_errormsg);
 							}
 						} elseif ($updraft_service == "ftp") {
@@ -687,7 +687,7 @@ class UpdraftPlus {
 						@unlink($fullpath); //delete it if it's locally available
 						if ($updraft_service == "s3") {
 							$this->log("$backup_datestamp: Delete remote: s3://$remote_path/$file3");
-							if (!$remote_object->deleteObject($bucket_name, $file3)) {
+							if (!$remote_object->deleteObject($remote_path, $file3)) {
 								$this->error("S3 Error: Failed to delete object $file3. Error was ".$php_errormsg);
 							}
 						} elseif ($updraft_service == "ftp") {
