@@ -2,7 +2,7 @@
 Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, google drive, google, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
-Tested up to: 3.3.2
+Tested up to: 3.4.2
 Stable tag: 0.8.28
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv2 or later
