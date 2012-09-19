@@ -3,7 +3,7 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, Amazon S3, google drive, google, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.4.2
-Stable tag: 0.8.32
+Stable tag: 0.8.33
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv2 or later
 
@@ -12,7 +12,7 @@ License: GPLv2 or later
 UpdraftPlus simplifies backups (and restoration). Backup into the cloud (S3, Google Drive, FTP, and email) and restore with a single click. Backups of files and database can have separate schedules.
 
 == Upgrade Notice ==
-Database tables from outside of thsi WP install were still being backed up; prevent
+Some web hosts set safe_mode=Off, which is an invalid value and causes surprises
 
 == Installation ==
 
@@ -46,6 +46,9 @@ Nothing, probably. That's the point of an encryption key - people who don't have
 Contact me! This is a complex plugin and the only way I can ensure it's robust is to get bug reports and fix the problems that crop up. Please turn on debugging mode and send me the log if you can find it. Include as much information as you can when reporting (PHP version, your blog's site, the error you saw and how you got to the page that caused it, etcetera). If you can send a patch, that's even better.
 
 == Changelog ==
+
+= 0.8.33 - 09/19/2012 =
+* Work around some web hosts with invalid safe_mode configurations
 
 = 0.8.32 - 09/17/2012 =
 * Fix a subtle bug that caused database tables from outside of this WordPress install to be backed up

@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.8.32
+Version: 0.8.33
 Donate link: http://david.dw-perspective.org.uk/donate
 Author URI: http://wordshell.net
 */ 
@@ -54,7 +54,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.8.32';
+	var $version = '0.8.33';
 
 	var $dbhandle;
 	var $errors = array();
@@ -933,7 +933,7 @@ class UpdraftPlus {
 		foreach ($all_tables as $table) {
 			$total_tables++;
 			// Increase script execution time-limit to 15 min for every table.
-			if ( !ini_get('safe_mode')) @set_time_limit(15*60);
+			if ( !ini_get('safe_mode') || strtolower(ini_get('safe_mode')) == "off") @set_time_limit(15*60);
 			# === is needed, otherwise 'false' matches (i.e. prefix does not match)
 			if ( strpos($table, $table_prefix) === 0 ) {
 				// Create the SQL statements
@@ -1087,7 +1087,7 @@ class UpdraftPlus {
 					$where = ' WHERE post_type != "revision"';
 				}
 				
-				if ( !ini_get('safe_mode')) @set_time_limit(15*60);
+				if ( !ini_get('safe_mode') || strtolower(ini_get('safe_mode')) == "off") @set_time_limit(15*60);
 				$table_data = $wpdb->get_results("SELECT * FROM $table $where LIMIT {$row_start}, {$row_inc}", ARRAY_A);
 				$entries = 'INSERT INTO ' . $this->backquote($table) . ' VALUES (';	
 				//    \x08\\x09, not required
@@ -1400,7 +1400,8 @@ class UpdraftPlus {
 			}
 		}
 		echo '</div>'; //close the updraft_restore_progress div
-		if(ini_get('safe_mode')) {
+		# The 'off' check is for badly configured setups - http://wordpress.org/support/topic/plugin-wp-super-cache-warning-php-safe-mode-enabled-but-safe-mode-is-off
+		if(ini_get('safe_mode') && strtolower(ini_get('safe_mode')) != "off") {
 			echo "<p>DB could not be restored because safe_mode is active on your server.  You will need to manually restore the file via phpMyAdmin or another method.</p><br/>";
 			return false;
 		}
