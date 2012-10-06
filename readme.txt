@@ -3,7 +3,7 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, Amazon S3, google drive, google, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.4.2
-Stable tag: 0.8.33
+Stable tag: 0.8.36
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv2 or later
 
@@ -12,7 +12,7 @@ License: GPLv2 or later
 UpdraftPlus simplifies backups (and restoration). Backup into the cloud (S3, Google Drive, FTP, and email) and restore with a single click. Backups of files and database can have separate schedules.
 
 == Upgrade Notice ==
-Some web hosts set safe_mode=Off, which is an invalid value and causes surprises
+Support using subdirectories in Amazon S3
 
 == Installation ==
 
@@ -29,7 +29,7 @@ Standard WordPress plugin installation:
 
 You can check the changelog for changes; but the original Updraft, before I forked it, had two major problems. Firstly, it only backed up WP core tables from the database; if any of your plugins stored data in extra tables, then they were not backed up. Secondly, the database backup did not include charset information, which meant that you needed to know some SQL wizardry to actually be able to use the backup. I made UpdraftPlus out of my experience of trying to back up several sites with Updraft. Then, I added encryption for the database file for extra peace of mind, and future-proofed by getting rid of some deprecated aspects.
 
-= I like automating WordPress, and using the command-line. Please advertise to me. =
+= I like automating WordPress, and using the command-line. Please tell me more. =
 
 That's very good of you, thank you. You are looking for WordShell, <a href="http://wordshell.net">http://wordshell.net</a>.
 
@@ -39,13 +39,17 @@ If you have the encryption key entered in your settings and you are restoring fr
 
 = I lost my encryption key - what can I do? =
 
-Nothing, probably. That's the point of an encryption key - people who don't have it can't get the data. Hire an encryption expert to build a super computer to try to break the encryption by brute force, at a tremendous price.
+Nothing, probably. That's the point of an encryption key - people who don't have it can't get the data. Hire an encryption expert to build a super computer to try to break the encryption by brute force, at a price.
 
 = I found a bug. What do I do? =
 
 Contact me! This is a complex plugin and the only way I can ensure it's robust is to get bug reports and fix the problems that crop up. Please turn on debugging mode and send me the log if you can find it. Include as much information as you can when reporting (PHP version, your blog's site, the error you saw and how you got to the page that caused it, etcetera). If you can send a patch, that's even better.
 
 == Changelog ==
+
+= 0.8.36 - 03/10/2012 =
+* Support using sub-directories in Amazon S3
+* Some more debug logging for Amazon S3
 
 = 0.8.33 - 09/19/2012 =
 * Work around some web hosts with invalid safe_mode configurations

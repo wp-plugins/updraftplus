@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.8.33
+Version: 0.8.36
 Donate link: http://david.dw-perspective.org.uk/donate
 Author URI: http://wordshell.net
 */ 
@@ -17,6 +17,8 @@ Author URI: http://wordshell.net
 //investigate $php_errormsg further
 //pretty up return messages in admin area
 //check s3/ftp download
+
+//If someone tries Google Drive then switches away, then they get a whinge about unauthenticated details
 
 /* More TODO:
 Are all directories in wp-content covered? No; only plugins, themes, content. We should check for others and allow the user the chance to choose which ones he wants
@@ -54,7 +56,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.8.33';
+	var $version = '0.8.36';
 
 	var $dbhandle;
 	var $errors = array();
@@ -606,7 +608,8 @@ class UpdraftPlus {
 		$this->log("Retain: user setting: number to retain = $retain");
 		// Returns an array, most recent first, of backup sets
 		$backup_history = $this->get_backup_history();
-		$db_backups_found = 0; $file_backups_found = 0;
+		$db_backups_found = 0;
+		$file_backups_found = 0;
 		$this->log("Number of backup sets in history: ".count($backup_history));
 		foreach ($backup_history as $backup_datestamp => $backup_to_examine) {
 			// $backup_to_examine is an array of file names, keyed on db/plugins/themes/uploads
@@ -623,9 +626,23 @@ class UpdraftPlus {
 						$fullpath = trailingslashit(get_option('updraft_dir')).$file;
 						@unlink($fullpath); //delete it if it's locally available
 						if ($updraft_service == "s3") {
-							$this->log("$backup_datestamp: Delete remote: s3://$remote_path/$file");
-							if (!$remote_object->deleteObject($remote_path, $file)) {
-								$this->error("S3 Error: Failed to delete object $file. Error was ".$php_errormsg);
+							if (preg_match("#^([^/]+)/(.*)$#",$remote_path,$bmatches)) {
+								$s3_bucket=$bmatches[1];
+								$s3_uri = $bmatches[2]."/".$file;
+							} else {
+								$s3_bucket = $remote_path;
+								$s3_uri = $file;
+							}
+							$this->log("$backup_datestamp: Delete remote: bucket=$s3_bucket, URI=$s3_uri");
+							# Here we brought in the function deleteObject in order to get more direct access to any error
+							$rest = new S3Request('DELETE', $s3_bucket, $s3_uri);
+							$rest = $rest->getResponse();
+							if ($rest->error === false && $rest->code !== 204) {
+								$this->log("S3 Error: Expected HTTP response 204; got: ".$rest->code);
+								$this->error("S3 Error: Unexpected HTTP response code ".$rest->code." (expected 204)");
+							} elseif ($rest->error !== false) {
+								$this->log("S3 Error: ".$rest->error['code'].": ".$rest->error['message']);
+								$this->error("S3 delete error: ".$rest->error['code'].": ".$rest->error['message']);
 							}
 						} elseif ($updraft_service == "ftp") {
 							$this->log("$backup_datestamp: Delete remote ftp: $remote_path/$file");
@@ -646,56 +663,37 @@ class UpdraftPlus {
 					$file = isset($backup_to_examine['plugins']) ? $backup_to_examine['plugins'] : "";
 					$file2 = isset($backup_to_examine['themes']) ? $backup_to_examine['themes'] : "";
 					$file3 = isset($backup_to_examine['uploads']) ? $backup_to_examine['uploads'] : "";
-					if ($file) {
-						$this->log("$backup_datestamp: Delete this file: $file");
-						$fullpath = trailingslashit(get_option('updraft_dir')).$file;
-						@unlink($fullpath); //delete it if it's locally available
-						if ($updraft_service == "s3") {
-							$this->log("$backup_datestamp: Delete remote: s3://$remote_path/$file");
-							if (!$remote_object->deleteObject($remote_path, $file)) {
-								$this->error("S3 Error: Failed to delete object $file. Error was ".$php_errormsg);
+					foreach (array($file,$file2,$file3) as $dofile) {
+						if ($dofile) {
+							$this->log("$backup_datestamp: Delete this file: $dofile");
+							$fullpath = trailingslashit(get_option('updraft_dir')).$dofile;
+							@unlink($fullpath); //delete it if it's locally available
+							if ($updraft_service == "s3") {
+								if (preg_match("#^([^/]+)/(.*)$#",$remote_path,$bmatches)) {
+									$s3_bucket=$bmatches[1];
+									$s3_uri = $bmatches[2]."/".$dofile;
+								} else {
+									$s3_bucket = $remote_path;
+									$s3_uri = $dofile;
+								}
+								$this->log("$backup_datestamp: Delete remote: bucket=$s3_bucket, URI=$s3_uri");
+								# Here we brought in the function deleteObject in order to get more direct access to any error
+								$rest = new S3Request('DELETE', $s3_bucket, $s3_uri);
+								$rest = $rest->getResponse();
+								if ($rest->error === false && $rest->code !== 204) {
+									$this->log("S3 Error: Expected HTTP response 204; got: ".$rest->code);
+									$this->error("S3 Error: Unexpected HTTP response code ".$rest->code." (expected 204)");
+								} elseif ($rest->error !== false) {
+									$this->log("S3 Error: ".$rest->error['code'].": ".$rest->error['message']);
+									$this->error("S3 delete error: ".$rest->error['code'].": ".$rest->error['message']);
+								}
+							} elseif ($updraft_service == "ftp") {
+								$this->log("$backup_datestamp: Delete remote ftp: $remote_path/$dofile");
+								@$remote_object->delete($remote_path.$dofile);
+							} elseif ($updraft_service == "googledrive") {
+								$this->log("$backup_datestamp: Delete remote file from Google Drive: $remote_path/$dofile");
+								$this->googledrive_delete_file($remote_path.'/'.$dofile,$remote_object);
 							}
-						} elseif ($updraft_service == "ftp") {
-							$this->log("$backup_datestamp: Delete remote ftp: $remote_path/$file");
-							@$remote_object->delete($remote_path.$file);
-						} elseif ($updraft_service == "googledrive") {
-							$this->log("$backup_datestamp: Delete remote file from Google Drive: $remote_path/$file");
-							$this->googledrive_delete_file($remote_path.'/'.$file,$remote_object);
-						}
-					}
-					if ($file2) {
-						$this->log("$backup_datestamp: Delete this file: $file2");
-						$fullpath = trailingslashit(get_option('updraft_dir')).$file2;
-						@unlink($fullpath); //delete it if it's locally available
-						if ($updraft_service == "s3") {
-							$this->log("$backup_datestamp: Delete remote: s3://$remote_path/$file2");
-							if (!$remote_object->deleteObject($remote_path, $file2)) {
-								$this->error("S3 Error: Failed to delete object $file2. Error was ".$php_errormsg);
-							}
-						} elseif ($updraft_service == "ftp") {
-							$this->log("$backup_datestamp: Delete remote ftp: $remote_path/$file2");
-							@$remote_object->delete($remote_path.$file2);
-						} elseif ($updraft_service == "googledrive") {
-							$this->log("$backup_datestamp: Delete remote file from Google Drive: $remote_path/$file");
-							$this->googledrive_delete_file($remote_path.'/'.$file,$remote_object);
-						}
-
-					}
-					if ($file3) {
-						$this->log("$backup_datestamp: Delete this file: $file3");
-						$fullpath = trailingslashit(get_option('updraft_dir')).$file3;
-						@unlink($fullpath); //delete it if it's locally available
-						if ($updraft_service == "s3") {
-							$this->log("$backup_datestamp: Delete remote: s3://$remote_path/$file3");
-							if (!$remote_object->deleteObject($remote_path, $file3)) {
-								$this->error("S3 Error: Failed to delete object $file3. Error was ".$php_errormsg);
-							}
-						} elseif ($updraft_service == "ftp") {
-							$this->log("$backup_datestamp: Delete remote ftp: $remote_path/$file3");
-							@$remote_object->delete($remote_path.$file3);
-						} elseif ($updraft_service == "googledrive") {
-							$this->log("$backup_datestamp: Delete remote file from Google Drive: $remote_path/$file");
-							$this->googledrive_delete_file($remote_path.'/'.$file,$remote_object);
 						}
 					}
 					unset($backup_to_examine['plugins']);
@@ -722,15 +720,24 @@ class UpdraftPlus {
 		}
 		$s3 = new S3(get_option('updraft_s3_login'), get_option('updraft_s3_pass'));
 		$bucket_name = untrailingslashit(get_option('updraft_s3_remote_path'));
+		$bucket_path = "";
+		$orig_bucket_name = $bucket_name;
+		if (preg_match("#^([^/]+)/(.*)$#",$bucket_name,$bmatches)) {
+			$bucket_name = $bmatches[1];
+			$bucket_path = $bmatches[2]."/";
+		}
 		if (@$s3->putBucket($bucket_name, S3::ACL_PRIVATE)) {
 			foreach($backup_array as $file) {
 				$fullpath = trailingslashit(get_option('updraft_dir')).$file;
-				if (!$s3->putObjectFile($fullpath, $bucket_name, $file)) {
+				$this->log("S3 upload: $fullpath -> s3://$bucket_name/$bucket_path$file");
+				if (!$s3->putObjectFile($fullpath, $bucket_name, $bucket_path.$file)) {
+					$this->log("S3 upload: failed");
 					$this->error("S3 Error: Failed to upload $fullpath. Error was ".$php_errormsg);
 				}
 			}
-			$this->prune_retained_backups('s3',$s3,$bucket_name);
+			$this->prune_retained_backups('s3',$s3,$orig_bucket_name);
 		} else {
+			$this->log("S3 Error: Failed to create bucket $bucket_name. Error was ".$php_errormsg);
 			$this->error("S3 Error: Failed to create bucket $bucket_name. Error was ".$php_errormsg);
 		}
 	}
@@ -1335,9 +1342,14 @@ class UpdraftPlus {
 		}
 		$s3 = new S3(get_option('updraft_s3_login'), get_option('updraft_s3_pass'));
 		$bucket_name = untrailingslashit(get_option('updraft_s3_remote_path'));
+		$bucket_path = "";
+		if (preg_match("#^([^/]+)/(.*)$#",$bucket_name,$bmatches)) {
+			$bucket_name = $bmatches[1];
+			$bucket_path = $bmatches[2]."/";
+		}
 		if (@$s3->putBucket($bucket_name, S3::ACL_PRIVATE)) {
 			$fullpath = trailingslashit(get_option('updraft_dir')).$file;
-			if (!$s3->getObject($bucket_name, $file, $fullpath)) {
+			if (!$s3->getObject($bucket_name, $bucket_path.$file, $fullpath)) {
 				$this->error("S3 Error: Failed to download $fullpath. Error was ".$php_errormsg);
 			}
 		} else {
@@ -1957,12 +1969,12 @@ ENDHERE;
 					<td><input type="password" autocomplete="off" style="width:292px" name="updraft_s3_pass" value="<?php echo get_option('updraft_s3_pass'); ?>" /></td>
 				</tr>
 				<tr class="s3" <?php echo $s3_display?>>
-					<th>S3 bucket:</th>
-					<td><input type="text" style="width:292px" name="updraft_s3_remote_path" value="<?php echo get_option('updraft_s3_remote_path'); ?>" /></td>
+					<th>S3 location:</th>
+					<td>s3://<input type="text" style="width:292px" name="updraft_s3_remote_path" value="<?php echo get_option('updraft_s3_remote_path'); ?>" /></td>
 				</tr>
 				<tr class="s3" <?php echo $s3_display?>>
 				<th></th>
-				<td><p>Get your access key and secret key from your AWS page, then pick a (globally unique) bucket name (letters and numbers) to use for storage. (Do not enter the s3:// prefix).</p></td>
+				<td><p>Get your access key and secret key from your AWS page, then pick a (globally unique) bucket name (letters and numbers) (and optionally a path) to use for storage.</p></td>
 				</tr>
 
 				<!-- Google Drive -->
