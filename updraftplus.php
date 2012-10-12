@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed. Files and DB can be on separate schedules.
 Author: David Anderson.
-Version: 0.8.36
+Version: 0.8.37
 Donate link: http://david.dw-perspective.org.uk/donate
 Author URI: http://wordshell.net
 */ 
@@ -17,8 +17,6 @@ Author URI: http://wordshell.net
 //investigate $php_errormsg further
 //pretty up return messages in admin area
 //check s3/ftp download
-
-//If someone tries Google Drive then switches away, then they get a whinge about unauthenticated details
 
 /* More TODO:
 Are all directories in wp-content covered? No; only plugins, themes, content. We should check for others and allow the user the chance to choose which ones he wants
@@ -56,7 +54,7 @@ if(!$updraft->memory_check(192)) {
 
 class UpdraftPlus {
 
-	var $version = '0.8.36';
+	var $version = '0.8.37';
 
 	var $dbhandle;
 	var $errors = array();
@@ -1560,7 +1558,7 @@ class UpdraftPlus {
 			}
 		}
 		*/
-		if (current_user_can('manage_options') && get_option('updraft_googledrive_clientid') != "" && get_option('updraft_googledrive_token','xyz') == 'xyz') {
+		if (current_user_can('manage_options') && get_option('updraft_service') == "googledrive" && get_option('updraft_googledrive_clientid') != "" && get_option('updraft_googledrive_token','xyz') == 'xyz') {
 			add_action('admin_notices', array($this,'show_admin_warning_googledrive') );
 		}
 	}
