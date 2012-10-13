@@ -2,14 +2,14 @@
 /*
 Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
-Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed. Files and DB can be on separate schedules.
+Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 0.8.37
+Version: 0.8.50
 Donate link: http://david.dw-perspective.org.uk/donate
 Author URI: http://wordshell.net
 */ 
 
-//TODO:
+//TODO (some of these items mine, some from original Updraft awaiting review):
 //Add DropBox support
 //Struggles with large uploads - runs out of time before finishing. Break into chunks? Resume download on later run? (Add a new scheduled event to check on progress? Separate the upload from the creation?). Add in some logging (in a .php file that exists first).
 //improve error reporting.  s3 and dir backup have decent reporting now, but not sure i know what to do from here
@@ -19,7 +19,7 @@ Author URI: http://wordshell.net
 //check s3/ftp download
 
 /* More TODO:
-Are all directories in wp-content covered? No; only plugins, themes, content. We should check for others and allow the user the chance to choose which ones he wants
+DONE, TESTING: Are all directories in wp-content covered? No; only plugins, themes, content. We should check for others and allow the user the chance to choose which ones he wants
 Use only one entry in WP options database
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
 */
@@ -52,9 +52,11 @@ if(!$updraft->memory_check(192)) {
 	@ini_set('memory_limit', '192M'); //up the memory limit for large backup files... should split the backup set into manageable chunks based on the limit
 }
 
+define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
+
 class UpdraftPlus {
 
-	var $version = '0.8.37';
+	var $version = '0.8.50';
 
 	var $dbhandle;
 	var $errors = array();
@@ -488,7 +490,7 @@ class UpdraftPlus {
 
 		// Log some information that may be helpful
 		global $wp_version;
-		$this->log("PHP version: ".phpversion()." WordPress version: ".$wp_version." Backup files: $backup_files (schedule: ".get_option('updraft_interval','unset').") Backup DB: $backup_database (schedule: ".get_option('updraft_interval_database','unset').")");
+		$this->log("PHP version: ".phpversion()." WordPress version: ".$wp_version." Updraft version: ".$this->version." Backup files: $backup_files (schedule: ".get_option('updraft_interval','unset').") Backup DB: $backup_database (schedule: ".get_option('updraft_interval_database','unset').")");
 
 		# If the files and database schedules are the same, and if this the file one, then we rope in database too.
 		# On the other hand, if the schedules were the same and this was the database run, then there is nothing to do.
@@ -653,7 +655,7 @@ class UpdraftPlus {
 					unset($backup_to_examine['db']);
 				}
 			}
-			if (isset($backup_to_examine['plugins']) || isset($backup_to_examine['themes']) || isset($backup_to_examine['uploads'])) {
+			if (isset($backup_to_examine['plugins']) || isset($backup_to_examine['themes']) || isset($backup_to_examine['uploads']) || isset($backup_to_examine['others'])) {
 				$file_backups_found++;
 				$this->log("$backup_datestamp: this set includes files; fileset count is now $file_backups_found");
 				if ($file_backups_found > $retain) {
@@ -661,7 +663,8 @@ class UpdraftPlus {
 					$file = isset($backup_to_examine['plugins']) ? $backup_to_examine['plugins'] : "";
 					$file2 = isset($backup_to_examine['themes']) ? $backup_to_examine['themes'] : "";
 					$file3 = isset($backup_to_examine['uploads']) ? $backup_to_examine['uploads'] : "";
-					foreach (array($file,$file2,$file3) as $dofile) {
+					$file4 = isset($backup_to_examine['others']) ? $backup_to_examine['others'] : "";
+					foreach (array($file,$file2,$file3,$file4) as $dofile) {
 						if ($dofile) {
 							$this->log("$backup_datestamp: Delete this file: $dofile");
 							$fullpath = trailingslashit(get_option('updraft_dir')).$dofile;
@@ -697,6 +700,7 @@ class UpdraftPlus {
 					unset($backup_to_examine['plugins']);
 					unset($backup_to_examine['themes']);
 					unset($backup_to_examine['uploads']);
+					unset($backup_to_examine['others']);
 				}
 			}
 			// Delete backup set completely if empty, o/w just remove DB
@@ -795,11 +799,9 @@ class UpdraftPlus {
 		$wp_upload_dir = wp_upload_dir();
 		$wp_upload_dir = $wp_upload_dir['basedir'];
 		$wp_plugins_dir = WP_PLUGIN_DIR;
-		if(!class_exists('PclZip')) {
-			if (file_exists(ABSPATH.'/wp-admin/includes/class-pclzip.php')) {
-				require_once(ABSPATH.'/wp-admin/includes/class-pclzip.php');
-			}
-		}
+
+		if(!class_exists('PclZip')) { require_once(ABSPATH.'/wp-admin/includes/class-pclzip.php'); }
+
 		$updraft_dir = $this->backups_dir_location();
 		if(!is_writable($updraft_dir)) {
 			$this->error('Backup directory is not writable.','fatal');
@@ -820,8 +822,10 @@ class UpdraftPlus {
 		if (get_option('updraft_include_plugins', true)) {
 			$this->log("Beginning backup of plugins");
 			$plugins = new PclZip($backup_file_base.'-plugins.zip');
+			# The paths in the zip should then begin with 'plugins', having removed WP_CONTENT_DIR from the front
 			if (!$plugins->create($wp_plugins_dir,PCLZIP_OPT_REMOVE_PATH,WP_CONTENT_DIR)) {
 				$this->error('Could not create plugins zip. Error was '.$php_errmsg,'fatal');
+				$this->log('ERROR: PclZip failure: Could not create plugins zip');
 			}
 			$backup_array['plugins'] = basename($backup_file_base.'-plugins.zip');
 		} else {
@@ -835,6 +839,7 @@ class UpdraftPlus {
 			$themes = new PclZip($backup_file_base.'-themes.zip');
 			if (!$themes->create($wp_themes_dir,PCLZIP_OPT_REMOVE_PATH,WP_CONTENT_DIR)) {
 				$this->error('Could not create themes zip. Error was '.$php_errmsg,'fatal');
+				$this->log('ERROR: PclZip failure: Could not create themes zip');
 			}
 			$backup_array['themes'] = basename($backup_file_base.'-themes.zip');
 		} else {
@@ -848,10 +853,67 @@ class UpdraftPlus {
 			$uploads = new PclZip($backup_file_base.'-uploads.zip');
 			if (!$uploads->create($wp_upload_dir,PCLZIP_OPT_REMOVE_PATH,WP_CONTENT_DIR)) {
 				$this->error('Could not create uploads zip. Error was '.$php_errmsg,'fatal');
+				$this->log('ERROR: PclZip failure: Could not create uploads zip');
 			}
 			$backup_array['uploads'] = basename($backup_file_base.'-uploads.zip');
 		} else {
 			$this->log("No backup of uploads: excluded by user's options");
+		}
+
+		# Others
+		@set_time_limit(900);
+		if (get_option('updraft_include_others', true)) {
+			$this->log("Beginning backup of other directories found in the content directory");
+			$others = new PclZip($backup_file_base.'-others.zip');
+			// http://www.phpconcept.net/pclzip/user-guide/53
+			/* First parameter to create is:
+				An array of filenames or dirnames,
+				or
+				A string containing the filename or a dirname,
+				or
+				A string containing a list of filename or dirname separated by a comma.
+			*/
+			// First, see what we can find. We always want to exclude these:
+			$wp_themes_dir = WP_CONTENT_DIR.'/themes';
+			$wp_upload_dir = wp_upload_dir();
+			$wp_upload_dir = $wp_upload_dir['basedir'];
+			$wp_plugins_dir = WP_PLUGIN_DIR;
+			$updraft_dir = untrailingslashit(get_option('updraft_dir'));
+
+			# Initialise
+			$other_dirlist = array(); 
+			
+			$others_skip = preg_split("/,/",get_option('updraft_include_others_exclude',UPDRAFT_DEFAULT_OTHERS_EXCLUDE));
+			# Make the values into the keys
+			$others_skip = array_flip($others_skip);
+
+			$this->log('Looking for candidates to back up in: '.WP_CONTENT_DIR);
+			if ($handle = opendir(WP_CONTENT_DIR)) {
+				while (false !== ($entry = readdir($handle))) {
+					$candidate = WP_CONTENT_DIR.'/'.$entry;
+					if ($entry == "." || $entry == "..") { ; }
+					elseif ($candidate == $updraft_dir) { $this->log("$entry: skipping: this is the updraft directory"); }
+					elseif ($candidate == $wp_themes_dir) { $this->log("$entry: skipping: this is the themes directory"); }
+					elseif ($candidate == $wp_upload_dir) { $this->log("$entry: skipping: this is the uploads directory"); }
+					elseif ($candidate == $wp_plugins_dir) { $this->log("$entry: skipping: this is the plugins directory"); }
+					elseif (isset($others_skip[$entry])) { $this->log("$entry: skipping: excluded by options"); }
+					else { $this->log("$entry: adding to list"); array_push($other_dirlist,$candidate); }
+				}
+			} else {
+				$this->log('ERROR: Could not read the content directory: '.WP_CONTENT_DIR);
+			}
+
+			if (count($other_dirlist)>0) {
+				if (!$others->create($other_dirlist,PCLZIP_OPT_REMOVE_PATH,WP_CONTENT_DIR)) {
+					$this->error('Could not create other zip. Error was '.$php_errmsg,'fatal');
+					$this->log('ERROR: PclZip failure: Could not create other zip');
+				}
+				$backup_array['others'] = basename($backup_file_base.'-others.zip');
+			} else {
+				$this->log("No backup of other directories: there was nothing found to back up");
+			}
+		} else {
+			$this->log("No backup of other directories: excluded by user's options");
 		}
 		return $backup_array;
 	}
@@ -1374,7 +1436,7 @@ class UpdraftPlus {
 		global $wp_filesystem;
 		$backup_history = get_option('updraft_backup_history');
 		if(!is_array($backup_history[$timestamp])) {
-			echo '<p>This backup does not exist in the backup history -- restoration aborted!  timestamp: '.$timestamp.'</p><br/>';
+			echo '<p>This backup does not exist in the backup history - restoration aborted. Timestamp: '.$timestamp.'</p><br/>';
 			return false;
 		}
 
@@ -1395,6 +1457,7 @@ class UpdraftPlus {
 			if(!is_readable($fullpath) && $type != 'db') {
 				$this->download_backup($file);
 			}
+			# Types: uploads, themes, plugins, others, db
 			if(is_readable($fullpath) && $type != 'db') {
 				if(!class_exists('WP_Upgrader')) {
 					require_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
@@ -1429,7 +1492,7 @@ class UpdraftPlus {
 			exit; 
 		}
 		
-		$to_delete = array('themes-old','plugins-old','uploads-old');
+		$to_delete = array('themes-old','plugins-old','uploads-old','others-old');
 
 		foreach($to_delete as $name) {
 			//recursively delete
@@ -1540,6 +1603,8 @@ class UpdraftPlus {
 		register_setting( 'updraft-options-group', 'updraft_include_plugins', 'absint' );
 		register_setting( 'updraft-options-group', 'updraft_include_themes', 'absint' );
 		register_setting( 'updraft-options-group', 'updraft_include_uploads', 'absint' );
+		register_setting( 'updraft-options-group', 'updraft_include_others', 'absint' );
+		register_setting( 'updraft-options-group', 'updraft_include_others_exclude', 'wp_filter_nohtml_kses' );
 	
 		/* I see no need for this check; people can only download backups/logs if they can guess a nonce formed from a random number and if .htaccess files have no effect. The database will be encrypted. Very unlikely.
 		if (current_user_can('manage_options')) {
@@ -1647,7 +1712,7 @@ ENDHERE;
 			<h2>UpdraftPlus - Backup/Restore</h2>
 
 			Version: <b><?php echo $this->version; ?></b><br />
-			Maintained by <b>David Anderson</b> (<a href="http://david.dw-perspective.org.uk">Homepage</a> | <a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate">Donate</a>)
+			Maintained by <b>David Anderson</b> (<a href="http://david.dw-perspective.org.uk">Homepage</a> | <a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate">Donate</a> | <a href="http://wordpress.org/extend/plugins/updraftplus/faq/">FAQs</a>)
 			<br />
 			Based on Updraft by <b>Paul Kehrer</b> (<a href="http://langui.sh" target="_blank">Blog</a> | <a href="http://twitter.com/reaperhulk" target="_blank">Twitter</a> )
 			<br />
@@ -1759,7 +1824,7 @@ ENDHERE;
 							</select>
 
 							<input type="hidden" name="action" value="updraft_restore" />
-							<input type="submit" <?php echo $restore_disabled ?> class="button-primary" value="Restore Now!" style="padding-top:7px;margin-top:5px;padding-bottom:7px;font-size:24px !important" onclick="return(confirm('Restoring from backup will replace this site\'s themes, plugins, and uploads directories. DB restoration must be done separately at this time. Continue with the restoration process?'))" />
+							<input type="submit" <?php echo $restore_disabled ?> class="button-primary" value="Restore Now!" style="padding-top:7px;margin-top:5px;padding-bottom:7px;font-size:24px !important" onclick="return(confirm('Restoring from backup will replace this site\'s themes, plugins, uploads and other content directories (according to what is contained in the backup set which you select). Database restoration cannot be done through this process - you must download the database and import yourself (e.g. through PHPMyAdmin). Do you wish to continue with the restoration process?'))" />
 						</form>
 					</div>
 				</div>
@@ -1819,6 +1884,16 @@ ENDHERE;
 									</form>
 							<?php } else { echo "(No uploads in backup)"; } ?>
 								</td>
+								<td>
+							<?php if (isset($value['others'])) { ?>
+									<form action="admin-ajax.php" method="post">
+										<input type="hidden" name="action" value="updraft_download_backup" />
+										<input type="hidden" name="type" value="others" />
+										<input type="hidden" name="timestamp" value="<?php echo $key?>" />
+										<input type="submit" value="Others" />
+									</form>
+							<?php } else { echo "(No others in backup)"; } ?>
+								</td>
 							</tr>
 							<?php }?>
 						</table>
@@ -1869,6 +1944,8 @@ ENDHERE;
 					$include_themes = (get_option('updraft_include_themes',true)) ? 'checked="checked"' : "";
 					$include_plugins = (get_option('updraft_include_plugins',true)) ? 'checked="checked"' : "";
 					$include_uploads = (get_option('updraft_include_uploads',true)) ? 'checked="checked"' : "";
+					$include_others = (get_option('updraft_include_others',true)) ? 'checked="checked"' : "";
+					$include_others_exclude = get_option('updraft_include_others_exclude',UPDRAFT_DEFAULT_OTHERS_EXCLUDE);
 				?>
 				<tr>
 					<th>Include in Files Backup:</th>
@@ -1876,6 +1953,7 @@ ENDHERE;
 					<input type="checkbox" name="updraft_include_plugins" value="1" <?php echo $include_plugins; ?> /> Plugins<br />
 					<input type="checkbox" name="updraft_include_themes" value="1" <?php echo $include_themes; ?> /> Themes<br />
 					<input type="checkbox" name="updraft_include_uploads" value="1" <?php echo $include_uploads; ?> /> Uploads<br />
+					<input type="checkbox" name="updraft_include_others" value="1" <?php echo $include_others; ?> /> Any other directories found inside wp-content - but exclude these directories: <input type="text" name="updraft_include_others_exclude" size="32" value="<?php echo htmlspecialchars($include_others_exclude); ?>"/><br />
 					Include all of these, unless you are backing them up separately. Note that presently UpdraftPlus backs up these directories only - which is usually everything (except for WordPress core itself which you can download afresh from WordPress.org). But if you have made customised modifications outside of these directories, you need to back them up another way.<br />(<a href="http://wordshell.net">Use WordShell</a> for automatic backup, version control and patching).<br /></td>
 					</td>
 				</tr>
