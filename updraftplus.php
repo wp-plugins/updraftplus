@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 0.9.0
+Version: 0.9.1
 Donate link: http://david.dw-perspective.org.uk/donate
 Author URI: http://wordshell.net
 */ 
@@ -59,7 +59,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '0.9.0';
+	var $version = '0.9.1';
 
 	var $dbhandle;
 	var $errors = array();
@@ -630,16 +630,19 @@ class UpdraftPlus {
 
 	function backup_finish($cancel_event) {
 
-		@fclose($this->logfile_handle);
-
-		if (!get_option('updraft_debug_mode')) @unlink($this->logfile_name);
-
 		// In fact, leaving the hook to run (if debug is set) is harmless, as the resume job should only do tasks that were left unfinished, which at this stage is none.
 		if (empty($this->errors)) {
+			$this->log("There were no errors in the uploads, so the 'resume' event is being unscheduled");
 			wp_clear_scheduled_hook('updraft_backup_resume', array($cancel_event));
 			delete_transient("updraftplus_backup_job_nonce");
 			delete_transient("updraftplus_backup_job_time");
+		} else {
+			$this->log("There were errors in the uploads, so the 'resume' event is remaining unscheduled");
 		}
+
+		@fclose($this->logfile_handle);
+
+		if (!get_option('updraft_debug_mode')) @unlink($this->logfile_name);
 
 	}
 
@@ -1852,7 +1855,7 @@ ENDHERE;
 				echo "<div style=\"color:blue\">Old directories successfully deleted.</div>";
 			}
 			if(!$this->memory_check(96)) {?>
-				<div style="color:orange">Your PHP memory limit is too low.  Updraft attempted to raise it but was unsuccessful.  This plugin may not work properly with a memory limit of less than 96 Mb. Current limit is: <?php echo $this->memory_check_current(); ?> Mb</div>
+				<div style="color:orange">Your PHP memory limit is too low.  Updraft attempted to raise it but was unsuccessful.  This plugin may not work properly with a memory limit of less than 96 Mb (though on the other hand, it has been used successfully with a 32Mb limit - your mileage may vary, but don't blame us!). Current limit is: <?php echo $this->memory_check_current(); ?> Mb</div>
 			<?php
 			}
 			if(!$this->execution_time_check(300)) {?>

@@ -8,11 +8,11 @@ Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv2 or later
 
 == Upgrade Notice ==
-Screenshots now moved into assets directory. Also, try the trunk for 0.9.0 with new code for resumption of failed uploads.
+Screenshots now moved into assets directory. Also, try the trunk for 0.9 with new code for re-trying of failed uploads.
 
 == Description ==
 
-UpdraftPlus simplifies backups (and restoration). Backup into the cloud (S3, Google Drive, FTP, and email) and restore with a single click. Backups of files and database can have separate schedules.
+UpdraftPlus simplifies backups and restoration. Schedule backups into the cloud (S3, Google Drive, FTP, and email) and restore with a single click.
 
 == Installation ==
 
@@ -70,7 +70,7 @@ Contact me! This is a complex plugin and the only way I can ensure it's robust i
 
 == Changelog ==
 
-= 0.9.0 - 11/19/2012 =
+= 0.9.1 - 11/19/2012 =
 * Failed uploads can now be resumed, giving really big blogs a better opportunity to eventually succeed uploading
 
 = 0.8.51 - 11/19/2012 =
