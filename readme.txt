@@ -12,7 +12,7 @@ Screenshots now moved into assets directory. Also, try the trunk for 0.9 with ne
 
 == Description ==
 
-UpdraftPlus simplifies backups and restoration. Schedule backups into the cloud (S3, Google Drive, FTP, and email) and restore with a single click.
+UpdraftPlus simplifies backups (and restoration). Backup into the cloud (S3, Google Drive, FTP, and email) and restore with a single click. Backups of files and database can have separate schedules.
 
 == Installation ==
 
