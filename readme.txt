@@ -7,12 +7,12 @@ Stable tag: 0.8.51
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv2 or later
 
+== Upgrade Notice ==
+Screenshots now moved into assets directory. Also, try the trunk for 0.9.0 with new code for resumption of failed uploads.
+
 == Description ==
 
 UpdraftPlus simplifies backups (and restoration). Backup into the cloud (S3, Google Drive, FTP, and email) and restore with a single click. Backups of files and database can have separate schedules.
-
-== Upgrade Notice ==
-Now backs up all directories found in the WP content directory (not just plugins/themes/uploads)
 
 == Installation ==
 
@@ -33,7 +33,11 @@ You can check the changelog for changes; but the original Updraft, before I fork
 
 That's very good of you, thank you. You are looking for WordShell, <a href="http://wordshell.net">http://wordshell.net</a>.
 
-= I want to restore, but cannot do so from the WP Admin console =
+= Some of my files have uploaded into my cloud storage, but not others. =
+
+From version 0.9.0, UpdraftPlus features a resumption feature - if you wait 5 minutes and visit a page on your site, then it should re-try not-yet-uploaded files. If that fails, then turn on debugging and paste the debug log (log in via FTP, and look in wp-content/updraft) into the support forum.
+
+= I want to restore, but have failed to do so from the WP Admin console =
 
 That's no problem. If you have your backed files, then you simply need to unzip them into the right places. UpdraftPlus does not back up the WordPress core - you can just get a fresh copy of that from www.wordpress.org. After installing that, then unzip the zip files for your uploads, themes and plugins back into the wp-content directory. Then re-install the database (e.g. by running it through PHPMyAdmin). Please don't ask me how to carry out these steps - they are basic operations which you can hire any of hundreds of thousands of people to show you how to do.
 
@@ -50,7 +54,7 @@ Unless you disable any of these, it will back up your database (all tables which
 It does not back up WordPress core (since you can always get another copy of this from wordpress.org), and does not back up any extra files which you have added outside of the WordPress content directory (files which, by their nature, are unknown to WordPress). By default the WordPress content directory is "wp-content" in your WordPress root. It will not back up database tables which do not have the WordPress prefix (i.e. database tables from other applications but sharing a database with WordPress).
 
 = Any known bugs ? =
-The major one is that backups of very large sites (lots of uploaded media) can fail due to timing out. If your site is very large, then be doubly-sure to test when setting up that your backups are not empty.
+The major one is that backups of very large sites (lots of uploaded media) can fail due to timing out. If your site is very large, then be doubly-sure to test when setting up that your backups are not empty. Since 0.9.0 there is a feature to re-try failed uploads on a separate scheduled run, which means UpdraftPlus should succeed for more sites than before (since we now only need enough time on each run to upload a single file, not all of them).
 
 = I encrypted my database - how do I decrypt it? =
 
@@ -65,6 +69,9 @@ Nothing, probably. That's the point of an encryption key - people who don't have
 Contact me! This is a complex plugin and the only way I can ensure it's robust is to get bug reports and fix the problems that crop up. Please turn on debugging mode and send me the log if you can find it. Include as much information as you can when reporting (PHP version, your blog's site, the error you saw and how you got to the page that caused it, etcetera). If you can send a patch, that's even better.
 
 == Changelog ==
+
+= 0.9.0 - 11/19/2012 =
+* Failed uploads can now be resumed, giving really big blogs a better opportunity to eventually succeed uploading
 
 = 0.8.51 - 11/19/2012 =
 * Moved screenshot into assets, reducing plugin download size

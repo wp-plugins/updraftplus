@@ -4,24 +4,27 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 0.8.51
+Version: 0.9.0
 Donate link: http://david.dw-perspective.org.uk/donate
 Author URI: http://wordshell.net
 */ 
 
 //TODO (some of these items mine, some from original Updraft awaiting review):
 //Add DropBox support
-//Struggles with large uploads - runs out of time before finishing. Break into chunks? Resume download on later run? (Add a new scheduled event to check on progress? Separate the upload from the creation?). Add in some logging (in a .php file that exists first).
+//Struggles with large uploads - runs out of time before finishing. Break into chunks? Resume download on later run? (Add a new scheduled event to check on progress? Separate the upload from the creation?).
 //improve error reporting.  s3 and dir backup have decent reporting now, but not sure i know what to do from here
 //list backups that aren't tracked (helps with double backup problem)
 //investigate $php_errormsg further
 //pretty up return messages in admin area
 //check s3/ftp download
 
+//Rip out the "last backup" bit, and/or put in a display of the last log
+
 /* More TODO:
 DONE, TESTING: Are all directories in wp-content covered? No; only plugins, themes, content. We should check for others and allow the user the chance to choose which ones he wants
 Use only one entry in WP options database
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
+// Does not delete old custom directories upon a restore?
 */
 
 /*  Portions copyright 2010 Paul Kehrer
@@ -56,7 +59,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '0.8.51';
+	var $version = '0.9.0';
 
 	var $dbhandle;
 	var $errors = array();
@@ -74,7 +77,10 @@ class UpdraftPlus {
 		add_action('updraft_backup_database', array($this,'backup_database'));
 		# backup_all is used by the manual "Backup Now" button
 		add_action('updraft_backup_all', array($this,'backup_all'));
+		# this is our runs-after-backup event, whose purpose is to see if it succeeded or failed, and resume/mom-up etc.
+		add_action('updraft_backup_resume', array($this,'backup_resume'));
 		add_action('wp_ajax_updraft_download_backup', array($this, 'updraft_download_backup'));
+		# http://codex.wordpress.org/Plugin_API/Filter_Reference/cron_schedules
 		add_filter('cron_schedules', array($this,'modify_cron_schedules'));
 		add_filter('plugin_action_links', array($this, 'plugin_action_links'), 10, 2);
 		add_action('init', array($this, 'googledrive_backup_auth'));
@@ -457,11 +463,68 @@ class UpdraftPlus {
 
 	# Logs the given line, adding date stamp and newline
 	function log($line) {
-		if ($this->logfile_handle) {
-			fwrite($this->logfile_handle,date('r')." ".$line."\n");
-		}
+		if ($this->logfile_handle) fwrite($this->logfile_handle,date('r')." ".$line."\n");
 	}
 	
+	function backup_resume($resumption_no) {
+		// This is scheduled for 5 minutes after a backup job starts
+		$bnonce = get_transient('updraftplus_backup_job_nonce');
+		if (!$bnonce) return;
+		$this->nonce = $bnonce;
+		$this->logfile_open($bnonce);
+		$this->log("Resume backup ($resumption_no): begin run (will check for any remaining jobs)");
+		$btime = get_transient('updraftplus_backup_job_time');
+		if (!$btime) {
+			$this->log("Did not find stored time setting - aborting");
+			return;
+		}
+		$this->log("Resuming backup: resumption=$resumption_no, nonce=$bnonce, begun at=$btime");
+		// Schedule again, to run in 5 minutes again, in case we again fail
+		$resume_delay = 300;
+		// A different argument than before is needed otherwise the event is ignored
+		$next_resumption = $resumption_no+1;
+		if ($next_resumption < 10) {
+			wp_schedule_single_event(time()+$resume_delay, 'updraft_backup_resume' ,array($next_resumption));
+		} else {
+			$this->log("This is our tenth attempt - will not try again");
+		}
+		$this->backup_time = $btime;
+
+		// Returns an array, most recent first, of backup sets
+		$backup_history = $this->get_backup_history();
+		if (!isset($backup_history[$btime])) $this->log("Error: Could not find a record in the database of a backup with this timestamp");
+
+		$our_files=$backup_history[$btime];
+		$undone_files = array();
+		foreach ($our_files as $key => $file) {
+			$hash=md5($file);
+			$fullpath = trailingslashit(get_option('updraft_dir')).$file;
+			if (get_transient('updraft_'.$hash) === "yes") {
+				$this->log("$file: $key: This file has been successfully uploaded in the last 3 hours");
+			} elseif (is_file($fullpath)) {
+				$this->log("$file: $key: This file has NOT been successfully uploaded in the last 3 hours: will retry");
+				$undone_files[$key] = $file;
+			} else {
+				$this-log("$file: Note: This file was not marked as successfully uploaded, but does not exist on the local filesystem");
+				$this->uploaded_file($file);
+			}
+		}
+
+		if (count($undone_files) == 0) {
+			$this->log("There were no files that needed uploading; backup job is finished");
+			return;
+		}
+
+		$this->log("Requesting backup of the files that were not successfully uploaded");
+		$this->cloud_backup($undone_files);
+		$this->cloud_backup_finish($undone_files);
+
+		$this->log("Resume backup ($resumption_no): finish run");
+
+		$this->backup_finish($next_resumption);
+
+	}
+
 	function backup_all() {
 		$this->backup(true,true);
 	}
@@ -475,18 +538,32 @@ class UpdraftPlus {
 		# Note that nothing will happen if the file backup had the same schedule
 		$this->backup(false,true);
 	}
-	
-	//scheduled wp-cron events can have a race condition here if page loads are coming fast enough, but there's nothing we can do about it.
+
+	function logfile_open($nonce) {
+		//set log file name and open log file
+		$updraft_dir = $this->backups_dir_location();
+		$this->logfile_name =  $updraft_dir. "/log.$nonce.txt";
+		// Use append mode in case it already exists
+		$this->logfile_handle = fopen($this->logfile_name, 'a');
+	}
+
+	//scheduled wp-cron events can have a race condition here if page loads are coming fast enough, but there's nothing we can do about it. TODO: I reckon there is. Store a transient based on the backup schedule. Then as the backup proceeds, check for its existence; if it has changed, then another task has begun, so abort.
 	function backup($backup_files, $backup_database) {
 
 		//generate backup information
 		$this->backup_time_nonce();
-		
-		//set log file name and open log file
-		$updraft_dir = $this->backups_dir_location();
-		$this->logfile_name =  $updraft_dir. "/log." . $this->nonce . ".txt";
-		// Use append mode in case it already exists
-		$this->logfile_handle = fopen($this->logfile_name, 'a');
+		// If we don't finish in 3 hours, then we won't finish
+		// This transient indicates the identity of the current backup job (which can be used to find the files and logfile)
+		set_transient("updraftplus_backup_job_nonce",$this->nonce,3600*3);
+		set_transient("updraftplus_backup_job_time",$this->backup_time,3600*3);
+		$this->logfile_open($this->nonce);
+
+		// Schedule the even to run later, which checks on success and can resume the backup
+		// We save the time to a variable because it is needed for un-scheduling
+// 		$resume_delay = (get_option('updraft_debug_mode')) ? 60 : 300;
+		$resume_delay = 300;
+		wp_schedule_single_event(time()+$resume_delay, 'updraft_backup_resume', array(1));
+		$this->log("In case we run out of time, scheduled a resumption at: $resume_delay seconds from now");
 
 		// Log some information that may be helpful
 		global $wp_version;
@@ -495,10 +572,7 @@ class UpdraftPlus {
 		# If the files and database schedules are the same, and if this the file one, then we rope in database too.
 		# On the other hand, if the schedules were the same and this was the database run, then there is nothing to do.
 		if (get_option('updraft_interval') == get_option('updraft_interval_database') || get_option('updraft_interval_database','xyz') == 'xyz' ) {
-			if ($backup_files == true)
-				{ $backup_database = true; }
-			else
-				{ $backup_database = false; }
+			$backup_database = ($backup_files == true) ? true : false;
 		}
 
 		$this->log("Processed schedules. Tasks now: Backup files: $backup_files Backup DB: $backup_database");
@@ -526,45 +600,85 @@ class UpdraftPlus {
 				$backup_contains = ($backup_files) ? "Files and database" : "Database only (no files)";
 			}
 
+			set_transient("updraftplus_backupcontains", $backup_contains, 3600*3);
+
 			//save this to our history so we can track backups for the retain feature
 			$this->log("Saving backup history");
+			// This is done before cloud despatch, because we want a record of what *should* be in the backup. Whether it actually makes it there or not is not yet known.
 			$this->save_backup_history($backup_array);
 
 			//cloud operations (S3,Google Drive,FTP,email,nothing)
-			//this also calls the retain feature at the end (done in this method to reuse existing cloud connections)
+			//this also calls the retain (prune) feature at the end (done in this method to reuse existing cloud connections)
 			if(is_array($backup_array) && count($backup_array) >0) {
 				$this->log("Beginning dispatch of backup to remote");
 				$this->cloud_backup($backup_array);
 			}
-			//delete local files if the pref is set
-			foreach($backup_array as $file) {
-				$this->delete_local($file);
-			}
-			
+
 			//save the last backup info, including errors, if any
 			$this->log("Saving last backup information into WordPress db");
 			$this->save_last_backup($backup_array);
-			
-			if(get_option('updraft_email') != "" && get_option('updraft_service') != 'email') {
-				$sendmail_to = get_option('updraft_email');
-				$this->log("Sending email report to: ".$sendmail_to);
-				$append_log = "";
-				if(get_option('updraft_debug_mode') && $this->logfile_name != "") {
-					$append_log .= "\r\nLog contents:\r\n".file_get_contents($this->logfile_name);
-				}
-				wp_mail($sendmail_to,'Backed up: '.get_bloginfo('name').' (UpdraftPlus) '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus WordPress backup is complete.\r\nBackup contains: $backup_contains\r\n\r\n".$this->wordshell_random_advert(0)."\r\n".$append_log);
-			}
+
+			// Delete local files, send the email
+			$this->cloud_backup_finish($backup_array);
+
 		}
-		
-		// Close log file
-		@fclose($this->logfile_handle);
-		if (!get_option('updraft_debug_mode')) { @unlink($this->logfile_name); }
+
+		// Close log file; delete and also delete transients if not in debug mode
+		$this->backup_finish(1);
+
 	}
-	
+
+	function backup_finish($cancel_event) {
+
+		@fclose($this->logfile_handle);
+
+		if (!get_option('updraft_debug_mode')) @unlink($this->logfile_name);
+
+		// In fact, leaving the hook to run (if debug is set) is harmless, as the resume job should only do tasks that were left unfinished, which at this stage is none.
+		if (empty($this->errors)) {
+			wp_clear_scheduled_hook('updraft_backup_resume', array($cancel_event));
+			delete_transient("updraftplus_backup_job_nonce");
+			delete_transient("updraftplus_backup_job_time");
+		}
+
+	}
+
+	function cloud_backup_finish($backup_array) {
+
+		//delete local files if the pref is set
+		foreach($backup_array as $file) { $this->delete_local($file); }
+
+		// Send the results email if requested
+		if(get_option('updraft_email') != "" && get_option('updraft_service') != 'email') $this->send_results_email();
+
+	}
+
+
+	function send_results_email() {
+
+		$sendmail_to = get_option('updraft_email');
+
+		$this->log("Sending email report to: ".$sendmail_to);
+
+		$append_log = (get_option('updraft_debug_mode') && $this->logfile_name != "") ? "\r\nLog contents:\r\n".file_get_contents($this->logfile_name) : "" ;
+
+		wp_mail($sendmail_to,'Backed up: '.get_bloginfo('name').' (UpdraftPlus) '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus WordPress backup is complete.\r\nBackup contains: ".get_transient("updraftplus_backupcontains")."\r\n\r\n".$this->wordshell_random_advert(0)."\r\n".$append_log);
+
+	}
+
 	function save_last_backup($backup_array) {
 		$success = (empty($this->errors))?1:0;
-		$last_backup = array('backup_time'=>$this->backup_time,'backup_array'=>$backup_array,'success'=>$success,'errors'=>$this->errors);
-		update_option('updraft_last_backup',$last_backup);
+
+		$last_backup = array('backup_time'=>$this->backup_time, 'backup_array'=>$backup_array, 'success'=>$success, 'errors'=>$this->errors);
+
+		update_option('updraft_last_backup', $last_backup);
+	}
+
+	// This should be called whenever a file is successfully uploaded
+	function uploaded_file($file) {
+		# We take an MD5 hash because set_transient wants a name of 45 characters or less
+		$hash = md5($file);
+		set_transient("updraft_".$hash, "yes", 3600*3);
 	}
 
 	function cloud_backup($backup_array) {
@@ -572,17 +686,17 @@ class UpdraftPlus {
 			case 's3':
 				@set_time_limit(900);
 				$this->log("Cloud backup: S3");
-				if (count($backup_array) >0) { $this->s3_backup($backup_array); }
+				if (count($backup_array) >0) $this->s3_backup($backup_array);
 			break;
 			case 'googledrive':
 				@set_time_limit(900);
 				$this->log("Cloud backup: Google Drive");
-				if (count($backup_array) >0) { $this->googledrive_backup($backup_array); }
+				if (count($backup_array) >0) $this->googledrive_backup($backup_array);
 			break;
 			case 'ftp':
 				@set_time_limit(900);
 				$this->log("Cloud backup: FTP");
-				if (count($backup_array) >0) { $this->ftp_backup($backup_array); }
+				if (count($backup_array) >0) $this->ftp_backup($backup_array);
 			break;
 			case 'email':
 				@set_time_limit(900);
@@ -591,6 +705,7 @@ class UpdraftPlus {
 				foreach($backup_array as $type=>$file) {
 					$fullpath = trailingslashit(get_option('updraft_dir')).$file;
 					wp_mail(get_option('updraft_email'),"WordPress Backup ".date('Y-m-d H:i',$this->backup_time),"Backup is of the $type.  Be wary; email backups may fail because of file size limitations on mail servers.",null,array($fullpath));
+					$this->uploaded_file($file);
 				}
 				//we don't break here so it goes and executes all the default behavior below as well.  this gives us retain behavior for email
 			default:
@@ -717,9 +832,7 @@ class UpdraftPlus {
 	}
 	
 	function s3_backup($backup_array) {
-		if(!class_exists('S3')) {
-			require_once(dirname(__FILE__).'/includes/S3.php');
-		}
+		if(!class_exists('S3')) require_once(dirname(__FILE__).'/includes/S3.php');
 		$s3 = new S3(get_option('updraft_s3_login'), get_option('updraft_s3_pass'));
 		$bucket_name = untrailingslashit(get_option('updraft_s3_remote_path'));
 		$bucket_path = "";
@@ -735,6 +848,9 @@ class UpdraftPlus {
 				if (!$s3->putObjectFile($fullpath, $bucket_name, $bucket_path.$file)) {
 					$this->log("S3 upload: failed");
 					$this->error("S3 Error: Failed to upload $fullpath. Error was ".$php_errormsg);
+				} else {
+					$this->log("S3 upload: success");
+					$this->uploaded_file($file);
 				}
 			}
 			$this->prune_retained_backups('s3',$s3,$orig_bucket_name);
@@ -753,7 +869,9 @@ class UpdraftPlus {
 				$timer_start = microtime( true );
 				if ( $id = $this->googledrive_upload_file( $file_path, $file_name, get_option('updraft_googledrive_remotepath'), $access ) ) {
 					$this->log('OK: Archive ' . $file_name . ' uploaded to Google Drive in ' . ( round(microtime( true ) - $timer_start,2) ) . ' seconds' );
+					$this->uploaded_file($file);
 				} else {
+					$this->error("$file_name: Failed to upload to Google Drive" );
 					$this->log("ERROR: $file_name: Failed to upload to Google Drive" );
 				}
 			}
@@ -776,7 +894,13 @@ class UpdraftPlus {
 		$ftp_remote_path = trailingslashit(get_option('updraft_ftp_remote_path'));
 		foreach($backup_array as $file) {
 			$fullpath = trailingslashit(get_option('updraft_dir')).$file;
-			$ftp->put($fullpath,$ftp_remote_path.$file,FTP_BINARY);
+			if ($ftp->put($fullpath,$ftp_remote_path.$file,FTP_BINARY)) {
+				$this->log("ERROR: $file_name: Successfully uploaded via FTP");
+				$this->uploaded_file($file);
+			} else {
+				$this->error("$file_name: Failed to upload to FTP" );
+				$this->log("ERROR: $file_name: Failed to upload to FTP" );
+			}
 		}
 		$this->prune_retained_backups("ftp",$ftp,$ftp_remote_path);
 	}
@@ -804,7 +928,7 @@ class UpdraftPlus {
 
 		$updraft_dir = $this->backups_dir_location();
 		if(!is_writable($updraft_dir)) {
-			$this->error('Backup directory is not writable.','fatal');
+			$this->error('Backup directory is not writable, or does not exist.','fatal');
 		}
 		//get the blog name and rip out all non-alphanumeric chars other than _
 		$blog_name = str_replace(' ','_',get_bloginfo());
@@ -919,7 +1043,7 @@ class UpdraftPlus {
 	}
 
 	function save_backup_history($backup_array) {
-		//this stores full paths right now.  should probably concatenate with ABSPATH to make it easier to move sites
+		//TODO: this stores full paths right now.  should probably concatenate with ABSPATH to make it easier to move sites
 		if(is_array($backup_array)) {
 			$backup_history = get_option('updraft_backup_history');
 			$backup_history = (is_array($backup_history)) ? $backup_history : array();
@@ -1698,7 +1822,11 @@ ENDHERE;
 		}
 		
 		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup') {
-			wp_schedule_single_event(time()+5, 'updraft_backup_all');
+			if (wp_schedule_single_event(time()+5, 'updraft_backup_all') === false) {
+				echo "<!-- updraft schedule: failed -->";
+			} else {
+				echo "<!-- updraft schedule: ok -->";
+			}
 		}
 		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_all') {
 			$this->backup(true,true);
@@ -1779,7 +1907,7 @@ ENDHERE;
 						$backup_disabled = "";
 					} else {
 						$backup_disabled = 'disabled="disabled"';
-						$dir_info = '<span style="color:red">Backup directory specified is <b>not</b> writable. <span style="font-size:110%;font-weight:bold"><a href="options-general.php?page=updraftplus&action=updraft_create_backup_dir">Click here</a></span> to attempt to create the directory and set the permissions.  If that is unsuccessful check the permissions on your server or change it to another directory that is writable by your web server process.</span>';
+						$dir_info = '<span style="color:red">Backup directory specified is <b>not</b> writable, or does not exist. <span style="font-size:110%;font-weight:bold"><a href="options-general.php?page=updraftplus&action=updraft_create_backup_dir">Click here</a></span> to attempt to create the directory and set the permissions.  If that is unsuccessful check the permissions on your server or change it to another directory that is writable by your web server process.</span>';
 					}
 					?>
 					<th>Now:</th>
