@@ -70,7 +70,7 @@ Contact me! This is a complex plugin and the only way I can ensure it's robust i
 
 == Changelog ==
 
-= 0.9.1 - 11/19/2012 =
+= 0.9.2 - 11/21/2012 =
 * Failed uploads can now be resumed, giving really big blogs a better opportunity to eventually succeed uploading
 
 = 0.8.51 - 11/19/2012 =
