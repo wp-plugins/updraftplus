@@ -1,4 +1,4 @@
-=== UpdraftPlus ===
+=== UpdraftPlus Backup ===
 Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, Amazon S3, google drive, google, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
@@ -8,7 +8,7 @@ Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Screenshots now moved into assets directory. Also, try the trunk for 0.9 with new code for re-trying of failed uploads.
+Screenshots now moved into assets directory. Also, try the trunk for 0.9 with new code for re-trying of failed uploads and full Google Drive support.
 
 == Description ==
 
