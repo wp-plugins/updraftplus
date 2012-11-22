@@ -6,10 +6,12 @@ Description: Uploads, themes, plugins, and your DB can be automatically backed u
 Author: David Anderson.
 Version: 0.9.10
 Donate link: http://david.dw-perspective.org.uk/donate
+License: GPL3
 Author URI: http://wordshell.net
 */ 
 
 //TODO (some of these items mine, some from original Updraft awaiting review):
+//GoogleDrive resume partial upload support (store the current status in a transient after each chunk; use that on resumption)
 //Add DropBox support
 //Struggles with large uploads - runs out of time before finishing. Break into chunks? Resume download on later run? (Add a new scheduled event to check on progress? Separate the upload from the creation?).
 //improve error reporting.  s3 and dir backup have decent reporting now, but not sure i know what to do from here
@@ -33,7 +35,7 @@ Particular thanks to Sorin Iclanzan, author of the "Backup" plugin, from which m
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
+the Free Software Foundation; either version 3 of the License, or
 (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
@@ -653,7 +655,7 @@ class UpdraftPlus {
 
 	// This function taken from wordpress.org/extend/plugins/backup, by Sorin Iclanzan, under the GPLv3 or later at your choice
 	function is_gdocs( $thing ) {
-		if ( is_object( $thing ) && is_a( $thing, 'GDocs' ) )
+		if ( is_object( $thing ) && is_a( $thing, 'UpdraftPlus_GDocs' ) )
 			return true;
 		return false;
 	}
@@ -669,7 +671,7 @@ class UpdraftPlus {
 
 			if ( is_wp_error( $this->gdocs_access_token ) ) return $access_token;
 
-			$this->gdocs = new GDocs( $this->gdocs_access_token );
+			$this->gdocs = new UpdraftPlus_GDocs( $this->gdocs_access_token );
 			$this->gdocs->set_option( 'chunk_size', $this->options['chunk_size'] );
 			$this->gdocs->set_option( 'time_limit', $this->options['time_limit'] );
 			$this->gdocs->set_option( 'request_timeout', $this->options['request_timeout'] );
@@ -680,7 +682,7 @@ class UpdraftPlus {
 
 	function googledrive_upload_file( $file, $title, $parent = '') {
 
-		// Make sure $this->gdocs is a GDocs object, or give an error
+		// Make sure $this->gdocs is a UpdraftPlus_GDocs object, or give an error
 		if ( is_wp_error( $e = $this->need_gdocs() ) ) return false;
 
 		if ( empty( $this->gdocs_location ) ) {
@@ -1247,16 +1249,8 @@ class UpdraftPlus {
 		}
 	}
 
-	/**
-	 * Logs any error messages
-	 * @param array $args
-	 * @return bool
-	 */
 	function error($error,$severity='') {
-		$this->errors[] = array('error'=>$error,'severity'=>$severity);
-		if ($severity == 'fatal') {
-			//do something...
-		}
+		$this->errors[] = $error;
 		return true;
 	}
 
@@ -1431,11 +1425,12 @@ class UpdraftPlus {
 		// Do we have an access token?
 		if ( !$access_token = $this->access_token( get_option('updraft_googledrive_token'), get_option('updraft_googledrive_clientid'), get_option('updraft_googledrive_secret') )) {
 			$this->error('ERROR: Have not yet obtained an access token from Google (has the user authorised?)');
+			return false;
 		}
 
 		$this->gdocs_access_token = $access_token;
 
-		// Make sure $this->gdocs is a GDocs object, or give an error
+		// Make sure $this->gdocs is a UpdraftPlus_GDocs object, or give an error
 		if ( is_wp_error( $e = $this->need_gdocs() ) ) return false;
 
 		$ids = get_option('updraft_file_ids', array());
@@ -1444,11 +1439,25 @@ class UpdraftPlus {
 			return;
 		} else {
 			$content_link = $this->gdocs->get_content_link( $ids[$file], $file );
-			// TODO: Check if that is a wp_error
-			// TODO: Then actually download the thing
-		}
+			if (is_wp_error($content_link)) {
+				$this->error("Could not find $file in order to download it (id: ".$ids[$file].")");
+				foreach ($content_link->get_error_messages() as $msg) {
+					$this->error($msg);
+				}
+				return false;
+			}
+			// Actually download the thing
+			$download_to = trailingslashit(get_option('updraft_dir')).$file;
+			$this->gdocs->download_data($content_link, $download_to);
 
-		$this->error("Google Drive error: we do not yet support downloading existing backups from Google Drive - you need to restore the backup manually");
+			if (filesize($download_to) >0) {
+				return true;
+			} else {
+				$this->error("Google Drive error: zero-size file was downloaded");
+				return false;
+			}
+
+		}
 
 		return;
 
@@ -1476,9 +1485,8 @@ class UpdraftPlus {
 	}
 	
 	function download_ftp_backup($file) {
-		if( !class_exists('ftp_wrapper')) {
-			require_once(dirname(__FILE__).'/includes/ftp.class.php');
-		}
+		if( !class_exists('ftp_wrapper')) require_once(dirname(__FILE__).'/includes/ftp.class.php');
+
 		//handle SSL and errors at some point TODO
 		$ftp = new ftp_wrapper(get_option('updraft_server_address'),get_option('updraft_ftp_login'),get_option('updraft_ftp_pass'));
 		$ftp->passive = true;
@@ -1703,11 +1711,6 @@ class UpdraftPlus {
 
 	function settings_output() {
 
-		$ws_advert = $this->wordshell_random_advert(1);
-		echo <<<ENDHERE
-<div class="updated fade" style="font-size:140%; padding:14px;">${ws_advert}</div>
-ENDHERE;
-
 		/*
 		we use request here because the initial restore is triggered by a POSTed form. we then may need to obtain credentials 
 		for the WP_Filesystem. to do this WP outputs a form that we can't insert variables into (apparently). So the values are 
@@ -1720,8 +1723,15 @@ ENDHERE;
 				echo '<b>Actions:</b> <a href="options-general.php?page=updraftplus&updraft_restore_success=true">Return to Updraft Configuration</a>.';
 				return;
 			} else {
-				echo '<p>Restore failed...</p><br/>';
-				echo '<b>Actions:</b> <a href="options-general.php?page=updraftplus">Return to Updraft Configuration</a>.';
+				echo '<p>Restore failed...</p><ul>';
+				foreach ($this->errors as $err) {
+					echo "<li>";
+					if (is_string($err)) { echo htmlspecialchars($err); } else {
+						print_r($err);
+					}
+					echo "</li>";
+				}
+				echo '</ul><b>Actions:</b> <a href="options-general.php?page=updraftplus">Return to Updraft Configuration</a>.';
 				return;
 			}
 			//uncomment the below once i figure out how i want the flow of a restoration to work.
@@ -1756,11 +1766,13 @@ ENDHERE;
 		}
 		
 		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup') {
+			echo '<div class="updated fade" style="max-width: 800px; font-size:140%; padding:14px; clear:left;"><strong>Schedule backup:</strong> ';
 			if (wp_schedule_single_event(time()+5, 'updraft_backup_all') === false) {
-				echo "<!-- updraft schedule: failed -->";
+				echo "Failed.";
 			} else {
-				echo "<!-- updraft schedule: ok -->";
+				echo "OK. Now load a page from your site to make sure the schedule can trigger.";
 			}
+			echo '</div>';
 		}
 		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_all') {
 			$this->backup(true,true);
@@ -1771,19 +1783,24 @@ ENDHERE;
 
 		?>
 		<div class="wrap">
-			<h2>UpdraftPlus - Backup/Restore</h2>
+			<h1>UpdraftPlus - Backup/Restore</h1>
 
-			Version: <b><?php echo $this->version; ?></b><br />
-			Maintained by <b>David Anderson</b> (<a href="http://david.dw-perspective.org.uk">Homepage</a> | <a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate">Donate</a> | <a href="http://wordpress.org/extend/plugins/updraftplus/faq/">FAQs</a> | <a href="http://profiles.wordpress.org/davidanderson/">My other WordPress plugins</a>)
-			<br />
-			Based on Updraft by <b>Paul Kehrer</b> (<a href="http://langui.sh" target="_blank">Blog</a> | <a href="http://twitter.com/reaperhulk" target="_blank">Twitter</a> )
-			<br />
+			<!-- Version: <b><?php echo $this->version; ?></b><br>-->
+			Maintained by <b>David Anderson</b> (<a href="http://david.dw-perspective.org.uk">Homepage</a> | <a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate">Donate</a> | <a href="http://wordpress.org/extend/plugins/updraftplus/faq/">FAQs</a> | <a href="http://profiles.wordpress.org/davidanderson/">My other WordPress plugins</a>). Version: <?php echo $this->version; ?>
+			<br>
 			<?php
 			if(isset($_GET['updraft_restore_success'])) {
 				echo "<div style=\"color:blue\">Your backup has been restored.  Your old themes, uploads, and plugins directories have been retained with \"-old\" appended to their name.  Remove them when you are satisfied that the backup worked properly.  At this time Updraft does not automatically restore your DB.  You will need to use an external tool like phpMyAdmin to perform that task.</div>";
 			}
+
+		$ws_advert = $this->wordshell_random_advert(1);
+		echo <<<ENDHERE
+<div class="updated fade" style="max-width: 800px; font-size:140%; padding:14px; clear:left;">${ws_advert}</div>
+ENDHERE;
+
+
 			if($deleted_old_dirs) {
-				echo "<div style=\"color:blue\">Old directories successfully deleted.</div>";
+				echo '<div style="color:blue">Old directories successfully deleted.</div>';
 			}
 			if(!$this->memory_check(96)) {?>
 				<div style="color:orange">Your PHP memory limit is too low.  Updraft attempted to raise it but was unsuccessful.  This plugin may not work properly with a memory limit of less than 96 Mb (though on the other hand, it has been used successfully with a 32Mb limit - your mileage may vary, but don't blame us!). Current limit is: <?php echo $this->memory_check_current(); ?> Mb</div>
@@ -1809,7 +1826,9 @@ ENDHERE;
 				}
 			}
 			?>
-			<table class="form-table" style="float:left;width:475px">
+
+			<h2 style="clear:left;">Existing Schedule And Backups</h2>
+			<table class="form-table" style="float:left; clear: both; width:475px">
 				<tr>
 					<?php
 					$next_scheduled_backup = wp_next_scheduled('updraft_backup');
@@ -1844,7 +1863,8 @@ ENDHERE;
 						$dir_info = '<span style="color:red">Backup directory specified is <b>not</b> writable, or does not exist. <span style="font-size:110%;font-weight:bold"><a href="options-general.php?page=updraftplus&action=updraft_create_backup_dir">Click here</a></span> to attempt to create the directory and set the permissions.  If that is unsuccessful check the permissions on your server or change it to another directory that is writable by your web server process.</span>';
 					}
 					?>
-					<th>Now:</th>
+
+					<th>The Time Now:</th>
 					<td style="color:blue"><?php echo $current_time?></td>
 				</tr>
 				<tr>
@@ -1860,10 +1880,10 @@ ENDHERE;
 					<td style="color:<?php echo $last_backup_color ?>"><?php echo $last_backup?></td>
 				</tr>
 			</table>
-			<div style="float:left;width:200px">
+			<div style="float:left; width:200px; padding-top: 100px;">
 				<form method="post" action="">
 					<input type="hidden" name="action" value="updraft_backup" />
-					<p><input type="submit" <?php echo $backup_disabled ?> class="button-primary" value="Backup Now!" style="padding-top:7px;padding-bottom:7px;font-size:24px !important" onclick="return(confirm('This will schedule a one time backup.  To trigger the backup immediately you may need to load a page on your site.'))" /></p>
+					<p><input type="submit" <?php echo $backup_disabled ?> class="button-primary" value="Backup Now!" style="padding-top:7px;padding-bottom:7px;font-size:24px !important" onclick="return(confirm('This will schedule a one-time backup.  To trigger the backup immediately you may need to load a page on your site.'))" /></p>
 				</form>
 				<div style="position:relative">
 					<div style="position:absolute;top:0;left:0">
@@ -1964,7 +1984,8 @@ ENDHERE;
 			</table>
 			<form method="post" action="options.php">
 			<?php settings_fields('updraft-options-group'); ?>
-			<table class="form-table">
+			<h2>Configure Backup Contents And Schedule</h2>
+				<table class="form-table" style="width:850px;">
 				<tr>
 					<th>File Backup Intervals:</th>
 					<td><select name="updraft_interval">
@@ -2005,11 +2026,11 @@ ENDHERE;
 				<tr>
 					<th>Include in Files Backup:</th>
 					<td>
-					<input type="checkbox" name="updraft_include_plugins" value="1" <?php echo $include_plugins; ?> /> Plugins<br />
-					<input type="checkbox" name="updraft_include_themes" value="1" <?php echo $include_themes; ?> /> Themes<br />
-					<input type="checkbox" name="updraft_include_uploads" value="1" <?php echo $include_uploads; ?> /> Uploads<br />
-					<input type="checkbox" name="updraft_include_others" value="1" <?php echo $include_others; ?> /> Any other directories found inside wp-content - but exclude these directories: <input type="text" name="updraft_include_others_exclude" size="32" value="<?php echo htmlspecialchars($include_others_exclude); ?>"/><br />
-					Include all of these, unless you are backing them up separately. Note that presently UpdraftPlus backs up these directories only - which is usually everything (except for WordPress core itself which you can download afresh from WordPress.org). But if you have made customised modifications outside of these directories, you need to back them up another way.<br />(<a href="http://wordshell.net">Use WordShell</a> for automatic backup, version control and patching).<br /></td>
+					<input type="checkbox" name="updraft_include_plugins" value="1" <?php echo $include_plugins; ?> /> Plugins<br>
+					<input type="checkbox" name="updraft_include_themes" value="1" <?php echo $include_themes; ?> /> Themes<br>
+					<input type="checkbox" name="updraft_include_uploads" value="1" <?php echo $include_uploads; ?> /> Uploads<br>
+					<input type="checkbox" name="updraft_include_others" value="1" <?php echo $include_others; ?> /> Any other directories found inside wp-content - but exclude these directories: <input type="text" name="updraft_include_others_exclude" size="32" value="<?php echo htmlspecialchars($include_others_exclude); ?>"/><br>
+					Include all of these, unless you are backing them up separately. Note that presently UpdraftPlus backs up these directories only - which is usually everything (except for WordPress core itself which you can download afresh from WordPress.org). But if you have made customised modifications outside of these directories, you need to back them up another way.<br>(<a href="http://wordshell.net">Use WordShell</a> for automatic backup, version control and patching).<br></td>
 					</td>
 				</tr>
 				<tr>
@@ -2020,6 +2041,15 @@ ENDHERE;
 					?>
 					<td><input type="text" name="updraft_retain" value="<?php echo $retain ?>" style="width:50px" /></td>
 				</tr>
+				<tr class="email" <?php echo $email_display?>>
+					<th>Email:</th>
+					<td><input type="text" style="width:260px" name="updraft_email" value="<?php echo get_option('updraft_email'); ?>" /> <br>Enter an address here to have a report sent (and the whole backup, if you choose) to it.</td>
+				</tr>
+				<tr class="deletelocal s3 ftp email" <?php echo $display_delete_local?>>
+					<th>Delete local backup:</th>
+					<td><input type="checkbox" name="updraft_delete_local" value="1" <?php echo $delete_local; ?> /> <br>Check this to delete the local backup file (only sensible if you have enabled a remote backup (below), otherwise you will have no backup remaining).</td>
+				</tr>
+
 				<tr class="backup-retain-description">
 					<td></td><td>By default only the most recent backup is retained. If you'd like to preserve more, specify the number here. (This many of <strong>both</strong> files and database backups will be retained.)</td>
 				</tr>
@@ -2033,7 +2063,11 @@ ENDHERE;
 				<tr class="backup-crypt-description">
 					<td></td><td>If you enter a string here, it is used to encrypt backups (Rijndael). Do not lose it, or all your backups will be useless. Presently, only the database file is encrypted. This is also the key used to decrypt backups from this admin interface (so if you change it, then automatic decryption will not work until you change it back). You can also use the file example-decrypt.php from inside the UpdraftPlus plugin directory to decrypt manually.</td>
 				</tr>
+				</table>
 
+				<h2>Copying Your Backup To Remote Storage</h2>
+
+				<table class="form-table" style="width:850px;">
 				<tr>
 					<th>Remote backup:</th>
 					<td><select name="updraft_service" id="updraft-service">
@@ -2080,13 +2114,13 @@ ENDHERE;
 						?>
 						<option value="none" <?php echo $none?>>None</option>
 						<option value="s3" <?php echo $s3?>>Amazon S3</option>
-						<option value="googledrive" <?php echo $googledrive?>>Google Drive (experimental, may work for you, may not)</option>
+						<option value="googledrive" <?php echo $googledrive?>>Google Drive</option>
 						<option value="ftp" <?php echo $ftp?>>FTP</option>
 						<option value="email" <?php echo $email?>>E-mail</option>
 						</select></td>
 				</tr>
 				<tr class="backup-service-description">
-					<td></td><td>Choose your backup method. Be aware that mail servers tend to have strict file size limitations; typically around 10-20Mb; backups larger than this may not arrive. Select none if you do not wish to send your backups anywhere <b>(not recommended)</b>.</td>
+					<td></td><td>Choose your backup method. If choosing &quot;E-Mail&quot;, then be aware that mail servers tend to have size limits; typically around 10-20Mb; backups larger than any limits will not arrive.</td>
 				
 				</tr>
 
@@ -2135,10 +2169,13 @@ ENDHERE;
 				</tr>
 				<tr class="googledrive" <?php echo $googledrive_display?>>
 				<th></th>
-				<td><p>Create a Client ID in the API Access section of your <a href="https://code.google.com/apis/console/">Google API Console</a>. Select 'Web Application' as the application type.</p><p>You must add <kbd><?php echo admin_url('options-general.php?page=updraftplus&action=auth'); ?></kbd> as the authorised redirect URI when asked.</p>
+				<td>
+				Create a Client ID in the API Access section of your <a href="https://code.google.com/apis/console/">Google API Console</a>. Select 'Web Application' as the application type.</p><p>You must add <kbd><?php echo admin_url('options-general.php?page=updraftplus&action=auth'); ?></kbd> as the authorised redirect URI when asked.
+
 				<?php
-					if (!class_exists('SimpleXMLElement')) { echo "<p><b>WARNING:</b> You do not have SimpleXMLElement installed. Google Drive backups will <b>not</b> work until you do.</p>"; }
+					if (!class_exists('SimpleXMLElement')) { echo " <b>WARNING:</b> You do not have the SimpleXMLElement installed. Google Drive backups will <b>not</b> work until you do."; }
 				?>
+
 				</td>
 				</tr>
 
@@ -2161,14 +2198,9 @@ ENDHERE;
 				<tr class="ftp-description" style="display:none">
 					<td colspan="2">An FTP remote path will look like '/home/backup/some/folder'</td>
 				</tr>
-				<tr class="email" <?php echo $email_display?>>
-					<th>Email:</th>
-					<td><input type="text" style="width:260px" name="updraft_email" value="<?php echo get_option('updraft_email'); ?>" /> <br />Enter an address here to have a report sent (and the whole backup, if you choose) to it.</td>
-				</tr>
-				<tr class="deletelocal s3 ftp email" <?php echo $display_delete_local?>>
-					<th>Delete local backup:</th>
-					<td><input type="checkbox" name="updraft_delete_local" value="1" <?php echo $delete_local; ?> /> <br />Check this to delete the local backup file (only sensible if you have enabled a remote backup, otherwise you will have no backup remaining).</td>
-				</tr>
+				</table>
+				<table class="form-table" style="width:850px;">
+		<tr><td colspan="2"><h2>Advanced / Debugging Settings</h2></td></tr>
 				<tr>
 					<th>Backup Directory:</th>
 					<td><input type="text" name="updraft_dir" style="width:525px" value="<?php echo $updraft_dir ?>" /></td>
@@ -2178,7 +2210,7 @@ ENDHERE;
 				</tr>
 				<tr>
 					<th>Debug mode:</th>
-					<td><input type="checkbox" name="updraft_debug_mode" value="1" <?php echo $debug_mode; ?> /> <br />Check this for more information, if something is going wrong. Will also drop a log file in your backup directory which you can examine.</td>
+					<td><input type="checkbox" name="updraft_debug_mode" value="1" <?php echo $debug_mode; ?> /> <br>Check this for more information, if something is going wrong. Will also drop a log file in your backup directory which you can examine.</td>
 				</tr>
 				<tr>
 					<td>
@@ -2191,7 +2223,8 @@ ENDHERE;
 			<?php
 			if(get_option('updraft_debug_mode')) {
 			?>
-			<div>
+			<div style="padding-top: 40px;">
+				<hr>
 				<h3>Debug Information</h3>
 				<?php
 				$peak_memory_usage = memory_get_peak_usage(true)/1024/1024;
@@ -2210,29 +2243,33 @@ ENDHERE;
 				</form>
 			</div>
 			<?php } ?>
+
+			<p><em>UpdraftPlus is based on the original Updraft by <b>Paul Kehrer</b> (<a href="http://langui.sh" target="_blank">Blog</a> | <a href="http://twitter.com/reaperhulk" target="_blank">Twitter</a> )</em></p>
+
+
 			<script type="text/javascript">
 				jQuery(document).ready(function() {
 					jQuery('#updraft-service').change(function() {
 						switch(jQuery(this).val()) {
 							case 'none':
-								jQuery('.deletelocal,.s3,.ftp,.googledrive,.s3-description,.ftp-description').hide()
-								jQuery('.email,.email-complete').show()
+								jQuery('.deletelocal,.s3,.ftp,.googledrive,.s3-description,.ftp-description').fadeOut()
+								jQuery('.email,.email-complete').fadeIn()
 							break;
 							case 's3':
-								jQuery('.ftp,.ftp-description,.googledrive').hide()
-								jQuery('.s3,.deletelocal,.email,.email-complete').show()
+								jQuery('.ftp,.ftp-description,.googledrive').fadeOut()
+								jQuery('.s3,.deletelocal,.email,.email-complete').fadeIn()
 							break;
 							case 'googledrive':
-								jQuery('.ftp,.ftp-description,.s3').hide()
-								jQuery('.googledrive,.deletelocal,.googledrive,.email,.email-complete').show()
+								jQuery('.ftp,.ftp-description,.s3').fadeOut()
+								jQuery('.googledrive,.deletelocal,.googledrive,.email,.email-complete').fadeIn()
 							break;
 							case 'ftp':
-								jQuery('.googledrive,.s3,.s3-description').hide()
-								jQuery('.ftp,.deletelocal,.email,.email-complete').show()
+								jQuery('.googledrive,.s3,.s3-description').fadeOut()
+								jQuery('.ftp,.deletelocal,.email,.email-complete').fadeIn()
 							break;
 							case 'email':
-								jQuery('.s3,.ftp,.s3-description,.googledrive,.ftp-description,.email-complete').hide()
-								jQuery('.email,.deletelocal').show()
+								jQuery('.s3,.ftp,.s3-description,.googledrive,.ftp-description,.email-complete').fadeOut()
+								jQuery('.email,.deletelocal').fadeIn()
 							break;
 						}
 					})

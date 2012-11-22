@@ -1,6 +1,10 @@
 <?php
 
+// Originally contained: GDocs class
+// Contains: UpdraftPlus_GDocs class (new methods added - could not extend, as too much was private)
+
 // The following copyright notice is reproduced exactly as found in the "Backup" plugin (http://wordpress.org/extend/plugins/backup)
+// It applies to the code apart from the methods we added (get_content_link, download_data)
 
 /*
 	Copyright 2012 Sorin Iclanzan  (email : sorin@hel.io)
@@ -30,7 +34,7 @@
  *
  * @uses  WP_Error for storing error messages.
  */
-class GDocs {
+class UpdraftPlus_GDocs {
 
 	/**
 	 * Stores the API version.
@@ -603,4 +607,21 @@ class GDocs {
 		return $att['src'];
 
 	}
+
+	public function download_data( $link, $saveas ) {
+
+		$result = $this->request( $link );
+
+		if ( is_wp_error( $result ) )
+			return $result;
+
+		if ( $result['response']['code'] != '200' )
+			return new WP_Error( 'bad_response', "Received response code '" . $result['response']['code'] . " " . $result['response']['message'] . "' while trying to get '" . $url . "'." );
+
+		file_put_contents($saveas, $result['body']);
+
+	}
+
+
+
 }

@@ -5,7 +5,7 @@ Requires at least: 3.2
 Tested up to: 3.5
 Stable tag: 0.8.51
 Donate link: http://david.dw-perspective.org.uk/donate
-License: GPLv2 or later
+License: GPLv3 or later
 
 == Upgrade Notice ==
 Screenshots now moved into assets directory. Also, try the trunk for 0.9 with new code for re-trying of failed uploads.
@@ -70,20 +70,24 @@ Contact me! This is a complex plugin and the only way I can ensure it's robust i
 
 == Changelog ==
 
-= 0.9.10 - 11/21/2012 =
+= 0.9.10 - 11/22/2012 =
+* Completed basic Google Drive support (thanks to Sorin Iclanzan, code taken from "Backup" plugin under GPLv3+); now supporting uploading, purging and restoring - i.e. full UpdraftPlus functionality
+* Licence change to GPLv3+ (from GPLv2+) to allow incorporating Sorin's code
+* Tidied/organised the settings screen further
+
+= 0.9.2 - 11/21/2012 =
 * Failed uploads can now be re-tried, giving really big blogs a better opportunity to eventually succeed uploading
-* New Google Drive support (thanks to Sorin Iclanzan, code taken from "Backup" plugin under GPLv3+)
 
 = 0.8.51 - 11/19/2012 =
 * Moved screenshot into assets, reducing plugin download size
 
 = 0.8.50 - 10/13/2012 =
-* Important new feature: back up other directories found in the WP content directory (not just plugins/themes/uploads, as in original Updraft)
+* Important new feature: back up other directories found in the WP content (wp-content) directory (not just plugins/themes/uploads, as in original Updraft)
 
 = 0.8.37 - 10/12/2012 =
 * Don't whinge about Google Drive authentication if that method is not current
 
-= 0.8.36 - 03/10/2012 =
+= 0.8.36 - 10/03/2012 =
 * Support using sub-directories in Amazon S3
 * Some more debug logging for Amazon S3
 
