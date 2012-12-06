@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 0.9.12
+Version: 0.9.20
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPL3
 Author URI: http://wordshell.net
@@ -62,7 +62,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '0.9.12';
+	var $version = '0.9.20';
 
 	var $dbhandle;
 	var $errors = array();
@@ -280,7 +280,7 @@ class UpdraftPlus {
 		$our_files=$backup_history[$btime];
 		$undone_files = array();
 		foreach ($our_files as $key => $file) {
-			$hash=md5($file);
+			$hash = md5($file);
 			$fullpath = trailingslashit(get_option('updraft_dir')).$file;
 			if (get_transient('updraft_'.$hash) === "yes") {
 				$this->log("$file: $key: This file has been successfully uploaded in the last 3 hours");
@@ -421,7 +421,7 @@ class UpdraftPlus {
 			delete_transient("updraftplus_backup_job_nonce");
 			delete_transient("updraftplus_backup_job_time");
 		} else {
-			$this->log("There were errors in the uploads, so the 'resume' event is remaining unscheduled");
+			$this->log("There were errors in the uploads, so the 'resume' event is remaining scheduled");
 		}
 
 		@fclose($this->logfile_handle);
@@ -465,7 +465,7 @@ class UpdraftPlus {
 	function uploaded_file($file, $id = false) {
 		# We take an MD5 hash because set_transient wants a name of 45 characters or less
 		$hash = md5($file);
-		set_transient("updraft_".$hash, "yes", 3600*3);
+		set_transient("updraft_".$hash, "yes", 3600*4);
 		if ($id) {
 			$ids = get_option('updraft_file_ids', array() );
 			$ids[$file] = $id;
@@ -623,27 +623,94 @@ class UpdraftPlus {
 		$this->log("Retain: saving new backup history (sets now: ".count($backup_history).") and finishing retain operation");
 		update_option('updraft_backup_history',$backup_history);
 	}
-	
+
 	function s3_backup($backup_array) {
+
 		if(!class_exists('S3')) require_once(dirname(__FILE__).'/includes/S3.php');
 		$s3 = new S3(get_option('updraft_s3_login'), get_option('updraft_s3_pass'));
+
 		$bucket_name = untrailingslashit(get_option('updraft_s3_remote_path'));
 		$bucket_path = "";
 		$orig_bucket_name = $bucket_name;
+
 		if (preg_match("#^([^/]+)/(.*)$#",$bucket_name,$bmatches)) {
 			$bucket_name = $bmatches[1];
 			$bucket_path = $bmatches[2]."/";
 		}
+
+
 		if (@$s3->putBucket($bucket_name, S3::ACL_PRIVATE)) {
 			foreach($backup_array as $file) {
+
+				// We upload in 5Mb chunks to allow more efficient resuming and hence uploading of larger files
 				$fullpath = trailingslashit(get_option('updraft_dir')).$file;
-				$this->log("S3 upload: $fullpath -> s3://$bucket_name/$bucket_path$file");
-				if (!$s3->putObjectFile($fullpath, $bucket_name, $bucket_path.$file)) {
-					$this->log("S3 upload: failed");
-					$this->error("S3 Error: Failed to upload $fullpath. Error was ".$php_errormsg);
+				$chunks = floor(filesize($fullpath) / 5242880)+1;
+				$hash = md5($file);
+
+				$this->log("S3 upload: $fullpath (chunks: $chunks) -> s3://$bucket_name/$bucket_path$file");
+
+				$filepath = $bucket_path.$file;
+
+				// This is extra code for the 1-chunk case, but less overhead (no bothering with transients)
+				if ($chunks < 2) {
+					if (!$s3->putObjectFile($fullpath, $bucket_name, $filepath)) {
+						$this->log("S3 regular upload: failed");
+						$this->error("S3 Error: Failed to upload $fullpath. Error was ".$php_errormsg);
+					} else {
+						$this->log("S3 regular upload: success");
+						$this->uploaded_file($file);
+					}
 				} else {
-					$this->log("S3 upload: success");
-					$this->uploaded_file($file);
+
+					// Retrieve the upload ID
+					$uploadId = get_transient("updraft_${hash}_uid");
+					if (empty($uploadId)) {
+						$uploadId = $s3->initiateMultipartUpload($bucket_name, $filepath);
+						if (empty($uploadId)) {
+							$this->log("S3 upload: failed: could not get uploadId for multipart upload");
+							continue;
+						} else {
+							$this->log("S3 chunked upload: got multipart ID: $uploadId");
+							set_transient("updraft_${hash}_uid", $uploadId, 3600*3);
+						}
+					} else {
+						$this->log("S3 chunked upload: retrieved previously obtained multipart ID: $uploadId");
+					}
+
+					$successes = 0;
+					$etags = array();
+					for ($i = 1 ; $i <= $chunks; $i++) {
+						# Shorted to upd here to avoid hitting the 45-character limit
+						$etag = get_transient("upd_${hash}_e$i");
+						if (strlen($etag) > 0) {
+							$this->log("S3 chunk $i: was already completed (etag: $etag)");
+							$successes++;
+							array_push($etags, $etag);
+						} else {
+							$etag = $s3->uploadPart($bucket_name, $filepath, $uploadId, $fullpath, $i);
+							if (is_string($etag)) {
+								$this->log("S3 chunk $i: uploaded (etag: $etag)");
+								array_push($etags, $etag);
+								set_transient("upd_${hash}_e$i", $etag, 3600*3);
+								$successes++;
+							} else {
+								$this->error("S3 chunk $i: upload failed");
+								$this->log("S3 chunk $i: upload failed");
+							}
+						}
+					}
+					if ($successes >= $chunks) {
+						$this->log("S3 upload: all chunks uploaded; will now instruct S3 to re-assemble");
+						if ($s3->completeMultipartUpload ($bucket_name, $filepath, $uploadId, $etags)) {
+							$this->log("S3 upload: re-assembly succeeded");
+							$this->uploaded_file($file);
+						} else {
+							$this->log("S3 upload: re-assembly failed");
+							$this->error("S3 upload: re-assembly failed");
+						}
+					} else {
+						$this->log("S3 upload: upload was not completely successful on this run");
+					}
 				}
 			}
 			$this->prune_retained_backups('s3',$s3,$orig_bucket_name);
@@ -2125,6 +2192,10 @@ ENDHERE;
 				</tr>
 
 				<!-- Amazon S3 -->
+				<tr class="s3" <?php echo $s3_display?>>
+					<td></td>
+					<td><em>Amazon S3 is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your blog is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.</em></td>
+				</tr>
 				<tr class="s3" <?php echo $s3_display?>>
 					<th>S3 access key:</th>
 					<td><input type="text" autocomplete="off" style="width:292px" name="updraft_s3_login" value="<?php echo get_option('updraft_s3_login') ?>" /></td>

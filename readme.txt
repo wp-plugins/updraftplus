@@ -8,7 +8,7 @@ Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Updated to latest S3 library with patch for chunked uploading (for future use)
+Chunked, resumable uploading with Amazon S3 - much bigger blogs can now be backed up
 
 == Description ==
 
@@ -18,10 +18,9 @@ UpdraftPlus simplifies backups (and restoration). Backup into the cloud (S3, Goo
 
 Standard WordPress plugin installation:
 
-1. Upload updraftplus/ into wp-content/plugins/ (or use the built-in installers)
-2. Activate the plugin via the 'Plugins' menu.
-3. Go to the 'UpdraftPlus' option under settings.
-4. Follow the instructions.
+1. Search for "UpdraftPlus" in your site's admin area plugin page
+2. Press 'Install'
+3. Go to the options page and go through the questions there
 
 == Frequently Asked Questions ==
 
@@ -54,7 +53,7 @@ Unless you disable any of these, it will back up your database (all tables which
 It does not back up WordPress core (since you can always get another copy of this from wordpress.org), and does not back up any extra files which you have added outside of the WordPress content directory (files which, by their nature, are unknown to WordPress). By default the WordPress content directory is "wp-content" in your WordPress root. It will not back up database tables which do not have the WordPress prefix (i.e. database tables from other applications but sharing a database with WordPress).
 
 = Any known bugs ? =
-The major one is that backups of very large sites (lots of uploaded media) can fail due to timing out. If your site is very large, then be doubly-sure to test when setting up that your backups are not empty. Since 0.9.0 there is a feature to re-try failed uploads on a separate scheduled run, which means UpdraftPlus should succeed for more sites than before (since we now only need enough time on each run to upload a single file, not all of them).
+Not a bug as such, but one major issue to be aware of is that backups of very large sites (lots of uploaded media) can fail due to timing out. This depends on how manys seconds your web host allows a PHP process to run. With such sites, you need to use Amazon S3, which UpdraftPlus supports (since 0.9.20) with chunked, resumable uploads. All other backup methods have code (since 0.9.0) to retry failed uploads of an archive, but the upload cannot be chunked, so if an archive is enormous (i.e. cannot be completely uploaded in the time that PHP is allowed for running on your web host) it cannot work. Google Drive supports chunked, resumable uploads, but that code is not yet in UpdraftPlus (please send me a donation if you want me to hurry up!).
 
 = I encrypted my database - how do I decrypt it? =
 
@@ -70,8 +69,9 @@ Contact me! This is a complex plugin and the only way I can ensure it's robust i
 
 == Changelog ==
 
-= 0.9.12 - 12/06/2012 =
-* Updated to latest S3.php library with chunked uploading patch (for future improvements)
+= 0.9.20 - 12/06/2012 =
+* Updated to latest S3.php library with chunked uploading patch
+* Implemented chunked uploading on Amazon S3 - much bigger sites can now be backed up with S3
 
 = 0.9.10 - 11/22/2012 =
 * Completed basic Google Drive support (thanks to Sorin Iclanzan, code taken from "Backup" plugin under GPLv3+); now supporting uploading, purging and restoring - i.e. full UpdraftPlus functionality
