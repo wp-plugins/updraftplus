@@ -8,7 +8,7 @@ Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Full Google Drive support
+Updated to latest S3 library (to prepare for future enhancements)
 
 == Description ==
 
@@ -69,6 +69,9 @@ Nothing, probably. That's the point of an encryption key - people who don't have
 Contact me! This is a complex plugin and the only way I can ensure it's robust is to get bug reports and fix the problems that crop up. Please turn on debugging mode and send me the log if you can find it. Include as much information as you can when reporting (PHP version, your blog's site, the error you saw and how you got to the page that caused it, etcetera). If you can send a patch, that's even better.
 
 == Changelog ==
+
+= 0.9.11 - 12/06/2012 =
+* Updated to latest S3.php library (to allow for future enhancements)
 
 = 0.9.10 - 11/22/2012 =
 * Completed basic Google Drive support (thanks to Sorin Iclanzan, code taken from "Backup" plugin under GPLv3+); now supporting uploading, purging and restoring - i.e. full UpdraftPlus functionality
