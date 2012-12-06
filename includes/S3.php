@@ -3,6 +3,7 @@
 * $Id$
 *
 * Copyright (c) 2011, Donovan Schönknecht.  All rights reserved.
+* Portions copyright (c) 2012, David Anderson (http://www.simbahosting.co.uk).  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -453,6 +454,180 @@ class S3
 		return $input;
 	}
 
+	/**
+	* Initiate a multi-part upload (http://docs.amazonwebservices.com/AmazonS3/latest/API/mpUploadInitiate.html)
+	*
+	* @param string $bucket Bucket name
+	* @param string $uri Object URI
+	* @param constant $acl ACL constant
+	* @param array $metaHeaders Array of x-amz-meta-* headers
+	* @param array $requestHeaders Array of request headers or content type as a string
+	* @param constant $storageClass Storage class constant
+	* @return string | false
+	*/
+
+	public static function initiateMultipartUpload ($bucket, $uri, $acl = self::ACL_PRIVATE, $metaHeaders = array(), $requestHeaders = array(), $storageClass = self::STORAGE_CLASS_STANDARD)
+	{
+
+		$rest = new S3Request('POST', $bucket, $uri, self::$endpoint);
+		$rest->setParameter('uploads','');
+
+		// Custom request headers (Content-Type, Content-Disposition, Content-Encoding)
+		if (is_array($requestHeaders))
+			foreach ($requestHeaders as $h => $v) $rest->setHeader($h, $v);
+
+		// Set storage class
+		if ($storageClass !== self::STORAGE_CLASS_STANDARD) // Storage class
+			$rest->setAmzHeader('x-amz-storage-class', $storageClass);
+
+		// Set ACL headers
+		$rest->setAmzHeader('x-amz-acl', $acl);
+		foreach ($metaHeaders as $h => $v) $rest->setAmzHeader('x-amz-meta-'.$h, $v);
+
+		// Carry out the HTTP operation
+		$rest->getResponse();
+
+		if ($rest->response->error === false && $rest->response->code !== 200)
+			$rest->response->error = array('code' => $rest->response->code, 'message' => 'Unexpected HTTP status');
+		if ($rest->response->error !== false)
+		{
+			self::__triggerError(sprintf("S3::initiateMultipartUpload(): [%s] %s",
+			$rest->response->error['code'], $rest->response->error['message']), __FILE__, __LINE__);
+			return false;
+		} elseif (isset($rest->response->body))
+		{
+			$body = new SimpleXMLElement($rest->response->body);
+			return (string) $body->UploadId;
+		}
+
+		// It is a programming error if we reach this line
+		return false;
+
+	}
+
+	/**
+	/* Upload a part of a multi-part set (http://docs.amazonwebservices.com/AmazonS3/latest/API/mpUploadUploadPart.html)
+	* The chunk is read into memory, so make sure that you have enough (or patch this function to work another way!)
+	*
+	* @param string $bucket Bucket name
+	* @param string $uri Object URI
+	* @param string $uploadId uploadId returned previously from initiateMultipartUpload
+	* @param integer $partNumber sequential part number to upload
+	* @param string $filePath file to upload content from
+	* @param integer $partSize number of bytes in each part (though final part may have fewer) - pass the same value each time (for this particular upload) - default 5Mb (which is Amazon's minimum)
+	* @return string (ETag) | false
+	*/
+
+	public static function uploadPart ($bucket, $uri, $uploadId, $filePath, $partNumber, $partSize = 5242880)
+	{
+
+		$rest = new S3Request('PUT', $bucket, $uri, self::$endpoint);
+		$rest->setParameter('partNumber', $partNumber);
+		$rest->setParameter('uploadId', $uploadId);
+
+		// Where to begin
+		$fileOffset = ($partNumber - 1 ) * $partSize;
+
+		// Download the smallest of the remaining bytes and the part size
+		$fileBytes = min(filesize($filePath) - $fileOffset, $partSize);
+		if ($fileBytes < 0) $fileBytes = 0;
+
+		$rest->setHeader('Content-Type', 'application/octet-stream');
+		$rest->data = "";
+
+		$handle = fopen($filePath, "rb");
+		if ($fileOffset >0) fseek($handle, $fileOffset);
+		$bytes_read = 0;
+
+		while ($fileBytes >0) {
+			$read = fread($handle, min($fileBytes, 32768));
+			$fileBytes = $fileBytes - strlen($read);
+			$bytes_read += strlen($read);
+			$rest->data = $rest->data . $read;
+		}
+
+		fclose($handle);
+
+ 		$rest->setHeader('Content-MD5', base64_encode(md5($rest->data, true)));
+		$rest->size = $bytes_read;
+
+		$rest = $rest->getResponse();
+		if ($rest->error === false && $rest->code !== 200)
+			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
+		if ($rest->error !== false)
+		{
+			self::__triggerError(sprintf("S3::uploadPart(): [%s] %s",
+			$rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
+			return false;
+		}
+		return $rest->headers['hash'];
+
+	}
+
+	/**
+	* Complete a multi-part upload (http://docs.amazonwebservices.com/AmazonS3/latest/API/mpUploadComplete.html)
+	*
+	* @param string $bucket Bucket name
+	* @param string $uri Object URI
+	* @param string $uploadId uploadId returned previously from initiateMultipartUpload
+	* @param array $parts an ordered list of eTags of previously uploaded parts from uploadPart
+	* @return boolean
+	*/
+
+	public static function completeMultipartUpload ($bucket, $uri, $uploadId, $parts)
+	{
+		$rest = new S3Request('POST', $bucket, $uri, self::$endpoint);
+		$rest->setParameter('uploadId', $uploadId);
+
+		$xml = "<CompleteMultipartUpload>\n";
+		$partno = 1;
+		foreach ($parts as $etag) {
+			$xml .= "<Part><PartNumber>$partno</PartNumber><ETag>$etag</ETag></Part>\n";
+			$partno++;
+		}
+		$xml .= "</CompleteMultipartUpload>";
+
+		$rest->data = $xml;
+		$rest->size = strlen($rest->data);
+		$rest->setHeader('Content-Type', 'application/xml');
+
+		$rest = $rest->getResponse();
+		if ($rest->error === false && $rest->code !== 200)
+			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
+		if ($rest->error !== false)
+		{
+			self::__triggerError(sprintf("S3::completeMultipartUpload(): [%s] %s",
+			$rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
+			return false;
+		}
+		return true;
+
+	}
+
+	/**
+	* Abort a multi-part upload (http://docs.amazonwebservices.com/AmazonS3/latest/API/mpUploadAbort.html)
+	*
+	* @param string $bucket Bucket name
+	* @param string $uri Object URI
+	* @param string $uploadId uploadId returned previously from initiateMultipartUpload
+	* @return boolean
+	*/
+
+	public static function abortMultipartUpload ($bucket, $uri, $uploadId)
+	{
+		$rest = new S3Request('DELETE', $bucket, $uri, self::$endpoint);
+		$rest->setParameter('uploadId', $uploadId);
+		$rest = $rest->getResponse();
+		if ($rest->error === false && $rest->code !== 204)
+			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
+		if ($rest->error !== false)
+		{
+			self::__triggerError(sprintf("S3::abortMultipartUpload(): [%s] %s",
+			$rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
+			return false;
+		}
+		return true;
+	}
 
 	/**
 	* Put an object
@@ -1794,8 +1969,10 @@ final class S3Request
 			if (array_key_exists('acl', $this->parameters) ||
 			array_key_exists('location', $this->parameters) ||
 			array_key_exists('torrent', $this->parameters) ||
-			array_key_exists('website', $this->parameters) ||
-			array_key_exists('logging', $this->parameters))
+			array_key_exists('logging', $this->parameters) ||
+			array_key_exists('partNumber', $this->parameters) ||
+			array_key_exists('uploads', $this->parameters) ||
+			array_key_exists('uploadId', $this->parameters))
 				$this->resource .= $query;
 		}
 		$url = (S3::$useSSL ? 'https://' : 'http://') . ($this->headers['Host'] !== '' ? $this->headers['Host'] : $this->endpoint) . $this->uri;
@@ -1874,7 +2051,7 @@ final class S3Request
 		switch ($this->verb)
 		{
 			case 'GET': break;
-			case 'PUT': case 'POST': // POST only used for CloudFront
+			case 'PUT': case 'POST':
 				if ($this->fp !== false)
 				{
 					curl_setopt($curl, CURLOPT_PUT, true);

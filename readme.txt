@@ -8,7 +8,7 @@ Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Updated to latest S3 library (to prepare for future enhancements)
+Updated to latest S3 library with patch for chunked uploading (for future use)
 
 == Description ==
 
@@ -70,8 +70,8 @@ Contact me! This is a complex plugin and the only way I can ensure it's robust i
 
 == Changelog ==
 
-= 0.9.11 - 12/06/2012 =
-* Updated to latest S3.php library (to allow for future enhancements)
+= 0.9.12 - 12/06/2012 =
+* Updated to latest S3.php library with chunked uploading patch (for future improvements)
 
 = 0.9.10 - 11/22/2012 =
 * Completed basic Google Drive support (thanks to Sorin Iclanzan, code taken from "Backup" plugin under GPLv3+); now supporting uploading, purging and restoring - i.e. full UpdraftPlus functionality
