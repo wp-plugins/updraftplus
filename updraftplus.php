@@ -4,16 +4,15 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 0.9.20
+Version: 0.9.21
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPL3
 Author URI: http://wordshell.net
 */ 
 
 //TODO (some of these items mine, some from original Updraft awaiting review):
-//GoogleDrive resume partial upload support (store the current status in a transient after each chunk; use that on resumption)
-//Add DropBox support
-//Struggles with large uploads - runs out of time before finishing. Break into chunks? Resume download on later run? (Add a new scheduled event to check on progress? Separate the upload from the creation?).
+//Add DropBox and Microsoft Skydrive support
+//Backup record should include *where* the backup was placed, so that we don't attempt to delete old ones from the wrong place? (Or would that be unexpected to users to have things from elsewhere deleted?)
 //improve error reporting.  s3 and dir backup have decent reporting now, but not sure i know what to do from here
 //list backups that aren't tracked (helps with double backup problem)
 //investigate $php_errormsg further
@@ -62,7 +61,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '0.9.20';
+	var $version = '0.9.21';
 
 	var $dbhandle;
 	var $errors = array();
@@ -72,7 +71,6 @@ class UpdraftPlus {
 	var $backup_time;
 	var $gdocs;
 	var $gdocs_access_token;
-	var $gdocs_location;
 
 	function __construct() {
 		// Initialisation actions
@@ -92,7 +90,7 @@ class UpdraftPlus {
 		add_action('init', array($this, 'googledrive_backup_auth'));
 	}
 
-	// Handle Google OAuth 2.0
+	// Handle Google OAuth 2.0 - ?page=updraftplus&action=auth
 	function googledrive_backup_auth() {
 		if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] == 'updraftplus' && isset( $_GET['action'] ) && $_GET['action'] == 'auth' ) {
 			if ( isset( $_GET['state'] ) ) {
@@ -194,6 +192,7 @@ class UpdraftPlus {
 					) )
 				)
 			);
+			// TODO Use curl??
 			$result = @file_get_contents('https://accounts.google.com/o/oauth2/token', false, stream_context_create($context));
 			# Oddly, sometimes fails and then trying again works...
 			/*
@@ -288,7 +287,7 @@ class UpdraftPlus {
 				$this->log("$file: $key: This file has NOT been successfully uploaded in the last 3 hours: will retry");
 				$undone_files[$key] = $file;
 			} else {
-				$this-log("$file: Note: This file was not marked as successfully uploaded, but does not exist on the local filesystem");
+				$this->log("$file: Note: This file was not marked as successfully uploaded, but does not exist on the local filesystem");
 				$this->uploaded_file($file);
 			}
 		}
@@ -402,7 +401,7 @@ class UpdraftPlus {
 			$this->log("Saving last backup information into WordPress db");
 			$this->save_last_backup($backup_array);
 
-			// Delete local files, send the email
+			// Send the email
 			$this->cloud_backup_finish($backup_array);
 
 		}
@@ -432,14 +431,10 @@ class UpdraftPlus {
 
 	function cloud_backup_finish($backup_array) {
 
-		//delete local files if the pref is set
-		foreach($backup_array as $file) { $this->delete_local($file); }
-
 		// Send the results email if requested
 		if(get_option('updraft_email') != "" && get_option('updraft_service') != 'email') $this->send_results_email();
 
 	}
-
 
 	function send_results_email() {
 
@@ -449,7 +444,7 @@ class UpdraftPlus {
 
 		$append_log = (get_option('updraft_debug_mode') && $this->logfile_name != "") ? "\r\nLog contents:\r\n".file_get_contents($this->logfile_name) : "" ;
 
-		wp_mail($sendmail_to,'Backed up: '.get_bloginfo('name').' (UpdraftPlus) '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus WordPress backup is complete.\r\nBackup contains: ".get_transient("updraftplus_backupcontains")."\r\n\r\n".$this->wordshell_random_advert(0)."\r\n".$append_log);
+		wp_mail($sendmail_to,'Backed up: '.get_bloginfo('name').' (UpdraftPlus '.$this->version.') '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus WordPress backup is complete.\r\nBackup contains: ".get_transient("updraftplus_backupcontains")."\r\n\r\n".$this->wordshell_random_advert(0)."\r\n".$append_log);
 
 	}
 
@@ -465,6 +460,7 @@ class UpdraftPlus {
 	function uploaded_file($file, $id = false) {
 		# We take an MD5 hash because set_transient wants a name of 45 characters or less
 		$hash = md5($file);
+		$this->log("$file: $hash: recording as successfully uploaded");
 		set_transient("updraft_".$hash, "yes", 3600*4);
 		if ($id) {
 			$ids = get_option('updraft_file_ids', array() );
@@ -472,6 +468,9 @@ class UpdraftPlus {
 			update_option('updraft_file_ids',$ids);
 			$this->log("Stored file<->id correlation in database ($file <-> $id)");
 		}
+		// Delete local files if the option is set
+		$this->delete_local($file);
+
 	}
 
 	function cloud_backup($backup_array) {
@@ -627,6 +626,7 @@ class UpdraftPlus {
 	function s3_backup($backup_array) {
 
 		if(!class_exists('S3')) require_once(dirname(__FILE__).'/includes/S3.php');
+
 		$s3 = new S3(get_option('updraft_s3_login'), get_option('updraft_s3_pass'));
 
 		$bucket_name = untrailingslashit(get_option('updraft_s3_remote_path'));
@@ -638,8 +638,8 @@ class UpdraftPlus {
 			$bucket_path = $bmatches[2]."/";
 		}
 
-
 		if (@$s3->putBucket($bucket_name, S3::ACL_PRIVATE)) {
+
 			foreach($backup_array as $file) {
 
 				// We upload in 5Mb chunks to allow more efficient resuming and hence uploading of larger files
@@ -747,33 +747,34 @@ class UpdraftPlus {
 		return true;
 	}
 
+	// Returns:
+	// true = already uploaded
+	// false = failure
+	// otherwise, the file ID
 	function googledrive_upload_file( $file, $title, $parent = '') {
 
 		// Make sure $this->gdocs is a UpdraftPlus_GDocs object, or give an error
 		if ( is_wp_error( $e = $this->need_gdocs() ) ) return false;
 
-		if ( empty( $this->gdocs_location ) ) {
+		$hash = md5($file);
+		$transkey = 'upd_'.$hash.'_gloc';
+		// This is unset upon completion, so if it is set then we are resuming
+		$possible_location = get_transient($transkey);
+
+		if ( empty( $possible_location ) ) {
 			$this->log("$file: Attempting to upload file to Google Drive.");
-			$location = $this->gdocs->prepare_upload(
-				$file,
-				$title,
-				$parent
-			);
+			$location = $this->gdocs->prepare_upload( $file, $title, $parent );
 		} else {
-			$this->log('$file: Attempting to resume upload.');
-			$location = $this->gdocs->resume_upload(
-				$file,
-				$this->gdocs_location
-			);
+			$this->log("$file: Attempting to resume upload.");
+			$location = $this->gdocs->resume_upload( $file, $possible_location );
 		}
 
 		if ( is_wp_error( $location ) ) {
 			$this->log("GoogleDrive upload: an error occurred");
 			foreach ($location->get_error_messages() as $msg) {
+				$this->error($msg);
 				$this->log("Error details: ".$msg);
 			}
-			// TODO
-			//$this->reschedule_backup( $id );
 			return false;
 		}
 
@@ -786,36 +787,37 @@ class UpdraftPlus {
 			$res = $location;
 			$this->log("Uploading file with title ".$title);
 			$d = 0;
-// 			echo '<div id="progress">';
 			do {
-				$this->gdocs_location = $res;
+				$this->log("Google Drive upload: chunk d: $d, loc: $res");
 				$res = $this->gdocs->upload_chunk();
+				if (is_string($res)) set_transient($transkey, $res, 3600*3);
 				$p = $this->gdocs->get_upload_percentage();
 				if ( $p - $d >= 1 ) {
 					$b = intval( $p - $d );
 // 					echo '<span style="width:' . $b . '%"></span>';
 					$d += $b;
 				}
-// 				$this->options['backup_list'][$id]['percentage'] = $p;
 // 				$this->options['backup_list'][$id]['speed'] = $this->gdocs->get_upload_speed();
 			} while ( is_string( $res ) );
 // 			echo '</div>';
 
-			if ( is_wp_error( $res ) ) {
+			if ( is_wp_error( $res ) || $res !== true) {
 				$this->log( "An error occurred during GoogleDrive upload (2)" );
-				# TODO
-// 				$this->reschedule_backup( $id );
+				$this->error( "An error occurred during GoogleDrive upload (2)" );
+				if (is_wp_error( $res )) {
+					foreach ($res->get_error_messages() as $msg) { $this->log($msg); }
+				}
 				return false;
 			}
 
 			$this->log("The file was successfully uploaded to Google Drive in ".number_format_i18n( $this->gdocs->time_taken(), 3)." seconds at an upload speed of ".size_format( $this->gdocs->get_upload_speed() )."/s.");
-				
-			$this->gdocs_location = null;
+
+			delete_transient($transkey);
 // 			unset( $this->options['backup_list'][$id]['location'], $this->options['backup_list'][$id]['attempt'] );
 		}
 
 		return $this->gdocs->get_file_id();
-// 		unset( $this->options['backup_list'][$id]['percentage'], $this->options['backup_list'][$id]['speed'] );
+
 // 		$this->update_quota();
 //	Google's "user info" service
 // 		if ( empty( $this->options['user_info'] ) ) $this->set_user_info();
@@ -839,7 +841,7 @@ class UpdraftPlus {
 			$file_path = trailingslashit(get_option('updraft_dir')).$file;
 			$file_name = basename($file_path);
 			$this->log("$file_name: Attempting to upload to Google Drive");
-			$timer_start = microtime( true );
+			$timer_start = microtime(true);
 			if ( $id = $this->googledrive_upload_file( $file_path, $file_name, get_option('updraft_googledrive_remotepath')) ) {
 				$this->log('OK: Archive ' . $file_name . ' uploaded to Google Drive in ' . ( round(microtime( true ) - $timer_start,2) ) . ' seconds (id: '.$id.')' );
 				$this->uploaded_file($file, $id);
@@ -2114,7 +2116,8 @@ ENDHERE;
 				</tr>
 				<tr class="deletelocal s3 ftp email" <?php echo $display_delete_local?>>
 					<th>Delete local backup:</th>
-					<td><input type="checkbox" name="updraft_delete_local" value="1" <?php echo $delete_local; ?> /> <br>Check this to delete the local backup file (only sensible if you have enabled a remote backup (below), otherwise you will have no backup remaining).</td>
+					<td><input type="checkbox" name="updraft_delete_local" value="1" <?php $delete_local = (get_option('updraft_delete_local')) ? 'checked="checked"' : "";
+echo $delete_local; ?> /> <br>Check this to delete the local backup file (only sensible if you have enabled a remote backup (below), otherwise you will have no backup remaining).</td>
 				</tr>
 
 				<tr class="backup-retain-description">
@@ -2139,7 +2142,6 @@ ENDHERE;
 					<th>Remote backup:</th>
 					<td><select name="updraft_service" id="updraft-service">
 						<?php
-						$delete_local = (get_option('updraft_delete_local')) ? 'checked="checked"' : "";
 						$debug_mode = (get_option('updraft_debug_mode')) ? 'checked="checked"' : "";
 
 						$display_none = 'style="display:none"';
@@ -2202,7 +2204,7 @@ ENDHERE;
 				</tr>
 				<tr class="s3" <?php echo $s3_display?>>
 					<th>S3 secret key:</th>
-					<td><input type="password" autocomplete="off" style="width:292px" name="updraft_s3_pass" value="<?php echo get_option('updraft_s3_pass'); ?>" /></td>
+					<td><input type="text" autocomplete="off" style="width:292px" name="updraft_s3_pass" value="<?php echo get_option('updraft_s3_pass'); ?>" /></td>
 				</tr>
 				<tr class="s3" <?php echo $s3_display?>>
 					<th>S3 location:</th>
@@ -2214,13 +2216,26 @@ ENDHERE;
 				</tr>
 
 				<!-- Google Drive -->
+
+				<tr class="googledrive" <?php echo $googledrive_display?>>
+				<th>Google Drive:</th>
+				<td>
+				<a href="https://code.google.com/apis/console/">Follow this link to your Google API Console</a>, and there create a Client ID in the API Access section. Select 'Web Application' as the application type.</p><p>You must add <kbd><?php echo admin_url('options-general.php?page=updraftplus&action=auth'); ?></kbd> as the authorised redirect URI when asked.
+
+				<?php
+					if (!class_exists('SimpleXMLElement')) { echo " <b>WARNING:</b> You do not have the SimpleXMLElement installed. Google Drive backups will <b>not</b> work until you do."; }
+				?>
+
+				</td>
+				</tr>
+
 				<tr class="googledrive" <?php echo $googledrive_display?>>
 					<th>Google Drive Client ID:</th>
 					<td><input type="text" autocomplete="off" style="width:332px" name="updraft_googledrive_clientid" value="<?php echo get_option('updraft_googledrive_clientid') ?>" /></td>
 				</tr>
 				<tr class="googledrive" <?php echo $googledrive_display?>>
 					<th>Google Drive Client Secret:</th>
-					<td><input type="password" autocomplete="off" style="width:332px" name="updraft_googledrive_secret" value="<?php echo get_option('updraft_googledrive_secret'); ?>" /></td>
+					<td><input type="text" style="width:332px" name="updraft_googledrive_secret" value="<?php echo get_option('updraft_googledrive_secret'); ?>" /></td>
 				</tr>
 				<tr class="googledrive" <?php echo $googledrive_display?>>
 					<th>Google Drive Folder ID:</th>
@@ -2228,25 +2243,9 @@ ENDHERE;
 				</tr>
 				<tr class="googledrive" <?php echo $googledrive_display?>>
 					<th>Authenticate with Google:</th>
-					<td><p><a href="?page=updraftplus&action=auth&updraftplus_googleauth=doit"><strong>After</strong> you have saved your settings (by clicking &quot;Save Changes&quot; below), then come back here once and click this link to complete authentication with Google.</a>
+					<td><p><?php if (get_option('updraft_googledrive_token','xyz') != 'xyz') echo "<strong>(You appear to be already authenticated).</strong>"; ?> <a href="?page=updraftplus&action=auth&updraftplus_googleauth=doit"><strong>After</strong> you have saved your settings (by clicking &quot;Save Changes&quot; below), then come back here once and click this link to complete authentication with Google.</a>
 
-					<?php
-						if (get_option('updraft_googledrive_token','xyz') != 'xyz') {
-							echo " (You appear to be already authenticated)";
-						}
-					?>
 				</p>
-				</td>
-				</tr>
-				<tr class="googledrive" <?php echo $googledrive_display?>>
-				<th></th>
-				<td>
-				Create a Client ID in the API Access section of your <a href="https://code.google.com/apis/console/">Google API Console</a>. Select 'Web Application' as the application type.</p><p>You must add <kbd><?php echo admin_url('options-general.php?page=updraftplus&action=auth'); ?></kbd> as the authorised redirect URI when asked.
-
-				<?php
-					if (!class_exists('SimpleXMLElement')) { echo " <b>WARNING:</b> You do not have the SimpleXMLElement installed. Google Drive backups will <b>not</b> work until you do."; }
-				?>
-
 				</td>
 				</tr>
 
@@ -2260,7 +2259,7 @@ ENDHERE;
 				</tr>
 				<tr class="ftp" <?php echo $ftp_display?>>
 					<th><a href="#" title="Click for help!" onclick="jQuery('.ftp-description').toggle();return false;">FTP Password:</a></th>
-					<td><input type="password" autocomplete="off" style="width:260px" name="updraft_ftp_pass" value="<?php echo get_option('updraft_ftp_pass'); ?>" /></td>
+					<td><input type="text" autocomplete="off" style="width:260px" name="updraft_ftp_pass" value="<?php echo get_option('updraft_ftp_pass'); ?>" /></td>
 				</tr>
 				<tr class="ftp" <?php echo $ftp_display?>>
 					<th><a href="#" title="Click for help!" onclick="jQuery('.ftp-description').toggle();return false;">Remote Path:</a></th>
@@ -2415,5 +2414,6 @@ ENDHERE;
 
 
 }
+
 
 ?>

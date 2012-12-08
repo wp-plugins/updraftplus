@@ -69,6 +69,10 @@ Contact me! This is a complex plugin and the only way I can ensure it's robust i
 
 == Changelog ==
 
+= 0.9.21 - 12/07/2012 =
+* Implemented resumption of uploading on Google Drive - much bigger sites can now be backed up
+* Fixed bug whereby setting for deleting local backups was lost
+
 = 0.9.20 - 12/06/2012 =
 * Updated to latest S3.php library with chunked uploading patch
 * Implemented chunked uploading on Amazon S3 - much bigger sites can now be backed up with S3
