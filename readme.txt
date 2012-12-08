@@ -12,7 +12,7 @@ Chunked, resumable uploading with Amazon S3 and Google Drive - much bigger blogs
 
 == Description ==
 
-UpdraftPlus simplifies backups (and restoration). Backup into the cloud (S3, Google Drive, FTP, and email) and restore with a single click. Backups of files and database can have separate schedules.
+UpdraftPlus simplifies backups (and restoration). Backup into the cloud (Amazon S3, Google Drive, FTP, and email) and restore with a single click. Backups of files and database can have separate schedules.
 
 == Installation ==
 
@@ -72,7 +72,7 @@ No, there's no warranty or guarantee, etc. It's completely up to you to verify t
 
 == Changelog ==
 
-= 0.9.21 - 12/07/2012 =
+= 0.9.22 - 12/07/2012 =
 * Implemented resumption of uploading on Google Drive - much bigger sites can now be backed up
 * Fixed bug whereby setting for deleting local backups was lost
 
