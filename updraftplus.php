@@ -6,7 +6,7 @@ Description: Uploads, themes, plugins, and your DB can be automatically backed u
 Author: David Anderson.
 Version: 0.9.21
 Donate link: http://david.dw-perspective.org.uk/donate
-License: GPL3
+License: GPLv3 or later
 Author URI: http://wordshell.net
 */ 
 

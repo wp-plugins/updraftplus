@@ -8,7 +8,7 @@ Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Chunked, resumable uploading with Amazon S3 - much bigger blogs can now be backed up
+Chunked, resumable uploading with Amazon S3 and Google Drive - much bigger blogs can now be backed up
 
 == Description ==
 
@@ -42,7 +42,7 @@ That's no problem. If you have your backed files, then you simply need to unzip 
 
 = Anything essential to know? =
 
-After you have set up UpdraftPlus, you must check that your backups are taking place successfully. WordPress is a complex piece of software that runs in many situations. Don't wait until you need your backups before you find out that they never worked in the first place. Remember, there's no warranty.
+After you have set up UpdraftPlus, you must check that your backups are taking place successfully. WordPress is a complex piece of software that runs in many situations. Don't wait until you need your backups before you find out that they never worked in the first place. Remember, there's no warranty and no guarantees - this is free software.
 
 = What exactly does UpdraftPlus back up ? =
 
@@ -53,7 +53,7 @@ Unless you disable any of these, it will back up your database (all tables which
 It does not back up WordPress core (since you can always get another copy of this from wordpress.org), and does not back up any extra files which you have added outside of the WordPress content directory (files which, by their nature, are unknown to WordPress). By default the WordPress content directory is "wp-content" in your WordPress root. It will not back up database tables which do not have the WordPress prefix (i.e. database tables from other applications but sharing a database with WordPress).
 
 = Any known bugs ? =
-Not a bug as such, but one major issue to be aware of is that backups of very large sites (lots of uploaded media) can fail due to timing out. This depends on how manys seconds your web host allows a PHP process to run. With such sites, you need to use Amazon S3, which UpdraftPlus supports (since 0.9.20) with chunked, resumable uploads. All other backup methods have code (since 0.9.0) to retry failed uploads of an archive, but the upload cannot be chunked, so if an archive is enormous (i.e. cannot be completely uploaded in the time that PHP is allowed for running on your web host) it cannot work. Google Drive supports chunked, resumable uploads, but that code is not yet in UpdraftPlus (please send me a donation if you want me to hurry up!).
+Not a bug as such, but one major issue to be aware of is that backups of very large sites (lots of uploaded media) can fail due to timing out. This depends on how manys seconds your web host allows a PHP process to run. With such sites, you need to use Amazon S3, which UpdraftPlus supports (since 0.9.20) or Google Drive (since 0.9.21) with chunked, resumable uploads. Other backup methods have code (since 0.9.0) to retry failed uploads of an archive, but the upload cannot be chunked, so if an archive is enormous (i.e. cannot be completely uploaded in the time that PHP is allowed for running on your web host) it cannot work.
 
 = I encrypted my database - how do I decrypt it? =
 
@@ -66,6 +66,9 @@ Nothing, probably. That's the point of an encryption key - people who don't have
 = I found a bug. What do I do? =
 
 Contact me! This is a complex plugin and the only way I can ensure it's robust is to get bug reports and fix the problems that crop up. Please turn on debugging mode and send me the log if you can find it. Include as much information as you can when reporting (PHP version, your blog's site, the error you saw and how you got to the page that caused it, etcetera). If you can send a patch, that's even better.
+
+= My site was hacked, and I have no backups! I thought UpdraftPlus was working! Can I kill you? =
+No, there's no warranty or guarantee, etc. It's completely up to you to verify that UpdraftPlus is working correctly. If it doesn't then that's unfortunate, but this is a free plugin.
 
 == Changelog ==
 
