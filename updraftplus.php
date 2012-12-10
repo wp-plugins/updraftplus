@@ -4,13 +4,14 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.0.3
+Version: 1.0.4
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
 */ 
 
-//TODO (some of these items mine, some from original Updraft awaiting review):
+/*
+TODO (some of these items mine, some from original Updraft awaiting review):
 //Add DropBox and Microsoft Skydrive support
 //Backup record should include *where* the backup was placed, so that we don't attempt to delete old ones from the wrong place? (Or would that be unexpected to users to have things from elsewhere deleted?)
 //improve error reporting.  s3 and dir backup have decent reporting now, but not sure i know what to do from here
@@ -21,8 +22,6 @@ Author URI: http://wordshell.net
 
 //Rip out the "last backup" bit, and/or put in a display of the last log
 
-/* More TODO:
-Use only one entry in WP options database
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
 // Does not delete old custom directories upon a restore?
 */
@@ -61,7 +60,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.0.3';
+	var $version = '1.0.4';
 
 	var $dbhandle;
 	var $errors = array();

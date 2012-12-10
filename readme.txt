@@ -3,7 +3,7 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, Amazon S3, google drive, google, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.0.3
+Stable tag: 1.0.4
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
@@ -13,6 +13,15 @@ Chunked, resumable uploading with Amazon S3 and Google Drive - much bigger blogs
 == Description ==
 
 UpdraftPlus simplifies backups (and restoration). Backup into the cloud (Amazon S3, Google Drive, FTP, and email) and restore with a single click. Backups of files and database can have separate schedules.
+
+* Supports backups to Amazon S3, Google Drive, FTP, email
+* One-click restore
+* Backup automatically on a repeating schedule
+* Files and databases can have separate schedules
+* Failed uploads are automatically resumed/retried
+* Select which files to backup (plugins, themes, content, other)
+* Databases can be encrypted for security
+* Debug mode that gives full logging
 
 == Installation ==
 
@@ -72,10 +81,11 @@ No, there's no warranty or guarantee, etc. It's completely up to you to verify t
 
 == Changelog ==
 
-= 1.0.32 - 12/10/2012 =
+= 1.0.4 - 12/10/2012 =
 * Implemented resumption/chunked uploading on Google Drive - much bigger sites can now be backed up
 * Fixed bug whereby setting for deleting local backups was lost
 * Now marked as 1.0, since we are feature-complete with targeted features for this release
+* Made description fuller
 
 = 0.9.20 - 12/06/2012 =
 * Updated to latest S3.php library with chunked uploading patch
