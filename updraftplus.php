@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.0.4
+Version: 1.0.5
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -60,7 +60,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.0.4';
+	var $version = '1.0.5';
 
 	var $dbhandle;
 	var $errors = array();
@@ -738,10 +738,9 @@ class UpdraftPlus {
 			if ( is_wp_error( $this->gdocs_access_token ) ) return $access_token;
 
 			$this->gdocs = new UpdraftPlus_GDocs( $this->gdocs_access_token );
-			$this->gdocs->set_option( 'chunk_size', $this->options['chunk_size'] );
-			$this->gdocs->set_option( 'time_limit', $this->options['time_limit'] );
-			$this->gdocs->set_option( 'request_timeout', $this->options['request_timeout'] );
-			$this->gdocs->set_option( 'max_resume_attempts', $this->options['backup_attempts'] );
+			$this->gdocs->set_option( 'chunk_size', 2*1024*1024 ); # 2Mb; change from default of 512Kb
+			$this->gdocs->set_option( 'request_timeout', 10 ); # Change from default of 10s
+			$this->gdocs->set_option( 'max_resume_attempts', 36 ); # Doesn't look like GDocs class actually uses this anyway
 		}
 		return true;
 	}
