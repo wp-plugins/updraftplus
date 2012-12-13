@@ -738,7 +738,7 @@ class UpdraftPlus {
 			if ( is_wp_error( $this->gdocs_access_token ) ) return $access_token;
 
 			$this->gdocs = new UpdraftPlus_GDocs( $this->gdocs_access_token );
-			$this->gdocs->set_option( 'chunk_size', 2*1024*1024 ); # 2Mb; change from default of 512Kb
+			$this->gdocs->set_option( 'chunk_size', 1*1024*1024 ); # 1Mb; change from default of 512Kb
 			$this->gdocs->set_option( 'request_timeout', 10 ); # Change from default of 10s
 			$this->gdocs->set_option( 'max_resume_attempts', 36 ); # Doesn't look like GDocs class actually uses this anyway
 		}
