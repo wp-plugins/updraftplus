@@ -41,6 +41,10 @@ You can check the changelog for changes; but the original Updraft, before I fork
 
 That's very good of you, thank you. You are looking for WordShell, <a href="http://wordshell.net">http://wordshell.net</a>.
 
+= I found a bug. What do I do? =
+
+Contact me! This is a complex plugin and the only way I can ensure it's robust is to get bug reports and fix the problems that crop up. Please turn on debugging mode (in the UpdraftPlus options page) and then try again, and after that send me the log if you can find it (it is in the directory wp-content/updraft, so FTP in and look for it there). If you cannot find the log, then I may not be able to help, but you can try - include as much information as you can when reporting (PHP version, your blog's site, the error you saw and how you got to the page that caused it, etcetera). If you can send a patch, that's even better.
+
 = Some of my files have uploaded into my cloud storage, but not others. =
 
 From version 0.9.0, UpdraftPlus features a resumption feature - if you wait 5 minutes and visit a page on your site, then it should re-try not-yet-uploaded files. If that fails, then turn on debugging and paste the debug log (log in via FTP, and look in wp-content/updraft) into the support forum.
@@ -71,10 +75,6 @@ If you have the encryption key entered in your settings and you are restoring fr
 = I lost my encryption key - what can I do? =
 
 Nothing, probably. That's the point of an encryption key - people who don't have it can't get the data. Hire an encryption expert to build a super computer to try to break the encryption by brute force, at a price.
-
-= I found a bug. What do I do? =
-
-Contact me! This is a complex plugin and the only way I can ensure it's robust is to get bug reports and fix the problems that crop up. Please turn on debugging mode and send me the log if you can find it. Include as much information as you can when reporting (PHP version, your blog's site, the error you saw and how you got to the page that caused it, etcetera). If you can send a patch, that's even better.
 
 = My site was hacked, and I have no backups! I thought UpdraftPlus was working! Can I kill you? =
 No, there's no warranty or guarantee, etc. It's completely up to you to verify that UpdraftPlus is working correctly. If it doesn't then that's unfortunate, but this is a free plugin.
