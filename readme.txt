@@ -3,12 +3,12 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, Amazon S3, google drive, google, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.0.7
+Stable tag: 1.0.8
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Chunked, resumable uploading with Amazon S3 and Google Drive - much bigger blogs can now be backed up
+Fixed bug with Google Drive uploads
 
 == Description ==
 
@@ -81,8 +81,9 @@ No, there's no warranty or guarantee, etc. It's completely up to you to verify t
 
 == Changelog ==
 
-= 1.0.7 - 12/20/2012 =
+= 1.0.8 - 12/20/2012 =
 * Fixed bug that set 1Tb (instead of 1Mb) chunk sizes for Google Drive uploads
+* Added link to some screenshots to help with Google Drive setup
 
 = 1.0.5 - 12/13/2012 =
 * Tweaked default Google Drive options
