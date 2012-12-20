@@ -3,7 +3,7 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, Amazon S3, google drive, google, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.0.5
+Stable tag: 1.0.7
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
@@ -80,6 +80,9 @@ Nothing, probably. That's the point of an encryption key - people who don't have
 No, there's no warranty or guarantee, etc. It's completely up to you to verify that UpdraftPlus is working correctly. If it doesn't then that's unfortunate, but this is a free plugin.
 
 == Changelog ==
+
+= 1.0.7 - 12/20/2012 =
+* Fixed bug that set 1Tb (instead of 1Mb) chunk sizes for Google Drive uploads
 
 = 1.0.5 - 12/13/2012 =
 * Tweaked default Google Drive options

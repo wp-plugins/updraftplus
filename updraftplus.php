@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.0.6
+Version: 1.0.7
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -60,7 +60,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.0.6';
+	var $version = '1.0.7';
 
 	var $dbhandle;
 	var $errors = array();
@@ -202,7 +202,7 @@ class UpdraftPlus {
 				$result = json_decode( $result, true );
 				if ( isset( $result['refresh_token'] ) ) {
 					update_option('updraft_googledrive_token',$result['refresh_token']); // Save token
-					header('Location: '.admin_url('options-general.php?page=updraftplus&message=' . __( 'Authorization was successful.', 'updraftplus' ) ) );
+					header('Location: '.admin_url('options-general.php?page=updraftplus&message=' . __( 'Google Drive authorization was successful.', 'updraftplus' ) ) );
 				}
 				else {
 					header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'No refresh token was received!', 'updraftplus' ) ) );
@@ -738,7 +738,7 @@ class UpdraftPlus {
 			if ( is_wp_error( $this->gdocs_access_token ) ) return $access_token;
 
 			$this->gdocs = new UpdraftPlus_GDocs( $this->gdocs_access_token );
-			$this->gdocs->set_option( 'chunk_size', 1*1024*1024 ); # 1Mb; change from default of 512Kb
+			$this->gdocs->set_option( 'chunk_size', 1 ); # 1Mb; change from default of 512Kb
 			$this->gdocs->set_option( 'request_timeout', 10 ); # Change from default of 10s
 			$this->gdocs->set_option( 'max_resume_attempts', 36 ); # Doesn't look like GDocs class actually uses this anyway
 		}
@@ -2404,7 +2404,7 @@ echo $delete_local; ?> /> <br>Check this to delete the local backup file (only s
 		$this->show_admin_warning("UpdraftPlus backup directory specified is accessible via the web.  This is a potential security problem (people may be able to download your backups - which is undesirable if your database is not encrypted and if you have non-public assets amongst the files). If using Apache, enable .htaccess support to allow web access to be denied; otherwise, you should deny access manually.");
 	}
 	function show_admin_warning_googledrive() {
-		$this->show_admin_warning('UpdraftPlus notice: <a href="?page=updraftplus&action=auth&updraftplus_googleauth=doit">Click here to authenticate your Google Drive account (you will not be able to back up to Google Drive without it).</a>');
+		$this->show_admin_warning('<strong>UpdraftPlus notice:</strong> <a href="?page=updraftplus&action=auth&updraftplus_googleauth=doit">Click here to authenticate your Google Drive account (you will not be able to back up to Google Drive without it).</a>');
 	}
 	function show_admin_warning_accessible_unknownresult() {
 		$this->show_admin_warning("UpdraftPlus tried to check if the backup directory is accessible via web, but the result was unknown.");
