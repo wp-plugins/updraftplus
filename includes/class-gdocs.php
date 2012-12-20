@@ -490,8 +490,11 @@ class UpdraftPlus_GDocs {
 		$cycle_start = microtime( true );
 		fseek( $this->file['handle'], $this->file['pointer'] );
 		$chunk = @fread( $this->file['handle'], $this->chunk_size );
-		if ( false === $chunk )
-			return new WP_Error( 'read_error', "Failed to read from file '" . $this->resume_list[$id]['path'] . "'." );
+		if ( false === $chunk ) {
+			$is_file = (is_file($this->file['path'])) ? 1 : 0;
+			$is_readable = (is_readable($this->file['path'])) ? 1 : 0;
+			return new WP_Error( 'read_error', "Failed to read from file (path: ".$this->file['path'].", size: ".$this->file['size'].", pointer: ".$this->file['pointer'].", is_file: $is_file, is_readable: $is_readable)");
+		}
 
 		$chunk_size = strlen( $chunk );
 		$bytes = 'bytes ' . (string)$this->file['pointer'] . '-' . (string)($this->file['pointer'] + $chunk_size - 1) . '/' . (string)$this->file['size'];
