@@ -43,7 +43,13 @@ That's very good of you, thank you. You are looking for WordShell, <a href="http
 
 = I found a bug. What do I do? =
 
-Contact me! This is a complex plugin and the only way I can ensure it's robust is to get bug reports and fix the problems that crop up. Please turn on debugging mode (in the UpdraftPlus options page) and then try again, and after that send me the log if you can find it (it is in the directory wp-content/updraft, so FTP in and look for it there). If you cannot find the log, then I may not be able to help, but you can try - include as much information as you can when reporting (PHP version, your blog's site, the error you saw and how you got to the page that caused it, etcetera). If you can send a patch, that's even better. Finally, if you post in the WordPress support forum, then make sure you include the word UpdraftPlus in your post; otherwise I will not be automatically notified that you posted.
+Contact me! This is a complex plugin and the only way I can ensure it's robust is to get bug reports and fix the problems that crop up. Please make sure you are using the latest version of the plugin, and that you include the version in your bug report - if you are not using the latest, then the first thing you will be asked to do is upgrade.
+
+Please turn on debugging mode (in the UpdraftPlus options page) and then try again, and after that send me the log if you can find it (it is in the directory wp-content/updraft, so FTP in and look for it there). If you cannot find the log, then I may not be able to help, but you can try - include as much information as you can when reporting (PHP version, your blog's site, the error you saw and how you got to the page that caused it, etcetera).
+
+If you can send a patch, that's even better.
+
+Finally, if you post in the WordPress support forum, then make sure you include the word UpdraftPlus in your post; otherwise I will not be automatically notified that you posted.
 
 = Some of my files have uploaded into my cloud storage, but not others. =
 
@@ -81,9 +87,10 @@ No, there's no warranty or guarantee, etc. It's completely up to you to verify t
 
 == Changelog ==
 
-= 1.0.8 - 12/20/2012 =
+= 1.0.9 - 12/21/2012 =
 * Fixed bug that set 1Tb (instead of 1Mb) chunk sizes for Google Drive uploads
 * Added link to some screenshots to help with Google Drive setup
+* Allowed use of existing Amazon S3 buckets with restrictive policies (previously, we tested for the bucket's existence by running a create operation on it, which may not be permitted)
 
 = 1.0.5 - 12/13/2012 =
 * Tweaked default Google Drive options

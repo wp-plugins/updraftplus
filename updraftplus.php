@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.0.8
+Version: 1.0.9
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -60,7 +60,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.0.8';
+	var $version = '1.0.9';
 
 	var $dbhandle;
 	var $errors = array();
@@ -637,7 +637,8 @@ class UpdraftPlus {
 			$bucket_path = $bmatches[2]."/";
 		}
 
-		if (@$s3->putBucket($bucket_name, S3::ACL_PRIVATE)) {
+		// See if we can detect the region (which implies the bucket exists and is ours), or if not create it
+		if (@$s3->getBucketLocation($bucket_name) || @$s3->putBucket($bucket_name, S3::ACL_PRIVATE)) {
 
 			foreach($backup_array as $file) {
 
@@ -1541,7 +1542,7 @@ class UpdraftPlus {
 			$bucket_name = $bmatches[1];
 			$bucket_path = $bmatches[2]."/";
 		}
-		if (@$s3->putBucket($bucket_name, S3::ACL_PRIVATE)) {
+		if (@$s3->getBucketLocation($bucket_name)) {
 			$fullpath = trailingslashit(get_option('updraft_dir')).$file;
 			if (!$s3->getObject($bucket_name, $bucket_path.$file, $fullpath)) {
 				$this->error("S3 Error: Failed to download $fullpath. Error was ".$php_errormsg);
@@ -2210,7 +2211,7 @@ echo $delete_local; ?> /> <br>Check this to delete the local backup file (only s
 				</tr>
 				<tr class="s3" <?php echo $s3_display?>>
 				<th></th>
-				<td><p>Get your access key and secret key from your AWS page, then pick a (globally unique) bucket name (letters and numbers) (and optionally a path) to use for storage.</p></td>
+				<td><p>Get your access key and secret key from your AWS page, then pick a (globally unique) bucket name (letters and numbers) (and optionally a path) to use for storage. This bucket will be created for you if it does not already exist.</p></td>
 				</tr>
 
 				<!-- Google Drive -->
