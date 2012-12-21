@@ -43,7 +43,7 @@ That's very good of you, thank you. You are looking for WordShell, <a href="http
 
 = I found a bug. What do I do? =
 
-Contact me! This is a complex plugin and the only way I can ensure it's robust is to get bug reports and fix the problems that crop up. Please turn on debugging mode (in the UpdraftPlus options page) and then try again, and after that send me the log if you can find it (it is in the directory wp-content/updraft, so FTP in and look for it there). If you cannot find the log, then I may not be able to help, but you can try - include as much information as you can when reporting (PHP version, your blog's site, the error you saw and how you got to the page that caused it, etcetera). If you can send a patch, that's even better.
+Contact me! This is a complex plugin and the only way I can ensure it's robust is to get bug reports and fix the problems that crop up. Please turn on debugging mode (in the UpdraftPlus options page) and then try again, and after that send me the log if you can find it (it is in the directory wp-content/updraft, so FTP in and look for it there). If you cannot find the log, then I may not be able to help, but you can try - include as much information as you can when reporting (PHP version, your blog's site, the error you saw and how you got to the page that caused it, etcetera). If you can send a patch, that's even better. Finally, if you post in the WordPress support forum, then make sure you include the word UpdraftPlus in your post; otherwise I will not be automatically notified that you posted.
 
 = Some of my files have uploaded into my cloud storage, but not others. =
 
