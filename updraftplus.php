@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.0.12
+Version: 1.0.15
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -13,14 +13,8 @@ Author URI: http://wordshell.net
 /*
 TODO (some of these items mine, some from original Updraft awaiting review):
 //Add DropBox and Microsoft Skydrive support
-//Backup record should include *where* the backup was placed, so that we don't attempt to delete old ones from the wrong place? (Or would that be unexpected to users to have things from elsewhere deleted?)
-//improve error reporting.  s3 and dir backup have decent reporting now, but not sure i know what to do from here
-//list backups that aren't tracked (helps with double backup problem)
-//investigate $php_errormsg further
-//pretty up return messages in admin area
-//check s3/ftp download
-
-//Rip out the "last backup" bit, and/or put in a display of the last log
+//improve error reporting / pretty up return messages in admin area
+//?? On 'backup now', open up a Lightbox, count down 5 seconds, then start examining the log file (if it can be found)
 
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
 // Does not delete old custom directories upon a restore?
@@ -45,22 +39,22 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-// TODO: Note this might *lower* the limit - should check first.
 
-@set_time_limit(900); //15 minutes max. i'm not sure how long a really big site could take to back up?
+// 15 minutes
+@set_time_limit(900);
 
 $updraft = new UpdraftPlus();
 
 if(!$updraft->memory_check(192)) {
 # TODO: Better solution is to split the backup set into manageable chunks based on this limit
-	@ini_set('memory_limit', '192M'); //up the memory limit for large backup files... should split the backup set into manageable chunks based on the limit
+	@ini_set('memory_limit', '192M'); //up the memory limit for large backup files
 }
 
 define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.0.12';
+	var $version = '1.0.15';
 
 	var $dbhandle;
 	var $errors = array();
@@ -86,26 +80,37 @@ class UpdraftPlus {
 		# http://codex.wordpress.org/Plugin_API/Filter_Reference/cron_schedules
 		add_filter('cron_schedules', array($this,'modify_cron_schedules'));
 		add_filter('plugin_action_links', array($this, 'plugin_action_links'), 10, 2);
-		add_action('init', array($this, 'googledrive_backup_auth'));
+		add_action('init', array($this, 'handle_url_actions'));
 	}
 
 	// Handle Google OAuth 2.0 - ?page=updraftplus&action=auth
-	function googledrive_backup_auth() {
-		if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] == 'updraftplus' && isset( $_GET['action'] ) && $_GET['action'] == 'auth' ) {
-			if ( isset( $_GET['state'] ) ) {
-				if ( $_GET['state'] == 'token' )
-					$this->gdrive_auth_token();
-				elseif ( $_GET['state'] == 'revoke' )
-					$this->gdrive_auth_revoke();
-			} elseif (isset($_GET['updraftplus_googleauth'])) {
-				$this->gdrive_auth_request();
+	// Also handle action=downloadlog
+	function handle_url_actions() {
+		if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] == 'updraftplus' && isset($_GET['action']) ) {
+			if ($_GET['action'] == 'auth') {
+				if ( isset( $_GET['state'] ) ) {
+					if ( $_GET['state'] == 'token' )
+						$this->gdrive_auth_token();
+					elseif ( $_GET['state'] == 'revoke' )
+						$this->gdrive_auth_revoke();
+				} elseif (isset($_GET['updraftplus_googleauth'])) {
+					$this->gdrive_auth_request();
+				}
+			} elseif ($_GET['action'] == 'downloadlog' && isset($_GET['updraftplus_backup_nonce']) && preg_match("/^[0-9a-f]{12}$/",$_GET['updraftplus_backup_nonce'])) {
+				$updraft_dir = $this->backups_dir_location();
+				$log_file = $updraft_dir.'/log.'.$_GET['updraftplus_backup_nonce'].'.txt';
+				if (is_readable($log_file)) {
+					header('Content-type: text/plain');
+					readfile($log_file);
+					exit;
+				} else {
+					add_action('admin_notices', array($this,'show_admin_warning_unreadablelog') );
+				}
 			}
 		}
 	}
 
-	/**
-	* Acquire single-use authorization code from Google OAuth 2.0
-	*/
+	// Acquire single-use authorization code from Google OAuth 2.0
 	function gdrive_auth_request() {
 		$params = array(
 			'response_type' => 'code',
@@ -119,9 +124,7 @@ class UpdraftPlus {
 		header('Location: https://accounts.google.com/o/oauth2/auth?'.http_build_query($params));
 	}
 
-	/**
-	* Get a Google account access token using the refresh token
-	*/
+	// Get a Google account access token using the refresh token
 	function access_token( $token, $client_id, $client_secret ) {
 		$this->log("Google Drive: requesting access token: client_id=$client_id");
 
@@ -309,7 +312,14 @@ class UpdraftPlus {
 		$this->logfile_handle = fopen($this->logfile_name, 'a');
 	}
 
-	//scheduled wp-cron events can have a race condition here if page loads are coming fast enough, but there's nothing we can do about it. TODO: I reckon there is. Store a transient based on the backup schedule. Then as the backup proceeds, check for its existence; if it has changed, then another task has begun, so abort.
+	function check_backup_race() {
+		$cur_trans = get_transient('updraftplus_backup_job_nonce');
+		if ( $cur_trans != $this->nonce) {
+			$this->log("Another backup job ($cur_trans) appears to now be running - terminating our run");
+			exit;
+		}
+	}
+
 	function backup($backup_files, $backup_database) {
 
 		@ignore_user_abort(true);
@@ -323,7 +333,6 @@ class UpdraftPlus {
 
 		// Schedule the even to run later, which checks on success and can resume the backup
 		// We save the time to a variable because it is needed for un-scheduling
-// 		$resume_delay = (get_option('updraft_debug_mode')) ? 60 : 300;
 		$resume_delay = 300;
 		wp_schedule_single_event(time()+$resume_delay, 'updraft_backup_resume', array(1));
 		$this->log("In case we run out of time, scheduled a resumption at: $resume_delay seconds from now");
@@ -331,6 +340,8 @@ class UpdraftPlus {
 		// Log some information that may be helpful
 		global $wp_version;
 		$this->log("PHP version: ".phpversion()." WordPress version: ".$wp_version." Updraft version: ".$this->version." Backup files: $backup_files (schedule: ".get_option('updraft_interval','unset').") Backup DB: $backup_database (schedule: ".get_option('updraft_interval_database','unset').")");
+
+		$this->check_backup_race();
 
 		# If the files and database schedules are the same, and if this the file one, then we rope in database too.
 		# On the other hand, if the schedules were the same and this was the database run, then there is nothing to do.
@@ -347,13 +358,17 @@ class UpdraftPlus {
 
 			$backup_array = array();
 
+			$this->check_backup_race();
+
 			//backup directories and return a numerically indexed array of file paths to the backup files
 			if ($backup_files) {
 				$this->log("Beginning backup of directories");
 				$backup_array = $this->backup_dirs();
 				$backup_contains = "Files only (no database)";
 			}
-			
+
+			$this->check_backup_race();
+
 			//backup DB and return string of file path
 			if ($backup_database) {
 				$this->log("Beginning backup of database");
@@ -363,6 +378,7 @@ class UpdraftPlus {
 				$backup_contains = ($backup_files) ? "Files and database" : "Database only (no files)";
 			}
 
+			$this->check_backup_race();
 			set_transient("updraftplus_backupcontains", $backup_contains, 3600*3);
 
 			//save this to our history so we can track backups for the retain feature
@@ -429,9 +445,9 @@ class UpdraftPlus {
 	}
 
 	function save_last_backup($backup_array) {
-		$success = (empty($this->errors))?1:0;
+		$success = (empty($this->errors)) ? 1 : 0;
 
-		$last_backup = array('backup_time'=>$this->backup_time, 'backup_array'=>$backup_array, 'success'=>$success, 'errors'=>$this->errors);
+		$last_backup = array('backup_time'=>$this->backup_time, 'backup_array'=>$backup_array, 'success'=>$success, 'errors'=>$this->errors, 'backup_nonce' => $this->nonce);
 
 		update_option('updraft_last_backup', $last_backup);
 	}
@@ -588,6 +604,7 @@ class UpdraftPlus {
 					unset($backup_to_examine['themes']);
 					unset($backup_to_examine['uploads']);
 					unset($backup_to_examine['others']);
+					unset($backup_to_examine['nonce']);
 				}
 			}
 			// Delete backup set completely if empty, o/w just remove DB
@@ -636,7 +653,7 @@ class UpdraftPlus {
 				if ($chunks < 2) {
 					if (!$s3->putObjectFile($fullpath, $bucket_name, $filepath)) {
 						$this->log("S3 regular upload: failed");
-						$this->error("S3 Error: Failed to upload $fullpath. Error was ".$php_errormsg);
+						$this->error("S3 Error: Failed to upload $fullpath.");
 					} else {
 						$this->log("S3 regular upload: success");
 						$this->uploaded_file($file);
@@ -696,8 +713,8 @@ class UpdraftPlus {
 			}
 			$this->prune_retained_backups('s3',$s3,$orig_bucket_name);
 		} else {
-			$this->log("S3 Error: Failed to create bucket $bucket_name. Error was ".$php_errormsg);
-			$this->error("S3 Error: Failed to create bucket $bucket_name. Error was ".$php_errormsg);
+			$this->log("S3 Error: Failed to create bucket $bucket_name.");
+			$this->error("S3 Error: Failed to create bucket $bucket_name. Check your permissions and credentials.");
 		}
 	}
 
@@ -1002,10 +1019,10 @@ class UpdraftPlus {
 	}
 
 	function save_backup_history($backup_array) {
-		//TODO: this stores full paths right now.  should probably concatenate with ABSPATH to make it easier to move sites
 		if(is_array($backup_array)) {
 			$backup_history = get_option('updraft_backup_history');
 			$backup_history = (is_array($backup_history)) ? $backup_history : array();
+			$backup_array['nonce'] = $this->nonce;
 			$backup_history[$this->backup_time] = $backup_array;
 			update_option('updraft_backup_history',$backup_history);
 		} else {
@@ -1034,9 +1051,7 @@ class UpdraftPlus {
 		$total_tables = 0;
 
 		global $table_prefix, $wpdb;
-		if(!$this->backup_time) {
-			$this->backup_time_nonce();
-		}
+		if(!$this->backup_time) $this->backup_time_nonce();
 
 		$all_tables = $wpdb->get_results("SHOW TABLES", ARRAY_N);
 		$all_tables = array_map(create_function('$a', 'return $a[0];'), $all_tables);
@@ -1045,9 +1060,7 @@ class UpdraftPlus {
 		//get the blog name and rip out all non-alphanumeric chars other than _
 		$blog_name = str_replace(' ','_',get_bloginfo());
 		$blog_name = preg_replace('/[^A-Za-z0-9_]/','', $blog_name);
-		if(!$blog_name) {
-			$blog_name = 'non_alpha_name';
-		}
+		if (!$blog_name) $blog_name = 'non_alpha_name';
 
 		$backup_file_base = $updraft_dir.'/backup_'.date('Y-m-d-Hi',$this->backup_time).'_'.$blog_name.'_'.$this->nonce;
 		if (is_writable($updraft_dir)) {
@@ -1098,11 +1111,11 @@ class UpdraftPlus {
 			}
 		}
 
-			if (defined("DB_CHARSET")) {
-				$this->stow("/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;\n");
-				$this->stow("/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;\n");
-				$this->stow("/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;\n");
-			}
+		if (defined("DB_CHARSET")) {
+			$this->stow("/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;\n");
+			$this->stow("/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;\n");
+			$this->stow("/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;\n");
+		}
 
 		$this->close($this->dbhandle);
 
@@ -1228,15 +1241,7 @@ class UpdraftPlus {
 				$row_inc = ROWS_PER_SEGMENT;
 			}
 			do {
-				// don't include extra stuff, if so requested
-				$excs = array('revisions' => 0, 'spam' => 1); //TODO, FIX THIS
-				$where = '';
-				if ( is_array($excs['spam'] ) && in_array($table, $excs['spam']) ) {
-					$where = ' WHERE comment_approved != "spam"';
-				} elseif ( is_array($excs['revisions'] ) && in_array($table, $excs['revisions']) ) {
-					$where = ' WHERE post_type != "revision"';
-				}
-				
+
 				if ( !ini_get('safe_mode') || strtolower(ini_get('safe_mode')) == "off") @set_time_limit(15*60);
 				$table_data = $wpdb->get_results("SELECT * FROM $table $where LIMIT {$row_start}, {$row_inc}", ARRAY_A);
 				$entries = 'INSERT INTO ' . $this->backquote($table) . ' VALUES (';	
@@ -1526,10 +1531,10 @@ class UpdraftPlus {
 		if (@$s3->getBucketLocation($bucket_name)) {
 			$fullpath = trailingslashit(get_option('updraft_dir')).$file;
 			if (!$s3->getObject($bucket_name, $bucket_path.$file, $fullpath)) {
-				$this->error("S3 Error: Failed to download $fullpath. Error was ".$php_errormsg);
+				$this->error("S3 Error: Failed to download $fullpath. Check your permissions and credentials.");
 			}
 		} else {
-			$this->error("S3 Error: Failed to create bucket $bucket_name. Error was ".$php_errormsg);
+			$this->error("S3 Error: Failed to access bucket $bucket_name. Check your permissions and credentials.");
 		}
 	}
 	
@@ -1590,7 +1595,7 @@ class UpdraftPlus {
 		echo '</div>'; //close the updraft_restore_progress div
 		# The 'off' check is for badly configured setups - http://wordpress.org/support/topic/plugin-wp-super-cache-warning-php-safe-mode-enabled-but-safe-mode-is-off
 		if(ini_get('safe_mode') && strtolower(ini_get('safe_mode')) != "off") {
-			echo "<p>DB could not be restored because safe_mode is active on your server.  You will need to manually restore the file via phpMyAdmin or another method.</p><br/>";
+			echo "<p>DB could not be restored because PHP safe_mode is active on your server.  You will need to manually restore the file via phpMyAdmin or another method.</p><br/>";
 			return false;
 		}
 		return true;
@@ -1721,23 +1726,6 @@ class UpdraftPlus {
 		register_setting( 'updraft-options-group', 'updraft_include_others', 'absint' );
 		register_setting( 'updraft-options-group', 'updraft_include_others_exclude', 'wp_filter_nohtml_kses' );
 	
-		/* I see no need for this check; people can only download backups/logs if they can guess a nonce formed from a random number and if .htaccess files have no effect. The database will be encrypted. Very unlikely.
-		if (current_user_can('manage_options')) {
-			$updraft_dir = $this->backups_dir_location();
-			if(strpos($updraft_dir,WP_CONTENT_DIR) !== false) {
-				$relative_dir = str_replace(WP_CONTENT_DIR,'',$updraft_dir);
-				$possible_updraft_url = WP_CONTENT_URL.$relative_dir;
-				$resp = wp_remote_request($possible_updraft_url, array('timeout' => 15));
-				if ( is_wp_error($resp) ) {
-					add_action('admin_notices', array($this,'show_admin_warning_accessible_unknownresult') );
-				} else {
-					if(strpos($resp['response']['code'],'403') === false) {
-						add_action('admin_notices', array($this,'show_admin_warning_accessible') );
-					}
-				}
-			}
-		}
-		*/
 		if (current_user_can('manage_options') && get_option('updraft_service') == "googledrive" && get_option('updraft_googledrive_clientid') != "" && get_option('updraft_googledrive_token','xyz') == 'xyz') {
 			add_action('admin_notices', array($this,'show_admin_warning_googledrive') );
 		}
@@ -1824,18 +1812,15 @@ class UpdraftPlus {
 			}
 			echo '</div>';
 		}
-		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_all') {
-			$this->backup(true,true);
-		}
-		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_db') {
-			$this->backup_db();
-		}
+
+		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_all') $this->backup(true,true);
+
+		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_db') $this->backup_db();
 
 		?>
 		<div class="wrap">
 			<h1>UpdraftPlus - Backup/Restore</h1>
 
-			<!-- Version: <b><?php echo $this->version; ?></b><br>-->
 			Maintained by <b>David Anderson</b> (<a href="http://david.dw-perspective.org.uk">Homepage</a> | <a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate">Donate</a> | <a href="http://wordpress.org/extend/plugins/updraftplus/faq/">FAQs</a> | <a href="http://profiles.wordpress.org/davidanderson/">My other WordPress plugins</a>). Version: <?php echo $this->version; ?>
 			<br>
 			<?php
@@ -1843,11 +1828,10 @@ class UpdraftPlus {
 				echo "<div style=\"color:blue\">Your backup has been restored.  Your old themes, uploads, and plugins directories have been retained with \"-old\" appended to their name.  Remove them when you are satisfied that the backup worked properly.  At this time Updraft does not automatically restore your DB.  You will need to use an external tool like phpMyAdmin to perform that task.</div>";
 			}
 
-		$ws_advert = $this->wordshell_random_advert(1);
-		echo <<<ENDHERE
+			$ws_advert = $this->wordshell_random_advert(1);
+			echo <<<ENDHERE
 <div class="updated fade" style="max-width: 800px; font-size:140%; padding:14px; clear:left;">${ws_advert}</div>
 ENDHERE;
-
 
 			if($deleted_old_dirs) {
 				echo '<div style="color:blue">Old directories successfully deleted.</div>';
@@ -1871,7 +1855,7 @@ ENDHERE;
 			}
 			if(!empty($this->errors)) {
 				foreach($this->errors as $error) {
-					//ignoring severity here right now
+					// ignoring severity
 					echo '<div style="color:red">'.$error['error'].'</div>';
 				}
 			}
@@ -1881,6 +1865,7 @@ ENDHERE;
 			<table class="form-table" style="float:left; clear: both; width:475px">
 				<tr>
 					<?php
+					$updraft_dir = $this->backups_dir_location();
 					$next_scheduled_backup = wp_next_scheduled('updraft_backup');
 					$next_scheduled_backup = ($next_scheduled_backup) ? date('D, F j, Y H:i T',$next_scheduled_backup) : 'No backups are scheduled at this time.';
 					$next_scheduled_backup_database = wp_next_scheduled('updraft_backup_database');
@@ -1892,19 +1877,17 @@ ENDHERE;
 					$current_time = date('D, F j, Y H:i T',time());
 					$updraft_last_backup = get_option('updraft_last_backup');
 					if($updraft_last_backup) {
-						if($updraft_last_backup['success']) {
-							$last_backup = date('D, F j, Y H:i T',$updraft_last_backup['backup_time']);
-							$last_backup_color = 'green';
-						} else {
-							$last_backup = print_r($updraft_last_backup['errors'],true);
-							$last_backup_color = 'red';
+						$last_backup = ($updraft_last_backup['success']) ? date('D, F j, Y H:i T',$updraft_last_backup['backup_time']) : print_r($updraft_last_backup['errors'],true);
+						$last_backup_color = ($updraft_last_backup['success']) ? 'green' : 'red';
+						if (!empty($updraft_last_backup['backup_nonce'])) {
+							$potential_log_file = $updraft_dir."/log.".$updraft_last_backup['backup_nonce'].".txt";
+							if (is_readable($potential_log_file)) $last_backup .= "<br><a href=\"?page=updraftplus&action=downloadlog&updraftplus_backup_nonce=".$updraft_last_backup['backup_nonce']."\">Download log file</a>";
 						}
 					} else {
 						$last_backup = 'No backup has been completed.';
 						$last_backup_color = 'blue';
 					}
 
-					$updraft_dir = $this->backups_dir_location();
 					if(is_writable($updraft_dir)) {
 						$dir_info = '<span style="color:green">Backup directory specified is writable, which is good.</span>';
 						$backup_disabled = "";
@@ -1984,7 +1967,7 @@ ENDHERE;
 										<input type="hidden" name="timestamp" value="<?php echo $key?>" />
 										<input type="submit" value="Database" />
 									</form>
-							<?php } else { echo "(No database in backup)"; } ?>
+							<?php } else { echo "(No database)"; } ?>
 								</td>
 								<td>
 							<?php if (isset($value['plugins'])) { ?>
@@ -1994,7 +1977,7 @@ ENDHERE;
 										<input type="hidden" name="timestamp" value="<?php echo $key?>" />
 										<input type="submit" value="Plugins" />
 									</form>
-							<?php } else { echo "(No plugins in backup)"; } ?>
+							<?php } else { echo "(No plugins)"; } ?>
 								</td>
 								<td>
 							<?php if (isset($value['themes'])) { ?>
@@ -2004,7 +1987,7 @@ ENDHERE;
 										<input type="hidden" name="timestamp" value="<?php echo $key?>" />
 										<input type="submit" value="Themes" />
 									</form>
-							<?php } else { echo "(No themes in backup)"; } ?>
+							<?php } else { echo "(No themes)"; } ?>
 								</td>
 								<td>
 							<?php if (isset($value['uploads'])) { ?>
@@ -2014,7 +1997,7 @@ ENDHERE;
 										<input type="hidden" name="timestamp" value="<?php echo $key?>" />
 										<input type="submit" value="Uploads" />
 									</form>
-							<?php } else { echo "(No uploads in backup)"; } ?>
+							<?php } else { echo "(No uploads)"; } ?>
 								</td>
 								<td>
 							<?php if (isset($value['others'])) { ?>
@@ -2024,7 +2007,17 @@ ENDHERE;
 										<input type="hidden" name="timestamp" value="<?php echo $key?>" />
 										<input type="submit" value="Others" />
 									</form>
-							<?php } else { echo "(No others in backup)"; } ?>
+							<?php } else { echo "(No others)"; } ?>
+								</td>
+								<td>
+							<?php if (isset($value['nonce']) && preg_match("/^[0-9a-f]{12}$/",$value['nonce']) && is_readable($updraft_dir.'/log.'.$value['nonce'].'.txt')) { ?>
+									<form action="options-general.php" method="get">
+										<input type="hidden" name="action" value="downloadlog" />
+										<input type="hidden" name="page" value="updraftplus" />
+										<input type="hidden" name="updraftplus_backup_nonce" value="<?php echo $value['nonce']; ?>" />
+										<input type="submit" value="Backup Log" />
+									</form>
+							<?php } else { echo "(No backup log)"; } ?>
 								</td>
 							</tr>
 							<?php }?>
@@ -2381,17 +2374,15 @@ echo $delete_local; ?> /> <br>Check this to delete the local backup file (only s
 	}
 
 	function show_admin_warning($message) {
-		echo '<div id="updraftmessage" class="updated fade">';
-		echo "<p>$message</p></div>";
+		echo '<div id="updraftmessage" class="updated fade">'."<p>$message</p></div>";
 	}
-	function show_admin_warning_accessible() {
-		$this->show_admin_warning("UpdraftPlus backup directory specified is accessible via the web.  This is a potential security problem (people may be able to download your backups - which is undesirable if your database is not encrypted and if you have non-public assets amongst the files). If using Apache, enable .htaccess support to allow web access to be denied; otherwise, you should deny access manually.");
-	}
+
 	function show_admin_warning_googledrive() {
 		$this->show_admin_warning('<strong>UpdraftPlus notice:</strong> <a href="?page=updraftplus&action=auth&updraftplus_googleauth=doit">Click here to authenticate your Google Drive account (you will not be able to back up to Google Drive without it).</a>');
 	}
-	function show_admin_warning_accessible_unknownresult() {
-		$this->show_admin_warning("UpdraftPlus tried to check if the backup directory is accessible via web, but the result was unknown.");
+
+	function show_admin_warning_unreadablelog() {
+		$this->show_admin_warning('<strong>UpdraftPlus notice:</strong> The log file could not be read.</a>');
 	}
 
 
