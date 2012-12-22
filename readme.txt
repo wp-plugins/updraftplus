@@ -87,7 +87,7 @@ No, there's no warranty or guarantee, etc. It's completely up to you to verify t
 
 == Changelog ==
 
-= 1.0.11 - 12/22/2012 =
+= 1.0.12 - 12/22/2012 =
 * Fixed bug that set 1Tb (instead of 1Mb) chunk sizes for Google Drive uploads
 * Added link to some screenshots to help with Google Drive setup
 * Allowed use of existing Amazon S3 buckets with restrictive policies (previously, we tested for the bucket's existence by running a create operation on it, which may not be permitted)

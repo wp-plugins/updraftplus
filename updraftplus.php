@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.0.11
+Version: 1.0.12
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -60,7 +60,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.0.11';
+	var $version = '1.0.12';
 
 	var $dbhandle;
 	var $errors = array();
@@ -170,11 +170,11 @@ class UpdraftPlus {
 	function gdrive_auth_token() {
 		if( isset( $_GET['code'] ) ) {
 			$post_vars = array(
-						'code' => $_GET['code'],
-						'client_id' => get_option('updraft_googledrive_clientid'),
-						'client_secret' => get_option('updraft_googledrive_secret'),
-						'redirect_uri' => admin_url('options-general.php?page=updraftplus&action=auth'),
-						'grant_type' => 'authorization_code'
+				'code' => $_GET['code'],
+				'client_id' => get_option('updraft_googledrive_clientid'),
+				'client_secret' => get_option('updraft_googledrive_secret'),
+				'redirect_uri' => admin_url('options-general.php?page=updraftplus&action=auth'),
+				'grant_type' => 'authorization_code'
 			);
 
 			$result = wp_remote_post('https://accounts.google.com/o/oauth2/token', array('timeout' => 30, 'method' => 'POST', 'body' => $post_vars) );
