@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.0.9
+Version: 1.0.10
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -60,7 +60,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.0.9';
+	var $version = '1.0.10';
 
 	var $dbhandle;
 	var $errors = array();
@@ -136,7 +136,7 @@ class UpdraftPlus {
 			)
 		);
 		$this->log("Google Drive: requesting access token: client_id=$client_id");
-		$result = @file_get_contents('https://accounts.google.com/o/oauth2/token', false, stream_context_create($context));
+		$result = $this->http_post('https://accounts.google.com/o/oauth2/token', $context);
 		if($result) {
 			$result = json_decode( $result, true );
 			if ( isset( $result['access_token'] ) ) {
@@ -172,6 +172,36 @@ class UpdraftPlus {
 		return;
 	}
 
+	function http_get($url) {
+		if (function_exists('curl_init')) {
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, $url); 
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			$output = curl_exec($ch);
+			curl_close($ch);
+			return $output;
+		} elseif (function_exists('http_get')) {
+			return http_get($url);
+		} else {
+			return @file_get_contents($url);
+		}
+	}
+
+	function http_post($url,$options) {
+		if (function_exists('curl_init')) {
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, $url); 
+			curl_setopt($ch, CURLOPT_POST, 1); 
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $options['http']['content']); 
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			$output = curl_exec($ch);
+			curl_close($ch);
+			return $output;
+		} else {
+			return @file_get_contents($url, false, stream_context_create($options));
+		}
+	}
+
 	/**
 	* Get a Google account refresh token using the code received from gdrive_auth_request
 	*/
@@ -191,13 +221,7 @@ class UpdraftPlus {
 					) )
 				)
 			);
-			// TODO Use curl??
-			$result = @file_get_contents('https://accounts.google.com/o/oauth2/token', false, stream_context_create($context));
-			# Oddly, sometimes fails and then trying again works...
-			/*
-			if (!$result) { sleep(1); $result = @file_get_contents('https://accounts.google.com/o/oauth2/token', false, stream_context_create($context));}
-			if (!$result) { sleep(1); $result = @file_get_contents('https://accounts.google.com/o/oauth2/token', false, stream_context_create($context));}
-			*/
+			$result = $this->http_post('https://accounts.google.com/o/oauth2/token', $context);
 			if($result) {
 				$result = json_decode( $result, true );
 				if ( isset( $result['refresh_token'] ) ) {
@@ -220,9 +244,9 @@ class UpdraftPlus {
 	* Revoke a Google account refresh token
 	*/
 	function gdrive_auth_revoke() {
-		@file_get_contents( 'https://accounts.google.com/o/oauth2/revoke?token=' . get_option('updraft_googledrive_token') );
+		$ignore = $this->http_get('https://accounts.google.com/o/oauth2/revoke?token='.get_option('updraft_googledrive_token'));
 		update_option('updraft_googledrive_token','');
-		header( 'Location: '.admin_url( 'options-general.php?page=updraftplus&message=' . __( 'Authorization revoked.', 'backup' ) ) );
+		header('Location: '.admin_url( 'options-general.php?page=updraftplus&message=Authorisation revoked'));
 	}
 
 	# Adds the settings link under the plugin on the plugin screen.
@@ -1770,9 +1794,10 @@ class UpdraftPlus {
 	function wordshell_random_advert($urls) {
 		$url_start = ($urls) ? '<a href="http://wordshell.net">' : "";
 		$url_end = ($urls) ? '</a>' : " (www.wordshell.net)";
-		if (rand(0,1) == 0) {
+		$rad = rand(0,1);
+		if ($rad == 0) {
 			return "Like automating WordPress operations? Use the CLI? ${url_start}You will love WordShell${url_end} - saves time and money fast.";
-		} else {
+		} elseif ($rad == 1) {
 			return "${url_start}Check out WordShell${url_end} - manage WordPress from the command line - huge time-saver";
 		}
 	}
@@ -1951,7 +1976,7 @@ ENDHERE;
 			<div style="float:left; width:200px; padding-top: 100px;">
 				<form method="post" action="">
 					<input type="hidden" name="action" value="updraft_backup" />
-					<p><input type="submit" <?php echo $backup_disabled ?> class="button-primary" value="Backup Now!" style="padding-top:7px;padding-bottom:7px;font-size:24px !important" onclick="return(confirm('This will schedule a one-time backup.  To trigger the backup immediately you may need to load a page on your site.'))" /></p>
+					<p><input type="submit" <?php echo $backup_disabled ?> class="button-primary" value="Backup Now!" style="padding-top:7px;padding-bottom:7px;font-size:24px !important" onclick="return(confirm('This will schedule a one-time backup.  To trigger the backup you should go ahead, then wait 10 seconds, then load a page on your site.'))" /></p>
 				</form>
 				<div style="position:relative">
 					<div style="position:absolute;top:0;left:0">
@@ -1987,7 +2012,7 @@ ENDHERE;
 				</tr>
 				<tr>
 					<td></td><td class="download-backups" style="display:none">
-						<em>Click on a button to download the corresponding file to your computer. If you are using Opera, you should turn Turbo mode off.</em>
+						<em>Click on a button to download the corresponding file to your computer. If you are using the <a href="http://opera.com">Opera web browser</a> then you should turn Turbo mode off.</em>
 						<table>
 							<?php
 							foreach($backup_history as $key=>$value) {
