@@ -8,7 +8,7 @@ Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Allowed use of existing Amazon S3 buckets with more restrictive policies
+Various bug + compatibility fixes for greater reliability
 
 == Description ==
 
@@ -87,11 +87,11 @@ No, there's no warranty or guarantee, etc. It's completely up to you to verify t
 
 == Changelog ==
 
-= 1.0.10 - 12/22/2012 =
+= 1.0.11 - 12/22/2012 =
 * Fixed bug that set 1Tb (instead of 1Mb) chunk sizes for Google Drive uploads
 * Added link to some screenshots to help with Google Drive setup
 * Allowed use of existing Amazon S3 buckets with restrictive policies (previously, we tested for the bucket's existence by running a create operation on it, which may not be permitted)
-* Use CURL instead of native PHP for Google Drive HTTP interactions
+* Use WordPress's native HTTP functions for greater reliability when performing Google Drive authorisation
 
 = 1.0.5 - 12/13/2012 =
 * Tweaked default Google Drive options

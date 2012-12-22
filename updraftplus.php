@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.0.10
+Version: 1.0.11
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -60,7 +60,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.0.10';
+	var $version = '1.0.11';
 
 	var $dbhandle;
 	var $errors = array();
@@ -123,32 +123,24 @@ class UpdraftPlus {
 	* Get a Google account access token using the refresh token
 	*/
 	function access_token( $token, $client_id, $client_secret ) {
-		$context = array(
-			'http' => array(
-				'method'  => 'POST',
-				'header'  => 'Content-type: application/x-www-form-urlencoded',
-				'content' => http_build_query( array(
-					'refresh_token' => $token,
-					'client_id' => $client_id,
-					'client_secret' => $client_secret,
-					'grant_type' => 'refresh_token'
-				) )
-			)
-		);
 		$this->log("Google Drive: requesting access token: client_id=$client_id");
-		$result = $this->http_post('https://accounts.google.com/o/oauth2/token', $context);
-		if($result) {
-			$result = json_decode( $result, true );
-			if ( isset( $result['access_token'] ) ) {
+
+		$query_body = array( 'refresh_token' => $token, 'client_id' => $client_id, 'client_secret' => $client_secret, 'grant_type' => 'refresh_token' );
+		$result = wp_remote_post('https://accounts.google.com/o/oauth2/token', array('timeout' => '15', 'method' => 'POST', 'body' => $query_body) );
+
+		if (is_wp_error($result)) {
+			$this->log("Google Drive error when requesting access token");
+			foreach ($result->get_error_messages() as $msg) { $this->log("Error message: $msg"); }
+			return false;
+		} else {
+			$json_values = json_decode( $result['body'], true );
+			if ( isset( $json_values['access_token'] ) ) {
 				$this->log("Google Drive: successfully obtained access token");
-				return $result['access_token'];
+				return $json_values['access_token'];
 			} else {
 				$this->log("Google Drive error when requesting access token: response does not contain access_token");
 				return false;
 			}
-		} else {
-			$this->log("Google Drive error when requesting access token: no response");
-			return false;
 		}
 	}
 
@@ -172,71 +164,36 @@ class UpdraftPlus {
 		return;
 	}
 
-	function http_get($url) {
-		if (function_exists('curl_init')) {
-			$ch = curl_init();
-			curl_setopt($ch, CURLOPT_URL, $url); 
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			$output = curl_exec($ch);
-			curl_close($ch);
-			return $output;
-		} elseif (function_exists('http_get')) {
-			return http_get($url);
-		} else {
-			return @file_get_contents($url);
-		}
-	}
-
-	function http_post($url,$options) {
-		if (function_exists('curl_init')) {
-			$ch = curl_init();
-			curl_setopt($ch, CURLOPT_URL, $url); 
-			curl_setopt($ch, CURLOPT_POST, 1); 
-			curl_setopt($ch, CURLOPT_POSTFIELDS, $options['http']['content']); 
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			$output = curl_exec($ch);
-			curl_close($ch);
-			return $output;
-		} else {
-			return @file_get_contents($url, false, stream_context_create($options));
-		}
-	}
-
 	/**
 	* Get a Google account refresh token using the code received from gdrive_auth_request
 	*/
 	function gdrive_auth_token() {
 		if( isset( $_GET['code'] ) ) {
-			$context = array(
-				'http' => array(
-					'timeout' => 30,
-					'method'  => 'POST',
-					'header'  => 'Content-type: application/x-www-form-urlencoded',
-					'content' => http_build_query( array(
+			$post_vars = array(
 						'code' => $_GET['code'],
 						'client_id' => get_option('updraft_googledrive_clientid'),
 						'client_secret' => get_option('updraft_googledrive_secret'),
 						'redirect_uri' => admin_url('options-general.php?page=updraftplus&action=auth'),
 						'grant_type' => 'authorization_code'
-					) )
-				)
 			);
-			$result = $this->http_post('https://accounts.google.com/o/oauth2/token', $context);
-			if($result) {
-				$result = json_decode( $result, true );
-				if ( isset( $result['refresh_token'] ) ) {
-					update_option('updraft_googledrive_token',$result['refresh_token']); // Save token
+
+			$result = wp_remote_post('https://accounts.google.com/o/oauth2/token', array('timeout' => 30, 'method' => 'POST', 'body' => $post_vars) );
+
+			if (is_wp_error($result)) {
+				header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'Bad response!', 'backup' ) ) );
+			} else {
+				$json_values = json_decode( $result['body'], true );
+				if ( isset( $json_values['refresh_token'] ) ) {
+					update_option('updraft_googledrive_token',$json_values['refresh_token']); // Save token
 					header('Location: '.admin_url('options-general.php?page=updraftplus&message=' . __( 'Google Drive authorization was successful.', 'updraftplus' ) ) );
 				}
 				else {
 					header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'No refresh token was received!', 'updraftplus' ) ) );
 				}
-			} else {
-				header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'Bad response!', 'backup' ) ) );
 			}
 		}
 		else {
-			header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'Authorisation failed!', 'backup' ) ) );
+			header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'Authorization failed!', 'updraftplus' ) ) );
 		}
 	}
 
@@ -244,7 +201,7 @@ class UpdraftPlus {
 	* Revoke a Google account refresh token
 	*/
 	function gdrive_auth_revoke() {
-		$ignore = $this->http_get('https://accounts.google.com/o/oauth2/revoke?token='.get_option('updraft_googledrive_token'));
+		$ignore = wp_remote_get('https://accounts.google.com/o/oauth2/revoke?token='.get_option('updraft_googledrive_token'));
 		update_option('updraft_googledrive_token','');
 		header('Location: '.admin_url( 'options-general.php?page=updraftplus&message=Authorisation revoked'));
 	}
