@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.0.16
+Version: 1.0.17
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -54,7 +54,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.0.16';
+	var $version = '1.0.17';
 
 	var $dbhandle;
 	var $errors = array();
@@ -323,7 +323,7 @@ class UpdraftPlus {
 			if (is_array($to_delete)) {
 				foreach ($to_delete as $key => $file) {
 					if (is_file($bdir.'/'.$file)) {
-						$this->log("Deleteing the file we created: ".$file);
+						$this->log("Deleting the file we created: ".$file);
 						@unlink($bdir.'/'.$file);
 					}
 				}
@@ -433,7 +433,8 @@ class UpdraftPlus {
 
 		@fclose($this->logfile_handle);
 
-		if (!get_option('updraft_debug_mode')) @unlink($this->logfile_name);
+		// Don't delete the log file now; delete it upon rotation
+ 		//if (!get_option('updraft_debug_mode')) @unlink($this->logfile_name);
 
 	}
 
@@ -620,9 +621,18 @@ class UpdraftPlus {
 				}
 			}
 			// Delete backup set completely if empty, o/w just remove DB
-			if (count($backup_to_examine)==0) {
+			if (count($backup_to_examine) == 0 || (count($backup_to_examine) == 1 && isset($backup_to_examine['backup_nonce']))) {
 				$this->log("$backup_datestamp: this backup set is now empty; will remove from history");
 				unset($backup_history[$backup_datestamp]);
+				if (isset($backup_to_examine['backup_nonce'])) {
+					$fullpath = trailingslashit(get_option('updraft_dir')).'log.'.$backup_nonce.'.txt';
+					if (is_file($fullpath)) {
+						$this->log("$backup_datestamp: deleting log file (log.$backup_nonce.txt)");
+						@unlink($fullpath);
+					} else {
+						$this->log("$backup_datestamp: corresponding log file not found - must have already been deleted");
+					}
+				}
 			} else {
 				$this->log("$backup_datestamp: this backup set remains non-empty; will retain in history");
 				$backup_history[$backup_datestamp] = $backup_to_examine;
