@@ -625,9 +625,9 @@ class UpdraftPlus {
 				$this->log("$backup_datestamp: this backup set is now empty; will remove from history");
 				unset($backup_history[$backup_datestamp]);
 				if (isset($backup_to_examine['nonce'])) {
-					$fullpath = trailingslashit(get_option('updraft_dir')).'log.'.$backup_to_examine['nonce']).'.txt';
+					$fullpath = trailingslashit(get_option('updraft_dir')).'log.'.$backup_to_examine['nonce'].'.txt';
 					if (is_file($fullpath)) {
-						$this->log("$backup_datestamp: deleting log file (log.".$backup_to_examine['nonce']).".txt)");
+						$this->log("$backup_datestamp: deleting log file (log.".$backup_to_examine['nonce'].".txt)");
 						@unlink($fullpath);
 					} else {
 						$this->log("$backup_datestamp: corresponding log file not found - must have already been deleted");
