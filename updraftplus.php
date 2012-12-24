@@ -86,7 +86,8 @@ class UpdraftPlus {
 	// Handle Google OAuth 2.0 - ?page=updraftplus&action=auth
 	// Also handle action=downloadlog
 	function handle_url_actions() {
-		if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] == 'updraftplus' && isset($_GET['action']) ) {
+		// First, basic security check: must be an admin page, with ability to manage options, with the right parameters
+		if ( is_admin() && current_user_can('manage_options') && isset( $_GET['page'] ) && $_GET['page'] == 'updraftplus' && isset($_GET['action']) ) {
 			if ($_GET['action'] == 'auth') {
 				if ( isset( $_GET['state'] ) ) {
 					if ( $_GET['state'] == 'token' )
@@ -167,9 +168,7 @@ class UpdraftPlus {
 		return;
 	}
 
-	/**
-	* Get a Google account refresh token using the code received from gdrive_auth_request
-	*/
+	// Get a Google account refresh token using the code received from gdrive_auth_request
 	function gdrive_auth_token() {
 		if( isset( $_GET['code'] ) ) {
 			$post_vars = array(
