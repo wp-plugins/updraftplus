@@ -2283,7 +2283,7 @@ echo $delete_local; ?> /> <br>Check this to delete the local backup file (only s
 				</tr>
 				<tr>
 					<th>Debug mode:</th>
-					<td><input type="checkbox" name="updraft_debug_mode" value="1" <?php echo $debug_mode; ?> /> <br>Check this for more information, if something is going wrong. Will also drop a log file in your backup directory which you can examine. You <strong>must</strong> send me this log if you are filing a bug report.</td>
+					<td><input type="checkbox" name="updraft_debug_mode" value="1" <?php echo $debug_mode; ?> /> <br>Check this to receive more information on the backup process - useful if something is going wrong. You <strong>must</strong> send me this log if you are filing a bug report.</td>
 				</tr>
 				<tr>
 					<td>
