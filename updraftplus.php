@@ -520,7 +520,7 @@ class UpdraftPlus {
 		$this->log("Retain: beginning examination of existing backup sets");
 		$updraft_retain = get_option('updraft_retain');
 		// Number of backups to retain
-		$retain = (isset($updraft_retain))?get_option('updraft_retain'):1;
+		$retain = (isset($updraft_retain)) ? get_option('updraft_retain') : 1;
 		$this->log("Retain: user setting: number to retain = $retain");
 		// Returns an array, most recent first, of backup sets
 		$backup_history = $this->get_backup_history();
@@ -617,7 +617,6 @@ class UpdraftPlus {
 					unset($backup_to_examine['themes']);
 					unset($backup_to_examine['uploads']);
 					unset($backup_to_examine['others']);
-					unset($backup_to_examine['nonce']);
 				}
 			}
 			// Delete backup set completely if empty, o/w just remove DB
