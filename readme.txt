@@ -87,6 +87,9 @@ No, there's no warranty or guarantee, etc. It's completely up to you to verify t
 
 == Changelog ==
 
+= 1.0.16 - 12/24/2012 =
+* Improve race detection and clean up already-created files when detected
+
 = 1.0.15 - 12/22/2012 =
 * Fixed bug that set 1Tb (instead of 1Mb) chunk sizes for Google Drive uploads
 * Added link to some screenshots to help with Google Drive setup

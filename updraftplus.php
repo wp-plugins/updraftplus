@@ -4,18 +4,17 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.0.15
+Version: 1.0.16
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
 */ 
 
 /*
-TODO (some of these items mine, some from original Updraft awaiting review):
+TODO
 //Add DropBox and Microsoft Skydrive support
 //improve error reporting / pretty up return messages in admin area
 //?? On 'backup now', open up a Lightbox, count down 5 seconds, then start examining the log file (if it can be found)
-//When a run is aborted due to a double-run (race), delete any files created so far
 
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
 // Does not delete old custom directories upon a restore?
@@ -55,7 +54,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.0.15';
+	var $version = '1.0.16';
 
 	var $dbhandle;
 	var $errors = array();
@@ -313,10 +312,22 @@ class UpdraftPlus {
 		$this->logfile_handle = fopen($this->logfile_name, 'a');
 	}
 
-	function check_backup_race() {
-		$cur_trans = get_transient('updraftplus_backup_job_nonce');
-		if ( $cur_trans != $this->nonce) {
+	function check_backup_race( $to_delete = false ) {
+		// Avoid caching
+		global $wpdb;
+		$row = $wpdb->get_row( $wpdb->prepare( "SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", "_transient_updraftplus_backup_job_nonce" ) );
+		$cur_trans = ( is_object( $row ) ) ? $row->option_value : "";
+		if ($cur_trans != "" && $cur_trans != $this->nonce) {
 			$this->log("Another backup job ($cur_trans) appears to now be running - terminating our run");
+			$bdir = $this->backups_dir_location();
+			if (is_array($to_delete)) {
+				foreach ($to_delete as $key => $file) {
+					if (is_file($bdir.'/'.$file)) {
+						$this->log("Deleteing the file we created: ".$file);
+						@unlink($bdir.'/'.$file);
+					}
+				}
+			}
 			exit;
 		}
 	}
@@ -368,7 +379,7 @@ class UpdraftPlus {
 				$backup_contains = "Files only (no database)";
 			}
 
-			$this->check_backup_race();
+			$this->check_backup_race($backup_array);
 
 			//backup DB and return string of file path
 			if ($backup_database) {
@@ -379,7 +390,7 @@ class UpdraftPlus {
 				$backup_contains = ($backup_files) ? "Files and database" : "Database only (no files)";
 			}
 
-			$this->check_backup_race();
+			$this->check_backup_race($backup_array);
 			set_transient("updraftplus_backupcontains", $backup_contains, 3600*3);
 
 			//save this to our history so we can track backups for the retain feature
@@ -923,7 +934,9 @@ class UpdraftPlus {
 		} else {
 			$this->log("No backup of plugins: excluded by user's options");
 		}
-		
+
+		$this->check_backup_race($backup_array);
+
 		# Themes
 		@set_time_limit(900);
 		if (get_option('updraft_include_themes', true)) {
@@ -941,6 +954,8 @@ class UpdraftPlus {
 			$this->log("No backup of themes: excluded by user's options");
 		}
 
+		$this->check_backup_race($backup_array);
+
 		# Uploads
 		@set_time_limit(900);
 		if (get_option('updraft_include_uploads', true)) {
@@ -957,6 +972,8 @@ class UpdraftPlus {
 		} else {
 			$this->log("No backup of uploads: excluded by user's options");
 		}
+
+		$this->check_backup_race($backup_array);
 
 		# Others
 		@set_time_limit(900);
