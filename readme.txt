@@ -8,7 +8,7 @@ Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Various bug + compatibility fixes for greater reliability
+Beginning of code re-organisation to make programming new cloud methods easier
 
 == Description ==
 
@@ -86,6 +86,9 @@ Nothing, probably. That's the point of an encryption key - people who don't have
 No, there's no warranty or guarantee, etc. It's completely up to you to verify that UpdraftPlus is working correctly. If it doesn't then that's unfortunate, but this is a free plugin.
 
 == Changelog ==
+
+= 1.0.18 - 12/26/2012 =
+* First steps towards modularising cloud upload methods
 
 = 1.0.16 - 12/24/2012 =
 * Improve race detection and clean up already-created files when detected
