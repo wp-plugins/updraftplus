@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.0.17
+Version: 1.0.18
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -18,6 +18,7 @@ TODO
 
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
 // Does not delete old custom directories upon a restore?
+// Re-do making of zip files to allow resumption (every x files, store the state in a transient)
 */
 
 /*  Portions copyright 2010 Paul Kehrer
@@ -43,18 +44,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // 15 minutes
 @set_time_limit(900);
 
-$updraft = new UpdraftPlus();
+if (!isset($updraftplus)) $updraftplus = new UpdraftPlus();
 
-if(!$updraft->memory_check(192)) {
+if (!$updraftplus->memory_check(192)) {
 # TODO: Better solution is to split the backup set into manageable chunks based on this limit
 	@ini_set('memory_limit', '192M'); //up the memory limit for large backup files
 }
 
+define('UPDRAFTPLUS_DIR', dirname(__FILE__));
 define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.0.17';
+	var $version = '1.0.18';
 
 	var $dbhandle;
 	var $errors = array();
@@ -199,9 +201,7 @@ class UpdraftPlus {
 		}
 	}
 
-	/**
-	* Revoke a Google account refresh token
-	*/
+	// Revoke a Google account refresh token
 	function gdrive_auth_revoke() {
 		$ignore = wp_remote_get('https://accounts.google.com/o/oauth2/revoke?token='.get_option('updraft_googledrive_token'));
 		update_option('updraft_googledrive_token','');
@@ -481,36 +481,21 @@ class UpdraftPlus {
 
 	}
 
+	// Dispatch to the relevant function
 	function cloud_backup($backup_array) {
-		switch(get_option('updraft_service')) {
-			case 's3':
-				@set_time_limit(900);
-				$this->log("Cloud backup: S3");
-				if (count($backup_array) >0) $this->s3_backup($backup_array);
-			break;
-			case 'googledrive':
-				@set_time_limit(900);
-				$this->log("Cloud backup: Google Drive");
-				if (count($backup_array) >0) $this->googledrive_backup($backup_array);
-			break;
-			case 'ftp':
-				@set_time_limit(900);
-				$this->log("Cloud backup: FTP");
-				if (count($backup_array) >0) $this->ftp_backup($backup_array);
-			break;
-			case 'email':
-				@set_time_limit(900);
-				$this->log("Cloud backup: Email");
-				//files can easily get way too big for this...
-				foreach($backup_array as $type=>$file) {
-					$fullpath = trailingslashit(get_option('updraft_dir')).$file;
-					wp_mail(get_option('updraft_email'),"WordPress Backup ".date('Y-m-d H:i',$this->backup_time),"Backup is of the $type.  Be wary; email backups may fail because of file size limitations on mail servers.",null,array($fullpath));
-					$this->uploaded_file($file);
-				}
-				//we don't break here so it goes and executes all the default behavior below as well.  this gives us retain behavior for email
-			default:
-				$this->prune_retained_backups("local");
-			break;
+
+		$service = get_option('updraft_service');
+		$this->log("Cloud backup selection: ".$service);
+		@set_time_limit(900);
+
+		$method_include = UPDRAFTPLUS_DIR.'/methods/'.$service.'.php';
+		if (file_exists($method_include)) require_once($method_include);
+
+		if (function_exists("updraftplus_${service}_backup")) {
+			// New style - external, allowing more plugability
+			call_user_func("updraftplus_${service}_backup", $backup_array);
+		} else {
+			$this->prune_retained_backups("local");
 		}
 	}
 
@@ -642,260 +627,6 @@ class UpdraftPlus {
 		update_option('updraft_backup_history',$backup_history);
 	}
 
-	function s3_backup($backup_array) {
-
-		if(!class_exists('S3')) require_once(dirname(__FILE__).'/includes/S3.php');
-
-		$s3 = new S3(get_option('updraft_s3_login'), get_option('updraft_s3_pass'));
-
-		$bucket_name = untrailingslashit(get_option('updraft_s3_remote_path'));
-		$bucket_path = "";
-		$orig_bucket_name = $bucket_name;
-
-		if (preg_match("#^([^/]+)/(.*)$#",$bucket_name,$bmatches)) {
-			$bucket_name = $bmatches[1];
-			$bucket_path = $bmatches[2]."/";
-		}
-
-		// See if we can detect the region (which implies the bucket exists and is ours), or if not create it
-		if (@$s3->getBucketLocation($bucket_name) || @$s3->putBucket($bucket_name, S3::ACL_PRIVATE)) {
-
-			foreach($backup_array as $file) {
-
-				// We upload in 5Mb chunks to allow more efficient resuming and hence uploading of larger files
-				$fullpath = trailingslashit(get_option('updraft_dir')).$file;
-				$chunks = floor(filesize($fullpath) / 5242880)+1;
-				$hash = md5($file);
-
-				$this->log("S3 upload: $fullpath (chunks: $chunks) -> s3://$bucket_name/$bucket_path$file");
-
-				$filepath = $bucket_path.$file;
-
-				// This is extra code for the 1-chunk case, but less overhead (no bothering with transients)
-				if ($chunks < 2) {
-					if (!$s3->putObjectFile($fullpath, $bucket_name, $filepath)) {
-						$this->log("S3 regular upload: failed");
-						$this->error("S3 Error: Failed to upload $fullpath.");
-					} else {
-						$this->log("S3 regular upload: success");
-						$this->uploaded_file($file);
-					}
-				} else {
-
-					// Retrieve the upload ID
-					$uploadId = get_transient("updraft_${hash}_uid");
-					if (empty($uploadId)) {
-						$uploadId = $s3->initiateMultipartUpload($bucket_name, $filepath);
-						if (empty($uploadId)) {
-							$this->log("S3 upload: failed: could not get uploadId for multipart upload");
-							continue;
-						} else {
-							$this->log("S3 chunked upload: got multipart ID: $uploadId");
-							set_transient("updraft_${hash}_uid", $uploadId, 3600*3);
-						}
-					} else {
-						$this->log("S3 chunked upload: retrieved previously obtained multipart ID: $uploadId");
-					}
-
-					$successes = 0;
-					$etags = array();
-					for ($i = 1 ; $i <= $chunks; $i++) {
-						# Shorted to upd here to avoid hitting the 45-character limit
-						$etag = get_transient("upd_${hash}_e$i");
-						if (strlen($etag) > 0) {
-							$this->log("S3 chunk $i: was already completed (etag: $etag)");
-							$successes++;
-							array_push($etags, $etag);
-						} else {
-							$etag = $s3->uploadPart($bucket_name, $filepath, $uploadId, $fullpath, $i);
-							if (is_string($etag)) {
-								$this->log("S3 chunk $i: uploaded (etag: $etag)");
-								array_push($etags, $etag);
-								set_transient("upd_${hash}_e$i", $etag, 3600*3);
-								$successes++;
-							} else {
-								$this->error("S3 chunk $i: upload failed");
-								$this->log("S3 chunk $i: upload failed");
-							}
-						}
-					}
-					if ($successes >= $chunks) {
-						$this->log("S3 upload: all chunks uploaded; will now instruct S3 to re-assemble");
-						if ($s3->completeMultipartUpload ($bucket_name, $filepath, $uploadId, $etags)) {
-							$this->log("S3 upload: re-assembly succeeded");
-							$this->uploaded_file($file);
-						} else {
-							$this->log("S3 upload: re-assembly failed");
-							$this->error("S3 upload: re-assembly failed");
-						}
-					} else {
-						$this->log("S3 upload: upload was not completely successful on this run");
-					}
-				}
-			}
-			$this->prune_retained_backups('s3',$s3,$orig_bucket_name);
-		} else {
-			$this->log("S3 Error: Failed to create bucket $bucket_name.");
-			$this->error("S3 Error: Failed to create bucket $bucket_name. Check your permissions and credentials.");
-		}
-	}
-
-	// This function taken from wordpress.org/extend/plugins/backup, by Sorin Iclanzan, under the GPLv3 or later at your choice
-	function is_gdocs( $thing ) {
-		if ( is_object( $thing ) && is_a( $thing, 'UpdraftPlus_GDocs' ) )
-			return true;
-		return false;
-	}
-
-	// This function modified from wordpress.org/extend/plugins/backup, by Sorin Iclanzan, under the GPLv3 or later at your choice
-	function need_gdocs() {
-
-		if ( ! $this->is_gdocs( $this->gdocs ) ) {
-			if ( get_option('updraft_googledrive_token') == "" || get_option('updraft_googledrive_clientid') == "" || get_option('updraft_googledrive_secret') == "" ) {
-				$this->log("GoogleDrive: this account is not authorised");
-				return new WP_Error( "not_authorized", "Account is not authorized." );
-				}
-
-			if ( is_wp_error( $this->gdocs_access_token ) ) return $access_token;
-
-			$this->gdocs = new UpdraftPlus_GDocs( $this->gdocs_access_token );
-			$this->gdocs->set_option( 'chunk_size', 1 ); # 1Mb; change from default of 512Kb
-			$this->gdocs->set_option( 'request_timeout', 10 ); # Change from default of 10s
-			$this->gdocs->set_option( 'max_resume_attempts', 36 ); # Doesn't look like GDocs class actually uses this anyway
-		}
-		return true;
-	}
-
-	// Returns:
-	// true = already uploaded
-	// false = failure
-	// otherwise, the file ID
-	function googledrive_upload_file( $file, $title, $parent = '') {
-
-		// Make sure $this->gdocs is a UpdraftPlus_GDocs object, or give an error
-		if ( is_wp_error( $e = $this->need_gdocs() ) ) return false;
-
-		$hash = md5($file);
-		$transkey = 'upd_'.$hash.'_gloc';
-		// This is unset upon completion, so if it is set then we are resuming
-		$possible_location = get_transient($transkey);
-
-		if ( empty( $possible_location ) ) {
-			$this->log("$file: Attempting to upload file to Google Drive.");
-			$location = $this->gdocs->prepare_upload( $file, $title, $parent );
-		} else {
-			$this->log("$file: Attempting to resume upload.");
-			$location = $this->gdocs->resume_upload( $file, $possible_location );
-		}
-
-		if ( is_wp_error( $location ) ) {
-			$this->log("GoogleDrive upload: an error occurred");
-			foreach ($location->get_error_messages() as $msg) {
-				$this->error($msg);
-				$this->log("Error details: ".$msg);
-			}
-			return false;
-		}
-
-		if (!is_string($location) && true == $location) {
-			$this->log("$file: this file is already uploaded");
-			return true;
-		}
-
-		if ( is_string( $location ) ) {
-			$res = $location;
-			$this->log("Uploading file with title ".$title);
-			$d = 0;
-			do {
-				$this->log("Google Drive upload: chunk d: $d, loc: $res");
-				$res = $this->gdocs->upload_chunk();
-				if (is_string($res)) set_transient($transkey, $res, 3600*3);
-				$p = $this->gdocs->get_upload_percentage();
-				if ( $p - $d >= 1 ) {
-					$b = intval( $p - $d );
-// 					echo '<span style="width:' . $b . '%"></span>';
-					$d += $b;
-				}
-// 				$this->options['backup_list'][$id]['speed'] = $this->gdocs->get_upload_speed();
-			} while ( is_string( $res ) );
-// 			echo '</div>';
-
-			if ( is_wp_error( $res ) || $res !== true) {
-				$this->log( "An error occurred during GoogleDrive upload (2)" );
-				$this->error( "An error occurred during GoogleDrive upload (2)" );
-				if (is_wp_error( $res )) {
-					foreach ($res->get_error_messages() as $msg) { $this->log($msg); }
-				}
-				return false;
-			}
-
-			$this->log("The file was successfully uploaded to Google Drive in ".number_format_i18n( $this->gdocs->time_taken(), 3)." seconds at an upload speed of ".size_format( $this->gdocs->get_upload_speed() )."/s.");
-
-			delete_transient($transkey);
-// 			unset( $this->options['backup_list'][$id]['location'], $this->options['backup_list'][$id]['attempt'] );
-		}
-
-		return $this->gdocs->get_file_id();
-
-// 		$this->update_quota();
-//	Google's "user info" service
-// 		if ( empty( $this->options['user_info'] ) ) $this->set_user_info();
-
-	}
-
-	// This function just does the formalities, and off-loads the main work to googledrive_upload_file
-	function googledrive_backup($backup_array) {
-
-		require_once(dirname(__FILE__).'/includes/class-gdocs.php');
-
-		// Do we have an access token?
-		if ( !$access_token = $this->access_token( get_option('updraft_googledrive_token'), get_option('updraft_googledrive_clientid'), get_option('updraft_googledrive_secret') )) {
-			$this->log('ERROR: Have not yet obtained an access token from Google (has the user authorised?)');
-			return new WP_Error( "no_access_token", "Have not yet obtained an access token from Google (has the user authorised?");
-		}
-
-		$this->gdocs_access_token = $access_token;
-
-		foreach ($backup_array as $file) {
-			$file_path = trailingslashit(get_option('updraft_dir')).$file;
-			$file_name = basename($file_path);
-			$this->log("$file_name: Attempting to upload to Google Drive");
-			$timer_start = microtime(true);
-			if ( $id = $this->googledrive_upload_file( $file_path, $file_name, get_option('updraft_googledrive_remotepath')) ) {
-				$this->log('OK: Archive ' . $file_name . ' uploaded to Google Drive in ' . ( round(microtime( true ) - $timer_start,2) ) . ' seconds (id: '.$id.')' );
-				$this->uploaded_file($file, $id);
-			} else {
-				$this->error("$file_name: Failed to upload to Google Drive" );
-				$this->log("ERROR: $file_name: Failed to upload to Google Drive" );
-			}
-		}
-		$this->prune_retained_backups("googledrive",$access_token,get_option('updraft_googledrive_remotepath'));
-	}
-
-	function ftp_backup($backup_array) {
-		if( !class_exists('ftp_wrapper')) {
-			require_once(dirname(__FILE__).'/includes/ftp.class.php');
-		}
-		//handle SSL and errors at some point TODO
-		$ftp = new ftp_wrapper(get_option('updraft_server_address'),get_option('updraft_ftp_login'),get_option('updraft_ftp_pass'));
-		$ftp->passive = true;
-		$ftp->connect();
-		//$ftp->make_dir(); we may need to recursively create dirs? TODO
-		
-		$ftp_remote_path = trailingslashit(get_option('updraft_ftp_remote_path'));
-		foreach($backup_array as $file) {
-			$fullpath = trailingslashit(get_option('updraft_dir')).$file;
-			if ($ftp->put($fullpath,$ftp_remote_path.$file,FTP_BINARY)) {
-				$this->log("ERROR: $file_name: Successfully uploaded via FTP");
-				$this->uploaded_file($file);
-			} else {
-				$this->error("$file_name: Failed to upload to FTP" );
-				$this->log("ERROR: $file_name: Failed to upload to FTP" );
-			}
-		}
-		$this->prune_retained_backups("ftp",$ftp,$ftp_remote_path);
-	}
-	
 	function delete_local($file) {
 		if(get_option('updraft_delete_local')) {
 			$this->log("Deleting local file: $file");
@@ -1485,101 +1216,19 @@ class UpdraftPlus {
 	}
 	
 	function download_backup($file) {
-		switch(get_option('updraft_service')) {
-			case 'googledrive':
-				$this->download_googledrive_backup($file);
-			break;
-			case 's3':
-				$this->download_s3_backup($file);
-			break;
-			case 'ftp':
-				$this->download_ftp_backup($file);
-			break;
-			default:
-				$this->error('Automatic backup restoration is only available via S3, FTP, and local. Email and downloaded backup restoration must be performed manually.');
-		}
-	}
+		$service = get_option('updraft_service');
 
-	function download_googledrive_backup($file) {
+		$method_include = UPDRAFTPLUS_DIR.'/methods/'.$service.'.php';
+		if (file_exists($method_include)) require_once($method_include);
 
-		require_once(dirname(__FILE__).'/includes/class-gdocs.php');
-
-		// Do we have an access token?
-		if ( !$access_token = $this->access_token( get_option('updraft_googledrive_token'), get_option('updraft_googledrive_clientid'), get_option('updraft_googledrive_secret') )) {
-			$this->error('ERROR: Have not yet obtained an access token from Google (has the user authorised?)');
-			return false;
-		}
-
-		$this->gdocs_access_token = $access_token;
-
-		// Make sure $this->gdocs is a UpdraftPlus_GDocs object, or give an error
-		if ( is_wp_error( $e = $this->need_gdocs() ) ) return false;
-
-		$ids = get_option('updraft_file_ids', array());
-		if (!isset($ids[$file])) {
-			$this->error("Google Drive error: $file: could not download: could not find a record of the Google Drive file ID for this file");
-			return;
+		if (function_exists("updraftplus_download_${service}_backup")) {
+			call_user_func("updraftplus_download_${service}_backup", $file);
 		} else {
-			$content_link = $this->gdocs->get_content_link( $ids[$file], $file );
-			if (is_wp_error($content_link)) {
-				$this->error("Could not find $file in order to download it (id: ".$ids[$file].")");
-				foreach ($content_link->get_error_messages() as $msg) {
-					$this->error($msg);
-				}
-				return false;
-			}
-			// Actually download the thing
-			$download_to = trailingslashit(get_option('updraft_dir')).$file;
-			$this->gdocs->download_data($content_link, $download_to);
-
-			if (filesize($download_to) >0) {
-				return true;
-			} else {
-				$this->error("Google Drive error: zero-size file was downloaded");
-				return false;
-			}
-
+			$this->error('Automatic backup restoration is not available with the method: $service.');
 		}
-
-		return;
 
 	}
-
-	function download_s3_backup($file) {
-		if(!class_exists('S3')) {
-			require_once(dirname(__FILE__).'/includes/S3.php');
-		}
-		$s3 = new S3(get_option('updraft_s3_login'), get_option('updraft_s3_pass'));
-		$bucket_name = untrailingslashit(get_option('updraft_s3_remote_path'));
-		$bucket_path = "";
-		if (preg_match("#^([^/]+)/(.*)$#",$bucket_name,$bmatches)) {
-			$bucket_name = $bmatches[1];
-			$bucket_path = $bmatches[2]."/";
-		}
-		if (@$s3->getBucketLocation($bucket_name)) {
-			$fullpath = trailingslashit(get_option('updraft_dir')).$file;
-			if (!$s3->getObject($bucket_name, $bucket_path.$file, $fullpath)) {
-				$this->error("S3 Error: Failed to download $fullpath. Check your permissions and credentials.");
-			}
-		} else {
-			$this->error("S3 Error: Failed to access bucket $bucket_name. Check your permissions and credentials.");
-		}
-	}
-	
-	function download_ftp_backup($file) {
-		if( !class_exists('ftp_wrapper')) require_once(dirname(__FILE__).'/includes/ftp.class.php');
-
-		//handle SSL and errors at some point TODO
-		$ftp = new ftp_wrapper(get_option('updraft_server_address'),get_option('updraft_ftp_login'),get_option('updraft_ftp_pass'));
-		$ftp->passive = true;
-		$ftp->connect();
-		//$ftp->make_dir(); we may need to recursively create dirs? TODO
 		
-		$ftp_remote_path = trailingslashit(get_option('updraft_ftp_remote_path'));
-		$fullpath = trailingslashit(get_option('updraft_dir')).$file;
-		$ftp->get($fullpath,$ftp_remote_path.$file,FTP_BINARY);
-	}
-	
 	function restore_backup($timestamp) {
 		global $wp_filesystem;
 		$backup_history = get_option('updraft_backup_history');
@@ -1677,8 +1326,7 @@ class UpdraftPlus {
 		$credentials = request_filesystem_credentials("options-general.php?page=updraftplus&action=updraft_create_backup_dir"); 
 		WP_Filesystem($credentials);
 		if ( $wp_filesystem->errors->get_error_code() ) { 
-			foreach ( $wp_filesystem->errors->get_error_messages() as $message )
-				show_message($message); 
+			foreach ( $wp_filesystem->errors->get_error_messages() as $message ) show_message($message); 
 			exit; 
 		}
 
@@ -1687,12 +1335,10 @@ class UpdraftPlus {
 		$updraft_dir = ($updraft_dir)?$updraft_dir:$default_backup_dir;
 
 		//chmod the backup dir to 0777. ideally we'd rather chgrp it but i'm not sure if it's possible to detect the group apache is running under (or what if it's not apache...)
-		if(!$wp_filesystem->mkdir($updraft_dir, 0777)) {
-			return false;
-		}
+		if(!$wp_filesystem->mkdir($updraft_dir, 0777)) return false;
+
 		return true;
 	}
-	
 
 	function memory_check_current() {
 		# Returns in megabytes
