@@ -87,8 +87,8 @@ No, there's no warranty or guarantee, etc. It's completely up to you to verify t
 
 == Changelog ==
 
-= 1.0.18 - 12/26/2012 =
-* First steps towards modularising cloud upload methods
+= 1.0.20 - 12/29/2012 =
+* Big code re-factoring; moving towards modularising cloud access methods
 
 = 1.0.16 - 12/24/2012 =
 * Improve race detection and clean up already-created files when detected

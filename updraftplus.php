@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.0.18
+Version: 1.0.20
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -56,7 +56,15 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.0.18';
+	var $version = '1.0.20';
+
+	// Choices will be shown in the admin menu in the order used here
+	var $backup_methods = array (
+		"s3" => "Amazon S3",
+		"googledrive" => "Google Drive",
+		"ftp" => "FTP",
+		"email" => "Email"
+	);
 
 	var $dbhandle;
 	var $errors = array();
@@ -64,11 +72,9 @@ class UpdraftPlus {
 	var $logfile_name = "";
 	var $logfile_handle = false;
 	var $backup_time;
-	var $gdocs;
-	var $gdocs_access_token;
 
 	function __construct() {
-		// Initialisation actions
+		// Initialisation actions - takes place on plugin load
 		# Create admin page
 		add_action('admin_menu', array($this,'add_admin_pages'));
 		add_action('admin_init', array($this,'admin_init'));
@@ -85,20 +91,17 @@ class UpdraftPlus {
 		add_action('init', array($this, 'handle_url_actions'));
 	}
 
-	// Handle Google OAuth 2.0 - ?page=updraftplus&action=auth
+	// Handle actions passed on to method plugins; e.g. Google OAuth 2.0 - ?page=updraftplus&action=updraftmethod-googledrive-auth
 	// Also handle action=downloadlog
 	function handle_url_actions() {
 		// First, basic security check: must be an admin page, with ability to manage options, with the right parameters
 		if ( is_admin() && current_user_can('manage_options') && isset( $_GET['page'] ) && $_GET['page'] == 'updraftplus' && isset($_GET['action']) ) {
-			if ($_GET['action'] == 'auth') {
-				if ( isset( $_GET['state'] ) ) {
-					if ( $_GET['state'] == 'token' )
-						$this->gdrive_auth_token();
-					elseif ( $_GET['state'] == 'revoke' )
-						$this->gdrive_auth_revoke();
-				} elseif (isset($_GET['updraftplus_googleauth'])) {
-					$this->gdrive_auth_request();
-				}
+			if (preg_match("/^updraftmethod-([a-z]+)-([a-z]+)$/", $_GET['action'], $matches) && file_exists(UPDRAFTPLUS_DIR.'/methods/'.$matches[1].'.php')) {
+				$method = $matches[1];
+				require_once(UPDRAFTPLUS_DIR.'/methods/'.$method.'.php');
+				$call_class = "UpdraftPlus_BackupModule_".$method;
+				$call_method = "action_".$matches[2];
+				if (method_exists($call_class, $call_method)) call_user_func(array($call_class,$call_method));
 			} elseif ($_GET['action'] == 'downloadlog' && isset($_GET['updraftplus_backup_nonce']) && preg_match("/^[0-9a-f]{12}$/",$_GET['updraftplus_backup_nonce'])) {
 				$updraft_dir = $this->backups_dir_location();
 				$log_file = $updraft_dir.'/log.'.$_GET['updraftplus_backup_nonce'].'.txt';
@@ -111,101 +114,6 @@ class UpdraftPlus {
 				}
 			}
 		}
-	}
-
-	// Acquire single-use authorization code from Google OAuth 2.0
-	function gdrive_auth_request() {
-		$params = array(
-			'response_type' => 'code',
-			'client_id' => get_option('updraft_googledrive_clientid'),
-			'redirect_uri' => admin_url('options-general.php?page=updraftplus&action=auth'),
-			'scope' => 'https://www.googleapis.com/auth/drive.file https://docs.google.com/feeds/ https://docs.googleusercontent.com/ https://spreadsheets.google.com/feeds/',
-			'state' => 'token',
-			'access_type' => 'offline',
-			'approval_prompt' => 'auto'
-		);
-		header('Location: https://accounts.google.com/o/oauth2/auth?'.http_build_query($params));
-	}
-
-	// Get a Google account access token using the refresh token
-	function access_token( $token, $client_id, $client_secret ) {
-		$this->log("Google Drive: requesting access token: client_id=$client_id");
-
-		$query_body = array( 'refresh_token' => $token, 'client_id' => $client_id, 'client_secret' => $client_secret, 'grant_type' => 'refresh_token' );
-		$result = wp_remote_post('https://accounts.google.com/o/oauth2/token', array('timeout' => '15', 'method' => 'POST', 'body' => $query_body) );
-
-		if (is_wp_error($result)) {
-			$this->log("Google Drive error when requesting access token");
-			foreach ($result->get_error_messages() as $msg) { $this->log("Error message: $msg"); }
-			return false;
-		} else {
-			$json_values = json_decode( $result['body'], true );
-			if ( isset( $json_values['access_token'] ) ) {
-				$this->log("Google Drive: successfully obtained access token");
-				return $json_values['access_token'];
-			} else {
-				$this->log("Google Drive error when requesting access token: response does not contain access_token");
-				return false;
-			}
-		}
-	}
-
-	function googledrive_delete_file( $file, $token) {
-		$ids = get_option('updraft_file_ids', array());
-		if (!isset($ids[$file])) {
-			$this->log("Could not delete: could not find a record of the Google Drive file ID for this file");
-			return;
-		} else {
-			$del == $this->gdocs->delete_resource($ids[$file]);
-			if (is_wp_error($del)) {
-				foreach ($del->get_error_messages() as $msg) {
-					$this->log("Deletion failed: $msg");
-				}
-			} else {
-				$this->log("Deletion successful");
-				unset($ids[$file]);
-				update_option('updraft_file_ids', $ids);
-			}
-		}
-		return;
-	}
-
-	// Get a Google account refresh token using the code received from gdrive_auth_request
-	function gdrive_auth_token() {
-		if( isset( $_GET['code'] ) ) {
-			$post_vars = array(
-				'code' => $_GET['code'],
-				'client_id' => get_option('updraft_googledrive_clientid'),
-				'client_secret' => get_option('updraft_googledrive_secret'),
-				'redirect_uri' => admin_url('options-general.php?page=updraftplus&action=auth'),
-				'grant_type' => 'authorization_code'
-			);
-
-			$result = wp_remote_post('https://accounts.google.com/o/oauth2/token', array('timeout' => 30, 'method' => 'POST', 'body' => $post_vars) );
-
-			if (is_wp_error($result)) {
-				header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'Bad response!', 'backup' ) ) );
-			} else {
-				$json_values = json_decode( $result['body'], true );
-				if ( isset( $json_values['refresh_token'] ) ) {
-					update_option('updraft_googledrive_token',$json_values['refresh_token']); // Save token
-					header('Location: '.admin_url('options-general.php?page=updraftplus&message=' . __( 'Google Drive authorization was successful.', 'updraftplus' ) ) );
-				}
-				else {
-					header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'No refresh token was received!', 'updraftplus' ) ) );
-				}
-			}
-		}
-		else {
-			header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'Authorization failed!', 'updraftplus' ) ) );
-		}
-	}
-
-	// Revoke a Google account refresh token
-	function gdrive_auth_revoke() {
-		$ignore = wp_remote_get('https://accounts.google.com/o/oauth2/revoke?token='.get_option('updraft_googledrive_token'));
-		update_option('updraft_googledrive_token','');
-		header('Location: '.admin_url( 'options-general.php?page=updraftplus&message=Authorisation revoked'));
 	}
 
 	# Adds the settings link under the plugin on the plugin screen.
@@ -483,7 +391,6 @@ class UpdraftPlus {
 
 	// Dispatch to the relevant function
 	function cloud_backup($backup_array) {
-
 		$service = get_option('updraft_service');
 		$this->log("Cloud backup selection: ".$service);
 		@set_time_limit(900);
@@ -491,67 +398,57 @@ class UpdraftPlus {
 		$method_include = UPDRAFTPLUS_DIR.'/methods/'.$service.'.php';
 		if (file_exists($method_include)) require_once($method_include);
 
-		if (function_exists("updraftplus_${service}_backup")) {
+		$objname = "UpdraftPlus_BackupModule_${service}";
+		if (method_exists($objname, "backup")) {
 			// New style - external, allowing more plugability
-			call_user_func("updraftplus_${service}_backup", $backup_array);
+			$remote_obj = new $objname;
+			$remote_obj->backup($backup_array);
 		} else {
 			$this->prune_retained_backups("local");
 		}
 	}
 
+	function prune_file($updraft_service, $dofile, $method_object = null, $object_passback = null ) {
+		$this->log("Delete this file: $dofile, service=$updraft_service");
+		$fullpath = trailingslashit(get_option('updraft_dir')).$dofile;
+		// delete it if it's locally available
+		if (file_exists($fullpath)) {
+			$this->log("Deleting local copy ($fullpath)");
+			@unlink($fullpath);
+		}
+
+		// Despatch to the particular method's deletion routine
+		if (!is_null($method_object)) $method_object->delete($dofile, $object_passback);
+	}
+
 	// Carries out retain behaviour. Pass in a valid S3 or FTP object and path if relevant.
-	function prune_retained_backups($updraft_service,$remote_object,$remote_path) {
+	function prune_retained_backups($updraft_service, $backup_method_object = null, $backup_passback = null) {
+
 		$this->log("Retain: beginning examination of existing backup sets");
-		$updraft_retain = get_option('updraft_retain');
+
 		// Number of backups to retain
-		$retain = (isset($updraft_retain)) ? get_option('updraft_retain') : 1;
+		$updraft_retain = get_option('updraft_retain', 1);
+		$retain = (is_numeric($updraft_retain)) ? $updraft_retain : 1;
 		$this->log("Retain: user setting: number to retain = $retain");
+
 		// Returns an array, most recent first, of backup sets
 		$backup_history = $this->get_backup_history();
 		$db_backups_found = 0;
 		$file_backups_found = 0;
 		$this->log("Number of backup sets in history: ".count($backup_history));
+
 		foreach ($backup_history as $backup_datestamp => $backup_to_examine) {
 			// $backup_to_examine is an array of file names, keyed on db/plugins/themes/uploads
 			// The new backup_history array is saved afterwards, so remember to unset the ones that are to be deleted
 			$this->log("Examining backup set with datestamp: $backup_datestamp");
+
 			if (isset($backup_to_examine['db'])) {
 				$db_backups_found++;
 				$this->log("$backup_datestamp: this set includes a database (".$backup_to_examine['db']."); db count is now $db_backups_found");
 				if ($db_backups_found > $retain) {
 					$this->log("$backup_datestamp: over retain limit; will delete this database");
-					$file = $backup_to_examine['db'];
-					$this->log("$backup_datestamp: Delete this file: $file");
-					if ($file != '') {
-						$fullpath = trailingslashit(get_option('updraft_dir')).$file;
-						@unlink($fullpath); //delete it if it's locally available
-						if ($updraft_service == "s3") {
-							if (preg_match("#^([^/]+)/(.*)$#",$remote_path,$bmatches)) {
-								$s3_bucket=$bmatches[1];
-								$s3_uri = $bmatches[2]."/".$file;
-							} else {
-								$s3_bucket = $remote_path;
-								$s3_uri = $file;
-							}
-							$this->log("$backup_datestamp: Delete remote: bucket=$s3_bucket, URI=$s3_uri");
-							# Here we brought in the function deleteObject in order to get more direct access to any error
-							$rest = new S3Request('DELETE', $s3_bucket, $s3_uri);
-							$rest = $rest->getResponse();
-							if ($rest->error === false && $rest->code !== 204) {
-								$this->log("S3 Error: Expected HTTP response 204; got: ".$rest->code);
-								$this->error("S3 Error: Unexpected HTTP response code ".$rest->code." (expected 204)");
-							} elseif ($rest->error !== false) {
-								$this->log("S3 Error: ".$rest->error['code'].": ".$rest->error['message']);
-								$this->error("S3 delete error: ".$rest->error['code'].": ".$rest->error['message']);
-							}
-						} elseif ($updraft_service == "ftp") {
-							$this->log("$backup_datestamp: Delete remote ftp: $remote_path/$file");
-							@$remote_object->delete($remote_path.$file);
-						} elseif ($updraft_service == "googledrive") {
-							$this->log("$backup_datestamp: Delete remote file from Google Drive: $file");
-							$this->googledrive_delete_file($file,$remote_object);
-						}
-					}
+					$dofile = $backup_to_examine['db'];
+					if (!empty($dofile)) $this->prune_file($updraft_service, $dofile, $backup_method_object, $backup_passback);
 					unset($backup_to_examine['db']);
 				}
 			}
@@ -564,38 +461,8 @@ class UpdraftPlus {
 					$file2 = isset($backup_to_examine['themes']) ? $backup_to_examine['themes'] : "";
 					$file3 = isset($backup_to_examine['uploads']) ? $backup_to_examine['uploads'] : "";
 					$file4 = isset($backup_to_examine['others']) ? $backup_to_examine['others'] : "";
-					foreach (array($file,$file2,$file3,$file4) as $dofile) {
-						if ($dofile) {
-							$this->log("$backup_datestamp: Delete this file: $dofile");
-							$fullpath = trailingslashit(get_option('updraft_dir')).$dofile;
-							@unlink($fullpath); //delete it if it's locally available
-							if ($updraft_service == "s3") {
-								if (preg_match("#^([^/]+)/(.*)$#",$remote_path,$bmatches)) {
-									$s3_bucket=$bmatches[1];
-									$s3_uri = $bmatches[2]."/".$dofile;
-								} else {
-									$s3_bucket = $remote_path;
-									$s3_uri = $dofile;
-								}
-								$this->log("$backup_datestamp: Delete remote: bucket=$s3_bucket, URI=$s3_uri");
-								# Here we brought in the function deleteObject in order to get more direct access to any error
-								$rest = new S3Request('DELETE', $s3_bucket, $s3_uri);
-								$rest = $rest->getResponse();
-								if ($rest->error === false && $rest->code !== 204) {
-									$this->log("S3 Error: Expected HTTP response 204; got: ".$rest->code);
-									$this->error("S3 Error: Unexpected HTTP response code ".$rest->code." (expected 204)");
-								} elseif ($rest->error !== false) {
-									$this->log("S3 Error: ".$rest->error['code'].": ".$rest->error['message']);
-									$this->error("S3 delete error: ".$rest->error['code'].": ".$rest->error['message']);
-								}
-							} elseif ($updraft_service == "ftp") {
-								$this->log("$backup_datestamp: Delete remote ftp: $remote_path/$dofile");
-								@$remote_object->delete($remote_path.$dofile);
-							} elseif ($updraft_service == "googledrive") {
-								$this->log("$backup_datestamp: Delete remote file from Google Drive: $dofile");
-								$this->googledrive_delete_file($dofile,$remote_object);
-							}
-						}
+					foreach (array($file, $file2, $file3, $file4) as $dofile) {
+						if (!empty($dofile)) $this->prune_file($updraft_service, $dofile, $backup_method_object, $backup_passback);
 					}
 					unset($backup_to_examine['plugins']);
 					unset($backup_to_examine['themes']);
@@ -1221,8 +1088,10 @@ class UpdraftPlus {
 		$method_include = UPDRAFTPLUS_DIR.'/methods/'.$service.'.php';
 		if (file_exists($method_include)) require_once($method_include);
 
-		if (function_exists("updraftplus_download_${service}_backup")) {
-			call_user_func("updraftplus_download_${service}_backup", $file);
+		$objname = "UpdraftPlus_BackupModule_${service}";
+		if (method_exists($objname, "download")) {
+			$remote_obj = new $objname;
+			$remote_obj->download($file);
 		} else {
 			$this->error('Automatic backup restoration is not available with the method: $service.');
 		}
@@ -1259,7 +1128,7 @@ class UpdraftPlus {
 				if(!class_exists('WP_Upgrader')) {
 					require_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
 				}
-				require_once('includes/updraft-restorer.php');
+				require_once(UPDRAFTPLUS_DIR.'/includes/updraft-restorer.php');
 				$restorer = new Updraft_Restorer();
 				$val = $restorer->restore_backup($fullpath,$type);
 				if(is_wp_error($val)) {
@@ -1380,6 +1249,7 @@ class UpdraftPlus {
 		register_setting( 'updraft-options-group', 'updraft_retain', array($this,'retain_range') );
 		register_setting( 'updraft-options-group', 'updraft_encryptionphrase', 'wp_filter_nohtml_kses' );
 		register_setting( 'updraft-options-group', 'updraft_service', 'wp_filter_nohtml_kses' );
+
 		register_setting( 'updraft-options-group', 'updraft_s3_login', 'wp_filter_nohtml_kses' );
 		register_setting( 'updraft-options-group', 'updraft_s3_pass', 'wp_filter_nohtml_kses' );
 		register_setting( 'updraft-options-group', 'updraft_s3_remote_path', 'wp_filter_nohtml_kses' );
@@ -1388,10 +1258,10 @@ class UpdraftPlus {
 		register_setting( 'updraft-options-group', 'updraft_googledrive_remotepath', 'wp_filter_nohtml_kses' );
 		register_setting( 'updraft-options-group', 'updraft_ftp_login', 'wp_filter_nohtml_kses' );
 		register_setting( 'updraft-options-group', 'updraft_ftp_pass', 'wp_filter_nohtml_kses' );
-		register_setting( 'updraft-options-group', 'updraft_dir', 'wp_filter_nohtml_kses' );
-		register_setting( 'updraft-options-group', 'updraft_email', 'wp_filter_nohtml_kses' );
 		register_setting( 'updraft-options-group', 'updraft_ftp_remote_path', 'wp_filter_nohtml_kses' );
 		register_setting( 'updraft-options-group', 'updraft_server_address', 'wp_filter_nohtml_kses' );
+		register_setting( 'updraft-options-group', 'updraft_dir', 'wp_filter_nohtml_kses' );
+		register_setting( 'updraft-options-group', 'updraft_email', 'wp_filter_nohtml_kses' );
 		register_setting( 'updraft-options-group', 'updraft_delete_local', 'absint' );
 		register_setting( 'updraft-options-group', 'updraft_debug_mode', 'absint' );
 		register_setting( 'updraft-options-group', 'updraft_include_plugins', 'absint' );
@@ -1399,7 +1269,7 @@ class UpdraftPlus {
 		register_setting( 'updraft-options-group', 'updraft_include_uploads', 'absint' );
 		register_setting( 'updraft-options-group', 'updraft_include_others', 'absint' );
 		register_setting( 'updraft-options-group', 'updraft_include_others_exclude', 'wp_filter_nohtml_kses' );
-	
+
 		if (current_user_can('manage_options') && get_option('updraft_service') == "googledrive" && get_option('updraft_googledrive_clientid') != "" && get_option('updraft_googledrive_token','xyz') == 'xyz') {
 			add_action('admin_notices', array($this,'show_admin_warning_googledrive') );
 		}
@@ -1758,19 +1628,19 @@ ENDHERE;
 					?>
 					<td><input type="text" name="updraft_retain" value="<?php echo $retain ?>" style="width:50px" /></td>
 				</tr>
-				<tr class="email" <?php echo $email_display?>>
+				<tr class="backup-retain-description">
+					<td></td><td>By default only the most recent backup is retained. If you'd like to preserve more, specify the number here. (This many of <strong>both</strong> files and database backups will be retained.)</td>
+				</tr>
+				<tr>
 					<th>Email:</th>
 					<td><input type="text" style="width:260px" name="updraft_email" value="<?php echo get_option('updraft_email'); ?>" /> <br>Enter an address here to have a report sent (and the whole backup, if you choose) to it.</td>
 				</tr>
-				<tr class="deletelocal s3 ftp email" <?php echo $display_delete_local?>>
+				<tr class="deletelocal">
 					<th>Delete local backup:</th>
 					<td><input type="checkbox" name="updraft_delete_local" value="1" <?php $delete_local = (get_option('updraft_delete_local')) ? 'checked="checked"' : "";
 echo $delete_local; ?> /> <br>Check this to delete the local backup file (only sensible if you have enabled a remote backup (below), otherwise you will have no backup remaining).</td>
 				</tr>
 
-				<tr class="backup-retain-description">
-					<td></td><td>By default only the most recent backup is retained. If you'd like to preserve more, specify the number here. (This many of <strong>both</strong> files and database backups will be retained.)</td>
-				</tr>
 				<tr>
 					<th>Database encryption phrase:</th>
 					<?php
@@ -1792,137 +1662,53 @@ echo $delete_local; ?> /> <br>Check this to delete the local backup file (only s
 						<?php
 						$debug_mode = (get_option('updraft_debug_mode')) ? 'checked="checked"' : "";
 
-						$display_none = 'style="display:none"';
-						$s3 = ""; $ftp = ""; $email = ""; $googledrive="";
-						$email_display="";
-						$display_email_complete = "";
 						$set = 'selected="selected"';
-						switch(get_option('updraft_service')) {
-							case 's3':
-								$s3 = $set;
-								$googledrive_display = $display_none;
-								$ftp_display = $display_none;
-							break;
-							case 'googledrive':
-								$googledrive = $set;
-								$s3_display = $display_none;
-								$ftp_display = $display_none;
-							break;
-							case 'ftp':
-								$ftp = $set;
-								$googledrive_display = $display_none;
-								$s3_display = $display_none;
-							break;
-							case 'email':
-								$email = $set;
-								$ftp_display = $display_none;
-								$s3_display = $display_none;
-								$googledrive_display = $display_none;
-								$display_email_complete = $display_none;
-							break;
-							default:
-								$none = $set;
-								$ftp_display = $display_none;
-								$googledrive_display = $display_none;
-								$s3_display = $display_none;
-								$display_delete_local = $display_none;
-							break;
+
+						// Should be one of s3, ftp, googledrive, email, or whatever else is added
+						$active_service = get_option('updraft_service');
+
+						?>
+						<option value="none" <?php
+							if ($active_service == "none") echo $set; ?>>None</option>
+						<?php
+						foreach ($this->backup_methods as $method => $description) {
+							echo "<option value=\"$method\"";
+							if ($active_service == $method) echo ' '.$set;
+							echo '>'.$description;
+							echo "</option>\n";
 						}
 						?>
-						<option value="none" <?php echo $none?>>None</option>
-						<option value="s3" <?php echo $s3?>>Amazon S3</option>
-						<option value="googledrive" <?php echo $googledrive?>>Google Drive</option>
-						<option value="ftp" <?php echo $ftp?>>FTP</option>
-						<option value="email" <?php echo $email?>>E-mail</option>
 						</select></td>
 				</tr>
 				<tr class="backup-service-description">
 					<td></td><td>Choose your backup method. If choosing &quot;E-Mail&quot;, then be aware that mail servers tend to have size limits; typically around 10-20Mb; backups larger than any limits will not arrive.</td>
 				
 				</tr>
-
-				<!-- Amazon S3 -->
-				<tr class="s3" <?php echo $s3_display?>>
-					<td></td>
-					<td><em>Amazon S3 is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your blog is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.</em></td>
-				</tr>
-				<tr class="s3" <?php echo $s3_display?>>
-					<th>S3 access key:</th>
-					<td><input type="text" autocomplete="off" style="width:292px" name="updraft_s3_login" value="<?php echo get_option('updraft_s3_login') ?>" /></td>
-				</tr>
-				<tr class="s3" <?php echo $s3_display?>>
-					<th>S3 secret key:</th>
-					<td><input type="text" autocomplete="off" style="width:292px" name="updraft_s3_pass" value="<?php echo get_option('updraft_s3_pass'); ?>" /></td>
-				</tr>
-				<tr class="s3" <?php echo $s3_display?>>
-					<th>S3 location:</th>
-					<td>s3://<input type="text" style="width:292px" name="updraft_s3_remote_path" value="<?php echo get_option('updraft_s3_remote_path'); ?>" /></td>
-				</tr>
-				<tr class="s3" <?php echo $s3_display?>>
-				<th></th>
-				<td><p>Get your access key and secret key from your AWS page, then pick a (globally unique) bucket name (letters and numbers) (and optionally a path) to use for storage. This bucket will be created for you if it does not already exist.</p></td>
-				</tr>
-
-				<!-- Google Drive -->
-
-				<tr class="googledrive" <?php echo $googledrive_display?>>
-				<th>Google Drive:</th>
-				<td>
-				<p><a href="http://david.dw-perspective.org.uk/da/index.php/computer-resources/updraftplus-googledrive-authorisation/"><strong>For longer help, including screenshots, follow this link. The description below is sufficient for more expert users.</strong></a></p>
-				<p><a href="https://code.google.com/apis/console/">Follow this link to your Google API Console</a>, and there create a Client ID in the API Access section. Select 'Web Application' as the application type.</p><p>You must add <kbd><?php echo admin_url('options-general.php?page=updraftplus&action=auth'); ?></kbd> as the authorised redirect URI when asked.
-
 				<?php
-					if (!class_exists('SimpleXMLElement')) { echo " <b>WARNING:</b> You do not have the SimpleXMLElement installed. Google Drive backups will <b>not</b> work until you do."; }
+					foreach ($this->backup_methods as $method => $description) {
+						require_once(UPDRAFTPLUS_DIR.'/methods/'.$method.'.php');
+						$call_method = "UpdraftPlus_BackupModule_$method";
+						$call_method::config_print();
+					}
 				?>
-				</p>
-				</td>
-				</tr>
-
-				<tr class="googledrive" <?php echo $googledrive_display?>>
-					<th>Google Drive Client ID:</th>
-					<td><input type="text" autocomplete="off" style="width:332px" name="updraft_googledrive_clientid" value="<?php echo get_option('updraft_googledrive_clientid') ?>" /></td>
-				</tr>
-				<tr class="googledrive" <?php echo $googledrive_display?>>
-					<th>Google Drive Client Secret:</th>
-					<td><input type="text" style="width:332px" name="updraft_googledrive_secret" value="<?php echo get_option('updraft_googledrive_secret'); ?>" /></td>
-				</tr>
-				<tr class="googledrive" <?php echo $googledrive_display?>>
-					<th>Google Drive Folder ID:</th>
-					<td><input type="text" style="width:332px" name="updraft_googledrive_remotepath" value="<?php echo get_option('updraft_googledrive_remotepath'); ?>" /> <em>(To get a folder's ID navigate to that folder in Google Drive in your web browser and copy the ID from your browser's address bar. It is the part that comes after <kbd>#folders/.</kbd> Leave empty to use your root folder)</em></td>
-				</tr>
-				<tr class="googledrive" <?php echo $googledrive_display?>>
-					<th>Authenticate with Google:</th>
-					<td><p><?php if (get_option('updraft_googledrive_token','xyz') != 'xyz') echo "<strong>(You appear to be already authenticated).</strong>"; ?> <a href="?page=updraftplus&action=auth&updraftplus_googleauth=doit"><strong>After</strong> you have saved your settings (by clicking &quot;Save Changes&quot; below), then come back here once and click this link to complete authentication with Google.</a>
-
-				</p>
-				</td>
-				</tr>
-
-				<tr class="ftp" <?php echo $ftp_display?>>
-					<th><a href="#" title="Click for help!" onclick="jQuery('.ftp-description').toggle();return false;">FTP Server:</a></th>
-					<td><input type="text" style="width:260px" name="updraft_server_address" value="<?php echo get_option('updraft_server_address'); ?>" /></td>
-				</tr>
-				<tr class="ftp" <?php echo $ftp_display?>>
-					<th><a href="#" title="Click for help!" onclick="jQuery('.ftp-description').toggle();return false;">FTP Login:</a></th>
-					<td><input type="text" autocomplete="off" name="updraft_ftp_login" value="<?php echo get_option('updraft_ftp_login') ?>" /></td>
-				</tr>
-				<tr class="ftp" <?php echo $ftp_display?>>
-					<th><a href="#" title="Click for help!" onclick="jQuery('.ftp-description').toggle();return false;">FTP Password:</a></th>
-					<td><input type="text" autocomplete="off" style="width:260px" name="updraft_ftp_pass" value="<?php echo get_option('updraft_ftp_pass'); ?>" /></td>
-				</tr>
-				<tr class="ftp" <?php echo $ftp_display?>>
-					<th><a href="#" title="Click for help!" onclick="jQuery('.ftp-description').toggle();return false;">Remote Path:</a></th>
-					<td><input type="text" style="width:260px" name="updraft_ftp_remote_path" value="<?php echo get_option('updraft_ftp_remote_path'); ?>" /></td>
-				</tr>
-				<tr class="ftp-description" style="display:none">
-					<td colspan="2">An FTP remote path will look like '/home/backup/some/folder'</td>
-				</tr>
 				</table>
+				<script type="text/javascript">
+				/* <![CDATA[ */
+					jQuery(document).ready(function() {
+						jQuery('.updraftplusmethod').hide();
+						<?php
+							if ($active_service) { echo "jQuery('.<?php echo $active_service ?>').show();"; }
+						?>
+					});
+				/* ]]> */
+				</script>
 				<table class="form-table" style="width:850px;">
-		<tr><td colspan="2"><h2>Advanced / Debugging Settings</h2></td></tr>
+				<tr>
+					<td colspan="2"><h2>Advanced / Debugging Settings</h2></td>
+				</tr>
 				<tr>
 					<th>Backup Directory:</th>
-					<td><input type="text" name="updraft_dir" style="width:525px" value="<?php echo $updraft_dir ?>" /></td>
+					<td><input type="text" name="updraft_dir" style="width:525px" value="<?php echo htmlspecialchars($updraft_dir); ?>" /></td>
 				</tr>
 				<tr>
 					<td></td><td><?php echo $dir_info ?> This is where Updraft Backup/Restore will write the zip files it creates initially.  This directory must be writable by your web server.  Typically you'll want to have it inside your wp-content folder (this is the default).  <b>Do not</b> place it inside your uploads dir, as that will cause recursion issues (backups of backups of backups of...).</td>
@@ -1967,30 +1753,12 @@ echo $delete_local; ?> /> <br>Check this to delete the local backup file (only s
 
 
 			<script type="text/javascript">
+			/* <![CDATA[ */
 				jQuery(document).ready(function() {
 					jQuery('#updraft-service').change(function() {
-						switch(jQuery(this).val()) {
-							case 'none':
-								jQuery('.deletelocal,.s3,.ftp,.googledrive,.s3-description,.ftp-description').fadeOut()
-								jQuery('.email,.email-complete').fadeIn()
-							break;
-							case 's3':
-								jQuery('.ftp,.ftp-description,.googledrive').fadeOut()
-								jQuery('.s3,.deletelocal,.email,.email-complete').fadeIn()
-							break;
-							case 'googledrive':
-								jQuery('.ftp,.ftp-description,.s3').fadeOut()
-								jQuery('.googledrive,.deletelocal,.googledrive,.email,.email-complete').fadeIn()
-							break;
-							case 'ftp':
-								jQuery('.googledrive,.s3,.s3-description').fadeOut()
-								jQuery('.ftp,.deletelocal,.email,.email-complete').fadeIn()
-							break;
-							case 'email':
-								jQuery('.s3,.ftp,.s3-description,.googledrive,.ftp-description,.email-complete').fadeOut()
-								jQuery('.email,.deletelocal').fadeIn()
-							break;
-						}
+						jQuery('.updraftplusmethod').hide();
+						var active_class = jQuery(this).val();
+						jQuery('.'+active_class).show();
 					})
 				})
 				jQuery(window).load(function() {
@@ -2000,13 +1768,14 @@ echo $delete_local; ?> /> <br>Check this to delete the local backup file (only s
 						jQuery('#updraft-restore-progress').toggle(500)
 					})
 				})
+			/* ]]> */
 			</script>
 			<?php
 	}
 	
 	/*array2json provided by bin-co.com under BSD license*/
 	function array2json($arr) { 
-		if(function_exists('json_encode')) return stripslashes(json_encode($arr)); //Latest versions of PHP already have this functionality. 
+		if(function_exists('json_encode')) return stripslashes(json_encode($arr)); // PHP >= 5.2 already has this functionality. 
 		$parts = array(); 
 		$is_list = false; 
 
@@ -2051,12 +1820,12 @@ echo $delete_local; ?> /> <br>Check this to delete the local backup file (only s
 		echo '<div id="updraftmessage" class="updated fade">'."<p>$message</p></div>";
 	}
 
-	function show_admin_warning_googledrive() {
-		$this->show_admin_warning('<strong>UpdraftPlus notice:</strong> <a href="?page=updraftplus&action=auth&updraftplus_googleauth=doit">Click here to authenticate your Google Drive account (you will not be able to back up to Google Drive without it).</a>');
-	}
-
 	function show_admin_warning_unreadablelog() {
 		$this->show_admin_warning('<strong>UpdraftPlus notice:</strong> The log file could not be read.</a>');
+	}
+
+	function show_admin_warning_googledrive() {
+		$this->show_admin_warning('<strong>UpdraftPlus notice:</strong> <a href="?page=updraftplus&action=updraftmethod-googledrive-auth&updraftplus_googleauth=doit">Click here to authenticate your Google Drive account (you will not be able to back up to Google Drive without it).</a>');
 	}
 
 
