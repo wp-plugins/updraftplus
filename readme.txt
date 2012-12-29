@@ -8,7 +8,7 @@ Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Beginning of code re-organisation to make programming new cloud methods easier
+Big code re-organisation to make programming new cloud methods easier
 
 == Description ==
 
@@ -87,8 +87,8 @@ No, there's no warranty or guarantee, etc. It's completely up to you to verify t
 
 == Changelog ==
 
-= 1.0.20 - 12/29/2012 =
-* Big code re-factoring; moving towards modularising cloud access methods
+= 1.1.0 - 12/29/2012 =
+* Big code re-factoring; cloud access methods now modularised, paving way for easier adding of new methods
 
 = 1.0.16 - 12/24/2012 =
 * Improve race detection and clean up already-created files when detected
