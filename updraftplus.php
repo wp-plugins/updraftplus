@@ -369,7 +369,7 @@ class UpdraftPlus {
 			if (0 == $encryption_error) {
 				$this->log("$file: encryption successful");
 				# Delete unencrypted file
-				@unlink($file);
+				@unlink($updraft_dir.'/'.$file);
 				return basename($file.'.crypt');
 			} else {
 				$this->log("Encryption error occurred when encrypting database. Encryption aborted.");
