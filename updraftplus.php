@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.1.8
+Version: 1.1.9
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -56,7 +56,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.1.8';
+	var $version = '1.1.9';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -168,7 +168,15 @@ class UpdraftPlus {
 
 		$our_files=$backup_history[$btime];
 		$undone_files = array();
+
+		// Potentially encrypt the database if it is not already
+		if (isset($our_files['db']) && !preg_match("/\.crypt$/", $our_files['db'])) {
+			$our_files['db'] = $this->encrypt_file($our_files['db']);
+			$this->save_backup_history($our_files);
+		}
+
 		foreach ($our_files as $key => $file) {
+
 			$hash = md5($file);
 			$fullpath = trailingslashit(get_option('updraft_dir')).$file;
 			if (get_transient('updraft_'.$hash) === "yes") {
@@ -298,8 +306,8 @@ class UpdraftPlus {
 			if ($backup_database) {
 				$this->log("Beginning backup of database");
 				$db_backup = $this->backup_db();
-				//add db path to rest of files
-				if(is_array($backup_array)) { $backup_array['db'] = $db_backup; }
+				// add db path to rest of files
+				if(is_array($backup_array)) $backup_array['db'] = $db_backup;
 				$backup_contains = ($backup_files) ? "Files and database" : "Database only (no files)";
 			}
 
@@ -310,6 +318,13 @@ class UpdraftPlus {
 			$this->log("Saving backup history");
 			// This is done before cloud despatch, because we want a record of what *should* be in the backup. Whether it actually makes it there or not is not yet known.
 			$this->save_backup_history($backup_array);
+
+			// Now encrypt the database, and re-save
+			if ($backup_database && isset($backup_array['db'])) {
+				$backup_array['db'] = $this->encrypt_file($backup_array['db']);
+				// Re-save with the possibly-altered database filename
+				$this->save_backup_history($backup_array);
+			}
 
 			//cloud operations (S3,Google Drive,FTP,email,nothing)
 			//this also calls the retain (prune) feature at the end (done in this method to reuse existing cloud connections)
@@ -330,6 +345,40 @@ class UpdraftPlus {
 		// Close log file; delete and also delete transients if not in debug mode
 		$this->backup_finish(1, $clear_nonce_transient);
 
+	}
+
+	// Encrypts the file if the option is set; returns the basename of the file (according to whether it was encrypted or nto)
+	function encrypt_file($file) {
+		$encryption = get_option('updraft_encryptionphrase');
+		if (strlen($encryption) > 0) {
+			$this->log("$file: applying encryption");
+			$encryption_error = 0;
+			require_once(UPDRAFTPLUS_DIR.'/includes/Rijndael.php');
+			$rijndael = new Crypt_Rijndael();
+			$rijndael->setKey($encryption);
+			$updraft_dir = $this->backups_dir_location();
+			$in_handle = @fopen($updraft_dir.'/'.$file,'r');
+			$buffer = "";
+			while (!feof ($in_handle)) {
+				$buffer .= fread($in_handle, 16384);
+			}
+			fclose ($in_handle);
+			$out_handle = @fopen($updraft_dir.'/'.$file.'.crypt','w');
+			if (!fwrite($out_handle, $rijndael->encrypt($buffer))) {$encryption_error = 1;}
+			fclose ($out_handle);
+			if (0 == $encryption_error) {
+				$this->log("$file: encryption successful");
+				# Delete unencrypted file
+				@unlink($file);
+				return basename($file.'.crypt');
+			} else {
+				$this->log("Encryption error occurred when encrypting database. Encryption aborted.");
+				$this->error("Encryption error occurred when encrypting database. Encryption aborted.");
+				return basename($file);
+			}
+		} else {
+			return basename($file);
+		}
 	}
 
 	function backup_finish($cancel_event, $clear_nonce_transient) {
@@ -660,7 +709,7 @@ class UpdraftPlus {
 			$backup_history[$this->backup_time] = $backup_array;
 			update_option('updraft_backup_history',$backup_history);
 		} else {
-			$this->error('Could not save backup history because we have no backup array.  Backup probably failed.');
+			$this->error('Could not save backup history because we have no backup array. Backup probably failed.');
 		}
 	}
 	
@@ -756,35 +805,10 @@ class UpdraftPlus {
 		if (count($this->errors)) {
 			return false;
 		} else {
-			# Encrypt, if requested
-			$encryption = get_option('updraft_encryptionphrase');
-			if (strlen($encryption) > 0) {
-				$this->log("Database: applying encryption");
-				$encryption_error = 0;
-				require_once(dirname(__FILE__).'/includes/Rijndael.php');
-				$rijndael = new Crypt_Rijndael();
-				$rijndael->setKey($encryption);
-				$in_handle = @fopen($backup_file_base.'-db.gz','r');
-				$buffer = "";
-				while (!feof ($in_handle)) {
-					$buffer .= fread($in_handle, 16384);
-				}
-				fclose ($in_handle);
-				$out_handle = @fopen($backup_file_base.'-db.gz.crypt','w');
-				if (!fwrite($out_handle, $rijndael->encrypt($buffer))) {$encryption_error = 1;}
-				fclose ($out_handle);
-				if (0 == $encryption_error) {
-					# Delete unencrypted file
-					@unlink($backup_file_base.'-db.gz');
-					return basename($backup_file_base.'-db.gz.crypt');
-				} else {
-					$this->error("Encryption error occurred when encrypting database. Aborted.");
-				}
-			} else {
-				return basename($backup_file_base.'-db.gz');
-			}
+			# We no longer encrypt here - because the operation can take long, we made it resumable and moved it to the upload loop
+			$this->log("Total database tables backed up: $total_tables");
+			return basename($backup_file_base.'-db.gz');
 		}
-		$this->log("Total database tables backed up: $total_tables");
 		
 	} //wp_db_backup
 
@@ -1084,9 +1108,9 @@ class UpdraftPlus {
 				readfile($fullpath);
 			}
 			$this->delete_local($file);
-			exit; //we exit immediately because otherwise admin-ajax appends an additional zero to the end for some reason I don't understand. seriously, why die('0')?
+			exit; //we exit immediately because otherwise admin-ajax appends an additional zero to the end
 		} else {
-			echo 'Download failed.  File '.$fullpath.' did not exist or was unreadable.  If you delete local backups then S3  or Google Drive or FTP retrieval may have failed. (Note that Google Drive downloading is not yet supported - you need to download manually if you use Google Drive).';
+			echo 'Download failed. File '.$fullpath.' did not exist or was unreadable. If you delete local backups then remote retrieval may have failed.';
 		}
 	}
 	

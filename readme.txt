@@ -8,7 +8,7 @@ Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Big code re-organisation to make programming new cloud methods easier. Note that Google Drive users may need to re-authenticate - please check.
+Big code re-organisation to make programming new cloud methods easier. Note that Google Drive users may need to re-authenticate - please check. Also, more operations made resumable.
 
 == Description ==
 
@@ -87,9 +87,10 @@ No, there's no warranty or guarantee, etc. It's completely up to you to verify t
 
 == Changelog ==
 
-= 1.1.8 - 12/31/2012 =
+= 1.1.9 - 12/31/2012 =
 * Big code re-factoring; cloud access methods now modularised, paving way for easier adding of new methods. Note that Google Drive users may need to re-authenticate - please check that your backups are working.
 * Fix bug whereby some resumptions of failed backups were erroneously cancelled
+* Database encryption made part of what is resumable
 
 = 1.0.16 - 12/24/2012 =
 * Improve race detection and clean up already-created files when detected
