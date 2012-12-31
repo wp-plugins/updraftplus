@@ -8,11 +8,11 @@ class UpdraftPlus_BackupModule_googledrive {
 	function action_auth() {
 		if ( isset( $_GET['state'] ) ) {
 			if ( $_GET['state'] == 'token' )
-				$this->gdrive_auth_token();
+				self::gdrive_auth_token();
 			elseif ( $_GET['state'] == 'revoke' )
-				$this->gdrive_auth_revoke();
+				self::gdrive_auth_revoke();
 		} elseif (isset($_GET['updraftplus_googleauth'])) {
-			$this->gdrive_auth_request();
+			self::gdrive_auth_request();
 		}
 	}
 
