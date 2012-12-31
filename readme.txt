@@ -87,7 +87,7 @@ No, there's no warranty or guarantee, etc. It's completely up to you to verify t
 
 == Changelog ==
 
-= 1.1.0 - 12/29/2012 =
+= 1.1.2 - 12/31/2012 =
 * Big code re-factoring; cloud access methods now modularised, paving way for easier adding of new methods
 
 = 1.0.16 - 12/24/2012 =

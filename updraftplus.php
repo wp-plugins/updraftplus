@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.1.0
+Version: 1.1.2
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -56,7 +56,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.1.0';
+	var $version = '1.1.2';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -1280,14 +1280,34 @@ class UpdraftPlus {
 		array($this,"settings_output"));
 	}
 
+	function url_start($urls,$url) {
+		return ($urls) ? '<a href="http://'.$url.'">' : "";
+	}
+
+	function url_end($urls,$url) {
+		return ($urls) ? '</a>' : " (http://$url)";
+	}
+
 	function wordshell_random_advert($urls) {
-		$url_start = ($urls) ? '<a href="http://wordshell.net">' : "";
-		$url_end = ($urls) ? '</a>' : " (www.wordshell.net)";
-		$rad = rand(0,1);
-		if ($rad == 0) {
-			return "Like automating WordPress operations? Use the CLI? ${url_start}You will love WordShell${url_end} - saves time and money fast.";
-		} elseif ($rad == 1) {
-			return "${url_start}Check out WordShell${url_end} - manage WordPress from the command line - huge time-saver";
+		$rad = rand(0,5);
+		switch ($rad) {
+		case 0:
+			return "Like automating WordPress operations? Use the CLI? ".$this->url_start($urls,'wordshell.net')."You will love WordShell".$this->url_end($urls,'www.wordshell.net')." - saves time and money fast.";
+			break;
+		case 1:
+			return "Find UpdraftPlus useful? ".$this->url_start($urls,'david.dw-perspective.org.uk/donate')."Please make a donation.".$this->url_end($urls,'david.dw-perspective.org.uk/donate');
+		case 2:
+			return $this->url_start($urls,'wordshell.net')."Check out WordShell".$this->url_end($urls,'www.wordshell.net')." - manage WordPress from the command line - huge time-saver";
+			break;
+		case 3:
+			return "Want some more useful plugins? ".$this->url_start($urls,'profiles.wordpress.org/DavidAnderson/')."See my WordPress profile page for others.".$this->url_end($urls,'profiles.wordpress.org/DavidAnderson/');
+			break;
+		case 4:
+			return $this->url_start($urls,'www.simbahosting.co.uk')."Need high-quality WordPress hosting from WordPress specialists? (Including automatic backups and 1-click installer). Get it from the creators of UpdraftPlus.".$this->url_end($urls,'www.simbahosting.co.uk');
+			break;
+		case 5:
+			return "Need custom WordPress services from experts (including bespoke development)?".$this->url_start($urls,'www.simbahosting.co.uk/s3/products-and-services/wordpress-experts/')." Get them from the creators of UpdraftPlus.".$this->url_end($urls,'www.simbahosting.co.uk/s3/products-and-services/wordpress-experts/');
+			break;
 		}
 	}
 
@@ -1348,7 +1368,7 @@ class UpdraftPlus {
 		}
 		
 		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup') {
-			echo '<div class="updated fade" style="max-width: 800px; font-size:140%; padding:14px; clear:left;"><strong>Schedule backup:</strong> ';
+			echo '<div class="updated fade" style="max-width: 800px; font-size:140%; line-height: 140%; padding:14px; clear:left;"><strong>Schedule backup:</strong> ';
 			if (wp_schedule_single_event(time()+5, 'updraft_backup_all') === false) {
 				echo "Failed.";
 			} else {
@@ -1374,7 +1394,7 @@ class UpdraftPlus {
 
 			$ws_advert = $this->wordshell_random_advert(1);
 			echo <<<ENDHERE
-<div class="updated fade" style="max-width: 800px; font-size:140%; padding:14px; clear:left;">${ws_advert}</div>
+<div class="updated fade" style="max-width: 800px; font-size:140%; line-height: 140%; padding:14px; clear:left;">${ws_advert}</div>
 ENDHERE;
 
 			if($deleted_old_dirs) {
@@ -1718,6 +1738,17 @@ echo $delete_local; ?> /> <br>Check this to delete the local backup file (only s
 					<td><input type="checkbox" name="updraft_debug_mode" value="1" <?php echo $debug_mode; ?> /> <br>Check this to receive more information on the backup process - useful if something is going wrong. You <strong>must</strong> send me this log if you are filing a bug report.</td>
 				</tr>
 				<tr>
+				<td></td>
+				<td>
+					<p style="margin: 10px 0; padding: 10px; font-size: 140%; background-color: lightYellow; border-color: #E6DB55; border: 1px solid; border-radius: 4px;">
+					<?php
+					echo $this->wordshell_random_advert(1);
+					?>
+					</p>
+					</td>
+				</tr>
+				<tr>
+					<td></td>
 					<td>
 						<input type="hidden" name="action" value="update" />
 						<input type="submit" class="button-primary" value="Save Changes" />
