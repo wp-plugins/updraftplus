@@ -3,7 +3,7 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, Amazon S3, google drive, google, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.1.2
+Stable tag: 1.1.3
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
@@ -87,7 +87,7 @@ No, there's no warranty or guarantee, etc. It's completely up to you to verify t
 
 == Changelog ==
 
-= 1.1.2 - 12/31/2012 =
+= 1.1.3 - 12/31/2012 =
 * Big code re-factoring; cloud access methods now modularised, paving way for easier adding of new methods
 
 = 1.0.16 - 12/24/2012 =
