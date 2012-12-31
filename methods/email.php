@@ -14,7 +14,7 @@ class UpdraftPlus_BackupModule_email {
 			$updraftplus->uploaded_file($file);
 		}
 
-		$updraftplus->prune_retained_backups("local");
+		$updraftplus->prune_retained_backups("local", null, null);
 	}
 
 	function config_print() {
