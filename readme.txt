@@ -3,12 +3,12 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, Amazon S3, google drive, google, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.0.5
+Stable tag: 1.1.5
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Big code re-organisation to make programming new cloud methods easier
+Big code re-organisation to make programming new cloud methods easier. Note that Google Drive users may need to re-authenticate - please check.
 
 == Description ==
 
@@ -87,8 +87,8 @@ No, there's no warranty or guarantee, etc. It's completely up to you to verify t
 
 == Changelog ==
 
-= 1.1.3 - 12/31/2012 =
-* Big code re-factoring; cloud access methods now modularised, paving way for easier adding of new methods
+= 1.1.5 - 12/31/2012 =
+* Big code re-factoring; cloud access methods now modularised, paving way for easier adding of new methods. Note that Google Drive users may need to re-authenticate - please check that your backups are working.
 
 = 1.0.16 - 12/24/2012 =
 * Improve race detection and clean up already-created files when detected
