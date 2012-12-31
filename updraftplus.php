@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.1.6
+Version: 1.1.8
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -56,7 +56,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.1.6';
+	var $version = '1.1.8';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -193,7 +193,7 @@ class UpdraftPlus {
 
 		$this->log("Resume backup ($resumption_no): finish run");
 
-		$this->backup_finish($next_resumption);
+		$this->backup_finish($next_resumption, true);
 
 	}
 
@@ -244,17 +244,8 @@ class UpdraftPlus {
 		@ignore_user_abort(true);
 		//generate backup information
 		$this->backup_time_nonce();
-		// If we don't finish in 3 hours, then we won't finish
-		// This transient indicates the identity of the current backup job (which can be used to find the files and logfile)
-		set_transient("updraftplus_backup_job_nonce",$this->nonce,3600*3);
-		set_transient("updraftplus_backup_job_time",$this->backup_time,3600*3);
-		$this->logfile_open($this->nonce);
 
-		// Schedule the even to run later, which checks on success and can resume the backup
-		// We save the time to a variable because it is needed for un-scheduling
-		$resume_delay = 300;
-		wp_schedule_single_event(time()+$resume_delay, 'updraft_backup_resume', array(1));
-		$this->log("In case we run out of time, scheduled a resumption at: $resume_delay seconds from now");
+		$this->logfile_open($this->nonce);
 
 		// Log some information that may be helpful
 		global $wp_version;
@@ -270,8 +261,23 @@ class UpdraftPlus {
 
 		$this->log("Processed schedules. Tasks now: Backup files: $backup_files Backup DB: $backup_database");
 
+		$clear_nonce_transient = false;
+
 		# Possibly now nothing is to be done, except to close the log file
 		if ($backup_files || $backup_database) {
+
+			$clear_nonce_transient = true;
+
+			// Do not set the transient or schedule the resume event until now, when we know there is something to do - otherwise 'vacatated' runs (when the database is on the same schedule as the files, and they get combined, leading to an empty run) can over-write the resume event and prevent resumption (because it is 'successful' - there was nothing to do).
+			// If we don't finish in 3 hours, then we won't finish
+			// This transient indicates the identity of the current backup job (which can be used to find the files and logfile)
+			set_transient("updraftplus_backup_job_nonce",$this->nonce,3600*3);
+			set_transient("updraftplus_backup_job_time",$this->backup_time,3600*3);
+			// Schedule the even to run later, which checks on success and can resume the backup
+			// We save the time to a variable because it is needed for un-scheduling
+			$resume_delay = 300;
+			wp_schedule_single_event(time()+$resume_delay, 'updraft_backup_resume', array(1));
+			$this->log("In case we run out of time, scheduled a resumption at: $resume_delay seconds from now");
 
 			$backup_contains = "";
 
@@ -317,23 +323,25 @@ class UpdraftPlus {
 			$this->save_last_backup($backup_array);
 
 			// Send the email
-			$this->cloud_backup_finish($backup_array);
+			$this->cloud_backup_finish($backup_array, $clear_nonce_transient);
 
 		}
 
 		// Close log file; delete and also delete transients if not in debug mode
-		$this->backup_finish(1);
+		$this->backup_finish(1, $clear_nonce_transient);
 
 	}
 
-	function backup_finish($cancel_event) {
+	function backup_finish($cancel_event, $clear_nonce_transient) {
 
 		// In fact, leaving the hook to run (if debug is set) is harmless, as the resume job should only do tasks that were left unfinished, which at this stage is none.
 		if (empty($this->errors)) {
-			$this->log("There were no errors in the uploads, so the 'resume' event is being unscheduled");
-			wp_clear_scheduled_hook('updraft_backup_resume', array($cancel_event));
-			delete_transient("updraftplus_backup_job_nonce");
-			delete_transient("updraftplus_backup_job_time");
+			if ($clear_nonce_transient) {
+				$this->log("There were no errors in the uploads, so the 'resume' event is being unscheduled");
+				wp_clear_scheduled_hook('updraft_backup_resume', array($cancel_event));
+				delete_transient("updraftplus_backup_job_nonce");
+				delete_transient("updraftplus_backup_job_time");
+			}
 		} else {
 			$this->log("There were errors in the uploads, so the 'resume' event is remaining scheduled");
 		}

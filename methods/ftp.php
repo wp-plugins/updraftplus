@@ -17,6 +17,7 @@ class UpdraftPlus_BackupModule_ftp {
 		$ftp_remote_path = trailingslashit(get_option('updraft_ftp_remote_path'));
 		foreach($backup_array as $file) {
 			$fullpath = trailingslashit(get_option('updraft_dir')).$file;
+			$updraftplus->log("FTP upload attempt: $file -> $ftp_remote_path/$file");
 			if ($ftp->put($fullpath,$ftp_remote_path.$file,FTP_BINARY)) {
 				$updraftplus->log("ERROR: $file_name: Successfully uploaded via FTP");
 				$updraftplus->uploaded_file($file);
