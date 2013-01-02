@@ -1433,7 +1433,7 @@ ENDHERE;
 				echo '<div style="color:blue">Old directories successfully deleted.</div>';
 			}
 			if(!$this->memory_check(96)) {?>
-				<div style="color:orange">Your PHP memory limit is too low.  Updraft attempted to raise it but was unsuccessful.  This plugin may not work properly with a memory limit of less than 96 Mb (though on the other hand, it has been used successfully with a 32Mb limit - your mileage may vary, but don't blame us!). Current limit is: <?php echo $this->memory_check_current(); ?> Mb</div>
+				<div style="color:orange">Your PHP memory limit is too low. UpdraftPlus attempted to raise it but was unsuccessful. This plugin may not work properly with a memory limit of less than 96 Mb (though on the other hand, it has been used successfully with a 32Mb limit - your mileage may vary, but don't blame us!). Current limit is: <?php echo $this->memory_check_current(); ?> Mb</div>
 			<?php
 			}
 			if(!$this->execution_time_check(300)) {?>
@@ -1442,7 +1442,7 @@ ENDHERE;
 			}
 
 			if($this->scan_old_dirs()) {?>
-				<div style="color:orange">You have old directories from a previous backup.  Click to delete them after you have verified that the restoration worked.</div>
+				<div style="color:orange">You have old directories from a previous backup. Click to delete them after you have verified that the restoration worked.</div>
 				<form method="post" action="<?php echo remove_query_arg(array('updraft_restore_success','action')) ?>">
 					<input type="hidden" name="action" value="updraft_delete_old_dirs" />
 					<input type="submit" class="button-primary" value="Delete Old Dirs" onclick="return(confirm('Are you sure you want to delete the old directories?  This cannot be undone.'))" />

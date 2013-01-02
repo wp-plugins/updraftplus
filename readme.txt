@@ -55,9 +55,15 @@ Finally, if you post in the WordPress support forum, then make sure you include 
 
 From version 0.9.0, UpdraftPlus features a resumption feature - if you wait 5 minutes and visit a page on your site, then it should re-try not-yet-uploaded files. If that fails, then turn on debugging and paste the debug log (log in via FTP, and look in wp-content/updraft) into the support forum.
 
-= I want to restore, but have failed to do so from the WP Admin console =
+= How do I restore my backup (from a site that is still installed/running)? =
 
-That's no problem. If you have your backed files, then you simply need to unzip them into the right places. UpdraftPlus does not back up the WordPress core - you can just get a fresh copy of that from www.wordpress.org. After installing that, then unzip the zip files for your uploads, themes and plugins back into the wp-content directory. Then re-install the database (e.g. by running it through PHPMyAdmin). Please don't ask me how to carry out these steps - they are basic operations which you can hire any of hundreds of thousands of people to show you how to do.
+If your site is still basically intact (in particular, the database), and if you backed up using a cloud method (e.g. Amazon S3, Google Drive, FTP), then on the UpdraftPlus settings page, there is a nice shiny 'Restore' button. Press it, and it will over-write your present files (not database) with those contained in the indicated backup set.
+
+Again, if you backed up using a cloud method, then on UpdraftPlus's settings page, there should be a clickable link next to "Download Backups". Click on that link, and it will give you a set of further buttons, allowing you to download zip files of the various backed-up components. You can download those to your computer, and then unpack them, and copy them into your web space. (That's a very simple operation - but if you don't know how and don't have a friend to assist, then bung me a donation - http://david.dw-perspective.org.uk/donate - and I can help out).
+
+= I want to restore, but have either cannot, or have failed to do so from the WP Admin console =
+
+That's no problem. If you have access to your backed files (i.e. you have the emailed copies, or have obtained the backed up copies directly from Amazon S3, Google Drive, FTP or whatever store you wereusing), then you simply need to unzip them into the right places. UpdraftPlus does not back up the WordPress core - you can just get a fresh copy of that from www.wordpress.org. So, if you are starting from nothing, then first download and unzip a WordPress zip from www.wordpress.org. After doing that, then unzip the zip files for your uploads, themes, plugins and other filesback into the wp-content directory. Then re-install the database (e.g. by running it through PHPMyAdmin - see also the later question on how to decrypt if your database backup was encrypted). These are all basic operations and not difficult for anyone with simple skills; but if you need help and cannot find someone to assist, then send me a meaningful donation - http://david.dw-perspective.org.uk/donate - and I can help.
 
 = Anything essential to know? =
 
@@ -72,18 +78,24 @@ Unless you disable any of these, it will back up your database (all tables which
 It does not back up WordPress core (since you can always get another copy of this from wordpress.org), and does not back up any extra files which you have added outside of the WordPress content directory (files which, by their nature, are unknown to WordPress). By default the WordPress content directory is "wp-content" in your WordPress root. It will not back up database tables which do not have the WordPress prefix (i.e. database tables from other applications but sharing a database with WordPress).
 
 = Any known bugs ? =
+
 Not a bug as such, but one major issue to be aware of is that backups of very large sites (lots of uploaded media) can fail due to timing out. This depends on how many seconds your web host allows a PHP process to run. With such sites, you need to use Amazon S3, which UpdraftPlus supports (since 0.9.20) or Google Drive (since 0.9.21) with chunked, resumable uploads. Other backup methods have code (since 0.9.0) to retry failed uploads of an archive, but the upload cannot be chunked, so if an archive is enormous (i.e. cannot be completely uploaded in the time that PHP is allowed for running on your web host) it cannot work.
 
 = I encrypted my database - how do I decrypt it? =
 
-If you have the encryption key entered in your settings and you are restoring from the settings interface, then it will automatically decrypt. Otherwise, use the file example-decrypt.php found in the plugin directory.
+If you have the encryption key entered in your settings and you are restoring from the settings interface, then it will automatically decrypt. Otherwise, use the file example-decrypt.php found in the plugin directory; that will need very (very) minor PHP knowledge to use; find your local PHP guru, or bung me a donation (http://david.dw-perspective.org.uk/donate) and I can do it for you.
 
 = I lost my encryption key - what can I do? =
 
 Nothing, probably. That's the point of an encryption key - people who don't have it can't get the data. Hire an encryption expert to build a super computer to try to break the encryption by brute force, at a price.
 
 = My site was hacked, and I have no backups! I thought UpdraftPlus was working! Can I kill you? =
+
 No, there's no warranty or guarantee, etc. It's completely up to you to verify that UpdraftPlus is working correctly. If it doesn't then that's unfortunate, but this is a free plugin.
+
+= Have you written any other free plugins? =
+
+Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ . I am also available for hire for bespoke work.
 
 == Changelog ==
 
