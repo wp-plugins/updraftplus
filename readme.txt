@@ -3,7 +3,7 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, Amazon S3, google drive, google, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.1.9
+Stable tag: 1.1.10
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
@@ -93,11 +93,22 @@ Nothing, probably. That's the point of an encryption key - people who don't have
 
 No, there's no warranty or guarantee, etc. It's completely up to you to verify that UpdraftPlus is working correctly. If it doesn't then that's unfortunate, but this is a free plugin.
 
+= Does UpdraftPlus delete all its settings when it is de-installed? =
+
+No. Doing so is "cleaner", but some users also de-install and re-install and don't want to have to re-enter their settings. The few entries in the WordPress options database (which won't ever be accessed) will make no difference that could possibly be detected on your site performance or space usage.
+
+= I am not running the most recent version of UpdraftPlus. Should I upgrade? =
+
+Yes.
+
 = Have you written any other free plugins? =
 
 Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ . I am also available for hire for bespoke work.
 
 == Changelog ==
+
+= 1.1.10 - 04/01/2013 =
+* Deal with a potential situation in which a backup run could be erroneously identified as superfluous and cancelled
 
 = 1.1.9 - 12/31/2012 =
 * Big code re-factoring; cloud access methods now modularised, paving way for easier adding of new methods. Note that Google Drive users may need to re-authenticate - please check that your backups are working.

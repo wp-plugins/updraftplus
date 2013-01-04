@@ -80,7 +80,7 @@ class UpdraftPlus_BackupModule_googledrive {
 			} else {
 				$json_values = json_decode( $result['body'], true );
 				if ( isset( $json_values['refresh_token'] ) ) {
-					update_option('updraft_googledrive_token',$json_values['refresh_token']); // Save token
+					update_option('updraft_googledrive_token', $json_values['refresh_token']); // Save token
 					header('Location: '.admin_url('options-general.php?page=updraftplus&message=' . __( 'Google Drive authorization was successful.', 'updraftplus' ) ) );
 				}
 				else {

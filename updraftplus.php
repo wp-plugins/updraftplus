@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.1.9
+Version: 1.1.10
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -56,7 +56,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.1.9';
+	var $version = '1.1.10';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -69,6 +69,7 @@ class UpdraftPlus {
 	var $dbhandle;
 	var $errors = array();
 	var $nonce;
+	var $cronrun_type = "";
 	var $logfile_name = "";
 	var $logfile_handle = false;
 	var $backup_time;
@@ -129,7 +130,10 @@ class UpdraftPlus {
 
 	function backup_time_nonce() {
 		$this->backup_time = time();
-		$this->nonce = substr(md5(time().rand()),20);
+		$nonce = substr(md5(time().rand()), 20);
+		$this->nonce = $nonce;
+		// Short-lived, as we only use this for detecting a race condition
+		set_transient("updraftplus_runtype_$nonce", $this->cronrun_type, 300);
 	}
 
 	# Logs the given line, adding date stamp and newline
@@ -211,11 +215,13 @@ class UpdraftPlus {
 	
 	function backup_files() {
 		# Note that the "false" for database gets over-ridden automatically if they turn out to have the same schedules
+		$this->cronrun_type = "files";
 		$this->backup(true,false);
 	}
 	
 	function backup_database() {
 		# Note that nothing will happen if the file backup had the same schedule
+		$this->cronrun_type = "database";
 		$this->backup(false,true);
 	}
 
@@ -230,20 +236,26 @@ class UpdraftPlus {
 	function check_backup_race( $to_delete = false ) {
 		// Avoid caching
 		global $wpdb;
-		$row = $wpdb->get_row( $wpdb->prepare( "SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", "_transient_updraftplus_backup_job_nonce" ) );
+		$row = $wpdb->get_row($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", "_transient_updraftplus_backup_job_nonce"));
 		$cur_trans = ( is_object( $row ) ) ? $row->option_value : "";
+		// Check if another backup job ID is stored in the transient
 		if ($cur_trans != "" && $cur_trans != $this->nonce) {
-			$this->log("Another backup job ($cur_trans) appears to now be running - terminating our run");
-			$bdir = $this->backups_dir_location();
-			if (is_array($to_delete)) {
-				foreach ($to_delete as $key => $file) {
-					if (is_file($bdir.'/'.$file)) {
-						$this->log("Deleting the file we created: ".$file);
-						@unlink($bdir.'/'.$file);
+			// Also check if that job is of the same type as ours, as two cron jobs could legitimately fire at the same time
+			$otherjob_crontype = get_transient("updraftplus_runtype_".$cur_trans, "xyz");
+			// $this->cronrun_type should be "files", "database" or blank (if we were not run via a cron job)
+			if ($otherjob_crontype == $this->cronrun_type) {
+				$this->log("Another backup job ($cur_trans) of the same type ($otherjob_crontype) appears to now be running - terminating our run (apparent race condition)");
+				$bdir = $this->backups_dir_location();
+				if (is_array($to_delete)) {
+					foreach ($to_delete as $key => $file) {
+						if (is_file($bdir.'/'.$file)) {
+							$this->log("Deleting the file we created: ".$file);
+							@unlink($bdir.'/'.$file);
+						}
 					}
 				}
+				exit;
 			}
-			exit;
 		}
 	}
 
