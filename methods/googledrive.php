@@ -302,7 +302,7 @@ class UpdraftPlus_BackupModule_googledrive {
 			<th>Google Drive:</th>
 			<td>
 			<p><a href="http://david.dw-perspective.org.uk/da/index.php/computer-resources/updraftplus-googledrive-authorisation/"><strong>For longer help, including screenshots, follow this link. The description below is sufficient for more expert users.</strong></a></p>
-			<p><a href="https://code.google.com/apis/console/">Follow this link to your Google API Console</a>, and there create a Client ID in the API Access section. Select 'Web Application' as the application type.</p><p>You must add <kbd><?php echo admin_url('options-general.php?page=updraftplus&action=updraftmethod-googledrive-auth'); ?></kbd> as the authorised redirect URI when asked.
+			<p><a href="https://code.google.com/apis/console/">Follow this link to your Google API Console</a>, and there create a Client ID in the API Access section. Select 'Web Application' as the application type.</p><p>You must add <kbd><?php echo admin_url('options-general.php?page=updraftplus&action=updraftmethod-googledrive-auth'); ?></kbd> as the authorised redirect URI when asked. N.B. If you install UpdraftPlus on several WordPress sites, then you cannot re-use your client ID; you must create a new one from your Google API console for each blog.
 
 			<?php
 				if (!class_exists('SimpleXMLElement')) { echo " <b>WARNING:</b> You do not have the SimpleXMLElement installed. Google Drive backups will <b>not</b> work until you do."; }
