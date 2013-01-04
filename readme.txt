@@ -99,7 +99,7 @@ No. Doing so is "cleaner", but some users also de-install and re-install and don
 
 = I am not running the most recent version of UpdraftPlus. Should I upgrade? =
 
-Yes.
+Yes; especially before you submit any support requests.
 
 = Have you written any other free plugins? =
 
