@@ -97,6 +97,10 @@ No, there's no warranty or guarantee, etc. It's completely up to you to verify t
 
 No. Doing so is "cleaner", but some users also de-install and re-install and don't want to have to re-enter their settings. The few entries in the WordPress options database (which won't ever be accessed) will make no difference that could possibly be detected on your site performance or space usage.
 
+= I am not running the most recent version of UpdraftPlus. Should I upgrade? =
+
+Yes; especially before you submit any support requests.
+
 = Have you written any other free plugins? =
 
 Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ . I am also available for hire for bespoke work.
