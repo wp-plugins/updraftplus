@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.1.10
+Version: 1.1.11
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -56,7 +56,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.1.10';
+	var $version = '1.1.11';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -69,7 +69,7 @@ class UpdraftPlus {
 	var $dbhandle;
 	var $errors = array();
 	var $nonce;
-	var $cronrun_type = "";
+	var $cronrun_type = "none";
 	var $logfile_name = "";
 	var $logfile_handle = false;
 	var $backup_time;
@@ -241,7 +241,7 @@ class UpdraftPlus {
 		// Check if another backup job ID is stored in the transient
 		if ($cur_trans != "" && $cur_trans != $this->nonce) {
 			// Also check if that job is of the same type as ours, as two cron jobs could legitimately fire at the same time
-			$otherjob_crontype = get_transient("updraftplus_runtype_".$cur_trans, "xyz");
+			$otherjob_crontype = get_transient("updraftplus_runtype_".$cur_trans);
 			// $this->cronrun_type should be "files", "database" or blank (if we were not run via a cron job)
 			if ($otherjob_crontype == $this->cronrun_type) {
 				$this->log("Another backup job ($cur_trans) of the same type ($otherjob_crontype) appears to now be running - terminating our run (apparent race condition)");
@@ -270,8 +270,6 @@ class UpdraftPlus {
 		// Log some information that may be helpful
 		global $wp_version;
 		$this->log("PHP version: ".phpversion()." WordPress version: ".$wp_version." Updraft version: ".$this->version." Backup files: $backup_files (schedule: ".get_option('updraft_interval','unset').") Backup DB: $backup_database (schedule: ".get_option('updraft_interval_database','unset').")");
-
-		$this->check_backup_race();
 
 		# If the files and database schedules are the same, and if this the file one, then we rope in database too.
 		# On the other hand, if the schedules were the same and this was the database run, then there is nothing to do.

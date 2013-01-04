@@ -3,7 +3,7 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, Amazon S3, google drive, google, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.1.10
+Stable tag: 1.1.11
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
@@ -107,8 +107,8 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.1.10 - 04/01/2013 =
-* Deal with a potential situation in which a backup run could be erroneously identified as superfluous and cancelled
+= 1.1.11 - 04/01/2013 =
+* Bug fix: some backup runs were erroneously being identified as superfluous and cancelled
 
 = 1.1.9 - 12/31/2012 =
 * Big code re-factoring; cloud access methods now modularised, paving way for easier adding of new methods. Note that Google Drive users may need to re-authenticate - please check that your backups are working.
