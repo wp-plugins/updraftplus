@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.1.12
+Version: 1.1.13
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -56,7 +56,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.1.12';
+	var $version = '1.1.13';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -269,7 +269,7 @@ class UpdraftPlus {
 
 		// Log some information that may be helpful
 		global $wp_version;
-		$this->log("PHP version: ".phpversion()." WordPress version: ".$wp_version." Updraft version: ".$this->version." PHP Max Execution Time: ".ini_get("max_execution_time")." Backup files: $backup_files (schedule: ".get_option('updraft_interval','unset').") Backup DB: $backup_database (schedule: ".get_option('updraft_interval_database','unset').")");
+		$this->log("PHP version: ".phpversion()." (".php_uname().") WordPress version: ".$wp_version." Updraft version: ".$this->version." PHP Max Execution Time: ".ini_get("max_execution_time")." Backup files: $backup_files (schedule: ".get_option('updraft_interval','unset').") Backup DB: $backup_database (schedule: ".get_option('updraft_interval_database','unset').")");
 
 		# If the files and database schedules are the same, and if this the file one, then we rope in database too.
 		# On the other hand, if the schedules were the same and this was the database run, then there is nothing to do.
@@ -1297,17 +1297,17 @@ class UpdraftPlus {
 		register_setting( 'updraft-options-group', 'updraft_encryptionphrase', 'wp_filter_nohtml_kses' );
 		register_setting( 'updraft-options-group', 'updraft_service', 'wp_filter_nohtml_kses' );
 
-		register_setting( 'updraft-options-group', 'updraft_s3_login', 'wp_filter_nohtml_kses' );
-		register_setting( 'updraft-options-group', 'updraft_s3_pass', 'wp_filter_nohtml_kses' );
+		register_setting( 'updraft-options-group', 'updraft_s3_login' );
+		register_setting( 'updraft-options-group', 'updraft_s3_pass' );
 		register_setting( 'updraft-options-group', 'updraft_s3_remote_path', 'wp_filter_nohtml_kses' );
 		register_setting( 'updraft-options-group', 'updraft_googledrive_clientid', 'wp_filter_nohtml_kses' );
-		register_setting( 'updraft-options-group', 'updraft_googledrive_secret', 'wp_filter_nohtml_kses' );
+		register_setting( 'updraft-options-group', 'updraft_googledrive_secret' );
 		register_setting( 'updraft-options-group', 'updraft_googledrive_remotepath', 'wp_filter_nohtml_kses' );
-		register_setting( 'updraft-options-group', 'updraft_ftp_login', 'wp_filter_nohtml_kses' );
-		register_setting( 'updraft-options-group', 'updraft_ftp_pass', 'wp_filter_nohtml_kses' );
-		register_setting( 'updraft-options-group', 'updraft_ftp_remote_path', 'wp_filter_nohtml_kses' );
+		register_setting( 'updraft-options-group', 'updraft_ftp_login' );
+		register_setting( 'updraft-options-group', 'updraft_ftp_pass' );
+		register_setting( 'updraft-options-group', 'updraft_ftp_remote_path' );
 		register_setting( 'updraft-options-group', 'updraft_server_address', 'wp_filter_nohtml_kses' );
-		register_setting( 'updraft-options-group', 'updraft_dir', 'wp_filter_nohtml_kses' );
+		register_setting( 'updraft-options-group', 'updraft_dir' );
 		register_setting( 'updraft-options-group', 'updraft_email', 'wp_filter_nohtml_kses' );
 		register_setting( 'updraft-options-group', 'updraft_delete_local', 'absint' );
 		register_setting( 'updraft-options-group', 'updraft_debug_mode', 'absint' );
@@ -1848,49 +1848,6 @@ echo $delete_local; ?> /> <br>Check this to delete the local backup file (only s
 			/* ]]> */
 			</script>
 			<?php
-	}
-	
-	/*array2json provided by bin-co.com under BSD license*/
-	function array2json($arr) { 
-		if(function_exists('json_encode')) return stripslashes(json_encode($arr)); // PHP >= 5.2 already has this functionality. 
-		$parts = array(); 
-		$is_list = false; 
-
-		//Find out if the given array is a numerical array 
-		$keys = array_keys($arr); 
-		$max_length = count($arr)-1; 
-		if(($keys[0] == 0) and ($keys[$max_length] == $max_length)) {//See if the first key is 0 and last key is length - 1 
-			$is_list = true; 
-			for($i=0; $i<count($keys); $i++) { //See if each key correspondes to its position 
-				if($i != $keys[$i]) { //A key fails at position check. 
-					$is_list = false; //It is an associative array. 
-					break; 
-				} 
-			} 
-		} 
-
-		foreach($arr as $key=>$value) { 
-			if(is_array($value)) { //Custom handling for arrays 
-				if($is_list) $parts[] = $this->array2json($value); /* :RECURSION: */ 
-				else $parts[] = '"' . $key . '":' . $this->array2json($value); /* :RECURSION: */ 
-			} else { 
-				$str = ''; 
-				if(!$is_list) $str = '"' . $key . '":'; 
-
-				//Custom handling for multiple data types 
-				if(is_numeric($value)) $str .= $value; //Numbers 
-				elseif($value === false) $str .= 'false'; //The booleans 
-				elseif($value === true) $str .= 'true'; 
-				else $str .= '"' . addslashes($value) . '"'; //All other things 
-				// :TODO: Is there any more datatype we should be in the lookout for? (Object?) 
-
-				$parts[] = $str; 
-			} 
-		} 
-		$json = implode(',',$parts); 
-
-		if($is_list) return '[' . $json . ']';//Return numerical JSON 
-		return '{' . $json . '}';//Return associative JSON 
 	}
 
 	function show_admin_warning($message) {
