@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.1.11
+Version: 1.1.12
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -56,7 +56,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.1.11';
+	var $version = '1.1.12';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -1018,8 +1018,12 @@ class UpdraftPlus {
 		//clear schedule and add new so we don't stack up scheduled backups
 		wp_clear_scheduled_hook('updraft_backup');
 		switch($interval) {
+			case 'every4hours':
+			case 'every8hours':
+			case 'twicedaily':
 			case 'daily':
 			case 'weekly':
+			case 'fortnightly':
 			case 'monthly':
 				wp_schedule_event(time()+30, $interval, 'updraft_backup');
 			break;
@@ -1031,8 +1035,12 @@ class UpdraftPlus {
 		//clear schedule and add new so we don't stack up scheduled backups
 		wp_clear_scheduled_hook('updraft_backup_database');
 		switch($interval) {
+			case 'every4hours':
+			case 'every8hours':
+			case 'twicedaily':
 			case 'daily':
 			case 'weekly':
+			case 'fortnightly':
 			case 'monthly':
 				wp_schedule_event(time()+30, $interval, 'updraft_backup_database');
 			break;
@@ -1040,16 +1048,13 @@ class UpdraftPlus {
 		return wp_filter_nohtml_kses($interval);
 	}
 
-	//wp-cron only has hourly, daily and twicedaily, so we need to add weekly and monthly. 
+	//wp-cron only has hourly, daily and twicedaily, so we need to add some of our own
 	function modify_cron_schedules($schedules) {
-		$schedules['weekly'] = array(
-			'interval' => 604800,
-			'display' => 'Once Weekly'
-		);
-		$schedules['monthly'] = array(
-			'interval' => 2592000,
-			'display' => 'Once Monthly'
-		);
+		$schedules['weekly'] = array( 'interval' => 604800, 'display' => 'Once Weekly' );
+		$schedules['fortnightly'] = array( 'interval' => 1209600, 'display' => 'Once Each Fortnight' );
+		$schedules['monthly'] = array( 'interval' => 2592000, 'display' => 'Once Monthly' );
+		$schedules['every4hours'] = array( 'interval' => 14400, 'display' => 'Every 4 hours' );
+		$schedules['every8hours'] = array( 'interval' => 28800, 'display' => 'Every 8 hours' );
 		return $schedules;
 	}
 	
@@ -1639,11 +1644,11 @@ ENDHERE;
 					<th>File Backup Intervals:</th>
 					<td><select name="updraft_interval">
 						<?php
-						$intervals = array ("manual", "daily", "weekly", "monthly");
-						foreach ($intervals as $ival) {
-							echo "<option value=\"$ival\" ";
-							if ($ival == get_option('updraft_interval','manual')) { echo 'selected="selected"';}
-							echo ">".ucfirst($ival)."</option>\n";
+						$intervals = array ("manual" => "Manual", 'every4hours' => "Every 4 hours", 'every8hours' => "Every 8 hours", 'twicedaily' => "Every 12 hours", 'daily' => "Daily", 'weekly' => "Weekly", 'fortnightly' => "Fortnightly", 'monthly' => "Monthly");
+						foreach ($intervals as $cronsched => $descrip) {
+							echo "<option value=\"$cronsched\" ";
+							if ($cronsched == get_option('updraft_interval','manual')) echo 'selected="selected"';
+							echo ">$descrip</option>\n";
 						}
 						?>
 						</select></td>
@@ -1652,11 +1657,10 @@ ENDHERE;
 					<th>Database Backup Intervals:</th>
 					<td><select name="updraft_interval_database">
 						<?php
-						$intervals = array ("manual", "daily", "weekly", "monthly");
-						foreach ($intervals as $ival) {
-							echo "<option value=\"$ival\" ";
-							if ($ival == get_option('updraft_interval_database',get_option('updraft_interval'))) { echo 'selected="selected"';}
-							echo ">".ucfirst($ival)."</option>\n";
+						foreach ($intervals as $cronsched => $descrip) {
+							echo "<option value=\"$cronsched\" ";
+							if ($cronsched == get_option('updraft_interval_database',get_option('updraft_interval'))) echo 'selected="selected"';
+							echo ">$descrip</option>\n";
 						}
 						?>
 						</select></td>

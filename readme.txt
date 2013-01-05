@@ -3,7 +3,7 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, Amazon S3, google drive, google, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.1.11
+Stable tag: 1.1.12
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
@@ -110,6 +110,9 @@ Yes; especially before you submit any support requests.
 Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ . I am also available for hire for bespoke work.
 
 == Changelog ==
+
+= 1.1.12 - 05/01/2013 =
+* Requested feature: more frequent scheduling options requested
 
 = 1.1.11 - 04/01/2013 =
 * Bug fix: some backup runs were erroneously being identified as superfluous and cancelled
