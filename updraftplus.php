@@ -1333,7 +1333,7 @@ class UpdraftPlus {
 	}
 
 	function ajax_enqueue() {
-		wp_enqueue_script('updraftplus-ajax', $this->plugins_url('/includes/ajax.js', __FILE__) );
+		wp_enqueue_script('updraftplus-ajax', plugins_url('/includes/ajax.js', __FILE__) );
 		wp_localize_script('updraftplus-ajax', 'updraft_test_s3', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
 	}
 
