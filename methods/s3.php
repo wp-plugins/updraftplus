@@ -180,7 +180,7 @@ class UpdraftPlus_BackupModule_s3 {
 			<th>S3 location:</th>
 			<td>s3://<input type="text" style="width: 292px" name="updraft_s3_remote_path" id="updraft_s3_path" value="<?php echo htmlspecialchars(get_option('updraft_s3_remote_path')); ?>" /></td>
 		</tr>
-		<tr>
+		<tr class="updraftplusmethod s3">
 		<th></th>
 		<td><p><button id="updraft-s3-test" type="button" class="button-primary" style="font-size:18px !important">Test S3 Settings</button></p></td>
 		</tr>
