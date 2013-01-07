@@ -328,7 +328,7 @@ class UpdraftPlus_BackupModule_googledrive {
 			</tr>
 			<tr class="updraftplusmethod googledrive">
 				<th>Google Drive Folder ID:</th>
-				<td><input type="text" style="width:332px" name="updraft_googledrive_remotepath" value="<?php echo htmlspecialchars(get_option('updraft_googledrive_remotepath')); ?>" /> <em>(To get a folder's ID navigate to that folder in Google Drive in your web browser and copy the ID from your browser's address bar. It is the part that comes after <kbd>#folders/.</kbd> Leave empty to use your root folder)</em></td>
+				<td><input type="text" style="width:332px" name="updraft_googledrive_remotepath" value="<?php echo htmlspecialchars(get_option('updraft_googledrive_remotepath')); ?>" /> <em><strong>This is NOT a folder name</strong>. To get a folder's ID navigate to that folder in Google Drive in your web browser and copy the ID from your browser's address bar. It is the part that comes after <kbd>#folders/.</kbd> Leave empty to use your root folder)</em></td>
 			</tr>
 			<tr class="updraftplusmethod googledrive">
 				<th>Authenticate with Google:</th>
