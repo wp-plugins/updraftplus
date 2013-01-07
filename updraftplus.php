@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.1.13
+Version: 1.1.14
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -56,7 +56,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.1.13';
+	var $version = '1.1.14';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -85,7 +85,9 @@ class UpdraftPlus {
 		add_action('updraft_backup_all', array($this,'backup_all'));
 		# this is our runs-after-backup event, whose purpose is to see if it succeeded or failed, and resume/mom-up etc.
 		add_action('updraft_backup_resume', array($this,'backup_resume'));
+		add_action('wp_enqueue_scripts', array($this, 'ajax_enqueue') );
 		add_action('wp_ajax_updraft_download_backup', array($this, 'updraft_download_backup'));
+		add_action('wp_ajax_updraft_s3_test', array($this, 'updraft_s3_test'));
 		# http://codex.wordpress.org/Plugin_API/Filter_Reference/cron_schedules
 		add_filter('cron_schedules', array($this,'modify_cron_schedules'));
 		add_filter('plugin_action_links', array($this, 'plugin_action_links'), 10, 2);
@@ -1072,6 +1074,14 @@ class UpdraftPlus {
 		return $updraft_dir;
 	}
 	
+	// Called via AJAX
+	function updraft_s3_test() {
+		// Test the credentials, return a code
+		require_once(UPDRAFTPLUS_DIR.'/methods/s3.php');
+		UpdraftPlus_BackupModule_s3::s3_test($_POST['apikey'], $_POST['apisecret'], $_POST['path']);
+		die;
+	}
+
 	function updraft_download_backup() {
 		$type = $_POST['type'];
 		$timestamp = (int)$_POST['timestamp'];
@@ -1320,6 +1330,11 @@ class UpdraftPlus {
 		if (current_user_can('manage_options') && get_option('updraft_service') == "googledrive" && get_option('updraft_googledrive_clientid') != "" && get_option('updraft_googledrive_token','xyz') == 'xyz') {
 			add_action('admin_notices', array($this,'show_admin_warning_googledrive') );
 		}
+	}
+
+	function ajax_enqueue() {
+		wp_enqueue_script('updraftplus-ajax', $this->plugins_url('/includes/ajax.js', __FILE__) );
+		wp_localize_script('updraftplus-ajax', 'updraft_test_s3', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
 	}
 
 	function add_admin_pages() {
@@ -1765,6 +1780,17 @@ echo $delete_local; ?> /> <br>Check this to delete the local backup file (only s
 						<?php
 							if ($active_service) echo "jQuery('.${active_service}').show();";
 						?>
+						jQuery('#updraft-s3-test').click(function(){
+							var data = {
+								action: 'updraft_s3_test',
+								apikey: jQuery('#updraft_s3_apikey').val(),
+								apisecret: jQuery('#updraft_s3_apisecret').val(),
+								path: jQuery('#updraft_s3_path').val()
+							};
+							jQuery.post(ajaxurl, data, function(response) {
+									alert('Settings test result: ' + response);
+							});
+						});
 					});
 				/* ]]> */
 				</script>

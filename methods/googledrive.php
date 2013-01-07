@@ -186,8 +186,13 @@ class UpdraftPlus_BackupModule_googledrive {
 			$res = $location;
 			$updraftplus->log("Uploading file with title ".$title);
 			$d = 0;
+			// This counter is only used for when deciding what to log
+			$counter = 0;
 			do {
-				$updraftplus->log("Google Drive upload: chunk d: $d, loc: $res");
+				$log_string = ($counter == 0) ? "Upload %: $d, URL: $res" : "Upload %: $d";
+				$counter++; if ($counter >= 20) $counter=0;
+				$updraftplus->log($log_string);
+
 				$res = $gdocs_object->upload_chunk();
 				if (is_string($res)) set_transient($transkey, $res, 3600*3);
 				$p = $gdocs_object->get_upload_percentage();
@@ -283,8 +288,10 @@ class UpdraftPlus_BackupModule_googledrive {
 			if ( is_wp_error( $this->gdocs_access_token ) ) return $access_token;
 
 			$this->gdocs = new UpdraftPlus_GDocs( $this->gdocs_access_token );
-			$this->gdocs->set_option( 'chunk_size', 1 ); # 1Mb; change from default of 512Kb
-			$this->gdocs->set_option( 'request_timeout', 10 ); # Change from default of 10s
+			// We need to be able to upload at least one chunk within the timeout (at least, we have seen an error report where the failure to do this seemed to be the cause)
+			// If we assume a user has at least 16kb/s (we saw one user with as low as 22kb/s), and that their provider may allow them only 15s, then we have the following settings
+			$this->gdocs->set_option( 'chunk_size', 0.2 ); # 0.2Mb; change from default of 512Kb
+			$this->gdocs->set_option( 'request_timeout', 15 ); # Change from default of 5s
 			$this->gdocs->set_option( 'max_resume_attempts', 36 ); # Doesn't look like GDocs class actually uses this anyway
 		}
 		return true;

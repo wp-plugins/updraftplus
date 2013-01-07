@@ -3,12 +3,12 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, Amazon S3, google drive, google, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.1.13
+Stable tag: 1.1.14
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Big code re-organisation to make programming new cloud methods easier. Note that Google Drive users may need to re-authenticate - please check. Also, more operations made resumable.
+Provide a 'Test S3 Settings' button for Amazon S3 users
 
 == Description ==
 
@@ -22,6 +22,7 @@ UpdraftPlus simplifies backups (and restoration). Backup into the cloud (Amazon 
 * Select which files to backup (plugins, themes, content, other)
 * Databases can be encrypted for security
 * Debug mode that gives full logging
+* Thousands of users: widely tested and reliable
 
 == Installation ==
 
@@ -111,11 +112,12 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.1.13 - 05/01/2013 =
+= 1.1.14 - 01/07/2013 =
 * Requested feature: more frequent scheduling options requested
 * Fixed bug which mangled default suggestion for backup working directory on Windows
+* Provide a 'Test S3 Settings' button for Amazon S3 users
 
-= 1.1.11 - 04/01/2013 =
+= 1.1.11 - 01/04/2013 =
 * Bug fix: some backup runs were erroneously being identified as superfluous and cancelled
 
 = 1.1.9 - 12/31/2012 =

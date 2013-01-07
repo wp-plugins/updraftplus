@@ -164,22 +164,60 @@ class UpdraftPlus_BackupModule_s3 {
 			<td><em>Amazon S3 is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your blog is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.</em></td>
 		</tr>
 		<tr class="updraftplusmethod s3">
+		<th></th>
+		<td>
+			<p>Get your access key and secret key <a href="http://aws.amazon.com/console/">from your AWS console</a>, then pick a (globally unique - all Amazon S3 users) bucket name (letters and numbers) (and optionally a path) to use for storage. This bucket will be created for you if it does not already exist.</p>
+		</td></tr>
+		<tr class="updraftplusmethod s3">
 			<th>S3 access key:</th>
-			<td><input type="text" autocomplete="off" style="width: 292px" name="updraft_s3_login" value="<?php echo htmlspecialchars(get_option('updraft_s3_login')) ?>" /></td>
+			<td><input type="text" autocomplete="off" style="width: 292px" id="updraft_s3_apikey" name="updraft_s3_login" value="<?php echo htmlspecialchars(get_option('updraft_s3_login')) ?>" /></td>
 		</tr>
 		<tr class="updraftplusmethod s3">
 			<th>S3 secret key:</th>
-			<td><input type="text" autocomplete="off" style="width: 292px" name="updraft_s3_pass" value="<?php echo htmlspecialchars(get_option('updraft_s3_pass')); ?>" /></td>
+			<td><input type="text" autocomplete="off" style="width: 292px" id="updraft_s3_apisecret" name="updraft_s3_pass" value="<?php echo htmlspecialchars(get_option('updraft_s3_pass')); ?>" /></td>
 		</tr>
 		<tr class="updraftplusmethod s3">
 			<th>S3 location:</th>
-			<td>s3://<input type="text" style="width: 292px" name="updraft_s3_remote_path" value="<?php echo htmlspecialchars(get_option('updraft_s3_remote_path')); ?>" /></td>
+			<td>s3://<input type="text" style="width: 292px" name="updraft_s3_remote_path" id="updraft_s3_path" value="<?php echo htmlspecialchars(get_option('updraft_s3_remote_path')); ?>" /></td>
 		</tr>
-		<tr class="updraftplusmethod s3">
+		<tr>
 		<th></th>
-		<td><p>Get your access key and secret key from your AWS page, then pick a (globally unique) bucket name (letters and numbers) (and optionally a path) to use for storage. This bucket will be created for you if it does not already exist.</p></td>
+		<td><p><button id="updraft-s3-test" type="button" class="button-primary" style="font-size:18px !important">Test S3 Settings</button></p></td>
 		</tr>
 	<?php
+	}
+
+	function s3_test($key, $secret, $path) {
+		$bucket =  (preg_match("#^([^/]+)/(.*)$#", $path, $bmatches)) ? $bmatches[1] : $path;
+
+		if (empty($bucket)) {
+			echo "Failure: No bucket details were given.";
+			return;
+		}
+		if (empty($key)) {
+			echo "Failure: No API key was given.";
+			return;
+		}
+		if (empty($secret)) {
+			echo "Failure: No API secret was given.";
+			return;
+		}
+
+		if (!class_exists('S3')) require_once(UPDRAFTPLUS_DIR.'/includes/S3.php');
+		$s3 = new S3($key, $secret);
+
+		$location = @$s3->getBucketLocation($bucket);
+		if ($location) {
+			echo "Success: this bucket exists (Amazon region: $location) and we have access to it.";
+		} else {
+			$try_to_create = @$s3->putBucket($bucket, S3::ACL_PRIVATE);
+			if ($try_to_create) {
+				echo "Success: We have successfully created this bucket in your S3 account.";
+			} else {
+				echo "Failure: We could not successfully access or create such a bucket. Please check your access credentials, and if those are correct then try another bucket name (as another S3 user may already have taken this name).";
+			}
+		}
+
 	}
 
 }
