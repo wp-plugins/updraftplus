@@ -3,7 +3,7 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, Amazon S3, google drive, google, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.1.14
+Stable tag: 1.1.15
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
@@ -112,7 +112,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.1.14 - 01/07/2013 =
+= 1.1.15 - 01/07/2013 =
 * Requested feature: more frequent scheduling options requested
 * Fixed bug which mangled default suggestion for backup working directory on Windows
 * Provide a 'Test S3 Settings' button for Amazon S3 users
