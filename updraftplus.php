@@ -1149,7 +1149,7 @@ class UpdraftPlus {
 		require_once(UPDRAFTPLUS_DIR."/methods/$method.php");
 
 		$objname = "UpdraftPlus_BackupModule_${method}";
-		if (method_exists($objname, "credentials_test")) call_user_func(array('UpdraftPlus_BackupModule_'.$method, 'credentials_test');
+		if (method_exists($objname, "credentials_test")) call_user_func(array('UpdraftPlus_BackupModule_'.$method, 'credentials_test'));
 		die;
 
 	}
