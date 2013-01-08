@@ -151,9 +151,6 @@ class UpdraftPlus_BackupModule_dropbox {
 			<td>
 			<?php
 			// Check requirements
-			if (version_compare(phpversion(), "5.3.1", "<")) {
-				?><p><strong>Warning:</strong> Your web server is running PHP <?php echo phpversion(); ?>. UpdraftPlus's DropBox module requires at least PHP 5.3.1. Possibly UpdraftPlus may work for you, but if it does not then please do not request support - we cannot help. Note that the popular &quot;DropBox for WordPress&quot; module is using the same DropBox toolkit as UpdraftPlus, so you will not have any more success there! PHP before 5.3.1 has been obsolete for a long time and you should ask your provider for an upgrade (or try <a href="http://www.simbahosting.co.uk">Simba Hosting</a>).</p><?php
-			}
 			if (!function_exists('mcrypt_encrypt')) {
 				?><p><strong>Warning:</strong> Your web server's PHP installation does not included a required module (MCrypt). Please contact your web hosting provider's support. UpdraftPlus's DropBox module <strong>requires</strong> MCrypt. Please do not file any support requests; there is no alternative.</p><?php
 			}
@@ -256,10 +253,14 @@ class UpdraftPlus_BackupModule_dropbox {
 
 	// This basically reproduces the relevant bits of bootstrap.php from the SDK
 	function bootstrap($key, $secret) {
-	
-		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Storage/Encrypter.php')
-		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Storage/WordPress.php')
-		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Consumer/Curl.php')
+
+		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/Exception.php');
+		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/API.php');
+		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Consumer/ConsumerAbstract.php');
+		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Storage/StorageInterface.php');
+		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Storage/Encrypter.php');
+		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Storage/WordPress.php');
+		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Consumer/Curl.php');
 
 		// Set the callback URL
 		$callback = admin_url('options-general.php?page=updraftplus&action=updraftmethod-dropbox-auth');

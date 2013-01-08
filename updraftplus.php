@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and Restore: Uploads, themes, plugins, other content and your DB can be automatically backed up to Amazon S3, DropBox, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.2.4
+Version: 1.2.9
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -56,7 +56,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.2.4';
+	var $version = '1.2.9';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -865,11 +865,7 @@ class UpdraftPlus {
 		// Finally, stitch the files together
 		$this->backup_db_open($backup_file_base.'-db.gz', true);
 		$this->backup_db_header();
-		if (defined("DB_CHARSET")) {
-			$this->stow("/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;\n");
-			$this->stow("/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;\n");
-			$this->stow("/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;\n");
-		}
+
 		foreach ($stitch_files as $table_file) {
 			$this->log("{$table_file}.gz: adding to final database dump");
 			$handle = gzopen($updraft_dir.'/'.$table_file.'.gz', "r");
@@ -877,6 +873,13 @@ class UpdraftPlus {
 			gzclose($handle);
 			@unlink($updraft_dir.'/'.$table_file.'.gz');
 		}
+
+		if (defined("DB_CHARSET")) {
+			$this->stow("/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;\n");
+			$this->stow("/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;\n");
+			$this->stow("/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;\n");
+		}
+
 		$this->log($file_base.'-db.gz: finished writing out complete database file');
 		$this->close($this->dbhandle);
 

@@ -47,7 +47,7 @@ class Dropbox_WordPress implements Dropbox_StorageInterface
     public function get($type)
     {
         if ($type != 'request_token' && $type != 'access_token') {
-            throw new \Dropbox\Exception("Expected a type of either 'request_token' or 'access_token', got '$type'");
+            throw new Dropbox_Exception("Expected a type of either 'request_token' or 'access_token', got '$type'");
         } else {
             if (false !== ($gettoken = get_option($this->option_name_prefix.$type))) {
                 $token = $this->decrypt($gettoken);
