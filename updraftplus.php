@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and Restore: Uploads, themes, plugins, other content and your DB can be automatically backed up to Amazon S3, DropBox, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.2.10
+Version: 1.2.11
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -56,7 +56,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.2.10';
+	var $version = '1.2.11';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -906,6 +906,8 @@ class UpdraftPlus {
 	function backup_table($table, $segment = 'none') {
 		global $wpdb;
 
+		$microtime = microtime(true);
+
 		$total_rows = 0;
 
 		$table_structure = $wpdb->get_results("DESCRIBE $table");
@@ -952,24 +954,21 @@ class UpdraftPlus {
 			$this->stow("#\n");
 		}
 		
+		// In UpdraftPlus, segment is always 'none'
 		if(($segment == 'none') || ($segment >= 0)) {
 			$defs = array();
-			$ints = array();
+			$integer_fields = array();
+			// $table_structure was from "DESCRIBE $table"
 			foreach ($table_structure as $struct) {
-				if ( (0 === strpos($struct->Type, 'tinyint')) ||
-					(0 === strpos(strtolower($struct->Type), 'smallint')) ||
-					(0 === strpos(strtolower($struct->Type), 'mediumint')) ||
-					(0 === strpos(strtolower($struct->Type), 'int')) ||
-					(0 === strpos(strtolower($struct->Type), 'bigint')) ) {
+				if ( (0 === strpos($struct->Type, 'tinyint')) || (0 === strpos(strtolower($struct->Type), 'smallint')) ||
+					(0 === strpos(strtolower($struct->Type), 'mediumint')) || (0 === strpos(strtolower($struct->Type), 'int')) || (0 === strpos(strtolower($struct->Type), 'bigint')) ) {
 						$defs[strtolower($struct->Field)] = ( null === $struct->Default ) ? 'NULL' : $struct->Default;
-						$ints[strtolower($struct->Field)] = "1";
+						$integer_fields[strtolower($struct->Field)] = "1";
 				}
 			}
 			
 			// Batch by $row_inc
-			if ( ! defined('ROWS_PER_SEGMENT') ) {
-				define('ROWS_PER_SEGMENT', 100);
-			}
+			if ( ! defined('ROWS_PER_SEGMENT') ) define('ROWS_PER_SEGMENT', 100);
 			
 			if($segment == 'none') {
 				$row_start = 0;
@@ -981,7 +980,7 @@ class UpdraftPlus {
 			do {
 
 				if ( !ini_get('safe_mode') || strtolower(ini_get('safe_mode')) == "off") @set_time_limit(15*60);
-				$table_data = $wpdb->get_results("SELECT * FROM $table $where LIMIT {$row_start}, {$row_inc}", ARRAY_A);
+				$table_data = $wpdb->get_results("SELECT * FROM $table LIMIT {$row_start}, {$row_inc}", ARRAY_A);
 				$entries = 'INSERT INTO ' . $this->backquote($table) . ' VALUES (';	
 				//    \x08\\x09, not required
 				$search = array("\x00", "\x0a", "\x0d", "\x1a");
@@ -991,7 +990,7 @@ class UpdraftPlus {
 						$total_rows++;
 						$values = array();
 						foreach ($row as $key => $value) {
-							if ($ints[strtolower($key)]) {
+							if (isset($integer_fields[strtolower($key)])) {
 								// make sure there are no blank spots in the insert syntax,
 								// yet try to avoid quotation marks around integers
 								$value = ( null === $value || '' === $value) ? $defs[strtolower($key)] : $value;
@@ -1015,7 +1014,7 @@ class UpdraftPlus {
 			$this->stow("# --------------------------------------------------------\n");
 			$this->stow("\n");
 		}
- 		$this->log("Table $table: Total rows added: $total_rows");
+ 		$this->log("Table $table: Total rows added: $total_rows in ".sprintf("%.02f",microtime(true)-$microtime)." seconds");
 
 	} // end backup_table()
 
