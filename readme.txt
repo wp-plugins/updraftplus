@@ -8,7 +8,7 @@ Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Provide a 'Test S3 Settings' button for Amazon S3 users
+Make the creation of the database backup resumable
 
 == Description ==
 
@@ -111,6 +111,9 @@ Yes; especially before you submit any support requests.
 Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ . I am also available for hire for bespoke work.
 
 == Changelog ==
+
+= 1.1.17 - 01/08/2013 =
+* Make the creation of the database dump also resumable, for people with really slow servers
 
 = 1.1.16 - 01/07/2013 =
 * Requested feature: more frequent scheduling options requested

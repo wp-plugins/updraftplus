@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.1.16
+Version: 1.1.17
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -56,7 +56,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.1.16';
+	var $version = '1.1.17';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -67,6 +67,7 @@ class UpdraftPlus {
 	);
 
 	var $dbhandle;
+	var $dbhandle_isgz;
 	var $errors = array();
 	var $nonce;
 	var $cronrun_type = "none";
@@ -174,6 +175,23 @@ class UpdraftPlus {
 
 		$our_files=$backup_history[$btime];
 		$undone_files = array();
+
+		$backup_database = get_transient("updraft_backdb_".$bnonce);
+
+		// The transient is read and written below (instead of using the existing variable) so that we can copy-and-paste this part as needed.
+		if ($backup_database) {
+			$this->log("Beginning backup of database");
+			$db_backup = $this->backup_db();
+			if(is_array($our_files)) $our_files['db'] = $db_backup;
+			$backup_contains = get_transient("updraft_backupcontains_".$this->nonce);
+			$backup_contains = (substr($backup_contains,0,10) == "Files only") ? "Files and database" : "Database only (no files)";
+			set_transient("updraft_backupcontains_".$this->nonce, $backup_contains, 3600*3);
+		}
+
+		// Save this to our history so we can track backups for the retain feature
+		$this->log("Saving backup history");
+		// This is done before cloud despatch, because we want a record of what *should* be in the backup. Whether it actually makes it there or not is not yet known.
+		$this->save_backup_history($our_files);
 
 		// Potentially encrypt the database if it is not already
 		if (isset($our_files['db']) && !preg_match("/\.crypt$/", $our_files['db'])) {
@@ -300,6 +318,7 @@ class UpdraftPlus {
 			$this->log("In case we run out of time, scheduled a resumption at: $resume_delay seconds from now");
 
 			$backup_contains = "";
+			set_transient("updraft_backupcontains_".$this->nonce, "");
 
 			$backup_array = array();
 
@@ -310,23 +329,31 @@ class UpdraftPlus {
 				$this->log("Beginning backup of directories");
 				$backup_array = $this->backup_dirs();
 				$backup_contains = "Files only (no database)";
+				// This can get over-written later
+				set_transient("updraft_backupcontains_".$this->nonce, $backup_contains, 3600*3);
 			}
+
+			// Save what *should* be done, to make it resumable from this point on
+			set_transient("updraft_backdb_".$this->nonce, $backup_database, 3600*3);
+			// Save this to our history so we can track backups for the retain feature
+			$this->log("Saving backup history");
+			$this->save_backup_history($backup_array);
 
 			$this->check_backup_race($backup_array);
 
-			//backup DB and return string of file path
+			// The transient is read and written below (instead of using the existing variable) so that we can copy-and-paste this part as needed.
 			if ($backup_database) {
 				$this->log("Beginning backup of database");
 				$db_backup = $this->backup_db();
-				// add db path to rest of files
 				if(is_array($backup_array)) $backup_array['db'] = $db_backup;
-				$backup_contains = ($backup_files) ? "Files and database" : "Database only (no files)";
+				$backup_contains = get_transient("updraft_backupcontains_".$this->nonce);
+				$backup_contains = (substr($backup_contains,0,10) == "Files only") ? "Files and database" : "Database only (no files)";
+				set_transient("updraft_backupcontains_".$this->nonce, $backup_contains, 3600*3);
 			}
 
 			$this->check_backup_race($backup_array);
-			set_transient("updraftplus_backupcontains", $backup_contains, 3600*3);
 
-			//save this to our history so we can track backups for the retain feature
+			// Save this to our history so we can track backups for the retain feature
 			$this->log("Saving backup history");
 			// This is done before cloud despatch, because we want a record of what *should* be in the backup. Whether it actually makes it there or not is not yet known.
 			$this->save_backup_history($backup_array);
@@ -429,7 +456,7 @@ class UpdraftPlus {
 
 		$append_log = (get_option('updraft_debug_mode') && $this->logfile_name != "") ? "\r\nLog contents:\r\n".file_get_contents($this->logfile_name) : "" ;
 
-		wp_mail($sendmail_to,'Backed up: '.get_bloginfo('name').' (UpdraftPlus '.$this->version.') '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus WordPress backup is complete.\r\nBackup contains: ".get_transient("updraftplus_backupcontains")."\r\n\r\n".$this->wordshell_random_advert(0)."\r\n".$append_log);
+		wp_mail($sendmail_to,'Backed up: '.get_bloginfo('name').' (UpdraftPlus '.$this->version.') '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus WordPress backup is complete.\r\nBackup contains: ".get_transient("updraft_backupcontains_".$this->nonce)."\r\n\r\n".$this->wordshell_random_advert(0)."\r\n".$append_log);
 
 	}
 
@@ -737,10 +764,45 @@ class UpdraftPlus {
 		}
 		return $backup_history;
 	}
-	
-	
-	/*START OF WB-DB-BACKUP BLOCK*/
 
+	// Open a file, store its filehandle
+	function backup_db_open($file, $allow_gz = true) {
+		if (function_exists('gzopen') && $allow_gz == true) {
+			$this->dbhandle = @gzopen($file, 'w');
+			$this->dbhandle_isgz = true;
+		} else {
+			$this->dbhandle = @fopen($file, 'w');
+			$this->dbhandle_isgz = false;
+		}
+		if(!$this->dbhandle) {
+			//$this->error(__('Could not open the backup file for writing!','wp-db-backup'));
+		}
+	}
+
+	function backup_db_header() {
+
+		//Begin new backup of MySql
+		$this->stow("# " . 'WordPress MySQL database backup' . "\n");
+		$this->stow("#\n");
+		$this->stow("# " . sprintf(__('Generated: %s','wp-db-backup'),date("l j. F Y H:i T")) . "\n");
+		$this->stow("# " . sprintf(__('Hostname: %s','wp-db-backup'),DB_HOST) . "\n");
+		$this->stow("# " . sprintf(__('Database: %s','wp-db-backup'),$this->backquote(DB_NAME)) . "\n");
+		$this->stow("# --------------------------------------------------------\n");
+
+		if (defined("DB_CHARSET")) {
+			$this->stow("/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;\n");
+			$this->stow("/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;\n");
+			$this->stow("/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;\n");
+			$this->stow("/*!40101 SET NAMES " . DB_CHARSET . " */;\n");
+		}
+		$this->stow("/*!40101 SET foreign_key_checks = 0 */;\n");
+	}
+
+	/* This function is resumable, using the following method:
+	- Each table is written out to ($final_filename).table.tmp
+	- When the writing finishes, it is renamed to ($final_filename).table
+	- When all tables are finished, they are concatenated into the final file
+	*/
 	function backup_db() {
 
 		$total_tables = 0;
@@ -750,68 +812,71 @@ class UpdraftPlus {
 
 		$all_tables = $wpdb->get_results("SHOW TABLES", ARRAY_N);
 		$all_tables = array_map(create_function('$a', 'return $a[0];'), $all_tables);
-		
+
+		// Get the file prefix
 		$updraft_dir = $this->backups_dir_location();
-		//get the blog name and rip out all non-alphanumeric chars other than _
+
+		if (!is_writable($updraft_dir)) {
+			$this->error('The backup directory is not writable.');
+			return false;
+		}
+
+		// Get the blog name and rip out all non-alphanumeric chars other than _
 		$blog_name = str_replace(' ','_',get_bloginfo());
 		$blog_name = preg_replace('/[^A-Za-z0-9_]/','', $blog_name);
 		if (!$blog_name) $blog_name = 'non_alpha_name';
+		$file_base = 'backup_'.date('Y-m-d-Hi',$this->backup_time).'_'.$blog_name.'_'.$this->nonce;
+		$backup_file_base = $updraft_dir.'/'.$file_base;
 
-		$backup_file_base = $updraft_dir.'/backup_'.date('Y-m-d-Hi',$this->backup_time).'_'.$blog_name.'_'.$this->nonce;
-		if (is_writable($updraft_dir)) {
-			if (function_exists('gzopen')) {
-				$this->dbhandle = @gzopen($backup_file_base.'-db.gz','w');
-			} else {
-				$this->dbhandle = @fopen($backup_file_base.'-db.gz', 'w');
-			}
-			if(!$this->dbhandle) {
-				//$this->error(__('Could not open the backup file for writing!','wp-db-backup'));
-			}
-		} else {
-			//$this->error(__('The backup directory is not writable!','wp-db-backup'));
-		}
-		
-		//Begin new backup of MySql
-		$this->stow("# " . __('WordPress MySQL database backup','wp-db-backup') . "\n");
-		$this->stow("#\n");
-		$this->stow("# " . sprintf(__('Generated: %s','wp-db-backup'),date("l j. F Y H:i T")) . "\n");
-		$this->stow("# " . sprintf(__('Hostname: %s','wp-db-backup'),DB_HOST) . "\n");
-		$this->stow("# " . sprintf(__('Database: %s','wp-db-backup'),$this->backquote(DB_NAME)) . "\n");
-		$this->stow("# --------------------------------------------------------\n");
-		
-
-		if (defined("DB_CHARSET")) {
-			$this->stow("/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;\n");
-			$this->stow("/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;\n");
-			$this->stow("/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;\n");
-			$this->stow("/*!40101 SET NAMES " . DB_CHARSET . " */;\n");
-		}
-		$this->stow("/*!40101 SET foreign_key_checks = 0 */;\n");
+		$stitch_files = array();
 
 		foreach ($all_tables as $table) {
 			$total_tables++;
 			// Increase script execution time-limit to 15 min for every table.
 			if ( !ini_get('safe_mode') || strtolower(ini_get('safe_mode')) == "off") @set_time_limit(15*60);
-			# === is needed, otherwise 'false' matches (i.e. prefix does not match)
-			if ( strpos($table, $table_prefix) === 0 ) {
-				// Create the SQL statements
-				$this->stow("# --------------------------------------------------------\n");
-				$this->stow("# " . sprintf(__('Table: %s','wp-db-backup'),$this->backquote($table)) . "\n");
-				$this->stow("# --------------------------------------------------------\n");
-				$this->backup_table($table);
+			// The table file may already exist if we have produced it on a previous run
+			$table_file_prefix = $file_base.'-db-table-'.$table.'.table';
+			if (file_exists($updraft_dir.'/'.$table_file_prefix)) {
+				$this->log("Table $table: corresponding file already exists; moving on");
 			} else {
-				$this->stow("# --------------------------------------------------------\n");
-				$this->stow("# " . sprintf(__('Skipping non-WP table: %s','wp-db-backup'),$this->backquote($table)) . "\n");
-				$this->stow("# --------------------------------------------------------\n");				
+				// Open file, store the handle
+				$this->backup_db_open($updraft_dir.'/'.$table_file_prefix.'.tmp', false);
+				# === is needed, otherwise 'false' matches (i.e. prefix does not match)
+				if ( strpos($table, $table_prefix) === 0 ) {
+					// Create the SQL statements
+					$this->stow("# --------------------------------------------------------\n");
+					$this->stow("# " . sprintf(__('Table: %s','wp-db-backup'),$this->backquote($table)) . "\n");
+					$this->stow("# --------------------------------------------------------\n");
+					$this->backup_table($table);
+				} else {
+					$this->stow("# --------------------------------------------------------\n");
+					$this->stow("# " . sprintf(__('Skipping non-WP table: %s','wp-db-backup'),$this->backquote($table)) . "\n");
+					$this->stow("# --------------------------------------------------------\n");				
+				}
+				// Close file
+				$this->close($this->dbhandle);
+				$this->log("Table $table: finishing file (${table_file_prefix})");
+				rename($updraft_dir.'/'.$table_file_prefix.'.tmp', $updraft_dir.'/'.$table_file_prefix);
 			}
+			$stitch_files[] = $table_file_prefix;
 		}
 
+		// Finally, stitch the files together
+		$this->backup_db_open($backup_file_base.'-db.gz', true);
+		$this->backup_db_header();
 		if (defined("DB_CHARSET")) {
 			$this->stow("/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;\n");
 			$this->stow("/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;\n");
 			$this->stow("/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;\n");
 		}
-
+		foreach ($stitch_files as $table_file) {
+			$this->log("$table_file: adding to final database dump");
+			$handle = fopen($updraft_dir.'/'.$table_file, "r");
+			while (!feof($handle)) { $this->stow(fread($handle, 32768)); }
+			fclose($handle);
+			@unlink($updraft_dir.'/'.$table_file);
+		}
+		$this->log($file_base.'-db.gz: finished writing out complete database file');
 		$this->close($this->dbhandle);
 
 		if (count($this->errors)) {
@@ -897,7 +962,6 @@ class UpdraftPlus {
 				}
 			}
 			
-			
 			// Batch by $row_inc
 			if ( ! defined('ROWS_PER_SEGMENT') ) {
 				define('ROWS_PER_SEGMENT', 100);
@@ -951,9 +1015,8 @@ class UpdraftPlus {
 
 	} // end backup_table()
 
-
 	function stow($query_line) {
-		if (function_exists('gzopen')) {
+		if ($this->dbhandle_isgz) {
 			if(! @gzwrite($this->dbhandle, $query_line)) {
 				//$this->error(__('There was an error writing a line to the backup script:','wp-db-backup') . '  ' . $query_line . '  ' . $php_errormsg);
 			}
@@ -964,9 +1027,8 @@ class UpdraftPlus {
 		}
 	}
 
-
 	function close($handle) {
-		if (function_exists('gzopen')) {
+		if ($this->dbhandle_isgz) {
 			gzclose($handle);
 		} else {
 			fclose($handle);
@@ -1542,7 +1604,7 @@ ENDHERE;
 			<div style="float:left; width:200px; padding-top: 100px;">
 				<form method="post" action="">
 					<input type="hidden" name="action" value="updraft_backup" />
-					<p><input type="submit" <?php echo $backup_disabled ?> class="button-primary" value="Backup Now!" style="padding-top:7px;padding-bottom:7px;font-size:24px !important" onclick="return(confirm('This will schedule a one-time backup.  To trigger the backup you should go ahead, then wait 10 seconds, then load a page on your site.'))" /></p>
+					<p><input type="submit" <?php echo $backup_disabled ?> class="button-primary" value="Backup Now!" style="padding-top:3px;padding-bottom:3px;font-size:24px !important" onclick="return(confirm('This will schedule a one-time backup.  To trigger the backup you should go ahead, then wait 10 seconds, then load a page on your site.'))" /></p>
 				</form>
 				<div style="position:relative">
 					<div style="position:absolute;top:0;left:0">
@@ -1551,7 +1613,7 @@ ENDHERE;
 						$backup_history = (is_array($backup_history))?$backup_history:array();
 						$restore_disabled = (count($backup_history) == 0) ? 'disabled="disabled"' : "";
 						?>
-						<input type="button" class="button-primary" <?php echo $restore_disabled ?> value="Restore" style="padding-top:7px;padding-bottom:7px;font-size:24px !important" onclick="jQuery('#backup-restore').fadeIn('slow');jQuery(this).parent().fadeOut('slow')" />
+						<input type="button" class="button-primary" <?php echo $restore_disabled ?> value="Restore" style="padding-top:3px;padding-bottom:3px;font-size:24px !important" onclick="jQuery('#backup-restore').fadeIn('slow');jQuery(this).parent().fadeOut('slow')" />
 					</div>
 					<div style="display:none;position:absolute;top:0;left:0" id="backup-restore">
 						<form method="post" action="">
