@@ -8,7 +8,7 @@ Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Make the creation of the database backup resumable
+DropBox support
 
 == Description ==
 
@@ -112,7 +112,8 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.1.17 - 01/08/2013 =
+= 1.2.0 - 01/08/2013 =
+* DropBox support (no chunked uploading yet, but otherwise complete)
 * Make the creation of the database dump also resumable, for people with really slow servers
 
 = 1.1.16 - 01/07/2013 =

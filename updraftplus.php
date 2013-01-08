@@ -837,11 +837,11 @@ class UpdraftPlus {
 			if ( !ini_get('safe_mode') || strtolower(ini_get('safe_mode')) == "off") @set_time_limit(15*60);
 			// The table file may already exist if we have produced it on a previous run
 			$table_file_prefix = $file_base.'-db-table-'.$table.'.table';
-			if (file_exists($updraft_dir.'/'.$table_file_prefix)) {
+			if (file_exists($updraft_dir.'/'.$table_file_prefix.'.gz')) {
 				$this->log("Table $table: corresponding file already exists; moving on");
 			} else {
 				// Open file, store the handle
-				$this->backup_db_open($updraft_dir.'/'.$table_file_prefix.'.tmp', false);
+				$this->backup_db_open($updraft_dir.'/'.$table_file_prefix.'.tmp.gz', true);
 				# === is needed, otherwise 'false' matches (i.e. prefix does not match)
 				if ( strpos($table, $table_prefix) === 0 ) {
 					// Create the SQL statements
@@ -856,8 +856,8 @@ class UpdraftPlus {
 				}
 				// Close file
 				$this->close($this->dbhandle);
-				$this->log("Table $table: finishing file (${table_file_prefix})");
-				rename($updraft_dir.'/'.$table_file_prefix.'.tmp', $updraft_dir.'/'.$table_file_prefix);
+				$this->log("Table $table: finishing file (${table_file_prefix}.gz)");
+				rename($updraft_dir.'/'.$table_file_prefix.'.tmp.gz', $updraft_dir.'/'.$table_file_prefix.'.gz');
 			}
 			$stitch_files[] = $table_file_prefix;
 		}
@@ -871,11 +871,11 @@ class UpdraftPlus {
 			$this->stow("/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;\n");
 		}
 		foreach ($stitch_files as $table_file) {
-			$this->log("$table_file: adding to final database dump");
-			$handle = fopen($updraft_dir.'/'.$table_file, "r");
-			while (!feof($handle)) { $this->stow(fread($handle, 32768)); }
-			fclose($handle);
-			@unlink($updraft_dir.'/'.$table_file);
+			$this->log("{$table_file}.gz: adding to final database dump");
+			$handle = gzopen($updraft_dir.'/'.$table_file.'.gz', "r");
+			while (!feof($handle)) { $this->stow(gzread($handle, 65536)); }
+			gzclose($handle);
+			@unlink($updraft_dir.'/'.$table_file.'.gz');
 		}
 		$this->log($file_base.'-db.gz: finished writing out complete database file');
 		$this->close($this->dbhandle);
@@ -1143,7 +1143,7 @@ class UpdraftPlus {
 		$nonce = (empty($_POST['nonce'])) ? "" : $_POST['nonce'];
 		if (! wp_verify_nonce($nonce, 'updraftplus-credentialtest-nonce') ) die('Security check');
 
-		$method = (preg_match("/^[a-z]+$/", $_POST['method'])) ? $_POST['method'] : "";
+		$method = (preg_match("/^[a-z0-9]+$/", $_POST['method'])) ? $_POST['method'] : "";
 
 		// Test the credentials, return a code
 		require_once(UPDRAFTPLUS_DIR."/methods/$method.php");
@@ -1406,6 +1406,10 @@ class UpdraftPlus {
 
 		if (current_user_can('manage_options') && get_option('updraft_service') == "googledrive" && get_option('updraft_googledrive_clientid') != "" && get_option('updraft_googledrive_token','xyz') == 'xyz') {
 			add_action('admin_notices', array($this,'show_admin_warning_googledrive') );
+		}
+
+		if (current_user_can('manage_options') && get_option('updraft_service') == "dropbox" && get_option('updraft_dropbox_appkey') != "" && get_option('updraft_dropboxtk_request_token','xyz') == 'xyz') {
+			add_action('admin_notices', array($this,'show_admin_warning_dropbox') );
 		}
 	}
 
@@ -1955,10 +1959,13 @@ echo $delete_local; ?> /> <br>Check this to delete the local backup file (only s
 		$this->show_admin_warning('<strong>UpdraftPlus notice:</strong> The log file could not be read.</a>');
 	}
 
+	function show_admin_warning_dropbox() {
+		$this->show_admin_warning('<strong>UpdraftPlus notice:</strong> <a href="?page=updraftplus&action=updraftmethod-dropbox-auth&updraftplus_dropboxauth=doit">Click here to authenticate your DropBox account (you will not be able to back up to DropBox without it).</a>');
+	}
+
 	function show_admin_warning_googledrive() {
 		$this->show_admin_warning('<strong>UpdraftPlus notice:</strong> <a href="?page=updraftplus&action=updraftmethod-googledrive-auth&updraftplus_googleauth=doit">Click here to authenticate your Google Drive account (you will not be able to back up to Google Drive without it).</a>');
 	}
-
 
 }
 
