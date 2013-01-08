@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and Restore: Uploads, themes, plugins, other content and your DB can be automatically backed up to Amazon S3, DropBox, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.2.11
+Version: 1.2.12
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -56,7 +56,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.2.11';
+	var $version = '1.2.12';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -981,7 +981,7 @@ class UpdraftPlus {
 
 				if ( !ini_get('safe_mode') || strtolower(ini_get('safe_mode')) == "off") @set_time_limit(15*60);
 				$table_data = $wpdb->get_results("SELECT * FROM $table LIMIT {$row_start}, {$row_inc}", ARRAY_A);
-				$entries = 'INSERT INTO ' . $this->backquote($table) . ' VALUES (';	
+				$entries = 'INSERT INTO ' . $this->backquote($table) . ' VALUES (';
 				//    \x08\\x09, not required
 				$search = array("\x00", "\x0a", "\x0d", "\x1a");
 				$replace = array('\0', '\n', '\r', '\Z');
@@ -996,7 +996,7 @@ class UpdraftPlus {
 								$value = ( null === $value || '' === $value) ? $defs[strtolower($key)] : $value;
 								$values[] = ( '' === $value ) ? "''" : $value;
 							} else {
-								$values[] = "'" . str_replace($search, $replace, $this->sql_addslashes($value)) . "'";
+								$values[] = "'" . str_replace($search, $replace, str_replace('\'', '\\\'', str_replace('\\', '\\\\', $value))) . "'";
 							}
 						}
 						$this->stow(" \n" . $entries . implode(', ', $values) . ');');
@@ -1062,16 +1062,6 @@ class UpdraftPlus {
 			return $a_name;
 		}
 	}
-
-	/**
-	 * Better addslashes for SQL queries.
-	 * Taken from phpMyAdmin.
-	 */
-	function sql_addslashes($a_string = '', $is_like = false) {
-		if ($is_like) $a_string = str_replace('\\', '\\\\\\\\', $a_string);
-		else $a_string = str_replace('\\', '\\\\', $a_string);
-		return str_replace('\'', '\\\'', $a_string);
-	} 
 
 	/*END OF WP-DB-BACKUP BLOCK */
 
