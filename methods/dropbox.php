@@ -256,12 +256,9 @@ class UpdraftPlus_BackupModule_dropbox {
 
 	// This basically reproduces the relevant bits of bootstrap.php from the SDK
 	function bootstrap($key, $secret) {
+	
 		// Register a simple autoload function
-		spl_autoload_register(function($class){
-			$class = str_replace('\\', '/', $class);
-			$try_file = UPDRAFTPLUS_DIR.'/includes/' . $class . '.php';
-			if (file_exists($try_file)) include_once($try_file);
-		});
+		spl_autoload_register('updraftplus_dropbox_autoloader');
 
 		// Set the callback URL
 		$callback = admin_url('options-general.php?page=updraftplus&action=updraftmethod-dropbox-auth');
@@ -307,6 +304,10 @@ class UpdraftPlus_BackupModule_dropbox {
 
 	}
 
+}
 
-
+function updraftplus_dropbox_autoloader($class) {
+	$class = str_replace('\\', '/', $class);
+	$try_file = UPDRAFTPLUS_DIR.'/includes/' . $class . '.php';
+	if (file_exists($try_file)) include_once($try_file);
 }
