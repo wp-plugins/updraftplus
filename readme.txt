@@ -112,7 +112,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.2.4 - 01/08/2013 =
+= 1.2.5 - 01/08/2013 =
 * DropBox support (no chunked uploading yet, but otherwise complete)
 * Make the creation of the database dump also resumable, for people with really slow servers
 
