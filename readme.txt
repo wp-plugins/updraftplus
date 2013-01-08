@@ -3,7 +3,7 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, Amazon S3, DropBox, DropBox backup, google drive, google, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.1.15
+Stable tag: 1.2.12
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
@@ -112,9 +112,10 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.2.4 - 01/08/2013 =
+= 1.2.12 - 01/08/2013 =
 * DropBox support (no chunked uploading yet, but otherwise complete)
 * Make the creation of the database dump also resumable, for people with really slow servers
+* Database table backups are now timed
 
 = 1.1.16 - 01/07/2013 =
 * Requested feature: more frequent scheduling options requested
