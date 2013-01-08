@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Uploads, themes, plugins, and your DB can be automatically backed up to Amazon S3, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.1.17
+Version: 1.2.0
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -56,11 +56,12 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.1.17';
+	var $version = '1.2.0';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
 		"s3" => "Amazon S3",
+		"dropbox" => "DropBox",
 		"googledrive" => "Google Drive",
 		"ftp" => "FTP",
 		"email" => "Email"
@@ -88,7 +89,7 @@ class UpdraftPlus {
 		add_action('updraft_backup_resume', array($this,'backup_resume'));
 		add_action('wp_enqueue_scripts', array($this, 'ajax_enqueue') );
 		add_action('wp_ajax_updraft_download_backup', array($this, 'updraft_download_backup'));
-		add_action('wp_ajax_updraft_s3_test', array($this, 'updraft_s3_test'));
+		add_action('wp_ajax_updraft_credentials_test', array($this, 'updraft_credentials_test'));
 		# http://codex.wordpress.org/Plugin_API/Filter_Reference/cron_schedules
 		add_filter('cron_schedules', array($this,'modify_cron_schedules'));
 		add_filter('plugin_action_links', array($this, 'plugin_action_links'), 10, 2);
@@ -1137,11 +1138,20 @@ class UpdraftPlus {
 	}
 	
 	// Called via AJAX
-	function updraft_s3_test() {
+	function updraft_credentials_test() {
+		// Test the nonce (probably not needed, since we're presumably admin-authed, but there's no harm)
+		$nonce = (empty($_POST['nonce'])) ? "" : $_POST['nonce'];
+		if (! wp_verify_nonce($nonce, 'updraftplus-credentialtest-nonce') ) die('Security check');
+
+		$method = (preg_match("/^[a-z]+$/", $_POST['method'])) ? $_POST['method'] : "";
+
 		// Test the credentials, return a code
-		require_once(UPDRAFTPLUS_DIR.'/methods/s3.php');
-		UpdraftPlus_BackupModule_s3::s3_test($_POST['apikey'], $_POST['apisecret'], $_POST['path']);
+		require_once(UPDRAFTPLUS_DIR."/methods/$method.php");
+
+		$objname = "UpdraftPlus_BackupModule_${method}";
+		if (method_exists($objname, "credentials_test")) call_user_func(array('UpdraftPlus_BackupModule_'.$method, 'credentials_test');
 		die;
+
 	}
 
 	function updraft_download_backup() {
@@ -1372,6 +1382,11 @@ class UpdraftPlus {
 		register_setting( 'updraft-options-group', 'updraft_s3_login' );
 		register_setting( 'updraft-options-group', 'updraft_s3_pass' );
 		register_setting( 'updraft-options-group', 'updraft_s3_remote_path', 'wp_filter_nohtml_kses' );
+
+		register_setting( 'updraft-options-group', 'updraft_dropbox_appkey' );
+		register_setting( 'updraft-options-group', 'updraft_dropbox_secret' );
+		register_setting( 'updraft-options-group', 'updraft_dropbox_folder' );
+
 		register_setting( 'updraft-options-group', 'updraft_googledrive_clientid', 'wp_filter_nohtml_kses' );
 		register_setting( 'updraft-options-group', 'updraft_googledrive_secret' );
 		register_setting( 'updraft-options-group', 'updraft_googledrive_remotepath', 'wp_filter_nohtml_kses' );
@@ -1396,7 +1411,7 @@ class UpdraftPlus {
 
 	function ajax_enqueue() {
 		wp_enqueue_script('updraftplus-ajax', plugins_url('/includes/ajax.js', __FILE__) );
-		wp_localize_script('updraftplus-ajax', 'updraft_test_s3', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
+		wp_localize_script('updraftplus-ajax', 'updraft_credentials_test', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
 	}
 
 	function add_admin_pages() {
@@ -1807,7 +1822,7 @@ echo $delete_local; ?> /> <br>Check this to delete the local backup file (only s
 
 						$set = 'selected="selected"';
 
-						// Should be one of s3, ftp, googledrive, email, or whatever else is added
+						// Should be one of s3, dropbox, ftp, googledrive, email, or whatever else is added
 						$active_service = get_option('updraft_service');
 
 						?>
@@ -1841,18 +1856,12 @@ echo $delete_local; ?> /> <br>Check this to delete the local backup file (only s
 						jQuery('.updraftplusmethod').hide();
 						<?php
 							if ($active_service) echo "jQuery('.${active_service}').show();";
+							foreach ($this->backup_methods as $method => $description) {
+								// already done: require_once(UPDRAFTPLUS_DIR.'/methods/'.$method.'.php');
+								$call_method = "UpdraftPlus_BackupModule_$method";
+								if (method_exists($call_method, 'config_print_javascript_onready')) call_user_func(array($call_method, 'config_print_javascript_onready'));
+							}
 						?>
-						jQuery('#updraft-s3-test').click(function(){
-							var data = {
-								action: 'updraft_s3_test',
-								apikey: jQuery('#updraft_s3_apikey').val(),
-								apisecret: jQuery('#updraft_s3_apisecret').val(),
-								path: jQuery('#updraft_s3_path').val()
-							};
-							jQuery.post(ajaxurl, data, function(response) {
-									alert('Settings test result: ' + response);
-							});
-						});
 					});
 				/* ]]> */
 				</script>

@@ -156,6 +156,24 @@ class UpdraftPlus_BackupModule_s3 {
 
 	}
 
+	function config_print_javascript_onready() {
+		?>
+		jQuery('#updraft-s3-test').click(function(){
+			var data = {
+				action: 'updraft_credentials_test',
+				method: 's3',
+				nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>',
+				apikey: jQuery('#updraft_s3_apikey').val(),
+				apisecret: jQuery('#updraft_s3_apisecret').val(),
+				path: jQuery('#updraft_s3_path').val()
+			};
+			jQuery.post(ajaxurl, data, function(response) {
+					alert('Settings test result: ' + response);
+			});
+		});
+		<?php
+	}
+
 	function config_print() {
 
 	?>
@@ -187,7 +205,12 @@ class UpdraftPlus_BackupModule_s3 {
 	<?php
 	}
 
-	function s3_test($key, $secret, $path) {
+	function credentials_test() {
+
+		$key = $_POST['apikey'];
+		$secret = $_POST['apisecret'];
+		$path = $_POST['path'];
+
 		$bucket =  (preg_match("#^([^/]+)/(.*)$#", $path, $bmatches)) ? $bmatches[1] : $path;
 
 		if (empty($bucket)) {
