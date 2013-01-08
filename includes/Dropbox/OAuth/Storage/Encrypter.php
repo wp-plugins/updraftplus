@@ -8,9 +8,8 @@
  * @package Dropbox\Oauth
  * @subpackage Storage
  */
-namespace Dropbox\OAuth\Storage;
 
-class Encrypter
+class Dropbox_Encrypter
 {    
     // Encryption settings - default settings yield encryption to AES (256-bit) standard
     // @todo Provide PHPDOC for each class constant
@@ -34,9 +33,9 @@ class Encrypter
     public function __construct($key)
     {
         if (!extension_loaded('mcrypt')) {
-            throw new \Dropbox\Exception('The storage encrypter requires the MCrypt extension');
+            throw new Dropbox_Exception('The storage encrypter requires the MCrypt extension');
         } elseif (($length = mb_strlen($key, '8bit')) !== self::KEY_SIZE) {
-            throw new \Dropbox\Exception('Expecting a ' .  self::KEY_SIZE . ' byte key, got ' . $length);
+            throw new Dropbox_Exception('Expecting a ' .  self::KEY_SIZE . ' byte key, got ' . $length);
         } else {
             // Set the encryption key
             $this->key = $key;

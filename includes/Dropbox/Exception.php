@@ -6,9 +6,7 @@
  * @link https://github.com/benthedesigner/dropbox
  * @package Dropbox
  */
-namespace Dropbox;
-
-class Exception extends \Exception
+class Dropbox_Exception extends Exception
 {
 
 }

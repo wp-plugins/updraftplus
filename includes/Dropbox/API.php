@@ -8,9 +8,7 @@
  * @link https://status.dropbox.com Dropbox status
  * @package Dropbox
  */
-namespace Dropbox;
-
-class API
+class Dropbox_API
 {
     // API Endpoints
     const API_URL     = 'https://api.dropbox.com/1/';
@@ -54,7 +52,7 @@ class API
      * @param OAuth\Consumer\ConsumerAbstract $OAuth
      * @param string $root Dropbox app access type
      */
-    public function __construct(OAuth\Consumer\ConsumerAbstract $OAuth, $root = 'sandbox')
+    public function __construct(Dropbox_ConsumerAbstract $OAuth, $root = 'sandbox')
     {
         $this->OAuth = $OAuth;
         $this->setRoot($root);

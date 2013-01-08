@@ -8,7 +8,7 @@ class UpdraftPlus_BackupModule_dropbox {
 
 		global $updraftplus;
 		$updraftplus->log("DropBox: begin cloud upload");
-		if (!class_exists("DropBox\\API")) require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/API.php');
+		if (!class_exists("DropBox_API")) require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/API.php');
 
 		if (!get_option('updraft_dropbox_appkey') || get_option('updraft_dropboxtk_request_token', 'xyz') == 'xyz') {
 			$updraftplus->log('You do not appear to be authenticated with DropBox');
@@ -60,7 +60,7 @@ class UpdraftPlus_BackupModule_dropbox {
 
 		global $updraftplus;
 		$updraftplus->log("DropBox: request deletion: $file");
-		if (!class_exists("DropBox\\API")) require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/API.php');
+		if (!class_exists("DropBox_API")) require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/API.php');
 
 		if (!get_option('updraft_dropbox_appkey') || get_option('updraft_dropboxtk_request_token', 'xyz') == 'xyz') {
 			$updraftplus->log('You do not appear to be authenticated with DropBox');
@@ -95,7 +95,7 @@ class UpdraftPlus_BackupModule_dropbox {
 
 		global $updraftplus;
 
-		if (!class_exists("DropBox\\API")) require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/API.php');
+		if (!class_exists("DropBox_API")) require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/API.php');
 
 		if (!get_option('updraft_dropbox_appkey') || get_option('updraft_dropboxtk_request_token', 'xyz') == 'xyz') {
 			$updraftplus->error('You do not appear to be authenticated with DropBox');
@@ -257,20 +257,21 @@ class UpdraftPlus_BackupModule_dropbox {
 	// This basically reproduces the relevant bits of bootstrap.php from the SDK
 	function bootstrap($key, $secret) {
 	
-		// Register a simple autoload function
-		spl_autoload_register('updraftplus_dropbox_autoloader');
+		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Storage/Encrypter.php')
+		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Storage/WordPress.php')
+		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Consumer/Curl.php')
 
 		// Set the callback URL
 		$callback = admin_url('options-general.php?page=updraftplus&action=updraftmethod-dropbox-auth');
 
 		// Instantiate the Encrypter and storage objects
-		$encrypter = new \Dropbox\OAuth\Storage\Encrypter('ThisOneDoesNotMatterBeyondLength');
+		$encrypter = new Dropbox_Encrypter('ThisOneDoesNotMatterBeyondLength');
 
 		// Instantiate the storage
-		$storage = new \Dropbox\OAuth\Storage\WordPress($encrypter, "updraft_dropboxtk_");
+		$storage = new Dropbox_WordPress($encrypter, "updraft_dropboxtk_");
 
-		$OAuth = new \Dropbox\OAuth\Consumer\Curl($key, $secret, $storage, $callback);
-		return new \Dropbox\API($OAuth);
+		$OAuth = new Dropbox_Curl($key, $secret, $storage, $callback);
+		return new Dropbox_API($OAuth);
 	}
 
 	function credentials_test() {
@@ -292,7 +293,7 @@ class UpdraftPlus_BackupModule_dropbox {
 			return;
 		}
 
-		if (!class_exists("DropBox\\API")) require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/API.php');
+		if (!class_exists("DropBox_API")) require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/API.php');
 
 		echo "Not yet implemented. $key $secret $folder";
 
@@ -304,10 +305,4 @@ class UpdraftPlus_BackupModule_dropbox {
 
 	}
 
-}
-
-function updraftplus_dropbox_autoloader($class) {
-	$class = str_replace('\\', '/', $class);
-	$try_file = UPDRAFTPLUS_DIR.'/includes/' . $class . '.php';
-	if (file_exists($try_file)) include_once($try_file);
 }

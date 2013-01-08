@@ -7,11 +7,8 @@
 * @package Dropbox\OAuth
 * @subpackage Consumer
 */
-namespace Dropbox\OAuth\Consumer;
-use Dropbox\API as API;
-use Dropbox\OAuth\Storage\StorageInterface as StorageInterface;
 
-class Curl extends ConsumerAbstract
+class Dropbox_Curl extends Dropbox_ConsumerAbstract
 {    
     /**
      * Default cURL options
@@ -33,11 +30,11 @@ class Curl extends ConsumerAbstract
      * @param \Dropbox\OAuth\Consumer\StorageInterface $storage
      * @param string $callback
      */
-    public function __construct($key, $secret, StorageInterface $storage, $callback = null)
+    public function __construct($key, $secret, Dropbox_StorageInterface $storage, $callback = null)
     {
         // Check the cURL extension is loaded
         if (!extension_loaded('curl')) {
-            throw new \Dropbox\Exception('The cURL OAuth consumer requires the cURL extension');
+            throw new Dropbox_Exception('The cURL OAuth consumer requires the cURL extension');
         }
         
         $this->consumerKey = $key;
@@ -101,7 +98,7 @@ class Curl extends ConsumerAbstract
         // Check if an error occurred and throw an Exception
         if (!empty($response['body']->error)) {
             $message = $response['body']->error . ' (Status Code: ' . $response['code'] . ')';
-            throw new \Dropbox\Exception($message);
+            throw new Dropbox_Exception($message);
         }
         
         return $response;

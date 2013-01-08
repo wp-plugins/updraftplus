@@ -9,9 +9,8 @@
  * @package Dropbox\Oauth
  * @subpackage Storage
  */
-namespace Dropbox\OAuth\Storage;
 
-class WordPress implements StorageInterface
+class Dropbox_WordPress implements Dropbox_StorageInterface
 {
     /**
      * Option name
@@ -29,9 +28,9 @@ class WordPress implements StorageInterface
      * Check if an instance of the encrypter is passed, set the encryption object
      * @return void
      */
-    public function __construct(Encrypter $encrypter = null, $option_name_prefix = 'dropbox_token')
+    public function __construct(Dropbox_Encrypter $encrypter = null, $option_name_prefix = 'dropbox_token')
     {
-        if ($encrypter instanceof Encrypter) {
+        if ($encrypter instanceof Dropbox_Encrypter) {
             $this->encrypter = $encrypter;
         }
 
@@ -99,7 +98,7 @@ class WordPress implements StorageInterface
         $token = serialize($token);
         
         // Encrypt the token if there is an Encrypter instance
-        if ($this->encrypter instanceof Encrypter) {
+        if ($this->encrypter instanceof Dropbox_Encrypter) {
             $token = $this->encrypter->encrypt($token);
         }
         
@@ -117,7 +116,7 @@ class WordPress implements StorageInterface
     protected function decrypt($token)
     {
         // Decrypt the token if there is an Encrypter instance
-        if ($this->encrypter instanceof Encrypter) {
+        if ($this->encrypter instanceof Dropbox_Encrypter) {
             $token = $this->encrypter->decrypt($token);
         }
         
