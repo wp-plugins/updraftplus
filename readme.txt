@@ -1,9 +1,9 @@
 === UpdraftPlus Backup ===
 Contributors: David Anderson
-Tags: backup, restore, database, cloud, amazon, s3, Amazon S3, google drive, google, gdrive, ftp, cloud, updraft, back up
+Tags: backup, restore, database, cloud, amazon, s3, Amazon S3, DropBox, DropBox backup, google drive, google, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.1.16
+Stable tag: 1.2.0
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
@@ -12,9 +12,9 @@ DropBox support
 
 == Description ==
 
-UpdraftPlus simplifies backups (and restoration). Backup into the cloud (Amazon S3, Google Drive, FTP, and email) and restore with a single click. Backups of files and database can have separate schedules.
+UpdraftPlus simplifies backups (and restoration). Backup into the cloud (Amazon S3, DropBox, Google Drive, FTP, and email) and restore with a single click. Backups of files and database can have separate schedules.
 
-* Supports backups to Amazon S3, Google Drive, FTP, email
+* Supports backups to Amazon S3, DropBox, Google Drive, FTP, email
 * One-click restore
 * Backup automatically on a repeating schedule
 * Files and databases can have separate schedules
@@ -68,7 +68,7 @@ Again, if you backed up using a cloud method, then on UpdraftPlus's settings pag
 
 = I want to restore, but have either cannot, or have failed to do so from the WP Admin console =
 
-That's no problem. If you have access to your backed files (i.e. you have the emailed copies, or have obtained the backed up copies directly from Amazon S3, Google Drive, FTP or whatever store you wereusing), then you simply need to unzip them into the right places. UpdraftPlus does not back up the WordPress core - you can just get a fresh copy of that from www.wordpress.org. So, if you are starting from nothing, then first download and unzip a WordPress zip from www.wordpress.org. After doing that, then unzip the zip files for your uploads, themes, plugins and other filesback into the wp-content directory. Then re-install the database (e.g. by running it through PHPMyAdmin - see also the later question on how to decrypt if your database backup was encrypted). These are all basic operations and not difficult for anyone with simple skills; but if you need help and cannot find someone to assist, then send me a meaningful donation - http://david.dw-perspective.org.uk/donate - and I can help.
+That's no problem. If you have access to your backed files (i.e. you have the emailed copies, or have obtained the backed up copies directly from Amazon S3, DropBox, Google Drive, FTP or whatever store you were using), then you simply need to unzip them into the right places. UpdraftPlus does not back up the WordPress core - you can just get a fresh copy of that from www.wordpress.org. So, if you are starting from nothing, then first download and unzip a WordPress zip from www.wordpress.org. After doing that, then unzip the zip files for your uploads, themes, plugins and other filesback into the wp-content directory. Then re-install the database (e.g. by running it through PHPMyAdmin - see also the later question on how to decrypt if your database backup was encrypted). These are all basic operations and not difficult for anyone with simple skills; but if you need help and cannot find someone to assist, then send me a meaningful donation - http://david.dw-perspective.org.uk/donate - and I can help.
 
 = Anything essential to know? =
 
