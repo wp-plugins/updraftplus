@@ -112,10 +112,12 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.2.12 - 01/08/2013 =
+= 1.2.14 - 01/08/2013 =
 * DropBox support (no chunked uploading yet, but otherwise complete)
 * Make the creation of the database dump also resumable, for people with really slow servers
 * Database table backups are now timed
+* FTP logging slightly improved
+* DropBox support uses WordPress's built-in HTTP functions
 
 = 1.1.16 - 01/07/2013 =
 * Requested feature: more frequent scheduling options requested

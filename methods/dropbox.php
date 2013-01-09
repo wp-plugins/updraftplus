@@ -239,16 +239,6 @@ class UpdraftPlus_BackupModule_dropbox {
 
 		self::bootstrap(get_option('updraft_dropbox_appkey'), get_option('updraft_dropbox_secret'));
 
-// 		$params = array(
-// 			'response_type' => 'code',
-// 			'client_id' => get_option('updraft_dropbo'),
-// 			'redirect_uri' => admin_url('options-general.php?page=updraftplus&action=updraftmethod-googledrive-auth'),
-// 			'scope' => 'https://www.googleapis.com/auth/drive.file https://docs.google.com/feeds/ https://docs.googleusercontent.com/ https://spreadsheets.google.com/feeds/',
-// 			'state' => 'token',
-// 			'access_type' => 'offline',
-// 			'approval_prompt' => 'auto'
-// 		);
-// 		header('Location: https://accounts.google.com/o/oauth2/auth?'.http_build_query($params));
 	}
 
 	// This basically reproduces the relevant bits of bootstrap.php from the SDK
@@ -260,7 +250,8 @@ class UpdraftPlus_BackupModule_dropbox {
 		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Storage/StorageInterface.php');
 		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Storage/Encrypter.php');
 		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Storage/WordPress.php');
-		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Consumer/Curl.php');
+// 		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Consumer/Curl.php');
+		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Consumer/WordPress.php');
 
 		// Set the callback URL
 		$callback = admin_url('options-general.php?page=updraftplus&action=updraftmethod-dropbox-auth');
@@ -271,7 +262,8 @@ class UpdraftPlus_BackupModule_dropbox {
 		// Instantiate the storage
 		$storage = new Dropbox_WordPress($encrypter, "updraft_dropboxtk_");
 
-		$OAuth = new Dropbox_Curl($key, $secret, $storage, $callback);
+		$OAuth = new Dropbox_ConsumerWordPress($key, $secret, $storage, $callback);
+// 		$OAuth = new Dropbox_Curl($key, $secret, $storage, $callback);
 		return new Dropbox_API($OAuth);
 	}
 
