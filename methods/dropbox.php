@@ -150,18 +150,9 @@ class UpdraftPlus_BackupModule_dropbox {
 			<th></th>
 			<td>
 			<?php
-			// Check requirements
+			// Check requirements. No need to check curl as we now use WP's built-in HTTP functions
 			if (!function_exists('mcrypt_encrypt')) {
 				?><p><strong>Warning:</strong> Your web server's PHP installation does not included a required module (MCrypt). Please contact your web hosting provider's support. UpdraftPlus's DropBox module <strong>requires</strong> MCrypt. Please do not file any support requests; there is no alternative.</p><?php
-			}
-			if (!function_exists("curl_init")) {
-				?><p><strong>Warning:</strong> Your web server's PHP installation does not included a required module (Curl). Please contact your web hosting provider's support. UpdraftPlus's DropBox module <strong>requires</strong> Curl. Your only options to get this working are 1) Install/enable curl or 2) Hire us or someone else to code additional support options into UpdraftPlus. 3) Wait, possibly forever, for someone else to do this.</p><?php
-			} else {
-				$curl_version = curl_version();
-				$curl_ssl_supported= ($curl_version['features'] & CURL_VERSION_SSL);
-				if (!$curl_ssl_supported) {
-				?><p><strong>Warning:</strong> Your web server's PHP/Curl installation does not support https access. We cannot access DropBox without this support. Please contact your web hosting provider's support. UpdraftPlus's DropBox module <strong>requires</strong> Curl+https. Your only options to get this working are 1) Install/enable curl with https or 2) Hire us or someone else to code additional support options into UpdraftPlus. 3) Wait, possibly forever, for someone else to do this.</p><?php
-				}
 			}
 			?>
 			</td>
