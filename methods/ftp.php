@@ -18,12 +18,12 @@ class UpdraftPlus_BackupModule_ftp {
 		foreach($backup_array as $file) {
 			$fullpath = trailingslashit(get_option('updraft_dir')).$file;
 			$updraftplus->log("FTP upload attempt: $file -> $ftp_remote_path/$file");
-			if ($ftp->put($fullpath,$ftp_remote_path.$file,FTP_BINARY)) {
-				$updraftplus->log("ERROR: $file_name: Successfully uploaded via FTP");
+			if ($ftp->put($fullpath, $ftp_remote_path.$file, FTP_BINARY)) {
+				$updraftplus->log("FTP upload attempt successful");
 				$updraftplus->uploaded_file($file);
 			} else {
-				$updraftplus->error("$file_name: Failed to upload to FTP" );
-				$updraftplus->log("ERROR: $file_name: Failed to upload to FTP" );
+				$updraftplus->error("$file: Failed to upload to FTP" );
+				$updraftplus->log("ERROR: $file: Failed to upload to FTP" );
 			}
 		}
 
