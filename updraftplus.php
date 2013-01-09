@@ -12,7 +12,7 @@ Author URI: http://wordshell.net
 
 /*
 TODO
-//Add DropBox and Microsoft Skydrive support
+//Add Box.Net and Microsoft Skydrive support??
 //improve error reporting / pretty up return messages in admin area
 //?? On 'backup now', open up a Lightbox, count down 5 seconds, then start examining the log file (if it can be found)
 
