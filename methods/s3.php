@@ -113,7 +113,7 @@ class UpdraftPlus_BackupModule_s3 {
 			$s3_bucket=$bmatches[1];
 			$s3_uri = $bmatches[2]."/".$file;
 		} else {
-			$s3_bucket = $remote_path;
+			$s3_bucket = $orig_bucket_name;
 			$s3_uri = $file;
 		}
 		$updraftplus->log("S3: Delete remote: bucket=$s3_bucket, URI=$s3_uri");

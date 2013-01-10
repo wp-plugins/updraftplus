@@ -2,9 +2,9 @@
 /*
 Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
-Description: Backup and Restore: Uploads, themes, plugins, other content and your DB can be automatically backed up to Amazon S3, DropBox, Google Drive, FTP, or emailed, on separate schedules.
+Description: Backup and restore: All your content and your DB can be automatically backed up to Amazon S3, DropBox, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.2.4
+Version: 1.2.15
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -12,9 +12,10 @@ Author URI: http://wordshell.net
 
 /*
 TODO
-//Add DropBox and Microsoft Skydrive support
+//Add Box.Net and Microsoft Skydrive support??
 //improve error reporting / pretty up return messages in admin area
 //?? On 'backup now', open up a Lightbox, count down 5 seconds, then start examining the log file (if it can be found)
+//Should make clear in dashboard what is a non-fatal error (i.e. can be retried) - leads to unnecessary bug reports
 
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
 // Does not delete old custom directories upon a restore?
@@ -56,7 +57,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.2.4';
+	var $version = '1.2.15';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -865,11 +866,7 @@ class UpdraftPlus {
 		// Finally, stitch the files together
 		$this->backup_db_open($backup_file_base.'-db.gz', true);
 		$this->backup_db_header();
-		if (defined("DB_CHARSET")) {
-			$this->stow("/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;\n");
-			$this->stow("/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;\n");
-			$this->stow("/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;\n");
-		}
+
 		foreach ($stitch_files as $table_file) {
 			$this->log("{$table_file}.gz: adding to final database dump");
 			$handle = gzopen($updraft_dir.'/'.$table_file.'.gz', "r");
@@ -877,6 +874,13 @@ class UpdraftPlus {
 			gzclose($handle);
 			@unlink($updraft_dir.'/'.$table_file.'.gz');
 		}
+
+		if (defined("DB_CHARSET")) {
+			$this->stow("/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;\n");
+			$this->stow("/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;\n");
+			$this->stow("/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;\n");
+		}
+
 		$this->log($file_base.'-db.gz: finished writing out complete database file');
 		$this->close($this->dbhandle);
 
@@ -902,6 +906,8 @@ class UpdraftPlus {
 	 */
 	function backup_table($table, $segment = 'none') {
 		global $wpdb;
+
+		$microtime = microtime(true);
 
 		$total_rows = 0;
 
@@ -949,24 +955,21 @@ class UpdraftPlus {
 			$this->stow("#\n");
 		}
 		
+		// In UpdraftPlus, segment is always 'none'
 		if(($segment == 'none') || ($segment >= 0)) {
 			$defs = array();
-			$ints = array();
+			$integer_fields = array();
+			// $table_structure was from "DESCRIBE $table"
 			foreach ($table_structure as $struct) {
-				if ( (0 === strpos($struct->Type, 'tinyint')) ||
-					(0 === strpos(strtolower($struct->Type), 'smallint')) ||
-					(0 === strpos(strtolower($struct->Type), 'mediumint')) ||
-					(0 === strpos(strtolower($struct->Type), 'int')) ||
-					(0 === strpos(strtolower($struct->Type), 'bigint')) ) {
+				if ( (0 === strpos($struct->Type, 'tinyint')) || (0 === strpos(strtolower($struct->Type), 'smallint')) ||
+					(0 === strpos(strtolower($struct->Type), 'mediumint')) || (0 === strpos(strtolower($struct->Type), 'int')) || (0 === strpos(strtolower($struct->Type), 'bigint')) ) {
 						$defs[strtolower($struct->Field)] = ( null === $struct->Default ) ? 'NULL' : $struct->Default;
-						$ints[strtolower($struct->Field)] = "1";
+						$integer_fields[strtolower($struct->Field)] = "1";
 				}
 			}
 			
 			// Batch by $row_inc
-			if ( ! defined('ROWS_PER_SEGMENT') ) {
-				define('ROWS_PER_SEGMENT', 100);
-			}
+			if ( ! defined('ROWS_PER_SEGMENT') ) define('ROWS_PER_SEGMENT', 100);
 			
 			if($segment == 'none') {
 				$row_start = 0;
@@ -978,8 +981,8 @@ class UpdraftPlus {
 			do {
 
 				if ( !ini_get('safe_mode') || strtolower(ini_get('safe_mode')) == "off") @set_time_limit(15*60);
-				$table_data = $wpdb->get_results("SELECT * FROM $table $where LIMIT {$row_start}, {$row_inc}", ARRAY_A);
-				$entries = 'INSERT INTO ' . $this->backquote($table) . ' VALUES (';	
+				$table_data = $wpdb->get_results("SELECT * FROM $table LIMIT {$row_start}, {$row_inc}", ARRAY_A);
+				$entries = 'INSERT INTO ' . $this->backquote($table) . ' VALUES (';
 				//    \x08\\x09, not required
 				$search = array("\x00", "\x0a", "\x0d", "\x1a");
 				$replace = array('\0', '\n', '\r', '\Z');
@@ -988,13 +991,13 @@ class UpdraftPlus {
 						$total_rows++;
 						$values = array();
 						foreach ($row as $key => $value) {
-							if ($ints[strtolower($key)]) {
+							if (isset($integer_fields[strtolower($key)])) {
 								// make sure there are no blank spots in the insert syntax,
 								// yet try to avoid quotation marks around integers
 								$value = ( null === $value || '' === $value) ? $defs[strtolower($key)] : $value;
 								$values[] = ( '' === $value ) ? "''" : $value;
 							} else {
-								$values[] = "'" . str_replace($search, $replace, $this->sql_addslashes($value)) . "'";
+								$values[] = "'" . str_replace($search, $replace, str_replace('\'', '\\\'', str_replace('\\', '\\\\', $value))) . "'";
 							}
 						}
 						$this->stow(" \n" . $entries . implode(', ', $values) . ');');
@@ -1012,7 +1015,7 @@ class UpdraftPlus {
 			$this->stow("# --------------------------------------------------------\n");
 			$this->stow("\n");
 		}
- 		$this->log("Table $table: Total rows added: $total_rows");
+ 		$this->log("Table $table: Total rows added: $total_rows in ".sprintf("%.02f",microtime(true)-$microtime)." seconds");
 
 	} // end backup_table()
 
@@ -1060,16 +1063,6 @@ class UpdraftPlus {
 			return $a_name;
 		}
 	}
-
-	/**
-	 * Better addslashes for SQL queries.
-	 * Taken from phpMyAdmin.
-	 */
-	function sql_addslashes($a_string = '', $is_like = false) {
-		if ($is_like) $a_string = str_replace('\\', '\\\\\\\\', $a_string);
-		else $a_string = str_replace('\\', '\\\\', $a_string);
-		return str_replace('\'', '\\\'', $a_string);
-	} 
 
 	/*END OF WP-DB-BACKUP BLOCK */
 
