@@ -8,7 +8,7 @@ Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Revert DropBox method to fix broken uploads. Note also only 150Mb is possible due to a DropBox API limitation (until we code around it)
+DropBox can now support larger, resumable uploads
 
 == Description ==
 
@@ -84,7 +84,7 @@ It does not back up WordPress core (since you can always get another copy of thi
 
 = Any known bugs ? =
 
-Not a bug as such, but one major issue to be aware of is that backups of very large sites (lots of uploaded media) can fail due to timing out. This depends on how many seconds your web host allows a PHP process to run. With such sites, you need to use Amazon S3, which UpdraftPlus supports (since 0.9.20) or Google Drive (since 0.9.21) with chunked, resumable uploads. Other backup methods have code (since 0.9.0) to retry failed uploads of an archive, but the upload cannot be chunked, so if an archive is enormous (i.e. cannot be completely uploaded in the time that PHP is allowed for running on your web host) it cannot work.
+Not a bug as such, but one major issue to be aware of is that backups of very large sites (lots of uploaded media) can fail due to timing out. This depends on how many seconds your web host allows a PHP process to run. With such sites, you need to use Amazon S3, which UpdraftPlus supports (since 0.9.20) or Google Drive (since 0.9.21) or DropBox (since 1.2.19) with chunked, resumable uploads. Other backup methods have code (since 0.9.0) to retry failed uploads of an archive, but the upload cannot be chunked, so if an archive is enormous (i.e. cannot be completely uploaded in the time that PHP is allowed for running on your web host) it cannot work.
 
 = I encrypted my database - how do I decrypt it? =
 
