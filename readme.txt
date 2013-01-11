@@ -3,12 +3,12 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, Amazon S3, DropBox, DropBox backup, google drive, google, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.2.17
+Stable tag: 1.2.19
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Revert DropBox method to fix broken uploads
+Revert DropBox method to fix broken uploads. Note also only 150Mb is possible due to a DropBox API limitation (until we code around it)
 
 == Description ==
 
@@ -112,8 +112,13 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.2.17 - 01/11/2013 =
-* Revert DropBox to CURL-only until we fix a remaining bug with WordPress's built-in methods
+= 1.2.19 - 01/11/2013 =
+* DropBox no longer limited to 150Mb uploads
+* DropBox can upload in chunks and resume uploading chunks
+
+= 1.2.18 - 01/11/2013 =
+* Revert DropBox to CURL-only - was not working properly with WordPress's built-in methods
+* Add note that only up to 150Mb is possible for a DropBox upload, until we change our API usage
 * Fix unnecessary repetition of database dump upon resumption of a failed backup
 
 = 1.2.14 - 01/08/2013 =

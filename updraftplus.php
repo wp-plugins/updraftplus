@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: All your content and your DB can be automatically backed up to Amazon S3, DropBox, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.2.17
+Version: 1.2.19
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -17,6 +17,7 @@ TODO
 //?? On 'backup now', open up a Lightbox, count down 5 seconds, then start examining the log file (if it can be found)
 //Should make clear in dashboard what is a non-fatal error (i.e. can be retried) - leads to unnecessary bug reports
 //Eventually, when everything can be resumed, we will no longer need the backup() routine; it can be replaced with the resume() routine
+// Should we resume if the only errors were upon deletion (i.e. the backup itself was fine?) Presently we do, but it displays errors for the user to confuse them.
 
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
 // Does not delete old custom directories upon a restore?
@@ -58,7 +59,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.2.17';
+	var $version = '1.2.19';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -1584,7 +1585,7 @@ ENDHERE;
 					$current_time = date('D, F j, Y H:i T',time());
 					$updraft_last_backup = get_option('updraft_last_backup');
 					if($updraft_last_backup) {
-						$last_backup = ($updraft_last_backup['success']) ? date('D, F j, Y H:i T',$updraft_last_backup['backup_time']) : print_r($updraft_last_backup['errors'],true);
+						$last_backup = ($updraft_last_backup['success']) ? date('D, F j, Y H:i T',$updraft_last_backup['backup_time']) : implode("<br>",$updraft_last_backup['errors']);
 						$last_backup_color = ($updraft_last_backup['success']) ? 'green' : 'red';
 						if (!empty($updraft_last_backup['backup_nonce'])) {
 							$potential_log_file = $updraft_dir."/log.".$updraft_last_backup['backup_nonce'].".txt";

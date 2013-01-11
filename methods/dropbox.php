@@ -4,11 +4,29 @@
 
 class UpdraftPlus_BackupModule_dropbox {
 
+	private $current_file_hash;
+	private $current_file_size;
+
+	function chunked_callback($offset, $uploadid) {
+		global $updraftplus;
+
+		// Update upload ID
+		set_transient('updraf_dbid_'.$this->current_file_hash, $uploadid, 3600*3);
+		set_transient('updraf_dbof_'.$this->current_file_hash, $offset, 3600*3);
+
+		if ($this->current_file_size > 0) {
+			$percent = round(100*($offset/$this->current_file_size),1);
+			$updraftplus->log("DropBox: Chunked Upload: ${percent}% ($uploadid, $offset)");
+		} else {
+			$updraftplus->log("DropBox: Chunked Upload: $offset bytes uploaded");
+		}
+
+	}
+
 	function backup($backup_array) {
 
 		global $updraftplus;
 		$updraftplus->log("DropBox: begin cloud upload");
-		if (!class_exists("DropBox_API")) require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/API.php');
 
 		if (!get_option('updraft_dropbox_appkey') || get_option('updraft_dropboxtk_request_token', 'xyz') == 'xyz') {
 			$updraftplus->log('You do not appear to be authenticated with DropBox');
@@ -18,9 +36,10 @@ class UpdraftPlus_BackupModule_dropbox {
 
 		try {
 			$dropbox = $this->bootstrap(get_option('updraft_dropbox_appkey'), get_option('updraft_dropbox_secret'));
+			$dropbox->setChunkSize(524288); // 512Kb
 		} catch (Exception $e) {
 			$updraftplus->log('DropBox error: '.print_r($e, true));
-			$updraftplus->error('DropBox error: '.print_r($e, true));
+			$updraftplus->error('DropBox error: failed to access DropBox (see log file for more)');
 			return false;
 		}
 
@@ -32,14 +51,30 @@ class UpdraftPlus_BackupModule_dropbox {
 
 			$file_success = 1;
 
-			$filesize = (filesize($updraft_dir.'/'.$file) / 1024);
+			$hash = md5($file);
+			$this->current_file_hash=$hash;
+
+			$filesize = filesize($updraft_dir.'/'.$file);
+			$this->current_file_size = $filesize;
+			// Into Kb
+			$filesize = $filesize/1024;
 			$microtime = microtime(true);
 
+			if ($upload_id = get_transient('updraf_dbid_'.$hash)) {
+				# Resume
+				$offset =  get_transient('updraf_dbof_'.$hash);
+				$updraftplus->log("This is a resumption: $offset bytes had already been uploaded");
+			} else {
+				$offset = 0;
+				$upload_id = null;
+			}
+
 			try {
-				$put = $dropbox->putFile($updraft_dir.'/'.$file, $dropbox_folder.$file);
+				//$put = $dropbox->putFile($updraft_dir.'/'.$file, $dropbox_folder.$file);
+				$dropbox->chunkedUpload($updraft_dir.'/'.$file, $file, $dropbox_folder, true, $offset, $upload_id, array($this, 'chunked_callback'));
 			} catch (Exception $e) {
 				$updraftplus->log('DropBox error: '.print_r($e, true));
-				$updraftplus->error('DropBox error: '.print_r($e, true));
+				$updraftplus->error("DropBox error: failed to upload file $file (see full log for more)");
 				$file_success = 0;
 			}
 			if ($file_success) {
@@ -48,6 +83,8 @@ class UpdraftPlus_BackupModule_dropbox {
 				$speedps = $filesize/$microtime_elapsed;
 				$speed = sprintf("%.2d",$filesize)." Kb in ".sprintf("%.2d",$microtime_elapsed)."s (".sprintf("%.2d", $speedps)." Kb/s)";
 				$updraftplus->log("DropBox: File upload success (".$dropbox_folder.$file."): $speed");
+				delete_transient('updraft_duido_'.$hash);
+				delete_transient('updraft_duidi_'.$hash);
 			}
 
 		}
@@ -60,7 +97,6 @@ class UpdraftPlus_BackupModule_dropbox {
 
 		global $updraftplus;
 		$updraftplus->log("DropBox: request deletion: $file");
-		if (!class_exists("DropBox_API")) require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/API.php');
 
 		if (!get_option('updraft_dropbox_appkey') || get_option('updraft_dropboxtk_request_token', 'xyz') == 'xyz') {
 			$updraftplus->log('You do not appear to be authenticated with DropBox');
@@ -72,7 +108,7 @@ class UpdraftPlus_BackupModule_dropbox {
 			$dropbox = $this->bootstrap(get_option('updraft_dropbox_appkey'), get_option('updraft_dropbox_secret'));
 		} catch (Exception $e) {
 			$updraftplus->log('DropBox error: '.print_r($e, true));
-			$updraftplus->error('DropBox error: '.print_r($e, true));
+			$updraftplus->error('DropBox error: failed to access DropBox (see log file for more)');
 			return false;
 		}
 
@@ -84,7 +120,7 @@ class UpdraftPlus_BackupModule_dropbox {
 			$dropbox->delete($file);
 		} catch (Exception $e) {
 			$updraftplus->log('DropBox error: '.print_r($e, true));
-			$updraftplus->error('DropBox error: '.print_r($e, true));
+			$updraftplus->error("DropBox error: failed to delete file ($file): see log file for more info");
 			$file_success = 0;
 		}
 		if ($file_success) $updraftplus->log('DropBox: delete succeeded');
@@ -94,8 +130,6 @@ class UpdraftPlus_BackupModule_dropbox {
 	function download($file) {
 
 		global $updraftplus;
-
-		if (!class_exists("DropBox_API")) require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/API.php');
 
 		if (!get_option('updraft_dropbox_appkey') || get_option('updraft_dropboxtk_request_token', 'xyz') == 'xyz') {
 			$updraftplus->error('You do not appear to be authenticated with DropBox');
@@ -149,11 +183,19 @@ class UpdraftPlus_BackupModule_dropbox {
 			<tr class="updraftplusmethod dropbox">
 			<th></th>
 			<td>
-			<p><strong>Warning:</strong> UpdraftPlus's DropBox support cannot yet upload anything bigger than 150Mb. If any of your created dumps (plugins, themes, content, database) exceed this, then you cannot use DropBox. We are working on it!</p>
 			<?php
-			// Check requirements. No need to check curl as we now use WP's built-in HTTP functions
+			// Check requirements.
 			if (!function_exists('mcrypt_encrypt')) {
 				?><p><strong>Warning:</strong> Your web server's PHP installation does not included a required module (MCrypt). Please contact your web hosting provider's support. UpdraftPlus's DropBox module <strong>requires</strong> MCrypt. Please do not file any support requests; there is no alternative.</p><?php
+			}
+			if (!function_exists("curl_init")) {
+				?><p><strong>Warning:</strong> Your web server's PHP installation does not included a required module (Curl). Please contact your web hosting provider's support. UpdraftPlus's DropBox module <strong>requires</strong> Curl. Your only options to get this working are 1) Install/enable curl or 2) Hire us or someone else to code additional support options into UpdraftPlus. 3) Wait, possibly forever, for someone else to do this.</p><?php
+			} else {
+				$curl_version = curl_version();
+				$curl_ssl_supported= ($curl_version['features'] & CURL_VERSION_SSL);
+				if (!$curl_ssl_supported) {
+				?><p><strong>Warning:</strong> Your web server's PHP/Curl installation does not support https access. We cannot access DropBox without this support. Please contact your web hosting provider's support. UpdraftPlus's DropBox module <strong>requires</strong> Curl+https. Your only options to get this working are 1) Install/enable curl with https or 2) Hire us or someone else to code additional support options into UpdraftPlus. 3) Wait, possibly forever, for someone else to do this.</p><?php
+				}
 			}
 			?>
 			</td>
@@ -236,6 +278,7 @@ class UpdraftPlus_BackupModule_dropbox {
 	// This basically reproduces the relevant bits of bootstrap.php from the SDK
 	function bootstrap($key, $secret) {
 
+		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/API.php');
 		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/Exception.php');
 		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/API.php');
 		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Consumer/ConsumerAbstract.php');
@@ -254,6 +297,7 @@ class UpdraftPlus_BackupModule_dropbox {
 		// Instantiate the storage
 		$storage = new Dropbox_WordPress($encrypter, "updraft_dropboxtk_");
 
+//		WordPress consumer does not yet work
 //		$OAuth = new Dropbox_ConsumerWordPress($key, $secret, $storage, $callback);
 		$OAuth = new Dropbox_Curl($key, $secret, $storage, $callback);
 		return new Dropbox_API($OAuth);
@@ -277,8 +321,6 @@ class UpdraftPlus_BackupModule_dropbox {
 			echo "Failure: No API secret was given.";
 			return;
 		}
-
-		if (!class_exists("DropBox_API")) require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/API.php');
 
 		echo "Not yet implemented. $key $secret $folder";
 
