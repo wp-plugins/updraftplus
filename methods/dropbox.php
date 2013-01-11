@@ -100,7 +100,7 @@ class UpdraftPlus_BackupModule_dropbox {
 
 		if (!get_option('updraft_dropbox_appkey') || get_option('updraft_dropboxtk_request_token', 'xyz') == 'xyz') {
 			$updraftplus->log('You do not appear to be authenticated with DropBox');
-			$updraftplus->error('You do not appear to be authenticated with DropBox');
+			//$updraftplus->error('You do not appear to be authenticated with DropBox');
 			return false;
 		}
 
@@ -108,7 +108,7 @@ class UpdraftPlus_BackupModule_dropbox {
 			$dropbox = $this->bootstrap(get_option('updraft_dropbox_appkey'), get_option('updraft_dropbox_secret'));
 		} catch (Exception $e) {
 			$updraftplus->log('DropBox error: '.print_r($e, true));
-			$updraftplus->error('DropBox error: failed to access DropBox (see log file for more)');
+			//$updraftplus->error('DropBox error: failed to access DropBox (see log file for more)');
 			return false;
 		}
 
