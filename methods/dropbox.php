@@ -149,6 +149,7 @@ class UpdraftPlus_BackupModule_dropbox {
 			<tr class="updraftplusmethod dropbox">
 			<th></th>
 			<td>
+			<p><strong>Warning:</strong> UpdraftPlus's DropBox support cannot yet upload anything bigger than 150Mb. If any of your created dumps (plugins, themes, content, database) exceed this, then you cannot use DropBox. We are working on it!</p>
 			<?php
 			// Check requirements. No need to check curl as we now use WP's built-in HTTP functions
 			if (!function_exists('mcrypt_encrypt')) {
