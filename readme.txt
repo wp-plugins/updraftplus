@@ -3,12 +3,12 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, Amazon S3, DropBox, DropBox backup, google drive, google, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.1.15
+Stable tag: 1.2.17
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-DropBox support
+Revert DropBox method to fix broken uploads
 
 == Description ==
 
@@ -112,9 +112,16 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.2.4 - 01/08/2013 =
+= 1.2.17 - 01/11/2013 =
+* Revert DropBox to CURL-only until we fix a remaining bug with WordPress's built-in methods
+* Fix unnecessary repetition of database dump upon resumption of a failed backup
+
+= 1.2.14 - 01/08/2013 =
 * DropBox support (no chunked uploading yet, but otherwise complete)
 * Make the creation of the database dump also resumable, for people with really slow servers
+* Database table backups are now timed
+* FTP logging slightly improved
+* DropBox support uses WordPress's built-in HTTP functions
 
 = 1.1.16 - 01/07/2013 =
 * Requested feature: more frequent scheduling options requested

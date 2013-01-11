@@ -223,7 +223,7 @@ class Dropbox_API
 
         return array(
             'name' => ($outFile) ? $outFile : basename($file),
-            'mime' => $this->getMimeType(($outFile) ?: $response['body'], $outFile),
+            'mime' => $this->getMimeType(($outFile) ? $outFile : $response['body'], $outFile),
             'meta' => json_decode($response['headers']['x-dropbox-metadata']),
             'data' => $response['body'],
         );

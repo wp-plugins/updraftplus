@@ -150,21 +150,9 @@ class UpdraftPlus_BackupModule_dropbox {
 			<th></th>
 			<td>
 			<?php
-			// Check requirements
-			if (version_compare(phpversion(), "5.3.1", "<")) {
-				?><p><strong>Warning:</strong> Your web server is running PHP <?php echo phpversion(); ?>. UpdraftPlus's DropBox module requires at least PHP 5.3.1. Possibly UpdraftPlus may work for you, but if it does not then please do not request support - we cannot help. Note that the popular &quot;DropBox for WordPress&quot; module is using the same DropBox toolkit as UpdraftPlus, so you will not have any more success there! PHP before 5.3.1 has been obsolete for a long time and you should ask your provider for an upgrade (or try <a href="http://www.simbahosting.co.uk">Simba Hosting</a>).</p><?php
-			}
+			// Check requirements. No need to check curl as we now use WP's built-in HTTP functions
 			if (!function_exists('mcrypt_encrypt')) {
 				?><p><strong>Warning:</strong> Your web server's PHP installation does not included a required module (MCrypt). Please contact your web hosting provider's support. UpdraftPlus's DropBox module <strong>requires</strong> MCrypt. Please do not file any support requests; there is no alternative.</p><?php
-			}
-			if (!function_exists("curl_init")) {
-				?><p><strong>Warning:</strong> Your web server's PHP installation does not included a required module (Curl). Please contact your web hosting provider's support. UpdraftPlus's DropBox module <strong>requires</strong> Curl. Your only options to get this working are 1) Install/enable curl or 2) Hire us or someone else to code additional support options into UpdraftPlus. 3) Wait, possibly forever, for someone else to do this.</p><?php
-			} else {
-				$curl_version = curl_version();
-				$curl_ssl_supported= ($curl_version['features'] & CURL_VERSION_SSL);
-				if (!$curl_ssl_supported) {
-				?><p><strong>Warning:</strong> Your web server's PHP/Curl installation does not support https access. We cannot access DropBox without this support. Please contact your web hosting provider's support. UpdraftPlus's DropBox module <strong>requires</strong> Curl+https. Your only options to get this working are 1) Install/enable curl with https or 2) Hire us or someone else to code additional support options into UpdraftPlus. 3) Wait, possibly forever, for someone else to do this.</p><?php
-				}
 			}
 			?>
 			</td>
@@ -242,24 +230,19 @@ class UpdraftPlus_BackupModule_dropbox {
 
 		self::bootstrap(get_option('updraft_dropbox_appkey'), get_option('updraft_dropbox_secret'));
 
-// 		$params = array(
-// 			'response_type' => 'code',
-// 			'client_id' => get_option('updraft_dropbo'),
-// 			'redirect_uri' => admin_url('options-general.php?page=updraftplus&action=updraftmethod-googledrive-auth'),
-// 			'scope' => 'https://www.googleapis.com/auth/drive.file https://docs.google.com/feeds/ https://docs.googleusercontent.com/ https://spreadsheets.google.com/feeds/',
-// 			'state' => 'token',
-// 			'access_type' => 'offline',
-// 			'approval_prompt' => 'auto'
-// 		);
-// 		header('Location: https://accounts.google.com/o/oauth2/auth?'.http_build_query($params));
 	}
 
 	// This basically reproduces the relevant bits of bootstrap.php from the SDK
 	function bootstrap($key, $secret) {
-	
-		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Storage/Encrypter.php')
-		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Storage/WordPress.php')
-		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Consumer/Curl.php')
+
+		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/Exception.php');
+		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/API.php');
+		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Consumer/ConsumerAbstract.php');
+		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Storage/StorageInterface.php');
+		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Storage/Encrypter.php');
+		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Storage/WordPress.php');
+		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Consumer/Curl.php');
+//		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Consumer/WordPress.php');
 
 		// Set the callback URL
 		$callback = admin_url('options-general.php?page=updraftplus&action=updraftmethod-dropbox-auth');
@@ -270,6 +253,7 @@ class UpdraftPlus_BackupModule_dropbox {
 		// Instantiate the storage
 		$storage = new Dropbox_WordPress($encrypter, "updraft_dropboxtk_");
 
+//		$OAuth = new Dropbox_ConsumerWordPress($key, $secret, $storage, $callback);
 		$OAuth = new Dropbox_Curl($key, $secret, $storage, $callback);
 		return new Dropbox_API($OAuth);
 	}
