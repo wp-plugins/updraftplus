@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: All your content and your DB can be automatically backed up to Amazon S3, DropBox, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.2.16
+Version: 1.2.17
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -13,9 +13,10 @@ Author URI: http://wordshell.net
 /*
 TODO
 //Add Box.Net and Microsoft Skydrive support??
-//improve error reporting / pretty up return messages in admin area
+//improve error reporting / pretty up return messages in admin area. One thing: have a "backup is now finished" flag. Otherwise with the resuming things get ambiguous/confusing. See http://wordpress.org/support/topic/backup-status - user was not aware that backup completely failed. Maybe a "backup status" field for each nonce that gets updated? (Even via AJAX?)
 //?? On 'backup now', open up a Lightbox, count down 5 seconds, then start examining the log file (if it can be found)
 //Should make clear in dashboard what is a non-fatal error (i.e. can be retried) - leads to unnecessary bug reports
+//Eventually, when everything can be resumed, we will no longer need the backup() routine; it can be replaced with the resume() routine
 
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
 // Does not delete old custom directories upon a restore?
@@ -57,7 +58,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.2.16';
+	var $version = '1.2.17';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -181,13 +182,17 @@ class UpdraftPlus {
 		$backup_database = get_transient("updraft_backdb_".$bnonce);
 
 		// The transient is read and written below (instead of using the existing variable) so that we can copy-and-paste this part as needed.
-		if ($backup_database) {
-			$this->log("Beginning backup of database");
+		if ($backup_database == "begun") {
+			$this->log("Resuming creation of database dump");
 			$db_backup = $this->backup_db();
 			if(is_array($our_files)) $our_files['db'] = $db_backup;
 			$backup_contains = get_transient("updraft_backupcontains_".$this->nonce);
 			$backup_contains = (substr($backup_contains,0,10) == "Files only") ? "Files and database" : "Database only (no files)";
 			set_transient("updraft_backupcontains_".$this->nonce, $backup_contains, 3600*3);
+		} elseif ($backup_database == "finished") {
+			$this->log("Database dump: Creation was completed already");
+		} else {
+			$this->log("Unrecognised data when trying to ascertain if the database was backed up ($backup_database)");
 		}
 
 		// Save this to our history so we can track backups for the retain feature
@@ -203,6 +208,7 @@ class UpdraftPlus {
 
 		foreach ($our_files as $key => $file) {
 
+			if ($key == 'nonce') { continue; }
 			$hash = md5($file);
 			$fullpath = trailingslashit(get_option('updraft_dir')).$file;
 			if (get_transient('updraft_'.$hash) === "yes") {
@@ -291,7 +297,7 @@ class UpdraftPlus {
 
 		// Log some information that may be helpful
 		global $wp_version;
-		$this->log("PHP version: ".phpversion()." (".php_uname().") WordPress version: ".$wp_version." Updraft version: ".$this->version." PHP Max Execution Time: ".ini_get("max_execution_time")." Backup files: $backup_files (schedule: ".get_option('updraft_interval','unset').") Backup DB: $backup_database (schedule: ".get_option('updraft_interval_database','unset').")");
+		$this->log("PHP version: ".phpversion()." (".@php_uname().") WordPress version: ".$wp_version." Updraft version: ".$this->version." PHP Max Execution Time: ".@ini_get("max_execution_time")." Backup files: $backup_files (schedule: ".get_option('updraft_interval','unset').") Backup DB: $backup_database (schedule: ".get_option('updraft_interval_database','unset').")");
 
 		# If the files and database schedules are the same, and if this the file one, then we rope in database too.
 		# On the other hand, if the schedules were the same and this was the database run, then there is nothing to do.
@@ -336,7 +342,7 @@ class UpdraftPlus {
 			}
 
 			// Save what *should* be done, to make it resumable from this point on
-			set_transient("updraft_backdb_".$this->nonce, $backup_database, 3600*3);
+			set_transient("updraft_backdb_".$this->nonce, "begun", 3600*3);
 			// Save this to our history so we can track backups for the retain feature
 			$this->log("Saving backup history");
 			$this->save_backup_history($backup_array);
@@ -351,6 +357,7 @@ class UpdraftPlus {
 				$backup_contains = get_transient("updraft_backupcontains_".$this->nonce);
 				$backup_contains = (substr($backup_contains,0,10) == "Files only") ? "Files and database" : "Database only (no files)";
 				set_transient("updraft_backupcontains_".$this->nonce, $backup_contains, 3600*3);
+				set_transient("updraft_backdb_".$this->nonce, "finished", 3600*3);
 			}
 
 			$this->check_backup_race($backup_array);

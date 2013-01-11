@@ -241,8 +241,8 @@ class UpdraftPlus_BackupModule_dropbox {
 		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Storage/StorageInterface.php');
 		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Storage/Encrypter.php');
 		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Storage/WordPress.php');
-// 		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Consumer/Curl.php');
-		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Consumer/WordPress.php');
+		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Consumer/Curl.php');
+//		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Consumer/WordPress.php');
 
 		// Set the callback URL
 		$callback = admin_url('options-general.php?page=updraftplus&action=updraftmethod-dropbox-auth');
@@ -253,8 +253,8 @@ class UpdraftPlus_BackupModule_dropbox {
 		// Instantiate the storage
 		$storage = new Dropbox_WordPress($encrypter, "updraft_dropboxtk_");
 
-		$OAuth = new Dropbox_ConsumerWordPress($key, $secret, $storage, $callback);
-// 		$OAuth = new Dropbox_Curl($key, $secret, $storage, $callback);
+//		$OAuth = new Dropbox_ConsumerWordPress($key, $secret, $storage, $callback);
+		$OAuth = new Dropbox_Curl($key, $secret, $storage, $callback);
 		return new Dropbox_API($OAuth);
 	}
 
