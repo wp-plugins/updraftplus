@@ -36,8 +36,8 @@ class UpdraftPlus_BackupModule_s3 {
 				// This is extra code for the 1-chunk case, but less overhead (no bothering with transients)
 				if ($chunks < 2) {
 					if (!$s3->putObjectFile($fullpath, $bucket_name, $filepath)) {
-						$updraftplus->log("S3 regular upload: failed");
-						$updraftplus->error("S3 Error: Failed to upload $fullpath.");
+						$updraftplus->log("S3 regular upload: failed ($fullpath)");
+						$updraftplus->error("S3 Error: Failed to upload $file.");
 					} else {
 						$updraftplus->log("S3 regular upload: success");
 						$updraftplus->uploaded_file($file);
@@ -88,7 +88,7 @@ class UpdraftPlus_BackupModule_s3 {
 							$updraftplus->uploaded_file($file);
 						} else {
 							$updraftplus->log("S3 upload: re-assembly failed");
-							$updraftplus->error("S3 upload: re-assembly failed");
+							$updraftplus->error("S3 upload: re-assembly failed ($file)");
 						}
 					} else {
 						$updraftplus->log("S3 upload: upload was not completely successful on this run");
@@ -123,10 +123,10 @@ class UpdraftPlus_BackupModule_s3 {
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 204) {
 			$updraftplus->log("S3 Error: Expected HTTP response 204; got: ".$rest->code);
-			$updraftplus->error("S3 Error: Unexpected HTTP response code ".$rest->code." (expected 204)");
+			//$updraftplus->error("S3 Error: Unexpected HTTP response code ".$rest->code." (expected 204)");
 		} elseif ($rest->error !== false) {
 			$updraftplus->log("S3 Error: ".$rest->error['code'].": ".$rest->error['message']);
-			$updraftplus->error("S3 delete error: ".$rest->error['code'].": ".$rest->error['message']);
+			//$updraftplus->error("S3 delete error: ".$rest->error['code'].": ".$rest->error['message']);
 		}
 
 	}
@@ -148,7 +148,7 @@ class UpdraftPlus_BackupModule_s3 {
 		if (@$s3->getBucketLocation($bucket_name)) {
 			$fullpath = trailingslashit(get_option('updraft_dir')).$file;
 			if (!$s3->getObject($bucket_name, $bucket_path.$file, $fullpath)) {
-				$updraftplus->error("S3 Error: Failed to download $fullpath. Check your permissions and credentials.");
+				$updraftplus->error("S3 Error: Failed to download $file. Check your permissions and credentials.");
 			}
 		} else {
 			$updraftplus->error("S3 Error: Failed to access bucket $bucket_name. Check your permissions and credentials.");
