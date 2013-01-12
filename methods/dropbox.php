@@ -162,8 +162,7 @@ class UpdraftPlus_BackupModule_dropbox {
 			<tr class="updraftplusmethod dropbox">
 				<th></th>
 				<td>
-				<p>Once you have an active DropBox account, <a href="https://www.dropbox.com/developers/apps">get your app key and secret from here</a>. <strong>Set up App Folder access.</strong></p>
-				<p>Note that UpdraftPlus's DropBox support does not yet support chunked uploading of massive files. This means that UpdraftPlus will need enough resources each time WordPress calls it in order to upload at least one complete file from your backup set. You can help to support chunked uploading <a href="http://david.dw-perspective.org.uk/donate">by making a donation</a>.</p>
+				<p>Once you have an active DropBox account, you will need to set up an 'app' - <a href="https://www.dropbox.com/developers/apps">get your app key and secret from here</a>. <strong>Set up App Folder access, and select the &quot;Core API&quot;.</strong> (You can give the app whatever name and description you like).</p>
 				</td>
 			</tr>
 

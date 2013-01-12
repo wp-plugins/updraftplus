@@ -3,12 +3,12 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, Amazon S3, DropBox, DropBox backup, google drive, google, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.2.19
+Stable tag: 1.2.20
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-DropBox can now support larger, resumable uploads
+DropBox can now support larger, resumable uploads. Also improved DropBox help text.
 
 == Description ==
 
@@ -112,9 +112,10 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.2.19 - 01/11/2013 =
+= 1.2.20 - 01/12/2013 =
 * DropBox no longer limited to 150Mb uploads
 * DropBox can upload in chunks and resume uploading chunks
+* Improved DropBox help text
 
 = 1.2.18 - 01/11/2013 =
 * Revert DropBox to CURL-only - was not working properly with WordPress's built-in methods
