@@ -2,9 +2,9 @@
 /*
 Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
-Description: Backup and Restore: Uploads, themes, plugins, other content and your DB can be automatically backed up to Amazon S3, DropBox, Google Drive, FTP, or emailed, on separate schedules.
+Description: Backup and restore: All your content and your DB can be automatically backed up to Amazon S3, DropBox, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.2.4
+Version: 1.2.20
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -12,9 +12,12 @@ Author URI: http://wordshell.net
 
 /*
 TODO
-//Add DropBox and Microsoft Skydrive support
-//improve error reporting / pretty up return messages in admin area
+//Add Box.Net, SugarSync and Microsoft Skydrive support??
+//improve error reporting / pretty up return messages in admin area. One thing: have a "backup is now finished" flag. Otherwise with the resuming things get ambiguous/confusing. See http://wordpress.org/support/topic/backup-status - user was not aware that backup completely failed. Maybe a "backup status" field for each nonce that gets updated? (Even via AJAX?)
 //?? On 'backup now', open up a Lightbox, count down 5 seconds, then start examining the log file (if it can be found)
+//Should make clear in dashboard what is a non-fatal error (i.e. can be retried) - leads to unnecessary bug reports
+//Eventually, when everything can be resumed, we will no longer need the backup() routine; it can be replaced with the resume() routine
+// Should we resume if the only errors were upon deletion (i.e. the backup itself was fine?) Presently we do, but it displays errors for the user to confuse them.
 
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
 // Does not delete old custom directories upon a restore?
@@ -56,7 +59,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.2.4';
+	var $version = '1.2.20';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -180,13 +183,17 @@ class UpdraftPlus {
 		$backup_database = get_transient("updraft_backdb_".$bnonce);
 
 		// The transient is read and written below (instead of using the existing variable) so that we can copy-and-paste this part as needed.
-		if ($backup_database) {
-			$this->log("Beginning backup of database");
+		if ($backup_database == "begun") {
+			$this->log("Resuming creation of database dump");
 			$db_backup = $this->backup_db();
 			if(is_array($our_files)) $our_files['db'] = $db_backup;
 			$backup_contains = get_transient("updraft_backupcontains_".$this->nonce);
 			$backup_contains = (substr($backup_contains,0,10) == "Files only") ? "Files and database" : "Database only (no files)";
 			set_transient("updraft_backupcontains_".$this->nonce, $backup_contains, 3600*3);
+		} elseif ($backup_database == "finished") {
+			$this->log("Database dump: Creation was completed already");
+		} else {
+			$this->log("Unrecognised data when trying to ascertain if the database was backed up ($backup_database)");
 		}
 
 		// Save this to our history so we can track backups for the retain feature
@@ -202,6 +209,7 @@ class UpdraftPlus {
 
 		foreach ($our_files as $key => $file) {
 
+			if ($key == 'nonce') { continue; }
 			$hash = md5($file);
 			$fullpath = trailingslashit(get_option('updraft_dir')).$file;
 			if (get_transient('updraft_'.$hash) === "yes") {
@@ -290,7 +298,7 @@ class UpdraftPlus {
 
 		// Log some information that may be helpful
 		global $wp_version;
-		$this->log("PHP version: ".phpversion()." (".php_uname().") WordPress version: ".$wp_version." Updraft version: ".$this->version." PHP Max Execution Time: ".ini_get("max_execution_time")." Backup files: $backup_files (schedule: ".get_option('updraft_interval','unset').") Backup DB: $backup_database (schedule: ".get_option('updraft_interval_database','unset').")");
+		$this->log("PHP version: ".phpversion()." (".@php_uname().") WordPress version: ".$wp_version." Updraft version: ".$this->version." PHP Max Execution Time: ".@ini_get("max_execution_time")." Backup files: $backup_files (schedule: ".get_option('updraft_interval','unset').") Backup DB: $backup_database (schedule: ".get_option('updraft_interval_database','unset').")");
 
 		# If the files and database schedules are the same, and if this the file one, then we rope in database too.
 		# On the other hand, if the schedules were the same and this was the database run, then there is nothing to do.
@@ -335,7 +343,7 @@ class UpdraftPlus {
 			}
 
 			// Save what *should* be done, to make it resumable from this point on
-			set_transient("updraft_backdb_".$this->nonce, $backup_database, 3600*3);
+			set_transient("updraft_backdb_".$this->nonce, "begun", 3600*3);
 			// Save this to our history so we can track backups for the retain feature
 			$this->log("Saving backup history");
 			$this->save_backup_history($backup_array);
@@ -350,6 +358,7 @@ class UpdraftPlus {
 				$backup_contains = get_transient("updraft_backupcontains_".$this->nonce);
 				$backup_contains = (substr($backup_contains,0,10) == "Files only") ? "Files and database" : "Database only (no files)";
 				set_transient("updraft_backupcontains_".$this->nonce, $backup_contains, 3600*3);
+				set_transient("updraft_backdb_".$this->nonce, "finished", 3600*3);
 			}
 
 			$this->check_backup_race($backup_array);
@@ -865,11 +874,7 @@ class UpdraftPlus {
 		// Finally, stitch the files together
 		$this->backup_db_open($backup_file_base.'-db.gz', true);
 		$this->backup_db_header();
-		if (defined("DB_CHARSET")) {
-			$this->stow("/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;\n");
-			$this->stow("/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;\n");
-			$this->stow("/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;\n");
-		}
+
 		foreach ($stitch_files as $table_file) {
 			$this->log("{$table_file}.gz: adding to final database dump");
 			$handle = gzopen($updraft_dir.'/'.$table_file.'.gz', "r");
@@ -877,6 +882,13 @@ class UpdraftPlus {
 			gzclose($handle);
 			@unlink($updraft_dir.'/'.$table_file.'.gz');
 		}
+
+		if (defined("DB_CHARSET")) {
+			$this->stow("/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;\n");
+			$this->stow("/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;\n");
+			$this->stow("/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;\n");
+		}
+
 		$this->log($file_base.'-db.gz: finished writing out complete database file');
 		$this->close($this->dbhandle);
 
@@ -902,6 +914,8 @@ class UpdraftPlus {
 	 */
 	function backup_table($table, $segment = 'none') {
 		global $wpdb;
+
+		$microtime = microtime(true);
 
 		$total_rows = 0;
 
@@ -949,24 +963,21 @@ class UpdraftPlus {
 			$this->stow("#\n");
 		}
 		
+		// In UpdraftPlus, segment is always 'none'
 		if(($segment == 'none') || ($segment >= 0)) {
 			$defs = array();
-			$ints = array();
+			$integer_fields = array();
+			// $table_structure was from "DESCRIBE $table"
 			foreach ($table_structure as $struct) {
-				if ( (0 === strpos($struct->Type, 'tinyint')) ||
-					(0 === strpos(strtolower($struct->Type), 'smallint')) ||
-					(0 === strpos(strtolower($struct->Type), 'mediumint')) ||
-					(0 === strpos(strtolower($struct->Type), 'int')) ||
-					(0 === strpos(strtolower($struct->Type), 'bigint')) ) {
+				if ( (0 === strpos($struct->Type, 'tinyint')) || (0 === strpos(strtolower($struct->Type), 'smallint')) ||
+					(0 === strpos(strtolower($struct->Type), 'mediumint')) || (0 === strpos(strtolower($struct->Type), 'int')) || (0 === strpos(strtolower($struct->Type), 'bigint')) ) {
 						$defs[strtolower($struct->Field)] = ( null === $struct->Default ) ? 'NULL' : $struct->Default;
-						$ints[strtolower($struct->Field)] = "1";
+						$integer_fields[strtolower($struct->Field)] = "1";
 				}
 			}
 			
 			// Batch by $row_inc
-			if ( ! defined('ROWS_PER_SEGMENT') ) {
-				define('ROWS_PER_SEGMENT', 100);
-			}
+			if ( ! defined('ROWS_PER_SEGMENT') ) define('ROWS_PER_SEGMENT', 100);
 			
 			if($segment == 'none') {
 				$row_start = 0;
@@ -978,8 +989,8 @@ class UpdraftPlus {
 			do {
 
 				if ( !ini_get('safe_mode') || strtolower(ini_get('safe_mode')) == "off") @set_time_limit(15*60);
-				$table_data = $wpdb->get_results("SELECT * FROM $table $where LIMIT {$row_start}, {$row_inc}", ARRAY_A);
-				$entries = 'INSERT INTO ' . $this->backquote($table) . ' VALUES (';	
+				$table_data = $wpdb->get_results("SELECT * FROM $table LIMIT {$row_start}, {$row_inc}", ARRAY_A);
+				$entries = 'INSERT INTO ' . $this->backquote($table) . ' VALUES (';
 				//    \x08\\x09, not required
 				$search = array("\x00", "\x0a", "\x0d", "\x1a");
 				$replace = array('\0', '\n', '\r', '\Z');
@@ -988,13 +999,13 @@ class UpdraftPlus {
 						$total_rows++;
 						$values = array();
 						foreach ($row as $key => $value) {
-							if ($ints[strtolower($key)]) {
+							if (isset($integer_fields[strtolower($key)])) {
 								// make sure there are no blank spots in the insert syntax,
 								// yet try to avoid quotation marks around integers
 								$value = ( null === $value || '' === $value) ? $defs[strtolower($key)] : $value;
 								$values[] = ( '' === $value ) ? "''" : $value;
 							} else {
-								$values[] = "'" . str_replace($search, $replace, $this->sql_addslashes($value)) . "'";
+								$values[] = "'" . str_replace($search, $replace, str_replace('\'', '\\\'', str_replace('\\', '\\\\', $value))) . "'";
 							}
 						}
 						$this->stow(" \n" . $entries . implode(', ', $values) . ');');
@@ -1012,7 +1023,7 @@ class UpdraftPlus {
 			$this->stow("# --------------------------------------------------------\n");
 			$this->stow("\n");
 		}
- 		$this->log("Table $table: Total rows added: $total_rows");
+ 		$this->log("Table $table: Total rows added: $total_rows in ".sprintf("%.02f",microtime(true)-$microtime)." seconds");
 
 	} // end backup_table()
 
@@ -1060,16 +1071,6 @@ class UpdraftPlus {
 			return $a_name;
 		}
 	}
-
-	/**
-	 * Better addslashes for SQL queries.
-	 * Taken from phpMyAdmin.
-	 */
-	function sql_addslashes($a_string = '', $is_like = false) {
-		if ($is_like) $a_string = str_replace('\\', '\\\\\\\\', $a_string);
-		else $a_string = str_replace('\\', '\\\\', $a_string);
-		return str_replace('\'', '\\\'', $a_string);
-	} 
 
 	/*END OF WP-DB-BACKUP BLOCK */
 
@@ -1584,7 +1585,7 @@ ENDHERE;
 					$current_time = date('D, F j, Y H:i T',time());
 					$updraft_last_backup = get_option('updraft_last_backup');
 					if($updraft_last_backup) {
-						$last_backup = ($updraft_last_backup['success']) ? date('D, F j, Y H:i T',$updraft_last_backup['backup_time']) : print_r($updraft_last_backup['errors'],true);
+						$last_backup = ($updraft_last_backup['success']) ? date('D, F j, Y H:i T',$updraft_last_backup['backup_time']) : implode("<br>",$updraft_last_backup['errors']);
 						$last_backup_color = ($updraft_last_backup['success']) ? 'green' : 'red';
 						if (!empty($updraft_last_backup['backup_nonce'])) {
 							$potential_log_file = $updraft_dir."/log.".$updraft_last_backup['backup_nonce'].".txt";
