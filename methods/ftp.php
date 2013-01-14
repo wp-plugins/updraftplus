@@ -8,7 +8,8 @@ class UpdraftPlus_BackupModule_ftp {
 
 		if( !class_exists('ftp_wrapper')) require_once(UPDRAFTPLUS_DIR.'/includes/ftp.class.php');
 
-		$ftp = new ftp_wrapper(get_option('updraft_server_address'), get_option('updraft_ftp_login'), get_option('updraft_ftp_pass'));
+		$server = get_option('updraft_server_address');
+		$ftp = new ftp_wrapper($server , get_option('updraft_ftp_login'), get_option('updraft_ftp_pass'));
 		$ftp->passive = true;
 
 		if (!$ftp->connect()) {
@@ -25,7 +26,7 @@ class UpdraftPlus_BackupModule_ftp {
 		$ftp_remote_path = trailingslashit(get_option('updraft_ftp_remote_path'));
 		foreach($backup_array as $file) {
 			$fullpath = trailingslashit(get_option('updraft_dir')).$file;
-			$updraftplus->log("FTP upload attempt: $file -> ${ftp_remote_path}${file}");
+			$updraftplus->log("FTP upload attempt: $file -> ftp://$server/${ftp_remote_path}${file}");
 			$timer_start = microtime(true);
 			$size_k = round(filesize($fullpath)/1024,1);
 			if ($ftp->put($fullpath, $ftp_remote_path.$file, FTP_BINARY)) {
