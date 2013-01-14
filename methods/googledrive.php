@@ -207,7 +207,7 @@ class UpdraftPlus_BackupModule_googledrive {
 
 			if ( is_wp_error( $res ) || $res !== true) {
 				$updraftplus->log( "An error occurred during GoogleDrive upload (2)" );
-				$updraftplus->error( "An error occurred during GoogleDrive upload (2)" );
+				$updraftplus->error( "An error occurred during GoogleDrive upload (see log for more details" );
 				if (is_wp_error( $res )) {
 					foreach ($res->get_error_messages() as $msg) $updraftplus->log($msg);
 				}
@@ -236,7 +236,7 @@ class UpdraftPlus_BackupModule_googledrive {
 
 		// Do we have an access token?
 		if ( !$access_token = $updraftplus->access_token( get_option('updraft_googledrive_token'), get_option('updraft_googledrive_clientid'), get_option('updraft_googledrive_secret') )) {
-			$updraftplus->error('ERROR: Have not yet obtained an access token from Google (has the user authorised?)');
+			$updraftplus->error('Have not yet obtained an access token from Google (has the user authorised?)');
 			return false;
 		}
 
