@@ -8,7 +8,7 @@ Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-DropBox can now support larger, resumable uploads. Also improved DropBox help text.
+DropBox can now support larger, resumable uploads. Also improved DropBox help text. Made file downloads resumable.
 
 == Description ==
 
