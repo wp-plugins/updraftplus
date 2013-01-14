@@ -1654,7 +1654,7 @@ ENDHERE;
 			<div style="float:left; width:200px; padding-top: 100px;">
 				<form method="post" action="">
 					<input type="hidden" name="action" value="updraft_backup" />
-					<p><input type="submit" <?php echo $backup_disabled ?> class="button-primary" value="Backup Now!" style="padding-top:3px;padding-bottom:3px;font-size:24px !important" onclick="return(confirm('This will schedule a one-time backup.  To trigger the backup you should go ahead, then wait 10 seconds, then load a page on your site.'))" /></p>
+					<p><input type="submit" <?php echo $backup_disabled ?> class="button-primary" value="Backup Now!" style="padding-top:3px;padding-bottom:3px;font-size:24px !important" onclick="return(confirm('This will schedule a one-time backup. To trigger the backup you should go ahead, then wait 10 seconds, then load a page on your site. WordPress should then start the backup running in the background.'))" /></p>
 				</form>
 				<div style="position:relative">
 					<div style="position:absolute;top:0;left:0">
