@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: All your content and your DB can be automatically backed up to Amazon S3, DropBox, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.2.25
+Version: 1.2.26
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -66,7 +66,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.2.25';
+	var $version = '1.2.26';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -181,10 +181,12 @@ class UpdraftPlus {
 		$this->backup_time = $btime;
 
 		$backup_array = $this->resumable_backup_of_files(false);
+		// This save, if there was something, is then immediately picked up again
+		if (is_array($backup_array)) $this->save_backup_history($backup_array);
 
 		// Returns an array, most recent first, of backup sets
 		$backup_history = $this->get_backup_history();
-		if (!isset($backup_history[$btime])) $this->log("Error: Could not find a record in the database of a backup with this timestamp");
+		if (!isset($backup_history[$btime])) $this->log("Could not find a record in the database of a backup with this timestamp");
 
 		$our_files=$backup_history[$btime];
 		$undone_files = array();
@@ -370,6 +372,9 @@ class UpdraftPlus {
 
 			$this->check_backup_race();
 
+			// Save what *should* be done, to make it resumable from this point on
+			set_transient("updraft_backdb_".$this->nonce, "begun", 3600*3);
+
 			// The function itself will set to 'finished' if relevant
 			// The presence of the transient indicates that files are supposed to be in this set
 			if ($backup_files) {
@@ -377,8 +382,6 @@ class UpdraftPlus {
 				$backup_array = $this->resumable_backup_of_files(false);
 			}
 
-			// Save what *should* be done, to make it resumable from this point on
-			set_transient("updraft_backdb_".$this->nonce, "begun", 3600*3);
 			// Save this to our history so we can track backups for the retain feature
 			$this->log("Saving backup history");
 			$this->save_backup_history($backup_array);
@@ -649,7 +652,7 @@ class UpdraftPlus {
 		// Note: $create_from_dir can be an array or a string
 		@set_time_limit(900);
 
-		if ($whichone != "others") $this->log("Beginning backup of $whichone");
+		if ($whichone != "others") $this->log("Beginning creation of dump of $whichone");
 
 		$full_path = $create_in_dir.'/'.$backup_file_basename.'-'.$whichone.'.zip';
 
