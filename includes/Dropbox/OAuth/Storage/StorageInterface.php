@@ -7,9 +7,8 @@
  * @package Dropbox\OAuth
  * @subpackage Storage
  */
-namespace Dropbox\OAuth\Storage;
 
-interface StorageInterface
+interface Dropbox_StorageInterface
 {
     /**
      * Get a token by type
