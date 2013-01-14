@@ -3,7 +3,7 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, Amazon S3, DropBox, DropBox backup, google drive, google, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.2.20
+Stable tag: 1.2.24
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
@@ -111,6 +111,9 @@ Yes; especially before you submit any support requests.
 Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ . I am also available for hire for bespoke work.
 
 == Changelog ==
+
+= 1.2.24 - 01/14/2013 =
+* Fixed bug with DropBox deletions
 
 = 1.2.20 - 01/12/2013 =
 * DropBox no longer limited to 150Mb uploads

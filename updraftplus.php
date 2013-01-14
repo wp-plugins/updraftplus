@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: All your content and your DB can be automatically backed up to Amazon S3, DropBox, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.2.20
+Version: 1.2.22
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -18,6 +18,9 @@ TODO
 //Should make clear in dashboard what is a non-fatal error (i.e. can be retried) - leads to unnecessary bug reports
 //Eventually, when everything can be resumed, we will no longer need the backup() routine; it can be replaced with the resume() routine
 // Should we resume if the only errors were upon deletion (i.e. the backup itself was fine?) Presently we do, but it displays errors for the user to confuse them.
+// Separate 'retain' settings for db + files (since they are on separate schedules)
+// Warn the user if their zip-file creation is slooowww...
+// Create a "Want Support?" button/console, that leads them through what is needed, and performs some basic tests...
 
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
 // Does not delete old custom directories upon a restore?
@@ -59,7 +62,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.2.20';
+	var $version = '1.2.22';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -482,7 +485,7 @@ class UpdraftPlus {
 	function uploaded_file($file, $id = false) {
 		# We take an MD5 hash because set_transient wants a name of 45 characters or less
 		$hash = md5($file);
-		$this->log("$file: $hash: recording as successfully uploaded");
+		$this->log("Recording as successfully uploaded: $file ($hash)");
 		set_transient("updraft_".$hash, "yes", 3600*4);
 		if ($id) {
 			$ids = get_option('updraft_file_ids', array() );
@@ -609,18 +612,44 @@ class UpdraftPlus {
 		}
 		return true;
 	}
-	
+
+	function create_zip($whichone, $backup_file_base, $create_from_dir) {
+		// Note: $create_from_dir can be an array or a string
+		@set_time_limit(900);
+
+		if ($whichone != "others") $this->log("Beginning backup of $whichone");
+
+		$full_path = $backup_file_base.'-'.$whichone.'.zip';
+		$zip_object = new PclZip($full_path);
+
+		$microtime_start = microtime(true);
+		# The paths in the zip should then begin with '$whichone', having removed WP_CONTENT_DIR from the front
+		if (!$zip_object->create($create_from_dir, PCLZIP_OPT_REMOVE_PATH, WP_CONTENT_DIR)) {
+			$this->error("Could not create $whichone zip. Consult the log file for more information.");
+			$this->log("ERROR: PclZip failure: Could not create $whichone zip");
+			return false;
+		} else {
+			$timetaken = max(microtime(true)-$microtime_start, 0.000001);
+			$kbsize = filesize($full_path)/1024;
+			$rate = round($kbsize/$timetaken, 1);
+			$this->log("Created $whichone zip - file size is ".round($kbsize,1)." Kb in ".round($timetaken,1)." s ($rate Kb/s)");
+		}
+		$this->check_backup_race($backup_array);
+		return basename($full_path);
+	}
+
 	function backup_dirs() {
+
 		if(!$this->backup_time) $this->backup_time_nonce();
-		$wp_themes_dir = WP_CONTENT_DIR.'/themes';
-		$wp_upload_dir = wp_upload_dir();
-		$wp_upload_dir = $wp_upload_dir['basedir'];
-		$wp_plugins_dir = WP_PLUGIN_DIR;
 
 		if(!class_exists('PclZip')) require_once(ABSPATH.'/wp-admin/includes/class-pclzip.php');
 
 		$updraft_dir = $this->backups_dir_location();
-		if(!is_writable($updraft_dir)) $this->error('Backup directory is not writable, or does not exist.','fatal');
+		if(!is_writable($updraft_dir)) {
+			$this->error('Backup directory is not writable, or does not exist.','fatal');
+			$this->log('Backup directory is not writable, or does not exist');
+			return array();
+		}
 
 		//get the blog name and rip out all non-alphanumeric chars other than _
 		$blog_name = str_replace(' ','_',get_bloginfo());
@@ -631,70 +660,27 @@ class UpdraftPlus {
 
 		$backup_array = array();
 
-		# Plugins
-		@set_time_limit(900);
-		if (get_option('updraft_include_plugins', true)) {
-			$this->log("Beginning backup of plugins");
-			$full_path = $backup_file_base.'-plugins.zip';
-			$plugins = new PclZip($full_path);
-			# The paths in the zip should then begin with 'plugins', having removed WP_CONTENT_DIR from the front
-			if (!$plugins->create($wp_plugins_dir,PCLZIP_OPT_REMOVE_PATH,WP_CONTENT_DIR)) {
-				$this->error('Could not create plugins zip. Error was '.$php_errmsg,'fatal');
-				$this->log('ERROR: PclZip failure: Could not create plugins zip');
+		$wp_themes_dir = WP_CONTENT_DIR.'/themes';
+		$wp_upload_dir = wp_upload_dir();
+		$wp_upload_dir = $wp_upload_dir['basedir'];
+		$wp_plugins_dir = WP_PLUGIN_DIR;
+
+		$possible_backups = array ('plugins' => $wp_plugins_dir, 'themes' => $wp_themes_dir, 'uploads' => $wp_upload_dir);
+
+		# Plugins, themes, uploads
+		foreach ($possible_backups as $youwhat => $whichdir) {
+			if (get_option("updraft_include_$youwhat", true)) {
+				$created = $this->create_zip($youwhat, $backup_file_base, $whichdir);
+				if ($created) $backup_array[$youwhat] = $created;
 			} else {
-				$this->log("Created plugins zip - file size is ".filesize($full_path)." bytes");
+				$this->log("No backup of $youwhat: excluded by user's options");
 			}
-			$backup_array['plugins'] = basename($full_path);
-		} else {
-			$this->log("No backup of plugins: excluded by user's options");
 		}
-
-		$this->check_backup_race($backup_array);
-
-		# Themes
-		@set_time_limit(900);
-		if (get_option('updraft_include_themes', true)) {
-			$this->log("Beginning backup of themes");
-			$full_path = $backup_file_base.'-themes.zip';
-			$themes = new PclZip($full_path);
-			if (!$themes->create($wp_themes_dir,PCLZIP_OPT_REMOVE_PATH,WP_CONTENT_DIR)) {
-				$this->error('Could not create themes zip. Error was '.$php_errmsg,'fatal');
-				$this->log('ERROR: PclZip failure: Could not create themes zip');
-			} else {
-				$this->log("Created themes zip - file size is ".filesize($full_path)." bytes");
-			}
-			$backup_array['themes'] = basename($full_path);
-		} else {
-			$this->log("No backup of themes: excluded by user's options");
-		}
-
-		$this->check_backup_race($backup_array);
-
-		# Uploads
-		@set_time_limit(900);
-		if (get_option('updraft_include_uploads', true)) {
-			$this->log("Beginning backup of uploads");
-			$full_path = $backup_file_base.'-uploads.zip';
-			$uploads = new PclZip($full_path);
-			if (!$uploads->create($wp_upload_dir,PCLZIP_OPT_REMOVE_PATH,WP_CONTENT_DIR)) {
-				$this->error('Could not create uploads zip. Error was '.$php_errmsg,'fatal');
-				$this->log('ERROR: PclZip failure: Could not create uploads zip');
-			} else {
-				$this->log("Created uploads zip - file size is ".filesize($full_path)." bytes");
-			}
-			$backup_array['uploads'] = basename($full_path);
-		} else {
-			$this->log("No backup of uploads: excluded by user's options");
-		}
-
-		$this->check_backup_race($backup_array);
 
 		# Others
-		@set_time_limit(900);
 		if (get_option('updraft_include_others', true)) {
 			$this->log("Beginning backup of other directories found in the content directory");
-			$full_path=$backup_file_base.'-others.zip';
-			$others = new PclZip($full_path);
+
 			// http://www.phpconcept.net/pclzip/user-guide/53
 			/* First parameter to create is:
 				An array of filenames or dirnames,
@@ -703,17 +689,11 @@ class UpdraftPlus {
 				or
 				A string containing a list of filename or dirname separated by a comma.
 			*/
-			// First, see what we can find. We always want to exclude these:
-			$wp_themes_dir = WP_CONTENT_DIR.'/themes';
-			$wp_upload_dir = wp_upload_dir();
-			$wp_upload_dir = $wp_upload_dir['basedir'];
-			$wp_plugins_dir = WP_PLUGIN_DIR;
-			$updraft_dir = untrailingslashit(get_option('updraft_dir'));
 
 			# Initialise
 			$other_dirlist = array(); 
-			
-			$others_skip = preg_split("/,/",get_option('updraft_include_others_exclude',UPDRAFT_DEFAULT_OTHERS_EXCLUDE));
+
+			$others_skip = preg_split("/,/",get_option('updraft_include_others_exclude', UPDRAFT_DEFAULT_OTHERS_EXCLUDE));
 			# Make the values into the keys
 			$others_skip = array_flip($others_skip);
 
@@ -727,20 +707,16 @@ class UpdraftPlus {
 					elseif ($candidate == $wp_upload_dir) { $this->log("$entry: skipping: this is the uploads directory"); }
 					elseif ($candidate == $wp_plugins_dir) { $this->log("$entry: skipping: this is the plugins directory"); }
 					elseif (isset($others_skip[$entry])) { $this->log("$entry: skipping: excluded by options"); }
-					else { $this->log("$entry: adding to list"); array_push($other_dirlist,$candidate); }
+					else { $this->log("$entry: adding to list"); array_push($other_dirlist, $candidate); }
 				}
 			} else {
 				$this->log('ERROR: Could not read the content directory: '.WP_CONTENT_DIR);
+				$this->error('Could not read the content directory: '.WP_CONTENT_DIR);
 			}
 
 			if (count($other_dirlist)>0) {
-				if (!$others->create($other_dirlist,PCLZIP_OPT_REMOVE_PATH,WP_CONTENT_DIR)) {
-					$this->error('Could not create other zip. Error was '.$php_errmsg,'fatal');
-					$this->log('ERROR: PclZip failure: Could not create other zip');
-				} else {
-					$this->log("Created other directories zip - file size is ".filesize($full_path)." bytes");
-				}
-				$backup_array['others'] = basename($full_path);
+				$created = $this->create_zip('others', $backup_file_base, $other_dirlist);
+				if ($created) $backup_array['others'] = $created;
 			} else {
 				$this->log("No backup of other directories: there was nothing found to back up");
 			}
@@ -1844,7 +1820,7 @@ echo $delete_local; ?> /> <br>Check this to delete the local backup file (only s
 						</select></td>
 				</tr>
 				<tr class="backup-service-description">
-					<td></td><td>Choose your backup method. If choosing &quot;E-Mail&quot;, then be aware that mail servers tend to have size limits; typically around 10-20Mb; backups larger than any limits will not arrive.</td>
+					<td></td><td>Choose your backup method.</td>
 				
 				</tr>
 				<?php
