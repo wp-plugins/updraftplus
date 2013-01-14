@@ -3,12 +3,12 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, Amazon S3, DropBox, DropBox backup, google drive, google, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.1.15
+Stable tag: 1.2.24
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-DropBox support
+DropBox can now support larger, resumable uploads. Also improved DropBox help text.
 
 == Description ==
 
@@ -84,7 +84,7 @@ It does not back up WordPress core (since you can always get another copy of thi
 
 = Any known bugs ? =
 
-Not a bug as such, but one major issue to be aware of is that backups of very large sites (lots of uploaded media) can fail due to timing out. This depends on how many seconds your web host allows a PHP process to run. With such sites, you need to use Amazon S3, which UpdraftPlus supports (since 0.9.20) or Google Drive (since 0.9.21) with chunked, resumable uploads. Other backup methods have code (since 0.9.0) to retry failed uploads of an archive, but the upload cannot be chunked, so if an archive is enormous (i.e. cannot be completely uploaded in the time that PHP is allowed for running on your web host) it cannot work.
+Not a bug as such, but one major issue to be aware of is that backups of very large sites (lots of uploaded media) can fail due to timing out. This depends on how many seconds your web host allows a PHP process to run. With such sites, you need to use Amazon S3, which UpdraftPlus supports (since 0.9.20) or Google Drive (since 0.9.21) or DropBox (since 1.2.19) with chunked, resumable uploads. Other backup methods have code (since 0.9.0) to retry failed uploads of an archive, but the upload cannot be chunked, so if an archive is enormous (i.e. cannot be completely uploaded in the time that PHP is allowed for running on your web host) it cannot work.
 
 = I encrypted my database - how do I decrypt it? =
 
@@ -112,9 +112,25 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.2.4 - 01/08/2013 =
+= 1.2.24 - 01/14/2013 =
+* Fixed bug with DropBox deletions
+
+= 1.2.20 - 01/12/2013 =
+* DropBox no longer limited to 150Mb uploads
+* DropBox can upload in chunks and resume uploading chunks
+* Improved DropBox help text
+
+= 1.2.18 - 01/11/2013 =
+* Revert DropBox to CURL-only - was not working properly with WordPress's built-in methods
+* Add note that only up to 150Mb is possible for a DropBox upload, until we change our API usage
+* Fix unnecessary repetition of database dump upon resumption of a failed backup
+
+= 1.2.14 - 01/08/2013 =
 * DropBox support (no chunked uploading yet, but otherwise complete)
 * Make the creation of the database dump also resumable, for people with really slow servers
+* Database table backups are now timed
+* FTP logging slightly improved
+* DropBox support uses WordPress's built-in HTTP functions
 
 = 1.1.16 - 01/07/2013 =
 * Requested feature: more frequent scheduling options requested
