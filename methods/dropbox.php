@@ -38,8 +38,8 @@ class UpdraftPlus_BackupModule_dropbox {
 			$dropbox = $this->bootstrap(get_option('updraft_dropbox_appkey'), get_option('updraft_dropbox_secret'));
 			$dropbox->setChunkSize(524288); // 512Kb
 		} catch (Exception $e) {
-			$updraftplus->log('DropBox error: '.print_r($e, true));
-			$updraftplus->error('DropBox error: failed to access DropBox (see log file for more)');
+			$updraftplus->log('DropBox error: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
+			$updraftplus->error('DropBox error: '.$e->getMessage().' (see log file for more)');
 			return false;
 		}
 
@@ -69,14 +69,32 @@ class UpdraftPlus_BackupModule_dropbox {
 				$upload_id = null;
 			}
 
+			// I did erroneously have $dropbox_folder as the third parameter in chunkedUpload... this causes a sub-directory to be created
+			// Old-style, single file put: $put = $dropbox->putFile($updraft_dir.'/'.$file, $dropbox_folder.$file);
+
+			$ourself = $this;
+
 			try {
-				//$put = $dropbox->putFile($updraft_dir.'/'.$file, $dropbox_folder.$file);
-				// I did erroneously have $dropbox_folder as the third parameter - this causes a sub-directory to be created
-				$dropbox->chunkedUpload($updraft_dir.'/'.$file, $file, '', true, $offset, $upload_id, array($this, 'chunked_callback'));
+				$dropbox->chunkedUpload($updraft_dir.'/'.$file, $file, '', true, $offset, $upload_id, array($ourself, 'chunked_callback'));
 			} catch (Exception $e) {
-				$updraftplus->log('DropBox error: '.print_r($e, true));
-				$updraftplus->error("DropBox error: failed to upload file $file (see full log for more)");
-				$file_success = 0;
+				$updraftplus->log("Exception: ".$e->getMessage());
+				if (preg_match("/Submitted input out of alignment: got \[(\d+)\] expected \[(\d+)\]/i", $e->getMessage(), $matches)) {
+					// Try the indicated offset
+					$we_tried = $matches[1];
+					$dropbox_wanted = $matches[2];
+					$updraftplus->log("DropBox alignment error: tried=$we_tried, wanted=$dropbox_wanted; will attempt recovery");
+					try {
+						$dropbox->chunkedUpload($updraft_dir.'/'.$file, $file, '', true, $dropbox_wanted, $upload_id, array($ourself, 'chunked_callback'));
+					} catch (Exception $e) {
+						$updraftplus->log('DropBox error: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
+						$updraftplus->error("DropBox error: failed to upload file $file (see full log for more)");
+						$file_success = 0;
+					}
+				} else {
+					$updraftplus->log('DropBox error: '.$e->getMessage());
+					$updraftplus->error("DropBox error: failed to upload file $file (see full log for more)");
+					$file_success = 0;
+				}
 			}
 			if ($file_success) {
 				$updraftplus->uploaded_file($file);
@@ -108,7 +126,7 @@ class UpdraftPlus_BackupModule_dropbox {
 		try {
 			$dropbox = $this->bootstrap(get_option('updraft_dropbox_appkey'), get_option('updraft_dropbox_secret'));
 		} catch (Exception $e) {
-			$updraftplus->log('DropBox error: '.print_r($e, true));
+			$updraftplus->log('DropBox error: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
 			//$updraftplus->error('DropBox error: failed to access DropBox (see log file for more)');
 			return false;
 		}
@@ -120,9 +138,9 @@ class UpdraftPlus_BackupModule_dropbox {
 			// Apparently $dropbox_folder is not needed
 			$dropbox->delete($file);
 		} catch (Exception $e) {
-			$updraftplus->log('DropBox error: '.print_r($e, true));
+			$updraftplus->log('DropBox error: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
 			// TODO
-			// Add this back July 2013 when removing the block below
+			// Add this back October 2013 when removing the block below
 			//$updraftplus->error("DropBox error: failed to delete file ($file): see log file for more info");
 			$file_success = 0;
 		}
@@ -130,11 +148,11 @@ class UpdraftPlus_BackupModule_dropbox {
 			$updraftplus->log('DropBox: delete succeeded');
 		} else {
 			$file_success = 1;
-			// We created the file in the wrong place for a while. This code is needed until July 2013, when it can be removed.
+			// We created the file in the wrong place for a while. This code is needed until October 2013, when it can be removed.
 			try {
 				$dropbox->delete($dropbox_folder.'/'.$file);
 			} catch (Exception $e) {
-				$updraftplus->log('DropBox error: '.print_r($e, true));
+				$updraftplus->log('DropBox error: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
 				$file_success = 1;
 			}
 			if ($file_success) $updraftplus->log('DropBox: delete succeeded (alternative path)');
@@ -154,7 +172,7 @@ class UpdraftPlus_BackupModule_dropbox {
 		try {
 			$dropbox = $this->bootstrap(get_option('updraft_dropbox_appkey'), get_option('updraft_dropbox_secret'));
 		} catch (Exception $e) {
-			$updraftplus->error('DropBox error: '.print_r($e, true));
+			$updraftplus->log('DropBox error: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
 			return false;
 		}
 
@@ -165,12 +183,12 @@ class UpdraftPlus_BackupModule_dropbox {
 		try {
 			$get = $dropbox->getFile($file, $updraft_dir.'/'.$file);
 		} catch (Exception $e) {
-			// TODO: Remove this July 2013 (we stored in the wrong place for a while...)
+			// TODO: Remove this October 2013 (we stored in the wrong place for a while...)
 			$try_the_other_one = true;
-			$possible_error = print_r($e, true);
+			$possible_error = $e->getMessage();
 		}
 
-		// TODO: Remove this July 2013 (we stored in the wrong place for a while...)
+		// TODO: Remove this October 2013 (we stored in the wrong place for a while...)
 		if ($try_the_other_one) {
 			$dropbox_folder = trailingslashit(get_option('updraft_dropbox_folder'));
 			$updraftplus->error('DropBox error: '.$e);
@@ -178,7 +196,7 @@ class UpdraftPlus_BackupModule_dropbox {
 				$get = $dropbox->getFile($file, $updraft_dir.'/'.$file);
 			}  catch (Exception $e) {
 				$updraftplus->error($possible_error);
-				$updraftplus->error(print_r($e, true));
+				$updraftplus->error($e->getMessage());
 			}
 		}
 

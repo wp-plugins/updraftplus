@@ -170,12 +170,12 @@ class Dropbox_API
                         $uploadID = $response['body']->upload_id;
                     }
                     
-                    // Set the data offset
-                    $offset += mb_strlen($data, '8bit');
-                    
-                    if ($callback) {
-                        call_user_func($callback, $offset, $uploadID);
-                    }
+                    if (isset($response['body']->offset)) {
+                        $offset = $response['body']->offset;
+                        if ($callback) {
+                            call_user_func($callback, $offset, $uploadID);
+                        }
+                    }                    
                     
                     // Close the file handle for this chunk
                     fclose($chunkHandle);

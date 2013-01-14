@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: All your content and your DB can be automatically backed up to Amazon S3, DropBox, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.2.22
+Version: 1.2.25
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -17,10 +17,14 @@ TODO
 //?? On 'backup now', open up a Lightbox, count down 5 seconds, then start examining the log file (if it can be found)
 //Should make clear in dashboard what is a non-fatal error (i.e. can be retried) - leads to unnecessary bug reports
 //Eventually, when everything can be resumed, we will no longer need the backup() routine; it can be replaced with the resume() routine
+//Remind user to look inside their 'apps' folder in DropBox
 // Should we resume if the only errors were upon deletion (i.e. the backup itself was fine?) Presently we do, but it displays errors for the user to confuse them.
+// Make jobs *individually* resumable (i.e. all the state info must be keyed on the nonce; then call the resume event *specifying the nonce*)
 // Separate 'retain' settings for db + files (since they are on separate schedules)
 // Warn the user if their zip-file creation is slooowww...
 // Create a "Want Support?" button/console, that leads them through what is needed, and performs some basic tests...
+// Add/test FTP-over-TLS
+// Resuming partial FTP uploads
 
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
 // Does not delete old custom directories upon a restore?
@@ -62,7 +66,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.2.22';
+	var $version = '1.2.25';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -150,7 +154,7 @@ class UpdraftPlus {
 	function log($line) {
 		if ($this->logfile_handle) fwrite($this->logfile_handle,date('r')." ".$line."\n");
 	}
-	
+
 	function backup_resume($resumption_no) {
 		@ignore_user_abort(true);
 		// This is scheduled for 5 minutes after a backup job starts
@@ -175,6 +179,8 @@ class UpdraftPlus {
 			$this->log("This is our tenth attempt - will not try again");
 		}
 		$this->backup_time = $btime;
+
+		$backup_array = $this->resumable_backup_of_files(false);
 
 		// Returns an array, most recent first, of backup sets
 		$backup_history = $this->get_backup_history();
@@ -212,7 +218,8 @@ class UpdraftPlus {
 
 		foreach ($our_files as $key => $file) {
 
-			if ($key == 'nonce') { continue; }
+			if ($key == 'nonce') continue;
+
 			$hash = md5($file);
 			$fullpath = trailingslashit(get_option('updraft_dir')).$file;
 			if (get_transient('updraft_'.$hash) === "yes") {
@@ -291,6 +298,32 @@ class UpdraftPlus {
 		}
 	}
 
+	// This uses a transient; its only purpose is to indicate *total* completion; there is no actual danger, just wasted time, in resuming when it was not needed. So the transient just helps save resources.
+	function resumable_backup_of_files($resumptionrun) {
+		//backup directories and return a numerically indexed array of file paths to the backup files
+		$transient_status = get_transient("updraft_backf_".$this->nonce);
+		if ($transient_status == "finished") {
+			$this->log("Creation of backups of directories: already finished");
+		} elseif ($transient_status == "begun") {
+			if ($resumptionrun) {
+				$this->log("Creation of backups of directories: had begun; will resume");
+			} else {
+				$this->log("Creation of backups of directories: beginning");
+			}
+		} else {
+			# This is not necessarily a backup run which is meant to contain files at all
+			$this->log("This backup run is not intended for files - skipping");
+			return null;
+		}
+		// We want this array, even if already finished
+		$backup_array = $this->backup_dirs($transient_status);
+		$backup_contains = "Files only (no database)";
+		// This can get over-written later
+		set_transient("updraft_backupcontains_".$this->nonce, $backup_contains, 3600*3);
+		set_transient("updraft_backf_".$this->nonce, "finished", 3600*3);
+		return $backup_array;
+	}
+
 	function backup($backup_files, $backup_database) {
 
 		@ignore_user_abort(true);
@@ -321,9 +354,10 @@ class UpdraftPlus {
 			// Do not set the transient or schedule the resume event until now, when we know there is something to do - otherwise 'vacatated' runs (when the database is on the same schedule as the files, and they get combined, leading to an empty run) can over-write the resume event and prevent resumption (because it is 'successful' - there was nothing to do).
 			// If we don't finish in 3 hours, then we won't finish
 			// This transient indicates the identity of the current backup job (which can be used to find the files and logfile)
-			set_transient("updraftplus_backup_job_nonce",$this->nonce,3600*3);
-			set_transient("updraftplus_backup_job_time",$this->backup_time,3600*3);
-			// Schedule the even to run later, which checks on success and can resume the backup
+			set_transient("updraftplus_backup_job_nonce", $this->nonce, 3600*3);
+			set_transient("updraftplus_backup_job_time", $this->backup_time, 3600*3);
+
+			// Schedule the event to run later, which checks on success and can resume the backup
 			// We save the time to a variable because it is needed for un-scheduling
 			$resume_delay = 300;
 			wp_schedule_single_event(time()+$resume_delay, 'updraft_backup_resume', array(1));
@@ -336,13 +370,11 @@ class UpdraftPlus {
 
 			$this->check_backup_race();
 
-			//backup directories and return a numerically indexed array of file paths to the backup files
+			// The function itself will set to 'finished' if relevant
+			// The presence of the transient indicates that files are supposed to be in this set
 			if ($backup_files) {
-				$this->log("Beginning backup of directories");
-				$backup_array = $this->backup_dirs();
-				$backup_contains = "Files only (no database)";
-				// This can get over-written later
-				set_transient("updraft_backupcontains_".$this->nonce, $backup_contains, 3600*3);
+				set_transient("updraft_backf_".$this->nonce, "begun", 3600*3);
+				$backup_array = $this->resumable_backup_of_files(false);
 			}
 
 			// Save what *should* be done, to make it resumable from this point on
@@ -613,14 +645,21 @@ class UpdraftPlus {
 		return true;
 	}
 
-	function create_zip($whichone, $backup_file_base, $create_from_dir) {
+	function create_zip($create_from_dir, $whichone, $create_in_dir, $backup_file_basename) {
 		// Note: $create_from_dir can be an array or a string
 		@set_time_limit(900);
 
 		if ($whichone != "others") $this->log("Beginning backup of $whichone");
 
-		$full_path = $backup_file_base.'-'.$whichone.'.zip';
-		$zip_object = new PclZip($full_path);
+		$full_path = $create_in_dir.'/'.$backup_file_basename.'-'.$whichone.'.zip';
+
+		if (file_exists($full_path)) {
+			$this->log("$backup_file_basename-$whichone.zip: this file has already been created");
+			return basename($full_path);
+		}
+
+		// Temporary file, to be able to detect actual completion (upon which, it is renamed)
+		$zip_object = new PclZip($full_path.'.tmp');
 
 		$microtime_start = microtime(true);
 		# The paths in the zip should then begin with '$whichone', having removed WP_CONTENT_DIR from the front
@@ -629,6 +668,7 @@ class UpdraftPlus {
 			$this->log("ERROR: PclZip failure: Could not create $whichone zip");
 			return false;
 		} else {
+			rename($full_path.'.tmp', $full_path);
 			$timetaken = max(microtime(true)-$microtime_start, 0.000001);
 			$kbsize = filesize($full_path)/1024;
 			$rate = round($kbsize/$timetaken, 1);
@@ -638,7 +678,8 @@ class UpdraftPlus {
 		return basename($full_path);
 	}
 
-	function backup_dirs() {
+	// This function is resumable
+	function backup_dirs($transient_status) {
 
 		if(!$this->backup_time) $this->backup_time_nonce();
 
@@ -656,7 +697,7 @@ class UpdraftPlus {
 		$blog_name = preg_replace('/[^A-Za-z0-9_]/','', $blog_name);
 		if(!$blog_name) $blog_name = 'non_alpha_name';
 
-		$backup_file_base = $updraft_dir.'/backup_'.date('Y-m-d-Hi',$this->backup_time).'_'.$blog_name.'_'.$this->nonce;
+		$backup_file_basename = 'backup_'.date('Y-m-d-Hi', $this->backup_time).'_'.$blog_name.'_'.$this->nonce;
 
 		$backup_array = array();
 
@@ -670,8 +711,12 @@ class UpdraftPlus {
 		# Plugins, themes, uploads
 		foreach ($possible_backups as $youwhat => $whichdir) {
 			if (get_option("updraft_include_$youwhat", true)) {
-				$created = $this->create_zip($youwhat, $backup_file_base, $whichdir);
-				if ($created) $backup_array[$youwhat] = $created;
+				if ($transient_status == 'finished') {
+					$backup_array[$youwhat] = $backup_file_basename.'-'.$youwhat.'.zip';
+				} else {
+					$created = $this->create_zip($whichdir, $youwhat, $updraft_dir, $backup_file_basename);
+					if ($created) $backup_array[$youwhat] = $created;
+				}
 			} else {
 				$this->log("No backup of $youwhat: excluded by user's options");
 			}
@@ -680,6 +725,10 @@ class UpdraftPlus {
 		# Others
 		if (get_option('updraft_include_others', true)) {
 			$this->log("Beginning backup of other directories found in the content directory");
+
+			if ($transient_status == 'finished') {
+				$backup_array['others'] = $backup_file_basename.'-others.zip';
+			} else {
 
 			// http://www.phpconcept.net/pclzip/user-guide/53
 			/* First parameter to create is:
@@ -715,10 +764,12 @@ class UpdraftPlus {
 			}
 
 			if (count($other_dirlist)>0) {
-				$created = $this->create_zip('others', $backup_file_base, $other_dirlist);
+				$created = $this->create_zip('others', $other_dirlist, $updraft_dir, $backup_file_basename);
 				if ($created) $backup_array['others'] = $created;
 			} else {
 				$this->log("No backup of other directories: there was nothing found to back up");
+			}
+			# If we are not already finished
 			}
 		} else {
 			$this->log("No backup of other directories: excluded by user's options");

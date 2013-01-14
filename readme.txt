@@ -112,8 +112,9 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.2.24 - 01/14/2013 =
+= 1.2.25 - 01/14/2013 =
 * Fixed bug with DropBox deletions
+* Fixed cases where DropBox failed to resume chunked uploading
 
 = 1.2.20 - 01/12/2013 =
 * DropBox no longer limited to 150Mb uploads
