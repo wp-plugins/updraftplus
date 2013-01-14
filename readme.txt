@@ -3,18 +3,18 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, Amazon S3, DropBox, DropBox backup, google drive, google, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.2.26
+Stable tag: 1.2.27
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-DropBox can now support larger, resumable uploads. Also improved DropBox help text. Made file downloads resumable.
+DropBox can now support larger, resumable uploads. Also improved DropBox help text. Made file downloads resumable. FTP supports SSL.
 
 == Description ==
 
 UpdraftPlus simplifies backups (and restoration). Backup into the cloud (Amazon S3, DropBox, Google Drive, FTP, and email) and restore with a single click. Backups of files and database can have separate schedules.
 
-* Supports backups to Amazon S3, DropBox, Google Drive, FTP, email
+* Supports backups to Amazon S3, DropBox, Google Drive, FTP (including SSL), email
 * One-click restore
 * Backup automatically on a repeating schedule
 * Files and databases can have separate schedules
@@ -112,10 +112,11 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.2.26 - 01/14/2013 =
+= 1.2.27 - 01/14/2013 =
 * Fixed bug with DropBox deletions
 * Fixed cases where DropBox failed to resume chunked uploading
 * Can now create uncreated zip files on a resumption attempt
+* FTP method now supports SSL (automatically detected)
 
 = 1.2.20 - 01/12/2013 =
 * DropBox no longer limited to 150Mb uploads
