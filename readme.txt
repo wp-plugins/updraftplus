@@ -117,6 +117,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * Fixed cases where DropBox failed to resume chunked uploading
 * Can now create uncreated zip files on a resumption attempt
 * FTP method now supports SSL (automatically detected)
+* New "Test FTP settings" button
 
 = 1.2.20 - 01/12/2013 =
 * DropBox no longer limited to 150Mb uploads
