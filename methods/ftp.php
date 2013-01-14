@@ -161,16 +161,11 @@ class UpdraftPlus_BackupModule_ftp {
 		}
 		if ($ftp->put(ABSPATH.'wp-includes/version.php', $fullpath, FTP_BINARY)) {
 			echo "Success: we successfully logged in, and confirmed our ability to create a file in the given directory.";
-			@$ftp->delete($ftp_remote_path.$file);
+			@$ftp->delete($fullpath);
 		} else {
 			echo "Failure: we successfully logged in, but were not able to create a file in the given directory.";
 		}
 
-	}
-
-	function file_delete() {
-		$this->log("$backup_datestamp: Delete remote ftp: $remote_path/$dofile");
-		@$remote_object->delete($remote_path.$dofile);
 	}
 
 }
