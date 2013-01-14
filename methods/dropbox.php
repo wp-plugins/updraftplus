@@ -153,7 +153,7 @@ class UpdraftPlus_BackupModule_dropbox {
 				$dropbox->delete($dropbox_folder.'/'.$file);
 			} catch (Exception $e) {
 				$updraftplus->log('DropBox error: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
-				$file_success = 1;
+				$file_success = 0;
 			}
 			if ($file_success) $updraftplus->log('DropBox: delete succeeded (alternative path)');
 		}
