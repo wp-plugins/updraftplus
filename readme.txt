@@ -8,7 +8,7 @@ Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-DropBox can now support larger, resumable uploads. Also improved DropBox help text. Made file downloads resumable. FTP supports SSL.
+Complete DropBox support. FTP over SSL. Less noise.
 
 == Description ==
 
@@ -112,12 +112,13 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.2.27 - 01/14/2013 =
+= 1.2.28 - 01/15/2013 =
 * Fixed bug with DropBox deletions
 * Fixed cases where DropBox failed to resume chunked uploading
 * Can now create uncreated zip files on a resumption attempt
 * FTP method now supports SSL (automatically detected)
 * New "Test FTP settings" button
+* Less noise when debugging is turned off
 
 = 1.2.20 - 01/12/2013 =
 * DropBox no longer limited to 150Mb uploads

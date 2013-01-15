@@ -117,8 +117,8 @@ class UpdraftPlus_BackupModule_googledrive {
 				$updraftplus->log('OK: Archive ' . $file_name . ' uploaded to Google Drive in ' . ( round(microtime( true ) - $timer_start,2) ) . ' seconds (id: '.$id.')' );
 				$updraftplus->uploaded_file($file, $id);
 			} else {
-				$updraftplus->error("$file_name: Failed to upload to Google Drive" );
 				$updraftplus->log("ERROR: $file_name: Failed to upload to Google Drive" );
+				$updraftplus->error("$file_name: Failed to upload to Google Drive" );
 			}
 		}
 		$updraftplus->prune_retained_backups("googledrive", $this, null);
@@ -171,8 +171,8 @@ class UpdraftPlus_BackupModule_googledrive {
 		if ( is_wp_error( $location ) ) {
 			$updraftplus->log("GoogleDrive upload: an error occurred");
 			foreach ($location->get_error_messages() as $msg) {
-				$updraftplus->error($msg);
 				$updraftplus->log("Error details: ".$msg);
+				$updraftplus->error($msg);
 			}
 			return false;
 		}

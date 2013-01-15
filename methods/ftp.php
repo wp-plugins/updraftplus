@@ -33,8 +33,8 @@ class UpdraftPlus_BackupModule_ftp {
 				$updraftplus->log("FTP upload attempt successful (".$size_k."Kb in ".(round(microtime(true)-$timer_start,2)).'s)');
 				$updraftplus->uploaded_file($file);
 			} else {
-				$updraftplus->error("FTP upload failed" );
 				$updraftplus->log("ERROR: FTP upload failed" );
+				$updraftplus->error("FTP upload failed" );
 			}
 		}
 

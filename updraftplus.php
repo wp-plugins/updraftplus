@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: All your content and your DB can be automatically backed up to Amazon S3, DropBox, Google Drive, FTP, or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.2.27
+Version: 1.2.28
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -12,7 +12,7 @@ Author URI: http://wordshell.net
 
 /*
 TODO
-//Add Box.Net, SugarSync and Microsoft Skydrive support??
+//Add SFTP, Box.Net, SugarSync and Microsoft Skydrive support??
 //improve error reporting / pretty up return messages in admin area. One thing: have a "backup is now finished" flag. Otherwise with the resuming things get ambiguous/confusing. See http://wordpress.org/support/topic/backup-status - user was not aware that backup completely failed. Maybe a "backup status" field for each nonce that gets updated? (Even via AJAX?)
 //?? On 'backup now', open up a Lightbox, count down 5 seconds, then start examining the log file (if it can be found)
 //Should make clear in dashboard what is a non-fatal error (i.e. can be retried) - leads to unnecessary bug reports
@@ -23,7 +23,6 @@ TODO
 // Separate 'retain' settings for db + files (since they are on separate schedules)
 // Warn the user if their zip-file creation is slooowww...
 // Create a "Want Support?" button/console, that leads them through what is needed, and performs some basic tests...
-// Add/test FTP-over-TLS
 // Resuming partial FTP uploads
 
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
@@ -66,7 +65,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.2.27';
+	var $version = '1.2.28';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -85,6 +84,8 @@ class UpdraftPlus {
 	var $logfile_name = "";
 	var $logfile_handle = false;
 	var $backup_time;
+
+	var $opened_log_time;
 
 	function __construct() {
 		// Initialisation actions - takes place on plugin load
@@ -150,9 +151,19 @@ class UpdraftPlus {
 		set_transient("updraftplus_runtype_$nonce", $this->cronrun_type, 300);
 	}
 
-	# Logs the given line, adding date stamp and newline
+	function logfile_open($nonce) {
+		//set log file name and open log file
+		$updraft_dir = $this->backups_dir_location();
+		$this->logfile_name =  $updraft_dir. "/log.$nonce.txt";
+		// Use append mode in case it already exists
+		$this->logfile_handle = fopen($this->logfile_name, 'a');
+		$this->opened_log_time = microtime(true);
+		$this->log("Opened log file at time: ".date('r'));
+	}
+
+	# Logs the given line, adding (relative) time stamp and newline
 	function log($line) {
-		if ($this->logfile_handle) fwrite($this->logfile_handle,date('r')." ".$line."\n");
+		if ($this->logfile_handle) fwrite($this->logfile_handle, sprintf("%08.03f", round(microtime(true)-$this->opened_log_time, 3))." ".$line."\n");
 	}
 
 	function backup_resume($resumption_no) {
@@ -242,11 +253,10 @@ class UpdraftPlus {
 
 		$this->log("Requesting backup of the files that were not successfully uploaded");
 		$this->cloud_backup($undone_files);
-		$this->cloud_backup_finish($undone_files);
 
 		$this->log("Resume backup ($resumption_no): finish run");
 
-		$this->backup_finish($next_resumption, true);
+		$this->backup_finish($next_resumption, true, true, $resumption_no);
 
 	}
 
@@ -264,14 +274,6 @@ class UpdraftPlus {
 		# Note that nothing will happen if the file backup had the same schedule
 		$this->cronrun_type = "database";
 		$this->backup(false,true);
-	}
-
-	function logfile_open($nonce) {
-		//set log file name and open log file
-		$updraft_dir = $this->backups_dir_location();
-		$this->logfile_name =  $updraft_dir. "/log.$nonce.txt";
-		// Use append mode in case it already exists
-		$this->logfile_handle = fopen($this->logfile_name, 'a');
 	}
 
 	function check_backup_race( $to_delete = false ) {
@@ -424,13 +426,10 @@ class UpdraftPlus {
 			$this->log("Saving last backup information into WordPress db");
 			$this->save_last_backup($backup_array);
 
-			// Send the email
-			$this->cloud_backup_finish($backup_array, $clear_nonce_transient);
-
 		}
 
 		// Close log file; delete and also delete transients if not in debug mode
-		$this->backup_finish(1, $clear_nonce_transient);
+		$this->backup_finish(1, $clear_nonce_transient, $clear_nonce_transient, 0);
 
 	}
 
@@ -468,7 +467,7 @@ class UpdraftPlus {
 		}
 	}
 
-	function backup_finish($cancel_event, $clear_nonce_transient) {
+	function backup_finish($cancel_event, $clear_nonce_transient, $allow_email, $resumption_no) {
 
 		// In fact, leaving the hook to run (if debug is set) is harmless, as the resume job should only do tasks that were left unfinished, which at this stage is none.
 		if (empty($this->errors)) {
@@ -482,6 +481,15 @@ class UpdraftPlus {
 			$this->log("There were errors in the uploads, so the 'resume' event is remaining scheduled");
 		}
 
+		// Send the results email if appropriate, which means:
+		// - The caller allowed it (which is not the case in an 'empty' run)
+		// - And: An email address was set (which must be so in email mode)
+		// And one of:
+		// - Debug mode
+		// - There were no errors (which means we completed and so this is the final run - time for the final report)
+		// - It was the tenth resumption; everything failed
+		if ($allow_email && get_option('updraft_email') != "" && (get_option('updraft_debug_mode') || empty($this->errors) || $resumption_no >=9 )) $this->send_results_email();
+
 		@fclose($this->logfile_handle);
 
 		// Don't delete the log file now; delete it upon rotation
@@ -489,20 +497,15 @@ class UpdraftPlus {
 
 	}
 
-	function cloud_backup_finish($backup_array) {
-
-		// Send the results email if requested
-		if(get_option('updraft_email') != "" && get_option('updraft_service') != 'email') $this->send_results_email();
-
-	}
-
 	function send_results_email() {
+
+		$debug_mode = get_option('updraft_debug_mode');
 
 		$sendmail_to = get_option('updraft_email');
 
-		$this->log("Sending email report to: ".$sendmail_to);
+		$this->log("Sending email report to: ".substr($sendmail_to, 0, 5)."...");
 
-		$append_log = (get_option('updraft_debug_mode') && $this->logfile_name != "") ? "\r\nLog contents:\r\n".file_get_contents($this->logfile_name) : "" ;
+		$append_log = ($debug_mode && $this->logfile_name != "") ? "\r\nLog contents:\r\n".file_get_contents($this->logfile_name) : "" ;
 
 		wp_mail($sendmail_to,'Backed up: '.get_bloginfo('name').' (UpdraftPlus '.$this->version.') '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus WordPress backup is complete.\r\nBackup contains: ".get_transient("updraft_backupcontains_".$this->nonce)."\r\n\r\n".$this->wordshell_random_advert(0)."\r\n".$append_log);
 
@@ -667,8 +670,8 @@ class UpdraftPlus {
 		$microtime_start = microtime(true);
 		# The paths in the zip should then begin with '$whichone', having removed WP_CONTENT_DIR from the front
 		if (!$zip_object->create($create_from_dir, PCLZIP_OPT_REMOVE_PATH, WP_CONTENT_DIR)) {
-			$this->error("Could not create $whichone zip. Consult the log file for more information.");
 			$this->log("ERROR: PclZip failure: Could not create $whichone zip");
+			$this->error("Could not create $whichone zip. Consult the log file for more information.");
 			return false;
 		} else {
 			rename($full_path.'.tmp', $full_path);
@@ -690,8 +693,8 @@ class UpdraftPlus {
 
 		$updraft_dir = $this->backups_dir_location();
 		if(!is_writable($updraft_dir)) {
-			$this->error('Backup directory is not writable, or does not exist.','fatal');
 			$this->log('Backup directory is not writable, or does not exist');
+			$this->error('Backup directory is not writable, or does not exist.');
 			return array();
 		}
 
@@ -788,6 +791,7 @@ class UpdraftPlus {
 			$backup_history[$this->backup_time] = $backup_array;
 			update_option('updraft_backup_history',$backup_history);
 		} else {
+			$this->log('Could not save backup history because we have no backup array. Backup probably failed.');
 			$this->error('Could not save backup history because we have no backup array. Backup probably failed.');
 		}
 	}
@@ -857,6 +861,7 @@ class UpdraftPlus {
 		$updraft_dir = $this->backups_dir_location();
 
 		if (!is_writable($updraft_dir)) {
+			$this->log('The backup directory is not writable.');
 			$this->error('The backup directory is not writable.');
 			return false;
 		}
@@ -1077,7 +1082,8 @@ class UpdraftPlus {
 		}
 	}
 
-	function error($error,$severity='') {
+	function error($error) {
+		if (count($this->errors) == 0) $this->log("An error condition has occurred for the first time on this run");
 		$this->errors[] = $error;
 		return true;
 	}
@@ -1913,7 +1919,7 @@ echo $delete_local; ?> /> <br>Check this to delete the local backup file (only s
 				</tr>
 				<tr>
 					<th>Debug mode:</th>
-					<td><input type="checkbox" name="updraft_debug_mode" value="1" <?php echo $debug_mode; ?> /> <br>Check this to receive more information on the backup process - useful if something is going wrong. You <strong>must</strong> send me this log if you are filing a bug report.</td>
+					<td><input type="checkbox" name="updraft_debug_mode" value="1" <?php echo $debug_mode; ?> /> <br>Check this to potentially receive more information and emails on the backup process - useful if something is going wrong. You <strong>must</strong> send me this log if you are filing a bug report.</td>
 				</tr>
 				<tr>
 				<td></td>

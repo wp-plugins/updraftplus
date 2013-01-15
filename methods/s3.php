@@ -76,8 +76,8 @@ class UpdraftPlus_BackupModule_s3 {
 								set_transient("upd_${hash}_e$i", $etag, 3600*3);
 								$successes++;
 							} else {
-								$updraftplus->error("S3 chunk $i: upload failed");
 								$updraftplus->log("S3 chunk $i: upload failed");
+								$updraftplus->error("S3 chunk $i: upload failed");
 							}
 						}
 					}
