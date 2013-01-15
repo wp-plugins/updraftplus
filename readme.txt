@@ -3,7 +3,7 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, Amazon S3, DropBox, DropBox backup, google drive, google, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.2.29
+Stable tag: 1.2.30
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
@@ -112,7 +112,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.2.29 - 01/15/2013 =
+= 1.2.30 - 01/15/2013 =
 * Fixed bug with DropBox deletions
 * Fixed cases where DropBox failed to resume chunked uploading
 * Can now create uncreated zip files on a resumption attempt
