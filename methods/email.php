@@ -18,7 +18,12 @@ class UpdraftPlus_BackupModule_email {
 	}
 
 	function config_print() {
-		return false;
+		?>
+		<tr class="updraftplusmethod email">
+			<th>Note:</th>
+			<td>If choosing &quot;E-Mail&quot;, then be aware that mail servers tend to have size limits; typically around 10-20Mb; backups larger than any limits will not arrive.</td>
+		</tr>
+		<?php
 	}
 
 }
