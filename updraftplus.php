@@ -2,7 +2,7 @@
 /*
 Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
-Description: Backup and restore: All your content and your DB can be automatically backed up to Amazon S3, DropBox, Google Drive, FTP, or emailed, on separate schedules.
+Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, DropBox, Google Drive, FTP or emailed, on separate schedules.
 Author: David Anderson.
 Version: 1.2.28
 Donate link: http://david.dw-perspective.org.uk/donate
