@@ -222,7 +222,7 @@ class UpdraftPlus_BackupModule_dropbox {
 			</tr>
 			<tr class="updraftplusmethod dropbox">
 				<th>DropBox Folder:</th>
-				<td><input type="text" style="width:332px" id="updraft_dropbox_folder" name="updraft_dropbox_folder" value="<?php echo htmlspecialchars(get_option('updraft_dropbox_folder')); ?>" /></td>
+				<td><input type="text" style="width:332px" id="updraft_dropbox_folder" name="updraft_dropbox_folder" value="<?php echo htmlspecialchars(get_option('updraft_dropbox_folder')); ?>" /> <em>N.B. This is inside your &quot;apps&quot; folder</em></td>
 			</tr>
 
 			<tr class="updraftplusmethod dropbox">
