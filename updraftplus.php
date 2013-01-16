@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, DropBox, Google Drive, FTP or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.2.30
+Version: 1.2.31
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -64,7 +64,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.2.30';
+	var $version = '1.2.31';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -199,20 +199,24 @@ class UpdraftPlus {
 		if (!isset($backup_history[$btime])) $this->log("Could not find a record in the database of a backup with this timestamp");
 
 		$our_files=$backup_history[$btime];
+		if (!is_array($our_files)) $our_files = array();
+
 		$undone_files = array();
 
 		$backup_database = get_transient("updraft_backdb_".$bnonce);
 
 		// The transient is read and written below (instead of using the existing variable) so that we can copy-and-paste this part as needed.
-		if ($backup_database == "begun") {
-			$this->log("Resuming creation of database dump");
-			$db_backup = $this->backup_db();
-			if(is_array($our_files)) $our_files['db'] = $db_backup;
+		if ($backup_database == "begun" || $backup_database == "finished") {
+			if ($backup_database == "begun") {
+				$this->log("Resuming creation of database dump");
+			} else {
+				$this->log("Database dump: Creation was completed already");
+			}
+			$db_backup = $this->backup_db($backup_database);
+			if(is_array($our_files) && is_string($db_backup)) $our_files['db'] = $db_backup;
 			$backup_contains = get_transient("updraft_backupcontains_".$this->nonce);
 			$backup_contains = (substr($backup_contains,0,10) == "Files only") ? "Files and database" : "Database only (no files)";
 			set_transient("updraft_backupcontains_".$this->nonce, $backup_contains, 3600*3);
-		} elseif ($backup_database == "finished") {
-			$this->log("Database dump: Creation was completed already");
 		} else {
 			$this->log("Unrecognised data when trying to ascertain if the database was backed up ($backup_database)");
 		}
@@ -316,7 +320,7 @@ class UpdraftPlus {
 		} else {
 			# This is not necessarily a backup run which is meant to contain files at all
 			$this->log("This backup run is not intended for files - skipping");
-			return null;
+			return array();
 		}
 		// We want this array, even if already finished
 		$backup_array = $this->backup_dirs($transient_status);
@@ -337,7 +341,7 @@ class UpdraftPlus {
 
 		// Log some information that may be helpful
 		global $wp_version;
-		$this->log("PHP version: ".phpversion()." (".@php_uname().") WordPress version: ".$wp_version." Updraft version: ".$this->version." PHP Max Execution Time: ".@ini_get("max_execution_time")." Backup files: $backup_files (schedule: ".get_option('updraft_interval','unset').") Backup DB: $backup_database (schedule: ".get_option('updraft_interval_database','unset').")");
+		$this->log("UpdraftPlus: ".$this->version." WordPress: ".$wp_version." PHP: ".phpversion()." (".@php_uname().") PHP Max Execution Time: ".@ini_get("max_execution_time")." Backup files: $backup_files (schedule: ".get_option('updraft_interval','unset').") Backup DB: $backup_database (schedule: ".get_option('updraft_interval_database','unset').")");
 
 		# If the files and database schedules are the same, and if this the file one, then we rope in database too.
 		# On the other hand, if the schedules were the same and this was the database run, then there is nothing to do.
@@ -393,7 +397,7 @@ class UpdraftPlus {
 			if ($backup_database) {
 				$this->log("Beginning backup of database");
 				$db_backup = $this->backup_db();
-				if(is_array($backup_array)) $backup_array['db'] = $db_backup;
+				if ($db_backup) $backup_array['db'] = $db_backup;
 				$backup_contains = get_transient("updraft_backupcontains_".$this->nonce);
 				$backup_contains = (substr($backup_contains,0,10) == "Files only") ? "Files and database" : "Database only (no files)";
 				set_transient("updraft_backupcontains_".$this->nonce, $backup_contains, 3600*3);
@@ -846,7 +850,18 @@ class UpdraftPlus {
 	- When the writing finishes, it is renamed to ($final_filename).table
 	- When all tables are finished, they are concatenated into the final file
 	*/
-	function backup_db() {
+	function backup_db($already_done = "begun") {
+
+		// Get the file prefix
+		$updraft_dir = $this->backups_dir_location();
+
+		// Get the blog name and rip out all non-alphanumeric chars other than _
+		$blog_name = preg_replace('/[^A-Za-z0-9_]/','', str_replace(' ','_', get_bloginfo()));
+		if (!$blog_name) $blog_name = 'non_alpha_name';
+		$file_base = 'backup_'.date('Y-m-d-Hi',$this->backup_time).'_'.$blog_name.'_'.$this->nonce;
+		$backup_file_base = $updraft_dir.'/'.$file_base;
+
+		if ("finished" == $already_done) return basename($backup_file_base.'-db.gz');
 
 		$total_tables = 0;
 
@@ -856,21 +871,13 @@ class UpdraftPlus {
 		$all_tables = $wpdb->get_results("SHOW TABLES", ARRAY_N);
 		$all_tables = array_map(create_function('$a', 'return $a[0];'), $all_tables);
 
-		// Get the file prefix
-		$updraft_dir = $this->backups_dir_location();
+
 
 		if (!is_writable($updraft_dir)) {
 			$this->log('The backup directory is not writable.');
 			$this->error('The backup directory is not writable.');
 			return false;
 		}
-
-		// Get the blog name and rip out all non-alphanumeric chars other than _
-		$blog_name = str_replace(' ','_',get_bloginfo());
-		$blog_name = preg_replace('/[^A-Za-z0-9_]/','', $blog_name);
-		if (!$blog_name) $blog_name = 'non_alpha_name';
-		$file_base = 'backup_'.date('Y-m-d-Hi',$this->backup_time).'_'.$blog_name.'_'.$this->nonce;
-		$backup_file_base = $updraft_dir.'/'.$file_base;
 
 		$stitch_files = array();
 
@@ -933,7 +940,7 @@ class UpdraftPlus {
 			$this->log("Total database tables backed up: $total_tables");
 			return basename($backup_file_base.'-db.gz');
 		}
-		
+
 	} //wp_db_backup
 
 	/**
