@@ -1698,19 +1698,19 @@ ENDHERE;
 					}
 					?>
 
-					<th>The Time Now:</th>
+					<th>Time now:</th>
 					<td style="color:blue"><?php echo $current_time?></td>
 				</tr>
 				<tr>
-					<th>Next Scheduled Files Backup:</th>
+					<th>Next scheduled files backup:</th>
 					<td style="color:blue"><?php echo $next_scheduled_backup?></td>
 				</tr>
 				<tr>
-					<th>Next Scheduled DB Backup:</th>
+					<th>Next scheduled DB backup:</th>
 					<td style="color:blue"><?php echo $next_scheduled_backup_database?></td>
 				</tr>
 				<tr>
-					<th>Last Backup:</th>
+					<th>Last backup:</th>
 					<td style="color:<?php echo $last_backup_color ?>"><?php echo $last_backup?></td>
 				</tr>
 			</table>
@@ -1748,11 +1748,11 @@ ENDHERE;
 			<br style="clear:both" />
 			<table class="form-table">
 				<tr>
-					<th>Last Backup Log Message:</th>
+					<th>Last backup log message:</th>
 					<td id="updraft_lastlogcontainer"><?php echo htmlspecialchars(get_option('updraft_lastmessage', '(Nothing yet logged)')); ?></td>
 				</tr>
 				<tr>
-					<th>Download Backups</th>
+					<th>Download backups</th>
 					<td><a href="#" title="Click to see available backups" onclick="jQuery('.download-backups').toggle();return false;"><?php echo count($backup_history)?> available</a></td>
 				</tr>
 				<tr>
