@@ -79,7 +79,8 @@ class UpdraftPlus_BackupModule_ftp {
 		?>
 		jQuery('#updraft-ftp-test').click(function(){
 			var data = {
-				action: 'updraft_credentials_test',
+				action: 'updraft_ajax',
+				subaction: 'credentials_test';
 				method: 'ftp',
 				nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>',
 				server: jQuery('#updraft_server_address').val(),

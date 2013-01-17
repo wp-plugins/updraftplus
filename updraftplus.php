@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, DropBox, Google Drive, FTP or emailed, on separate schedules.
 Author: David Anderson.
-Version: 1.2.31
+Version: 1.2.32
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -64,7 +64,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.2.31';
+	var $version = '1.2.32';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -99,7 +99,7 @@ class UpdraftPlus {
 		add_action('updraft_backup_resume', array($this,'backup_resume'));
 		add_action('wp_enqueue_scripts', array($this, 'ajax_enqueue') );
 		add_action('wp_ajax_updraft_download_backup', array($this, 'updraft_download_backup'));
-		add_action('wp_ajax_updraft_credentials_test', array($this, 'updraft_credentials_test'));
+		add_action('wp_ajax_updraft_ajax', array($this, 'updraft_ajax_handler'));
 		# http://codex.wordpress.org/Plugin_API/Filter_Reference/cron_schedules
 		add_filter('cron_schedules', array($this,'modify_cron_schedules'));
 		add_filter('plugin_action_links', array($this, 'plugin_action_links'), 10, 2);
@@ -1182,18 +1182,21 @@ class UpdraftPlus {
 	}
 	
 	// Called via AJAX
-	function updraft_credentials_test() {
+	function updraft_ajax_handler() {
 		// Test the nonce (probably not needed, since we're presumably admin-authed, but there's no harm)
 		$nonce = (empty($_POST['nonce'])) ? "" : $_POST['nonce'];
-		if (! wp_verify_nonce($nonce, 'updraftplus-credentialtest-nonce') ) die('Security check');
+		if (! wp_verify_nonce($nonce, 'updraftplus-credentialtest-nonce') || empty($_POST['subaction'])) die('Security check');
 
-		$method = (preg_match("/^[a-z0-9]+$/", $_POST['method'])) ? $_POST['method'] : "";
+		if ($_POST['subaction'] == 'credentials_test') {
+			$method = (preg_match("/^[a-z0-9]+$/", $_POST['method'])) ? $_POST['method'] : "";
 
-		// Test the credentials, return a code
-		require_once(UPDRAFTPLUS_DIR."/methods/$method.php");
+			// Test the credentials, return a code
+			require_once(UPDRAFTPLUS_DIR."/methods/$method.php");
 
-		$objname = "UpdraftPlus_BackupModule_${method}";
-		if (method_exists($objname, "credentials_test")) call_user_func(array('UpdraftPlus_BackupModule_'.$method, 'credentials_test'));
+			$objname = "UpdraftPlus_BackupModule_${method}";
+			if (method_exists($objname, "credentials_test")) call_user_func(array('UpdraftPlus_BackupModule_'.$method, 'credentials_test'));
+		}
+
 		die;
 
 	}
@@ -1410,13 +1413,7 @@ class UpdraftPlus {
 		return (ini_get('max_execution_time') >= $time)?true:false;
 	}
 
-	function admin_init() {
-		if(get_option('updraft_debug_mode')) {
-			ini_set('display_errors',1);
-			error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
-			ini_set('track_errors',1);
-		}
-		wp_enqueue_script('jquery');
+	function register_settings() {
 		register_setting( 'updraft-options-group', 'updraft_interval', array($this,'schedule_backup') );
 		register_setting( 'updraft-options-group', 'updraft_interval_database', array($this,'schedule_backup_database') );
 		register_setting( 'updraft-options-group', 'updraft_retain', array($this,'retain_range') );
@@ -1447,6 +1444,17 @@ class UpdraftPlus {
 		register_setting( 'updraft-options-group', 'updraft_include_uploads', 'absint' );
 		register_setting( 'updraft-options-group', 'updraft_include_others', 'absint' );
 		register_setting( 'updraft-options-group', 'updraft_include_others_exclude', 'wp_filter_nohtml_kses' );
+	}
+
+	function admin_init() {
+		if(get_option('updraft_debug_mode')) {
+			ini_set('display_errors',1);
+			error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
+			ini_set('track_errors',1);
+		}
+		wp_enqueue_script('jquery');
+
+		$this->register_settings();
 
 		if (current_user_can('manage_options') && get_option('updraft_service') == "googledrive" && get_option('updraft_googledrive_clientid') != "" && get_option('updraft_googledrive_token','xyz') == 'xyz') {
 			add_action('admin_notices', array($this,'show_admin_warning_googledrive') );
@@ -1458,8 +1466,8 @@ class UpdraftPlus {
 	}
 
 	function ajax_enqueue() {
-		wp_enqueue_script('updraftplus-ajax', plugins_url('/includes/ajax.js', __FILE__) );
-		wp_localize_script('updraftplus-ajax', 'updraft_credentials_test', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
+// 		wp_enqueue_script('updraftplus-ajax', plugins_url('/includes/ajax.js', __FILE__) );
+// 		wp_localize_script('updraftplus-ajax', 'updraft_credentials_test', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
 	}
 
 	function add_admin_pages() {
@@ -1564,9 +1572,15 @@ class UpdraftPlus {
 			echo '</div>';
 		}
 
-		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_all') $this->backup(true,true);
-
-		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_db') $this->backup_db();
+		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_all') { $this->backup(true,true); }
+		elseif (isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_db') { $this->backup_db(); }
+		elseif (isset($_POST['action']) && $_POST['action'] == 'updraft_wipesettings') {
+			$settings = array('updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_encryptionphrase', 'updraft_service', 'updraft_s3_login', 'updraft_s3_pass', 'updraft_s3_remote_path', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_dropbox_folder', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_others_exclude');
+			foreach ($settings as $s) {
+				delete_option($s);
+			}
+			$this->show_admin_warning("Your settings have been wiped.");
+		}
 
 		?>
 		<div class="wrap">
@@ -1952,7 +1966,8 @@ echo $delete_local; ?> /> <br>Check this to delete the local backup file (only s
 			?>
 			<div style="padding-top: 40px;">
 				<hr>
-				<h3>Debug Information</h3>
+				<h3>Debug Information And Expert Options</h3>
+				<p>
 				<?php
 				$peak_memory_usage = memory_get_peak_usage(true)/1024/1024;
 				$memory_usage = memory_get_usage(true)/1024/1024;
@@ -1960,13 +1975,22 @@ echo $delete_local; ?> /> <br>Check this to delete the local backup file (only s
 				echo 'Current memory usage: '.$memory_usage.' MB<br/>';
 				echo 'PHP memory limit: '.ini_get('memory_limit').' <br/>';
 				?>
-				<form method="post" action="">
+				</p>
+				<p style="max-width: 600px;">The buttons below will immediately execute a backup run, independently of WordPress's scheduler. If these work whilst your scheduled backups and the &quot;Backup Now&quot; button do absolutely nothing (i.e. not even produce a log file), then it means that your scheduler is broken. You should then disable all your other plugins, and try the &quot; Backup Now&quot; button. If that fails, then contact your web hosting company and ask them if they have disable wp-cron. If it succeeds, then re-activate your other plugins one-by-one, and find the one that is the problem and report a bug to them.</p>
+
+				<form method="post">
 					<input type="hidden" name="action" value="updraft_backup_debug_all" />
-					<p><input type="submit" class="button-primary" <?php echo $backup_disabled ?> value="Debug Backup" onclick="return(confirm('This will cause an immediate backup.  The page will stall loading until it finishes (ie, unscheduled).  Use this if you\'re trying to see peak memory usage.'))" /></p>
+					<p><input type="submit" class="button-primary" <?php echo $backup_disabled ?> value="Debug Full Backup" onclick="return(confirm('This will cause an immediate backup.  The page will stall loading until it finishes (ie, unscheduled).'))" /></p>
 				</form>
-				<form method="post" action="">
+				<form method="post">
 					<input type="hidden" name="action" value="updraft_backup_debug_db" />
-					<p><input type="submit" class="button-primary" <?php echo $backup_disabled ?> value="Debug DB Backup" onclick="return(confirm('This will cause an immediate DB backup.  The page will stall loading until it finishes (ie, unscheduled). The backup will remain locally despite your prefs and will not go into the backup history or up into the cloud.'))" /></p>
+					<p><input type="submit" class="button-primary" <?php echo $backup_disabled ?> value="Debug DB Backup" onclick="return(confirm('This will cause an immediate DB backup.  The page will stall loading until it finishes (ie, unscheduled). The backup may well run out of time; really this button is only helpful for checking that the backup is able to get through the initial stages, or for small WordPress sites.'))" /></p>
+				</form>
+				<h3>Wipe Settings</h3>
+				<p>This button will delete all UpdraftPlus settings (but not any of your existing backups from your cloud storage). You will then need to enter all your settings again.</p>
+				<form method="post">
+					<input type="hidden" name="action" value="updraft_wipesettings" />
+					<p><input type="submit" value="Wipe All Settings" onclick="return(confirm('This will delete all your UpdraftPlus settings - are you sure you want to do this?'))" /></p>
 				</form>
 			</div>
 			<?php } ?>

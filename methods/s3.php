@@ -160,7 +160,8 @@ class UpdraftPlus_BackupModule_s3 {
 		?>
 		jQuery('#updraft-s3-test').click(function(){
 			var data = {
-				action: 'updraft_credentials_test',
+				action: 'updraft_ajax',
+				subaction: 'credentials_test',
 				method: 's3',
 				nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>',
 				apikey: jQuery('#updraft_s3_apikey').val(),
