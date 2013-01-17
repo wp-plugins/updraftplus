@@ -251,7 +251,7 @@ class UpdraftPlus {
 		}
 
 		if (count($undone_files) == 0) {
-			$this->log("There were no more files that needed uploading; backup job is finished");
+			$this->log("There were no more files that needed uploading; backup job is complete");
 			return;
 		}
 
