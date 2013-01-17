@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, DropBox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.2.35
+Version: 1.2.36
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -64,7 +64,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.2.35';
+	var $version = '1.2.36';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -1698,19 +1698,19 @@ ENDHERE;
 					}
 					?>
 
-					<th>The Time Now:</th>
+					<th>Time now:</th>
 					<td style="color:blue"><?php echo $current_time?></td>
 				</tr>
 				<tr>
-					<th>Next Scheduled Files Backup:</th>
+					<th>Next scheduled files backup:</th>
 					<td style="color:blue"><?php echo $next_scheduled_backup?></td>
 				</tr>
 				<tr>
-					<th>Next Scheduled DB Backup:</th>
+					<th>Next scheduled DB backup:</th>
 					<td style="color:blue"><?php echo $next_scheduled_backup_database?></td>
 				</tr>
 				<tr>
-					<th>Last Backup:</th>
+					<th>Last backup:</th>
 					<td style="color:<?php echo $last_backup_color ?>"><?php echo $last_backup?></td>
 				</tr>
 			</table>
@@ -1748,11 +1748,11 @@ ENDHERE;
 			<br style="clear:both" />
 			<table class="form-table">
 				<tr>
-					<th>Last Backup Log Message:</th>
+					<th>Last backup log message:</th>
 					<td id="updraft_lastlogcontainer"><?php echo htmlspecialchars(get_option('updraft_lastmessage', '(Nothing yet logged)')); ?></td>
 				</tr>
 				<tr>
-					<th>Download Backups</th>
+					<th>Download backups</th>
 					<td><a href="#" title="Click to see available backups" onclick="jQuery('.download-backups').toggle();return false;"><?php echo count($backup_history)?> available</a></td>
 				</tr>
 				<tr>
@@ -1835,7 +1835,7 @@ ENDHERE;
 			<h2>Configure Backup Contents And Schedule</h2>
 				<table class="form-table" style="width:850px;">
 				<tr>
-					<th>File Backup Intervals:</th>
+					<th>File backup intervals:</th>
 					<td><select name="updraft_interval">
 						<?php
 						$intervals = array ("manual" => "Manual", 'every4hours' => "Every 4 hours", 'every8hours' => "Every 8 hours", 'twicedaily' => "Every 12 hours", 'daily' => "Daily", 'weekly' => "Weekly", 'fortnightly' => "Fortnightly", 'monthly' => "Monthly");
@@ -1848,7 +1848,7 @@ ENDHERE;
 						</select></td>
 				</tr>
 				<tr>
-					<th>Database Backup Intervals:</th>
+					<th>Database backup intervals:</th>
 					<td><select name="updraft_interval_database">
 						<?php
 						foreach ($intervals as $cronsched => $descrip) {
@@ -1881,7 +1881,7 @@ ENDHERE;
 					</td>
 				</tr>
 				<tr>
-					<th>Retain Backups:</th>
+					<th>Retain backups:</th>
 					<?php
 					$updraft_retain = get_option('updraft_retain');
 					$retain = ((int)$updraft_retain > 0)?get_option('updraft_retain'):1;
@@ -1988,7 +1988,7 @@ echo $delete_local; ?> /> <br>Check this to delete the local backup file (only s
 					<td colspan="2"><h2>Advanced / Debugging Settings</h2></td>
 				</tr>
 				<tr>
-					<th>Backup Directory:</th>
+					<th>Backup directory:</th>
 					<td><input type="text" name="updraft_dir" style="width:525px" value="<?php echo htmlspecialchars($updraft_dir); ?>" /></td>
 				</tr>
 				<tr>
