@@ -2032,7 +2032,7 @@ echo $delete_local; ?> /> <br>Check this to delete the local backup file (only s
 				echo 'PHP memory limit: '.ini_get('memory_limit').' <br/>';
 				?>
 				</p>
-				<p style="max-width: 600px;">The buttons below will immediately execute a backup run, independently of WordPress's scheduler. If these work whilst your scheduled backups and the &quot;Backup Now&quot; button do absolutely nothing (i.e. not even produce a log file), then it means that your scheduler is broken. You should then disable all your other plugins, and try the &quot; Backup Now&quot; button. If that fails, then contact your web hosting company and ask them if they have disable wp-cron. If it succeeds, then re-activate your other plugins one-by-one, and find the one that is the problem and report a bug to them.</p>
+				<p style="max-width: 600px;">The buttons below will immediately execute a backup run, independently of WordPress's scheduler. If these work whilst your scheduled backups and the &quot;Backup Now&quot; button do absolutely nothing (i.e. not even produce a log file), then it means that your scheduler is broken. You should then disable all your other plugins, and try the &quot; Backup Now&quot; button. If that fails, then contact your web hosting company and ask them if they have disabled wp-cron. If it succeeds, then re-activate your other plugins one-by-one, and find the one that is the problem and report a bug to them.</p>
 
 				<form method="post">
 					<input type="hidden" name="action" value="updraft_backup_debug_all" />
