@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, DropBox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.2.33
+Version: 1.2.35
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -64,7 +64,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.2.33';
+	var $version = '1.2.35';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -163,6 +163,7 @@ class UpdraftPlus {
 	# Logs the given line, adding (relative) time stamp and newline
 	function log($line) {
 		if ($this->logfile_handle) fwrite($this->logfile_handle, sprintf("%08.03f", round(microtime(true)-$this->opened_log_time, 3))." ".$line."\n");
+		update_option("updraft_lastmessage", $line." (".date('M d H:i:s').")");
 	}
 
 	function backup_resume($resumption_no) {
@@ -186,7 +187,7 @@ class UpdraftPlus {
 		if ($next_resumption < 10) {
 			wp_schedule_single_event(time()+$resume_delay, 'updraft_backup_resume' ,array($next_resumption));
 		} else {
-			$this->log("This is our tenth attempt - will not try again");
+			$this->log("The current run is our tenth attempt - will not try again");
 		}
 		$this->backup_time = $btime;
 
@@ -492,7 +493,38 @@ class UpdraftPlus {
 		// - Debug mode
 		// - There were no errors (which means we completed and so this is the final run - time for the final report)
 		// - It was the tenth resumption; everything failed
-		if ($allow_email && get_option('updraft_email') != "" && (get_option('updraft_debug_mode') || empty($this->errors) || $resumption_no >=9 )) $this->send_results_email();
+
+		$send_an_email = false;
+
+		// Make sure that the final status is shown
+		if (empty($this->errors)) {
+			$send_an_email = true;
+			$final_message = "The backup apparently succeeded and is now complete";
+		} elseif ($resumption_no >=9) {
+			$send_an_email = true;
+			$final_message = "The backup attempt has finished, apparently unsuccesfully";
+		} else {
+			// There are errors, but a resumption will be attempted
+			$final_message = "The backup has not finished; a resumption is scheduled within 5 minutes";
+		}
+
+		// Now over-ride the decision to send an email, if needed
+		if (get_option('updraft_debug_mode')) {
+			$send_an_email = true;
+			$this->log("An email has been scheduled for this job, because we are in debug mode");
+		}
+		// If there's no email address, or the set was empty, that is the final over-ride: don't send
+		if (!$allow_email) {
+			$send_an_email = false;
+			$this->log("No email will be sent - this backup set was empty.");
+		} elseif (get_option('updraft_email') == '') {
+			$send_an_email = false;
+			$this->log("No email will/can be sent - the user has not configured an email address.");
+		}
+
+		if ($send_an_email) $this->send_results_email();
+
+		$this->log($final_message);
 
 		@fclose($this->logfile_handle);
 
@@ -1184,10 +1216,12 @@ class UpdraftPlus {
 	// Called via AJAX
 	function updraft_ajax_handler() {
 		// Test the nonce (probably not needed, since we're presumably admin-authed, but there's no harm)
-		$nonce = (empty($_POST['nonce'])) ? "" : $_POST['nonce'];
-		if (! wp_verify_nonce($nonce, 'updraftplus-credentialtest-nonce') || empty($_POST['subaction'])) die('Security check');
+		$nonce = (empty($_REQUEST['nonce'])) ? "" : $_REQUEST['nonce'];
+		if (! wp_verify_nonce($nonce, 'updraftplus-credentialtest-nonce') || empty($_REQUEST['subaction'])) die('Security check');
 
-		if ($_POST['subaction'] == 'credentials_test') {
+		if ('lastlog' == $_GET['subaction']) {
+			echo htmlspecialchars(get_option('updraft_lastmessage', '(Nothing yet logged)'));
+		} elseif ($_POST['subaction'] == 'credentials_test') {
 			$method = (preg_match("/^[a-z0-9]+$/", $_POST['method'])) ? $_POST['method'] : "";
 
 			// Test the credentials, return a code
@@ -1565,9 +1599,11 @@ class UpdraftPlus {
 		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup') {
 			echo '<div class="updated fade" style="max-width: 800px; font-size:140%; line-height: 140%; padding:14px; clear:left;"><strong>Schedule backup:</strong> ';
 			if (wp_schedule_single_event(time()+5, 'updraft_backup_all') === false) {
+				$this->log("A backup run failed to schedule");
 				echo "Failed.";
 			} else {
-				echo "OK. Now load a page from your site to make sure the schedule can trigger.";
+				echo "OK. Now load any page from your site to make sure the schedule can trigger.";
+				$this->log("A backup run has been scheduled");
 			}
 			echo '</div>';
 		}
@@ -1575,7 +1611,7 @@ class UpdraftPlus {
 		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_all') { $this->backup(true,true); }
 		elseif (isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_db') { $this->backup_db(); }
 		elseif (isset($_POST['action']) && $_POST['action'] == 'updraft_wipesettings') {
-			$settings = array('updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_encryptionphrase', 'updraft_service', 'updraft_s3_login', 'updraft_s3_pass', 'updraft_s3_remote_path', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_dropbox_folder', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_others_exclude');
+			$settings = array('updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_encryptionphrase', 'updraft_service', 'updraft_s3_login', 'updraft_s3_pass', 'updraft_s3_remote_path', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_dropbox_folder', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_others_exclude', 'updraft_lastmessage');
 			foreach ($settings as $s) {
 				delete_option($s);
 			}
@@ -1627,7 +1663,7 @@ ENDHERE;
 			?>
 
 			<h2 style="clear:left;">Existing Schedule And Backups</h2>
-			<table class="form-table" style="float:left; clear: both; width:475px">
+			<table class="form-table" style="float:left; clear: both; width:545px;">
 				<tr>
 					<?php
 					$updraft_dir = $this->backups_dir_location();
@@ -1678,10 +1714,10 @@ ENDHERE;
 					<td style="color:<?php echo $last_backup_color ?>"><?php echo $last_backup?></td>
 				</tr>
 			</table>
-			<div style="float:left; width:200px; padding-top: 100px;">
+			<div style="float:left; width:200px; padding-top: 40px;">
 				<form method="post" action="">
 					<input type="hidden" name="action" value="updraft_backup" />
-					<p><input type="submit" <?php echo $backup_disabled ?> class="button-primary" value="Backup Now!" style="padding-top:3px;padding-bottom:3px;font-size:24px !important" onclick="return(confirm('This will schedule a one-time backup. To trigger the backup you should go ahead, then wait 10 seconds, then load a page on your site. WordPress should then start the backup running in the background.'))" /></p>
+					<p><input type="submit" <?php echo $backup_disabled ?> class="button-primary" value="Backup Now!" style="padding-top:3px;padding-bottom:3px;font-size:24px !important" onclick="return(confirm('This will schedule a one-time backup. To trigger the backup you should go ahead, then wait 10 seconds, then visit any page on your site. WordPress should then start the backup running in the background.'))" /></p>
 				</form>
 				<div style="position:relative">
 					<div style="position:absolute;top:0;left:0">
@@ -1711,6 +1747,10 @@ ENDHERE;
 			</div>
 			<br style="clear:both" />
 			<table class="form-table">
+				<tr>
+					<th>Last Backup Log Message:</th>
+					<td id="updraft_lastlogcontainer"><?php echo htmlspecialchars(get_option('updraft_lastmessage', '(Nothing yet logged)')); ?></td>
+				</tr>
 				<tr>
 					<th>Download Backups</th>
 					<td><a href="#" title="Click to see available backups" onclick="jQuery('.download-backups').toggle();return false;"><?php echo count($backup_history)?> available</a></td>
@@ -1914,7 +1954,23 @@ echo $delete_local; ?> /> <br>Check this to delete the local backup file (only s
 				</table>
 				<script type="text/javascript">
 				/* <![CDATA[ */
+					var lastlog_lastmessage = "";
+					var lastlog_sdata = {
+						action: 'updraft_ajax',
+						subaction: 'lastlog',
+						nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>'
+					};
+					function updraft_showlastlog(){
+						jQuery.get(ajaxurl, lastlog_sdata, function(response) {
+							nexttimer = 1500;
+							if (lastlog_lastmessage == response) { nexttimer = 4500; }
+							window.setTimeout(function(){updraft_showlastlog()}, nexttimer);
+							jQuery('#updraft_lastlogcontainer').html(response);
+							lastlog_lastmessage = response;
+						});
+					}
 					jQuery(document).ready(function() {
+						window.setTimeout(function(){updraft_showlastlog()}, 1200);
 						jQuery('.updraftplusmethod').hide();
 						<?php
 							if ($active_service) echo "jQuery('.${active_service}').show();";

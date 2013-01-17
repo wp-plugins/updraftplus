@@ -306,6 +306,10 @@ class UpdraftPlus_BackupModule_googledrive {
 	function config_print() {
 		?>
 			<tr class="updraftplusmethod googledrive">
+				<td>Google Drive:</td>
+				<td><em>Google Drive is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your blog is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.</em></td>
+			</tr>
+			<tr class="updraftplusmethod googledrive">
 			<th>Google Drive:</th>
 			<td>
 			<p><a href="http://david.dw-perspective.org.uk/da/index.php/computer-resources/updraftplus-googledrive-authorisation/"><strong>For longer help, including screenshots, follow this link. The description below is sufficient for more expert users.</strong></a></p>

@@ -206,6 +206,11 @@ class UpdraftPlus_BackupModule_dropbox {
 
 		?>
 			<tr class="updraftplusmethod dropbox">
+				<td></td>
+				<td><em>DropBox is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your blog is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.</em></td>
+			</tr>
+
+			<tr class="updraftplusmethod dropbox">
 				<th></th>
 				<td>
 				<p>Once you have an active DropBox account, you will need to set up an 'app' - <a href="https://www.dropbox.com/developers/apps">get your app key and secret from here</a>. <strong>Set up App Folder access, and select the &quot;Core API&quot;.</strong> (You can give the app whatever name and description you like).</p>

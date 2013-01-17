@@ -3,12 +3,12 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, Amazon S3, DropBox, DropBox backup, google drive, google, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.2.33
+Stable tag: 1.2.35
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Complete DropBox support. FTP over SSL. Less noise. Option to delete all settings.
+Complete DropBox support. FTP over SSL. Less noise, more info. Option to delete all settings.
 
 == Description ==
 
@@ -119,8 +119,9 @@ Yes; especially before you submit any support requests.
 Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ . I am also available for hire for bespoke work.
 
 == Changelog ==
-= 1.2.33 - 01/17/2013 =
+= 1.2.35 - 01/17/2013 =
 * New button to delete all existing settings
+* Admin console now displays rolling status updates
 
 = 1.2.31 - 01/15/2013 =
 * Fixed bug with DropBox deletions
