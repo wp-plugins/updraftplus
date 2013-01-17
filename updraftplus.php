@@ -1987,10 +1987,10 @@ echo $delete_local; ?> /> <br>Check this to delete the local backup file (only s
 					<p><input type="submit" class="button-primary" <?php echo $backup_disabled ?> value="Debug DB Backup" onclick="return(confirm('This will cause an immediate DB backup.  The page will stall loading until it finishes (ie, unscheduled). The backup may well run out of time; really this button is only helpful for checking that the backup is able to get through the initial stages, or for small WordPress sites.'))" /></p>
 				</form>
 				<h3>Wipe Settings</h3>
-				<p>This button will delete all UpdraftPlus settings (but not any of your existing backups from your cloud storage). You will then need to enter all your settings again.</p>
+				<p style="max-width: 600px;">This button will delete all UpdraftPlus settings (but not any of your existing backups from your cloud storage). You will then need to enter all your settings again. You can also do this before deactivating/deinstalling UpdraftPlus if you wish.</p>
 				<form method="post">
 					<input type="hidden" name="action" value="updraft_wipesettings" />
-					<p><input type="submit" value="Wipe All Settings" onclick="return(confirm('This will delete all your UpdraftPlus settings - are you sure you want to do this?'))" /></p>
+					<p><input type="submit" class="button-primary" value="Wipe All Settings" onclick="return(confirm('This will delete all your UpdraftPlus settings - are you sure you want to do this?'))" /></p>
 				</form>
 			</div>
 			<?php } ?>
