@@ -1860,7 +1860,7 @@ ENDHERE;
 						</select></td>
 				</tr>
 				<tr class="backup-interval-description">
-					<td></td><td>If you would like to automatically schedule backups, choose schedules from the dropdown above. Backups will occur at the interval specified starting just after the current time.  If you choose manual you must click the &quot;Backup Now!&quot; button whenever you wish a backup to occur. If the two schedules are the same, then the two backups will take place together.</td>
+					<td></td><td>If you would like to automatically schedule backups, choose schedules from the dropdowns above. Backups will occur at the interval specified starting just after the current time.  If you choose manual you must click the &quot;Backup Now!&quot; button whenever you wish a backup to occur. If the two schedules are the same, then the two backups will take place together.</td>
 				</tr>
 				<?php
 					# The true (default value if non-existent) here has the effect of forcing a default of on.
