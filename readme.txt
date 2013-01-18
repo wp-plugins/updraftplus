@@ -24,6 +24,10 @@ UpdraftPlus simplifies backups (and restoration). Backup into the cloud (Amazon 
 * Debug mode that gives full logging
 * Thousands of users: widely tested and reliable
 
+= Professional / Enterprise support available =
+
+UpdraftPlus is written by professional WordPress developers. If your site needs guaranteed support, then we are available. Get in touch - https://www.simbahosting.co.uk/s3/products-and-services/wordpress-experts/ - to arrange the support contract that your site needs.
+
 == Installation ==
 
 Standard WordPress plugin installation:
