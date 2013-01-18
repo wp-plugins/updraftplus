@@ -36,7 +36,7 @@ Standard WordPress plugin installation:
 
 = What exactly does UpdraftPlus back up ? =
 
-Unless you disable any of these, it will back up your database (all tables which have been prefixed with the prefix for this WordPress installation, both core tables and extra ones added by plugins), your plugins folder, your themes folder, your uploads folder and any extra folders that other plugins have created in the WordPress content directory.
+Basically, everything, unless you did something very exotic (which you would then know about) to your WordPress install. Unless you disable any of these, it will back up your database (all tables which have been prefixed with the prefix for this WordPress installation, both core tables and extra ones added by plugins), your plugins folder, your themes folder, your uploads folder and any extra folders that other plugins have created in the WordPress content directory.
 
 = What does UpdraftPlus not back up ? =
 
@@ -84,7 +84,7 @@ After you have set up UpdraftPlus, you must check that your backups are taking p
 
 = My enormous website is hosted by a dirt-cheap provider who starve my account of resources, and UpdraftPlus runs out of time! Help! Please make UpdraftPlus deal with this situation so that I can save two dollars! =
 
-UpdraftPlus supports resuming backup runs, so that it does not need to do everything in a single go; but this has limits. If your website is huge and your web hosting company gives your tiny resources on an over-loaded server, then your solution is to purchase better web hosting, or to hire me professionally. Otherwise, this is not considered a bug. UpdraftPlus is known to successfully back up websites that run into the gigabytes on web servers that are not resource-starved.
+UpdraftPlus supports resuming backup runs right from the beginning, so that it does not need to do everything in a single go; but this has limits. If your website is huge and your web hosting company gives your tiny resources on an over-loaded server, then your solution is to purchase better web hosting, or to hire me professionally. Otherwise, this is not considered a bug. UpdraftPlus is known to successfully back up websites that run into the gigabytes on web servers that are not resource-starved.
 
 = How is this better than the original Updraft? =
 
@@ -108,7 +108,7 @@ No, there's no warranty or guarantee, etc. It's completely up to you to verify t
 
 = Does UpdraftPlus delete all its settings when it is de-installed? =
 
-No. Doing so is "cleaner", but some users also de-install and re-install and don't want to have to re-enter their settings. The few entries in the WordPress options database (which won't ever be accessed) will make no difference that could possibly be detected on your site performance or space usage.
+No. Doing so is "cleaner", but some users also de-install and re-install and don't want to have to re-enter their settings. If you want to remove all UpdraftPlus's settings, then there's a button down at the bottom of the settings page.
 
 = I am not running the most recent version of UpdraftPlus. Should I upgrade? =
 

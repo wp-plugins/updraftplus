@@ -2,9 +2,9 @@
 /*
 Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
-Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, DropBox, Google Drive, FTP or email, on separate schedules.
+Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.2.36
+Version: 1.2.37
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -64,12 +64,12 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.2.36';
+	var $version = '1.2.37';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
 		"s3" => "Amazon S3",
-		"dropbox" => "DropBox",
+		"dropbox" => "Dropbox",
 		"googledrive" => "Google Drive",
 		"ftp" => "FTP",
 		"email" => "Email"
@@ -1494,7 +1494,7 @@ class UpdraftPlus {
 			add_action('admin_notices', array($this,'show_admin_warning_googledrive') );
 		}
 
-		if (current_user_can('manage_options') && get_option('updraft_service') == "dropbox" && get_option('updraft_dropbox_appkey') != "" && get_option('updraft_dropboxtk_request_token','xyz') == 'xyz') {
+		if (current_user_can('manage_options') && get_option('updraft_service') == "dropbox" && get_option('updraft_dropboxtk_request_token','xyz') == 'xyz') {
 			add_action('admin_notices', array($this,'show_admin_warning_dropbox') );
 		}
 	}
@@ -1917,7 +1917,7 @@ echo $delete_local; ?> /> <br>Check this to delete the local backup file (only s
 
 				<table class="form-table" style="width:850px;">
 				<tr>
-					<th>Remote backup:</th>
+					<th>Choose your remote storage:</th>
 					<td><select name="updraft_service" id="updraft-service">
 						<?php
 						$debug_mode = (get_option('updraft_debug_mode')) ? 'checked="checked"' : "";
@@ -1939,10 +1939,6 @@ echo $delete_local; ?> /> <br>Check this to delete the local backup file (only s
 						}
 						?>
 						</select></td>
-				</tr>
-				<tr class="backup-service-description">
-					<td></td><td>Choose your backup method.</td>
-				
 				</tr>
 				<?php
 					foreach ($this->backup_methods as $method => $description) {
@@ -1996,7 +1992,7 @@ echo $delete_local; ?> /> <br>Check this to delete the local backup file (only s
 				</tr>
 				<tr>
 					<th>Debug mode:</th>
-					<td><input type="checkbox" name="updraft_debug_mode" value="1" <?php echo $debug_mode; ?> /> <br>Check this to potentially receive more information and emails on the backup process - useful if something is going wrong. You <strong>must</strong> send me this log if you are filing a bug report.</td>
+					<td><input type="checkbox" name="updraft_debug_mode" value="1" <?php echo $debug_mode; ?> /> <br>Check this to enable some more options (that will appear after you save), and potentially receive more information and emails on the backup process - useful if something is going wrong. You <strong>must</strong> send me this log if you are filing a bug report.</td>
 				</tr>
 				<tr>
 				<td></td>
@@ -2084,7 +2080,7 @@ echo $delete_local; ?> /> <br>Check this to delete the local backup file (only s
 	}
 
 	function show_admin_warning_dropbox() {
-		$this->show_admin_warning('<strong>UpdraftPlus notice:</strong> <a href="?page=updraftplus&action=updraftmethod-dropbox-auth&updraftplus_dropboxauth=doit">Click here to authenticate your DropBox account (you will not be able to back up to DropBox without it).</a>');
+		$this->show_admin_warning('<strong>UpdraftPlus notice:</strong> <a href="?page=updraftplus&action=updraftmethod-dropbox-auth&updraftplus_dropboxauth=doit">Click here to authenticate your Dropbox account (you will not be able to back up to Dropbox without it).</a>');
 	}
 
 	function show_admin_warning_googledrive() {
