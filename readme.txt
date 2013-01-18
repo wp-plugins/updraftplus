@@ -3,7 +3,7 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, Amazon S3, DropBox, DropBox backup, google drive, google, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.2.36
+Stable tag: 1.2.38
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
@@ -119,7 +119,9 @@ Yes; especially before you submit any support requests.
 Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ . I am also available for hire for bespoke work.
 
 == Changelog ==
-= 1.2.36 - 01/17/2013 =
+
+= 1.2.38 - 01/17/2013 =
+* Easier DropBox setup (we are now an official production app)
 * New button to delete all existing settings
 * Admin console now displays rolling status updates
 
@@ -255,6 +257,12 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 1. Configuration page
 
+We recognise and thank the following for code and/or libraries used and/or modified under the terms of their licences:
+* UpdraftPlus is based on the original Updraft by Paul Kehrer (Twitter: http://twitter.com/reaperhulk, Blog: http://langui.sh)
+* Sorin Iclanzan, http://profiles.wordpress.org/hel.io/
+* Ben Tadiar, https://github.com/BenTheDesigner/Dropbox
+* Beau Brownlee, http://www.solutionbot.com/2009/01/02/php-ftp-class/
+* Donovan Schonknecht, http://undesigned.org.za/2007/10/22/amazon-s3-php-class
 
 == License ==
 

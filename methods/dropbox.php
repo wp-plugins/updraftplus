@@ -211,7 +211,10 @@ class UpdraftPlus_BackupModule_dropbox {
 		?>
 			<tr class="updraftplusmethod dropbox">
 				<td></td>
-				<td><em>Dropbox is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your blog is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.</em></td>
+				<td>
+				<img alt="Dropbox logo" src="<?php echo UPDRAFTPLUS_URL.'/images/dropbox-logo.png' ?>">
+				<p><em>Dropbox is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your blog is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.</em></p>
+				</td>
 			</tr>
 
 			<tr class="updraftplusmethod dropbox">
