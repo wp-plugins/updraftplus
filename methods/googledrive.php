@@ -117,8 +117,8 @@ class UpdraftPlus_BackupModule_googledrive {
 				$updraftplus->log('OK: Archive ' . $file_name . ' uploaded to Google Drive in ' . ( round(microtime( true ) - $timer_start,2) ) . ' seconds (id: '.$id.')' );
 				$updraftplus->uploaded_file($file, $id);
 			} else {
-				$updraftplus->error("$file_name: Failed to upload to Google Drive" );
 				$updraftplus->log("ERROR: $file_name: Failed to upload to Google Drive" );
+				$updraftplus->error("$file_name: Failed to upload to Google Drive" );
 			}
 		}
 		$updraftplus->prune_retained_backups("googledrive", $this, null);
@@ -171,8 +171,8 @@ class UpdraftPlus_BackupModule_googledrive {
 		if ( is_wp_error( $location ) ) {
 			$updraftplus->log("GoogleDrive upload: an error occurred");
 			foreach ($location->get_error_messages() as $msg) {
-				$updraftplus->error($msg);
 				$updraftplus->log("Error details: ".$msg);
+				$updraftplus->error($msg);
 			}
 			return false;
 		}
@@ -207,7 +207,7 @@ class UpdraftPlus_BackupModule_googledrive {
 
 			if ( is_wp_error( $res ) || $res !== true) {
 				$updraftplus->log( "An error occurred during GoogleDrive upload (2)" );
-				$updraftplus->error( "An error occurred during GoogleDrive upload (2)" );
+				$updraftplus->error( "An error occurred during GoogleDrive upload (see log for more details" );
 				if (is_wp_error( $res )) {
 					foreach ($res->get_error_messages() as $msg) $updraftplus->log($msg);
 				}
@@ -236,7 +236,7 @@ class UpdraftPlus_BackupModule_googledrive {
 
 		// Do we have an access token?
 		if ( !$access_token = $updraftplus->access_token( get_option('updraft_googledrive_token'), get_option('updraft_googledrive_clientid'), get_option('updraft_googledrive_secret') )) {
-			$updraftplus->error('ERROR: Have not yet obtained an access token from Google (has the user authorised?)');
+			$updraftplus->error('Have not yet obtained an access token from Google (has the user authorised?)');
 			return false;
 		}
 
@@ -305,6 +305,10 @@ class UpdraftPlus_BackupModule_googledrive {
 
 	function config_print() {
 		?>
+			<tr class="updraftplusmethod googledrive">
+				<td>Google Drive:</td>
+				<td><em>Google Drive is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your blog is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.</em></td>
+			</tr>
 			<tr class="updraftplusmethod googledrive">
 			<th>Google Drive:</th>
 			<td>
