@@ -8,13 +8,13 @@ Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Complete DropBox support. FTP over SSL. Less noise, more info. Option to delete all settings.
+Complete Dropbox support. FTP over SSL. Less noise, more info. Option to delete all settings.
 
 == Description ==
 
-UpdraftPlus simplifies backups (and restoration). Backup into the cloud (Amazon S3, DropBox, Google Drive, FTP, and email) and restore with a single click. Backups of files and database can have separate schedules.
+UpdraftPlus simplifies backups (and restoration). Backup into the cloud (Amazon S3, Dropbox, Google Drive, FTP, and email) and restore with a single click. Backups of files and database can have separate schedules.
 
-* Supports backups to Amazon S3, DropBox, Google Drive, FTP (including SSL), email
+* Supports backups to Amazon S3, Dropbox, Google Drive, FTP (including SSL), email
 * One-click restore
 * Backup automatically on a repeating schedule
 * Files and databases can have separate schedules
@@ -84,7 +84,7 @@ Again, if you backed up using a cloud method, then on UpdraftPlus's settings pag
 
 = I want to restore, but have either cannot, or have failed to do so from the WP Admin console =
 
-That's no problem. If you have access to your backed files (i.e. you have the emailed copies, or have obtained the backed up copies directly from Amazon S3, DropBox, Google Drive, FTP or whatever store you were using), then you simply need to unzip them into the right places. UpdraftPlus does not back up the WordPress core - you can just get a fresh copy of that from www.wordpress.org. So, if you are starting from nothing, then first download and unzip a WordPress zip from www.wordpress.org. After doing that, then unzip the zip files for your uploads, themes, plugins and other filesback into the wp-content directory. Then re-install the database (e.g. by running it through PHPMyAdmin - see also the later question on how to decrypt if your database backup was encrypted). These are all basic operations and not difficult for anyone with simple skills; but if you need help and cannot find someone to assist, then send me a meaningful donation - http://david.dw-perspective.org.uk/donate - and I can help.
+That's no problem. If you have access to your backed files (i.e. you have the emailed copies, or have obtained the backed up copies directly from Amazon S3, Dropbox, Google Drive, FTP or whatever store you were using), then you simply need to unzip them into the right places. UpdraftPlus does not back up the WordPress core - you can just get a fresh copy of that from www.wordpress.org. So, if you are starting from nothing, then first download and unzip a WordPress zip from www.wordpress.org. After doing that, then unzip the zip files for your uploads, themes, plugins and other filesback into the wp-content directory. Then re-install the database (e.g. by running it through PHPMyAdmin - see also the later question on how to decrypt if your database backup was encrypted). These are all basic operations and not difficult for anyone with simple skills; but if you need help and cannot find someone to assist, then send me a meaningful donation - http://david.dw-perspective.org.uk/donate - and I can help.
 
 = Anything essential to know? =
 
@@ -96,11 +96,11 @@ UpdraftPlus supports resuming backup runs right from the beginning, so that it d
 
 = How is this better than the original Updraft? =
 
-You can check the changelog for changes; but the original Updraft, before I forked it, had three major problems. Firstly, it only backed up WP core tables from the database; if any of your plugins stored data in extra tables, then they were not backed up. Secondly, it only backed up your plugins/themes/uploads and not any further directories inside wp-content that other plugins might have created. Thirdly, the database backup did not include charset information, which meant that you needed to know some SQL wizardry to actually be able to use the backup. I made UpdraftPlus out of my experience of trying to back up several sites with Updraft. Then, I added encryption for the database file for extra peace of mind, and future-proofed by getting rid of some deprecated aspects. Since then, many new features have been added, e.g. resuming of failed uploads, and DropBox support.
+You can check the changelog for changes; but the original Updraft, before I forked it, had three major problems. Firstly, it only backed up WP core tables from the database; if any of your plugins stored data in extra tables, then they were not backed up. Secondly, it only backed up your plugins/themes/uploads and not any further directories inside wp-content that other plugins might have created. Thirdly, the database backup did not include charset information, which meant that you needed to know some SQL wizardry to actually be able to use the backup. I made UpdraftPlus out of my experience of trying to back up several sites with Updraft. Then, I added encryption for the database file for extra peace of mind, and future-proofed by getting rid of some deprecated aspects. Since then, many new features have been added, e.g. resuming of failed uploads, and Dropbox support.
 
 = Any known bugs ? =
 
-Not a bug as such, but one issue to be aware of is that backups of very large sites (lots of uploaded media) can fail, or require a longer period of time to succeed, due to timing out. This depends on how many seconds your web host allows a PHP process to run and how many resources they give you. With such sites, you need to use Amazon S3, which UpdraftPlus supports (since 0.9.20) or Google Drive (since 0.9.21) or DropBox (since 1.2.19) with chunked, resumable uploads. Other backup methods have code (since 0.9.0) to retry failed uploads of an archive, but the upload cannot be chunked, so if an archive is enormous (i.e. cannot be completely uploaded in the time that PHP is allowed for running on your web host) it cannot work.
+Not a bug as such, but one issue to be aware of is that backups of very large sites (lots of uploaded media) can fail, or require a longer period of time to succeed, due to timing out. This depends on how many seconds your web host allows a PHP process to run and how many resources they give you. With such sites, you need to use Amazon S3, which UpdraftPlus supports (since 0.9.20) or Google Drive (since 0.9.21) or Dropbox (since 1.2.19) with chunked, resumable uploads. Other backup methods have code (since 0.9.0) to retry failed uploads of an archive, but the upload cannot be chunked, so if an archive is enormous (i.e. cannot be completely uploaded in the time that PHP is allowed for running on your web host) it cannot work.
 
 = I encrypted my database - how do I decrypt it? =
 
@@ -129,13 +129,13 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 == Changelog ==
 
 = 1.2.38 - 01/17/2013 =
-* Easier DropBox setup (we are now an official production app)
+* Easier Dropbox setup (we are now an official production app)
 * New button to delete all existing settings
 * Admin console now displays rolling status updates
 
 = 1.2.31 - 01/15/2013 =
-* Fixed bug with DropBox deletions
-* Fixed cases where DropBox failed to resume chunked uploading
+* Fixed bug with Dropbox deletions
+* Fixed cases where Dropbox failed to resume chunked uploading
 * Can now create uncreated zip files on a resumption attempt
 * FTP method now supports SSL (automatically detected)
 * New "Test FTP settings" button
@@ -143,21 +143,21 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * Fix bug (in 1.2.30) that prevented some database uploads completing
 
 = 1.2.20 - 01/12/2013 =
-* DropBox no longer limited to 150Mb uploads
-* DropBox can upload in chunks and resume uploading chunks
-* Improved DropBox help text
+* Dropbox no longer limited to 150Mb uploads
+* Dropbox can upload in chunks and resume uploading chunks
+* Improved Dropbox help text
 
 = 1.2.18 - 01/11/2013 =
-* Revert DropBox to CURL-only - was not working properly with WordPress's built-in methods
-* Add note that only up to 150Mb is possible for a DropBox upload, until we change our API usage
+* Revert Dropbox to CURL-only - was not working properly with WordPress's built-in methods
+* Add note that only up to 150Mb is possible for a Dropbox upload, until we change our API usage
 * Fix unnecessary repetition of database dump upon resumption of a failed backup
 
 = 1.2.14 - 01/08/2013 =
-* DropBox support (no chunked uploading yet, but otherwise complete)
+* Dropbox support (no chunked uploading yet, but otherwise complete)
 * Make the creation of the database dump also resumable, for people with really slow servers
 * Database table backups are now timed
 * FTP logging slightly improved
-* DropBox support uses WordPress's built-in HTTP functions
+* Dropbox support uses WordPress's built-in HTTP functions
 
 = 1.1.16 - 01/07/2013 =
 * Requested feature: more frequent scheduling options requested
