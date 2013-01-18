@@ -248,7 +248,7 @@ class UpdraftPlus_BackupModule_googledrive {
 
 		$ids = get_option('updraft_file_ids', array());
 		if (!isset($ids[$file])) {
-			$this->error("Google Drive error: $file: could not download: could not find a record of the Google Drive file ID for this file");
+			$updraftplus->error("Google Drive error: $file: could not download: could not find a record of the Google Drive file ID for this file");
 			return;
 		} else {
 			$content_link = $gdocs_object->get_content_link( $ids[$file], $file );
