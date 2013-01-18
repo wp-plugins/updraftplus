@@ -21,7 +21,7 @@ class UpdraftPlus_BackupModule_email {
 		?>
 		<tr class="updraftplusmethod email">
 			<th>Note:</th>
-			<td>If choosing &quot;E-Mail&quot;, then be aware that mail servers tend to have size limits; typically around 10-20Mb; backups larger than any limits will not arrive.</td>
+			<td>If choosing &quot;E-Mail&quot;, then be aware that mail servers tend to have size limits; typically around 10-20Mb; backups larger than any limits will not arrive. If you really need a large backup via email, then you could fund a new feature (to break the backup set into configurable-size pieces) - but the demand has not yet existed for such a feature.</td>
 		</tr>
 		<?php
 	}

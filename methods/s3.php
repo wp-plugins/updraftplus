@@ -180,7 +180,7 @@ class UpdraftPlus_BackupModule_s3 {
 	?>
 		<tr class="updraftplusmethod s3">
 			<td></td>
-			<td><em>Amazon S3 is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your blog is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.</em></td>
+			<td><img src="https://d36cz9buwru1tt.cloudfront.net/Powered-by-Amazon-Web-Services.jpg" alt="Amazon Web Services"><p><em>Amazon S3 is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your blog is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.</em></p></td>
 		</tr>
 		<tr class="updraftplusmethod s3">
 		<th></th>

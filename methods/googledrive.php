@@ -235,7 +235,7 @@ class UpdraftPlus_BackupModule_googledrive {
 		if( !class_exists('UpdraftPlus_GDocs')) require_once(UPDRAFTPLUS_DIR.'/includes/class-gdocs.php');
 
 		// Do we have an access token?
-		if ( !$access_token = $updraftplus->access_token( get_option('updraft_googledrive_token'), get_option('updraft_googledrive_clientid'), get_option('updraft_googledrive_secret') )) {
+		if ( !$access_token = $this->access_token( get_option('updraft_googledrive_token'), get_option('updraft_googledrive_clientid'), get_option('updraft_googledrive_secret') )) {
 			$updraftplus->error('Have not yet obtained an access token from Google (has the user authorised?)');
 			return false;
 		}
@@ -307,7 +307,10 @@ class UpdraftPlus_BackupModule_googledrive {
 		?>
 			<tr class="updraftplusmethod googledrive">
 				<td>Google Drive:</td>
-				<td><em>Google Drive is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your blog is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.</em></td>
+				<td>
+				<img src="https://developers.google.com/drive/images/drive_logo.png" alt="Google Drive">
+				<p><em>Google Drive is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your blog is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.</em></p>
+				</td>
 			</tr>
 			<tr class="updraftplusmethod googledrive">
 			<th>Google Drive:</th>
