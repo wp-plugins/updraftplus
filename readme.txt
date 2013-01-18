@@ -28,7 +28,7 @@ UpdraftPlus simplifies backups (and restoration). Backup into the cloud (Amazon 
 
 That's according to WordPress big cheese, Vladimir Prelovac. Check out his weekly chart to see where UpdraftPlus is right now: http://www.prelovac.com/vladimir/wordpress-plugins-rising-stars
 
-= Professional / Enterprise support available =
+= Professional / Enterprise support agreements available =
 
 UpdraftPlus is written by professional WordPress developers. If your site needs guaranteed support, then we are available. Get in touch - https://www.simbahosting.co.uk/s3/products-and-services/wordpress-experts/ - to arrange the support contract that your site needs.
 
