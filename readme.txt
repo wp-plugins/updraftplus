@@ -1,6 +1,6 @@
 === UpdraftPlus Backup ===
 Contributors: David Anderson
-Tags: backup, restore, database, cloud, amazon, s3, Amazon S3, DropBox, DropBox backup, google drive, google, gdrive, ftp, cloud, updraft, back up
+Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.5
 Stable tag: 1.2.38
