@@ -3,12 +3,12 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.2.40
+Stable tag: 1.2.41
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Complete Dropbox support. FTP over SSL. Less noise, more info. Option to delete all settings.
+Set retention separately for files/db. Complete Dropbox support. FTP over SSL. Less noise, more info. Option to delete all settings.
 
 == Description ==
 
@@ -31,6 +31,10 @@ That's according to WordPress big cheese, Vladimir Prelovac. Check out his weekl
 = Professional / Enterprise support agreements available =
 
 UpdraftPlus is written by professional WordPress developers. If your site needs guaranteed support, then we are available. Get in touch - https://www.simbahosting.co.uk/s3/products-and-services/wordpress-experts/ - to arrange the support contract that your site needs.
+
+= Other support =
+
+We hang out in the support forum for this plugin - http://wordpress.org/support/plugin/updraftplus - however, to save our time so that we can spend it on development and not repeating ourselves, please read the plugin's Frequently Asked Questions ((http://wordpress.org/extend/plugins/updraftplus/faq/) before you submit any support requests, and ensure that you have updated to the latest released version of UpdraftPlus.
 
 == Installation ==
 
@@ -128,10 +132,11 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.2.40 - 01/19/2013 =
+= 1.2.41 - 01/19/2013 =
 * Easier Dropbox setup (we are now an official production app)
 * New button to delete all existing settings
 * Admin console now displays rolling status updates
+* Feature: choose how many files and databases to retain separately
 * Fixed bug with checking access token on Google Drive restore
 * Fixed bug producing copious warnings in PHP log
 
