@@ -32,6 +32,10 @@ That's according to WordPress big cheese, Vladimir Prelovac. Check out his weekl
 
 UpdraftPlus is written by professional WordPress developers. If your site needs guaranteed support, then we are available. Get in touch - https://www.simbahosting.co.uk/s3/products-and-services/wordpress-experts/ - to arrange the support contract that your site needs.
 
+= Other support =
+
+We hang out in the support forum for this plugin - http://wordpress.org/support/plugin/updraftplus - however, to save our time so that we can spend it on development and not repeating ourselves, please read the plugin's Frequently Asked Questions ((http://wordpress.org/extend/plugins/updraftplus/faq/) before you submit any support requests, and ensure that you have updated to the latest released version of UpdraftPlus.
+
 == Installation ==
 
 Standard WordPress plugin installation:

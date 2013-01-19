@@ -17,9 +17,8 @@ TODO
 //?? On 'backup now', open up a Lightbox, count down 5 seconds, then start examining the log file (if it can be found)
 //Should make clear in dashboard what is a non-fatal error (i.e. can be retried) - leads to unnecessary bug reports
 //Eventually, when everything can be resumed, we will no longer need the backup() routine; it can be replaced with the resume() routine
-// Should we resume if the only errors were upon deletion (i.e. the backup itself was fine?) Presently we do, but it displays errors for the user to confuse them.
+// Should we resume if the only errors were upon deletion (i.e. the backup itself was fine?) Presently we do, but it displays errors for the user to confuse them. Perhaps better to make pruning a separate scheuled task??
 // Make jobs *individually* resumable (i.e. all the state info must be keyed on the nonce; then call the resume event *specifying the nonce*)
-// Separate 'retain' settings for db + files (since they are on separate schedules)
 // Warn the user if their zip-file creation is slooowww...
 // Create a "Want Support?" button/console, that leads them through what is needed, and performs some basic tests...
 // Resuming partial FTP uploads
