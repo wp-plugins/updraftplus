@@ -34,7 +34,7 @@ UpdraftPlus is written by professional WordPress developers. If your site needs 
 
 = Other support =
 
-We hang out in the support forum for this plugin - http://wordpress.org/support/plugin/updraftplus - however, to save our time so that we can spend it on development and not repeating ourselves, please read the plugin's Frequently Asked Questions ((http://wordpress.org/extend/plugins/updraftplus/faq/) before you submit any support requests, and ensure that you have updated to the latest released version of UpdraftPlus.
+We hang out in the support forum for this plugin - http://wordpress.org/support/plugin/updraftplus - however, to save our time so that we can spend it on development, please read the plugin's Frequently Asked Questions - http://wordpress.org/extend/plugins/updraftplus/faq/ - before going there, and ensure that you have updated to the latest released version of UpdraftPlus.
 
 == Installation ==
 
