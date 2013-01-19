@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.2.39
+Version: 1.2.40
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -65,7 +65,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.2.39';
+	var $version = '1.2.40';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -953,7 +953,7 @@ class UpdraftPlus {
 		foreach ($stitch_files as $table_file) {
 			$this->log("{$table_file}.gz: adding to final database dump");
 			$handle = gzopen($updraft_dir.'/'.$table_file.'.gz', "r");
-			while (!feof($handle)) { $this->stow(gzread($handle, 65536)); }
+			while (!gzeof($handle)) { $this->stow(gzread($handle, 65536)); }
 			gzclose($handle);
 			@unlink($updraft_dir.'/'.$table_file.'.gz');
 		}

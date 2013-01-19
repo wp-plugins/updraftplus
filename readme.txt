@@ -3,7 +3,7 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.2.39
+Stable tag: 1.2.40
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
@@ -128,11 +128,12 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.2.39 - 01/18/2013 =
+= 1.2.40 - 01/19/2013 =
 * Easier Dropbox setup (we are now an official production app)
 * New button to delete all existing settings
 * Admin console now displays rolling status updates
 * Fixed bug with checking access token on Google Drive restore
+* Fixed bug producing copious warnings in PHP log
 
 = 1.2.31 - 01/15/2013 =
 * Fixed bug with Dropbox deletions
