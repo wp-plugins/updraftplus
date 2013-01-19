@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.2.40
+Version: 1.2.41
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -23,6 +23,7 @@ TODO
 // Warn the user if their zip-file creation is slooowww...
 // Create a "Want Support?" button/console, that leads them through what is needed, and performs some basic tests...
 // Resuming partial FTP uploads
+// Provide backup/restoration for UpdraftPlus's settings, to allow 'bootstrap' on a fresh WP install
 
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
 // Does not delete old custom directories upon a restore?
@@ -65,7 +66,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.2.40';
+	var $version = '1.2.41';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -424,7 +425,6 @@ class UpdraftPlus {
 			//cloud operations (S3,Google Drive,FTP,email,nothing)
 			//this also calls the retain (prune) feature at the end (done in this method to reuse existing cloud connections)
 			if(is_array($backup_array) && count($backup_array) >0) {
-				$this->log("Beginning dispatch of backup to remote");
 				$this->cloud_backup($backup_array);
 			}
 
@@ -445,10 +445,12 @@ class UpdraftPlus {
 		if (strlen($encryption) > 0) {
 			$this->log("$file: applying encryption");
 			$encryption_error = 0;
+			$microstart = microtime(true);
 			require_once(UPDRAFTPLUS_DIR.'/includes/Rijndael.php');
 			$rijndael = new Crypt_Rijndael();
 			$rijndael->setKey($encryption);
 			$updraft_dir = $this->backups_dir_location();
+			$file_size = @filesize($updraft_dir.'/'.$file)/1024;
 			$in_handle = @fopen($updraft_dir.'/'.$file,'r');
 			$buffer = "";
 			while (!feof ($in_handle)) {
@@ -459,7 +461,8 @@ class UpdraftPlus {
 			if (!fwrite($out_handle, $rijndael->encrypt($buffer))) {$encryption_error = 1;}
 			fclose ($out_handle);
 			if (0 == $encryption_error) {
-				$this->log("$file: encryption successful");
+				$time_taken = max(0.000001, microtime(true)-$microstart);
+				$this->log("$file: encryption successful: ".round($file_size,1)."Kb in ".round($time_taken,1)."s (".round($file_size/$time_taken, 1)."Kb/s)");
 				# Delete unencrypted file
 				@unlink($updraft_dir.'/'.$file);
 				return basename($file.'.crypt');
@@ -568,9 +571,9 @@ class UpdraftPlus {
 			update_option('updraft_file_ids',$ids);
 			$this->log("Stored file<->id correlation in database ($file <-> $id)");
 		}
-		// Delete local files if the option is set
-		$this->delete_local($file);
-
+		// Delete local files immediately if the option is set
+		// Where we are only backing up locally, only the "prune" function should do deleting
+		if (get_option('updraft_service', 'none') != 'none') $this->delete_local($file);
 	}
 
 	// Dispatch to the relevant function
@@ -582,13 +585,19 @@ class UpdraftPlus {
 		$method_include = UPDRAFTPLUS_DIR.'/methods/'.$service.'.php';
 		if (file_exists($method_include)) require_once($method_include);
 
+		if ($service == "none") {
+			$this->log("No remote despatch: user chose no remote backup service");
+		} else {
+			$this->log("Beginning dispatch of backup to remote");
+		}
+
 		$objname = "UpdraftPlus_BackupModule_${service}";
 		if (method_exists($objname, "backup")) {
 			// New style - external, allowing more plugability
 			$remote_obj = new $objname;
 			$remote_obj->backup($backup_array);
-		} else {
-			$this->prune_retained_backups("local", null, null);
+		} elseif ($service == "none") {
+			$this->prune_retained_backups("none", null, null);
 		}
 	}
 
@@ -608,12 +617,23 @@ class UpdraftPlus {
 	// Carries out retain behaviour. Pass in a valid S3 or FTP object and path if relevant.
 	function prune_retained_backups($updraft_service, $backup_method_object = null, $backup_passback = null) {
 
+		// If they turned off deletion on local backups, then there is nothing to do
+		if (get_option('updraft_delete_local') == 0 && $updraft_service == 'none') {
+			$this->log("Prune old backups from local store: nothing to do, since the user disabled local deletion and we are using local backups");
+			return;
+		}
+
 		$this->log("Retain: beginning examination of existing backup sets");
 
-		// Number of backups to retain
+		// Number of backups to retain - files
 		$updraft_retain = get_option('updraft_retain', 1);
-		$retain = (is_numeric($updraft_retain)) ? $updraft_retain : 1;
-		$this->log("Retain: user setting: number to retain = $retain");
+		$updraft_retain = (is_numeric($updraft_retain)) ? $updraft_retain : 1;
+		$this->log("Retain files: user setting: number to retain = $updraft_retain");
+
+		// Number of backups to retain - db
+		$updraft_retain_db = get_option('updraft_retain_db', $updraft_retain);
+		$updraft_retain_db = (is_numeric($updraft_retain_db)) ? $updraft_retain_db : 1;
+		$this->log("Retain db: user setting: number to retain = $updraft_retain_db");
 
 		// Returns an array, most recent first, of backup sets
 		$backup_history = $this->get_backup_history();
@@ -629,8 +649,8 @@ class UpdraftPlus {
 			if (isset($backup_to_examine['db'])) {
 				$db_backups_found++;
 				$this->log("$backup_datestamp: this set includes a database (".$backup_to_examine['db']."); db count is now $db_backups_found");
-				if ($db_backups_found > $retain) {
-					$this->log("$backup_datestamp: over retain limit; will delete this database");
+				if ($db_backups_found > $updraft_retain_db) {
+					$this->log("$backup_datestamp: over retain limit ($updraft_retain_db); will delete this database");
 					$dofile = $backup_to_examine['db'];
 					if (!empty($dofile)) $this->prune_file($updraft_service, $dofile, $backup_method_object, $backup_passback);
 					unset($backup_to_examine['db']);
@@ -639,8 +659,8 @@ class UpdraftPlus {
 			if (isset($backup_to_examine['plugins']) || isset($backup_to_examine['themes']) || isset($backup_to_examine['uploads']) || isset($backup_to_examine['others'])) {
 				$file_backups_found++;
 				$this->log("$backup_datestamp: this set includes files; fileset count is now $file_backups_found");
-				if ($file_backups_found > $retain) {
-					$this->log("$backup_datestamp: over retain limit; will delete this file set");
+				if ($file_backups_found > $updraft_retain) {
+					$this->log("$backup_datestamp: over retain limit ($updraft_retain); will delete this file set");
 					$file = isset($backup_to_examine['plugins']) ? $backup_to_examine['plugins'] : "";
 					$file2 = isset($backup_to_examine['themes']) ? $backup_to_examine['themes'] : "";
 					$file3 = isset($backup_to_examine['uploads']) ? $backup_to_examine['uploads'] : "";
@@ -794,12 +814,12 @@ class UpdraftPlus {
 				while (false !== ($entry = readdir($handle))) {
 					$candidate = WP_CONTENT_DIR.'/'.$entry;
 					if ($entry == "." || $entry == "..") { ; }
-					elseif ($candidate == $updraft_dir) { $this->log("$entry: skipping: this is the updraft directory"); }
-					elseif ($candidate == $wp_themes_dir) { $this->log("$entry: skipping: this is the themes directory"); }
-					elseif ($candidate == $wp_upload_dir) { $this->log("$entry: skipping: this is the uploads directory"); }
-					elseif ($candidate == $wp_plugins_dir) { $this->log("$entry: skipping: this is the plugins directory"); }
-					elseif (isset($others_skip[$entry])) { $this->log("$entry: skipping: excluded by options"); }
-					else { $this->log("$entry: adding to list"); array_push($other_dirlist, $candidate); }
+					elseif ($candidate == $updraft_dir) { $this->log("others: $entry: skipping: this is the updraft directory"); }
+					elseif ($candidate == $wp_themes_dir) { $this->log("others: $entry: skipping: this is the themes directory"); }
+					elseif ($candidate == $wp_upload_dir) { $this->log("others: $entry: skipping: this is the uploads directory"); }
+					elseif ($candidate == $wp_plugins_dir) { $this->log("others: $entry: skipping: this is the plugins directory"); }
+					elseif (isset($others_skip[$entry])) { $this->log("others: $entry: skipping: excluded by options"); }
+					else { $this->log("others: $entry: adding to list"); array_push($other_dirlist, $candidate); }
 				}
 			} else {
 				$this->log('ERROR: Could not read the content directory: '.WP_CONTENT_DIR);
@@ -1098,7 +1118,7 @@ class UpdraftPlus {
 			$this->stow("# --------------------------------------------------------\n");
 			$this->stow("\n");
 		}
- 		$this->log("Table $table: Total rows added: $total_rows in ".sprintf("%.02f",microtime(true)-$microtime)." seconds");
+ 		$this->log("Table $table: Total rows added: $total_rows in ".sprintf("%.02f",max(microtime(true)-$microtime,0.00001))." seconds");
 
 	} // end backup_table()
 
@@ -1452,6 +1472,7 @@ class UpdraftPlus {
 		register_setting( 'updraft-options-group', 'updraft_interval', array($this,'schedule_backup') );
 		register_setting( 'updraft-options-group', 'updraft_interval_database', array($this,'schedule_backup_database') );
 		register_setting( 'updraft-options-group', 'updraft_retain', array($this,'retain_range') );
+		register_setting( 'updraft-options-group', 'updraft_retain_db', array($this,'retain_range') );
 		register_setting( 'updraft-options-group', 'updraft_encryptionphrase', 'wp_filter_nohtml_kses' );
 		register_setting( 'updraft-options-group', 'updraft_service', 'wp_filter_nohtml_kses' );
 
@@ -1612,7 +1633,7 @@ class UpdraftPlus {
 		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_all') { $this->backup(true,true); }
 		elseif (isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_db') { $this->backup_db(); }
 		elseif (isset($_POST['action']) && $_POST['action'] == 'updraft_wipesettings') {
-			$settings = array('updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_encryptionphrase', 'updraft_service', 'updraft_s3_login', 'updraft_s3_pass', 'updraft_s3_remote_path', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_dropbox_folder', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_others_exclude', 'updraft_lastmessage');
+			$settings = array('updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_s3_login', 'updraft_s3_pass', 'updraft_s3_remote_path', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_dropbox_folder', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_others_exclude', 'updraft_lastmessage');
 			foreach ($settings as $s) {
 				delete_option($s);
 			}
@@ -1846,7 +1867,12 @@ ENDHERE;
 							echo ">$descrip</option>\n";
 						}
 						?>
-						</select></td>
+						</select>
+						and retain this many backups: <?php
+						$updraft_retain = get_option('updraft_retain', 1);
+						$updraft_retain = ((int)$updraft_retain > 0) ? (int)$updraft_retain : 1;
+						?> <input type="text" name="updraft_retain" value="<?php echo $updraft_retain ?>" style="width:40px;" />
+						</td>
 				</tr>
 				<tr>
 					<th>Database backup intervals:</th>
@@ -1858,10 +1884,15 @@ ENDHERE;
 							echo ">$descrip</option>\n";
 						}
 						?>
-						</select></td>
+						</select>
+						and retain this many backups: <?php
+						$updraft_retain_db = get_option('updraft_retain_db', $updraft_retain);
+						$updraft_retain_db = ((int)$updraft_retain_db > 0) ? (int)$updraft_retain_db : 1;
+						?> <input type="text" name="updraft_retain_db" value="<?php echo $updraft_retain_db ?>" style="width:40px" />
+				</td>
 				</tr>
 				<tr class="backup-interval-description">
-					<td></td><td>If you would like to automatically schedule backups, choose schedules from the dropdowns above. Backups will occur at the intervals specified starting just after the current time.  If you choose manual you must click the &quot;Backup Now!&quot; button whenever you wish a backup to occur. If the two schedules are the same, then the two backups will take place together.</td>
+					<td></td><td>If you would like to automatically schedule backups, choose schedules from the dropdowns above. Backups will occur at the intervals specified starting just after the current time. If the two schedules are the same, then the two backups will take place together. If you choose &quot;manual&quot; then you must click the &quot;Backup Now!&quot; button whenever you wish a backup to occur. </td>
 				</tr>
 				<?php
 					# The true (default value if non-existent) here has the effect of forcing a default of on.
@@ -1872,34 +1903,18 @@ ENDHERE;
 					$include_others_exclude = get_option('updraft_include_others_exclude',UPDRAFT_DEFAULT_OTHERS_EXCLUDE);
 				?>
 				<tr>
-					<th>Include in Files Backup:</th>
+					<th>Include in files backup:</th>
 					<td>
 					<input type="checkbox" name="updraft_include_plugins" value="1" <?php echo $include_plugins; ?> /> Plugins<br>
 					<input type="checkbox" name="updraft_include_themes" value="1" <?php echo $include_themes; ?> /> Themes<br>
 					<input type="checkbox" name="updraft_include_uploads" value="1" <?php echo $include_uploads; ?> /> Uploads<br>
 					<input type="checkbox" name="updraft_include_others" value="1" <?php echo $include_others; ?> /> Any other directories found inside wp-content - but exclude these directories: <input type="text" name="updraft_include_others_exclude" size="32" value="<?php echo htmlspecialchars($include_others_exclude); ?>"/><br>
-					Include all of these, unless you are backing them up separately. Note that presently UpdraftPlus backs up these directories only - which is usually everything (except for WordPress core itself which you can download afresh from WordPress.org). But if you have made customised modifications outside of these directories, you need to back them up another way.<br>(<a href="http://wordshell.net">Use WordShell</a> for automatic backup, version control and patching).<br></td>
+					Include all of these, unless you are backing them up outside of UpdraftPlus. The above directories are usually everything (except for WordPress core itself which you can download afresh from WordPress.org). But if you have made customised modifications outside of these directories, you need to back them up another way. (<a href="http://wordshell.net">Use WordShell</a> for automatic backup, version control and patching).<br></td>
 					</td>
-				</tr>
-				<tr>
-					<th>Retain backups:</th>
-					<?php
-					$updraft_retain = get_option('updraft_retain');
-					$retain = ((int)$updraft_retain > 0)?get_option('updraft_retain'):1;
-					?>
-					<td><input type="text" name="updraft_retain" value="<?php echo $retain ?>" style="width:50px" /></td>
-				</tr>
-				<tr class="backup-retain-description">
-					<td></td><td>By default only the most recent backup is retained. If you'd like to preserve more, specify the number here. (This many of <strong>both</strong> files and database backups will be retained.)</td>
 				</tr>
 				<tr>
 					<th>Email:</th>
 					<td><input type="text" style="width:260px" name="updraft_email" value="<?php echo get_option('updraft_email'); ?>" /> <br>Enter an address here to have a report sent (and the whole backup, if you choose) to it.</td>
-				</tr>
-				<tr class="deletelocal">
-					<th>Delete local backup:</th>
-					<td><input type="checkbox" name="updraft_delete_local" value="1" <?php $delete_local = (get_option('updraft_delete_local')) ? 'checked="checked"' : "";
-echo $delete_local; ?> /> <br>Check this to delete the local backup file (only sensible if you have enabled a remote backup (below), otherwise you will have no backup remaining).</td>
 				</tr>
 
 				<tr>
@@ -1910,7 +1925,7 @@ echo $delete_local; ?> /> <br>Check this to delete the local backup file (only s
 					<td><input type="text" name="updraft_encryptionphrase" value="<?php echo $updraft_encryptionphrase ?>" style="width:132px" /></td>
 				</tr>
 				<tr class="backup-crypt-description">
-					<td></td><td>If you enter text here, it is used to encrypt backups (Rijndael). Do not lose it, or all your backups will be useless. Presently, only the database file is encrypted. This is also the key used to decrypt backups from this admin interface (so if you change it, then automatic decryption will not work until you change it back). You can also use the file example-decrypt.php from inside the UpdraftPlus plugin directory to decrypt manually.</td>
+					<td></td><td>If you enter text here, it is used to encrypt backups (Rijndael). <strong>Do make a separate record of it and do not lose it, or all your backups <em>will</em> be useless.</strong> Presently, only the database file is encrypted. This is also the key used to decrypt backups from this admin interface (so if you change it, then automatic decryption will not work until you change it back). You can also use the file example-decrypt.php from inside the UpdraftPlus plugin directory to decrypt manually.</td>
 				</tr>
 				</table>
 
@@ -1985,15 +2000,28 @@ echo $delete_local; ?> /> <br>Check this to delete the local backup file (only s
 					<td colspan="2"><h2>Advanced / Debugging Settings</h2></td>
 				</tr>
 				<tr>
+					<th>Debug / Expert mode:</th>
+					<td><input type="checkbox" name="updraft_debug_mode" value="1" <?php echo $debug_mode; ?> /> <br>Check this to enable some more options here and below (that will appear after you save), and potentially receive more information and emails on the backup process - useful if something is going wrong. You <strong>must</strong> send me this log if you are filing a bug report.</td>
+				</tr>
+				<?php
+				$delete_local = get_option('updraft_delete_local', 1);
+				if (get_option('updraft_debug_mode')) { ?>
+
+				<tr class="deletelocal">
+					<th>Delete local backup:</th>
+					<td><input type="checkbox" name="updraft_delete_local" value="1" <?php if ($delete_local) echo 'checked="checked"'; ?>> <br>Uncheck this to prevent deletion of any superfluous backup files from your server after the backup run finishes (i.e. any files despatched remotely will also remain locally, and any files being kept locally will not be subject to the retention limits).</td>
+				</tr>
+
+				<?php } else { ?>
+					<input type="hidden" name="updraft_delete_local" value="<?php echo ($delete_local) ? 1 : 0; ?>">
+				<?php } ?>
+
+				<tr>
 					<th>Backup directory:</th>
 					<td><input type="text" name="updraft_dir" style="width:525px" value="<?php echo htmlspecialchars($updraft_dir); ?>" /></td>
 				</tr>
 				<tr>
 					<td></td><td><?php echo $dir_info ?> This is where Updraft Backup/Restore will write the zip files it creates initially.  This directory must be writable by your web server.  Typically you'll want to have it inside your wp-content folder (this is the default).  <b>Do not</b> place it inside your uploads dir, as that will cause recursion issues (backups of backups of backups of...).</td>
-				</tr>
-				<tr>
-					<th>Debug / Expert mode:</th>
-					<td><input type="checkbox" name="updraft_debug_mode" value="1" <?php echo $debug_mode; ?> /> <br>Check this to enable some more options below (that will appear after you save), and potentially receive more information and emails on the backup process - useful if something is going wrong. You <strong>must</strong> send me this log if you are filing a bug report.</td>
 				</tr>
 				<tr>
 				<td></td>
