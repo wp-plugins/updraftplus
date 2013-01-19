@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.2.41
+Version: 1.2.42
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -65,7 +65,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.2.41';
+	var $version = '1.2.42';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -1345,22 +1345,21 @@ class UpdraftPlus {
 		}
 		
 		//if we make it this far then WP_Filesystem has been instantiated and is functional (tested with ftpext, what about suPHP and other situations where direct may work?)
-		echo '<span style="font-weight:bold">Restoration Progress </span><div id="updraft-restore-progress">';
+		echo '<span style="font-weight:bold">Restoration Progress</span><div id="updraft-restore-progress">';
 
 		$updraft_dir = trailingslashit(get_option('updraft_dir'));
-		foreach($backup_history[$timestamp] as $type=>$file) {
+		foreach($backup_history[$timestamp] as $type => $file) {
+			if ($type == 'nonce') continue;
 			$fullpath = $updraft_dir.$file;
 			if(!is_readable($fullpath) && $type != 'db') {
 				$this->download_backup($file);
 			}
 			# Types: uploads, themes, plugins, others, db
 			if(is_readable($fullpath) && $type != 'db') {
-				if(!class_exists('WP_Upgrader')) {
-					require_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
-				}
+				if(!class_exists('WP_Upgrader')) require_once(ABSPATH . 'wp-admin/includes/class-wp-upgrader.php');
 				require_once(UPDRAFTPLUS_DIR.'/includes/updraft-restorer.php');
 				$restorer = new Updraft_Restorer();
-				$val = $restorer->restore_backup($fullpath,$type);
+				$val = $restorer->restore_backup($fullpath, $type);
 				if(is_wp_error($val)) {
 					print_r($val);
 					echo '</div>'; //close the updraft_restore_progress div even if we error
