@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.2.42
+Version: 1.2.43
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -22,7 +22,10 @@ TODO
 // Warn the user if their zip-file creation is slooowww...
 // Create a "Want Support?" button/console, that leads them through what is needed, and performs some basic tests...
 // Resuming partial FTP uploads
+// Turn expert options into a jQuery toggle
 // Provide backup/restoration for UpdraftPlus's settings, to allow 'bootstrap' on a fresh WP install
+// Multiple jobs
+// Multi-site
 
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
 // Does not delete old custom directories upon a restore?
@@ -65,7 +68,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.2.42';
+	var $version = '1.2.43';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -1471,33 +1474,33 @@ class UpdraftPlus {
 		register_setting( 'updraft-options-group', 'updraft_interval_database', array($this,'schedule_backup_database') );
 		register_setting( 'updraft-options-group', 'updraft_retain', array($this,'retain_range') );
 		register_setting( 'updraft-options-group', 'updraft_retain_db', array($this,'retain_range') );
-		register_setting( 'updraft-options-group', 'updraft_encryptionphrase', 'wp_filter_nohtml_kses' );
-		register_setting( 'updraft-options-group', 'updraft_service', 'wp_filter_nohtml_kses' );
+		register_setting( 'updraft-options-group', 'updraft_encryptionphrase');
+		register_setting( 'updraft-options-group', 'updraft_service' );
 
 		register_setting( 'updraft-options-group', 'updraft_s3_login' );
 		register_setting( 'updraft-options-group', 'updraft_s3_pass' );
-		register_setting( 'updraft-options-group', 'updraft_s3_remote_path', 'wp_filter_nohtml_kses' );
+		register_setting( 'updraft-options-group', 'updraft_s3_remote_path' );
 
 		register_setting( 'updraft-options-group', 'updraft_dropbox_appkey' );
 		register_setting( 'updraft-options-group', 'updraft_dropbox_secret' );
 		register_setting( 'updraft-options-group', 'updraft_dropbox_folder' );
 
-		register_setting( 'updraft-options-group', 'updraft_googledrive_clientid', 'wp_filter_nohtml_kses' );
+		register_setting( 'updraft-options-group', 'updraft_googledrive_clientid' );
 		register_setting( 'updraft-options-group', 'updraft_googledrive_secret' );
-		register_setting( 'updraft-options-group', 'updraft_googledrive_remotepath', 'wp_filter_nohtml_kses' );
+		register_setting( 'updraft-options-group', 'updraft_googledrive_remotepath' );
 		register_setting( 'updraft-options-group', 'updraft_ftp_login' );
 		register_setting( 'updraft-options-group', 'updraft_ftp_pass' );
 		register_setting( 'updraft-options-group', 'updraft_ftp_remote_path' );
-		register_setting( 'updraft-options-group', 'updraft_server_address', 'wp_filter_nohtml_kses' );
+		register_setting( 'updraft-options-group', 'updraft_server_address' );
 		register_setting( 'updraft-options-group', 'updraft_dir' );
-		register_setting( 'updraft-options-group', 'updraft_email', 'wp_filter_nohtml_kses' );
+		register_setting( 'updraft-options-group', 'updraft_email');
 		register_setting( 'updraft-options-group', 'updraft_delete_local', 'absint' );
 		register_setting( 'updraft-options-group', 'updraft_debug_mode', 'absint' );
 		register_setting( 'updraft-options-group', 'updraft_include_plugins', 'absint' );
 		register_setting( 'updraft-options-group', 'updraft_include_themes', 'absint' );
 		register_setting( 'updraft-options-group', 'updraft_include_uploads', 'absint' );
 		register_setting( 'updraft-options-group', 'updraft_include_others', 'absint' );
-		register_setting( 'updraft-options-group', 'updraft_include_others_exclude', 'wp_filter_nohtml_kses' );
+		register_setting( 'updraft-options-group', 'updraft_include_others_exclude' );
 	}
 
 	function admin_init() {

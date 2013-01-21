@@ -3,7 +3,7 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.2.42
+Stable tag: 1.2.43
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
@@ -140,6 +140,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * Fixed bug with checking access token on Google Drive restore
 * Fixed bug producing copious warnings in PHP log
 * Fixed bug in automated restoration processes
+* Possibly fixed settings saving bug in RTL installations
 
 = 1.2.31 - 01/15/2013 =
 * Fixed bug with Dropbox deletions
