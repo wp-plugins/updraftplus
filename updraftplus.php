@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.2.43
+Version: 1.2.44
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -68,7 +68,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.2.43';
+	var $version = '1.2.44';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -974,10 +974,14 @@ class UpdraftPlus {
 
 		foreach ($stitch_files as $table_file) {
 			$this->log("{$table_file}.gz: adding to final database dump");
-			$handle = gzopen($updraft_dir.'/'.$table_file.'.gz', "r");
-			while (!gzeof($handle)) { $this->stow(gzread($handle, 65536)); }
-			gzclose($handle);
-			@unlink($updraft_dir.'/'.$table_file.'.gz');
+			if (!$handle = gzopen($updraft_dir.'/'.$table_file.'.gz', "r")) {
+				$this->log("Error: Failed to open database file for reading: ${table_file}.gz");
+				$this->error(" Failed to open database file for reading: ${table_file}.gz");
+			} else {
+				while (!gzeof($handle)) { $this->stow(gzread($handle, 65536)); }
+				gzclose($handle);
+				@unlink($updraft_dir.'/'.$table_file.'.gz');
+			}
 		}
 
 		if (defined("DB_CHARSET")) {
@@ -1326,7 +1330,7 @@ class UpdraftPlus {
 			$remote_obj = new $objname;
 			$remote_obj->download($file);
 		} else {
-			$this->error('Automatic backup restoration is not available with the method: $service.');
+			$this->error("Automatic backup restoration is not available with the method: $service.");
 		}
 
 	}
@@ -1466,7 +1470,8 @@ class UpdraftPlus {
 	}
 
 	function execution_time_check($time) {
-		return (ini_get('max_execution_time') >= $time)?true:false;
+		$setting = ini_get('max_execution_time');
+		return ( $setting==0  || $setting >= $time) ? true : false;
 	}
 
 	function register_settings() {
