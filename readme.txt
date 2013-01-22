@@ -3,7 +3,7 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.2.44
+Stable tag: 1.2.45
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
@@ -20,8 +20,8 @@ UpdraftPlus simplifies backups (and restoration). Backup into the cloud (Amazon 
 * Files and databases can have separate schedules
 * Failed uploads are automatically resumed/retried
 * Select which files to backup (plugins, themes, content, other)
-* Databases can be encrypted for security
-* Debug mode that gives full logging
+* Database backups can be encrypted for security
+* Debug mode that gives full logging of the backup
 * Thousands of users: widely tested and reliable
 
 = Best New WordPress Plugin =
@@ -132,7 +132,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.2.44 - 01/22/2013 =
+= 1.2.45 - 01/22/2013 =
 * Easier Dropbox setup (we are now an official production app)
 * New button to delete all existing settings
 * Admin console now displays rolling status updates
@@ -142,6 +142,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * Fixed bug in automated restoration processes
 * Possibly fixed settings saving bug in RTL installations
 * Fix erroneous display of max_execution_time warning
+* Better logging when running a DB debug session
 
 = 1.2.31 - 01/15/2013 =
 * Fixed bug with Dropbox deletions

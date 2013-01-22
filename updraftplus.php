@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.2.44
+Version: 1.2.45
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -68,7 +68,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.2.44';
+	var $version = '1.2.45';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -162,6 +162,7 @@ class UpdraftPlus {
 		$this->logfile_handle = fopen($this->logfile_name, 'a');
 		$this->opened_log_time = microtime(true);
 		$this->log("Opened log file at time: ".date('r'));
+		$this->log("UpdraftPlus: ".$this->version." WordPress: ".$wp_version." PHP: ".phpversion()." (".@php_uname().") PHP Max Execution Time: ".@ini_get("max_execution_time"));
 	}
 
 	# Logs the given line, adding (relative) time stamp and newline
@@ -346,7 +347,6 @@ class UpdraftPlus {
 
 		// Log some information that may be helpful
 		global $wp_version;
-		$this->log("UpdraftPlus: ".$this->version." WordPress: ".$wp_version." PHP: ".phpversion()." (".@php_uname().") PHP Max Execution Time: ".@ini_get("max_execution_time"));
 		$this->log("Tasks: Backup files: $backup_files (schedule: ".get_option('updraft_interval','unset').") Backup DB: $backup_database (schedule: ".get_option('updraft_interval_database','unset').")");
 
 		# If the files and database schedules are the same, and if this the file one, then we rope in database too.
@@ -911,6 +911,9 @@ class UpdraftPlus {
 		// Get the file prefix
 		$updraft_dir = $this->backups_dir_location();
 
+		if(!$this->backup_time) $this->backup_time_nonce();
+		if (!$this->opened_log_time) $this->logfile_open($this->nonce);
+
 		// Get the blog name and rip out all non-alphanumeric chars other than _
 		$blog_name = preg_replace('/[^A-Za-z0-9_]/','', str_replace(' ','_', get_bloginfo()));
 		if (!$blog_name) $blog_name = 'non_alpha_name';
@@ -922,12 +925,9 @@ class UpdraftPlus {
 		$total_tables = 0;
 
 		global $table_prefix, $wpdb;
-		if(!$this->backup_time) $this->backup_time_nonce();
 
 		$all_tables = $wpdb->get_results("SHOW TABLES", ARRAY_N);
 		$all_tables = array_map(create_function('$a', 'return $a[0];'), $all_tables);
-
-
 
 		if (!is_writable($updraft_dir)) {
 			$this->log('The backup directory is not writable.');
@@ -978,7 +978,7 @@ class UpdraftPlus {
 				$this->log("Error: Failed to open database file for reading: ${table_file}.gz");
 				$this->error(" Failed to open database file for reading: ${table_file}.gz");
 			} else {
-				while (!gzeof($handle)) { $this->stow(gzread($handle, 65536)); }
+				while ($line = gzgets($handle, 2048)) { $this->stow($line); }
 				gzclose($handle);
 				@unlink($updraft_dir.'/'.$table_file.'.gz');
 			}
