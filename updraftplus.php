@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.2.45
+Version: 1.2.46
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -68,7 +68,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php');
 
 class UpdraftPlus {
 
-	var $version = '1.2.45';
+	var $version = '1.2.46';
 
 	// Choices will be shown in the admin menu in the order used here
 	var $backup_methods = array (
@@ -724,7 +724,15 @@ class UpdraftPlus {
 		}
 
 		// Temporary file, to be able to detect actual completion (upon which, it is renamed)
-		$zip_object = new PclZip($full_path.'.tmp');
+
+		// Firstly, make sure that the temporary file is not already being written to - which can happen if a resumption takes place whilst an old run is still active
+		$zip_name = $full_path.'.tmp';
+		if (file_exists($zip_name) && (int)filemtime($zip_name)>100 && filemtime($zip_name)-time()<20) {
+			$this->log("TERMINATE: the temporary file $zip_name already exists, and was modified within the last 20 seconds. This likely means that another UpdraftPlus run is still at work; so we will exit.");
+			die;
+		}
+
+		$zip_object = new PclZip($zip_name);
 
 		$microtime_start = microtime(true);
 		# The paths in the zip should then begin with '$whichone', having removed WP_CONTENT_DIR from the front
@@ -878,7 +886,8 @@ class UpdraftPlus {
 			$this->dbhandle_isgz = false;
 		}
 		if(!$this->dbhandle) {
-			//$this->error(__('Could not open the backup file for writing!','wp-db-backup'));
+			$this->log("ERROR: $file: Could not open the backup file for writing");
+			$this->error("$file: Could not open the backup file for writing");
 		}
 	}
 
