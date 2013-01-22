@@ -9,8 +9,8 @@ class UpdraftPlus_BackupModule_email {
 		global $updraftplus;
 
 		foreach ($backup_array as $type => $file) {
-			$fullpath = trailingslashit(get_option('updraft_dir')).$file;
-			wp_mail(get_option('updraft_email'), "WordPress Backup ".date('Y-m-d H:i',$updraftplus->backup_time), "Backup is of the $type.  Be wary; email backups may fail because of file size limitations on mail servers.", null, array($fullpath));
+			$fullpath = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir')).$file;
+			wp_mail(UpdraftPlus_Options::get_updraft_option('updraft_email'), "WordPress Backup ".date('Y-m-d H:i',$updraftplus->backup_time), "Backup is of the $type.  Be wary; email backups may fail because of file size limitations on mail servers.", null, array($fullpath));
 			$updraftplus->uploaded_file($file);
 		}
 		$updraftplus->prune_retained_backups("email", null, null);

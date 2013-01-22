@@ -28,7 +28,7 @@ class UpdraftPlus_BackupModule_dropbox {
 		global $updraftplus;
 		$updraftplus->log("Dropbox: begin cloud upload");
 
-		if (get_option('updraft_dropboxtk_request_token', 'xyz') == 'xyz') {
+		if (UpdraftPlus_Options::get_updraft_option('updraft_dropboxtk_request_token', 'xyz') == 'xyz') {
 			$updraftplus->log('You do not appear to be authenticated with Dropbox');
 			$updraftplus->error('You do not appear to be authenticated with Dropbox');
 			return false;
@@ -44,7 +44,7 @@ class UpdraftPlus_BackupModule_dropbox {
 		}
 
 		$updraft_dir = $updraftplus->backups_dir_location();
-		$dropbox_folder = trailingslashit(get_option('updraft_dropbox_folder'));
+		$dropbox_folder = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dropbox_folder'));
 
 		foreach($backup_array as $file) {
 			$updraftplus->log("Dropbox: Attempt to upload: $file");
@@ -121,7 +121,7 @@ class UpdraftPlus_BackupModule_dropbox {
 		global $updraftplus;
 		$updraftplus->log("Dropbox: request deletion: $file");
 
-		if (get_option('updraft_dropboxtk_request_token', 'xyz') == 'xyz') {
+		if (UpdraftPlus_Options::get_updraft_option('updraft_dropboxtk_request_token', 'xyz') == 'xyz') {
 			$updraftplus->log('You do not appear to be authenticated with Dropbox');
 			//$updraftplus->error('You do not appear to be authenticated with Dropbox');
 			return false;
@@ -135,7 +135,7 @@ class UpdraftPlus_BackupModule_dropbox {
 			return false;
 		}
 
-		$dropbox_folder = trailingslashit(get_option('updraft_dropbox_folder'));
+		$dropbox_folder = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dropbox_folder'));
 
 		$file_success = 1;
 		try {
@@ -168,7 +168,7 @@ class UpdraftPlus_BackupModule_dropbox {
 
 		global $updraftplus;
 
-		if (get_option('updraft_dropboxtk_request_token', 'xyz') == 'xyz') {
+		if (UpdraftPlus_Options::get_updraft_option('updraft_dropboxtk_request_token', 'xyz') == 'xyz') {
 			$updraftplus->error('You do not appear to be authenticated with Dropbox');
 			return false;
 		}
@@ -194,7 +194,7 @@ class UpdraftPlus_BackupModule_dropbox {
 
 		// TODO: Remove this October 2013 (we stored in the wrong place for a while...)
 		if ($try_the_other_one) {
-			$dropbox_folder = trailingslashit(get_option('updraft_dropbox_folder'));
+			$dropbox_folder = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dropbox_folder'));
 			$updraftplus->error('Dropbox error: '.$e);
 			try {
 				$get = $dropbox->getFile($file, $updraft_dir.'/'.$file);
@@ -219,7 +219,7 @@ class UpdraftPlus_BackupModule_dropbox {
 
 			<tr class="updraftplusmethod dropbox">
 				<th>Authenticate with Dropbox:</th>
-				<td><p><?php if (get_option('updraft_dropboxtk_request_token','xyz') != 'xyz') echo "<strong>(You appear to be already authenticated).</strong>"; ?> <a href="?page=updraftplus&action=updraftmethod-dropbox-auth&updraftplus_dropboxauth=doit"><strong>After</strong> you have saved your settings (by clicking &quot;Save Changes&quot; below), then come back here once and click this link to complete authentication with Dropbox.</a>
+				<td><p><?php if (UpdraftPlus_Options::get_updraft_option('updraft_dropboxtk_request_token','xyz') != 'xyz') echo "<strong>(You appear to be already authenticated).</strong>"; ?> <a href="?page=updraftplus&action=updraftmethod-dropbox-auth&updraftplus_dropboxauth=doit"><strong>After</strong> you have saved your settings (by clicking &quot;Save Changes&quot; below), then come back here once and click this link to complete authentication with Dropbox.</a>
 				</p>
 				</td>
 			</tr>
@@ -252,16 +252,16 @@ class UpdraftPlus_BackupModule_dropbox {
 
 			<?php
 			// Legacy: only show this next setting to old users who had a setting stored
-			if (get_option('updraft_dropbox_appkey')) {
+			if (UpdraftPlus_Options::get_updraft_option('updraft_dropbox_appkey')) {
 			?>
 
 				<tr class="updraftplusmethod dropbox">
 					<th>Your Dropbox App Key:</th>
-					<td><input type="text" autocomplete="off" style="width:332px" id="updraft_dropbox_appkey" name="updraft_dropbox_appkey" value="<?php echo htmlspecialchars(get_option('updraft_dropbox_appkey')) ?>" /></td>
+					<td><input type="text" autocomplete="off" style="width:332px" id="updraft_dropbox_appkey" name="updraft_dropbox_appkey" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_dropbox_appkey')) ?>" /></td>
 				</tr>
 				<tr class="updraftplusmethod dropbox">
 					<th>Your Dropbox App Secret:</th>
-					<td><input type="text" style="width:332px" id="updraft_dropbox_secret" name="updraft_dropbox_secret" value="<?php echo htmlspecialchars(get_option('updraft_dropbox_secret')); ?>" /></td>
+					<td><input type="text" style="width:332px" id="updraft_dropbox_secret" name="updraft_dropbox_secret" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_dropbox_secret')); ?>" /></td>
 				</tr>
 
 			<?php } ?>
@@ -318,9 +318,9 @@ class UpdraftPlus_BackupModule_dropbox {
 	}
 
 	function auth_token() {
-		$previous_token = get_option("updraft_dropboxtk_request_token","xyz");
+		$previous_token = UpdraftPlus_Options::get_updraft_option("updraft_dropboxtk_request_token","xyz");
 		self::bootstrap();
-		$new_token = get_option("updraft_dropboxtk_request_token","xyz");
+		$new_token = UpdraftPlus_Options::get_updraft_option("updraft_dropboxtk_request_token","xyz");
 		if ($new_token && $new_token != "xyz") {
 			add_action('admin_notices', array('UpdraftPlus_BackupModule_dropbox', 'show_authed_admin_warning') );
 		}
@@ -347,8 +347,8 @@ class UpdraftPlus_BackupModule_dropbox {
 //		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Consumer/WordPress.php');
 
 		// This formulation was required by Dropbox's developer programme, for what reasons you should ask them!
-		$sec = get_option(base64_decode('dXBkcmFmdF9kcm9wYm94X2FwcGtleQ=='));
-		$key = get_option(base64_decode('dXBkcmFmdF9kcm9wYm94X3NlY3JldA=='));
+		$sec = UpdraftPlus_Options::get_updraft_option(base64_decode('dXBkcmFmdF9kcm9wYm94X2FwcGtleQ=='));
+		$key = UpdraftPlus_Options::get_updraft_option(base64_decode('dXBkcmFmdF9kcm9wYm94X3NlY3JldA=='));
 
 		// Set the callback URL
 		$callback = admin_url('options-general.php?page=updraftplus&action=updraftmethod-dropbox-auth');

@@ -8,9 +8,9 @@ class UpdraftPlus_BackupModule_s3 {
 
 		if (!class_exists('S3')) require_once(UPDRAFTPLUS_DIR.'/includes/S3.php');
 
-		$s3 = new S3(get_option('updraft_s3_login'), get_option('updraft_s3_pass'));
+		$s3 = new S3(UpdraftPlus_Options::get_updraft_option('updraft_s3_login'), UpdraftPlus_Options::get_updraft_option('updraft_s3_pass'));
 
-		$bucket_name = untrailingslashit(get_option('updraft_s3_remote_path'));
+		$bucket_name = untrailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_s3_remote_path'));
 		$bucket_path = "";
 		$orig_bucket_name = $bucket_name;
 
@@ -25,7 +25,7 @@ class UpdraftPlus_BackupModule_s3 {
 			foreach($backup_array as $file) {
 
 				// We upload in 5Mb chunks to allow more efficient resuming and hence uploading of larger files
-				$fullpath = trailingslashit(get_option('updraft_dir')).$file;
+				$fullpath = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir')).$file;
 				$chunks = floor(filesize($fullpath) / 5242880)+1;
 				$hash = md5($file);
 
@@ -136,8 +136,8 @@ class UpdraftPlus_BackupModule_s3 {
 		global $updraftplus;
 		if(!class_exists('S3')) require_once(UPDRAFTPLUS_DIR.'/includes/S3.php');
 
-		$s3 = new S3(get_option('updraft_s3_login'), get_option('updraft_s3_pass'));
-		$bucket_name = untrailingslashit(get_option('updraft_s3_remote_path'));
+		$s3 = new S3(UpdraftPlus_Options::get_updraft_option('updraft_s3_login'), UpdraftPlus_Options::get_updraft_option('updraft_s3_pass'));
+		$bucket_name = untrailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_s3_remote_path'));
 		$bucket_path = "";
 
 		if (preg_match("#^([^/]+)/(.*)$#",$bucket_name,$bmatches)) {
@@ -146,7 +146,7 @@ class UpdraftPlus_BackupModule_s3 {
 		}
 
 		if (@$s3->getBucketLocation($bucket_name)) {
-			$fullpath = trailingslashit(get_option('updraft_dir')).$file;
+			$fullpath = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir')).$file;
 			if (!$s3->getObject($bucket_name, $bucket_path.$file, $fullpath)) {
 				$updraftplus->error("S3 Error: Failed to download $file. Check your permissions and credentials.");
 			}
@@ -189,15 +189,15 @@ class UpdraftPlus_BackupModule_s3 {
 		</td></tr>
 		<tr class="updraftplusmethod s3">
 			<th>S3 access key:</th>
-			<td><input type="text" autocomplete="off" style="width: 292px" id="updraft_s3_apikey" name="updraft_s3_login" value="<?php echo htmlspecialchars(get_option('updraft_s3_login')) ?>" /></td>
+			<td><input type="text" autocomplete="off" style="width: 292px" id="updraft_s3_apikey" name="updraft_s3_login" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_s3_login')) ?>" /></td>
 		</tr>
 		<tr class="updraftplusmethod s3">
 			<th>S3 secret key:</th>
-			<td><input type="text" autocomplete="off" style="width: 292px" id="updraft_s3_apisecret" name="updraft_s3_pass" value="<?php echo htmlspecialchars(get_option('updraft_s3_pass')); ?>" /></td>
+			<td><input type="text" autocomplete="off" style="width: 292px" id="updraft_s3_apisecret" name="updraft_s3_pass" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_s3_pass')); ?>" /></td>
 		</tr>
 		<tr class="updraftplusmethod s3">
 			<th>S3 location:</th>
-			<td>s3://<input type="text" style="width: 292px" name="updraft_s3_remote_path" id="updraft_s3_path" value="<?php echo htmlspecialchars(get_option('updraft_s3_remote_path')); ?>" /></td>
+			<td>s3://<input type="text" style="width: 292px" name="updraft_s3_remote_path" id="updraft_s3_path" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_s3_remote_path')); ?>" /></td>
 		</tr>
 		<tr class="updraftplusmethod s3">
 		<th></th>

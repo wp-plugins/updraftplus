@@ -29,7 +29,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		if ( is_wp_error($download) )
 			return $download;
 		
-		$delete = (get_option('updraft_delete_local')) ? true : false;
+		$delete = (UpdraftPlus::get_updraft_option('updraft_delete_local')) ? true : false;
 
 		$working_dir = $this->unpack_package($download , $delete);
 		if (is_wp_error($working_dir)) return $working_dir;

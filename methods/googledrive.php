@@ -45,7 +45,7 @@ class UpdraftPlus_BackupModule_googledrive {
 	function gdrive_auth_request() {
 		$params = array(
 			'response_type' => 'code',
-			'client_id' => get_option('updraft_googledrive_clientid'),
+			'client_id' => UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid'),
 			'redirect_uri' => admin_url('options-general.php?page=updraftplus&action=updraftmethod-googledrive-auth'),
 			'scope' => 'https://www.googleapis.com/auth/drive.file https://docs.google.com/feeds/ https://docs.googleusercontent.com/ https://spreadsheets.google.com/feeds/',
 			'state' => 'token',
@@ -57,8 +57,8 @@ class UpdraftPlus_BackupModule_googledrive {
 
 	// Revoke a Google account refresh token
 	function gdrive_auth_revoke() {
-		$ignore = wp_remote_get('https://accounts.google.com/o/oauth2/revoke?token='.get_option('updraft_googledrive_token'));
-		update_option('updraft_googledrive_token','');
+		$ignore = wp_remote_get('https://accounts.google.com/o/oauth2/revoke?token='.UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token'));
+		UpdraftPlus_Options::update_updraft_option('updraft_googledrive_token','');
 		header('Location: '.admin_url( 'options-general.php?page=updraftplus&message=Authorisation revoked'));
 	}
 
@@ -67,8 +67,8 @@ class UpdraftPlus_BackupModule_googledrive {
 		if( isset( $_GET['code'] ) ) {
 			$post_vars = array(
 				'code' => $_GET['code'],
-				'client_id' => get_option('updraft_googledrive_clientid'),
-				'client_secret' => get_option('updraft_googledrive_secret'),
+				'client_id' => UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid'),
+				'client_secret' => UpdraftPlus_Options::get_updraft_option('updraft_googledrive_secret'),
 				'redirect_uri' => admin_url('options-general.php?page=updraftplus&action=updraftmethod-googledrive-auth'),
 				'grant_type' => 'authorization_code'
 			);
@@ -80,7 +80,7 @@ class UpdraftPlus_BackupModule_googledrive {
 			} else {
 				$json_values = json_decode( $result['body'], true );
 				if ( isset( $json_values['refresh_token'] ) ) {
-					update_option('updraft_googledrive_token', $json_values['refresh_token']); // Save token
+					UpdraftPlus_Options::update_updraft_option('updraft_googledrive_token', $json_values['refresh_token']); // Save token
 					header('Location: '.admin_url('options-general.php?page=updraftplus&message=' . __( 'Google Drive authorization was successful.', 'updraftplus' ) ) );
 				}
 				else {
@@ -101,7 +101,7 @@ class UpdraftPlus_BackupModule_googledrive {
 		if( !class_exists('UpdraftPlus_GDocs')) require_once(UPDRAFTPLUS_DIR.'/includes/class-gdocs.php');
 
 		// Do we have an access token?
-		if ( !$access_token = $this->access_token( get_option('updraft_googledrive_token'), get_option('updraft_googledrive_clientid'), get_option('updraft_googledrive_secret') )) {
+		if ( !$access_token = $this->access_token( UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token'), UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid'), UpdraftPlus_Options::get_updraft_option('updraft_googledrive_secret') )) {
 			$updraftplus->log('ERROR: Have not yet obtained an access token from Google (has the user authorised?)');
 			return new WP_Error( "no_access_token", "Have not yet obtained an access token from Google (has the user authorised?");
 		}
@@ -109,11 +109,11 @@ class UpdraftPlus_BackupModule_googledrive {
 		$this->gdocs_access_token = $access_token;
 
 		foreach ($backup_array as $file) {
-			$file_path = trailingslashit(get_option('updraft_dir')).$file;
+			$file_path = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir')).$file;
 			$file_name = basename($file_path);
 			$updraftplus->log("$file_name: Attempting to upload to Google Drive");
 			$timer_start = microtime(true);
-			if ( $id = $this->upload_file( $file_path, $file_name, get_option('updraft_googledrive_remotepath')) ) {
+			if ( $id = $this->upload_file( $file_path, $file_name, UpdraftPlus_Options::get_updraft_option('updraft_googledrive_remotepath')) ) {
 				$updraftplus->log('OK: Archive ' . $file_name . ' uploaded to Google Drive in ' . ( round(microtime( true ) - $timer_start,2) ) . ' seconds (id: '.$id.')' );
 				$updraftplus->uploaded_file($file, $id);
 			} else {
@@ -126,7 +126,7 @@ class UpdraftPlus_BackupModule_googledrive {
 
 	function delete($file) {
 		global $updraftplus;
-		$ids = get_option('updraft_file_ids', array());
+		$ids = UpdraftPlus_Options::get_updraft_option('updraft_file_ids', array());
 		if (!isset($ids[$file])) {
 			$updraftplus->log("Could not delete: could not find a record of the Google Drive file ID for this file");
 			return;
@@ -137,7 +137,7 @@ class UpdraftPlus_BackupModule_googledrive {
 			} else {
 				$updraftplus->log("Deletion successful");
 				unset($ids[$file]);
-				update_option('updraft_file_ids', $ids);
+				UpdraftPlus_Options::update_updraft_option('updraft_file_ids', $ids);
 			}
 		}
 		return;
@@ -235,7 +235,7 @@ class UpdraftPlus_BackupModule_googledrive {
 		if( !class_exists('UpdraftPlus_GDocs')) require_once(UPDRAFTPLUS_DIR.'/includes/class-gdocs.php');
 
 		// Do we have an access token?
-		if ( !$access_token = $this->access_token( get_option('updraft_googledrive_token'), get_option('updraft_googledrive_clientid'), get_option('updraft_googledrive_secret') )) {
+		if ( !$access_token = $this->access_token( UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token'), UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid'), UpdraftPlus_Options::get_updraft_option('updraft_googledrive_secret') )) {
 			$updraftplus->error('Have not yet obtained an access token from Google (has the user authorised?)');
 			return false;
 		}
@@ -246,7 +246,7 @@ class UpdraftPlus_BackupModule_googledrive {
 		if ( is_wp_error( $e = $this->need_gdocs() ) ) return false;
 		$gdocs_object = $this->gdocs;
 
-		$ids = get_option('updraft_file_ids', array());
+		$ids = UpdraftPlus_Options::get_updraft_option('updraft_file_ids', array());
 		if (!isset($ids[$file])) {
 			$updraftplus->error("Google Drive error: $file: could not download: could not find a record of the Google Drive file ID for this file");
 			return;
@@ -258,7 +258,7 @@ class UpdraftPlus_BackupModule_googledrive {
 				return false;
 			}
 			// Actually download the thing
-			$download_to = trailingslashit(get_option('updraft_dir')).$file;
+			$download_to = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir')).$file;
 			$gdocs_object->download_data($content_link, $download_to);
 
 			if (filesize($download_to) >0) {
@@ -280,7 +280,7 @@ class UpdraftPlus_BackupModule_googledrive {
 		global $updraftplus;
 
 		if ( ! $this->is_gdocs($this->gdocs) ) {
-			if ( get_option('updraft_googledrive_token') == "" || get_option('updraft_googledrive_clientid') == "" || get_option('updraft_googledrive_secret') == "" ) {
+			if ( UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token') == "" || UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid') == "" || UpdraftPlus_Options::get_updraft_option('updraft_googledrive_secret') == "" ) {
 				$updraftplus->log("GoogleDrive: this account is not authorised");
 				return new WP_Error( "not_authorized", "Account is not authorized." );
 			}
@@ -327,19 +327,19 @@ class UpdraftPlus_BackupModule_googledrive {
 
 			<tr class="updraftplusmethod googledrive">
 				<th>Google Drive Client ID:</th>
-				<td><input type="text" autocomplete="off" style="width:332px" name="updraft_googledrive_clientid" value="<?php echo htmlspecialchars(get_option('updraft_googledrive_clientid')) ?>" /></td>
+				<td><input type="text" autocomplete="off" style="width:332px" name="updraft_googledrive_clientid" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid')) ?>" /></td>
 			</tr>
 			<tr class="updraftplusmethod googledrive">
 				<th>Google Drive Client Secret:</th>
-				<td><input type="text" style="width:332px" name="updraft_googledrive_secret" value="<?php echo htmlspecialchars(get_option('updraft_googledrive_secret')); ?>" /></td>
+				<td><input type="text" style="width:332px" name="updraft_googledrive_secret" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_googledrive_secret')); ?>" /></td>
 			</tr>
 			<tr class="updraftplusmethod googledrive">
 				<th>Google Drive Folder ID:</th>
-				<td><input type="text" style="width:332px" name="updraft_googledrive_remotepath" value="<?php echo htmlspecialchars(get_option('updraft_googledrive_remotepath')); ?>" /> <em><strong>This is NOT a folder name</strong>. To get a folder's ID navigate to that folder in Google Drive in your web browser and copy the ID from your browser's address bar. It is the part that comes after <kbd>#folders/.</kbd> Leave empty to use your root folder)</em></td>
+				<td><input type="text" style="width:332px" name="updraft_googledrive_remotepath" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_googledrive_remotepath')); ?>" /> <em><strong>This is NOT a folder name</strong>. To get a folder's ID navigate to that folder in Google Drive in your web browser and copy the ID from your browser's address bar. It is the part that comes after <kbd>#folders/.</kbd> Leave empty to use your root folder)</em></td>
 			</tr>
 			<tr class="updraftplusmethod googledrive">
 				<th>Authenticate with Google:</th>
-				<td><p><?php if (get_option('updraft_googledrive_token','xyz') != 'xyz') echo "<strong>(You appear to be already authenticated).</strong>"; ?> <a href="?page=updraftplus&action=updraftmethod-googledrive-auth&updraftplus_googleauth=doit"><strong>After</strong> you have saved your settings (by clicking &quot;Save Changes&quot; below), then come back here once and click this link to complete authentication with Google.</a>
+				<td><p><?php if (UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token','xyz') != 'xyz') echo "<strong>(You appear to be already authenticated).</strong>"; ?> <a href="?page=updraftplus&action=updraftmethod-googledrive-auth&updraftplus_googleauth=doit"><strong>After</strong> you have saved your settings (by clicking &quot;Save Changes&quot; below), then come back here once and click this link to complete authentication with Google.</a>
 				</p>
 				</td>
 			</tr>

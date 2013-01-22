@@ -8,8 +8,8 @@ class UpdraftPlus_BackupModule_ftp {
 
 		if( !class_exists('ftp_wrapper')) require_once(UPDRAFTPLUS_DIR.'/includes/ftp.class.php');
 
-		$server = get_option('updraft_server_address');
-		$ftp = new ftp_wrapper($server , get_option('updraft_ftp_login'), get_option('updraft_ftp_pass'));
+		$server = UpdraftPlus_Options::get_updraft_option('updraft_server_address');
+		$ftp = new ftp_wrapper($server , UpdraftPlus_Options::get_updraft_option('updraft_ftp_login'), UpdraftPlus_Options::get_updraft_option('updraft_ftp_pass'));
 		$ftp->passive = true;
 
 		if (!$ftp->connect()) {
@@ -23,9 +23,9 @@ class UpdraftPlus_BackupModule_ftp {
 
 		//$ftp->make_dir(); we may need to recursively create dirs? TODO
 		
-		$ftp_remote_path = trailingslashit(get_option('updraft_ftp_remote_path'));
+		$ftp_remote_path = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_ftp_remote_path'));
 		foreach($backup_array as $file) {
-			$fullpath = trailingslashit(get_option('updraft_dir')).$file;
+			$fullpath = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir')).$file;
 			$updraftplus->log("FTP upload attempt: $file -> ftp://$server/${ftp_remote_path}${file}");
 			$timer_start = microtime(true);
 			$size_k = round(filesize($fullpath)/1024,1);
@@ -56,7 +56,7 @@ class UpdraftPlus_BackupModule_ftp {
 		if( !class_exists('ftp_wrapper')) require_once(UPDRAFTPLUS_DIR.'/includes/ftp.class.php');
 
 		//handle errors at some point TODO
-		$ftp = new ftp_wrapper(get_option('updraft_server_address'),get_option('updraft_ftp_login'),get_option('updraft_ftp_pass'));
+		$ftp = new ftp_wrapper(UpdraftPlus_Options::get_updraft_option('updraft_server_address'),UpdraftPlus_Options::get_updraft_option('updraft_ftp_login'),UpdraftPlus_Options::get_updraft_option('updraft_ftp_pass'));
 		$ftp->passive = true;
 
 		if (!$ftp->connect()) {
@@ -70,8 +70,8 @@ class UpdraftPlus_BackupModule_ftp {
 
 		//$ftp->make_dir(); we may need to recursively create dirs? TODO
 		
-		$ftp_remote_path = trailingslashit(get_option('updraft_ftp_remote_path'));
-		$fullpath = trailingslashit(get_option('updraft_dir')).$file;
+		$ftp_remote_path = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_ftp_remote_path'));
+		$fullpath = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir')).$file;
 		$ftp->get($fullpath, $ftp_remote_path.$file, FTP_BINARY);
 	}
 
@@ -99,19 +99,19 @@ class UpdraftPlus_BackupModule_ftp {
 		?>
 		<tr class="updraftplusmethod ftp">
 			<th>FTP Server:</th>
-			<td><input type="text" size="40" id="updraft_server_address" name="updraft_server_address" value="<?php echo htmlspecialchars(get_option('updraft_server_address')); ?>" /> <em>Both SSL and non-SSL are supported</em></td>
+			<td><input type="text" size="40" id="updraft_server_address" name="updraft_server_address" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_server_address')); ?>" /> <em>Both SSL and non-SSL are supported</em></td>
 		</tr>
 		<tr class="updraftplusmethod ftp">
 			<th>FTP Login:</th>
-			<td><input type="text" size="40" id="updraft_ftp_login" name="updraft_ftp_login" value="<?php echo htmlspecialchars(get_option('updraft_ftp_login')) ?>" /></td>
+			<td><input type="text" size="40" id="updraft_ftp_login" name="updraft_ftp_login" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_ftp_login')) ?>" /></td>
 		</tr>
 		<tr class="updraftplusmethod ftp">
 			<th>FTP Password:</th>
-			<td><input type="text" size="40" id="updraft_ftp_pass" name="updraft_ftp_pass" value="<?php echo htmlspecialchars(get_option('updraft_ftp_pass')); ?>" /></td>
+			<td><input type="text" size="40" id="updraft_ftp_pass" name="updraft_ftp_pass" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_ftp_pass')); ?>" /></td>
 		</tr>
 		<tr class="updraftplusmethod ftp">
 			<th>Remote Path:</th>
-			<td><input type="text" size="64" id="updraft_ftp_remote_path" name="updraft_ftp_remote_path" value="<?php echo htmlspecialchars(get_option('updraft_ftp_remote_path')); ?>" /> <em>Needs to already exist</em></td>
+			<td><input type="text" size="64" id="updraft_ftp_remote_path" name="updraft_ftp_remote_path" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_ftp_remote_path')); ?>" /> <em>Needs to already exist</em></td>
 		</tr>
 		<tr class="updraftplusmethod ftp">
 		<th></th>
