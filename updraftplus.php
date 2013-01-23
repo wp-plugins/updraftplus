@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.3.0
+Version: 1.3.1
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -72,7 +72,7 @@ if (!class_exists('UpdraftPlus_Options')) require_once(UPDRAFTPLUS_DIR.'/options
 
 class UpdraftPlus {
 
-	var $version = '1.3.0';
+	var $version = '1.3.1';
 	var $plugin_title = 'UpdraftPlus Backup/Restore';
 
 	// Choices will be shown in the admin menu in the order used here
@@ -1521,7 +1521,7 @@ class UpdraftPlus {
 	}
 
 	function wordshell_random_advert($urls) {
-		$rad = rand(0,5);
+		$rad = rand(0,6);
 		switch ($rad) {
 		case 0:
 			return "Like automating WordPress operations? Use the CLI? ".$this->url_start($urls,'wordshell.net')."You will love WordShell".$this->url_end($urls,'www.wordshell.net')." - saves time and money fast.";
@@ -1538,6 +1538,8 @@ class UpdraftPlus {
 			return $this->url_start($urls,'www.simbahosting.co.uk')."Need high-quality WordPress hosting from WordPress specialists? (Including automatic backups and 1-click installer). Get it from the creators of UpdraftPlus.".$this->url_end($urls,'www.simbahosting.co.uk');
 			break;
 		case 5:
+			return $this->url_start($urls,'www.updraftplus.com')."Need even more features and support? Check out UpdraftPlus Premium".$this->url_end($urls,'www.updraftplus.com');
+		case 6:
 			return "Need custom WordPress services from experts (including bespoke development)?".$this->url_start($urls,'www.simbahosting.co.uk/s3/products-and-services/wordpress-experts/')." Get them from the creators of UpdraftPlus.".$this->url_end($urls,'www.simbahosting.co.uk/s3/products-and-services/wordpress-experts/');
 			break;
 		}

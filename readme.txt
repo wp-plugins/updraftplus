@@ -23,6 +23,7 @@ UpdraftPlus simplifies backups (and restoration). Backup into the cloud (Amazon 
 * Database backups can be encrypted for security
 * Debug mode that gives full logging of the backup
 * Thousands of users: widely tested and reliable
+* Premium version available (see below)
 
 = Best New WordPress Plugin =
 
@@ -31,6 +32,10 @@ That's according to WordPress big cheese, Vladimir Prelovac. Check out his weekl
 = Professional / Enterprise support agreements available =
 
 UpdraftPlus is written by professional WordPress developers. If your site needs guaranteed support, then we are available. Get in touch - https://www.simbahosting.co.uk/s3/products-and-services/wordpress-experts/ - to arrange the support contract that your site needs.
+
+= UpdraftPlus Premium =
+
+If you need WordPress multisite compatibility (you'll know if you do), then you need UpdraftPlus Premium: http://updraftplus.com
 
 = Other support =
 
@@ -57,6 +62,10 @@ It does not back up WordPress core (since you can always get another copy of thi
 = I like automating WordPress, and using the command-line. Please tell me more. =
 
 That's very good of you, thank you. You are looking for WordShell, <a href="http://wordshell.net">http://wordshell.net</a>.
+
+= Is it WordPress Multisite (a.k.a. WordPress network) compatible? =
+
+If you have a WordPress Multisite install (and you'll know if you do), then you need <a href="http://updraftplus.com">UpdraftPlus Premium</a>.
 
 = I found a bug. What do I do? =
 
