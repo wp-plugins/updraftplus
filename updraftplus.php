@@ -110,7 +110,7 @@ class UpdraftPlus {
 		# backup_all is used by the manual "Backup Now" button
 		add_action('updraft_backup_all', array($this,'backup_all'));
 		# this is our runs-after-backup event, whose purpose is to see if it succeeded or failed, and resume/mom-up etc.
-		add_action('updraft_backup_resume', array($this,'backup_resume'));
+		add_action('updraft_backup_resume', array($this,'backup_resume'), 10, 3);
 		add_action('wp_enqueue_scripts', array($this, 'ajax_enqueue') );
 		add_action('wp_ajax_updraft_download_backup', array($this, 'updraft_download_backup'));
 		add_action('wp_ajax_updraft_ajax', array($this, 'updraft_ajax_handler'));
@@ -179,16 +179,17 @@ class UpdraftPlus {
 		UpdraftPlus_Options::update_updraft_option("updraft_lastmessage", $line." (".date('M d H:i:s').")");
 	}
 
-	function backup_resume($resumption_array, $bnonce, $btime) {
+	function backup_resume($resumption_no, $bnonce, $btime) {
 
 		@ignore_user_abort(true);
 		// This is scheduled for 5 minutes after a backup job starts
-		if (!$bnonce || !$btime) return;
-		// Restore state
-		$this->nonce = $bnonce;
-		$this->backup_time = $btime;
 
-		if (empty($this->logfile_handle)) $this->logfile_open($bnonce);
+		// Restore state
+		if ($resumption_no > 0) {
+			$this->nonce = $bnonce;
+			$this->backup_time = $btime;
+			$this->logfile_open($bnonce);
+		}
 
 		$this->log("Backup run: resumption=$resumption_no, nonce=$bnonce, begun at=$btime");
 
@@ -198,7 +199,7 @@ class UpdraftPlus {
 		$next_resumption = $resumption_no+1;
 		if ($next_resumption < 10) {
 			$this->log("Scheduling a resumption ($next_resumption) in case this run gets aborted");
-			wp_schedule_single_event(time()+$resume_delay, 'updraft_backup_resume' ,array($next_resumption, $bnonce, $btime));
+			wp_schedule_single_event(time()+$resume_delay, 'updraft_backup_resume', array($next_resumption, $bnonce, $btime));
 		} else {
 			$this->log("The current run is our tenth attempt - will not schedule a further attempt");
 		}
