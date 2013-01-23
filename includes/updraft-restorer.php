@@ -20,7 +20,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		$this->init();
 		$this->backup_strings();
 
-		$res = $this->fs_connect( array(ABSPATH, WP_CONTENT_DIR) );
+		$res = $this->fs_connect(array(ABSPATH, WP_CONTENT_DIR) );
 		if(!$res) exit;
 
 		$wp_dir = trailingslashit($wp_filesystem->abspath());
@@ -80,10 +80,10 @@ class Updraft_Restorer extends WP_Upgrader {
 		
 		switch($type) {
 			case 'uploads':
-				$wp_filesystem->chmod($wp_dir . "wp-content/$type", 0777, true);
+				@$wp_filesystem->chmod($wp_dir . "wp-content/$type", 0777, true);
 			break;
 			default:
-				$wp_filesystem->chmod($wp_dir . "wp-content/$type", FS_CHMOD_DIR);
+				@$wp_filesystem->chmod($wp_dir . "wp-content/$type", FS_CHMOD_DIR);
 		}
 	}
 

@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.3.3
+Version: 1.3.4
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -14,10 +14,11 @@ Author URI: http://wordshell.net
 TODO
 //Add SFTP, Box.Net, SugarSync and Microsoft Skydrive support??
 //The restorer has a hard-coded wp-content - fix
+//Change DB encryption to not require whole gzip in memory (twice)
 //improve error reporting / pretty up return messages in admin area. One thing: have a "backup is now finished" flag. Otherwise with the resuming things get ambiguous/confusing. See http://wordpress.org/support/topic/backup-status - user was not aware that backup completely failed. Maybe a "backup status" field for each nonce that gets updated? (Even via AJAX?)
 //?? On 'backup now', open up a Lightbox, count down 5 seconds, then start examining the log file (if it can be found)
 //Should make clear in dashboard what is a non-fatal error (i.e. can be retried) - leads to unnecessary bug reports
-//Eventually, when everything can be resumed, we will no longer need the backup() routine; it can be replaced with the resume() routine
+// Move the cloud and retention data into the backup job (i.e. don't read current config, make it an attribute of each job)
 // Should we resume if the only errors were upon deletion (i.e. the backup itself was fine?) Presently we do, but it displays errors for the user to confuse them. Perhaps better to make pruning a separate scheuled task??
 // Make jobs *individually* resumable (i.e. all the state info must be keyed on the nonce; then call the resume event *specifying the nonce*)
 // Warn the user if their zip-file creation is slooowww...
@@ -73,7 +74,7 @@ if (!class_exists('UpdraftPlus_Options')) require_once(UPDRAFTPLUS_DIR.'/options
 
 class UpdraftPlus {
 
-	var $version = '1.3.3';
+	var $version = '1.3.4';
 	var $plugin_title = 'UpdraftPlus Backup/Restore';
 
 	// Choices will be shown in the admin menu in the order used here
@@ -89,13 +90,14 @@ class UpdraftPlus {
 	var $dbhandle_isgz;
 	var $errors = array();
 	var $nonce;
-	var $cronrun_type = "none";
 	var $logfile_name = "";
 	var $logfile_handle = false;
 	var $backup_time;
 
 	var $opened_log_time;
 	var $backup_dir;
+
+	var $jobdata;
 
 	function __construct() {
 		// Initialisation actions - takes place on plugin load
@@ -156,8 +158,6 @@ class UpdraftPlus {
 		$this->backup_time = time();
 		$nonce = substr(md5(time().rand()), 20);
 		$this->nonce = $nonce;
-		// Short-lived, as we only use this for detecting a race condition
-		set_transient("updraftplus_runtype_$nonce", $this->cronrun_type, 300);
 	}
 
 	function logfile_open($nonce) {
@@ -188,39 +188,48 @@ class UpdraftPlus {
 		// Restore state
 		$this->nonce = $bnonce;
 		$this->backup_time = $btime;
-		$this->logfile_open($bnonce);
 
-		$this->log("Resuming backup: resumption=$resumption_no, nonce=$bnonce, begun at=$btime");
+		if (empty($this->logfile_handle)) $this->logfile_open($bnonce);
+
+		if ($resumption_no > 0) $this->log("Resuming backup: resumption=$resumption_no, nonce=$bnonce, begun at=$btime");
+
 		// Schedule again, to run in 5 minutes again, in case we again fail
 		$resume_delay = 300;
 		// A different argument than before is needed otherwise the event is ignored
 		$next_resumption = $resumption_no+1;
 		if ($next_resumption < 10) {
-			$this->log("Scheduling next resumption ($next_resumption) in case this run gets aborted");
+			$this->log("Scheduling a resumption ($next_resumption) in case this run gets aborted");
 			wp_schedule_single_event(time()+$resume_delay, 'updraft_backup_resume' ,array($next_resumption, $bnonce, $btime));
 		} else {
 			$this->log("The current run is our tenth attempt - will not schedule a further attempt");
 		}
 
-		$backup_array = $this->resumable_backup_of_files(false);
+		// This should be always called; if there were no files in this run, it returns us an empty array
+		$backup_array = $this->resumable_backup_of_files($resumption_no);
 		// This save, if there was something, is then immediately picked up again
 		if (is_array($backup_array)) $this->save_backup_history($backup_array);
 
 		// Returns an array, most recent first, of backup sets
 		$backup_history = $this->get_backup_history();
-		if (!isset($backup_history[$btime])) $this->log("Could not find a record in the database of a backup with this timestamp");
+		if (!isset($backup_history[$btime])) {
+			$this->log("Could not find a record in the database of a backup with this timestamp");
+		}
 
 		$our_files=$backup_history[$btime];
 		if (!is_array($our_files)) $our_files = array();
 
 		$undone_files = array();
 
-		$backup_database = get_transient("updraft_backdb_".$bnonce);
+		$backup_database = $this->jobdata_get('backup_database');
 
 		// The transient is read and written below (instead of using the existing variable) so that we can copy-and-paste this part as needed.
 		if ($backup_database == "begun" || $backup_database == "finished" || $backup_database == "encrypted") {
 			if ($backup_database == "begun") {
-				$this->log("Resuming creation of database dump");
+				if ($resumption_no > 0) {
+					$this->log("Resuming creation of database dump");
+				} else {
+					$this->log("Beginning creation of database dump");
+				}
 			} elseif ($backup_database == 'encrypted') {
 				$this->log("Database dump: Creation and encryption were completed already");
 			} else {
@@ -228,10 +237,7 @@ class UpdraftPlus {
 			}
 			$db_backup = $this->backup_db($backup_database);
 			if(is_array($our_files) && is_string($db_backup)) $our_files['db'] = $db_backup;
-			$backup_contains = get_transient("updraft_backupcontains_".$this->nonce);
-			$backup_contains = (substr($backup_contains,0,10) == "Files only") ? "Files and database" : "Database only (no files)";
-			set_transient("updraft_backupcontains_".$this->nonce, $backup_contains, 3600*3);
-			set_transient("updraft_backdb_".$this->nonce, "finished", 3600*3);
+			$this->jobdata_set("backup_database", 'finished');
 		} else {
 			$this->log("Unrecognised data when trying to ascertain if the database was backed up ($backup_database)");
 		}
@@ -245,8 +251,7 @@ class UpdraftPlus {
 		if (isset($our_files['db']) && !preg_match("/\.crypt$/", $our_files['db'])) {
 			$our_files['db'] = $this->encrypt_file($our_files['db']);
 			$this->save_backup_history($our_files);
-			// TODO: This transient is redundant; the presence of the .crypt in the db key already indicates what this transient indicates
-			set_transient("updraft_backdb_".$this->nonce, "encrypted", 3600*3);
+			$this->jobdata_set("backup_database", "encrypted");
 		}
 
 		foreach ($our_files as $key => $file) {
@@ -256,7 +261,7 @@ class UpdraftPlus {
 
 			$hash = md5($file);
 			$fullpath = $this->backups_dir_location().'/'.$file;
-			if (get_transient('updraft_'.$hash) === "yes") {
+			if ($this->jobdata_get("uploaded_$hash") === "yes") {
 				$this->log("$file: $key: This file has been successfully uploaded in the last 3 hours");
 			} elseif (is_file($fullpath)) {
 				$this->log("$file: $key: This file has NOT been successfully uploaded in the last 3 hours: will retry");
@@ -284,60 +289,44 @@ class UpdraftPlus {
 	}
 
 	function backup_all() {
-		$this->backup(true,true);
+		$this->boot_backup(true,true);
 	}
 	
 	function backup_files() {
 		# Note that the "false" for database gets over-ridden automatically if they turn out to have the same schedules
-		$this->cronrun_type = "files";
-		$this->backup(true,false);
+		$this->boot_backup(true,false);
 	}
 	
 	function backup_database() {
 		# Note that nothing will happen if the file backup had the same schedule
-		$this->cronrun_type = "database";
-		$this->backup(false,true);
+		$this->boot_backup(false,true);
 	}
 
-	function check_backup_race( $to_delete = false ) {
-		// Avoid caching
-		// Short-circuit - we believe WordPress has taken steps itself to prevent this race
-		// Furthermore, we now pass the nonce to the resumption job, so races should not be possible on resumptions
-		return true;
-
-		// We no longer even user the nonce
-		global $wpdb;
-		$row = $wpdb->get_row($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", "_transient_updraftplus_backup_job_nonce"));
-		$cur_trans = ( is_object( $row ) ) ? $row->option_value : "";
-		// Check if another backup job ID is stored in the transient
-		if ($cur_trans != "" && $cur_trans != $this->nonce) {
-			// Also check if that job is of the same type as ours, as two cron jobs could legitimately fire at the same time
-			$otherjob_crontype = get_transient("updraftplus_runtype_".$cur_trans);
-			// $this->cronrun_type should be "files", "database" or blank (if we were not run via a cron job)
-			if ($otherjob_crontype == $this->cronrun_type) {
-				$this->log("Another backup job ($cur_trans) of the same type ($otherjob_crontype) appears to now be running - terminating our run (apparent race condition)");
-				$bdir = $this->backups_dir_location();
-				if (is_array($to_delete)) {
-					foreach ($to_delete as $key => $file) {
-						if (is_file($bdir.'/'.$file)) {
-							$this->log("Deleting the file we created: ".$file);
-							@unlink($bdir.'/'.$file);
-						}
-					}
-				}
-				exit;
-			}
+	function jobdata_set($key, $value) {
+		if (is_array($this->jobdata)) {
+			$this->jobdata[$key] = $value;
+		} else {
+			$this->jobdata = array($key => $value);
 		}
+		set_transient($trans, $this->jobdata, 14400);
+	}
+
+	function jobdata_get($key) {
+		if (!is_array($this->jobdata)) {
+			$this->jobdata = get_transient("updraft_jobdata_".$this->nonce);
+			if (!is_array($this->jobdata)) return false;
+		}
+		return (isset($this->jobdata[$key])) ? $this->jobdata[$key] : false;
 	}
 
 	// This uses a transient; its only purpose is to indicate *total* completion; there is no actual danger, just wasted time, in resuming when it was not needed. So the transient just helps save resources.
-	function resumable_backup_of_files($resumptionrun) {
+	function resumable_backup_of_files($resumption_no) {
 		//backup directories and return a numerically indexed array of file paths to the backup files
-		$transient_status = get_transient("updraft_backf_".$this->nonce);
+		$transient_status = $this->jobdata_get("backup_files");
 		if ($transient_status == "finished") {
 			$this->log("Creation of backups of directories: already finished");
 		} elseif ($transient_status == "begun") {
-			if ($resumptionrun) {
+			if ($resumption_no>0) {
 				$this->log("Creation of backups of directories: had begun; will resume");
 			} else {
 				$this->log("Creation of backups of directories: beginning");
@@ -349,24 +338,23 @@ class UpdraftPlus {
 		}
 		// We want this array, even if already finished
 		$backup_array = $this->backup_dirs($transient_status);
-		$backup_contains = "Files only (no database)";
 		// This can get over-written later
-		set_transient("updraft_backupcontains_".$this->nonce, $backup_contains, 3600*3);
-		set_transient("updraft_backf_".$this->nonce, "finished", 3600*3);
+		$this->jobdata_set('backup_files', 'finished');
 		return $backup_array;
 	}
 
-	function backup($backup_files, $backup_database) {
+	// This procedure initiates a backup run
+	function boot_backup($backup_files, $backup_database) {
 
 		@ignore_user_abort(true);
+
 		//generate backup information
 		$this->backup_time_nonce();
-
 		$this->logfile_open($this->nonce);
 
 		// Log some information that may be helpful
 		global $wp_version;
-		$this->log("Tasks: Backup files: $backup_files (schedule: ".UpdraftPlus_Options::get_updraft_option('updraft_interval','unset').") Backup DB: $backup_database (schedule: ".UpdraftPlus_Options::get_updraft_option('updraft_interval_database','unset').")");
+		$this->log("Tasks: Backup files: $backup_files (schedule: ".UpdraftPlus_Options::get_updraft_option('updraft_interval', 'unset').") Backup DB: $backup_database (schedule: ".UpdraftPlus_Options::get_updraft_option('updraft_interval_database', 'unset').")");
 
 		# If the files and database schedules are the same, and if this the file one, then we rope in database too.
 		# On the other hand, if the schedules were the same and this was the database run, then there is nothing to do.
@@ -376,85 +364,18 @@ class UpdraftPlus {
 
 		$this->log("Processed schedules. Tasks now: Backup files: $backup_files Backup DB: $backup_database");
 
-		$clear_nonce_transient = false;
-
-		# Possibly now nothing is to be done, except to close the log file
-		if ($backup_files || $backup_database) {
-
-			$clear_nonce_transient = true;
-
-			// Do not schedule the resume event until now, when we know there is something to do - otherwise 'vacatated' runs (when the database is on the same schedule as the files, and they get combined, leading to an empty run) can over-write the resume event and prevent resumption (because it is 'successful' - there was nothing to do).
-			// If we don't finish in 3 hours, then we won't finish
-
-			// Schedule the event to run later, which checks on success and can resume the backup
-			// We save the time to a variable because it is needed for un-scheduling
-			$resume_delay = 300;
-			wp_schedule_single_event(time()+$resume_delay, 'updraft_backup_resume', array(1, $this->nonce, $this->backup_time));
-			$this->log("In case we run out of time, scheduled a resumption at: $resume_delay seconds from now");
-
-			$backup_contains = "";
-			set_transient("updraft_backupcontains_".$this->nonce, "");
-
-			$backup_array = array();
-
-			$this->check_backup_race();
-
-			// Save what *should* be done, to make it resumable from this point on
-			set_transient("updraft_backdb_".$this->nonce, "begun", 3600*3);
-
-			// The function itself will set to 'finished' if relevant
-			// The presence of the transient indicates that files are supposed to be in this set
-			if ($backup_files) {
-				set_transient("updraft_backf_".$this->nonce, "begun", 3600*3);
-				$backup_array = $this->resumable_backup_of_files(false);
-			}
-
-			// Save this to our history so we can track backups for the retain feature
-			$this->log("Saving backup history");
-			$this->save_backup_history($backup_array);
-
-			$this->check_backup_race($backup_array);
-
-			// The transient is read and written below (instead of using the existing variable) so that we can copy-and-paste this part as needed.
-			if ($backup_database) {
-				$this->log("Beginning backup of database");
-				$db_backup = $this->backup_db();
-				if ($db_backup) $backup_array['db'] = $db_backup;
-				$backup_contains = get_transient("updraft_backupcontains_".$this->nonce);
-				$backup_contains = (substr($backup_contains,0,10) == "Files only") ? "Files and database" : "Database only (no files)";
-				set_transient("updraft_backupcontains_".$this->nonce, $backup_contains, 3600*3);
-				set_transient("updraft_backdb_".$this->nonce, "finished", 3600*3);
-			}
-
-			$this->check_backup_race($backup_array);
-
-			// Save this to our history so we can track backups for the retain feature
-			$this->log("Saving backup history");
-			// This is done before cloud despatch, because we want a record of what *should* be in the backup. Whether it actually makes it there or not is not yet known.
-			$this->save_backup_history($backup_array);
-
-			// Now encrypt the database, and re-save
-			if ($backup_database && isset($backup_array['db'])) {
-				$backup_array['db'] = $this->encrypt_file($backup_array['db']);
-				set_transient("updraft_backdb_".$this->nonce, "encrypted", 3600*3);
-				// Re-save with the possibly-altered database filename
-				$this->save_backup_history($backup_array);
-			}
-
-			//cloud operations (S3,Google Drive,FTP,email,nothing)
-			//this also calls the retain (prune) feature at the end (done in this method to reuse existing cloud connections)
-			if(is_array($backup_array) && count($backup_array) >0) {
-				$this->cloud_backup($backup_array);
-			}
-
-			//save the last backup info, including errors, if any
-			$this->log("Saving last backup information into WordPress db");
-			$this->save_last_backup($backup_array);
-
+		# If nothing to be done, then just finish
+		if (!$backup_files && !$backup_database) {
+			$this->backup_finish(1, false, false, 0);
+			return;
 		}
 
-		// Close log file; delete and also delete transients if not in debug mode
-		$this->backup_finish(1, $clear_nonce_transient, $clear_nonce_transient, 0);
+		// Save what *should* be done, to make it resumable from this point on
+		if ($backup_database) $this->jobdata_set("backup_database", "begun");
+		if ($backup_files) $this->jobdata_set("backup_files", "begun");
+
+		// Everthing is now set up; now go
+		$this->backup_resume(array(0, $this->nonce, $this->backup_time));
 
 	}
 
@@ -556,7 +477,12 @@ class UpdraftPlus {
 
 		$append_log = ($debug_mode && $this->logfile_name != "") ? "\r\nLog contents:\r\n".file_get_contents($this->logfile_name) : "" ;
 
-		wp_mail($sendmail_to,'Backed up: '.get_bloginfo('name').' (UpdraftPlus '.$this->version.') '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus WordPress backup is complete.\r\nBackup contains: ".get_transient("updraft_backupcontains_".$this->nonce)."\r\n\r\n".$this->wordshell_random_advert(0)."\r\n".$append_log);
+		$backup_files = $this->jobdata_get("backup_files");
+		$backup_db = $this->jobdata_get("backup_database");
+
+		$backup_contains = (substr($backup_contains,0,10) == "Files only") ? "Files and database" : "Database only (no files)";
+
+		wp_mail($sendmail_to,'Backed up: '.get_bloginfo('name').' (UpdraftPlus '.$this->version.') '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus WordPress backup is complete.\r\nBackup contains: ".$backup_contains."\r\n\r\n".$this->wordshell_random_advert(0)."\r\n".$append_log);
 
 	}
 
@@ -570,10 +496,9 @@ class UpdraftPlus {
 
 	// This should be called whenever a file is successfully uploaded
 	function uploaded_file($file, $id = false) {
-		# We take an MD5 hash because set_transient wants a name of 45 characters or less
 		$hash = md5($file);
 		$this->log("Recording as successfully uploaded: $file ($hash)");
-		set_transient("updraft_".$hash, "yes", 3600*4);
+		$this->jobdata_set("uploaded_$hash", "yes");
 		if ($id) {
 			$ids = UpdraftPlus_Options::get_updraft_option('updraft_file_ids', array() );
 			$ids[$file] = $id;
@@ -754,7 +679,7 @@ class UpdraftPlus {
 			$rate = round($kbsize/$timetaken, 1);
 			$this->log("Created $whichone zip - file size is ".round($kbsize,1)." Kb in ".round($timetaken,1)." s ($rate Kb/s)");
 		}
-		$this->check_backup_race($backup_array);
+
 		return basename($full_path);
 	}
 
@@ -1827,7 +1752,7 @@ class UpdraftPlus {
 			echo '</div>';
 		}
 
-		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_all') { $this->backup(true,true); }
+		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_all') { $this->boot_backup(true,true); }
 		elseif (isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_db') { $this->backup_db(); }
 		elseif (isset($_POST['action']) && $_POST['action'] == 'updraft_wipesettings') {
 			$settings = array('updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_s3_login', 'updraft_s3_pass', 'updraft_s3_remote_path', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_dropbox_folder', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_others_exclude', 'updraft_lastmessage');
