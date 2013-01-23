@@ -13,6 +13,7 @@ Author URI: http://wordshell.net
 /*
 TODO
 //Add SFTP, Box.Net, SugarSync and Microsoft Skydrive support??
+//The restorer has a hard-coded wp-content - fix
 //improve error reporting / pretty up return messages in admin area. One thing: have a "backup is now finished" flag. Otherwise with the resuming things get ambiguous/confusing. See http://wordpress.org/support/topic/backup-status - user was not aware that backup completely failed. Maybe a "backup status" field for each nonce that gets updated? (Even via AJAX?)
 //?? On 'backup now', open up a Lightbox, count down 5 seconds, then start examining the log file (if it can be found)
 //Should make clear in dashboard what is a non-fatal error (i.e. can be retried) - leads to unnecessary bug reports
@@ -176,7 +177,11 @@ class UpdraftPlus {
 		UpdraftPlus_Options::update_updraft_option("updraft_lastmessage", $line." (".date('M d H:i:s').")");
 	}
 
-	function backup_resume($resumption_no, $bnonce, $btime) {
+	function backup_resume($resumption_array) {
+		$resumption_no = $resumption_array[0];
+		$bnonce = $resumption_array[1];
+		$btime = $resumption_array[2];
+
 		@ignore_user_abort(true);
 		// This is scheduled for 5 minutes after a backup job starts
 		if (!$bnonce || !$btime) return;
@@ -185,12 +190,13 @@ class UpdraftPlus {
 		$this->backup_time = $btime;
 		$this->logfile_open($bnonce);
 
-		$this->log("Resuming backup: nonce=$bnonce, resumption=$resumption_no, begun at=$btime");
+		$this->log("Resuming backup: resumption=$resumption_no, nonce=$bnonce, begun at=$btime");
 		// Schedule again, to run in 5 minutes again, in case we again fail
 		$resume_delay = 300;
 		// A different argument than before is needed otherwise the event is ignored
 		$next_resumption = $resumption_no+1;
 		if ($next_resumption < 10) {
+			$this->log("Scheduling next resumption ($next_resumption) in case this run gets aborted");
 			wp_schedule_single_event(time()+$resume_delay, 'updraft_backup_resume' ,array($next_resumption, $bnonce, $btime));
 		} else {
 			$this->log("The current run is our tenth attempt - will not schedule a further attempt");
@@ -212,9 +218,11 @@ class UpdraftPlus {
 		$backup_database = get_transient("updraft_backdb_".$bnonce);
 
 		// The transient is read and written below (instead of using the existing variable) so that we can copy-and-paste this part as needed.
-		if ($backup_database == "begun" || $backup_database == "finished") {
+		if ($backup_database == "begun" || $backup_database == "finished" || $backup_database == "encrypted") {
 			if ($backup_database == "begun") {
 				$this->log("Resuming creation of database dump");
+			} elseif ($backup_database == 'encrypted') {
+				$this->log("Database dump: Creation and encryption were completed already");
 			} else {
 				$this->log("Database dump: Creation was completed already");
 			}
@@ -223,6 +231,7 @@ class UpdraftPlus {
 			$backup_contains = get_transient("updraft_backupcontains_".$this->nonce);
 			$backup_contains = (substr($backup_contains,0,10) == "Files only") ? "Files and database" : "Database only (no files)";
 			set_transient("updraft_backupcontains_".$this->nonce, $backup_contains, 3600*3);
+			set_transient("updraft_backdb_".$this->nonce, "finished", 3600*3);
 		} else {
 			$this->log("Unrecognised data when trying to ascertain if the database was backed up ($backup_database)");
 		}
@@ -236,12 +245,14 @@ class UpdraftPlus {
 		if (isset($our_files['db']) && !preg_match("/\.crypt$/", $our_files['db'])) {
 			$our_files['db'] = $this->encrypt_file($our_files['db']);
 			$this->save_backup_history($our_files);
+			// TODO: This transient is redundant; the presence of the .crypt in the db key already indicates what this transient indicates
+			set_transient("updraft_backdb_".$this->nonce, "encrypted", 3600*3);
 		}
 
 		foreach ($our_files as $key => $file) {
 
 			// Only continue if the stored info was about a dump
-			if ($key != 'plugins' && $key != 'themes' && $key != 'others' && $key != 'uploads') continue;
+			if ($key != 'plugins' && $key != 'themes' && $key != 'others' && $key != 'uploads' && $key != 'db') continue;
 
 			$hash = md5($file);
 			$fullpath = $this->backups_dir_location().'/'.$file;
@@ -425,6 +436,7 @@ class UpdraftPlus {
 			// Now encrypt the database, and re-save
 			if ($backup_database && isset($backup_array['db'])) {
 				$backup_array['db'] = $this->encrypt_file($backup_array['db']);
+				set_transient("updraft_backdb_".$this->nonce, "encrypted", 3600*3);
 				// Re-save with the possibly-altered database filename
 				$this->save_backup_history($backup_array);
 			}
@@ -458,15 +470,7 @@ class UpdraftPlus {
 			$rijndael->setKey($encryption);
 			$updraft_dir = $this->backups_dir_location();
 			$file_size = @filesize($updraft_dir.'/'.$file)/1024;
-			$in_handle = @fopen($updraft_dir.'/'.$file,'r');
-			$buffer = "";
-			while (!feof ($in_handle)) {
-				$buffer .= fread($in_handle, 16384);
-			}
-			fclose ($in_handle);
-			$out_handle = @fopen($updraft_dir.'/'.$file.'.crypt','w');
-			if (!fwrite($out_handle, $rijndael->encrypt($buffer))) {$encryption_error = 1;}
-			fclose ($out_handle);
+			if (false === file_put_contents($updraft_dir.'/'.$file.'.crypt' , $rijndael->encrypt(file_get_contents($updraft_dir.'/'.$file)))) {$encryption_error = 1;}
 			if (0 == $encryption_error) {
 				$time_taken = max(0.000001, microtime(true)-$microstart);
 				$this->log("$file: encryption successful: ".round($file_size,1)."Kb in ".round($time_taken,1)."s (".round($file_size/$time_taken, 1)."Kb/s)");
@@ -933,6 +937,7 @@ class UpdraftPlus {
 		$backup_file_base = $updraft_dir.'/'.$file_base;
 
 		if ("finished" == $already_done) return basename($backup_file_base.'-db.gz');
+		if ("encrypted" == $already_done) return basename($backup_file_base.'-db.gz.crypt');
 
 		$total_tables = 0;
 
