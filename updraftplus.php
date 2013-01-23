@@ -179,10 +179,7 @@ class UpdraftPlus {
 		UpdraftPlus_Options::update_updraft_option("updraft_lastmessage", $line." (".date('M d H:i:s').")");
 	}
 
-	function backup_resume($resumption_array) {
-		$resumption_no = $resumption_array[0];
-		$bnonce = $resumption_array[1];
-		$btime = $resumption_array[2];
+	function backup_resume($resumption_array, $bnonce, $btime) {
 
 		@ignore_user_abort(true);
 		// This is scheduled for 5 minutes after a backup job starts
@@ -285,7 +282,6 @@ class UpdraftPlus {
 		$this->cloud_backup($undone_files);
 
 		$this->log("Resume backup ($bnonce, $resumption_no): finish run");
-
 		$this->backup_finish($next_resumption, true, true, $resumption_no);
 
 	}
@@ -377,7 +373,7 @@ class UpdraftPlus {
 		if ($backup_files) $this->jobdata_set("backup_files", "begun");
 
 		// Everthing is now set up; now go
-		$this->backup_resume(array(0, $this->nonce, $this->backup_time));
+		$this->backup_resume(0, $this->nonce, $this->backup_time);
 
 	}
 
