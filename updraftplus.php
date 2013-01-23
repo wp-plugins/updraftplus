@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.3.1
+Version: 1.3.2
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -72,7 +72,7 @@ if (!class_exists('UpdraftPlus_Options')) require_once(UPDRAFTPLUS_DIR.'/options
 
 class UpdraftPlus {
 
-	var $version = '1.3.1';
+	var $version = '1.3.2';
 	var $plugin_title = 'UpdraftPlus Backup/Restore';
 
 	// Choices will be shown in the admin menu in the order used here
@@ -1538,7 +1538,12 @@ class UpdraftPlus {
 			return $this->url_start($urls,'www.simbahosting.co.uk')."Need high-quality WordPress hosting from WordPress specialists? (Including automatic backups and 1-click installer). Get it from the creators of UpdraftPlus.".$this->url_end($urls,'www.simbahosting.co.uk');
 			break;
 		case 5:
-			return $this->url_start($urls,'www.updraftplus.com')."Need even more features and support? Check out UpdraftPlus Premium".$this->url_end($urls,'www.updraftplus.com');
+			if (!defined('UPDRAFTPLUS_PREMIUM')) {
+				return $this->url_start($urls,'www.updraftplus.com')."Need even more features and support? Check out UpdraftPlus Premium".$this->url_end($urls,'www.updraftplus.com');
+			} else {
+				return "Thanks for being an UpdraftPlus premium user. Keep visiting ".$this->url_start($urls,'www.updraftplus.com')."updraftplus.com".$this->url_end($urls,'www.updraftplus.com')." to see what's going on.";
+			}
+			break;
 		case 6:
 			return "Need custom WordPress services from experts (including bespoke development)?".$this->url_start($urls,'www.simbahosting.co.uk/s3/products-and-services/wordpress-experts/')." Get them from the creators of UpdraftPlus.".$this->url_end($urls,'www.simbahosting.co.uk/s3/products-and-services/wordpress-experts/');
 			break;
@@ -1827,7 +1832,7 @@ class UpdraftPlus {
 		<div class="wrap">
 			<h1><?php echo $this->plugin_title; ?></h1>
 
-			Maintained by <b>David Anderson</b> (<a href="http://david.dw-perspective.org.uk">Homepage</a> | <a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate">Donate</a> | <a href="http://wordpress.org/extend/plugins/updraftplus/faq/">FAQs</a> | <a href="http://profiles.wordpress.org/davidanderson/">My other WordPress plugins</a>). Version: <?php echo $this->version; ?>
+			Maintained by <b>David Anderson</b> (<a href="http://david.dw-perspective.org.uk">Homepage</a> | <a href="http://updraftplus.com">Premium</a> | <a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate">Donate</a> | <a href="http://wordpress.org/extend/plugins/updraftplus/faq/">FAQs</a> | <a href="http://profiles.wordpress.org/davidanderson/">My other WordPress plugins</a>). Version: <?php echo $this->version; ?>
 			<br>
 			<?php
 			if(isset($_GET['updraft_restore_success'])) {
@@ -1919,7 +1924,7 @@ ENDHERE;
 			<div style="float:left; width:200px; padding-top: 40px;">
 				<form method="post" action="">
 					<input type="hidden" name="action" value="updraft_backup" />
-					<p><input type="submit" <?php echo $backup_disabled ?> class="button-primary" value="Backup Now!" style="padding-top:3px;padding-bottom:3px;font-size:24px !important" onclick="return(confirm('This will schedule a one-time backup. To trigger the backup you should go ahead, then wait 10 seconds, then visit any page on your site. WordPress should then start the backup running in the background.'))" /></p>
+					<p><input type="submit" <?php echo $backup_disabled ?> class="button-primary" value="Backup Now!" style="padding-top:3px;padding-bottom:3px;font-size:24px !important" onclick="return(confirm('This will schedule a one-time backup. To trigger the backup you should go ahead, then wait 10 seconds, then visit any page on your site. WordPress should then start the backup running in the background.'))"></p>
 				</form>
 				<div style="position:relative">
 					<div style="position:absolute;top:0;left:0">
@@ -1928,7 +1933,7 @@ ENDHERE;
 						$backup_history = (is_array($backup_history))?$backup_history:array();
 						$restore_disabled = (count($backup_history) == 0) ? 'disabled="disabled"' : "";
 						?>
-						<input type="button" class="button-primary" <?php echo $restore_disabled ?> value="Restore" style="padding-top:3px;padding-bottom:3px;font-size:24px !important" onclick="jQuery('#backup-restore').fadeIn('slow');jQuery(this).parent().fadeOut('slow')" />
+						<input type="button" class="button-primary" <?php echo $restore_disabled ?> value="Restore" style="padding-top:3px;padding-bottom:3px;font-size:24px !important" onclick="jQuery('#backup-restore').fadeIn('slow');jQuery(this).parent().fadeOut('slow')">
 					</div>
 					<div style="display:none;position:absolute;top:0;left:0" id="backup-restore">
 						<form method="post" action="">
@@ -2032,6 +2037,18 @@ ENDHERE;
 					</td>
 				</tr>
 			</table>
+			<?php
+			if (!defined('UPDRAFTPLUS_PREMIUM') && is_multisite()) {
+				?>
+				<h2>UpdraftPlus Premium</h2>
+				<table>
+				<tr>
+				<td>
+				<p style="max-width:800px;">Do you need WordPress Multisite support? Please check out <a href="http://updraftplus.com">UpdraftPlus Premium</a> - and in coming weeks, it will add even more premium features. Why not support UpdraftPlus development?</p>
+				</td>
+				</tr>
+				</table>
+			<?php } ?>
 			<h2>Configure Backup Contents And Schedule</h2>
 			<?php UpdraftPlus_Options::options_form_begin(); ?>
 				<?php $this->settings_formcontents(); ?>

@@ -3,12 +3,12 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, gdrive, ftp, cloud, updraft, back up
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.2.46
+Stable tag: 1.3.2
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Set retention separately for files/db. Complete Dropbox support. FTP over SSL. Less noise, more info. Option to delete all settings.
+Internal reorganisation, opening way for UpdraftPlus Premium
 
 == Description ==
 
@@ -140,6 +140,9 @@ Yes; especially before you submit any support requests.
 Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ . I am also available for hire for bespoke work.
 
 == Changelog ==
+
+= 1.3.2 - 01/23/2013 =
+* Internal reorganisation, enabling UpdraftPlus Premium
 
 = 1.2.46 - 01/22/2013 =
 * Easier Dropbox setup (we are now an official production app)
