@@ -113,7 +113,7 @@ You can check the changelog for changes; but the original Updraft, before I fork
 
 = Any known bugs ? =
 
-Not a bug as such, but one issue to be aware of is that backups of very large sites (lots of uploaded media) are quite complex matters, given the limits or running inside WordPress on a huge variety of different web hosting setups. With large sites, you need to use Amazon S3, which UpdraftPlus supports (since 0.9.20) or Google Drive (since 0.9.21) or Dropbox (since 1.2.19) with chunked, resumable uploads. Other backup methods have code (since 0.9.0) to retry failed uploads of an archive, but the upload cannot be chunked, so if an archive is enormous (i.e. cannot be completely uploaded in the time that PHP is allowed for running on your web host) it cannot work.
+Not a bug as such, but one issue to be aware of is that backups of very large sites (lots of uploaded media) are quite complex matters, given the limits of running inside WordPress on a huge variety of different web hosting setups. With large sites, you need to use Amazon S3, which UpdraftPlus supports (since 0.9.20) or Google Drive (since 0.9.21) or Dropbox (since 1.2.19), because these support chunked, resumable uploads. Other backup methods have code (since 0.9.0) to retry failed uploads of an archive, but the upload cannot be chunked, so if an archive is enormous (i.e. cannot be completely uploaded in the time that PHP is allowed for running on your web host) it cannot work.
 
 = I encrypted my database - how do I decrypt it? =
 

@@ -191,7 +191,7 @@ class UpdraftPlus {
 
 		if (empty($this->logfile_handle)) $this->logfile_open($bnonce);
 
-		if ($resumption_no > 0) $this->log("Resuming backup: resumption=$resumption_no, nonce=$bnonce, begun at=$btime");
+		$this->log("Backup run: resumption=$resumption_no, nonce=$bnonce, begun at=$btime");
 
 		// Schedule again, to run in 5 minutes again, in case we again fail
 		$resume_delay = 300;
@@ -308,7 +308,7 @@ class UpdraftPlus {
 		} else {
 			$this->jobdata = array($key => $value);
 		}
-		set_transient($trans, $this->jobdata, 14400);
+		set_transient("updraft_jobdata_".$this->nonce, $this->jobdata, 14400);
 	}
 
 	function jobdata_get($key) {
@@ -415,6 +415,7 @@ class UpdraftPlus {
 			if ($clear_nonce_transient) {
 				$this->log("There were no errors in the uploads, so the 'resume' event is being unscheduled");
 				wp_clear_scheduled_hook('updraft_backup_resume', array($cancel_event, $this->nonce, $this->backup_time));
+				// TODO: Delete the job transient (is presently useful for debugging, and only lasts 4 hours)
 			}
 		} else {
 			$this->log("There were errors in the uploads, so the 'resume' event is remaining scheduled");
