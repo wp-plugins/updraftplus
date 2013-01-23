@@ -14,11 +14,13 @@ Author URI: http://wordshell.net
 TODO
 //Add SFTP, Box.Net, SugarSync and Microsoft Skydrive support??
 //The restorer has a hard-coded wp-content - fix
+//Read safe-mode only once, remembering it will be totally removed from PHP
+//Button for wiping files. Also auto-wipe on de-activate/de-install.
 //Change DB encryption to not require whole gzip in memory (twice)
 //improve error reporting / pretty up return messages in admin area. One thing: have a "backup is now finished" flag. Otherwise with the resuming things get ambiguous/confusing. See http://wordpress.org/support/topic/backup-status - user was not aware that backup completely failed. Maybe a "backup status" field for each nonce that gets updated? (Even via AJAX?)
 //?? On 'backup now', open up a Lightbox, count down 5 seconds, then start examining the log file (if it can be found)
 //Should make clear in dashboard what is a non-fatal error (i.e. can be retried) - leads to unnecessary bug reports
-// Move the cloud and retention data into the backup job (i.e. don't read current config, make it an attribute of each job)
+// Move the inclusion, cloud and retention data into the backup job (i.e. don't read current config, make it an attribute of each job). In fact, everything should be. So audit all code for where get_option is called inside a backup run: it shouldn't happen.
 // Should we resume if the only errors were upon deletion (i.e. the backup itself was fine?) Presently we do, but it displays errors for the user to confuse them. Perhaps better to make pruning a separate scheuled task??
 // Make jobs *individually* resumable (i.e. all the state info must be keyed on the nonce; then call the resume event *specifying the nonce*)
 // Warn the user if their zip-file creation is slooowww...
@@ -237,7 +239,7 @@ class UpdraftPlus {
 			}
 			$db_backup = $this->backup_db($backup_database);
 			if(is_array($our_files) && is_string($db_backup)) $our_files['db'] = $db_backup;
-			$this->jobdata_set("backup_database", 'finished');
+			if ($backup_database != 'encrypted') $this->jobdata_set("backup_database", 'finished');
 		} else {
 			$this->log("Unrecognised data when trying to ascertain if the database was backed up ($backup_database)");
 		}
@@ -262,9 +264,9 @@ class UpdraftPlus {
 			$hash = md5($file);
 			$fullpath = $this->backups_dir_location().'/'.$file;
 			if ($this->jobdata_get("uploaded_$hash") === "yes") {
-				$this->log("$file: $key: This file has been successfully uploaded in the last 3 hours");
+				$this->log("$file: $key: This file has already been successfully uploaded");
 			} elseif (is_file($fullpath)) {
-				$this->log("$file: $key: This file has NOT been successfully uploaded in the last 3 hours: will retry");
+				$this->log("$file: $key: This file has not yet been successfully uploaded: will queue");
 				$undone_files[$key] = $file;
 			} else {
 				$this->log("$file: Note: This file was not marked as successfully uploaded, but does not exist on the local filesystem");
@@ -730,51 +732,51 @@ class UpdraftPlus {
 
 		# Others
 		if (UpdraftPlus_Options::get_updraft_option('updraft_include_others', true)) {
-			$this->log("Beginning backup of other directories found in the content directory");
 
 			if ($transient_status == 'finished') {
 				$backup_array['others'] = $backup_file_basename.'-others.zip';
 			} else {
+				$this->log("Beginning backup of other directories found in the content directory");
 
-			// http://www.phpconcept.net/pclzip/user-guide/53
-			/* First parameter to create is:
-				An array of filenames or dirnames,
-				or
-				A string containing the filename or a dirname,
-				or
-				A string containing a list of filename or dirname separated by a comma.
-			*/
+				// http://www.phpconcept.net/pclzip/user-guide/53
+				/* First parameter to create is:
+					An array of filenames or dirnames,
+					or
+					A string containing the filename or a dirname,
+					or
+					A string containing a list of filename or dirname separated by a comma.
+				*/
 
-			# Initialise
-			$other_dirlist = array(); 
+				# Initialise
+				$other_dirlist = array(); 
 
-			$others_skip = preg_split("/,/",UpdraftPlus_Options::get_updraft_option('updraft_include_others_exclude', UPDRAFT_DEFAULT_OTHERS_EXCLUDE));
-			# Make the values into the keys
-			$others_skip = array_flip($others_skip);
+				$others_skip = preg_split("/,/",UpdraftPlus_Options::get_updraft_option('updraft_include_others_exclude', UPDRAFT_DEFAULT_OTHERS_EXCLUDE));
+				# Make the values into the keys
+				$others_skip = array_flip($others_skip);
 
-			$this->log('Looking for candidates to back up in: '.WP_CONTENT_DIR);
-			if ($handle = opendir(WP_CONTENT_DIR)) {
-				while (false !== ($entry = readdir($handle))) {
-					$candidate = WP_CONTENT_DIR.'/'.$entry;
-					if ($entry == "." || $entry == "..") { ; }
-					elseif ($candidate == $updraft_dir) { $this->log("others: $entry: skipping: this is the updraft directory"); }
-					elseif ($candidate == $wp_themes_dir) { $this->log("others: $entry: skipping: this is the themes directory"); }
-					elseif ($candidate == $wp_upload_dir) { $this->log("others: $entry: skipping: this is the uploads directory"); }
-					elseif ($candidate == $wp_plugins_dir) { $this->log("others: $entry: skipping: this is the plugins directory"); }
-					elseif (isset($others_skip[$entry])) { $this->log("others: $entry: skipping: excluded by options"); }
-					else { $this->log("others: $entry: adding to list"); array_push($other_dirlist, $candidate); }
+				$this->log('Looking for candidates to back up in: '.WP_CONTENT_DIR);
+				if ($handle = opendir(WP_CONTENT_DIR)) {
+					while (false !== ($entry = readdir($handle))) {
+						$candidate = WP_CONTENT_DIR.'/'.$entry;
+						if ($entry == "." || $entry == "..") { ; }
+						elseif ($candidate == $updraft_dir) { $this->log("others: $entry: skipping: this is the updraft directory"); }
+						elseif ($candidate == $wp_themes_dir) { $this->log("others: $entry: skipping: this is the themes directory"); }
+						elseif ($candidate == $wp_upload_dir) { $this->log("others: $entry: skipping: this is the uploads directory"); }
+						elseif ($candidate == $wp_plugins_dir) { $this->log("others: $entry: skipping: this is the plugins directory"); }
+						elseif (isset($others_skip[$entry])) { $this->log("others: $entry: skipping: excluded by options"); }
+						else { $this->log("others: $entry: adding to list"); array_push($other_dirlist, $candidate); }
+					}
+				} else {
+					$this->log('ERROR: Could not read the content directory: '.WP_CONTENT_DIR);
+					$this->error('Could not read the content directory: '.WP_CONTENT_DIR);
 				}
-			} else {
-				$this->log('ERROR: Could not read the content directory: '.WP_CONTENT_DIR);
-				$this->error('Could not read the content directory: '.WP_CONTENT_DIR);
-			}
 
-			if (count($other_dirlist)>0) {
-				$created = $this->create_zip($other_dirlist, 'others', $updraft_dir, $backup_file_basename);
-				if ($created) $backup_array['others'] = $created;
-			} else {
-				$this->log("No backup of other directories: there was nothing found to back up");
-			}
+				if (count($other_dirlist)>0) {
+					$created = $this->create_zip($other_dirlist, 'others', $updraft_dir, $backup_file_basename);
+					if ($created) $backup_array['others'] = $created;
+				} else {
+					$this->log("No backup of other directories: there was nothing found to back up");
+				}
 			# If we are not already finished
 			}
 		} else {
@@ -1001,10 +1003,7 @@ class UpdraftPlus {
 			}
 		
 			// Comment in SQL-file
-			$this->stow("\n\n");
-			$this->stow("#\n");
-			$this->stow('# ' . sprintf(__('Data contents of table %s','wp-db-backup'),$this->backquote($table)) . "\n");
-			$this->stow("#\n");
+			$this->stow("\n\n#\n# " . sprintf(__('Data contents of table %s','wp-db-backup'),$this->backquote($table)) . "\n#\n");
 		}
 		
 		// In UpdraftPlus, segment is always 'none'
@@ -1020,19 +1019,16 @@ class UpdraftPlus {
 				}
 			}
 			
-			// Batch by $row_inc
-			if ( ! defined('ROWS_PER_SEGMENT') ) define('ROWS_PER_SEGMENT', 100);
-			
 			if($segment == 'none') {
 				$row_start = 0;
-				$row_inc = ROWS_PER_SEGMENT;
+				$row_inc = 100;
 			} else {
-				$row_start = $segment * ROWS_PER_SEGMENT;
-				$row_inc = ROWS_PER_SEGMENT;
+				$row_start = $segment * 100;
+				$row_inc = 100;
 			}
-			do {
 
-				if ( !ini_get('safe_mode') || strtolower(ini_get('safe_mode')) == "off") @set_time_limit(15*60);
+			do {
+				if ( !@ini_get('safe_mode') || strtolower(@ini_get('safe_mode')) == "off") @set_time_limit(15*60);
 				$table_data = $wpdb->get_results("SELECT * FROM $table LIMIT {$row_start}, {$row_inc}", ARRAY_A);
 				$entries = 'INSERT INTO ' . $this->backquote($table) . ' VALUES (';
 				//    \x08\\x09, not required
@@ -1657,7 +1653,7 @@ class UpdraftPlus {
 						$dir_info = '<span style="color:red">Backup directory specified is <b>not</b> writable, or does not exist. <span style="font-size:110%;font-weight:bold"><a href="options-general.php?page=updraftplus&action=updraft_create_backup_dir">Click here</a></span> to attempt to create the directory and set the permissions.  If that is unsuccessful check the permissions on your server or change it to another directory that is writable by your web server process.</span>';
 					}
 
-					echo $dir_info ?> This is where Updraft Backup/Restore will write the zip files it creates initially.  This directory must be writable by your web server.  Typically you'll want to have it inside your wp-content folder (this is the default).  <b>Do not</b> place it inside your uploads dir, as that will cause recursion issues (backups of backups of backups of...).</td>
+					echo $dir_info ?> This is where UpdraftPlus will write the zip files it creates initially.  This directory must be writable by your web server. Typically you'll want to have it inside your wp-content folder (this is the default).  <b>Do not</b> place it inside your uploads dir, as that will cause recursion issues (backups of backups of backups of...).</td>
 			</tr>
 			<tr>
 			<td></td>
