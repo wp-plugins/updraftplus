@@ -277,7 +277,7 @@ class UpdraftPlus {
 		if (count($undone_files) == 0) {
 			$this->log("There were no more files that needed uploading; backup job is complete");
 			// No email, as the user probably already got one if something else completed the run
-			backup_finish($next_resumption, true, false, $resumption_no);
+			$this->backup_finish($next_resumption, true, false, $resumption_no);
 			return;
 		}
 
@@ -804,7 +804,7 @@ class UpdraftPlus {
 		global $wpdb;
 		$backup_history = @unserialize($wpdb->get_var($wpdb->prepare("SELECT option_value from $wpdb->options WHERE option_name='updraft_backup_history'")));
 		if(is_array($backup_history)) {
-			krsort($backup_history); //reverse sort so earliest backup is last on the array.  this way we can array_pop
+			krsort($backup_history); //reverse sort so earliest backup is last on the array. Then we can array_pop.
 		} else {
 			$backup_history = array();
 		}
