@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.3.2
+Version: 1.3.3
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -25,7 +25,7 @@ TODO
 // Turn expert options into a jQuery toggle
 // Provide backup/restoration for UpdraftPlus's settings, to allow 'bootstrap' on a fresh WP install
 // Multiple jobs
-// Multi-site
+// Create single zip, containing even WordPress itself
 
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
 // Does not delete old custom directories upon a restore?
@@ -72,7 +72,7 @@ if (!class_exists('UpdraftPlus_Options')) require_once(UPDRAFTPLUS_DIR.'/options
 
 class UpdraftPlus {
 
-	var $version = '1.3.2';
+	var $version = '1.3.3';
 	var $plugin_title = 'UpdraftPlus Backup/Restore';
 
 	// Choices will be shown in the admin menu in the order used here
@@ -176,30 +176,25 @@ class UpdraftPlus {
 		UpdraftPlus_Options::update_updraft_option("updraft_lastmessage", $line." (".date('M d H:i:s').")");
 	}
 
-	function backup_resume($resumption_no) {
+	function backup_resume($resumption_no, $bnonce, $btime) {
 		@ignore_user_abort(true);
 		// This is scheduled for 5 minutes after a backup job starts
-		$bnonce = get_transient('updraftplus_backup_job_nonce');
-		if (!$bnonce) return;
+		if (!$bnonce || !$btime) return;
+		// Restore state
 		$this->nonce = $bnonce;
+		$this->backup_time = $btime;
 		$this->logfile_open($bnonce);
-		$this->log("Resume backup ($resumption_no): begin run (will check for any remaining jobs)");
-		$btime = get_transient('updraftplus_backup_job_time');
-		if (!$btime) {
-			$this->log("Did not find stored time setting - aborting");
-			return;
-		}
-		$this->log("Resuming backup: resumption=$resumption_no, nonce=$bnonce, begun at=$btime");
+
+		$this->log("Resuming backup: nonce=$bnonce, resumption=$resumption_no, begun at=$btime");
 		// Schedule again, to run in 5 minutes again, in case we again fail
 		$resume_delay = 300;
 		// A different argument than before is needed otherwise the event is ignored
 		$next_resumption = $resumption_no+1;
 		if ($next_resumption < 10) {
-			wp_schedule_single_event(time()+$resume_delay, 'updraft_backup_resume' ,array($next_resumption));
+			wp_schedule_single_event(time()+$resume_delay, 'updraft_backup_resume' ,array($next_resumption, $bnonce, $btime));
 		} else {
-			$this->log("The current run is our tenth attempt - will not try again");
+			$this->log("The current run is our tenth attempt - will not schedule a further attempt");
 		}
-		$this->backup_time = $btime;
 
 		$backup_array = $this->resumable_backup_of_files(false);
 		// This save, if there was something, is then immediately picked up again
@@ -245,7 +240,8 @@ class UpdraftPlus {
 
 		foreach ($our_files as $key => $file) {
 
-			if ($key == 'nonce') continue;
+			// Only continue if the stored info was about a dump
+			if ($key != 'plugins' && $key != 'themes' && $key != 'others' && $key != 'uploads') continue;
 
 			$hash = md5($file);
 			$fullpath = $this->backups_dir_location().'/'.$file;
@@ -262,13 +258,15 @@ class UpdraftPlus {
 
 		if (count($undone_files) == 0) {
 			$this->log("There were no more files that needed uploading; backup job is complete");
+			// No email, as the user probably already got one if something else completed the run
+			backup_finish($next_resumption, true, false, $resumption_no);
 			return;
 		}
 
 		$this->log("Requesting backup of the files that were not successfully uploaded");
 		$this->cloud_backup($undone_files);
 
-		$this->log("Resume backup ($resumption_no): finish run");
+		$this->log("Resume backup ($bnonce, $resumption_no): finish run");
 
 		$this->backup_finish($next_resumption, true, true, $resumption_no);
 
@@ -292,6 +290,11 @@ class UpdraftPlus {
 
 	function check_backup_race( $to_delete = false ) {
 		// Avoid caching
+		// Short-circuit - we believe WordPress has taken steps itself to prevent this race
+		// Furthermore, we now pass the nonce to the resumption job, so races should not be possible on resumptions
+		return true;
+
+		// We no longer even user the nonce
 		global $wpdb;
 		$row = $wpdb->get_row($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", "_transient_updraftplus_backup_job_nonce"));
 		$cur_trans = ( is_object( $row ) ) ? $row->option_value : "";
@@ -369,16 +372,13 @@ class UpdraftPlus {
 
 			$clear_nonce_transient = true;
 
-			// Do not set the transient or schedule the resume event until now, when we know there is something to do - otherwise 'vacatated' runs (when the database is on the same schedule as the files, and they get combined, leading to an empty run) can over-write the resume event and prevent resumption (because it is 'successful' - there was nothing to do).
+			// Do not schedule the resume event until now, when we know there is something to do - otherwise 'vacatated' runs (when the database is on the same schedule as the files, and they get combined, leading to an empty run) can over-write the resume event and prevent resumption (because it is 'successful' - there was nothing to do).
 			// If we don't finish in 3 hours, then we won't finish
-			// This transient indicates the identity of the current backup job (which can be used to find the files and logfile)
-			set_transient("updraftplus_backup_job_nonce", $this->nonce, 3600*3);
-			set_transient("updraftplus_backup_job_time", $this->backup_time, 3600*3);
 
 			// Schedule the event to run later, which checks on success and can resume the backup
 			// We save the time to a variable because it is needed for un-scheduling
 			$resume_delay = 300;
-			wp_schedule_single_event(time()+$resume_delay, 'updraft_backup_resume', array(1));
+			wp_schedule_single_event(time()+$resume_delay, 'updraft_backup_resume', array(1, $this->nonce, $this->backup_time));
 			$this->log("In case we run out of time, scheduled a resumption at: $resume_delay seconds from now");
 
 			$backup_contains = "";
@@ -489,9 +489,7 @@ class UpdraftPlus {
 		if (empty($this->errors)) {
 			if ($clear_nonce_transient) {
 				$this->log("There were no errors in the uploads, so the 'resume' event is being unscheduled");
-				wp_clear_scheduled_hook('updraft_backup_resume', array($cancel_event));
-				delete_transient("updraftplus_backup_job_nonce");
-				delete_transient("updraftplus_backup_job_time");
+				wp_clear_scheduled_hook('updraft_backup_resume', array($cancel_event, $this->nonce, $this->backup_time));
 			}
 		} else {
 			$this->log("There were errors in the uploads, so the 'resume' event is remaining scheduled");
@@ -1521,6 +1519,7 @@ class UpdraftPlus {
 	}
 
 	function wordshell_random_advert($urls) {
+		if (defined('UPDRAFTPLUS_PREMIUM')) return "";
 		$rad = rand(0,6);
 		switch ($rad) {
 		case 0:
@@ -1732,11 +1731,16 @@ class UpdraftPlus {
 			<tr>
 			<td></td>
 			<td>
-				<p style="margin: 10px 0; padding: 10px; font-size: 140%; background-color: lightYellow; border-color: #E6DB55; border: 1px solid; border-radius: 4px;">
 				<?php
-				echo $this->wordshell_random_advert(1);
+					$ws_ad = $this->wordshell_random_advert(1);
+					if ($ws_ad) {
 				?>
+				<p style="margin: 10px 0; padding: 10px; font-size: 140%; background-color: lightYellow; border-color: #E6DB55; border: 1px solid; border-radius: 4px;">
+					<?php echo $ws_ad; ?>
 				</p>
+				<?php
+					}
+				?>
 				</td>
 			</tr>
 			<tr>
@@ -1832,7 +1836,7 @@ class UpdraftPlus {
 		<div class="wrap">
 			<h1><?php echo $this->plugin_title; ?></h1>
 
-			Maintained by <b>David Anderson</b> (<a href="http://david.dw-perspective.org.uk">Homepage</a> | <a href="http://updraftplus.com">Premium</a> | <a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate">Donate</a> | <a href="http://wordpress.org/extend/plugins/updraftplus/faq/">FAQs</a> | <a href="http://profiles.wordpress.org/davidanderson/">My other WordPress plugins</a>). Version: <?php echo $this->version; ?>
+			Maintained by <b>David Anderson</b> (<a href="http://david.dw-perspective.org.uk">Homepage</a><?php if (!defined('UPDRAFTPLUS_PREMIUM')) { ?> | <a href="http://updraftplus.com">Premium</a> | <a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate">Donate</a><?php } ?> | <a href="http://wordpress.org/extend/plugins/updraftplus/faq/">FAQs</a> | <a href="http://profiles.wordpress.org/davidanderson/">My other WordPress plugins</a>). Version: <?php echo $this->version; ?>
 			<br>
 			<?php
 			if(isset($_GET['updraft_restore_success'])) {
@@ -1840,9 +1844,7 @@ class UpdraftPlus {
 			}
 
 			$ws_advert = $this->wordshell_random_advert(1);
-			echo <<<ENDHERE
-				<div class="updated fade" style="max-width: 800px; font-size:140%; line-height: 140%; padding:14px; clear:left;">${ws_advert}</div>
-ENDHERE;
+			if ($ws_advert) { echo '<div class="updated fade" style="max-width: 800px; font-size:140%; line-height: 140%; padding:14px; clear:left;">'.$ws_advert.'</div>'; }
 
 			if($deleted_old_dirs) echo '<div style="color:blue">Old directories successfully deleted.</div>';
 

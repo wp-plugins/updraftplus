@@ -14,7 +14,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 	function restore_backup($backup_file, $type) {
 
-		if ($type == 'nonce') return;
+		if ($type != 'plugins' && $type != 'themes' && $type != 'others' && $type != 'uploads') continue;
 
 		global $wp_filesystem;
 		$this->init();
