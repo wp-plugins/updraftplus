@@ -12,7 +12,6 @@ class ftp_wrapper
 	public  $ssl 	 = false;
 	public  $system_type = '';
  
- 
 	public function __construct($host, $username, $password, $port = 21)
 	{
 		$this->host     = $host;
@@ -38,6 +37,8 @@ class ftp_wrapper
 				return false;	
 			}
 		}
+
+		if ($this->conn_id === false) return false;
  
 		$result = ftp_login($this->conn_id, $this->username, $this->password);
  
