@@ -1,6 +1,6 @@
 === UpdraftPlus Backup ===
 Contributors: David Anderson
-Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, gdrive, ftp, cloud, updraft, back up
+Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, gdrive, ftp, cloud, updraft, back up, multisite
 Requires at least: 3.2
 Tested up to: 3.5
 Stable tag: 1.3.2
@@ -23,7 +23,7 @@ UpdraftPlus simplifies backups (and restoration). Backup into the cloud (Amazon 
 * Database backups can be encrypted for security
 * Debug mode that gives full logging of the backup
 * Thousands of users: widely tested and reliable
-* Premium version available (see below)
+* Premium/multi-site version available (see below)
 
 = Best New WordPress Plugin =
 
