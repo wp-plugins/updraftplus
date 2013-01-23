@@ -27,7 +27,7 @@ TODO
 // Create a "Want Support?" button/console, that leads them through what is needed, and performs some basic tests...
 // Resuming partial FTP uploads
 // Turn expert options into a jQuery toggle
-// Provide backup/restoration for UpdraftPlus's settings, to allow 'bootstrap' on a fresh WP install
+// Provide backup/restoration for UpdraftPlus's settings, to allow 'bootstrap' on a fresh WP install - some kind of single-use code which a remote UpdraftPlus can use to authenticate
 // Multiple jobs
 // Create single zip, containing even WordPress itself
 
