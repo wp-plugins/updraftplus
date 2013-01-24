@@ -336,7 +336,7 @@ class UpdraftPlus_BackupModule_dropbox {
 	// This basically reproduces the relevant bits of bootstrap.php from the SDK
 	function bootstrap() {
 
-		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/API.php');
+		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/API.php'	);
 		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/Exception.php');
 		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/API.php');
 		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Consumer/ConsumerAbstract.php');
@@ -346,9 +346,8 @@ class UpdraftPlus_BackupModule_dropbox {
 		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Consumer/Curl.php');
 //		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Consumer/WordPress.php');
 
-		// This formulation was required by Dropbox's developer programme, for what reasons you should ask them!
-		$sec = UpdraftPlus_Options::get_updraft_option(base64_decode('dXBkcmFmdF9kcm9wYm94X2FwcGtleQ=='));
-		$key = UpdraftPlus_Options::get_updraft_option(base64_decode('dXBkcmFmdF9kcm9wYm94X3NlY3JldA=='));
+		$key = UpdraftPlus_Options::get_updraft_option('updraft_dropbox_secret');
+		$sec = UpdraftPlus_Options::get_updraft_option('updraft_dropbox_appkey');
 
 		// Set the callback URL
 		$callback = admin_url('options-general.php?page=updraftplus&action=updraftmethod-dropbox-auth');
@@ -360,7 +359,9 @@ class UpdraftPlus_BackupModule_dropbox {
 		$storage = new Dropbox_WordPress($encrypter, "updraft_dropboxtk_");
 
 //		WordPress consumer does not yet work
-//		$OAuth = new Dropbox_ConsumerWordPress($key, $secret, $storage, $callback);
+//		$OAuth = new Dropbox_ConsumerWordPress($sec, $key, $storage, $callback);
+
+		// Get the DropBox API access details
 		list($d2, $d1) = self::defaults();
 		if (empty($sec)) { $sec = base64_decode($d1); }; if (empty($key)) { $key = base64_decode($d2); }
 		$OAuth = new Dropbox_Curl($sec, $key, $storage, $callback);
