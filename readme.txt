@@ -3,7 +3,7 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, ftp, cloud, back up, multisite
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.3.2
+Stable tag: 1.3.7
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
