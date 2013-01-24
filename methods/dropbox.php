@@ -346,9 +346,8 @@ class UpdraftPlus_BackupModule_dropbox {
 		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Consumer/Curl.php');
 //		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Consumer/WordPress.php');
 
-		// This formulation was required by Dropbox's developer programme, for what reasons you should ask them!
-		$sec = UpdraftPlus_Options::get_updraft_option(base64_decode('dXBkcmFmdF9kcm9wYm94X2FwcGtleQ=='));
-		$key = UpdraftPlus_Options::get_updraft_option(base64_decode('dXBkcmFmdF9kcm9wYm94X3NlY3JldA=='));
+		$sec = UpdraftPlus_Options::get_updraft_option('updraft_dropbox_appkey');
+		$key = UpdraftPlus_Options::get_updraft_option('updraft_dropbox_secret');
 
 		// Set the callback URL
 		$callback = admin_url('options-general.php?page=updraftplus&action=updraftmethod-dropbox-auth');
