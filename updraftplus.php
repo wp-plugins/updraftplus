@@ -29,6 +29,7 @@ TODO
 // Turn expert options into a jQuery toggle
 // Provide backup/restoration for UpdraftPlus's settings, to allow 'bootstrap' on a fresh WP install - some kind of single-use code which a remote UpdraftPlus can use to authenticate
 // Multiple jobs
+// When looking for files to delete, is the current encryption setting used? Should not be.
 // Create single zip, containing even WordPress itself
 // When a new backup starts, AJAX-update the 'Last backup' display in the admin page.
 
