@@ -354,7 +354,7 @@ class UpdraftPlus_BackupModule_dropbox {
 		$callback = admin_url('options-general.php?page=updraftplus&action=updraftmethod-dropbox-auth');
 
 		// Instantiate the Encrypter and storage objects
-		$encrypter = new Dropbox_Encrypter('OnlyLengthMatter');
+		$encrypter = new Dropbox_Encrypter('ThisOneDoesNotMatterBeyondLength');
 
 		// Instantiate the storage
 		$storage = new Dropbox_WordPress($encrypter, "updraft_dropboxtk_");

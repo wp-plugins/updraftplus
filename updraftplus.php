@@ -30,6 +30,7 @@ TODO
 // Provide backup/restoration for UpdraftPlus's settings, to allow 'bootstrap' on a fresh WP install - some kind of single-use code which a remote UpdraftPlus can use to authenticate
 // Multiple jobs
 // Create single zip, containing even WordPress itself
+// When a new backup starts, AJAX-update the 'Last backup' display in the admin page.
 
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
 // Does not delete old custom directories upon a restore?
