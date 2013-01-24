@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.3.7
+Version: 1.3.8
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -78,7 +78,7 @@ if (!class_exists('UpdraftPlus_Options')) require_once(UPDRAFTPLUS_DIR.'/options
 
 class UpdraftPlus {
 
-	var $version = '1.3.7';
+	var $version = '1.3.8';
 	var $plugin_title = 'UpdraftPlus Backup/Restore';
 
 	// Choices will be shown in the admin menu in the order used here
@@ -661,8 +661,11 @@ class UpdraftPlus {
 
 		// Firstly, make sure that the temporary file is not already being written to - which can happen if a resumption takes place whilst an old run is still active
 		$zip_name = $full_path.'.tmp';
-		if (file_exists($zip_name) && (int)filemtime($zip_name)>100 && filemtime($zip_name)-time()<20) {
-			$this->log("TERMINATE: the temporary file $zip_name already exists, and was modified within the last 20 seconds. This likely means that another UpdraftPlus run is still at work; so we will exit.");
+		$time_mod = (int)filemtime($zip_name);
+		$time_now = time();
+		$file_size = filesize($zip_name);
+		if (file_exists($zip_name) && $time_mod>100 && ($time_mod-$time_now)<20) {
+			$this->log("Terminate: the temporary file $zip_name already exists, and was modified within the last 20 seconds (time_mod=$time_mod, time_now=$time_now, diff=".($time_mod-$time_now).", size=$file_size). This likely means that another UpdraftPlus run is still at work; so we will exit.");
 			die;
 		}
 
