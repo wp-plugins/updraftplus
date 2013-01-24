@@ -16,7 +16,7 @@ class Dropbox_Encrypter
     const CIPHER = MCRYPT_RIJNDAEL_128;
     const MODE = MCRYPT_MODE_CBC;
     const KEY_SIZE = 32;
-    const IV_SIZE = 16;
+    const IV_SIZE = 32;
     const IV_SOURCE = MCRYPT_DEV_URANDOM;
     
     /**
