@@ -141,9 +141,10 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.3.4 - 01/24/2013 =
+= 1.3.5 - 01/24/2013 =
 * Fixed faulty assumptions in 'resume' code, now leading to more reliable resuming
 * Removed some duplicate code; first attempt and resumptions now uses same code
+* Added further parameters that should be removed on a wipe operation
 
 = 1.3.2 - 01/23/2013 =
 * Internal reorganisation, enabling UpdraftPlus Premium
