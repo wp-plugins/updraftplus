@@ -3,7 +3,7 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, ftp, cloud, back up, multisite
 Requires at least: 3.2
 Tested up to: 3.5.1
-Stable tag: 1.3.11
+Stable tag: 1.3.12
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
@@ -141,7 +141,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.3.11 - 01/25/2013 =
+= 1.3.12 - 01/25/2013 =
 * 1.3.0 to 1.3.8 had a fatal flaw for people with large backups.
 * 1.3.0 to 1.3.9 gave erroneous information in the email reports on what the backup contained.
 * Fixed DropBox authentication for some users who were having problems
