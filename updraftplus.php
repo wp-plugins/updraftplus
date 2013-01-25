@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.3.9
+Version: 1.3.10
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -79,7 +79,7 @@ if (!class_exists('UpdraftPlus_Options')) require_once(UPDRAFTPLUS_DIR.'/options
 
 class UpdraftPlus {
 
-	var $version = '1.3.9';
+	var $version = '1.3.10';
 	var $plugin_title = 'UpdraftPlus Backup/Restore';
 
 	// Choices will be shown in the admin menu in the order used here
@@ -483,7 +483,15 @@ class UpdraftPlus {
 		$backup_files = $this->jobdata_get("backup_files");
 		$backup_db = $this->jobdata_get("backup_database");
 
-		$backup_contains = (substr($backup_contains,0,10) == "Files only") ? "Files and database" : "Database only (no files)";
+		if ($backup_files == "finished" && ( $backup_db == "finished" || $backup_db == "encrypted" ) ) {
+			$backup_contains = "Files and database";
+		} elseif ($backup_files == "finished") {
+			$backup_contains = ($backup_db == "begun") ? "Files (database backup has not completed)" : "Files only (database was not part of this particular schedule)";
+		} elseif ($backup_db == "finished" || $backup_db == "encrypted") {
+			$backup_contains = ($backup_files == "begun") ? "Database (files backup has not completed)" : "Database only (files were not part of this particular schedule)";
+		} else {
+			$backup_contains = "Unknown/unexpected error - please raise a support request";
+		}
 
 		wp_mail($sendmail_to,'Backed up: '.get_bloginfo('name').' (UpdraftPlus '.$this->version.') '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus WordPress backup is complete.\r\nBackup contains: ".$backup_contains."\r\n\r\n".$this->wordshell_random_advert(0)."\r\n".$append_log);
 
