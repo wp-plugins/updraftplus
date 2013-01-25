@@ -50,7 +50,7 @@ class Dropbox_Encrypter
     public function encrypt($token)
     {
         $iv = mcrypt_create_iv(self::IV_SIZE, self::IV_SOURCE);
-        $cipherText = mcrypt_encrypt(self::CIPHER, $this->key, $token, self::MODE, $iv);
+        $cipherText = @mcrypt_encrypt(self::CIPHER, $this->key, $token, self::MODE, $iv);
         return base64_encode($iv . $cipherText);
     }
     
