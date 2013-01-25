@@ -64,7 +64,7 @@ class Dropbox_Encrypter
         $cipherText = base64_decode($cipherText);
         $iv = substr($cipherText, 0, self::IV_SIZE);
         $cipherText = substr($cipherText, self::IV_SIZE);
-        $token = mcrypt_decrypt(self::CIPHER, $this->key, $cipherText, self::MODE, $iv);
+        $token = @mcrypt_decrypt(self::CIPHER, $this->key, $cipherText, self::MODE, $iv);
         return $token;
     }
 }
