@@ -81,10 +81,10 @@ class UpdraftPlus_BackupModule_googledrive {
 				$json_values = json_decode( $result['body'], true );
 				if ( isset( $json_values['refresh_token'] ) ) {
 					UpdraftPlus_Options::update_updraft_option('updraft_googledrive_token', $json_values['refresh_token']); // Save token
-					header('Location: '.admin_url('options-general.php?page=updraftplus&message=' . __( 'Google Drive authorization was successful.', 'updraftplus' ) ) );
+					header('Location: '.admin_url('options-general.php?page=updraftplus&message=' . __( 'Google Drive authorisation was successful.', 'updraftplus' ) ) );
 				}
 				else {
-					header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'No refresh token was received!', 'updraftplus' ) ) );
+					header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'No refresh token was received from Google. This often means that you entered your client secret wrongly, or that you have not yet re-authenticated (below) since correcting it. Re-check it, then follow the link to authenticate again. Finally, if that does not work, then use expert mode to wipe all your settings, create a new Google client ID/secret, and start again.', 'updraftplus' ) ) );
 				}
 			}
 		}
@@ -316,7 +316,7 @@ class UpdraftPlus_BackupModule_googledrive {
 			<th>Google Drive:</th>
 			<td>
 			<p><a href="http://david.dw-perspective.org.uk/da/index.php/computer-resources/updraftplus-googledrive-authorisation/"><strong>For longer help, including screenshots, follow this link. The description below is sufficient for more expert users.</strong></a></p>
-			<p><a href="https://code.google.com/apis/console/">Follow this link to your Google API Console</a>, and there create a Client ID in the API Access section. Select 'Web Application' as the application type.</p><p>You must add <kbd><?php echo admin_url('options-general.php?page=updraftplus&action=updraftmethod-googledrive-auth'); ?></kbd> as the authorised redirect URI when asked. N.B. If you install UpdraftPlus on several WordPress sites, then you cannot re-use your client ID; you must create a new one from your Google API console for each blog.
+			<p><a href="https://code.google.com/apis/console/">Follow this link to your Google API Console</a>, and there create a Client ID in the API Access section. Select 'Web Application' as the application type.</p><p>You must add <kbd><?php echo admin_url('options-general.php?page=updraftplus&action=updraftmethod-googledrive-auth'); ?></kbd> as the authorised redirect URI (under &quot;More Options&quot;) when asked. N.B. If you install UpdraftPlus on several WordPress sites, then you cannot re-use your client ID; you must create a new one from your Google API console for each blog.
 
 			<?php
 				if (!class_exists('SimpleXMLElement')) { echo " <b>WARNING:</b> You do not have the SimpleXMLElement installed. Google Drive backups will <b>not</b> work until you do."; }
@@ -327,7 +327,7 @@ class UpdraftPlus_BackupModule_googledrive {
 
 			<tr class="updraftplusmethod googledrive">
 				<th>Google Drive Client ID:</th>
-				<td><input type="text" autocomplete="off" style="width:332px" name="updraft_googledrive_clientid" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid')) ?>" /></td>
+				<td><input type="text" autocomplete="off" style="width:332px" name="updraft_googledrive_clientid" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid')) ?>" /><br><em>If Google later shows you the message &quot;invalid_client&quot;, then you did not enter a valid client ID here.</em></td>
 			</tr>
 			<tr class="updraftplusmethod googledrive">
 				<th>Google Drive Client Secret:</th>
