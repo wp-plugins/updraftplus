@@ -49,7 +49,7 @@ class UpdraftPlus_Options {
 		register_setting('updraft-options-group', 'updraft_dropbox_secret' );
 		register_setting('updraft-options-group', 'updraft_dropbox_folder' );
 
-		register_setting('updraft-options-group', 'updraft_googledrive_clientid' );
+		register_setting('updraft-options-group', 'updraft_googledrive_clientid', array($updraftplus, 'googledrive_clientid_checkchange') );
 		register_setting('updraft-options-group', 'updraft_googledrive_secret' );
 		register_setting('updraft-options-group', 'updraft_googledrive_remotepath' );
 		register_setting('updraft-options-group', 'updraft_ftp_login' );

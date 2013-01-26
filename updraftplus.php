@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.3.12
+Version: 1.3.14
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -33,6 +33,7 @@ TODO
 // When looking for files to delete, is the current encryption setting used? Should not be.
 // Create single zip, containing even WordPress itself
 // When a new backup starts, AJAX-update the 'Last backup' display in the admin page.
+// Remove the recurrence of admin notices when settings are saved due to _wp_referer
 
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
 // Does not delete old custom directories upon a restore?
@@ -79,7 +80,7 @@ if (!class_exists('UpdraftPlus_Options')) require_once(UPDRAFTPLUS_DIR.'/options
 
 class UpdraftPlus {
 
-	var $version = '1.3.12';
+	var $version = '1.3.14';
 	var $plugin_title = 'UpdraftPlus Backup/Restore';
 
 	// Choices will be shown in the admin menu in the order used here
@@ -1147,6 +1148,15 @@ class UpdraftPlus {
 			break;
 		}
 		return wp_filter_nohtml_kses($interval);
+	}
+
+	// Acts as a WordPress options filter
+	function googledrive_clientid_checkchange($client_id) {
+		if (UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token') != '' && UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token') != $client_id) {
+			require_once(UPDRAFTPLUS_DIR.'/methods/googledrive.php');
+			UpdraftPlus_BackupModule_googledrive::gdrive_auth_revoke(true);
+		}
+		return $client_id;
 	}
 
 	function schedule_backup_database($interval) {
