@@ -344,7 +344,7 @@ class UpdraftPlus_BackupModule_googledrive {
 			</tr>
 			<tr class="updraftplusmethod googledrive">
 				<th>Authenticate with Google:</th>
-				<td><p><?php if (UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token') != "") echo "<strong>(You appear to be already authenticated,</strong> though you can authenticate again to refresh your access if you've had a problem).</strong>"; ?> <a href="?page=updraftplus&action=updraftmethod-googledrive-auth&updraftplus_googleauth=doit"><strong>After</strong> you have saved your settings (by clicking &quot;Save Changes&quot; below), then come back here once and click this link to complete authentication with Google.</a>
+				<td><p><?php if (UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token') != "") echo "<strong>(You appear to be already authenticated,</strong> though you can authenticate again to refresh your access if you've had a problem).</strong>"; ?> <a href="options-general.php?page=updraftplus&action=updraftmethod-googledrive-auth&updraftplus_googleauth=doit"><strong>After</strong> you have saved your settings (by clicking &quot;Save Changes&quot; below), then come back here once and click this link to complete authentication with Google.</a>
 				</p>
 				</td>
 			</tr>
