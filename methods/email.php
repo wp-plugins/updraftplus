@@ -16,7 +16,7 @@ class UpdraftPlus_BackupModule_email {
 		$updraftplus->prune_retained_backups("email", null, null);
 	}
 
-	function config_print() {
+	public static function config_print() {
 		?>
 		<tr class="updraftplusmethod email">
 			<th>Note:</th>

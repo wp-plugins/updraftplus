@@ -206,7 +206,7 @@ class UpdraftPlus_BackupModule_dropbox {
 
 	}
 
-	function config_print() {
+	public static function config_print() {
 
 		?>
 			<tr class="updraftplusmethod dropbox">
@@ -291,7 +291,7 @@ class UpdraftPlus_BackupModule_dropbox {
 		<?php
 	}*/
 
-	function action_auth() {
+	public static function action_auth() {
 		if ( isset( $_GET['oauth_token'] ) ) {
 			self::auth_token();
 		} elseif (isset($_GET['updraftplus_dropboxauth'])) {
@@ -317,7 +317,7 @@ class UpdraftPlus_BackupModule_dropbox {
 
 	}
 
-	function auth_token() {
+	public static function auth_token() {
 		$previous_token = UpdraftPlus_Options::get_updraft_option("updraft_dropboxtk_request_token","xyz");
 		self::bootstrap();
 		$new_token = UpdraftPlus_Options::get_updraft_option("updraft_dropboxtk_request_token","xyz");
@@ -327,10 +327,8 @@ class UpdraftPlus_BackupModule_dropbox {
 	}
 
 	// Acquire single-use authorization code
-	function auth_request() {
-
+	public static function auth_request() {
 		self::bootstrap();
-
 	}
 
 	// This basically reproduces the relevant bits of bootstrap.php from the SDK

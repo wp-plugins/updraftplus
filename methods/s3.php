@@ -156,7 +156,7 @@ class UpdraftPlus_BackupModule_s3 {
 
 	}
 
-	function config_print_javascript_onready() {
+	public static function config_print_javascript_onready() {
 		?>
 		jQuery('#updraft-s3-test').click(function(){
 			var data = {
@@ -175,7 +175,7 @@ class UpdraftPlus_BackupModule_s3 {
 		<?php
 	}
 
-	function config_print() {
+	public static function config_print() {
 
 	?>
 		<tr class="updraftplusmethod s3">
@@ -206,7 +206,7 @@ class UpdraftPlus_BackupModule_s3 {
 	<?php
 	}
 
-	function credentials_test() {
+	public static function credentials_test() {
 
 		$key = $_POST['apikey'];
 		$secret = $_POST['apisecret'];

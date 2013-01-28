@@ -75,7 +75,7 @@ class UpdraftPlus_BackupModule_ftp {
 		$ftp->get($fullpath, $ftp_remote_path.$file, FTP_BINARY);
 	}
 
-	function config_print_javascript_onready() {
+	public static function config_print_javascript_onready() {
 		?>
 		jQuery('#updraft-ftp-test').click(function(){
 			var data = {
@@ -95,7 +95,7 @@ class UpdraftPlus_BackupModule_ftp {
 		<?php
 	}
 
-	function config_print() {
+	public static function config_print() {
 		?>
 		<tr class="updraftplusmethod ftp">
 			<th>FTP Server:</th>
@@ -120,7 +120,7 @@ class UpdraftPlus_BackupModule_ftp {
 		<?php
 	}
 
-	function credentials_test() {
+	public static function credentials_test() {
 
 		$server = $_POST['server'];
 		$login = $_POST['login'];

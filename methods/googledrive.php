@@ -5,7 +5,7 @@ class UpdraftPlus_BackupModule_googledrive {
 	var $gdocs;
 	var $gdocs_access_token;
 
-	function action_auth() {
+	public static function action_auth() {
 		if ( isset( $_GET['state'] ) ) {
 			if ( $_GET['state'] == 'token' )
 				self::gdrive_auth_token();
@@ -42,7 +42,7 @@ class UpdraftPlus_BackupModule_googledrive {
 	}
 
 	// Acquire single-use authorization code from Google OAuth 2.0
-	function gdrive_auth_request() {
+	public static function gdrive_auth_request() {
 		// First, revoke any existing token, since Google doesn't appear to like issuing new ones
 		if (UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token') != "") self::gdrive_auth_revoke();
 		// We use 'force' here for the approval_prompt, not 'auto', as that deals better with messy situations where the user authenticated, then changed settings
@@ -60,14 +60,14 @@ class UpdraftPlus_BackupModule_googledrive {
 
 	// Revoke a Google account refresh token
 	// Returns the parameter fed in, so can be used as a WordPress options filter
-	function gdrive_auth_revoke() {
+	public static function gdrive_auth_revoke() {
 		$ignore = wp_remote_get('https://accounts.google.com/o/oauth2/revoke?token='.UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token'));
 		UpdraftPlus_Options::update_updraft_option('updraft_googledrive_token','');
 		//header('Location: '.admin_url( 'options-general.php?page=updraftplus&message=Authorisation revoked'));
 	}
 
 	// Get a Google account refresh token using the code received from gdrive_auth_request
-	function gdrive_auth_token() {
+	public static function gdrive_auth_token() {
 		if( isset( $_GET['code'] ) ) {
 			$post_vars = array(
 				'code' => $_GET['code'],
@@ -308,7 +308,7 @@ class UpdraftPlus_BackupModule_googledrive {
 		return false;
 	}
 
-	function config_print() {
+	public static function config_print() {
 		?>
 			<tr class="updraftplusmethod googledrive">
 				<td>Google Drive:</td>
