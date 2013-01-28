@@ -80,7 +80,13 @@ class UpdraftPlus_BackupModule_googledrive {
 			$result = wp_remote_post('https://accounts.google.com/o/oauth2/token', array('timeout' => 30, 'method' => 'POST', 'body' => $post_vars) );
 
 			if (is_wp_error($result)) {
-				header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'Bad response!', 'backup' ) ) );
+				$add_to_url = "Bad response when contacting Google: ";
+				foreach ( $result->get_error_messages() as $message ) {
+					global $updraftplus;
+					$updraftplus->log("Google Drive authentication error: ".$message);
+					$add_to_url .= "$message. ";
+				}
+				header('Location: '.admin_url('options-general.php?page=updraftplus&error='.urlencode($add_to_url)) );
 			} else {
 				$json_values = json_decode( $result['body'], true );
 				if ( isset( $json_values['refresh_token'] ) ) {

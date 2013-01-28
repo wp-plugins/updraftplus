@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.3.17
+Version: 1.3.18
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -15,7 +15,6 @@ TODO
 //Put in old-WP-version warning, and point them to where they can get help
 //Add SFTP, Box.Net, SugarSync and Microsoft Skydrive support??
 //The restorer has a hard-coded wp-content - fix
-//Read safe-mode only once, remembering it will be totally removed from PHP
 //Button for wiping files. Also auto-wipe on de-activate/de-install.
 //Change DB encryption to not require whole gzip in memory (twice)
 //improve error reporting / pretty up return messages in admin area. One thing: have a "backup is now finished" flag. Otherwise with the resuming things get ambiguous/confusing. See http://wordpress.org/support/topic/backup-status - user was not aware that backup completely failed. Maybe a "backup status" field for each nonce that gets updated? (Even via AJAX?)
@@ -79,7 +78,7 @@ if (!class_exists('UpdraftPlus_Options')) require_once(UPDRAFTPLUS_DIR.'/options
 
 class UpdraftPlus {
 
-	var $version = '1.3.17';
+	var $version = '1.3.18';
 	var $plugin_title = 'UpdraftPlus Backup/Restore';
 
 	// Choices will be shown in the admin menu in the order used here
@@ -896,7 +895,7 @@ class UpdraftPlus {
 		foreach ($all_tables as $table) {
 			$total_tables++;
 			// Increase script execution time-limit to 15 min for every table.
-			if ( !ini_get('safe_mode') || strtolower(ini_get('safe_mode')) == "off") @set_time_limit(15*60);
+			if ( !@ini_get('safe_mode') || strtolower(@ini_get('safe_mode')) == "off") @set_time_limit(15*60);
 			// The table file may already exist if we have produced it on a previous run
 			$table_file_prefix = $file_base.'-db-table-'.$table.'.table';
 			if (file_exists($updraft_dir.'/'.$table_file_prefix.'.gz')) {
@@ -1337,7 +1336,7 @@ class UpdraftPlus {
 		}
 		echo '</div>'; //close the updraft_restore_progress div
 		# The 'off' check is for badly configured setups - http://wordpress.org/support/topic/plugin-wp-super-cache-warning-php-safe-mode-enabled-but-safe-mode-is-off
-		if(ini_get('safe_mode') && strtolower(ini_get('safe_mode')) != "off") {
+		if(@ini_get('safe_mode') && strtolower(@ini_get('safe_mode')) != "off") {
 			echo "<p>DB could not be restored because PHP safe_mode is active on your server.  You will need to manually restore the file via phpMyAdmin or another method.</p><br/>";
 			return false;
 		}
