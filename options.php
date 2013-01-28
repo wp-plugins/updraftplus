@@ -5,33 +5,33 @@ if (!defined ('ABSPATH')) die ('No direct access allowed');
 
 class UpdraftPlus_Options {
 
-	function user_can_manage() {
+	public static function user_can_manage() {
 		return current_user_can('manage_options');
 	}
 
-	function get_updraft_option($option, $default = null) {
+	public static function get_updraft_option($option, $default = null) {
 		return get_option($option, $default);
 	}
 
-	function update_updraft_option($option, $value) {
+	public static function update_updraft_option($option, $value) {
 		update_option($option, $value);
 	}
 
-	function delete_updraft_option($option) {
+	public static function delete_updraft_option($option) {
 		delete_option($option, $value);
 	}
 
-	function add_admin_pages() {
+	public static function add_admin_pages() {
 		global $updraftplus;
 		add_submenu_page('options-general.php', "UpdraftPlus", "UpdraftPlus", "manage_options", "updraftplus", array($updraftplus, "settings_output"));
 	}
 
-	function options_form_begin() {
+	public static function options_form_begin() {
 		echo '<form method="post" action="options.php">';
 		settings_fields('updraft-options-group');
 	}
 
-	function admin_init() {
+	public static function admin_init() {
 
 		global $updraftplus;
 		register_setting('updraft-options-group', 'updraft_interval', array($updraftplus, 'schedule_backup') );
@@ -72,7 +72,7 @@ class UpdraftPlus_Options {
 
 	}
 
-	function show_admin_warning_multisite() {
+	public static function show_admin_warning_multisite() {
 
 		global $updraftplus;
 
