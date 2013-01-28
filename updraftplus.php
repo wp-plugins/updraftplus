@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.3.15
+Version: 1.3.16
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -23,7 +23,6 @@ TODO
 //Should make clear in dashboard what is a non-fatal error (i.e. can be retried) - leads to unnecessary bug reports
 // Move the inclusion, cloud and retention data into the backup job (i.e. don't read current config, make it an attribute of each job). In fact, everything should be. So audit all code for where get_option is called inside a backup run: it shouldn't happen.
 // Should we resume if the only errors were upon deletion (i.e. the backup itself was fine?) Presently we do, but it displays errors for the user to confuse them. Perhaps better to make pruning a separate scheuled task??
-// Make jobs *individually* resumable (i.e. all the state info must be keyed on the nonce; then call the resume event *specifying the nonce*)
 // Warn the user if their zip-file creation is slooowww...
 // Create a "Want Support?" button/console, that leads them through what is needed, and performs some basic tests...
 // Resuming partial FTP uploads
@@ -80,7 +79,7 @@ if (!class_exists('UpdraftPlus_Options')) require_once(UPDRAFTPLUS_DIR.'/options
 
 class UpdraftPlus {
 
-	var $version = '1.3.15';
+	var $version = '1.3.16';
 	var $plugin_title = 'UpdraftPlus Backup/Restore';
 
 	// Choices will be shown in the admin menu in the order used here
@@ -1627,6 +1626,11 @@ class UpdraftPlus {
 					});
 				}
 				jQuery(document).ready(function() {
+					jQuery('#enableexpertmode').click(function() {
+						jQuery('.expertmode').fadeIn();
+						return false;
+					});
+					<?php if (!is_writable($updraft_dir)) echo "jQuery('.backupdirrow').show();\n"; ?>
 					window.setTimeout(function(){updraft_showlastlog()}, 1200);
 					jQuery('.updraftplusmethod').hide();
 					<?php
@@ -1645,27 +1649,27 @@ class UpdraftPlus {
 				<td colspan="2"><h2>Advanced / Debugging Settings</h2></td>
 			</tr>
 			<tr>
-				<th>Debug / Expert mode:</th>
-				<td><input type="checkbox" name="updraft_debug_mode" value="1" <?php echo $debug_mode; ?> /> <br>Check this to enable some more options here and below (that will appear after you save), and potentially receive more information and emails on the backup process - useful if something is going wrong. You <strong>must</strong> send me this log if you are filing a bug report.</td>
+				<th>Debug mode:</th>
+				<td><input type="checkbox" name="updraft_debug_mode" value="1" <?php echo $debug_mode; ?> /> <br>Check this to receive more information and emails on the backup process - useful if something is going wrong. You <strong>must</strong> send me this log if you are filing a bug report.</td>
+			</tr>
+			<tr>
+				<th>Expert settings:</th>
+				<td><a id="enableexpertmode" href="#">Show expert settings</a> - click this to show some further options; don't bother with this unless you have a problem or are curious.</td>
 			</tr>
 			<?php
 			$delete_local = UpdraftPlus_Options::get_updraft_option('updraft_delete_local', 1);
-			if (UpdraftPlus_Options::get_updraft_option('updraft_debug_mode')) { ?>
+			?>
 
-			<tr class="deletelocal">
+			<tr class="deletelocal expertmode" style="display:none;">
 				<th>Delete local backup:</th>
 				<td><input type="checkbox" name="updraft_delete_local" value="1" <?php if ($delete_local) echo 'checked="checked"'; ?>> <br>Uncheck this to prevent deletion of any superfluous backup files from your server after the backup run finishes (i.e. any files despatched remotely will also remain locally, and any files being kept locally will not be subject to the retention limits).</td>
 			</tr>
 
-			<?php } else { ?>
-				<input type="hidden" name="updraft_delete_local" value="<?php echo ($delete_local) ? 1 : 0; ?>">
-			<?php } ?>
-
-			<tr>
+			<tr class="expertmode backupdirrow" style="display:none;">
 				<th>Backup directory:</th>
 				<td><input type="text" name="updraft_dir" style="width:525px" value="<?php echo htmlspecialchars($updraft_dir); ?>" /></td>
 			</tr>
-			<tr>
+			<tr class="expertmode backupdirrow" style="display:none;">
 				<td></td><td><?php
 
 					if(is_writable($updraft_dir)) {
@@ -1910,7 +1914,7 @@ class UpdraftPlus {
 					<td id="updraft_lastlogcontainer"><?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', '(Nothing yet logged)')); ?></td>
 				</tr>
 				<tr>
-					<th>Download backups</th>
+					<th>Download backups and logs</th>
 					<td><a href="#" title="Click to see available backups" onclick="jQuery('.download-backups').toggle();return false;"><?php echo count($backup_history)?> available</a></td>
 				</tr>
 				<tr>
@@ -2004,10 +2008,7 @@ class UpdraftPlus {
 			<?php UpdraftPlus_Options::options_form_begin(); ?>
 				<?php $this->settings_formcontents(); ?>
 			</form>
-			<?php
-			if (UpdraftPlus_Options::get_updraft_option('updraft_debug_mode')) {
-			?>
-			<div style="padding-top: 40px;">
+			<div style="padding-top: 40px; display:none;" class="expertmode">
 				<hr>
 				<h3>Debug Information And Expert Options</h3>
 				<p>
@@ -2036,7 +2037,6 @@ class UpdraftPlus {
 					<p><input type="submit" class="button-primary" value="Wipe All Settings" onclick="return(confirm('This will delete all your UpdraftPlus settings - are you sure you want to do this?'))" /></p>
 				</form>
 			</div>
-			<?php } ?>
 
 			<script type="text/javascript">
 			/* <![CDATA[ */

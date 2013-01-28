@@ -3,12 +3,12 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, ftp, cloud, back up, multisite
 Requires at least: 3.2
 Tested up to: 3.5.1
-Stable tag: 1.3.15
+Stable tag: 1.3.16
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Essential bugfix release for all earlier releases
+More settings tidying
 
 == Description ==
 
@@ -140,6 +140,9 @@ Yes; especially before you submit any support requests.
 Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ . I am also available for hire for bespoke work.
 
 == Changelog ==
+
+= 1.3.16 - 01/28/2013 =
+* Made 'expert mode' easier to operate, and tidier options for non-expert users.
 
 = 1.3.15 - 01/26/2013 =
 * Various changes to Google Drive authentication to help those who don't enter the correct details first time, or who later need to change accounts.
