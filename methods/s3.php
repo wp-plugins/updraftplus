@@ -8,9 +8,9 @@ class UpdraftPlus_BackupModule_s3 {
 
 		if (!class_exists('S3')) require_once(UPDRAFTPLUS_DIR.'/includes/S3.php');
 
-		$s3 = new S3(get_option('updraft_s3_login'), get_option('updraft_s3_pass'));
+		$s3 = new S3(UpdraftPlus_Options::get_updraft_option('updraft_s3_login'), UpdraftPlus_Options::get_updraft_option('updraft_s3_pass'));
 
-		$bucket_name = untrailingslashit(get_option('updraft_s3_remote_path'));
+		$bucket_name = untrailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_s3_remote_path'));
 		$bucket_path = "";
 		$orig_bucket_name = $bucket_name;
 
@@ -25,7 +25,7 @@ class UpdraftPlus_BackupModule_s3 {
 			foreach($backup_array as $file) {
 
 				// We upload in 5Mb chunks to allow more efficient resuming and hence uploading of larger files
-				$fullpath = trailingslashit(get_option('updraft_dir')).$file;
+				$fullpath = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir')).$file;
 				$chunks = floor(filesize($fullpath) / 5242880)+1;
 				$hash = md5($file);
 
@@ -36,8 +36,8 @@ class UpdraftPlus_BackupModule_s3 {
 				// This is extra code for the 1-chunk case, but less overhead (no bothering with transients)
 				if ($chunks < 2) {
 					if (!$s3->putObjectFile($fullpath, $bucket_name, $filepath)) {
-						$updraftplus->log("S3 regular upload: failed");
-						$updraftplus->error("S3 Error: Failed to upload $fullpath.");
+						$updraftplus->log("S3 regular upload: failed ($fullpath)");
+						$updraftplus->error("S3 Error: Failed to upload $file.");
 					} else {
 						$updraftplus->log("S3 regular upload: success");
 						$updraftplus->uploaded_file($file);
@@ -76,8 +76,8 @@ class UpdraftPlus_BackupModule_s3 {
 								set_transient("upd_${hash}_e$i", $etag, 3600*3);
 								$successes++;
 							} else {
-								$updraftplus->error("S3 chunk $i: upload failed");
 								$updraftplus->log("S3 chunk $i: upload failed");
+								$updraftplus->error("S3 chunk $i: upload failed");
 							}
 						}
 					}
@@ -88,7 +88,7 @@ class UpdraftPlus_BackupModule_s3 {
 							$updraftplus->uploaded_file($file);
 						} else {
 							$updraftplus->log("S3 upload: re-assembly failed");
-							$updraftplus->error("S3 upload: re-assembly failed");
+							$updraftplus->error("S3 upload: re-assembly failed ($file)");
 						}
 					} else {
 						$updraftplus->log("S3 upload: upload was not completely successful on this run");
@@ -113,7 +113,7 @@ class UpdraftPlus_BackupModule_s3 {
 			$s3_bucket=$bmatches[1];
 			$s3_uri = $bmatches[2]."/".$file;
 		} else {
-			$s3_bucket = $remote_path;
+			$s3_bucket = $orig_bucket_name;
 			$s3_uri = $file;
 		}
 		$updraftplus->log("S3: Delete remote: bucket=$s3_bucket, URI=$s3_uri");
@@ -123,10 +123,10 @@ class UpdraftPlus_BackupModule_s3 {
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 204) {
 			$updraftplus->log("S3 Error: Expected HTTP response 204; got: ".$rest->code);
-			$updraftplus->error("S3 Error: Unexpected HTTP response code ".$rest->code." (expected 204)");
+			//$updraftplus->error("S3 Error: Unexpected HTTP response code ".$rest->code." (expected 204)");
 		} elseif ($rest->error !== false) {
 			$updraftplus->log("S3 Error: ".$rest->error['code'].": ".$rest->error['message']);
-			$updraftplus->error("S3 delete error: ".$rest->error['code'].": ".$rest->error['message']);
+			//$updraftplus->error("S3 delete error: ".$rest->error['code'].": ".$rest->error['message']);
 		}
 
 	}
@@ -136,8 +136,8 @@ class UpdraftPlus_BackupModule_s3 {
 		global $updraftplus;
 		if(!class_exists('S3')) require_once(UPDRAFTPLUS_DIR.'/includes/S3.php');
 
-		$s3 = new S3(get_option('updraft_s3_login'), get_option('updraft_s3_pass'));
-		$bucket_name = untrailingslashit(get_option('updraft_s3_remote_path'));
+		$s3 = new S3(UpdraftPlus_Options::get_updraft_option('updraft_s3_login'), UpdraftPlus_Options::get_updraft_option('updraft_s3_pass'));
+		$bucket_name = untrailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_s3_remote_path'));
 		$bucket_path = "";
 
 		if (preg_match("#^([^/]+)/(.*)$#",$bucket_name,$bmatches)) {
@@ -146,9 +146,9 @@ class UpdraftPlus_BackupModule_s3 {
 		}
 
 		if (@$s3->getBucketLocation($bucket_name)) {
-			$fullpath = trailingslashit(get_option('updraft_dir')).$file;
+			$fullpath = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir')).$file;
 			if (!$s3->getObject($bucket_name, $bucket_path.$file, $fullpath)) {
-				$updraftplus->error("S3 Error: Failed to download $fullpath. Check your permissions and credentials.");
+				$updraftplus->error("S3 Error: Failed to download $file. Check your permissions and credentials.");
 			}
 		} else {
 			$updraftplus->error("S3 Error: Failed to access bucket $bucket_name. Check your permissions and credentials.");
@@ -156,11 +156,12 @@ class UpdraftPlus_BackupModule_s3 {
 
 	}
 
-	function config_print_javascript_onready() {
+	public static function config_print_javascript_onready() {
 		?>
 		jQuery('#updraft-s3-test').click(function(){
 			var data = {
-				action: 'updraft_credentials_test',
+				action: 'updraft_ajax',
+				subaction: 'credentials_test',
 				method: 's3',
 				nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>',
 				apikey: jQuery('#updraft_s3_apikey').val(),
@@ -174,12 +175,12 @@ class UpdraftPlus_BackupModule_s3 {
 		<?php
 	}
 
-	function config_print() {
+	public static function config_print() {
 
 	?>
 		<tr class="updraftplusmethod s3">
 			<td></td>
-			<td><em>Amazon S3 is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your blog is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.</em></td>
+			<td><img src="https://d36cz9buwru1tt.cloudfront.net/Powered-by-Amazon-Web-Services.jpg" alt="Amazon Web Services"><p><em>Amazon S3 is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your blog is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.</em></p></td>
 		</tr>
 		<tr class="updraftplusmethod s3">
 		<th></th>
@@ -188,15 +189,15 @@ class UpdraftPlus_BackupModule_s3 {
 		</td></tr>
 		<tr class="updraftplusmethod s3">
 			<th>S3 access key:</th>
-			<td><input type="text" autocomplete="off" style="width: 292px" id="updraft_s3_apikey" name="updraft_s3_login" value="<?php echo htmlspecialchars(get_option('updraft_s3_login')) ?>" /></td>
+			<td><input type="text" autocomplete="off" style="width: 292px" id="updraft_s3_apikey" name="updraft_s3_login" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_s3_login')) ?>" /></td>
 		</tr>
 		<tr class="updraftplusmethod s3">
 			<th>S3 secret key:</th>
-			<td><input type="text" autocomplete="off" style="width: 292px" id="updraft_s3_apisecret" name="updraft_s3_pass" value="<?php echo htmlspecialchars(get_option('updraft_s3_pass')); ?>" /></td>
+			<td><input type="text" autocomplete="off" style="width: 292px" id="updraft_s3_apisecret" name="updraft_s3_pass" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_s3_pass')); ?>" /></td>
 		</tr>
 		<tr class="updraftplusmethod s3">
 			<th>S3 location:</th>
-			<td>s3://<input type="text" style="width: 292px" name="updraft_s3_remote_path" id="updraft_s3_path" value="<?php echo htmlspecialchars(get_option('updraft_s3_remote_path')); ?>" /></td>
+			<td>s3://<input type="text" style="width: 292px" name="updraft_s3_remote_path" id="updraft_s3_path" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_s3_remote_path')); ?>" /></td>
 		</tr>
 		<tr class="updraftplusmethod s3">
 		<th></th>
@@ -205,7 +206,7 @@ class UpdraftPlus_BackupModule_s3 {
 	<?php
 	}
 
-	function credentials_test() {
+	public static function credentials_test() {
 
 		$key = $_POST['apikey'];
 		$secret = $_POST['apisecret'];
