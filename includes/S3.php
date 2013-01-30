@@ -654,7 +654,7 @@ class S3
 		// Data
 		if (isset($input['fp']))
 			$rest->fp =& $input['fp'];
-		elseif (isset($input['file']))
+		elseif (isset($input['file']) && is_file($input['file']))
 			$rest->fp = @fopen($input['file'], 'rb');
 		elseif (isset($input['data']))
 			$rest->data = $input['data'];

@@ -1882,7 +1882,7 @@ class UpdraftPlus {
 			<div style="float:left; width:200px; padding-top: 40px;">
 				<form method="post" action="">
 					<input type="hidden" name="action" value="updraft_backup" />
-					<p><input type="submit" <?php echo $backup_disabled ?> class="button-primary" value="Backup Now!" style="padding-top:3px;padding-bottom:3px;font-size:24px !important" onclick="return(confirm('This will schedule a one-time backup. To trigger the backup you should go ahead, then wait 10 seconds, then visit any page on your site. WordPress should then start the backup running in the background.'))"></p>
+					<p><input type="submit" <?php echo $backup_disabled ?> class="button-primary" value="Backup Now!" style="padding-top:2px;padding-bottom:2px;font-size:22px !important" onclick="return(confirm('This will schedule a one-time backup. To trigger the backup you should go ahead, then wait 10 seconds, then visit any page on your site. WordPress should then start the backup running in the background.'))"></p>
 				</form>
 				<div style="position:relative">
 					<div style="position:absolute;top:0;left:0">
@@ -1891,7 +1891,7 @@ class UpdraftPlus {
 						$backup_history = (is_array($backup_history))?$backup_history:array();
 						$restore_disabled = (count($backup_history) == 0) ? 'disabled="disabled"' : "";
 						?>
-						<input type="button" class="button-primary" <?php echo $restore_disabled ?> value="Restore" style="padding-top:3px;padding-bottom:3px;font-size:24px !important" onclick="jQuery('#backup-restore').fadeIn('slow');jQuery(this).parent().fadeOut('slow')">
+						<input type="button" class="button-primary" <?php echo $restore_disabled ?> value="Restore" style="padding-top:2px;padding-bottom:2px;font-size:22px !important" onclick="jQuery('#backup-restore').fadeIn('slow');jQuery(this).parent().fadeOut('slow')">
 					</div>
 					<div style="display:none;position:absolute;top:0;left:0" id="backup-restore">
 						<form method="post" action="">
