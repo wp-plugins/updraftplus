@@ -3,12 +3,12 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, ftp, cloud, back up, multisite
 Requires at least: 3.2
 Tested up to: 3.5.1
-Stable tag: 1.3.19
+Stable tag: 1.3.20
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-More settings tidying
+Prevent potential endless logging loop in S3 method
 
 == Description ==
 
@@ -140,6 +140,9 @@ Yes; especially before you submit any support requests.
 Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ . I am also available for hire for bespoke work.
 
 == Changelog ==
+
+= 1.3.20 - 01/30/2013 =
+* Add extra error checking in S3 method (can prevent logging loop)
 
 = 1.3.19 - 01/29/2013 =
 * Since 1.3.3, the 'Last Backup' indicator in the control panel had not been updating
