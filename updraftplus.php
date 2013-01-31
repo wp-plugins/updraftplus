@@ -199,11 +199,11 @@ class UpdraftPlus {
 		if ($extra) $log .= " ($extra)";
 		$this->log($log);
 		// If we are on an 'overtime' resumption run, and we are still meainingfully uploading, then schedule a new resumption
-		// Our definition of meaningful is that we must maintain an overall average of at least 1% per run
+		// Our definition of meaningful is that we must maintain an overall average of at least 1% per run, after allowing 5 runs for everything else to get going
 		// i.e. Max 100 runs = 500 minutes = 8 hrs 40
 		// If they get 2 minutes on each run, and the file is 1Gb, then that equals 10.2Mb/120s = minimum 87Kb/s upload speed required
 
-		if ($this->current_resumption >= 9 && $this->newresumption_scheduled !== true && $percent > $this->current_resumption) {
+		if ($this->current_resumption >= 9 && $this->newresumption_scheduled !== true && $percent > ( $this->current_resumption - 5)) {
 			$this->newresumption_scheduled = true;
 			$this->log("This is resumption ".$this->current_resumption.", but meaningful uploading is still taking place; so a new one will be scheduled");
 			wp_schedule_single_event(time()+300, 'updraft_backup_resume', array($this->current_resumption + 1, $this->nonce, $this->backup_time));
