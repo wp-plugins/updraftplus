@@ -83,13 +83,22 @@ class UpdraftPlus_BackupModule_s3 {
 					}
 					if ($successes >= $chunks) {
 						$updraftplus->log("S3 upload: all chunks uploaded; will now instruct S3 to re-assemble");
-						if ($s3->completeMultipartUpload ($bucket_name, $filepath, $uploadId, $etags)) {
-							$updraftplus->log("S3 upload: re-assembly succeeded");
-							$updraftplus->uploaded_file($file);
-						} else {
-							$updraftplus->log("S3 upload: re-assembly failed");
-							$updraftplus->error("S3 upload: re-assembly failed ($file)");
+
+						$s3->setExceptions(true);
+						try {
+							if ($s3->completeMultipartUpload ($bucket_name, $filepath, $uploadId, $etags)) {
+								$updraftplus->log("S3 upload: re-assembly succeeded");
+								$updraftplus->uploaded_file($file);
+							} else {
+								$updraftplus->log("S3 upload: re-assembly failed");
+								$updraftplus->error("S3 upload: re-assembly failed ($file)");
+							}
+						} catch (Exception $e) {
+							$updraftplus->log('S3 re-assembly error: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
+							$updraftplus->error('S3 re-assembly error: '.$e->getMessage().' (see log file for more)');
 						}
+						// Remember to unset, as the deletion code later reuses the object
+						$s3->setExceptions(false);
 					} else {
 						$updraftplus->log("S3 upload: upload was not completely successful on this run");
 					}

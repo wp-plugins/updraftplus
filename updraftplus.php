@@ -204,6 +204,7 @@ class UpdraftPlus {
 		// If they get 2 minutes on each run, and the file is 1Gb, then that equals 10.2Mb/120s = minimum 87Kb/s upload speed required
 if ($this->newresumption_scheduled !== true && $percent > $this->current_resumption) {
 $this->log("DEBUG: WOULD BE SUFFICIENT to trigger new resumption run");
+$this->newresumption_scheduled = true;
 }
 		if ($this->current_resumption >= 10 && $this->newresumption_scheduled !== true && $percent > $this->current_resumption) {
 			$this->newresumption_scheduled = true;
