@@ -553,7 +553,7 @@ $this->log("DEBUG: WOULD BE SUFFICIENT to trigger new resumption run");
 		}
 		// Delete local files immediately if the option is set
 		// Where we are only backing up locally, only the "prune" function should do deleting
-		if (!empty($this->jobdata_get('service')) && $this->jobdata_get('service') != 'none') $this->delete_local($file);
+		if ($this->jobdata_get('service') != '' && $this->jobdata_get('service') != 'none') $this->delete_local($file);
 	}
 
 	// Dispatch to the relevant function
