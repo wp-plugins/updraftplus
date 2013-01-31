@@ -24,9 +24,10 @@ class UpdraftPlus_BackupModule_s3 {
 
 			foreach($backup_array as $file) {
 
-				// We upload in 4Mb chunks to allow more efficient resuming and hence uploading of larger files
+				// We upload in 5Mb chunks to allow more efficient resuming and hence uploading of larger files
+				// N.B.: 5Mb is Amazon's minimum. So don't go lower or you'll break it.
 				$fullpath = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir')).$file;
-				$chunks = floor(filesize($fullpath) / 4194304)+1;
+				$chunks = floor(filesize($fullpath) / 5242880)+1;
 				$hash = md5($file);
 
 				$updraftplus->log("S3 upload: $fullpath (chunks: $chunks) -> s3://$bucket_name/$bucket_path$file");

@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.3.21
+Version: 1.3.22
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -83,7 +83,7 @@ if (!class_exists('UpdraftPlus_Options')) require_once(UPDRAFTPLUS_DIR.'/options
 
 class UpdraftPlus {
 
-	var $version = '1.3.21';
+	var $version = '1.3.22';
 	var $plugin_title = 'UpdraftPlus Backup/Restore';
 
 	// Choices will be shown in the admin menu in the order used here
@@ -202,11 +202,8 @@ class UpdraftPlus {
 		// Our definition of meaningful is that we must maintain an overall average of at least 1% per run
 		// i.e. Max 100 runs = 500 minutes = 8 hrs 40
 		// If they get 2 minutes on each run, and the file is 1Gb, then that equals 10.2Mb/120s = minimum 87Kb/s upload speed required
-if ($this->newresumption_scheduled !== true && $percent > $this->current_resumption) {
-$this->log("DEBUG: WOULD BE SUFFICIENT to trigger new resumption run");
-$this->newresumption_scheduled = true;
-}
-		if ($this->current_resumption >= 10 && $this->newresumption_scheduled !== true && $percent > $this->current_resumption) {
+
+		if ($this->current_resumption >= 9 && $this->newresumption_scheduled !== true && $percent > $this->current_resumption) {
 			$this->newresumption_scheduled = true;
 			$this->log("This is resumption ".$this->current_resumption.", but meaningful uploading is still taking place; so a new one will be scheduled");
 			wp_schedule_single_event(time()+300, 'updraft_backup_resume', array($this->current_resumption + 1, $this->nonce, $this->backup_time));
@@ -235,8 +232,9 @@ $this->newresumption_scheduled = true;
 		if ($next_resumption < 10) {
 			$this->log("Scheduling a resumption ($next_resumption) in case this run gets aborted");
 			wp_schedule_single_event(time()+$resume_delay, 'updraft_backup_resume', array($next_resumption, $bnonce, $btime));
+			$this->newresumption_scheduled=true;
 		} else {
-			$this->log("The current run is our tenth attempt - will not schedule a further attempt");
+			$this->log("The current run is our tenth attempt - will not schedule a further attempt until we see something useful happening");
 		}
 
 		// This should be always called; if there were no files in this run, it returns us an empty array
@@ -320,9 +318,6 @@ $this->newresumption_scheduled = true;
 		$this->log("Resume backup ($bnonce, $resumption_no): finish run");
 		if (is_array($our_files)) $this->save_last_backup($our_files);
 		$this->backup_finish($next_resumption, true, true, $resumption_no);
-
-		
-
 
 	}
 
@@ -473,7 +468,7 @@ $this->newresumption_scheduled = true;
 		if (empty($this->errors)) {
 			$send_an_email = true;
 			$final_message = "The backup apparently succeeded and is now complete";
-		} elseif ($resumption_no >=9) {
+		} elseif ($this->newresumption_scheduled == false) {
 			$send_an_email = true;
 			$final_message = "The backup attempt has finished, apparently unsuccesfully";
 		} else {
