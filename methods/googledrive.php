@@ -200,12 +200,13 @@ class UpdraftPlus_BackupModule_googledrive {
 			// This counter is only used for when deciding what to log
 			$counter = 0;
 			do {
-				$log_string = ($counter == 0) ? "Upload %: $d, URL: $res" : "Upload %: $d";
+				$log_string = ($counter == 0) ? "URL: $res" : "";
+				$updraftplus->record_uploaded_chunk($d, $log_string);
+
 				$counter++; if ($counter >= 20) $counter=0;
-				$updraftplus->log($log_string);
 
 				$res = $gdocs_object->upload_chunk();
-				if (is_string($res)) set_transient($transkey, $res, 3600*3);
+				if (is_string($res)) set_transient($transkey, $res, UPDRAFT_TRANSTIME);
 				$p = $gdocs_object->get_upload_percentage();
 				if ( $p - $d >= 1 ) {
 					$b = intval( $p - $d );

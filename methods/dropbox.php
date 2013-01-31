@@ -11,12 +11,12 @@ class UpdraftPlus_BackupModule_dropbox {
 		global $updraftplus;
 
 		// Update upload ID
-		set_transient('updraf_dbid_'.$this->current_file_hash, $uploadid, 3600*3);
-		set_transient('updraf_dbof_'.$this->current_file_hash, $offset, 3600*3);
+		set_transient('updraf_dbid_'.$this->current_file_hash, $uploadid, UPDRAFT_TRANSTIME);
+		set_transient('updraf_dbof_'.$this->current_file_hash, $offset, UPDRAFT_TRANSTIME);
 
 		if ($this->current_file_size > 0) {
 			$percent = round(100*($offset/$this->current_file_size),1);
-			$updraftplus->log("Dropbox: Chunked Upload: ${percent}% ($uploadid, $offset)");
+			$updraftplus->record_uploaded_chunk($percent, "($uploadid, $offset)");
 		} else {
 			$updraftplus->log("Dropbox: Chunked Upload: $offset bytes uploaded");
 		}

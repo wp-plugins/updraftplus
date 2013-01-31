@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.3.20
+Version: 1.3.21
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -27,6 +27,8 @@ TODO
 // Resuming partial FTP uploads
 // Provide backup/restoration for UpdraftPlus's settings, to allow 'bootstrap' on a fresh WP install - some kind of single-use code which a remote UpdraftPlus can use to authenticate
 // Multiple jobs
+// Don't stop at 10 retries if something useful is still measurably being done (in particular, chunked uploads are proceeding - set a flag to indicate "try it again")
+// Change FTP to use SSL by default
 // When looking for files to delete, is the current encryption setting used? Should not be.
 // Create single zip, containing even WordPress itself
 // When a new backup starts, AJAX-update the 'Last backup' display in the admin page.
@@ -71,6 +73,9 @@ if (!$updraftplus->memory_check(192)) {
 define('UPDRAFTPLUS_DIR', dirname(__FILE__));
 define('UPDRAFTPLUS_URL', plugins_url('', __FILE__));
 define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php,backup');
+// This is used in various places, based on our assumption of the maximum time any job should take. May need lengthening in future if we get reports which show enormous sets hitting the limit.
+// Also one section requires at least 1% progress each run, so on a 5-minute schedule, that equals just under 9 hours
+define('UPDRAFT_TRANSTIME', 3600*9);
 
 if (is_file(UPDRAFTPLUS_DIR.'/premium.php')) require_once(UPDRAFTPLUS_DIR.'/premium.php');
 
@@ -78,7 +83,7 @@ if (!class_exists('UpdraftPlus_Options')) require_once(UPDRAFTPLUS_DIR.'/options
 
 class UpdraftPlus {
 
-	var $version = '1.3.20';
+	var $version = '1.3.21';
 	var $plugin_title = 'UpdraftPlus Backup/Restore';
 
 	// Choices will be shown in the admin menu in the order used here
@@ -102,6 +107,10 @@ class UpdraftPlus {
 	var $backup_dir;
 
 	var $jobdata;
+
+	// Used to schedule resumption attempts beyond the tenth, if needed
+	var $current_resumption;
+	var $newresumption_scheduled;
 
 	function __construct() {
 		// Initialisation actions - takes place on plugin load
@@ -182,6 +191,27 @@ class UpdraftPlus {
 		UpdraftPlus_Options::update_updraft_option("updraft_lastmessage", $line." (".date('M d H:i:s').")");
 	}
 
+	// This function is used by cloud methods to provide standardised logging, but more importantly to help us detect that meaningful activity took place during a resumption run, so that we can schedule further resumptions if it is worthwhile
+	function record_uploaded_chunk($percent, $extra) {
+		// Log it
+		$service = $this->jobdata_get('service');
+		$log = ucfirst($service)." chunked upload: $percent % uploaded";
+		if ($extra) $log .= " ($extra)";
+		$this->log($log);
+		// If we are on an 'overtime' resumption run, and we are still meainingfully uploading, then schedule a new resumption
+		// Our definition of meaningful is that we must maintain an overall average of at least 1% per run
+		// i.e. Max 100 runs = 500 minutes = 8 hrs 40
+		// If they get 2 minutes on each run, and the file is 1Gb, then that equals 10.2Mb/120s = minimum 87Kb/s upload speed required
+if ($this->newresumption_scheduled !== true && $percent > $this->current_resumption) {
+$this->log("DEBUG: WOULD BE SUFFICIENT to trigger new resumption run");
+}
+		if ($this->current_resumption >= 10 && $this->newresumption_scheduled !== true && $percent > $this->current_resumption) {
+			$this->newresumption_scheduled = true;
+			$this->log("This is resumption ".$this->current_resumption.", but meaningful uploading is still taking place; so a new one will be scheduled");
+			wp_schedule_single_event(time()+300, 'updraft_backup_resume', array($this->current_resumption + 1, $this->nonce, $this->backup_time));
+		}
+	}
+
 	function backup_resume($resumption_no, $bnonce, $btime) {
 
 		@ignore_user_abort(true);
@@ -195,6 +225,7 @@ class UpdraftPlus {
 		}
 
 		$this->log("Backup run: resumption=$resumption_no, nonce=$bnonce, begun at=$btime");
+		$this->current_resumption = $resumption_no;
 
 		// Schedule again, to run in 5 minutes again, in case we again fail
 		$resume_delay = 300;
@@ -378,6 +409,7 @@ class UpdraftPlus {
 		// Save what *should* be done, to make it resumable from this point on
 		if ($backup_database) $this->jobdata_set("backup_database", "begun");
 		if ($backup_files) $this->jobdata_set("backup_files", "begun");
+		$this->jobdata_set('service', UpdraftPlus_Options::get_updraft_option('updraft_service'));
 
 		// Everthing is now set up; now go
 		$this->backup_resume(0, $this->nonce, $this->backup_time);
@@ -521,12 +553,13 @@ class UpdraftPlus {
 		}
 		// Delete local files immediately if the option is set
 		// Where we are only backing up locally, only the "prune" function should do deleting
-		if (UpdraftPlus_Options::get_updraft_option('updraft_service', 'none') != 'none') $this->delete_local($file);
+		if (!empty($this->jobdata_get('service')) && $this->jobdata_get('service') != 'none') $this->delete_local($file);
 	}
 
 	// Dispatch to the relevant function
 	function cloud_backup($backup_array) {
-		$service = UpdraftPlus_Options::get_updraft_option('updraft_service');
+
+		$service = $this->jobdata_get('service');
 		$this->log("Cloud backup selection: ".$service);
 		@set_time_limit(900);
 
@@ -549,8 +582,8 @@ class UpdraftPlus {
 		}
 	}
 
-	function prune_file($updraft_service, $dofile, $method_object = null, $object_passback = null ) {
-		$this->log("Delete this file: $dofile, service=$updraft_service");
+	function prune_file($service, $dofile, $method_object = null, $object_passback = null ) {
+		$this->log("Delete this file: $dofile, service=$service");
 		$fullpath = $this->backups_dir_location().'/'.$dofile;
 		// delete it if it's locally available
 		if (file_exists($fullpath)) {
@@ -563,10 +596,10 @@ class UpdraftPlus {
 	}
 
 	// Carries out retain behaviour. Pass in a valid S3 or FTP object and path if relevant.
-	function prune_retained_backups($updraft_service, $backup_method_object = null, $backup_passback = null) {
+	function prune_retained_backups($service, $backup_method_object = null, $backup_passback = null) {
 
 		// If they turned off deletion on local backups, then there is nothing to do
-		if (UpdraftPlus_Options::get_updraft_option('updraft_delete_local') == 0 && $updraft_service == 'none') {
+		if (UpdraftPlus_Options::get_updraft_option('updraft_delete_local') == 0 && $service == 'none') {
 			$this->log("Prune old backups from local store: nothing to do, since the user disabled local deletion and we are using local backups");
 			return;
 		}
@@ -600,7 +633,7 @@ class UpdraftPlus {
 				if ($db_backups_found > $updraft_retain_db) {
 					$this->log("$backup_datestamp: over retain limit ($updraft_retain_db); will delete this database");
 					$dofile = $backup_to_examine['db'];
-					if (!empty($dofile)) $this->prune_file($updraft_service, $dofile, $backup_method_object, $backup_passback);
+					if (!empty($dofile)) $this->prune_file($service, $dofile, $backup_method_object, $backup_passback);
 					unset($backup_to_examine['db']);
 				}
 			}
@@ -614,7 +647,7 @@ class UpdraftPlus {
 					$file3 = isset($backup_to_examine['uploads']) ? $backup_to_examine['uploads'] : "";
 					$file4 = isset($backup_to_examine['others']) ? $backup_to_examine['others'] : "";
 					foreach (array($file, $file2, $file3, $file4) as $dofile) {
-						if (!empty($dofile)) $this->prune_file($updraft_service, $dofile, $backup_method_object, $backup_passback);
+						if (!empty($dofile)) $this->prune_file($service, $dofile, $backup_method_object, $backup_passback);
 					}
 					unset($backup_to_examine['plugins']);
 					unset($backup_to_examine['themes']);

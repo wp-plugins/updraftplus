@@ -24,9 +24,9 @@ class UpdraftPlus_BackupModule_s3 {
 
 			foreach($backup_array as $file) {
 
-				// We upload in 5Mb chunks to allow more efficient resuming and hence uploading of larger files
+				// We upload in 4Mb chunks to allow more efficient resuming and hence uploading of larger files
 				$fullpath = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir')).$file;
-				$chunks = floor(filesize($fullpath) / 5242880)+1;
+				$chunks = floor(filesize($fullpath) / 4194304)+1;
 				$hash = md5($file);
 
 				$updraftplus->log("S3 upload: $fullpath (chunks: $chunks) -> s3://$bucket_name/$bucket_path$file");
@@ -53,7 +53,7 @@ class UpdraftPlus_BackupModule_s3 {
 							continue;
 						} else {
 							$updraftplus->log("S3 chunked upload: got multipart ID: $uploadId");
-							set_transient("updraft_${hash}_uid", $uploadId, 3600*3);
+							set_transient("updraft_${hash}_uid", $uploadId, UPDRAFT_TRANSTIME);
 						}
 					} else {
 						$updraftplus->log("S3 chunked upload: retrieved previously obtained multipart ID: $uploadId");
@@ -71,9 +71,9 @@ class UpdraftPlus_BackupModule_s3 {
 						} else {
 							$etag = $s3->uploadPart($bucket_name, $filepath, $uploadId, $fullpath, $i);
 							if (is_string($etag)) {
-								$updraftplus->log("S3 chunk $i: uploaded (etag: $etag)");
+								$updraftplus->record_uploaded_chunk(round(100*$i/$chunks,1), "$i, $etag");
 								array_push($etags, $etag);
-								set_transient("upd_${hash}_e$i", $etag, 3600*3);
+								set_transient("upd_${hash}_e$i", $etag, UPDRAFT_TRANSTIME);
 								$successes++;
 							} else {
 								$updraftplus->log("S3 chunk $i: upload failed");
