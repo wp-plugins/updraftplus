@@ -2128,7 +2128,8 @@ $this->log("PCL PCL PCL: New iterator");
 				$entry = str_replace('\\', '/', realpath($entry));
 				if (is_file($entry)) {
 					$iterators[] = array($entry);
-				} else {
+				} elseif (is_dir($entry)) {
+					$zip->addEmptyDir(str_replace(WP_CONTENT_DIR . '/', '', $entry . '/'));
 					$iterators[] = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($entry), RecursiveIteratorIterator::SELF_FIRST);
 				}
 			}
@@ -2138,7 +2139,6 @@ $this->log("PCL PCL PCL: New iterator");
 		}
 
 		foreach ($iterators as $files) {
-$this->log("DEBUG DEBUG DEBUG: New iterator");
 			foreach ($files as $file)
 			{
 				$file = str_replace('\\', '/', $file);
@@ -2152,11 +2152,11 @@ $this->log("DEBUG DEBUG DEBUG: New iterator");
 
 				if (is_file($file) === true)
 				{
-					$zip->addFile($source, str_replace($source . '/', '', $file));
+					$zip->addFile($file, str_replace(WP_CONTENT_DIR . '/', '', $file));
 				}
 				elseif (is_dir($file) === true)
 				{
-					$zip->addEmptyDir(str_replace($source . '/', '', $file . '/'));
+					$zip->addEmptyDir(str_replace(WP_CONTENT_DIR . '/', '', $file . '/'));
 				}
 			}
 		}
