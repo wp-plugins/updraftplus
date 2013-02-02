@@ -141,8 +141,9 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.3.24 - 02/02/2013 =
+= 1.3.25 - 02/02/2013 =
 * Prefer PHP's native zip functions if available - 25% speed-up on zip creation
+* Zip file creation is now resumable; and thus the entire backup operation is; there is now no "too early to resume" point. So even the most enormous site backups should now be able to proceed.
 
 = 1.3.22 - 01/31/2013 =
 * More help for really large uploads; dynamically alter the maximum number of resumption attempts if something useful is still happening

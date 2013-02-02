@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.3.24
+Version: 1.3.25
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -85,7 +85,7 @@ if (!class_exists('UpdraftPlus_Options')) require_once(UPDRAFTPLUS_DIR.'/options
 
 class UpdraftPlus {
 
-	var $version = '1.3.24';
+	var $version = '1.3.25';
 	var $plugin_title = 'UpdraftPlus Backup/Restore';
 
 	// Choices will be shown in the admin menu in the order used here
@@ -113,6 +113,11 @@ class UpdraftPlus {
 	// Used to schedule resumption attempts beyond the tenth, if needed
 	var $current_resumption;
 	var $newresumption_scheduled;
+
+	var $zipfiles_added;
+	var $zipfiles_existingfiles;
+	var $zipfiles_dirbatched;
+	var $zipfiles_batched;
 
 	function __construct() {
 		// Initialisation actions - takes place on plugin load
@@ -716,9 +721,10 @@ class UpdraftPlus {
 
 		$microtime_start = microtime(true);
 		# The paths in the zip should then begin with '$whichone', having removed WP_CONTENT_DIR from the front
-		if (!$this->make_zipfile($create_from_dir, $zip_name)) {
-			$this->log("ERROR: Zip failure: Could not create $whichone zip");
-			$this->error("Could not create $whichone zip. Consult the log file for more information.");
+		$zipcode = $this->make_zipfile($create_from_dir, $zip_name);
+		if ($zipcode !== true) {
+			$this->log("ERROR: Zip failure: /*Could not create*/ $whichone zip: code=$zipcode");
+			$this->error("Could not create $whichone zip: code $zipcode. Consult the log file for more information.");
 			return false;
 		} else {
 			rename($full_path.'.tmp', $full_path);
@@ -2110,33 +2116,103 @@ class UpdraftPlus {
 	// Caution: $source is allowed to be an array, not just a filename
 	function make_zipfile($source, $destination) {
 
-	// Fallback to PclZip - which my tests show is 25% slower
-	if (!method_exists('ZipArchive', 'addFile')) {
-		if(!class_exists('PclZip')) require_once(ABSPATH.'/wp-admin/includes/class-pclzip.php');
-		$zip_object = new PclZip($destination);
-		return $zip_object->create($source, PCLZIP_OPT_REMOVE_PATH, WP_CONTENT_DIR);
-	}
-
-	$zip = new ZipArchive();
-	if (!$zip->open($destination, ZIPARCHIVE::CREATE)) {
-		return false;
-	}
-
-	$files_added = 0;
-	if (is_array($source)) {
-		foreach ($source as $element) {
-			$files_added += $this->makezip_recursive_add($zip, $element, basename($element), $element);
+		// Fallback to PclZip - which my tests show is 25% slower
+		if (!method_exists('ZipArchive', 'addFile')) {
+			if(!class_exists('PclZip')) require_once(ABSPATH.'/wp-admin/includes/class-pclzip.php');
+			$zip_object = new PclZip($destination);
+			$zipcode = $zip_object->create($source, PCLZIP_OPT_REMOVE_PATH, WP_CONTENT_DIR);
+			if ($zipcode == 0 ) {
+				$this->log("PclZip Error: ".$zip_object->errorName());
+				return $zip_object->errorCode();
+			} else {
+				return true;
+			}
 		}
+
+		$this->existing_files = array();
+
+		// TODO: Resuming! :-)
+		// If the file exists, then we should grab its index of files inside, and sizes
+		// Then, when we come to write a file, we should check if it's already there, and only add if it is not
+		if (file_exists($destination) && is_readable($destination)) {
+			$zip = new ZipArchive;
+			$zip->open($destination);
+			$this->log(basename($destination).": Zip file already exists, with ".$zip->numFiles." files");
+			for ($i=0; $i<$zip->numFiles; $i++) {
+				$si = $zip->statIndex($i);
+				$name = $si['name'];
+				$this->existing_files[$name] = $si['size'];
+			}
+		} elseif (file_exists($destination)) {
+			$this->log("Zip file already exists, but is not readable; will remove: $destination");
+			@unlink($destination);
+		}
+
+		$this->zipfiles_added = 0;
+		$this->zipfiles_dirbatched = array();
+		$this->zipfiles_batched = array();
+
+		$last_error = -1;
+		if (is_array($source)) {
+			foreach ($source as $element) {
+				$howmany = $this->makezip_recursive_add($destination, $element, basename($element), $element);
+				if ($howmany < 0) {
+					$last_error = $howmany;
+				}
+			}
+		} else {
+			$howmany = $this->makezip_recursive_add($destination, $source, basename($source), $source);
+			if ($howmany < 0) {
+				$last_error = $howmany;
+			}
+		}
+
+		// Any not yet dispatched?
+		if (count($this->zipfiles_dirbatched)>0 || count($this->zipfiles_batched)>0) {
+			$howmany = $this->makezip_addfiles($destination);
+			if ($howmany < 0) {
+				$last_error = $howmany;
+			}
+		}
+
+	if ($this->zipfiles_added >= 0) {
+		return true;
 	} else {
-		$files_added += $this->makezip_recursive_add($zip, $source, basename($source), $source);
+		return $last_error;
 	}
 
-	return $zip->close();
+	}
 
+	// Q. Why don't we only open and close the zip file just once?
+	// A. Because apparently PHP doesn't write out until the final close, and it will return an error if anything file has vanished in the meantime. So going directory-by-directory reduces our chances of hitting an error if the filesystem is changing underneath us (which is very possible if dealing with e.g. 1Gb of files)
+
+	// We batch up the files, rather than do them one at a time. So we are more efficient than open,one-write,close.
+	function makezip_addfiles($zipfile) {
+		$zip = new ZipArchive();
+		if (file_exists($zipfile)) {
+			$opencode = $zip->open($zipfile);
+		} else {
+			$opencode = $zip->open($zipfile, ZIPARCHIVE::CREATE);
+		}
+		if ($opencode !== true) return array($opencode, 0);
+		// Make sure all directories are created before we start creating files
+		while ($dir = array_pop($this->zipfiles_dirbatched)) {
+			$zip->addEmptyDir($dir);
+		}
+		foreach ($this->zipfiles_batched as $file => $add_as) {
+			if (!isset($this->existing_files[$add_as]) || $this->existing_files[$add_as] != filesize($file)) {
+				$zip->addFile($file, $add_as);
+			}
+			$this->zipfiles_added++;
+			if ($this->zipfiles_added % 100 == 0) $this->log("Zip: ".basename($zipfile).": ".$this->zipfiles_added." files added");
+		}
+		// Reset the array
+		$this->zipfiles_batched = array();
+		return $zip->close();
 	}
 
 	// This function recursively packs the zip, dereferencing symlinks but packing into a single-parent tree for universal unpacking
-	function makezip_recursive_add($zip, $fullpath, $use_path_when_storing, $original_fullpath, $files_added_so_far = 0) {
+	function makezip_recursive_add($zipfile, $fullpath, $use_path_when_storing, $original_fullpath) {
 
 		// De-reference
 		$fullpath = realpath($fullpath);
@@ -2150,16 +2226,14 @@ class UpdraftPlus {
 
 		if(is_file($fullpath)) {
 			if (is_readable($fullpath)) {
-				$zip->addFile($fullpath, $use_path_when_storing.'/'.basename($fullpath));
-				$files_added_so_far++;
-				if ($files_added_so_far % 100 == 0) $this->log("Zip: $files_added_so_far files added");
-				return true;
+				$key = $use_path_when_storing.'/'.basename($fullpath);
+				$this->zipfiles_batched[$fullpath] = $use_path_when_storing.'/'.basename($fullpath);
 			} else {
 				$this->log("$fullpath: unreadable file");
 				$this->error("$fullpath: unreadable file");
 			}
 		} elseif (is_dir($fullpath)) {
-			$zip->addEmptyDir($use_path_when_storing);
+			if (!isset($this->existing_files[$use_path_when_storing])) $this->zipfiles_dirbatched[] = $use_path_when_storing;
 			if (!$dir_handle = @opendir($fullpath)) {
 				$this->log("Failed to open directory: $fullpath");
 				$this->error("Failed to open directory: $fullpath");
@@ -2171,33 +2245,37 @@ class UpdraftPlus {
 						$deref = realpath($fullpath.'/'.$e);
 						if (is_file($deref)) {
 							if (is_readable($deref)) {
-								$zip->addFile($deref, $use_path_when_storing.'/'.$e);
-								$files_added_so_far++;
-								if ($files_added_so_far % 100 == 0) $this->log("Zip: $files_added_so_far files added");
+								$this->zipfiles_batched[$deref] = $use_path_when_storing.'/'.$e;
 							} else {
 								$this->log("$deref: unreadable file");
 								$this->error("$deref: unreadable file");
 							}
 						} elseif (is_dir($deref)) {
-							$this->makezip_recursive_add($zip, $deref, $use_path_when_storing.'/'.$e, $original_fullpath, $files_added_so_far);
+							$this->makezip_recursive_add($zipfile, $deref, $use_path_when_storing.'/'.$e, $original_fullpath);
 						}
 					} elseif (is_file($fullpath.'/'.$e)) {
 						if (is_readable($fullpath.'/'.$e)) {
-							$zip->addFile($fullpath.'/'.$e, $use_path_when_storing.'/'.$e);
-							$files_added_so_far++;
-							if ($files_added_so_far % 100 == 0) $this->log("Zip: $files_added_so_far files added");
+							$this->zipfiles_batched[$fullpath.'/'.$e] = $use_path_when_storing.'/'.$e;
 						} else {
 							$this->log("$fullpath/$e: unreadable file");
 							$this->error("$fullpath/$e: unreadable file");
 						}
 					} elseif (is_dir($fullpath.'/'.$e)) {
 						// no need to addEmptyDir here, as it gets done when we recurse
-						$this->makezip_recursive_add($zip, $fullpath.'/'.$e, $use_path_when_storing.'/'.$e, $original_fullpath, $files_added_so_far);
+						$this->makezip_recursive_add($zipfile, $fullpath.'/'.$e, $use_path_when_storing.'/'.$e, $original_fullpath);
 					}
 				}
 			}
 			closedir($dir_handle);
 		}
+
+		if (count($this->zipfiles_batched) > 25) {
+			$ret = $this->makezip_addfiles($zipfile);
+		} else {
+			$ret = true;
+		}
+
+		return $ret;
 
 	}
 
