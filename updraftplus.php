@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.3.22
+Version: 1.3.23
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -33,6 +33,7 @@ TODO
 // Create single zip, containing even WordPress itself
 // When a new backup starts, AJAX-update the 'Last backup' display in the admin page.
 // Remove the recurrence of admin notices when settings are saved due to _wp_referer
+// Auto-detect what the real execution time is (max_execution_time is just one of the upper limits, there can be others, some insivible directly), and tweak our resumption time accordingly
 //http://w-shadow.com/blog/2010/09/02/automatic-updates-for-any-plugin/
 
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
@@ -72,7 +73,7 @@ if (!$updraftplus->memory_check(192)) {
 
 define('UPDRAFTPLUS_DIR', dirname(__FILE__));
 define('UPDRAFTPLUS_URL', plugins_url('', __FILE__));
-define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php,backup');
+define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php,backup,backups');
 // This is used in various places, based on our assumption of the maximum time any job should take. May need lengthening in future if we get reports which show enormous sets hitting the limit.
 // Also one section requires at least 1% progress each run, so on a 5-minute schedule, that equals just under 9 hours
 define('UPDRAFT_TRANSTIME', 3600*9);
@@ -83,7 +84,7 @@ if (!class_exists('UpdraftPlus_Options')) require_once(UPDRAFTPLUS_DIR.'/options
 
 class UpdraftPlus {
 
-	var $version = '1.3.22';
+	var $version = '1.3.23';
 	var $plugin_title = 'UpdraftPlus Backup/Restore';
 
 	// Choices will be shown in the admin menu in the order used here
@@ -710,12 +711,10 @@ class UpdraftPlus {
 			die;
 		}
 
-		$zip_object = new PclZip($zip_name);
-
 		$microtime_start = microtime(true);
 		# The paths in the zip should then begin with '$whichone', having removed WP_CONTENT_DIR from the front
-		if (!$zip_object->create($create_from_dir, PCLZIP_OPT_REMOVE_PATH, WP_CONTENT_DIR)) {
-			$this->log("ERROR: PclZip failure: Could not create $whichone zip");
+		if (!$this->make_zipfile($create_from_dir, $zip_name)) {
+			$this->log("ERROR: Zip failure: Could not create $whichone zip");
 			$this->error("Could not create $whichone zip. Consult the log file for more information.");
 			return false;
 		} else {
@@ -733,8 +732,6 @@ class UpdraftPlus {
 	function backup_dirs($transient_status) {
 
 		if(!$this->backup_time) $this->backup_time_nonce();
-
-		if(!class_exists('PclZip')) require_once(ABSPATH.'/wp-admin/includes/class-pclzip.php');
 
 		$updraft_dir = $this->backups_dir_location();
 		if(!is_writable($updraft_dir)) {
@@ -1584,7 +1581,7 @@ class UpdraftPlus {
 				<input type="checkbox" name="updraft_include_plugins" value="1" <?php echo $include_plugins; ?> /> Plugins<br>
 				<input type="checkbox" name="updraft_include_themes" value="1" <?php echo $include_themes; ?> /> Themes<br>
 				<input type="checkbox" name="updraft_include_uploads" value="1" <?php echo $include_uploads; ?> /> Uploads<br>
-				<input type="checkbox" name="updraft_include_others" value="1" <?php echo $include_others; ?> /> Any other directories found inside wp-content <?php if (is_multisite()) echo "(which on a multisite install includes users' blog contents) "; ?>- but exclude these directories: <input type="text" name="updraft_include_others_exclude" size="32" value="<?php echo htmlspecialchars($include_others_exclude); ?>"/><br>
+				<input type="checkbox" name="updraft_include_others" value="1" <?php echo $include_others; ?> /> Any other directories found inside wp-content <?php if (is_multisite()) echo "(which on a multisite install includes users' blog contents) "; ?>- but exclude these directories: <input type="text" name="updraft_include_others_exclude" size="44" value="<?php echo htmlspecialchars($include_others_exclude); ?>"/><br>
 				Include all of these, unless you are backing them up outside of UpdraftPlus. The above directories are usually everything (except for WordPress core itself which you can download afresh from WordPress.org). But if you have made customised modifications outside of these directories, you need to back them up another way. (<a href="http://wordshell.net">Use WordShell</a> for automatic backup, version control and patching).<br></td>
 				</td>
 			</tr>
@@ -1951,7 +1948,7 @@ class UpdraftPlus {
 				</tr>
 				<tr>
 					<td></td><td class="download-backups" style="display:none">
-						<em>Click on a button to download the corresponding file to your computer. If you are using the <a href="http://opera.com">Opera web browser</a> then you should turn Turbo mode off.</em>
+						<em>Click on a button to download the corresponding file to your computer. If you are using the <a href="http://opera.com">Opera web browser</a> then you should turn Turbo mode off. <strong>Note</strong> - if you use remote storage (e.g. Amazon, Dropbox, FTP, Google Drive), then pressing a button will make UpdraftPlus try to bring a backup file back from the remote storage to your webserver, and from there to your computer. If the backup file is very big, then likely you will run out of time using this method. In that case you should get the file directly (i.e. visit Amazon S3's or Dropbox's website, etc.).</em>
 						<table>
 							<?php
 							foreach($backup_history as $key=>$value) {
@@ -2105,6 +2102,71 @@ class UpdraftPlus {
 
 	function show_admin_warning_googledrive() {
 		$this->show_admin_warning('<strong>UpdraftPlus notice:</strong> <a href="options-general.php?page=updraftplus&action=updraftmethod-googledrive-auth&updraftplus_googleauth=doit">Click here to authenticate your Google Drive account (you will not be able to back up to Google Drive without it).</a>');
+	}
+
+	// Caution: $source is allowed to be an array, not just a filename
+	function make_zipfile($source, $destination) {
+
+	// Fallback to PclZip - which my tests show is 25% slower
+	if (!extension_loaded('zip') || version_compare(phpversion(), '5.2.0', '<')) {
+$this->log("PCL PCL PCL: New iterator");
+		if(!class_exists('PclZip')) require_once(ABSPATH.'/wp-admin/includes/class-pclzip.php');
+		$zip_object = new PclZip($destination);
+		return $zip_object->create($source, PCLZIP_OPT_REMOVE_PATH, WP_CONTENT_DIR);
+	}
+
+	$zip = new ZipArchive();
+	if (!$zip->open($destination, ZIPARCHIVE::CREATE)) {
+		return false;
+	}
+
+	if (is_array($source) || is_dir($source) === true) {
+		$iterators = array();
+		if (is_array($source)) {
+			// Each is a full path
+			foreach ($source as $entry) {
+				$entry = str_replace('\\', '/', realpath($entry));
+				if (is_file($entry)) {
+					$iterators[] = array($entry);
+				} else {
+					$iterators[] = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($entry), RecursiveIteratorIterator::SELF_FIRST);
+				}
+			}
+		} else {
+			$source = str_replace('\\', '/', realpath($source));
+			$iterators[] = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($source), RecursiveIteratorIterator::SELF_FIRST);
+		}
+
+		foreach ($iterators as $files) {
+$this->log("DEBUG DEBUG DEBUG: New iterator");
+			foreach ($files as $file)
+			{
+				$file = str_replace('\\', '/', $file);
+
+				// Ignore "." and ".." folders - these don't seem to occur anyway, but some pages found on Google indicate that they can
+				if (substr($file, -3, 3) == "/.." || substr($file, -2, 2) == '/.') continue
+				//if( in_array(substr($file, strrpos($file, '/')+1), array('.', '..')) )
+					//continue;
+
+				$file = realpath($file);
+
+				if (is_file($file) === true)
+				{
+					$zip->addFile($source, str_replace($source . '/', '', $file));
+				}
+				elseif (is_dir($file) === true)
+				{
+					$zip->addEmptyDir(str_replace($source . '/', '', $file . '/'));
+				}
+			}
+		}
+	}
+	else if (is_file($source) === true)
+	{
+		$zip->addFile($source, basename($source));
+	}
+
+	return $zip->close();
 	}
 
 }

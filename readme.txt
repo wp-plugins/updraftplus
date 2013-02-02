@@ -8,7 +8,7 @@ Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-1. More help for really large backup sets. 2. Prevent potential endless logging loop in S3 method.
+1. Even more help for really large backup sets. 2. Prevent potential endless logging loop in S3 method.
 
 == Description ==
 
@@ -140,6 +140,9 @@ Yes; especially before you submit any support requests.
 Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ . I am also available for hire for bespoke work.
 
 == Changelog ==
+
+= 1.3.23 - 02/02/2013 =
+* Prefer PHP's native zip functions if available - 25% speed-up on zip creation
 
 = 1.3.22 - 01/31/2013 =
 * More help for really large uploads; dynamically alter the maximum number of resumption attempts if something useful is still happening
