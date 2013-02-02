@@ -183,7 +183,9 @@ class UpdraftPlus {
 		$this->opened_log_time = microtime(true);
 		$this->log("Opened log file at time: ".date('r'));
 		global $wp_version;
-		$this->log("UpdraftPlus: ".$this->version." WordPress: ".$wp_version." PHP: ".phpversion()." (".@php_uname().") PHP Max Execution Time: ".@ini_get("max_execution_time"));
+		$logline = "UpdraftPlus: ".$this->version." WordPress: ".$wp_version." PHP: ".phpversion()." (".@php_uname().") PHP Max Execution Time: ".@ini_get("max_execution_time")." Zip extension: ";
+		$logline .= (extension_loaded('zip')) ? "Y" : "N";
+		$this->log($logline);
 	}
 
 	# Logs the given line, adding (relative) time stamp and newline
@@ -2109,7 +2111,6 @@ class UpdraftPlus {
 
 	// Fallback to PclZip - which my tests show is 25% slower
 	if (!extension_loaded('zip') || version_compare(phpversion(), '5.2.0', '<')) {
-$this->log("PCL PCL PCL: New iterator");
 		if(!class_exists('PclZip')) require_once(ABSPATH.'/wp-admin/includes/class-pclzip.php');
 		$zip_object = new PclZip($destination);
 		return $zip_object->create($source, PCLZIP_OPT_REMOVE_PATH, WP_CONTENT_DIR);
