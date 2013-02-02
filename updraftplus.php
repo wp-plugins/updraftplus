@@ -2122,12 +2122,13 @@ class UpdraftPlus {
 		return false;
 	}
 
+	$files_added = 0;
 	if (is_array($source)) {
 		foreach ($source as $element) {
-			$this->makezip_recursive_add($zip, $element, basename($element), $element);
+			$files_added += $this->makezip_recursive_add($zip, $element, basename($element), $element);
 		}
 	} else {
-		$this->makezip_recursive_add($zip, $source, basename($source), $source);
+		$files_added += $this->makezip_recursive_add($zip, $source, basename($source), $source);
 	}
 
 	return $zip->close();
@@ -2135,7 +2136,7 @@ class UpdraftPlus {
 	}
 
 	// This function recursively packs the zip, dereferencing symlinks but packing into a single-parent tree for universal unpacking
-	function makezip_recursive_add($zip, $fullpath, $use_path_when_storing, $original_fullpath) {
+	function makezip_recursive_add($zip, $fullpath, $use_path_when_storing, $original_fullpath, $files_added_so_far = 0) {
 
 		// De-reference
 		$fullpath = realpath($fullpath);
@@ -2149,6 +2150,8 @@ class UpdraftPlus {
 
 		if(is_file($fullpath)) {
 			$zip->addFile($fullpath, $use_path_when_storing.'/'.basename($fullpath));
+			$files_added_so_far++;
+			if ($files_added_so_far % 100 == 0) $this->log("Zip: $files_added_so_far files added");
 			return true;
 		} elseif (is_dir($fullpath)) {
 			$zip->addEmptyDir($use_path_when_storing);
@@ -2163,14 +2166,18 @@ class UpdraftPlus {
 						$deref = realpath($fullpath.'/'.$e);
 						if (is_file($deref)) {
 							$zip->addFile($deref, $use_path_when_storing.'/'.$e);
+							$files_added_so_far++;
+							if ($files_added_so_far % 100 == 0) $this->log("Zip: $files_added_so_far files added");
 						} elseif (is_dir($deref)) {
-							$this->makezip_recursive_add($zip, $deref, $use_path_when_storing.'/'.$e, $original_fullpath);
+							$this->makezip_recursive_add($zip, $deref, $use_path_when_storing.'/'.$e, $original_fullpath, $files_added_so_far);
 						}
 					} elseif (is_file($fullpath.'/'.$e)) {
 						$zip->addFile($fullpath.'/'.$e, $use_path_when_storing.'/'.$e);
+						$files_added_so_far++;
+						if ($files_added_so_far % 100 == 0) $this->log("Zip: $files_added_so_far files added");
 					} elseif (is_dir($fullpath.'/'.$e)) {
 						// no need to addEmptyDir here, as it gets done when we recurse
-						$this->makezip_recursive_add($zip, $fullpath.'/'.$e, $use_path_when_storing.'/'.$e, $original_fullpath);
+						$this->makezip_recursive_add($zip, $fullpath.'/'.$e, $use_path_when_storing.'/'.$e, $original_fullpath, $files_added_so_far);
 					}
 				}
 			}
