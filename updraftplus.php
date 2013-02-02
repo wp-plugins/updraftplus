@@ -27,6 +27,7 @@ TODO
 // Resuming partial FTP uploads
 // Provide backup/restoration for UpdraftPlus's settings, to allow 'bootstrap' on a fresh WP install - some kind of single-use code which a remote UpdraftPlus can use to authenticate
 // Multiple jobs
+// Expert setting: force PCLZip
 // Don't stop at 10 retries if something useful is still measurably being done (in particular, chunked uploads are proceeding - set a flag to indicate "try it again")
 // Change FTP to use SSL by default
 // When looking for files to delete, is the current encryption setting used? Should not be.
@@ -2121,20 +2122,25 @@ class UpdraftPlus {
 		return false;
 	}
 
-	if (is_array($source) || is_dir($source) === true) {
+	if (is_array($source) || is_dir($source) === true || is_link($source)) {
 		$iterators = array();
 		if (is_array($source)) {
+			$remove_path = realpath(WP_CONTENT_DIR);
 			// Each is a full path
 			foreach ($source as $entry) {
+				// Strip off WP_CONTENT_DIR first, before we dereference
+				$relative = str_replace(WP_CONTENT_DIR.'/', '', $entry.'/');
 				$entry = str_replace('\\', '/', realpath($entry));
 				if (is_file($entry)) {
 					$iterators[] = array($entry);
 				} elseif (is_dir($entry)) {
-					$zip->addEmptyDir(str_replace(WP_CONTENT_DIR . '/', '', $entry . '/'));
+					$zip->addEmptyDir($relative);
+					// TODO: This doesn't deal with symlinks inside a directory, e.g. uploads/2010 is a symlink
 					$iterators[] = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($entry), RecursiveIteratorIterator::SELF_FIRST);
 				}
 			}
 		} else {
+			$remove_path = dirname(realpath($source));
 			$source = str_replace('\\', '/', realpath($source));
 			$iterators[] = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($source), RecursiveIteratorIterator::SELF_FIRST);
 		}
@@ -2145,19 +2151,21 @@ class UpdraftPlus {
 				$file = str_replace('\\', '/', $file);
 
 				// Ignore "." and ".." folders - these don't seem to occur anyway, but some pages found on Google indicate that they can
-				if (substr($file, -3, 3) == "/.." || substr($file, -2, 2) == '/.') continue
+				if (substr($file, -3, 3) == "/.." || substr($file, -2, 2) == '/.') continue;
 				//if( in_array(substr($file, strrpos($file, '/')+1), array('.', '..')) )
 					//continue;
 
+				// Remove prefix before de-referencing
+				$usename = str_replace($remove_path . '/', '', $file);
+
+				// De-reference
 				$file = realpath($file);
 
-				if (is_file($file) === true)
-				{
-					$zip->addFile($file, str_replace(WP_CONTENT_DIR . '/', '', $file));
+				if (is_file($file) === true) {
+					$zip->addFile($file, $usename);
 				}
-				elseif (is_dir($file) === true)
-				{
-					$zip->addEmptyDir(str_replace(WP_CONTENT_DIR . '/', '', $file . '/'));
+				elseif (is_dir($file) === true) {
+					$zip->addEmptyDir($usename);
 				}
 			}
 		}
