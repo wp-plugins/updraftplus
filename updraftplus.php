@@ -2149,10 +2149,15 @@ class UpdraftPlus {
 		}
 
 		if(is_file($fullpath)) {
-			$zip->addFile($fullpath, $use_path_when_storing.'/'.basename($fullpath));
-			$files_added_so_far++;
-			if ($files_added_so_far % 100 == 0) $this->log("Zip: $files_added_so_far files added");
-			return true;
+			if (is_readable($fullpath)) {
+				$zip->addFile($fullpath, $use_path_when_storing.'/'.basename($fullpath));
+				$files_added_so_far++;
+				if ($files_added_so_far % 100 == 0) $this->log("Zip: $files_added_so_far files added");
+				return true;
+			} else {
+				$this->log("$fullpath: unreadable file");
+				$this->error("$fullpath: unreadable file");
+			}
 		} elseif (is_dir($fullpath)) {
 			$zip->addEmptyDir($use_path_when_storing);
 			if (!$dir_handle = @opendir($fullpath)) {
@@ -2165,16 +2170,26 @@ class UpdraftPlus {
 					if (is_link($fullpath.'/'.$e)) {
 						$deref = realpath($fullpath.'/'.$e);
 						if (is_file($deref)) {
-							$zip->addFile($deref, $use_path_when_storing.'/'.$e);
-							$files_added_so_far++;
-							if ($files_added_so_far % 100 == 0) $this->log("Zip: $files_added_so_far files added");
+							if (is_readable($deref)) {
+								$zip->addFile($deref, $use_path_when_storing.'/'.$e);
+								$files_added_so_far++;
+								if ($files_added_so_far % 100 == 0) $this->log("Zip: $files_added_so_far files added");
+							} else {
+								$this->log("$deref: unreadable file");
+								$this->error("$deref: unreadable file");
+							}
 						} elseif (is_dir($deref)) {
 							$this->makezip_recursive_add($zip, $deref, $use_path_when_storing.'/'.$e, $original_fullpath, $files_added_so_far);
 						}
 					} elseif (is_file($fullpath.'/'.$e)) {
-						$zip->addFile($fullpath.'/'.$e, $use_path_when_storing.'/'.$e);
-						$files_added_so_far++;
-						if ($files_added_so_far % 100 == 0) $this->log("Zip: $files_added_so_far files added");
+						if (is_readable($fullpath.'/'.$e)) {
+							$zip->addFile($fullpath.'/'.$e, $use_path_when_storing.'/'.$e);
+							$files_added_so_far++;
+							if ($files_added_so_far % 100 == 0) $this->log("Zip: $files_added_so_far files added");
+						} else {
+							$this->log("$fullpath/$e: unreadable file");
+							$this->error("$fullpath/$e: unreadable file");
+						}
 					} elseif (is_dir($fullpath.'/'.$e)) {
 						// no need to addEmptyDir here, as it gets done when we recurse
 						$this->makezip_recursive_add($zip, $fullpath.'/'.$e, $use_path_when_storing.'/'.$e, $original_fullpath, $files_added_so_far);
