@@ -141,7 +141,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.3.23 - 02/02/2013 =
+= 1.3.24 - 02/02/2013 =
 * Prefer PHP's native zip functions if available - 25% speed-up on zip creation
 
 = 1.3.22 - 01/31/2013 =

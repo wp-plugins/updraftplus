@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.3.23
+Version: 1.3.24
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -85,7 +85,7 @@ if (!class_exists('UpdraftPlus_Options')) require_once(UPDRAFTPLUS_DIR.'/options
 
 class UpdraftPlus {
 
-	var $version = '1.3.23';
+	var $version = '1.3.24';
 	var $plugin_title = 'UpdraftPlus Backup/Restore';
 
 	// Choices will be shown in the admin menu in the order used here
@@ -184,8 +184,8 @@ class UpdraftPlus {
 		$this->opened_log_time = microtime(true);
 		$this->log("Opened log file at time: ".date('r'));
 		global $wp_version;
-		$logline = "UpdraftPlus: ".$this->version." WordPress: ".$wp_version." PHP: ".phpversion()." (".@php_uname().") PHP Max Execution Time: ".@ini_get("max_execution_time")." Zip extension: ";
-		$logline .= (extension_loaded('zip')) ? "Y" : "N";
+		$logline = "UpdraftPlus: ".$this->version." WordPress: ".$wp_version." PHP: ".phpversion()." (".@php_uname().") PHP Max Execution Time: ".@ini_get("max_execution_time")." ZipArchive::addFile exists: ";
+		$logline .= (method_exists('ZipArchive', 'addFile')) ? "Y" : "N";
 		$this->log($logline);
 	}
 
@@ -2111,7 +2111,7 @@ class UpdraftPlus {
 	function make_zipfile($source, $destination) {
 
 	// Fallback to PclZip - which my tests show is 25% slower
-	if (!extension_loaded('zip') || version_compare(phpversion(), '5.2.0', '<')) {
+	if (!method_exists('ZipArchive', 'addFile')) {
 		if(!class_exists('PclZip')) require_once(ABSPATH.'/wp-admin/includes/class-pclzip.php');
 		$zip_object = new PclZip($destination);
 		return $zip_object->create($source, PCLZIP_OPT_REMOVE_PATH, WP_CONTENT_DIR);
@@ -2122,60 +2122,61 @@ class UpdraftPlus {
 		return false;
 	}
 
-	if (is_array($source) || is_dir($source) === true || is_link($source)) {
-		$iterators = array();
-		if (is_array($source)) {
-			$remove_path = realpath(WP_CONTENT_DIR);
-			// Each is a full path
-			foreach ($source as $entry) {
-				// Strip off WP_CONTENT_DIR first, before we dereference
-				$relative = str_replace(WP_CONTENT_DIR.'/', '', $entry.'/');
-				$entry = str_replace('\\', '/', realpath($entry));
-				if (is_file($entry)) {
-					$iterators[] = array($entry);
-				} elseif (is_dir($entry)) {
-					$zip->addEmptyDir($relative);
-					// TODO: This doesn't deal with symlinks inside a directory, e.g. uploads/2010 is a symlink
-					$iterators[] = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($entry), RecursiveIteratorIterator::SELF_FIRST);
-				}
-			}
-		} else {
-			$remove_path = dirname(realpath($source));
-			$source = str_replace('\\', '/', realpath($source));
-			$iterators[] = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($source), RecursiveIteratorIterator::SELF_FIRST);
+	if (is_array($source)) {
+		foreach ($source as $element) {
+			$this->makezip_recursive_add($zip, $element, basename($element), $element);
 		}
-
-		foreach ($iterators as $files) {
-			foreach ($files as $file)
-			{
-				$file = str_replace('\\', '/', $file);
-
-				// Ignore "." and ".." folders - these don't seem to occur anyway, but some pages found on Google indicate that they can
-				if (substr($file, -3, 3) == "/.." || substr($file, -2, 2) == '/.') continue;
-				//if( in_array(substr($file, strrpos($file, '/')+1), array('.', '..')) )
-					//continue;
-
-				// Remove prefix before de-referencing
-				$usename = str_replace($remove_path . '/', '', $file);
-
-				// De-reference
-				$file = realpath($file);
-
-				if (is_file($file) === true) {
-					$zip->addFile($file, $usename);
-				}
-				elseif (is_dir($file) === true) {
-					$zip->addEmptyDir($usename);
-				}
-			}
-		}
-	}
-	else if (is_file($source) === true)
-	{
-		$zip->addFile($source, basename($source));
+	} else {
+		$this->makezip_recursive_add($zip, $source, basename($source), $source);
 	}
 
 	return $zip->close();
+
+	}
+
+	// This function recursively packs the zip, dereferencing symlinks but packing into a single-parent tree for universal unpacking
+	function makezip_recursive_add($zip, $fullpath, $use_path_when_storing, $original_fullpath) {
+
+		// De-reference
+		$fullpath = realpath($fullpath);
+
+		// Is the place we've ended up above the original base? That leads to infinite recursion
+		if (($fullpath !== $original_fullpath && strpos($original_fullpath, $fullpath) === 0) || ($original_fullpath == $fullpath && strpos($use_path_when_storing, '/') !== false) ) {
+			$this->log("Infinite recursion: symlink lead us to $fullpath, which is within $original_fullpath");
+			$this->error("Infinite recursion: consult your log for more information");
+			return false;
+		}
+
+		if(is_file($fullpath)) {
+			$zip->addFile($fullpath, $use_path_when_storing.'/'.basename($fullpath));
+			return true;
+		} elseif (is_dir($fullpath)) {
+			$zip->addEmptyDir($use_path_when_storing);
+			if (!$dir_handle = @opendir($fullpath)) {
+				$this->log("Failed to open directory: $fullpath");
+				$this->error("Failed to open directory: $fullpath");
+				return;
+			}
+			while ($e = readdir($dir_handle)) {
+				if ($e != '.' && $e != '..') {
+					if (is_link($fullpath.'/'.$e)) {
+						$deref = realpath($fullpath.'/'.$e);
+						if (is_file($deref)) {
+							$zip->addFile($deref, $use_path_when_storing.'/'.$e);
+						} elseif (is_dir($deref)) {
+							$this->makezip_recursive_add($zip, $deref, $use_path_when_storing.'/'.$e, $original_fullpath);
+						}
+					} elseif (is_file($fullpath.'/'.$e)) {
+						$zip->addFile($fullpath.'/'.$e, $use_path_when_storing.'/'.$e);
+					} elseif (is_dir($fullpath.'/'.$e)) {
+						// no need to addEmptyDir here, as it gets done when we recurse
+						$this->makezip_recursive_add($zip, $fullpath.'/'.$e, $use_path_when_storing.'/'.$e, $original_fullpath);
+					}
+				}
+			}
+			closedir($dir_handle);
+		}
+
 	}
 
 }
