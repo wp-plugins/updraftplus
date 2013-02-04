@@ -3,12 +3,12 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, ftp, cloud, back up, multisite
 Requires at least: 3.2
 Tested up to: 3.5.1
-Stable tag: 1.3.22
+Stable tag: 1.4.0
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-1. Even more help for really large backup sets. 2. Prevent potential endless logging loop in S3 method.
+Everything now resumable: every part of a backup run can now be individually resumed, meaning that there are no theoretical limits imposed by any part of the UD architecture upon the size of your backup. (This was the final step: with previous steps, probably only 0.1% of WordPress sites were still "too large" for the remaining bottleneck).
 
 == Description ==
 
@@ -58,6 +58,10 @@ Basically, everything, unless you did something very exotic (which you would the
 = What does UpdraftPlus not back up ? =
 
 It does not back up WordPress core (since you can always get another copy of this from wordpress.org), and does not back up any extra files which you have added outside of the WordPress content directory (files which, by their nature, are unknown to WordPress). By default the WordPress content directory is "wp-content" in your WordPress root. It will not back up database tables which do not have the WordPress prefix (i.e. database tables from other applications but sharing a database with WordPress).
+
+= How big a site can be backed up? =
+
+Authors of backup plugins will tell you that writing a reliable plugin that can run in the whole variety of WordPress environments is hard. Now, since version 1.4.0, UpdraftPlus has an architecture that can back up infinitely large sites. It can now resume at *any* stage of the backup. Wherever your web server terminates your backups due to its limits (on CPU usage, available time to run in, etc.), UpdraftPlus can pick up again and carry on. Do be aware though that you need enough disk space free in your web hosting account to create the backup in. Exactly how much is needed can vary; but you are always safe if you have as much space available as your website takes up (i.e. can temporarily double your disk usage).
 
 = I like automating WordPress, and using the command-line. Please tell me more. =
 
@@ -113,7 +117,7 @@ You can check the changelog for changes; but the original Updraft, before I fork
 
 = Any known bugs ? =
 
-Not a bug as such, but one issue to be aware of is that backups of very large sites (lots of uploaded media) are quite complex matters, given the limits of running inside WordPress on a huge variety of different web hosting setups. With large sites, you need to use Amazon S3, which UpdraftPlus supports (since 0.9.20) or Google Drive (since 0.9.21) or Dropbox (since 1.2.19), because these support chunked, resumable uploads. Other backup methods have code (since 0.9.0) to retry failed uploads of an archive, but the upload cannot be chunked, so if an archive is enormous (i.e. cannot be completely uploaded in the time that PHP is allowed for running on your web host) it cannot work.
+Not a bug, but one issue to be aware of is that backups of very large sites (lots of uploaded media) are quite complex matters, given the limits of running inside WordPress on a huge variety of different web hosting setups. With large sites, you need to use Amazon S3, which UpdraftPlus supports (since 0.9.20) or Google Drive (since 0.9.21) or Dropbox (since 1.2.19), because these support chunked, resumable uploads. Other backup methods have code (since 0.9.0) to retry failed uploads of an archive, but the upload cannot be chunked, so if an archive is enormous (i.e. cannot be completely uploaded in the time that PHP is allowed for running on your web host) it cannot work.
 
 = I encrypted my database - how do I decrypt it? =
 
@@ -141,9 +145,9 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.3.25 - 02/02/2013 =
-* Prefer PHP's native zip functions if available - 25% speed-up on zip creation
+= 1.4.0 - 02/04/2013 =
 * Zip file creation is now resumable; and thus the entire backup operation is; there is now no "too early to resume" point. So even the most enormous site backups should now be able to proceed.
+* Prefer PHP's native zip functions if available - 25% speed-up on zip creation
 
 = 1.3.22 - 01/31/2013 =
 * More help for really large uploads; dynamically alter the maximum number of resumption attempts if something useful is still happening
