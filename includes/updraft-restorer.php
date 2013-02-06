@@ -12,15 +12,16 @@ class Updraft_Restorer extends WP_Upgrader {
 		$this->strings['delete_failed'] = __('Failed to delete working directory after restoring.');
 	}
 
-	function restore_backup($backup_file,$type) {
+	function restore_backup($backup_file, $type) {
+
+		if ($type != 'plugins' && $type != 'themes' && $type != 'others' && $type != 'uploads') continue;
+
 		global $wp_filesystem;
 		$this->init();
 		$this->backup_strings();
 
-		$res = $this->fs_connect( array(ABSPATH, WP_CONTENT_DIR) );
-		if(!$res) {
-			exit;
-		}
+		$res = $this->fs_connect(array(ABSPATH, WP_CONTENT_DIR) );
+		if(!$res) exit;
 
 		$wp_dir = trailingslashit($wp_filesystem->abspath());
 
@@ -28,11 +29,10 @@ class Updraft_Restorer extends WP_Upgrader {
 		if ( is_wp_error($download) )
 			return $download;
 		
-		$delete = (get_option('updraft_delete_local'))?true:false;
+		$delete = (UpdraftPlus_Options::get_updraft_option('updraft_delete_local')) ? true : false;
 
-		$working_dir = $this->unpack_package( $download , $delete );
-		if ( is_wp_error($working_dir) )
-			return $working_dir;
+		$working_dir = $this->unpack_package($download , $delete);
+		if (is_wp_error($working_dir)) return $working_dir;
 		
 		if ($type == "others" ) {
 
@@ -80,10 +80,10 @@ class Updraft_Restorer extends WP_Upgrader {
 		
 		switch($type) {
 			case 'uploads':
-				$wp_filesystem->chmod($wp_dir . "wp-content/$type", 0777, true);
+				@$wp_filesystem->chmod($wp_dir . "wp-content/$type", 0777, true);
 			break;
 			default:
-				$wp_filesystem->chmod($wp_dir . "wp-content/$type", FS_CHMOD_DIR);
+				@$wp_filesystem->chmod($wp_dir . "wp-content/$type", FS_CHMOD_DIR);
 		}
 	}
 
