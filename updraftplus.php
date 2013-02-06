@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.4.0
+Version: 1.4.1
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -67,13 +67,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // 15 minutes
 @set_time_limit(900);
 
-if (!isset($updraftplus)) $updraftplus = new UpdraftPlus();
-
-if (!$updraftplus->memory_check(192)) {
-# TODO: Better solution is to split the backup set into manageable chunks based on this limit
-	@ini_set('memory_limit', '192M'); //up the memory limit for large backup files
-}
-
 define('UPDRAFTPLUS_DIR', dirname(__FILE__));
 define('UPDRAFTPLUS_URL', plugins_url('', __FILE__));
 define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php,backup,backups');
@@ -81,13 +74,29 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php,backup,
 // Also one section requires at least 1% progress each run, so on a 5-minute schedule, that equals just under 9 hours
 define('UPDRAFT_TRANSTIME', 3600*9);
 
+// Load add-ons
 if (is_file(UPDRAFTPLUS_DIR.'/premium.php')) require_once(UPDRAFTPLUS_DIR.'/premium.php');
+
+if ($dir_handle = @opendir(UPDRAFTPLUS_DIR.'/addons')) {
+	while ($e = readdir($dir_handle)) {
+		if (is_file(UPDRAFTPLUS_DIR.'/addons/'.$e)) {
+			include_once(UPDRAFTPLUS_DIR.'/addons/'.$e);
+		}
+	}
+}
+
+if (!isset($updraftplus)) $updraftplus = new UpdraftPlus();
+
+if (!$updraftplus->memory_check(192)) {
+# TODO: Better solution is to split the backup set into manageable chunks based on this limit
+	@ini_set('memory_limit', '192M'); //up the memory limit for large backup files
+}
 
 if (!class_exists('UpdraftPlus_Options')) require_once(UPDRAFTPLUS_DIR.'/options.php');
 
 class UpdraftPlus {
 
-	var $version = '1.4.0';
+	var $version = '1.4.1';
 	var $plugin_title = 'UpdraftPlus Backup/Restore';
 
 	// Choices will be shown in the admin menu in the order used here
@@ -114,7 +123,7 @@ class UpdraftPlus {
 
 	// Used to schedule resumption attempts beyond the tenth, if needed
 	var $current_resumption;
-	var $newresumption_scheduled;
+	var $newresumption_scheduled = false;
 
 	var $zipfiles_added;
 	var $zipfiles_existingfiles;
@@ -138,6 +147,7 @@ class UpdraftPlus {
 		add_filter('cron_schedules', array($this,'modify_cron_schedules'));
 		add_filter('plugin_action_links', array($this, 'plugin_action_links'), 10, 2);
 		add_action('init', array($this, 'handle_url_actions'));
+
 	}
 
 	// Handle actions passed on to method plugins; e.g. Google OAuth 2.0 - ?page=updraftplus&action=updraftmethod-googledrive-auth
@@ -214,10 +224,13 @@ class UpdraftPlus {
 		// i.e. Max 100 runs = 500 minutes = 8 hrs 40
 		// If they get 2 minutes on each run, and the file is 1Gb, then that equals 10.2Mb/120s = minimum 87Kb/s upload speed required
 
-		if ($this->current_resumption >= 9 && $this->newresumption_scheduled !== true && $percent > ( $this->current_resumption - 5)) {
-			$this->newresumption_scheduled = true;
+		if ($this->current_resumption >= 9 && $this->newresumption_scheduled == false && $percent > ( $this->current_resumption - 5)) {
+			$resume_interval = $this->jobdata_get('resume_interval');
+			if (!is_numeric($resume_interval) || $resume_interval<200) { $resume_interval = 200; }
+			$schedule_for = time()+$resume_interval;
+			$this->newresumption_scheduled = $schedule_for;
 			$this->log("This is resumption ".$this->current_resumption.", but meaningful uploading is still taking place; so a new one will be scheduled");
-			wp_schedule_single_event(time()+300, 'updraft_backup_resume', array($this->current_resumption + 1, $this->nonce, $this->backup_time));
+			wp_schedule_single_event($schedule_for, 'updraft_backup_resume', array($this->current_resumption + 1, $this->nonce, $this->backup_time));
 		}
 	}
 
@@ -237,13 +250,17 @@ class UpdraftPlus {
 		$this->current_resumption = $resumption_no;
 
 		// Schedule again, to run in 5 minutes again, in case we again fail
-		$resume_delay = 300;
+		// The actual interval can be increased (for future resumptions) by other code, if it detects apparent overlapping
+		$resume_interval = jobdata_get('resume_interval');
+		if (!is_numeric($resume_interval) || $resume_interval<200) $resume_interval = 200;
+
 		// A different argument than before is needed otherwise the event is ignored
 		$next_resumption = $resumption_no+1;
 		if ($next_resumption < 10) {
 			$this->log("Scheduling a resumption ($next_resumption) in case this run gets aborted");
-			wp_schedule_single_event(time()+$resume_delay, 'updraft_backup_resume', array($next_resumption, $bnonce, $btime));
-			$this->newresumption_scheduled=true;
+			$schedule_for = time()+$resume_interval;
+			wp_schedule_single_event($schedule_for, 'updraft_backup_resume', array($next_resumption, $bnonce, $btime));
+			$this->newresumption_scheduled = $schedule_for;
 		} else {
 			$this->log("The current run is our tenth attempt - will not schedule a further attempt until we see something useful happening");
 		}
@@ -417,6 +434,9 @@ class UpdraftPlus {
 		if ($backup_database) $this->jobdata_set("backup_database", "begun");
 		if ($backup_files) $this->jobdata_set("backup_files", "begun");
 		$this->jobdata_set('service', UpdraftPlus_Options::get_updraft_option('updraft_service'));
+
+		// This can be adapted if we see a need
+		$this->jobdata_set('resume_interval', 300);
 
 		// Everthing is now set up; now go
 		$this->backup_resume(0, $this->nonce, $this->backup_time);
@@ -696,6 +716,24 @@ class UpdraftPlus {
 		return true;
 	}
 
+	function reschedule($how_far_ahead) {
+		// Reschedule - remove presently scheduled event
+		wp_clear_scheduled_hook('updraft_backup_resume', array($this->current_resumption + 1, $this->nonce, $this->backup_time));
+		// Add new event
+		if ($how_far_ahead < 200) $how_far_ahead=200;
+		$schedule_for = time() + $how_far_ahead;
+		wp_schedule_single_event($schedule_for, 'updraft_backup_resume', array($this->current_resumption + 1, $this->nonce, $this->backup_time));
+		$this->newresumption_scheduled = $schedule_for;
+	}
+
+	function increase_resume_and_reschedule($howmuch = 120) {
+		$resume_interval = $this->jobdata_get('resume_interval');
+		if (!is_numeric($resume_interval) || $resume_interval<200) { $resume_interval = 200; }
+		if ($this->newresumption_scheduled != false) $this->reschedule($resume_interval+$howmuch);
+		$this->jobdata_set('resume_interval', $resume_interval+$howmuch);
+		$this->log("To decrease the likelihood of overlaps, increasing resumption interval to: $resume_interval");
+	}
+
 	function create_zip($create_from_dir, $whichone, $create_in_dir, $backup_file_basename) {
 		// Note: $create_from_dir can be an array or a string
 		@set_time_limit(900);
@@ -715,10 +753,13 @@ class UpdraftPlus {
 		$zip_name = $full_path.'.tmp';
 		$time_now = time();
 		$time_mod = (int)@filemtime($zip_name);
-		if (file_exists($zip_name) && $time_mod>100 && ($time_now-$time_mod)<20) {
+		if (file_exists($zip_name) && $time_mod>100 && ($time_now-$time_mod)<30) {
 			$file_size = filesize($zip_name);
-			$this->log("Terminate: the temporary file $zip_name already exists, and was modified within the last 20 seconds (time_mod=$time_mod, time_now=$time_now, diff=".($time_now-$time_mod).", size=$file_size). This likely means that another UpdraftPlus run is still at work; so we will exit.");
+			$this->log("Terminate: the temporary file $zip_name already exists, and was modified within the last 30 seconds (time_mod=$time_mod, time_now=$time_now, diff=".($time_now-$time_mod).", size=$file_size). This likely means that another UpdraftPlus run is still at work; so we will exit.");
+			$this->increase_resume_and_reschedule(120);
 			die;
+		} elseif (file_exists($zip_name)) {
+			$this->log("File exists ($zip_name), but was apparently not modified within the last 30 seconds, so we assume that any previous run has now terminated (time_mod=$time_mod, time_now=$time_now, diff=".($time_now-$time_mod).")");
 		}
 
 		$microtime_start = microtime(true);
@@ -964,9 +1005,25 @@ class UpdraftPlus {
 			$stitch_files[] = $table_file_prefix;
 		}
 
+		// Race detection - with zip files now being resumable, these can more easily occur, with two running side-by-side
+		$backup_final_file_name = $backup_file_base.'-db.gz';
+		$time_now = time();
+		$time_mod = (int)@filemtime($backup_final_file_name);
+		if (file_exists($backup_final_file_name) && $time_mod>100 && ($time_now-$time_mod)<20) {
+			$file_size = filesize($backup_final_file_name);
+			$this->log("Terminate: the final database file ($backup_final_file_name) exists, and was modified within the last 20 seconds (time_mod=$time_mod, time_now=$time_now, diff=".($time_now-$time_mod).", size=$file_size). This likely means that another UpdraftPlus run is at work; so we will exit.");
+			$this->increase_resume_and_reschedule(120);
+			die;
+		} elseif (file_exists($backup_final_file_name)) {
+			$this->log("The final database file ($backup_final_file_name) exists, but was apparently not modified within the last 20 seconds (time_mod=$time_mod, time_now=$time_now, diff=".($time_now-$time_mod)."). Thus we assume that another UpdraftPlus terminated; thus we will continue.");
+		}
+
 		// Finally, stitch the files together
-		$this->backup_db_open($backup_file_base.'-db.gz', true);
+		$this->backup_db_open($backup_final_file_name, true);
 		$this->backup_db_header();
+
+		// We delay the unlinking because if two runs go concurrently and fail to detect each other (should not happen, but there's no harm in assuming the detection failed) then that leads to files missing from the db dump
+		$unlink_files = array();
 
 		foreach ($stitch_files as $table_file) {
 			$this->log("{$table_file}.gz: adding to final database dump");
@@ -976,7 +1033,7 @@ class UpdraftPlus {
 			} else {
 				while ($line = gzgets($handle, 2048)) { $this->stow($line); }
 				gzclose($handle);
-				@unlink($updraft_dir.'/'.$table_file.'.gz');
+				$unlink_files[] = $updraft_dir.'/'.$table_file.'.gz';
 			}
 		}
 
@@ -988,6 +1045,10 @@ class UpdraftPlus {
 
 		$this->log($file_base.'-db.gz: finished writing out complete database file');
 		$this->close($this->dbhandle);
+
+		foreach ($unlink_files as $unlink_files) {
+			@unlink($unlink_file);
+		}
 
 		if (count($this->errors)) {
 			return false;
