@@ -48,9 +48,19 @@ class UpdraftPlus_BackupModule_s3 {
 					// Retrieve the upload ID
 					$uploadId = get_transient("updraft_${hash}_uid");
 					if (empty($uploadId)) {
-						$uploadId = $s3->initiateMultipartUpload($bucket_name, $filepath);
+						$s3->setExceptions(true);
+						try {
+							$uploadId = $s3->initiateMultipartUpload($bucket_name, $filepath);
+						} catch  (Exception $e) {
+							$updraftplus->log('S3 error whilst trying initiateMultipartUpload: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
+							$s3->setExceptions(false);
+							$uploadId = false;
+						}
+						$s3->setExceptions(false);
+
 						if (empty($uploadId)) {
-							$updraftplus->log("S3 upload: failed: could not get uploadId for multipart upload");
+							$updraftplus->log("S3 upload: failed: could not get uploadId for multipart upload ($filepath)");
+							$updraftplus->error("S3 upload: getting uploadID for multipart upload failed - see log file for more details");
 							continue;
 						} else {
 							$updraftplus->log("S3 chunked upload: got multipart ID: $uploadId");

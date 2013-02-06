@@ -3,7 +3,7 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, ftp, cloud, back up, multisite
 Requires at least: 3.2
 Tested up to: 3.5.1
-Stable tag: 1.4.1
+Stable tag: 1.4.2
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
@@ -144,6 +144,10 @@ Yes; especially before you submit any support requests.
 Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ . I am also available for hire for bespoke work.
 
 == Changelog ==
+
+= 1.4.2 - 02/06/2013 = 
+* More Amazon S3 logging which should help people with wrong details
+* More race/overlap detection, and more flexible rescheduling
 
 = 1.4.0 - 02/04/2013 =
 * Zip file creation is now resumable; and thus the entire backup operation is; there is now no "too early to resume" point. So even the most enormous site backups should now be able to proceed.
