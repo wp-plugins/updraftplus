@@ -251,7 +251,7 @@ class UpdraftPlus {
 
 		// Schedule again, to run in 5 minutes again, in case we again fail
 		// The actual interval can be increased (for future resumptions) by other code, if it detects apparent overlapping
-		$resume_interval = jobdata_get('resume_interval');
+		$resume_interval = $this->jobdata_get('resume_interval');
 		if (!is_numeric($resume_interval) || $resume_interval<200) $resume_interval = 200;
 
 		// A different argument than before is needed otherwise the event is ignored
