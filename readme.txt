@@ -3,7 +3,7 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, ftp, cloud, back up, multisite
 Requires at least: 3.2
 Tested up to: 3.5.1
-Stable tag: 1.4.4
+Stable tag: 1.4.5
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
@@ -145,7 +145,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.4.4 - 02/07/2013 =
+= 1.4.5 - 02/07/2013 =
 * Amazon S3 now works for users with non-US buckets
 * Further tweak to overlap detection
 
