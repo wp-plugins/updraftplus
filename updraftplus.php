@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.4.5
+Version: 1.4.6
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -96,7 +96,7 @@ if (!class_exists('UpdraftPlus_Options')) require_once(UPDRAFTPLUS_DIR.'/options
 
 class UpdraftPlus {
 
-	var $version = '1.4.5';
+	var $version = '1.4.6';
 	var $plugin_title = 'UpdraftPlus Backup/Restore';
 
 	// Choices will be shown in the admin menu in the order used here
@@ -129,7 +129,6 @@ class UpdraftPlus {
 	var $zipfiles_existingfiles;
 	var $zipfiles_dirbatched;
 	var $zipfiles_batched;
-	var $zipfiles_batched_size;
 
 	function __construct() {
 		// Initialisation actions - takes place on plugin load
@@ -2215,7 +2214,6 @@ class UpdraftPlus {
 		$this->zipfiles_added = 0;
 		$this->zipfiles_dirbatched = array();
 		$this->zipfiles_batched = array();
-		$this->zipfiles_batched_size = 0;
 
 		$last_error = -1;
 		if (is_array($source)) {
@@ -2271,9 +2269,8 @@ class UpdraftPlus {
 			$this->zipfiles_added++;
 			if ($this->zipfiles_added % 100 == 0) $this->log("Zip: ".basename($zipfile).": ".$this->zipfiles_added." files added (size: ".round(filesize($zipfile)/1024,1)." Kb)");
 		}
-		// Reset the arrays
+		// Reset the array
 		$this->zipfiles_batched = array();
-		$this->zipfiles_batched_size = 0;
 		return $zip->close();
 	}
 
@@ -2294,7 +2291,7 @@ class UpdraftPlus {
 			if (is_readable($fullpath)) {
 				$key = $use_path_when_storing.'/'.basename($fullpath);
 				$this->zipfiles_batched[$fullpath] = $use_path_when_storing.'/'.basename($fullpath);
-				$this->zipfiles_batched_size += filesize($fullpath);
+				@touch($zipfile);
 			} else {
 				$this->log("$fullpath: unreadable file");
 				$this->error("$fullpath: unreadable file");
@@ -2313,7 +2310,7 @@ class UpdraftPlus {
 						if (is_file($deref)) {
 							if (is_readable($deref)) {
 								$this->zipfiles_batched[$deref] = $use_path_when_storing.'/'.$e;
-								$this->zipfiles_batched_size += filesize($deref);
+								@touch($zipfile);
 							} else {
 								$this->log("$deref: unreadable file");
 								$this->error("$deref: unreadable file");
@@ -2324,7 +2321,7 @@ class UpdraftPlus {
 					} elseif (is_file($fullpath.'/'.$e)) {
 						if (is_readable($fullpath.'/'.$e)) {
 							$this->zipfiles_batched[$fullpath.'/'.$e] = $use_path_when_storing.'/'.$e;
-							$this->zipfiles_batched_size += filesize($fullpath.'/'.$e);
+							@touch($zipfile);
 						} else {
 							$this->log("$fullpath/$e: unreadable file");
 							$this->error("$fullpath/$e: unreadable file");
@@ -2339,10 +2336,9 @@ class UpdraftPlus {
 		}
 
 		// We don't want to touch the zip file on every single file, so we batch them up
-		// We go every 25 files, because if you wait too longer, the contents may have changed from under you
-		// And we try to touch the file after 15 seconds, to help with the "recently modified" check on resumption (we saw a case where the file went for 155 seconds without being touched and so the other runner was not detected)
-		// Also write out if there's more than a megabyte of data waiting
-		if (count($this->zipfiles_batched) > 25 || $this->zipfiles_batched_size > 1048576 || (file_exists($zipfile) && ((time()-filemtime($zipfile)) > 15) )) {
+		// We go every 25 files, because if you wait too much longer, the contents may have changed from under you
+		// And for some redundancy (redundant because of the touches going on anyway), we try to touch the file after 20 seconds, to help with the "recently modified" check on resumption (we saw a case where the file went for 155 seconds without being touched and so the other runner was not detected)
+		if (count($this->zipfiles_batched) > 25 || (file_exists($zipfile) && ((time()-filemtime($zipfile)) > 20) )) {
 			$ret = $this->makezip_addfiles($zipfile);
 		} else {
 			$ret = true;

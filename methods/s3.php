@@ -57,7 +57,10 @@ class UpdraftPlus_BackupModule_s3 {
 				// We upload in 5Mb chunks to allow more efficient resuming and hence uploading of larger files
 				// N.B.: 5Mb is Amazon's minimum. So don't go lower or you'll break it.
 				$fullpath = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir')).$file;
-				$chunks = floor(filesize($fullpath) / 5242880)+1;
+				$orig_file_size = filesize($fullpath);
+				$chunks = floor($orig_file_size / 5242880);
+				// There will be a remnant unless the file size was exactly on a 5Mb boundary
+				if ($orig_file_size % 5242880 > 0 ) $chunks++;
 				$hash = md5($file);
 
 				$updraftplus->log("S3 upload ($region): $fullpath (chunks: $chunks) -> s3://$bucket_name/$bucket_path$file");
@@ -110,8 +113,12 @@ class UpdraftPlus_BackupModule_s3 {
 							$successes++;
 							array_push($etags, $etag);
 						} else {
+							// Sanity check: we've seen a case where an overlap was truncating the file from underneath us
+							if (filesize($fullpath) < $orig_file_size) {
+								$updraftplus->error("S3 error: $key: chunk $i: file was truncated underneath us (orig_size=$orig_file_size, now_size=".filesize($fullpath).")");
+							}
 							$etag = $s3->uploadPart($bucket_name, $filepath, $uploadId, $fullpath, $i);
-							if (is_string($etag)) {
+							if ($etag !== false && is_string($etag)) {
 								$updraftplus->record_uploaded_chunk(round(100*$i/$chunks,1), "$i, $etag");
 								array_push($etags, $etag);
 								set_transient("upd_${hash}_e$i", $etag, UPDRAFT_TRANSTIME);

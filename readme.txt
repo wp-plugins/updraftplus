@@ -145,7 +145,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.4.5 - 02/07/2013 =
+= 1.4.6 - 02/07/2013 =
 * Amazon S3 now works for users with non-US buckets
 * Further tweak to overlap detection
 
