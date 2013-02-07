@@ -52,7 +52,7 @@ class UpdraftPlus_BackupModule_s3 {
 			if (empty($region)) $region = $s3->getBucketLocation($bucket_name);
 			$this->set_endpoint($s3, $region);
 
-			foreach($backup_array as $file) {
+			foreach($backup_array as $key => $file) {
 
 				// We upload in 5Mb chunks to allow more efficient resuming and hence uploading of larger files
 				// N.B.: 5Mb is Amazon's minimum. So don't go lower or you'll break it.
@@ -128,15 +128,15 @@ class UpdraftPlus_BackupModule_s3 {
 						$s3->setExceptions(true);
 						try {
 							if ($s3->completeMultipartUpload ($bucket_name, $filepath, $uploadId, $etags)) {
-								$updraftplus->log("S3 upload: re-assembly succeeded");
+								$updraftplus->log("S3 upload ($key): re-assembly succeeded");
 								$updraftplus->uploaded_file($file);
 							} else {
-								$updraftplus->log("S3 upload: re-assembly failed");
-								$updraftplus->error("S3 upload: re-assembly failed ($file)");
+								$updraftplus->log("S3 upload ($key): re-assembly failed");
+								$updraftplus->error("S3 upload ($key): re-assembly failed ($file)");
 							}
 						} catch (Exception $e) {
-							$updraftplus->log('S3 re-assembly error: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
-							$updraftplus->error('S3 re-assembly error: '.$e->getMessage().' (see log file for more)');
+							$updraftplus->log("S3 re-assembly error ($key): ".$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
+							$updraftplus->error("S3 re-assembly error ($key): ".$e->getMessage().' (see log file for more)');
 						}
 						// Remember to unset, as the deletion code later reuses the object
 						$s3->setExceptions(false);
