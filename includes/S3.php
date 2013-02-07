@@ -535,18 +535,18 @@ class S3
 		$rest->setHeader('Content-Type', 'application/octet-stream');
 		$rest->data = "";
 
-		$handle = fopen($filePath, "rb");
-		if ($fileOffset >0) fseek($handle, $fileOffset);
-		$bytes_read = 0;
-
-		while ($fileBytes >0) {
-			$read = fread($handle, min($fileBytes, 32768));
-			$fileBytes = $fileBytes - strlen($read);
-			$bytes_read += strlen($read);
-			$rest->data = $rest->data . $read;
+		if ($handle = fopen($filePath, "rb")) {
+			if ($fileOffset >0) fseek($handle, $fileOffset);
+			$bytes_read = 0;
+			while ($fileBytes>0 && $read = fread($handle, max($fileBytes, 65536))) {
+				$fileBytes = $fileBytes - strlen($read);
+				$bytes_read += strlen($read);
+				$rest->data = $rest->data . $read;
+			}
+			fclose($handle);
+		} else {
+			return false;
 		}
-
-		fclose($handle);
 
  		$rest->setHeader('Content-MD5', base64_encode(md5($rest->data, true)));
 		$rest->size = $bytes_read;
@@ -654,7 +654,7 @@ class S3
 		// Data
 		if (isset($input['fp']))
 			$rest->fp =& $input['fp'];
-		elseif (isset($input['file']))
+		elseif (isset($input['file']) && is_file($input['file']))
 			$rest->fp = @fopen($input['file'], 'rb');
 		elseif (isset($input['data']))
 			$rest->data = $input['data'];

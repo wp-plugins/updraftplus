@@ -115,7 +115,7 @@ abstract class Dropbox_ConsumerAbstract
     public function getAccessToken()
     {
         // Get the signed request URL
-        $response = $this->fetch('POST', API::API_URL, self::ACCESS_TOKEN_METHOD);
+        $response = $this->fetch('POST', Dropbox_API::API_URL, self::ACCESS_TOKEN_METHOD);
         $token = $this->parseTokenString($response['body']);
         $this->storage->set($token, 'access_token');
     }
