@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.4.3
+Version: 1.4.4
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -96,7 +96,7 @@ if (!class_exists('UpdraftPlus_Options')) require_once(UPDRAFTPLUS_DIR.'/options
 
 class UpdraftPlus {
 
-	var $version = '1.4.3';
+	var $version = '1.4.4';
 	var $plugin_title = 'UpdraftPlus Backup/Restore';
 
 	// Choices will be shown in the admin menu in the order used here
@@ -2332,7 +2332,10 @@ class UpdraftPlus {
 			closedir($dir_handle);
 		}
 
-		if (count($this->zipfiles_batched) > 25) {
+		// We don't want to touch the zip file on every single file, so we batch them up
+		// We go every 25 files, because if you wait too longer, the contents may have changed from under you
+		// And we try to touch the file after 20 seconds, to help with the "recently modified" check on resumption (we saw a case where the file went for 65 seconds without being touched and so the other runner was not detected)
+		if (count($this->zipfiles_batched) > 25 || (file_exists($zipfile) && ((time()-filemtime($zipfile)) > 20) )) {
 			$ret = $this->makezip_addfiles($zipfile);
 		} else {
 			$ret = true;
