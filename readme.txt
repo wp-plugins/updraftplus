@@ -3,12 +3,12 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, ftp, cloud, back up, multisite
 Requires at least: 3.2
 Tested up to: 3.5.1
-Stable tag: 1.4.5
+Stable tag: 1.4.6
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Amazon S3 now working with non-US buckets
+Amazon S3 now working with non-US buckets. More overlap detection.
 
 == Description ==
 
