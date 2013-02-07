@@ -3,12 +3,12 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, ftp, cloud, back up, multisite
 Requires at least: 3.2
 Tested up to: 3.5.1
-Stable tag: 1.4.2
+Stable tag: 1.4.3
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Everything now resumable: every part of a backup run can now be individually resumed, meaning that there are no theoretical limits imposed by any part of the UD architecture upon the size of your backup. (This was the final step: with previous steps, probably only 0.1% of WordPress sites were still "too large" for the remaining bottleneck).
+Amazon S3 now working with non-US buckets
 
 == Description ==
 
@@ -144,6 +144,9 @@ Yes; especially before you submit any support requests.
 Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ . I am also available for hire for bespoke work.
 
 == Changelog ==
+
+= 1.4.3 - 02/07/2013 =
+* Amazon S3 now works for users with non-US buckets
 
 = 1.4.2 - 02/06/2013 = 
 * More Amazon S3 logging which should help people with wrong details

@@ -2,13 +2,38 @@
 
 class UpdraftPlus_BackupModule_s3 {
 
+	function getS3($key, $secret) {
+		return new S3($key, $secret);
+	}
+
+	function set_endpoint($obj, $region) {
+		switch ($region) {
+			case 'EU':
+				$endpoint = 's3-eu-west-1.amazonaws.com';
+				break;
+			case 'us-west-1':
+			case 'us-west-2':
+			case 'ap-southeast-1':
+			case 'ap-southeast-2':
+			case 'ap-northeast-1':
+			case 'sa-east-1':
+				$endpoint = 's3-'.$region.'.amazonaws.com';
+				break;
+			default:
+				break;
+		}
+		if (isset($endpoint)) {
+			$obj->setEndpoint($endpoint);
+		}
+	}
+
 	function backup($backup_array) {
 
 		global $updraftplus;
 
 		if (!class_exists('S3')) require_once(UPDRAFTPLUS_DIR.'/includes/S3.php');
 
-		$s3 = new S3(UpdraftPlus_Options::get_updraft_option('updraft_s3_login'), UpdraftPlus_Options::get_updraft_option('updraft_s3_pass'));
+		$s3 = $this->getS3(UpdraftPlus_Options::get_updraft_option('updraft_s3_login'), UpdraftPlus_Options::get_updraft_option('updraft_s3_pass'));
 
 		$bucket_name = untrailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_s3_remote_path'));
 		$bucket_path = "";
@@ -19,8 +44,13 @@ class UpdraftPlus_BackupModule_s3 {
 			$bucket_path = $bmatches[2]."/";
 		}
 
+		$region = @$s3->getBucketLocation($bucket_name);
+
 		// See if we can detect the region (which implies the bucket exists and is ours), or if not create it
-		if (@$s3->getBucketLocation($bucket_name) || @$s3->putBucket($bucket_name, S3::ACL_PRIVATE)) {
+		if (!empty($region) || @$s3->putBucket($bucket_name, S3::ACL_PRIVATE)) {
+
+			if (empty($region)) $region = $s3->getBucketLocation($bucket_name);
+			$this->set_endpoint($s3, $region);
 
 			foreach($backup_array as $file) {
 
@@ -30,7 +60,7 @@ class UpdraftPlus_BackupModule_s3 {
 				$chunks = floor(filesize($fullpath) / 5242880)+1;
 				$hash = md5($file);
 
-				$updraftplus->log("S3 upload: $fullpath (chunks: $chunks) -> s3://$bucket_name/$bucket_path$file");
+				$updraftplus->log("S3 upload ($region): $fullpath (chunks: $chunks) -> s3://$bucket_name/$bucket_path$file");
 
 				$filepath = $bucket_path.$file;
 
@@ -138,16 +168,15 @@ class UpdraftPlus_BackupModule_s3 {
 		}
 		$updraftplus->log("S3: Delete remote: bucket=$s3_bucket, URI=$s3_uri");
 
-		# Here we brought in the contents of the S3.php function deleteObject in order to get more direct access to any error
-		$rest = new S3Request('DELETE', $s3_bucket, $s3_uri);
-		$rest = $rest->getResponse();
-		if ($rest->error === false && $rest->code !== 204) {
-			$updraftplus->log("S3 Error: Expected HTTP response 204; got: ".$rest->code);
-			//$updraftplus->error("S3 Error: Unexpected HTTP response code ".$rest->code." (expected 204)");
-		} elseif ($rest->error !== false) {
-			$updraftplus->log("S3 Error: ".$rest->error['code'].": ".$rest->error['message']);
-			//$updraftplus->error("S3 delete error: ".$rest->error['code'].": ".$rest->error['message']);
+		$s3->setExceptions(true);
+		try {
+			if (!$s3->deleteObject($s3_bucket, $s3_uri)) {
+				$updraftplus->log("S3: Delete failed");
+			}
+		} catch  (Exception $e) {
+			$updraftplus->log('S3 delete failed: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
 		}
+		$s3->setExceptions(false);
 
 	}
 
@@ -156,7 +185,8 @@ class UpdraftPlus_BackupModule_s3 {
 		global $updraftplus;
 		if(!class_exists('S3')) require_once(UPDRAFTPLUS_DIR.'/includes/S3.php');
 
-		$s3 = new S3(UpdraftPlus_Options::get_updraft_option('updraft_s3_login'), UpdraftPlus_Options::get_updraft_option('updraft_s3_pass'));
+		$s3 = $this->getS3(UpdraftPlus_Options::get_updraft_option('updraft_s3_login'), UpdraftPlus_Options::get_updraft_option('updraft_s3_pass'));
+
 		$bucket_name = untrailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_s3_remote_path'));
 		$bucket_path = "";
 
@@ -165,7 +195,9 @@ class UpdraftPlus_BackupModule_s3 {
 			$bucket_path = $bmatches[2]."/";
 		}
 
-		if (@$s3->getBucketLocation($bucket_name)) {
+		$region = @$s3->getBucketLocation($bucket_name);
+		if (!empty($region)) {
+			$this->set_endpoint($s3, $region);
 			$fullpath = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir')).$file;
 			if (!$s3->getObject($bucket_name, $bucket_path.$file, $fullpath)) {
 				$updraftplus->error("S3 Error: Failed to download $file. Check your permissions and credentials.");
