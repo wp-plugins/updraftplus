@@ -9,6 +9,7 @@ class UpdraftPlus_BackupModule_s3 {
 	function set_endpoint($obj, $region) {
 		switch ($region) {
 			case 'EU':
+			case 'eu-west-1':
 				$endpoint = 's3-eu-west-1.amazonaws.com';
 				break;
 			case 'us-west-1':

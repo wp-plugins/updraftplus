@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.4.6
+Version: 1.4.7
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -96,7 +96,7 @@ if (!class_exists('UpdraftPlus_Options')) require_once(UPDRAFTPLUS_DIR.'/options
 
 class UpdraftPlus {
 
-	var $version = '1.4.6';
+	var $version = '1.4.7';
 	var $plugin_title = 'UpdraftPlus Backup/Restore';
 
 	// Choices will be shown in the admin menu in the order used here
@@ -201,7 +201,7 @@ class UpdraftPlus {
 		$this->opened_log_time = microtime(true);
 		$this->log("Opened log file at time: ".date('r'));
 		global $wp_version;
-		$logline = "UpdraftPlus: ".$this->version." WordPress: ".$wp_version." PHP: ".phpversion()." (".@php_uname().") PHP Max Execution Time: ".@ini_get("max_execution_time")." ZipArchive::addFile exists: ";
+		$logline = "UpdraftPlus: ".$this->version." WordPress: ".$wp_version." PHP: ".phpversion()." (".php_uname().") PHP Max Execution Time: ".@ini_get("max_execution_time")." ZipArchive::addFile exists: ";
 		$logline .= (method_exists('ZipArchive', 'addFile')) ? "Y" : "N";
 		$this->log($logline);
 	}
