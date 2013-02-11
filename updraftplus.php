@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.4.7
+Version: 1.4.8
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -96,7 +96,7 @@ if (!class_exists('UpdraftPlus_Options')) require_once(UPDRAFTPLUS_DIR.'/options
 
 class UpdraftPlus {
 
-	var $version = '1.4.7';
+	var $version = '1.4.8';
 	var $plugin_title = 'UpdraftPlus Backup/Restore';
 
 	// Choices will be shown in the admin menu in the order used here
@@ -129,6 +129,8 @@ class UpdraftPlus {
 	var $zipfiles_existingfiles;
 	var $zipfiles_dirbatched;
 	var $zipfiles_batched;
+
+	var $zip_preferpcl = false;
 
 	function __construct() {
 		// Initialisation actions - takes place on plugin load
@@ -1043,7 +1045,7 @@ class UpdraftPlus {
 			$this->stow("/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;\n");
 		}
 
-		$this->log($file_base.'-db.gz: finished writing out complete database file');
+		$this->log($file_base.'-db.gz: finished writing out complete database file ('.round(filesize($backup_final_file_name/1024),1).' Kb)');
 		$this->close($this->dbhandle);
 
 		foreach ($unlink_files as $unlink_files) {
@@ -2180,7 +2182,7 @@ class UpdraftPlus {
 	function make_zipfile($source, $destination) {
 
 		// Fallback to PclZip - which my tests show is 25% slower
-		if (!method_exists('ZipArchive', 'addFile')) {
+		if ($this->zip_preferpcl || !method_exists('ZipArchive', 'addFile')) {
 			if(!class_exists('PclZip')) require_once(ABSPATH.'/wp-admin/includes/class-pclzip.php');
 			$zip_object = new PclZip($destination);
 			$zipcode = $zip_object->create($source, PCLZIP_OPT_REMOVE_PATH, WP_CONTENT_DIR);
@@ -2194,7 +2196,6 @@ class UpdraftPlus {
 
 		$this->existing_files = array();
 
-		// TODO: Resuming! :-)
 		// If the file exists, then we should grab its index of files inside, and sizes
 		// Then, when we come to write a file, we should check if it's already there, and only add if it is not
 		if (file_exists($destination) && is_readable($destination)) {
@@ -2239,6 +2240,13 @@ class UpdraftPlus {
 		}
 
 	if ($this->zipfiles_added >= 0) {
+		// ZipArchive::addFile sometimes fails 
+		if (filesize($destination) < 100) {
+			// Retry with PclZip
+			$this->log("Zip::addFile apparently failed - retrying with PclZip");
+			$this->zip_preferpcl = true;
+			return $this->make_zipfile($source, $destination);
+		}
 		return true;
 	} else {
 		return $last_error;
