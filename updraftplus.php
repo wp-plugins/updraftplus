@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson
-Version: 1.4.9
+Version: 1.4.10
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -32,6 +32,7 @@ TODO
 // Change FTP to use SSL by default
 // When looking for files to delete, is the current encryption setting used? Should not be.
 // Create single zip, containing even WordPress itself
+// Have something reap any remaining .tmp files, e.g. once a week
 // When a new backup starts, AJAX-update the 'Last backup' display in the admin page.
 // Remove the recurrence of admin notices when settings are saved due to _wp_referer
 // Auto-detect what the real execution time is (max_execution_time is just one of the upper limits, there can be others, some insivible directly), and tweak our resumption time accordingly
@@ -1060,7 +1061,7 @@ class UpdraftPlus {
 		$this->log($file_base.'-db.gz: finished writing out complete database file ('.round(filesize($backup_final_file_name/1024),1).' Kb)');
 		$this->close($this->dbhandle);
 
-		foreach ($unlink_files as $unlink_files) {
+		foreach ($unlink_files as $unlink_file) {
 			@unlink($unlink_file);
 		}
 

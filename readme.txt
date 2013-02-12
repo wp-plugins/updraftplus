@@ -91,7 +91,7 @@ This almost always indicates a problem with the scheduler in your WordPress inst
 
 = Some of my files have uploaded into my cloud storage, but not others. =
 
-From version 0.9.0, UpdraftPlus features a resumption feature - if you wait 5 minutes and visit a page on your site, then it should re-try not-yet-uploaded files. If that fails, then turn on debugging and paste the debug log (log in via FTP, and look in wp-content/updraft) into the support forum. Before asking for support, make sure that you: 1) Have started a backup, and then waited at least an hour (because UpdraftPlus will keep trying) 2) Not started any new backups in the mean-time (that may cancel the earlier backup) 3) Have the log of the failed backup attempt, and that log only (please don't bombard me with every log file you could find - this only slows me down).
+From version 0.9.0, UpdraftPlus features a resumption feature - if you wait 5 minutes and visit a page on your site, then it should re-try not-yet-uploaded files. If that fails, then turn on debugging and paste the debug log (log in via FTP, and look in wp-content/updraft) into the support forum. Before asking for support, make sure that you: 1) Have started a backup, and then waited at least an hour (because UpdraftPlus will keep trying) 2) Have the log of the failed backup attempt, and that log only (please don't bombard us with every log file you could find - this only slows us down).
 
 = How do I restore my backup (from a site that is still installed/running)? =
 
