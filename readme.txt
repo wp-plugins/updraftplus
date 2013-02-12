@@ -137,7 +137,7 @@ No, there's no warranty or guarantee, etc. It's completely up to you to verify t
 
 = Does UpdraftPlus delete all its settings when it is de-installed? =
 
-No. Doing so is "cleaner", but some users also de-install and re-install and don't want to have to re-enter their settings. If you want to remove all UpdraftPlus's settings, then there's a button down at the bottom of the settings page.
+No. Doing so is "cleaner", but some users also de-install and re-install and don't want to have to re-enter their settings. If you want to remove all UpdraftPlus's settings, then there's a button down at the bottom of the settings page, which is activated when you click the link to show 'expert settings'.
 
 = I am not running the most recent version of UpdraftPlus. Should I upgrade? =
 
