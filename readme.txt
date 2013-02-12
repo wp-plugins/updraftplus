@@ -91,7 +91,7 @@ This almost always indicates a problem with the scheduler in your WordPress inst
 
 = Some of my files have uploaded into my cloud storage, but not others. =
 
-From version 0.9.0, UpdraftPlus features a resumption feature - if you wait 5 minutes and visit a page on your site, then it should re-try not-yet-uploaded files. If that fails, then turn on debugging and paste the debug log (log in via FTP, and look in wp-content/updraft) into the support forum. Before asking for support, make sure that you: 1) Have started a backup, and then waited at least an hour (because UpdraftPlus will keep trying) 2) Not started any new backups in the mean-time (that may cancel the earlier backup) 3) Have the log of the failed backup attempt, and that log only (please don't bombard me with every log file you could find - this only slows me down).
+From version 0.9.0, UpdraftPlus features a resumption feature - if you wait 5 minutes and visit a page on your site, then it should re-try not-yet-uploaded files. If that fails, then turn on debugging and paste the debug log (log in via FTP, and look in wp-content/updraft) into the support forum. Before asking for support, make sure that you: 1) Have started a backup, and then waited at least an hour (because UpdraftPlus will keep trying) 2) Have the log of the failed backup attempt, and that log only (please don't bombard us with every log file you could find - this only slows us down).
 
 = How do I restore my backup (from a site that is still installed/running)? =
 
@@ -137,7 +137,7 @@ No, there's no warranty or guarantee, etc. It's completely up to you to verify t
 
 = Does UpdraftPlus delete all its settings when it is de-installed? =
 
-No. Doing so is "cleaner", but some users also de-install and re-install and don't want to have to re-enter their settings. If you want to remove all UpdraftPlus's settings, then there's a button down at the bottom of the settings page.
+No. Doing so is "cleaner", but some users also de-install and re-install and don't want to have to re-enter their settings. If you want to remove all UpdraftPlus's settings, then there's a button down at the bottom of the settings page, which is activated when you click the link to show 'expert settings'.
 
 = I am not running the most recent version of UpdraftPlus. Should I upgrade? =
 

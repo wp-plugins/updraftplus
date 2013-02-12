@@ -3,8 +3,8 @@
 Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
-Author: David Anderson.
-Version: 1.4.9
+Author: David Anderson
+Version: 1.4.10
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -32,6 +32,7 @@ TODO
 // Change FTP to use SSL by default
 // When looking for files to delete, is the current encryption setting used? Should not be.
 // Create single zip, containing even WordPress itself
+// Have something reap any remaining .tmp files, e.g. once a week
 // When a new backup starts, AJAX-update the 'Last backup' display in the admin page.
 // Remove the recurrence of admin notices when settings are saved due to _wp_referer
 // Auto-detect what the real execution time is (max_execution_time is just one of the upper limits, there can be others, some insivible directly), and tweak our resumption time accordingly
@@ -97,7 +98,8 @@ if (!class_exists('UpdraftPlus_Options')) require_once(UPDRAFTPLUS_DIR.'/options
 
 class UpdraftPlus {
 
-	var $version = '1.4.9';
+	var $version;
+
 	var $plugin_title = 'UpdraftPlus Backup/Restore';
 
 	// Choices will be shown in the admin menu in the order used here
@@ -134,7 +136,17 @@ class UpdraftPlus {
 	var $zip_preferpcl = false;
 
 	function __construct() {
+
 		// Initialisation actions - takes place on plugin load
+
+		if ($fp = fopen( __FILE__, 'r')) {
+			$file_data = fread( $fp, 1024 );
+			if (preg_match("/Version: ([\d\.]+)(\r|\n)/", $file_data, $matches)) {
+				$this->version = $matches[1];
+			}
+			fclose( $fp );
+		}
+
 		# Create admin page
 		add_action('admin_init', array($this, 'admin_init'));
 		add_action('updraft_backup', array($this,'backup_files'));
@@ -1049,7 +1061,7 @@ class UpdraftPlus {
 		$this->log($file_base.'-db.gz: finished writing out complete database file ('.round(filesize($backup_final_file_name/1024),1).' Kb)');
 		$this->close($this->dbhandle);
 
-		foreach ($unlink_files as $unlink_files) {
+		foreach ($unlink_files as $unlink_file) {
 			@unlink($unlink_file);
 		}
 
