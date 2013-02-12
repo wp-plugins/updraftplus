@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson.
-Version: 1.4.8
+Version: 1.4.9
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -37,6 +37,7 @@ TODO
 // Auto-detect what the real execution time is (max_execution_time is just one of the upper limits, there can be others, some insivible directly), and tweak our resumption time accordingly
 //http://w-shadow.com/blog/2010/09/02/automatic-updates-for-any-plugin/
 // Specify the exact time to run the backup (useful if you have big site, using a lot of CPU)
+// Test Amazon S3 should also test file creation + deletion, not just bucket access
 
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
 // Does not delete old custom directories upon a restore?
@@ -71,8 +72,8 @@ define('UPDRAFTPLUS_DIR', dirname(__FILE__));
 define('UPDRAFTPLUS_URL', plugins_url('', __FILE__));
 define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php,backup,backups');
 // This is used in various places, based on our assumption of the maximum time any job should take. May need lengthening in future if we get reports which show enormous sets hitting the limit.
-// Also one section requires at least 1% progress each run, so on a 5-minute schedule, that equals just under 9 hours
-define('UPDRAFT_TRANSTIME', 3600*9);
+// Also one section requires at least 1% progress each run, so on a 5-minute schedule, that equals just under 9 hours - then an extra allowance takes it just over
+define('UPDRAFT_TRANSTIME', 3600*9+5);
 
 // Load add-ons
 if (is_file(UPDRAFTPLUS_DIR.'/premium.php')) require_once(UPDRAFTPLUS_DIR.'/premium.php');
@@ -96,7 +97,7 @@ if (!class_exists('UpdraftPlus_Options')) require_once(UPDRAFTPLUS_DIR.'/options
 
 class UpdraftPlus {
 
-	var $version = '1.4.8';
+	var $version = '1.4.9';
 	var $plugin_title = 'UpdraftPlus Backup/Restore';
 
 	// Choices will be shown in the admin menu in the order used here
@@ -222,11 +223,11 @@ class UpdraftPlus {
 		if ($extra) $log .= " ($extra)";
 		$this->log($log);
 		// If we are on an 'overtime' resumption run, and we are still meainingfully uploading, then schedule a new resumption
-		// Our definition of meaningful is that we must maintain an overall average of at least 1% per run, after allowing 5 runs for everything else to get going
-		// i.e. Max 100 runs = 500 minutes = 8 hrs 40
+		// Our definition of meaningful is that we must maintain an overall average of at least 1% per run, after allowing 9 runs for everything else to get going
+		// i.e. Max 109 runs = 545 minutes = 9 hrs 05
 		// If they get 2 minutes on each run, and the file is 1Gb, then that equals 10.2Mb/120s = minimum 87Kb/s upload speed required
 
-		if ($this->current_resumption >= 9 && $this->newresumption_scheduled == false && $percent > ( $this->current_resumption - 5)) {
+		if ($this->current_resumption >= 9 && $this->newresumption_scheduled == false && $percent > ( $this->current_resumption - 9)) {
 			$resume_interval = $this->jobdata_get('resume_interval');
 			if (!is_numeric($resume_interval) || $resume_interval<200) { $resume_interval = 200; }
 			$schedule_for = time()+$resume_interval;

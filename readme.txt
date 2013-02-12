@@ -3,12 +3,12 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, ftp, cloud, back up, multisite
 Requires at least: 3.2
 Tested up to: 3.5.1
-Stable tag: 1.4.7
+Stable tag: 1.4.9
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Tweak for some Amazon S3 EU West 1 bucket users
+Improve testing of Amazon S3 and detection of useful activity on massive backups
 
 == Description ==
 
@@ -123,6 +123,10 @@ Not a bug, but one issue to be aware of is that backups of very large sites (lot
 
 If you have the encryption key entered in your settings and you are restoring from the settings interface, then it will automatically decrypt. Otherwise, use the file example-decrypt.php found in the plugin directory; that will need very (very) minor PHP knowledge to use; find your local PHP guru, or bung me a donation (http://david.dw-perspective.org.uk/donate) and I can do it for you.
 
+= In the administation section, my password is shown clearly, not using stars. This means that other WordPress admins on my site can read it! =
+
+In fact, the use of stars makes no difference here. Any WordPress admin could read it even if it were stored with stars, just by using "View Source" in their web browser. The use of stars in HTML forms to blank passwords is intended to, and only does, prevent "shoulder-suffering", whereby someone standing behind you can read it - nothing else.
+
 = I lost my encryption key - what can I do? =
 
 Nothing, probably. That's the point of an encryption key - people who don't have it can't get the data. Hire an encryption expert to build a super computer to try to break the encryption by brute force, at a price.
@@ -144,6 +148,10 @@ Yes; especially before you submit any support requests.
 Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ . I am also available for hire for bespoke work.
 
 == Changelog ==
+
+= 1.4.9 - 02/12/2013 =
+* Do more when testing Amazon S3 connectivity (catches users with bucket but not file access)
+* Tweak algorithm for detecting useful activity to further help gigantic sites
 
 = 1.4.7 - 02/09/2013 =
 * Tweak for some Amazon EU West 1 bucket users

@@ -198,7 +198,7 @@ class UpdraftPlus_BackupModule_s3 {
 		$bucket_name = untrailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_s3_remote_path'));
 		$bucket_path = "";
 
-		if (preg_match("#^([^/]+)/(.*)$#",$bucket_name,$bmatches)) {
+		if (preg_match("#^([^/]+)/(.*)$#", $bucket_name, $bmatches)) {
 			$bucket_name = $bmatches[1];
 			$bucket_path = $bmatches[2]."/";
 		}
@@ -272,7 +272,13 @@ class UpdraftPlus_BackupModule_s3 {
 		$secret = $_POST['apisecret'];
 		$path = $_POST['path'];
 
-		$bucket =  (preg_match("#^([^/]+)/(.*)$#", $path, $bmatches)) ? $bmatches[1] : $path;
+		if (preg_match("#^([^/]+)/(.*)$#", $path, $bmatches)) {
+			$bucket = $bmatches[1];
+			$path = $bmatches[2];
+		} else {
+			$bucket = $path;
+			$path = "";
+		}
 
 		if (empty($bucket)) {
 			echo "Failure: No bucket details were given.";
@@ -292,13 +298,26 @@ class UpdraftPlus_BackupModule_s3 {
 
 		$location = @$s3->getBucketLocation($bucket);
 		if ($location) {
-			echo "Success: this bucket exists (Amazon region: $location) and we have access to it.";
+			$bucket_exists = true;
+			$bucket_verb = "accessed (Amazon region: $location)";
+			$bucket_region = $location;
 		} else {
-			$try_to_create = @$s3->putBucket($bucket, S3::ACL_PRIVATE);
-			if ($try_to_create) {
-				echo "Success: We have successfully created this bucket in your S3 account.";
+			$try_to_create_bucket = @$s3->putBucket($bucket, S3::ACL_PRIVATE);
+			if ($try_to_create_bucket) {
+				$bucket_verb = 'created';
+				$bucket_exists = true;
 			} else {
-				echo "Failure: We could not successfully access or create such a bucket. Please check your access credentials, and if those are correct then try another bucket name (as another S3 user may already have taken this name).";
+				echo "Failure: We could not successfully access or create such a bucket. Please check your access credentials, and if those are correct then try another bucket name (as another S3 user may already have taken your name).";
+			}
+		}
+
+		if (isset($bucket_exists)) {
+			$try_file = md5(rand());
+			if (!$s3->putObjectString($try_file, $bucket, $path.$try_file)) {
+				echo "Failure: We successfully $bucket_verb the bucket, but the attempt to create a file in it failed.";
+			} else {
+				echo "Success: we $bucket_verb the bucket, and were able to create files within it.";
+				@$s3->deleteObject($bucket, $path.$try_file);
 			}
 		}
 
