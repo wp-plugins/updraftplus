@@ -8,7 +8,7 @@ Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Tweak for some Amazon S3 EU West 1 bucket users
+Improve testing of Amazon S3 and detection of useful activity on massive backups
 
 == Description ==
 
@@ -137,7 +137,7 @@ No, there's no warranty or guarantee, etc. It's completely up to you to verify t
 
 = Does UpdraftPlus delete all its settings when it is de-installed? =
 
-No. Doing so is "cleaner", but some users also de-install and re-install and don't want to have to re-enter their settings. If you want to remove all UpdraftPlus's settings, then there's a button down at the bottom of the settings page.
+No. Doing so is "cleaner", but some users also de-install and re-install and don't want to have to re-enter their settings. If you want to remove all UpdraftPlus's settings, then there's a button down at the bottom of the settings page, which is activated when you click the link to show 'expert settings'.
 
 = I am not running the most recent version of UpdraftPlus. Should I upgrade? =
 
@@ -148,6 +148,10 @@ Yes; especially before you submit any support requests.
 Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ . I am also available for hire for bespoke work.
 
 == Changelog ==
+
+= 1.4.9 - 02/12/2013 =
+* Do more when testing Amazon S3 connectivity (catches users with bucket but not file access)
+* Tweak algorithm for detecting useful activity to further help gigantic sites
 
 = 1.4.7 - 02/09/2013 =
 * Tweak for some Amazon EU West 1 bucket users
