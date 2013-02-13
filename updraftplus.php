@@ -3,8 +3,8 @@
 Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
-Author: David Anderson.
-Version: 1.4.9
+Author: David Anderson
+Version: 1.4.11
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -30,14 +30,15 @@ TODO
 // Expert setting: force PCLZip
 // Don't stop at 10 retries if something useful is still measurably being done (in particular, chunked uploads are proceeding - set a flag to indicate "try it again")
 // Change FTP to use SSL by default
+// Tweak random_advert to not show the same one twice
 // When looking for files to delete, is the current encryption setting used? Should not be.
 // Create single zip, containing even WordPress itself
+// Have something reap any remaining .tmp files, e.g. once a week
 // When a new backup starts, AJAX-update the 'Last backup' display in the admin page.
 // Remove the recurrence of admin notices when settings are saved due to _wp_referer
 // Auto-detect what the real execution time is (max_execution_time is just one of the upper limits, there can be others, some insivible directly), and tweak our resumption time accordingly
 //http://w-shadow.com/blog/2010/09/02/automatic-updates-for-any-plugin/
 // Specify the exact time to run the backup (useful if you have big site, using a lot of CPU)
-// Test Amazon S3 should also test file creation + deletion, not just bucket access
 
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
 // Does not delete old custom directories upon a restore?
@@ -97,7 +98,8 @@ if (!class_exists('UpdraftPlus_Options')) require_once(UPDRAFTPLUS_DIR.'/options
 
 class UpdraftPlus {
 
-	var $version = '1.4.9';
+	var $version;
+
 	var $plugin_title = 'UpdraftPlus Backup/Restore';
 
 	// Choices will be shown in the admin menu in the order used here
@@ -134,7 +136,17 @@ class UpdraftPlus {
 	var $zip_preferpcl = false;
 
 	function __construct() {
+
 		// Initialisation actions - takes place on plugin load
+
+		if ($fp = fopen( __FILE__, 'r')) {
+			$file_data = fread( $fp, 1024 );
+			if (preg_match("/Version: ([\d\.]+)(\r|\n)/", $file_data, $matches)) {
+				$this->version = $matches[1];
+			}
+			fclose( $fp );
+		}
+
 		# Create admin page
 		add_action('admin_init', array($this, 'admin_init'));
 		add_action('updraft_backup', array($this,'backup_files'));
@@ -143,7 +155,6 @@ class UpdraftPlus {
 		add_action('updraft_backup_all', array($this,'backup_all'));
 		# this is our runs-after-backup event, whose purpose is to see if it succeeded or failed, and resume/mom-up etc.
 		add_action('updraft_backup_resume', array($this,'backup_resume'), 10, 3);
-		add_action('wp_enqueue_scripts', array($this, 'ajax_enqueue') );
 		add_action('wp_ajax_updraft_download_backup', array($this, 'updraft_download_backup'));
 		add_action('wp_ajax_updraft_ajax', array($this, 'updraft_ajax_handler'));
 		# http://codex.wordpress.org/Plugin_API/Filter_Reference/cron_schedules
@@ -184,6 +195,8 @@ class UpdraftPlus {
 			$settings_link = '<a href="'.site_url().'/wp-admin/options-general.php?page=updraftplus">'.__("Settings", "UpdraftPlus").'</a>';
 			array_unshift($links, $settings_link);
 			$settings_link = '<a href="http://david.dw-perspective.org.uk/donate">'.__("Donate","UpdraftPlus").'</a>';
+			array_unshift($links, $settings_link);
+			$settings_link = '<a href="http://updraftplus.com">'.__("Add-Ons / Pro Support","UpdraftPlus").'</a>';
 			array_unshift($links, $settings_link);
 		}
 		return $links;
@@ -287,7 +300,7 @@ class UpdraftPlus {
 		$backup_database = $this->jobdata_get('backup_database');
 
 		// The transient is read and written below (instead of using the existing variable) so that we can copy-and-paste this part as needed.
-		if ($backup_database == "begun" || $backup_database == "finished" || $backup_database == "encrypted") {
+		if ($backup_database == "begun" || $backup_database == "finished" || $backup_database == 'encrypted') {
 			if ($backup_database == "begun") {
 				if ($resumption_no > 0) {
 					$this->log("Resuming creation of database dump");
@@ -315,7 +328,7 @@ class UpdraftPlus {
 		if (isset($our_files['db']) && !preg_match("/\.crypt$/", $our_files['db'])) {
 			$our_files['db'] = $this->encrypt_file($our_files['db']);
 			$this->save_backup_history($our_files);
-			$this->jobdata_set("backup_database", "encrypted");
+			if (preg_match("/\.crypt$/", $our_files['db'])) $this->jobdata_set("backup_database", 'encrypted');
 		}
 
 		foreach ($our_files as $key => $file) {
@@ -548,11 +561,11 @@ class UpdraftPlus {
 		$backup_files = $this->jobdata_get("backup_files");
 		$backup_db = $this->jobdata_get("backup_database");
 
-		if ($backup_files == "finished" && ( $backup_db == "finished" || $backup_db == "encrypted" ) ) {
+		if ($backup_files == "finished" && ( $backup_db == "finished" || $backup_db == 'encrypted' ) ) {
 			$backup_contains = "Files and database";
 		} elseif ($backup_files == "finished") {
 			$backup_contains = ($backup_db == "begun") ? "Files (database backup has not completed)" : "Files only (database was not part of this particular schedule)";
-		} elseif ($backup_db == "finished" || $backup_db == "encrypted") {
+		} elseif ($backup_db == "finished" || $backup_db == 'encrypted') {
 			$backup_contains = ($backup_files == "begun") ? "Database (files backup has not completed)" : "Database only (files were not part of this particular schedule)";
 		} else {
 			$backup_contains = "Unknown/unexpected error - please raise a support request";
@@ -960,7 +973,7 @@ class UpdraftPlus {
 		$backup_file_base = $updraft_dir.'/'.$file_base;
 
 		if ("finished" == $already_done) return basename($backup_file_base.'-db.gz');
-		if ("encrypted" == $already_done) return basename($backup_file_base.'-db.gz.crypt');
+		if ('encrypted' == $already_done) return basename($backup_file_base.'-db.gz.crypt');
 
 		$total_tables = 0;
 
@@ -1046,10 +1059,10 @@ class UpdraftPlus {
 			$this->stow("/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;\n");
 		}
 
-		$this->log($file_base.'-db.gz: finished writing out complete database file ('.round(filesize($backup_final_file_name/1024),1).' Kb)');
+		$this->log($file_base.'-db.gz: finished writing out complete database file ('.round(filesize($backup_final_file_name)/1024,1).' Kb)');
 		$this->close($this->dbhandle);
 
-		foreach ($unlink_files as $unlink_files) {
+		foreach ($unlink_files as $unlink_file) {
 			@unlink($unlink_file);
 		}
 
@@ -1556,11 +1569,6 @@ class UpdraftPlus {
 		}
 	}
 
-	function ajax_enqueue() {
-// 		wp_enqueue_script('updraftplus-ajax', plugins_url('/includes/ajax.js', __FILE__) );
-// 		wp_localize_script('updraftplus-ajax', 'updraft_credentials_test', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
-	}
-
 	function url_start($urls,$url) {
 		return ($urls) ? '<a href="http://'.$url.'">' : "";
 	}
@@ -1571,10 +1579,10 @@ class UpdraftPlus {
 
 	function wordshell_random_advert($urls) {
 		if (defined('UPDRAFTPLUS_PREMIUM')) return "";
-		$rad = rand(0,6);
+		$rad = rand(0,8);
 		switch ($rad) {
 		case 0:
-			return "Like automating WordPress operations? Use the CLI? ".$this->url_start($urls,'wordshell.net')."You will love WordShell".$this->url_end($urls,'www.wordshell.net')." - saves time and money fast.";
+			return $this->url_start($urls,'updraftplus.com')."Want more features or paid, guaranteed support? Check out UpdraftPlus.Com".$this->url_end($urls,'updraftplus.com');
 			break;
 		case 1:
 			return "Find UpdraftPlus useful? ".$this->url_start($urls,'david.dw-perspective.org.uk/donate')."Please make a donation.".$this->url_end($urls,'david.dw-perspective.org.uk/donate');
@@ -1589,13 +1597,19 @@ class UpdraftPlus {
 			break;
 		case 5:
 			if (!defined('UPDRAFTPLUS_PREMIUM')) {
-				return $this->url_start($urls,'www.updraftplus.com')."Need even more features and support? Check out UpdraftPlus Premium".$this->url_end($urls,'www.updraftplus.com');
+				return $this->url_start($urls,'updraftplus.com')."Need even more features and support? Check out UpdraftPlus Premium".$this->url_end($urls,'updraftplus.com');
 			} else {
 				return "Thanks for being an UpdraftPlus premium user. Keep visiting ".$this->url_start($urls,'www.updraftplus.com')."updraftplus.com".$this->url_end($urls,'www.updraftplus.com')." to see what's going on.";
 			}
 			break;
 		case 6:
 			return "Need custom WordPress services from experts (including bespoke development)?".$this->url_start($urls,'www.simbahosting.co.uk/s3/products-and-services/wordpress-experts/')." Get them from the creators of UpdraftPlus.".$this->url_end($urls,'www.simbahosting.co.uk/s3/products-and-services/wordpress-experts/');
+			break;
+		case 7:
+			return $this->url_start($urls,'www.updraftplus.com')."Check out UpdraftPlus.Com for help, add-ons and support".$this->url_end($urls,'www.updraftplus.com');
+			break;
+		case 8:
+			return "Want to say thank-you for UpdraftPlus? ".$this->url_start($urls,'updraftplus.com/shop/')." Please buy our very cheap 'no adverts' add-on.".$this->url_end($urls,'updraftplus.com/shop/');
 			break;
 		}
 	}
@@ -1893,7 +1907,7 @@ class UpdraftPlus {
 		<div class="wrap">
 			<h1><?php echo $this->plugin_title; ?></h1>
 
-			Maintained by <b>David Anderson</b> (<a href="http://david.dw-perspective.org.uk">Homepage</a><?php if (!defined('UPDRAFTPLUS_PREMIUM')) { ?> | <a href="http://updraftplus.com">Premium</a> | <a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate">Donate</a><?php } ?> | <a href="http://wordpress.org/extend/plugins/updraftplus/faq/">FAQs</a> | <a href="http://profiles.wordpress.org/davidanderson/">My other WordPress plugins</a>). Version: <?php echo $this->version; ?>
+			Maintained by <b>David Anderson</b> (<a href="http://updraftplus.com">UpdraftPlus.Com</a> | <a href="http://david.dw-perspective.org.uk">Author Homepage</a> | <?php if (!defined('UPDRAFTPLUS_PREMIUM')) { ?><a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate">Donate</a><?php } ?> | <a href="http://wordpress.org/extend/plugins/updraftplus/faq/">FAQs</a> | <a href="http://profiles.wordpress.org/davidanderson/">My other WordPress plugins</a>). Version: <?php echo $this->version; ?>
 			<br>
 			<?php
 			if(isset($_GET['updraft_restore_success'])) {
@@ -2240,7 +2254,7 @@ class UpdraftPlus {
 			}
 		}
 
-	if ($this->zipfiles_added >= 0) {
+	if ($this->zipfiles_added > 0) {
 		// ZipArchive::addFile sometimes fails 
 		if (filesize($destination) < 100) {
 			// Retry with PclZip
