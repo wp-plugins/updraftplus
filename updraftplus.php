@@ -38,7 +38,6 @@ TODO
 // Auto-detect what the real execution time is (max_execution_time is just one of the upper limits, there can be others, some insivible directly), and tweak our resumption time accordingly
 //http://w-shadow.com/blog/2010/09/02/automatic-updates-for-any-plugin/
 // Specify the exact time to run the backup (useful if you have big site, using a lot of CPU)
-// Test Amazon S3 should also test file creation + deletion, not just bucket access
 
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
 // Does not delete old custom directories upon a restore?
@@ -155,7 +154,6 @@ class UpdraftPlus {
 		add_action('updraft_backup_all', array($this,'backup_all'));
 		# this is our runs-after-backup event, whose purpose is to see if it succeeded or failed, and resume/mom-up etc.
 		add_action('updraft_backup_resume', array($this,'backup_resume'), 10, 3);
-		add_action('wp_enqueue_scripts', array($this, 'ajax_enqueue') );
 		add_action('wp_ajax_updraft_download_backup', array($this, 'updraft_download_backup'));
 		add_action('wp_ajax_updraft_ajax', array($this, 'updraft_ajax_handler'));
 		# http://codex.wordpress.org/Plugin_API/Filter_Reference/cron_schedules
@@ -196,6 +194,8 @@ class UpdraftPlus {
 			$settings_link = '<a href="'.site_url().'/wp-admin/options-general.php?page=updraftplus">'.__("Settings", "UpdraftPlus").'</a>';
 			array_unshift($links, $settings_link);
 			$settings_link = '<a href="http://david.dw-perspective.org.uk/donate">'.__("Donate","UpdraftPlus").'</a>';
+			array_unshift($links, $settings_link);
+			$settings_link = '<a href="http://updraftplus.com">'.__("Add-Ons / Pro Support","UpdraftPlus").'</a>';
 			array_unshift($links, $settings_link);
 		}
 		return $links;
@@ -1568,11 +1568,6 @@ class UpdraftPlus {
 		}
 	}
 
-	function ajax_enqueue() {
-// 		wp_enqueue_script('updraftplus-ajax', plugins_url('/includes/ajax.js', __FILE__) );
-// 		wp_localize_script('updraftplus-ajax', 'updraft_credentials_test', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
-	}
-
 	function url_start($urls,$url) {
 		return ($urls) ? '<a href="http://'.$url.'">' : "";
 	}
@@ -1583,10 +1578,10 @@ class UpdraftPlus {
 
 	function wordshell_random_advert($urls) {
 		if (defined('UPDRAFTPLUS_PREMIUM')) return "";
-		$rad = rand(0,6);
+		$rad = rand(0,8);
 		switch ($rad) {
 		case 0:
-			return "Like automating WordPress operations? Use the CLI? ".$this->url_start($urls,'wordshell.net')."You will love WordShell".$this->url_end($urls,'www.wordshell.net')." - saves time and money fast.";
+			return $this->url_start($urls,'updraftplus.com')."Want more features or paid, guaranteed support? Check out UpdraftPlus.Com".$this->url_end($urls,'updraftplus.com');
 			break;
 		case 1:
 			return "Find UpdraftPlus useful? ".$this->url_start($urls,'david.dw-perspective.org.uk/donate')."Please make a donation.".$this->url_end($urls,'david.dw-perspective.org.uk/donate');
@@ -1601,13 +1596,19 @@ class UpdraftPlus {
 			break;
 		case 5:
 			if (!defined('UPDRAFTPLUS_PREMIUM')) {
-				return $this->url_start($urls,'www.updraftplus.com')."Need even more features and support? Check out UpdraftPlus Premium".$this->url_end($urls,'www.updraftplus.com');
+				return $this->url_start($urls,'updraftplus.com')."Need even more features and support? Check out UpdraftPlus Premium".$this->url_end($urls,'updraftplus.com');
 			} else {
 				return "Thanks for being an UpdraftPlus premium user. Keep visiting ".$this->url_start($urls,'www.updraftplus.com')."updraftplus.com".$this->url_end($urls,'www.updraftplus.com')." to see what's going on.";
 			}
 			break;
 		case 6:
 			return "Need custom WordPress services from experts (including bespoke development)?".$this->url_start($urls,'www.simbahosting.co.uk/s3/products-and-services/wordpress-experts/')." Get them from the creators of UpdraftPlus.".$this->url_end($urls,'www.simbahosting.co.uk/s3/products-and-services/wordpress-experts/');
+			break;
+		case 7:
+			return $this->url_start($urls,'www.updraftplus.com')."Check out UpdraftPlus.Com for help, add-ons and support".$this->url_end($urls,'www.updraftplus.com');
+			break;
+		case 8:
+			return "Want to say thank-you for UpdraftPlus? ".$this->url_start($urls,'updraftplus.com/shop')." Please buy our very cheap 'no adverts' add-on.".$this->url_end($urls,'updraftplus.com/shop');
 			break;
 		}
 	}
@@ -1905,7 +1906,7 @@ class UpdraftPlus {
 		<div class="wrap">
 			<h1><?php echo $this->plugin_title; ?></h1>
 
-			Maintained by <b>David Anderson</b> (<a href="http://david.dw-perspective.org.uk">Homepage</a><?php if (!defined('UPDRAFTPLUS_PREMIUM')) { ?> | <a href="http://updraftplus.com">Premium</a> | <a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate">Donate</a><?php } ?> | <a href="http://wordpress.org/extend/plugins/updraftplus/faq/">FAQs</a> | <a href="http://profiles.wordpress.org/davidanderson/">My other WordPress plugins</a>). Version: <?php echo $this->version; ?>
+			Maintained by <b>David Anderson</b> (<a href="http://updraftplus.com">UpdraftPlus.Com</a> | <a href="http://david.dw-perspective.org.uk">Author Homepage</a> | <?php if (!defined('UPDRAFTPLUS_PREMIUM')) { ?><a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate">Donate</a><?php } ?> | <a href="http://wordpress.org/extend/plugins/updraftplus/faq/">FAQs</a> | <a href="http://profiles.wordpress.org/davidanderson/">My other WordPress plugins</a>). Version: <?php echo $this->version; ?>
 			<br>
 			<?php
 			if(isset($_GET['updraft_restore_success'])) {

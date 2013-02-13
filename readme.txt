@@ -3,12 +3,13 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, ftp, cloud, back up, multisite
 Requires at least: 3.2
 Tested up to: 3.5.1
-Stable tag: 1.4.9
+Stable tag: 1.4.10
+Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Improve testing of Amazon S3 and detection of useful activity on massive backups
+Various branding tweaks
 
 == Description ==
 
@@ -23,53 +24,33 @@ UpdraftPlus simplifies backups (and restoration). Backup into the cloud (Amazon 
 * Database backups can be encrypted for security
 * Debug mode that gives full logging of the backup
 * Thousands of users: widely tested and reliable
-* Premium/multi-site version available (see below)
+* Premium/multi-site version and support available - <a href="http://updraftplus.com">http://updraftplus.com</a>
 
 = Best New WordPress Plugin =
 
 That's according to WordPress big cheese, Vladimir Prelovac. Check out his weekly chart to see where UpdraftPlus is right now: http://www.prelovac.com/vladimir/wordpress-plugins-rising-stars
 
+= UpdraftPlus Addons And Premium =
+
+UpdraftPlus is not crippled in any way - it is fully functional, with no annoying omissions. What we do have is various extra features, and guaranteed support, available <a href="http://updraftplus.com/">from our website, updraftplus.com</a>.
+
+If you need WordPress multisite compatibility (you'll know if you do), <a href="http://updraftplus.com/shop/">then you need UpdraftPlus Premium</a>.
+
 = Professional / Enterprise support agreements available =
 
-UpdraftPlus is written by professional WordPress developers. If your site needs guaranteed support, then we are available. Get in touch - https://www.simbahosting.co.uk/s3/products-and-services/wordpress-experts/ - to arrange the support contract that your site needs.
-
-= UpdraftPlus Premium =
-
-If you need WordPress multisite compatibility (you'll know if you do), then you need UpdraftPlus Premium: http://updraftplus.com
+UpdraftPlus is written by professional WordPress developers. If your site needs guaranteed support, then we are available. Just  <a href="http://updraftplus.com/shop/">go to our shop.</a>
 
 = Other support =
 
-We hang out in the support forum for this plugin - http://wordpress.org/support/plugin/updraftplus - however, to save our time so that we can spend it on development, please read the plugin's Frequently Asked Questions - http://wordpress.org/extend/plugins/updraftplus/faq/ - before going there, and ensure that you have updated to the latest released version of UpdraftPlus.
+We hang out in the support forum for this plugin - http://wordpress.org/support/plugin/updraftplus - however, to save our time so that we can spend it on development, please read the plugin's Frequently Asked Questions - <a href="http://updraftplus.com/support/frequently-asked-questions/">http://updraftplus.com/support/frequently-asked-questions/</a> - before going there, and ensure that you have updated to the latest released version of UpdraftPlus.
 
 == Installation ==
 
-Standard WordPress plugin installation:
-
-1. Search for "UpdraftPlus" in your site's admin area plugin page
-2. Press 'Install'
-3. Go to the options page and go through the questions there
+<a href="http://updraftplus.com/download/">Please go here for full instructions</a>.
 
 == Frequently Asked Questions ==
 
-= What exactly does UpdraftPlus back up ? =
-
-Basically, everything, unless you did something very exotic (which you would then know about) to your WordPress install. Unless you disable any of these, it will back up your database (all tables which have been prefixed with the prefix for this WordPress installation, both core tables and extra ones added by plugins), your plugins folder, your themes folder, your uploads folder and any extra folders that other plugins have created in the WordPress content directory.
-
-= What does UpdraftPlus not back up ? =
-
-It does not back up WordPress core (since you can always get another copy of this from wordpress.org), and does not back up any extra files which you have added outside of the WordPress content directory (files which, by their nature, are unknown to WordPress). By default the WordPress content directory is "wp-content" in your WordPress root. It will not back up database tables which do not have the WordPress prefix (i.e. database tables from other applications but sharing a database with WordPress).
-
-= How big a site can be backed up? =
-
-Authors of backup plugins will tell you that writing a reliable plugin that can run in the whole variety of WordPress environments is hard. Now, since version 1.4.0, UpdraftPlus has an architecture that can back up infinitely large sites. It can now resume at *any* stage of the backup. Wherever your web server terminates your backups due to its limits (on CPU usage, available time to run in, etc.), UpdraftPlus can pick up again and carry on. Do be aware though that you need enough disk space free in your web hosting account to create the backup in. Exactly how much is needed can vary; but you are always safe if you have as much space available as your website takes up (i.e. can temporarily double your disk usage).
-
-= I like automating WordPress, and using the command-line. Please tell me more. =
-
-That's very good of you, thank you. You are looking for WordShell, <a href="http://wordshell.net">http://wordshell.net</a>.
-
-= Is it WordPress Multisite (a.k.a. WordPress network) compatible? =
-
-If you have a WordPress Multisite install (and you'll know if you do), then you need <a href="http://updraftplus.com">UpdraftPlus Premium</a>.
+<a href="http://updraftplus.com/support/frequently-asked-questions/>Please go here for the full FAQs.</a> Below are just a handful which apply to the free wordpress.org version, or which bear repeating.
 
 = I found a bug. What do I do? =
 
@@ -84,24 +65,6 @@ If you know where to find your PHP error logs (often a file called error_log, po
 If you are a programmer and can send a patch, then that's even better.
 
 Finally, if you post in the WordPress support forum, then make sure you include the word UpdraftPlus in your post; otherwise I will not be automatically notified that you posted.
-
-= My scheduled backups and pressing "Backup Now" does nothing; however pressing "Debug Backup" does produce a backup =
-
-This almost always indicates a problem with the scheduler in your WordPress installation. Schedule a backup (by pressing "Backup Now"), wait 5 seconds, and then run the wp-cron.php script on your site (e.g. http://example.com/wp-cron.php). If absolutely nothing happens (i.e. no log file appears in your wp-content/updraft directory), then you should contact your web hosting provider. We have heard of web hosting providers who have disabled this part of WordPress. Also, it is possible for other plugins to accidentally do this. Disable any cacheing plugins (e.g. WP Super Cache, WP Total Cache), plus any others that you can temporarily live without, and try the backup again. If the backup then succeeds, then you need to report the bug to the author of the guilty plugin.
-
-= Some of my files have uploaded into my cloud storage, but not others. =
-
-From version 0.9.0, UpdraftPlus features a resumption feature - if you wait 5 minutes and visit a page on your site, then it should re-try not-yet-uploaded files. If that fails, then turn on debugging and paste the debug log (log in via FTP, and look in wp-content/updraft) into the support forum. Before asking for support, make sure that you: 1) Have started a backup, and then waited at least an hour (because UpdraftPlus will keep trying) 2) Have the log of the failed backup attempt, and that log only (please don't bombard us with every log file you could find - this only slows us down).
-
-= How do I restore my backup (from a site that is still installed/running)? =
-
-If your site is still basically intact (in particular, the database), and if you backed up using a cloud method (e.g. Amazon S3, Google Drive, FTP), then on the UpdraftPlus settings page, there is a nice shiny 'Restore' button. Press it, and it will over-write your present files (not database) with those contained in the indicated backup set.
-
-Again, if you backed up using a cloud method, then on UpdraftPlus's settings page, there should be a clickable link next to "Download Backups". Click on that link, and it will give you a set of further buttons, allowing you to download zip files of the various backed-up components. You can download those to your computer, and then unpack them, and copy them into your web space. (That's a very simple operation - but if you don't know how and don't have a friend to assist, then bung me a donation - http://david.dw-perspective.org.uk/donate - and I can help out).
-
-= I want to restore, but have either cannot, or have failed to do so from the WP Admin console =
-
-That's no problem. If you have access to your backed files (i.e. you have the emailed copies, or have obtained the backed up copies directly from Amazon S3, Dropbox, Google Drive, FTP or whatever store you were using), then you simply need to unzip them into the right places. UpdraftPlus does not back up the WordPress core - you can just get a fresh copy of that from www.wordpress.org. So, if you are starting from nothing, then first download and unzip a WordPress zip from www.wordpress.org. After doing that, then unzip the zip files for your uploads, themes, plugins and other filesback into the wp-content directory. Then re-install the database (e.g. by running it through PHPMyAdmin - see also the later question on how to decrypt if your database backup was encrypted). These are all basic operations and not difficult for anyone with simple skills; but if you need help and cannot find someone to assist, then send me a meaningful donation - http://david.dw-perspective.org.uk/donate - and I can help.
 
 = Anything essential to know? =
 
@@ -119,25 +82,9 @@ You can check the changelog for changes; but the original Updraft, before I fork
 
 Not a bug, but one issue to be aware of is that backups of very large sites (lots of uploaded media) are quite complex matters, given the limits of running inside WordPress on a huge variety of different web hosting setups. With large sites, you need to use Amazon S3, which UpdraftPlus supports (since 0.9.20) or Google Drive (since 0.9.21) or Dropbox (since 1.2.19), because these support chunked, resumable uploads. Other backup methods have code (since 0.9.0) to retry failed uploads of an archive, but the upload cannot be chunked, so if an archive is enormous (i.e. cannot be completely uploaded in the time that PHP is allowed for running on your web host) it cannot work.
 
-= I encrypted my database - how do I decrypt it? =
-
-If you have the encryption key entered in your settings and you are restoring from the settings interface, then it will automatically decrypt. Otherwise, use the file example-decrypt.php found in the plugin directory; that will need very (very) minor PHP knowledge to use; find your local PHP guru, or bung me a donation (http://david.dw-perspective.org.uk/donate) and I can do it for you.
-
-= In the administation section, my password is shown clearly, not using stars. This means that other WordPress admins on my site can read it! =
-
-In fact, the use of stars makes no difference here. Any WordPress admin could read it even if it were stored with stars, just by using "View Source" in their web browser. The use of stars in HTML forms to blank passwords is intended to, and only does, prevent "shoulder-suffering", whereby someone standing behind you can read it - nothing else.
-
-= I lost my encryption key - what can I do? =
-
-Nothing, probably. That's the point of an encryption key - people who don't have it can't get the data. Hire an encryption expert to build a super computer to try to break the encryption by brute force, at a price.
-
 = My site was hacked, and I have no backups! I thought UpdraftPlus was working! Can I kill you? =
 
 No, there's no warranty or guarantee, etc. It's completely up to you to verify that UpdraftPlus is working correctly. If it doesn't then that's unfortunate, but this is a free plugin.
-
-= Does UpdraftPlus delete all its settings when it is de-installed? =
-
-No. Doing so is "cleaner", but some users also de-install and re-install and don't want to have to re-enter their settings. If you want to remove all UpdraftPlus's settings, then there's a button down at the bottom of the settings page, which is activated when you click the link to show 'expert settings'.
 
 = I am not running the most recent version of UpdraftPlus. Should I upgrade? =
 
@@ -148,6 +95,9 @@ Yes; especially before you submit any support requests.
 Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ . I am also available for hire for bespoke work.
 
 == Changelog ==
+
+= 1.4.10 - 02/13/2013 =
+Various branding tweaks
 
 = 1.4.9 - 02/12/2013 =
 * Do more when testing Amazon S3 connectivity (catches users with bucket but not file access)
