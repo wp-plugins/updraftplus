@@ -30,6 +30,7 @@ TODO
 // Expert setting: force PCLZip
 // Don't stop at 10 retries if something useful is still measurably being done (in particular, chunked uploads are proceeding - set a flag to indicate "try it again")
 // Change FTP to use SSL by default
+// Tweak random_advert to not show the same one twice
 // When looking for files to delete, is the current encryption setting used? Should not be.
 // Create single zip, containing even WordPress itself
 // Have something reap any remaining .tmp files, e.g. once a week
