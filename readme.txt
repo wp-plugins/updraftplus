@@ -3,13 +3,13 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, ftp, cloud, back up, multisite
 Requires at least: 3.2
 Tested up to: 3.5.1
-Stable tag: 1.4.10
+Stable tag: 1.4.11
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Various branding tweaks
+Important fix for people backing up databases without encryption
 
 == Description ==
 
@@ -100,8 +100,9 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.4.10 - 02/13/2013 =
+= 1.4.11 - 02/13/2013 =
 * Various branding tweaks - <a href="http://updraftplus.com">launch of updraftplus.com</a>
+* Important fix for people with non-encrypted database backups
 
 = 1.4.9 - 02/12/2013 =
 * Do more when testing Amazon S3 connectivity (catches users with bucket but not file access)

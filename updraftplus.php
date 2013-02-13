@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://wordpress.org/extend/plugins/updraftplus
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson
-Version: 1.4.10
+Version: 1.4.11
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -300,7 +300,7 @@ class UpdraftPlus {
 		$backup_database = $this->jobdata_get('backup_database');
 
 		// The transient is read and written below (instead of using the existing variable) so that we can copy-and-paste this part as needed.
-		if ($backup_database == "begun" || $backup_database == "finished" || $backup_database == "encrypted") {
+		if ($backup_database == "begun" || $backup_database == "finished" || $backup_database == 'encrypted') {
 			if ($backup_database == "begun") {
 				if ($resumption_no > 0) {
 					$this->log("Resuming creation of database dump");
@@ -328,7 +328,7 @@ class UpdraftPlus {
 		if (isset($our_files['db']) && !preg_match("/\.crypt$/", $our_files['db'])) {
 			$our_files['db'] = $this->encrypt_file($our_files['db']);
 			$this->save_backup_history($our_files);
-			$this->jobdata_set("backup_database", "encrypted");
+			if (preg_match("/\.crypt$/", $our_files['db'])) $this->jobdata_set("backup_database", 'encrypted');
 		}
 
 		foreach ($our_files as $key => $file) {
@@ -561,11 +561,11 @@ class UpdraftPlus {
 		$backup_files = $this->jobdata_get("backup_files");
 		$backup_db = $this->jobdata_get("backup_database");
 
-		if ($backup_files == "finished" && ( $backup_db == "finished" || $backup_db == "encrypted" ) ) {
+		if ($backup_files == "finished" && ( $backup_db == "finished" || $backup_db == 'encrypted' ) ) {
 			$backup_contains = "Files and database";
 		} elseif ($backup_files == "finished") {
 			$backup_contains = ($backup_db == "begun") ? "Files (database backup has not completed)" : "Files only (database was not part of this particular schedule)";
-		} elseif ($backup_db == "finished" || $backup_db == "encrypted") {
+		} elseif ($backup_db == "finished" || $backup_db == 'encrypted') {
 			$backup_contains = ($backup_files == "begun") ? "Database (files backup has not completed)" : "Database only (files were not part of this particular schedule)";
 		} else {
 			$backup_contains = "Unknown/unexpected error - please raise a support request";
@@ -973,7 +973,7 @@ class UpdraftPlus {
 		$backup_file_base = $updraft_dir.'/'.$file_base;
 
 		if ("finished" == $already_done) return basename($backup_file_base.'-db.gz');
-		if ("encrypted" == $already_done) return basename($backup_file_base.'-db.gz.crypt');
+		if ('encrypted' == $already_done) return basename($backup_file_base.'-db.gz.crypt');
 
 		$total_tables = 0;
 
@@ -1059,7 +1059,7 @@ class UpdraftPlus {
 			$this->stow("/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;\n");
 		}
 
-		$this->log($file_base.'-db.gz: finished writing out complete database file ('.round(filesize($backup_final_file_name/1024),1).' Kb)');
+		$this->log($file_base.'-db.gz: finished writing out complete database file ('.round(filesize($backup_final_file_name)/1024,1).' Kb)');
 		$this->close($this->dbhandle);
 
 		foreach ($unlink_files as $unlink_file) {
@@ -1609,7 +1609,7 @@ class UpdraftPlus {
 			return $this->url_start($urls,'www.updraftplus.com')."Check out UpdraftPlus.Com for help, add-ons and support".$this->url_end($urls,'www.updraftplus.com');
 			break;
 		case 8:
-			return "Want to say thank-you for UpdraftPlus? ".$this->url_start($urls,'updraftplus.com/shop')." Please buy our very cheap 'no adverts' add-on.".$this->url_end($urls,'updraftplus.com/shop');
+			return "Want to say thank-you for UpdraftPlus? ".$this->url_start($urls,'updraftplus.com/shop/')." Please buy our very cheap 'no adverts' add-on.".$this->url_end($urls,'updraftplus.com/shop/');
 			break;
 		}
 	}
@@ -2254,7 +2254,7 @@ class UpdraftPlus {
 			}
 		}
 
-	if ($this->zipfiles_added >= 0) {
+	if ($this->zipfiles_added > 0) {
 		// ZipArchive::addFile sometimes fails 
 		if (filesize($destination) < 100) {
 			// Retry with PclZip
