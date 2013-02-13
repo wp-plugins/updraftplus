@@ -13,7 +13,7 @@ Various branding tweaks
 
 == Description ==
 
-UpdraftPlus simplifies backups (and restoration). Backup into the cloud (Amazon S3, Dropbox, Google Drive, FTP, and email) and restore with a single click. Backups of files and database can have separate schedules.
+<a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3, Dropbox, Google Drive, FTP, and email) and restore with a single click. Backups of files and database can have separate schedules.
 
 * Supports backups to Amazon S3, Dropbox, Google Drive, FTP (including SSL), email
 * One-click restore
