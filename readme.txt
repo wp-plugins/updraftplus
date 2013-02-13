@@ -50,7 +50,7 @@ We hang out in the support forum for this plugin - http://wordpress.org/support/
 
 == Frequently Asked Questions ==
 
-<a href="http://updraftplus.com/support/frequently-asked-questions/>Please go here for the full FAQs.</a> Below are just a handful which apply to the free wordpress.org version, or which bear repeating.
+<a href="http://updraftplus.com/support/frequently-asked-questions/">Please go here for the full FAQs.</a> Below are just a handful which apply to the free wordpress.org version, or which bear repeating.
 
 = I found a bug. What do I do? =
 
