@@ -52,6 +52,10 @@ We hang out in the support forum for this plugin - http://wordpress.org/support/
 
 <a href="http://updraftplus.com/support/frequently-asked-questions/"><strong>Please go here for the full FAQs.</strong></a> Below are just a handful which apply to the free wordpress.org version, or which bear repeating.
 
+= Can UpdraftPlus do <something>? =
+
+Check out <a href="http://updraftplus.com/updraftplus-full-feature-list/">our full list of features</a>, and our <a href="http://updraftplus.com/shop/">add-ons shop</a>.
+
 = I found a bug. What do I do? =
 
 Firstly, please make sure you read this FAQ through to the end - it may already have the answer you need. If it does, then please consider a donation (http://david.dw-perspective.org.uk/donate); it takes time to develop this plugin and FAQ.
@@ -97,7 +101,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 == Changelog ==
 
 = 1.4.10 - 02/13/2013 =
-Various branding tweaks
+* Various branding tweaks - <a href="http://updraftplus.com">launch of updraftplus.com</a>
 
 = 1.4.9 - 02/12/2013 =
 * Do more when testing Amazon S3 connectivity (catches users with bucket but not file access)
