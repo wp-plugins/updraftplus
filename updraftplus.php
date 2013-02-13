@@ -38,7 +38,6 @@ TODO
 // Auto-detect what the real execution time is (max_execution_time is just one of the upper limits, there can be others, some insivible directly), and tweak our resumption time accordingly
 //http://w-shadow.com/blog/2010/09/02/automatic-updates-for-any-plugin/
 // Specify the exact time to run the backup (useful if you have big site, using a lot of CPU)
-// Test Amazon S3 should also test file creation + deletion, not just bucket access
 
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
 // Does not delete old custom directories upon a restore?
@@ -155,7 +154,6 @@ class UpdraftPlus {
 		add_action('updraft_backup_all', array($this,'backup_all'));
 		# this is our runs-after-backup event, whose purpose is to see if it succeeded or failed, and resume/mom-up etc.
 		add_action('updraft_backup_resume', array($this,'backup_resume'), 10, 3);
-		add_action('wp_enqueue_scripts', array($this, 'ajax_enqueue') );
 		add_action('wp_ajax_updraft_download_backup', array($this, 'updraft_download_backup'));
 		add_action('wp_ajax_updraft_ajax', array($this, 'updraft_ajax_handler'));
 		# http://codex.wordpress.org/Plugin_API/Filter_Reference/cron_schedules
@@ -1566,11 +1564,6 @@ class UpdraftPlus {
 		if (UpdraftPlus_Options::user_can_manage() && UpdraftPlus_Options::get_updraft_option('updraft_service') == "dropbox" && UpdraftPlus_Options::get_updraft_option('updraft_dropboxtk_request_token','') == '') {
 			add_action('admin_notices', array($this,'show_admin_warning_dropbox') );
 		}
-	}
-
-	function ajax_enqueue() {
-// 		wp_enqueue_script('updraftplus-ajax', plugins_url('/includes/ajax.js', __FILE__) );
-// 		wp_localize_script('updraftplus-ajax', 'updraft_credentials_test', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
 	}
 
 	function url_start($urls,$url) {
