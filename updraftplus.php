@@ -803,8 +803,8 @@ class UpdraftPlus {
 
 		$updraft_dir = $this->backups_dir_location();
 		if(!is_writable($updraft_dir)) {
-			$this->log('Backup directory is not writable, or does not exist');
-			$this->error('Backup directory is not writable, or does not exist.');
+			$this->log("Backup directory ($updraft_dir) is not writable, or does not exist");
+			$this->error("Backup directory ($updraft_dir) is not writable, or does not exist.");
 			return array();
 		}
 
@@ -983,8 +983,8 @@ class UpdraftPlus {
 		$all_tables = array_map(create_function('$a', 'return $a[0];'), $all_tables);
 
 		if (!is_writable($updraft_dir)) {
-			$this->log('The backup directory is not writable.');
-			$this->error('The backup directory is not writable.');
+			$this->log("The backup directory ($updraft_dir) is not writable.");
+			$this->error("The backup directory ($updraft_dir) is not writable.");
 			return false;
 		}
 
@@ -1303,7 +1303,7 @@ class UpdraftPlus {
 	}
 
 	function backups_dir_location() {
-		if (isset($this->backup_dir)) return $this->backup_dir;
+		if (!empty($this->backup_dir)) return $this->backup_dir;
 		$updraft_dir = untrailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir'));
 		$default_backup_dir = WP_CONTENT_DIR.'/updraft';
 		//if the option isn't set, default it to /backups inside the upload dir
