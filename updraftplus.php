@@ -809,7 +809,7 @@ class UpdraftPlus {
 		}
 
 		//get the blog name and rip out all non-alphanumeric chars other than _
-		$blog_name = str_replace(' ','_',get_bloginfo());
+		$blog_name = str_replace(' ','_',substr(get_bloginfo(), 0, 96));
 		$blog_name = preg_replace('/[^A-Za-z0-9_]/','', $blog_name);
 		if(!$blog_name) $blog_name = 'non_alpha_name';
 
@@ -967,7 +967,7 @@ class UpdraftPlus {
 		if (!$this->opened_log_time) $this->logfile_open($this->nonce);
 
 		// Get the blog name and rip out all non-alphanumeric chars other than _
-		$blog_name = preg_replace('/[^A-Za-z0-9_]/','', str_replace(' ','_', get_bloginfo()));
+		$blog_name = preg_replace('/[^A-Za-z0-9_]/','', str_replace(' ','_', substr(get_bloginfo(), 0, 96)));
 		if (!$blog_name) $blog_name = 'non_alpha_name';
 		$file_base = 'backup_'.date('Y-m-d-Hi',$this->backup_time).'_'.$blog_name.'_'.$this->nonce;
 		$backup_file_base = $updraft_dir.'/'.$file_base;
