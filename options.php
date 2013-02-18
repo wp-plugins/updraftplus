@@ -66,7 +66,11 @@ class UpdraftPlus_Options {
 		register_setting('updraft-options-group', 'updraft_include_others', 'absint' );
 		register_setting('updraft-options-group', 'updraft_include_others_exclude' );
 
-		if (is_multisite()) {
+		register_setting('updraft-options-group', 'updraft_starttime_files', array($updraftplus, 'hourminute') );
+		register_setting('updraft-options-group', 'updraft_starttime_db', array($updraftplus, 'hourminute') );
+
+		global $pagenow;
+		if (is_multisite() && $pagenow == 'options-general.php') {
 			add_action('admin_notices', array('UpdraftPlus_Options', 'show_admin_warning_multisite') );
 		}
 
