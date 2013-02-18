@@ -100,6 +100,9 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
+= 1.4.14 -02/19/2013 =
+* Display final status message in email
+
 = 1.4.13 - 02/18/2013 =
 * Some extra hooks for "fix time" add-on (http://updraftplus.com/shop/fix-time/)
 * Some internal simplification

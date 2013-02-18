@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson
-Version: 1.4.13
+Version: 1.4.14
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -446,12 +446,12 @@ class UpdraftPlus {
 
 		@ignore_user_abort(true);
 
-		// Some house-cleaning
-		$this->clean_temporary_files();
-
 		//generate backup information
 		$this->backup_time_nonce();
 		$this->logfile_open($this->nonce);
+
+		// Some house-cleaning
+		$this->clean_temporary_files();
 
 		// Log some information that may be helpful
 		$this->log("Tasks: Backup files: $backup_files (schedule: ".UpdraftPlus_Options::get_updraft_option('updraft_interval', 'unset').") Backup DB: $backup_database (schedule: ".UpdraftPlus_Options::get_updraft_option('updraft_interval_database', 'unset').")");
@@ -543,7 +543,7 @@ class UpdraftPlus {
 			$final_message = "The backup apparently succeeded and is now complete";
 		} elseif ($this->newresumption_scheduled == false) {
 			$send_an_email = true;
-			$final_message = "The backup attempt has finished, apparently unsuccesfully";
+			$final_message = "The backup attempt has finished, apparently unsuccessfully";
 		} else {
 			// There are errors, but a resumption will be attempted
 			$final_message = "The backup has not finished; a resumption is scheduled within 5 minutes";
@@ -563,7 +563,7 @@ class UpdraftPlus {
 			$this->log("No email will/can be sent - the user has not configured an email address.");
 		}
 
-		if ($send_an_email) $this->send_results_email();
+		if ($send_an_email) $this->send_results_email($final_message);
 
 		$this->log($final_message);
 
@@ -574,7 +574,7 @@ class UpdraftPlus {
 
 	}
 
-	function send_results_email() {
+	function send_results_email($final_message) {
 
 		$debug_mode = UpdraftPlus_Options::get_updraft_option('updraft_debug_mode');
 
@@ -597,7 +597,7 @@ class UpdraftPlus {
 
 		$append_log = ($debug_mode && $this->logfile_name != "") ? "\r\nLog contents:\r\n".file_get_contents($this->logfile_name) : "" ;
 
-		wp_mail($sendmail_to,'Backed up: '.get_bloginfo('name').' (UpdraftPlus '.$this->version.') '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus WordPress backup is complete.\r\nBackup contains: ".$backup_contains."\r\n\r\n".$this->wordshell_random_advert(0)."\r\n".$append_log);
+		wp_mail($sendmail_to,'Backed up: '.get_bloginfo('name').' (UpdraftPlus '.$this->version.') '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus WordPress backup is complete.\r\nBackup contains: ".$backup_contains."\r\nLatest status: $final_message\r\n\r\n".$this->wordshell_random_advert(0)."\r\n".$append_log);
 
 	}
 
