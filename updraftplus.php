@@ -27,7 +27,6 @@ TODO
 // Resuming partial FTP uploads
 // Provide backup/restoration for UpdraftPlus's settings, to allow 'bootstrap' on a fresh WP install - some kind of single-use code which a remote UpdraftPlus can use to authenticate
 // Multiple jobs
-// Don't stop at 10 retries if something useful is still measurably being done (in particular, chunked uploads are proceeding - set a flag to indicate "try it again")
 // Change FTP to use SSL by default
 // Multisite add-on should allow restoring of each blog individually
 // Tweak random_advert to not show the same one twice
