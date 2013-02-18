@@ -113,7 +113,7 @@ class UpdraftPlus_BackupModule_googledrive {
 		// Do we have an access token?
 		if ( !$access_token = $this->access_token( UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token'), UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid'), UpdraftPlus_Options::get_updraft_option('updraft_googledrive_secret') )) {
 			$updraftplus->log('ERROR: Have not yet obtained an access token from Google (has the user authorised?)');
-			$updraftplus->error('Have not yet obtained an access token frmo Google - you need to authorise or re-authorise your connection to Google Drive.');
+			$updraftplus->error('Have not yet obtained an access token from Google - you need to authorise or re-authorise your connection to Google Drive.');
 			return new WP_Error( "no_access_token", "Have not yet obtained an access token from Google (has the user authorised?");
 		}
 

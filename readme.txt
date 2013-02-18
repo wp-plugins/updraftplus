@@ -9,7 +9,7 @@ Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Important fix for people backing up databases without encryption
+Minor tweaks
 
 == Description ==
 
@@ -99,6 +99,11 @@ Yes; especially before you submit any support requests.
 Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ . I am also available for hire for bespoke work.
 
 == Changelog ==
+
+= 1.4.13 - 02/18/2013 =
+* Some extra hooks for "fix time" add-on (http://updraftplus.com/shop/fix-time/)
+* Some internal simplification
+* Small spelling + text fixes
 
 = 1.4.11 - 02/13/2013 =
 * Various branding tweaks - <a href="http://updraftplus.com">launch of updraftplus.com</a>

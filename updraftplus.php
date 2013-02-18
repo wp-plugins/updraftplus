@@ -1,13 +1,13 @@
 <?php
 /*
 Plugin Name: UpdraftPlus - Backup/Restore
-Plugin URI: http://wordpress.org/extend/plugins/updraftplus
+Plugin URI: http://updraftplus.com
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson
-Version: 1.4.12
+Version: 1.4.13
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
-Author URI: http://updraftplus.com
+Author URI: http://wordshell.net
 */ 
 
 /*
@@ -27,7 +27,6 @@ TODO
 // Resuming partial FTP uploads
 // Provide backup/restoration for UpdraftPlus's settings, to allow 'bootstrap' on a fresh WP install - some kind of single-use code which a remote UpdraftPlus can use to authenticate
 // Multiple jobs
-// Expert setting: force PCLZip
 // Don't stop at 10 retries if something useful is still measurably being done (in particular, chunked uploads are proceeding - set a flag to indicate "try it again")
 // Change FTP to use SSL by default
 // Multisite add-on should allow restoring of each blog individually
@@ -252,11 +251,11 @@ class UpdraftPlus {
 			$schedule_for = time()+$resume_interval;
 			$this->newresumption_scheduled = $schedule_for;
 			$this->log("This is resumption ".$this->current_resumption.", but meaningful uploading is still taking place; so a new one will be scheduled");
-			wp_schedule_single_event($schedule_for, 'updraft_backup_resume', array($this->current_resumption + 1, $this->nonce, $this->backup_time));
+			wp_schedule_single_event($schedule_for, 'updraft_backup_resume', array($this->current_resumption + 1, $this->nonce));
 		}
 	}
 
-	function backup_resume($resumption_no, $bnonce, $btime) {
+	function backup_resume($resumption_no, $bnonce) {
 
 		@ignore_user_abort(true);
 		// This is scheduled for 5 minutes after a backup job starts
@@ -264,9 +263,11 @@ class UpdraftPlus {
 		// Restore state
 		if ($resumption_no > 0) {
 			$this->nonce = $bnonce;
-			$this->backup_time = $btime;
+			$this->backup_time = $this->jobdata_get('backup_time');
 			$this->logfile_open($bnonce);
 		}
+
+		$btime = $this->backup_time;
 
 		$this->log("Backup run: resumption=$resumption_no, nonce=$bnonce, begun at=$btime");
 		$this->current_resumption = $resumption_no;
@@ -281,7 +282,7 @@ class UpdraftPlus {
 		if ($next_resumption < 10) {
 			$this->log("Scheduling a resumption ($next_resumption) in case this run gets aborted");
 			$schedule_for = time()+$resume_interval;
-			wp_schedule_single_event($schedule_for, 'updraft_backup_resume', array($next_resumption, $bnonce, $btime));
+			wp_schedule_single_event($schedule_for, 'updraft_backup_resume', array($next_resumption, $bnonce));
 			$this->newresumption_scheduled = $schedule_for;
 		} else {
 			$this->log("The current run is our tenth attempt - will not schedule a further attempt until we see something useful happening");
@@ -306,7 +307,7 @@ class UpdraftPlus {
 		$backup_database = $this->jobdata_get('backup_database');
 
 		// The transient is read and written below (instead of using the existing variable) so that we can copy-and-paste this part as needed.
-		if ($backup_database == "begun" || $backup_database == "finished" || $backup_database == 'encrypted') {
+		if ($backup_database == "begun" || $backup_database == 'finished' || $backup_database == 'encrypted') {
 			if ($backup_database == "begun") {
 				if ($resumption_no > 0) {
 					$this->log("Resuming creation of database dump");
@@ -405,8 +406,8 @@ class UpdraftPlus {
 	// This uses a transient; its only purpose is to indicate *total* completion; there is no actual danger, just wasted time, in resuming when it was not needed. So the transient just helps save resources.
 	function resumable_backup_of_files($resumption_no) {
 		//backup directories and return a numerically indexed array of file paths to the backup files
-		$transient_status = $this->jobdata_get("backup_files");
-		if ($transient_status == "finished") {
+		$transient_status = $this->jobdata_get('backup_files');
+		if ($transient_status == 'finished') {
 			$this->log("Creation of backups of directories: already finished");
 		} elseif ($transient_status == "begun") {
 			if ($resumption_no>0) {
@@ -453,15 +454,17 @@ class UpdraftPlus {
 		}
 
 		// Save what *should* be done, to make it resumable from this point on
-		if ($backup_database) $this->jobdata_set("backup_database", "begun");
-		if ($backup_files) $this->jobdata_set("backup_files", "begun");
+		if ($backup_database) $this->jobdata_set("backup_database", 'begun');
+		if ($backup_files) $this->jobdata_set('backup_files', 'begun');
 		$this->jobdata_set('service', UpdraftPlus_Options::get_updraft_option('updraft_service'));
 
 		// This can be adapted if we see a need
 		$this->jobdata_set('resume_interval', 300);
 
+		$this->jobdata_set('backup_time', $this->backup_time);
+
 		// Everthing is now set up; now go
-		$this->backup_resume(0, $this->nonce, $this->backup_time);
+		$this->backup_resume(0, $this->nonce);
 
 	}
 
@@ -500,7 +503,7 @@ class UpdraftPlus {
 		if (empty($this->errors)) {
 			if ($clear_nonce_transient) {
 				$this->log("There were no errors in the uploads, so the 'resume' event is being unscheduled");
-				wp_clear_scheduled_hook('updraft_backup_resume', array($cancel_event, $this->nonce, $this->backup_time));
+				wp_clear_scheduled_hook('updraft_backup_resume', array($cancel_event, $this->nonce));
 				// TODO: Delete the job transient (is presently useful for debugging, and only lasts 4 hours)
 			}
 		} else {
@@ -560,22 +563,22 @@ class UpdraftPlus {
 
 		$sendmail_to = UpdraftPlus_Options::get_updraft_option('updraft_email');
 
-		$this->log("Sending email report to: ".substr($sendmail_to, 0, 5)."...");
-
-		$append_log = ($debug_mode && $this->logfile_name != "") ? "\r\nLog contents:\r\n".file_get_contents($this->logfile_name) : "" ;
-
-		$backup_files = $this->jobdata_get("backup_files");
+		$backup_files = $this->jobdata_get('backup_files');
 		$backup_db = $this->jobdata_get("backup_database");
 
-		if ($backup_files == "finished" && ( $backup_db == "finished" || $backup_db == 'encrypted' ) ) {
+		if ($backup_files == 'finished' && ( $backup_db == 'finished' || $backup_db == 'encrypted' ) ) {
 			$backup_contains = "Files and database";
-		} elseif ($backup_files == "finished") {
+		} elseif ($backup_files == 'finished') {
 			$backup_contains = ($backup_db == "begun") ? "Files (database backup has not completed)" : "Files only (database was not part of this particular schedule)";
-		} elseif ($backup_db == "finished" || $backup_db == 'encrypted') {
+		} elseif ($backup_db == 'finished' || $backup_db == 'encrypted') {
 			$backup_contains = ($backup_files == "begun") ? "Database (files backup has not completed)" : "Database only (files were not part of this particular schedule)";
 		} else {
 			$backup_contains = "Unknown/unexpected error - please raise a support request";
 		}
+
+		$this->log("Sending email ('$backup_contains') report to: ".substr($sendmail_to, 0, 5)."...");
+
+		$append_log = ($debug_mode && $this->logfile_name != "") ? "\r\nLog contents:\r\n".file_get_contents($this->logfile_name) : "" ;
 
 		wp_mail($sendmail_to,'Backed up: '.get_bloginfo('name').' (UpdraftPlus '.$this->version.') '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus WordPress backup is complete.\r\nBackup contains: ".$backup_contains."\r\n\r\n".$this->wordshell_random_advert(0)."\r\n".$append_log);
 
@@ -740,11 +743,11 @@ class UpdraftPlus {
 
 	function reschedule($how_far_ahead) {
 		// Reschedule - remove presently scheduled event
-		wp_clear_scheduled_hook('updraft_backup_resume', array($this->current_resumption + 1, $this->nonce, $this->backup_time));
+		wp_clear_scheduled_hook('updraft_backup_resume', array($this->current_resumption + 1, $this->nonce));
 		// Add new event
 		if ($how_far_ahead < 200) $how_far_ahead=200;
 		$schedule_for = time() + $how_far_ahead;
-		wp_schedule_single_event($schedule_for, 'updraft_backup_resume', array($this->current_resumption + 1, $this->nonce, $this->backup_time));
+		wp_schedule_single_event($schedule_for, 'updraft_backup_resume', array($this->current_resumption + 1, $this->nonce));
 		$this->newresumption_scheduled = $schedule_for;
 	}
 
@@ -978,7 +981,7 @@ class UpdraftPlus {
 		$file_base = 'backup_'.date('Y-m-d-Hi',$this->backup_time).'_'.$blog_name.'_'.$this->nonce;
 		$backup_file_base = $updraft_dir.'/'.$file_base;
 
-		if ("finished" == $already_done) return basename($backup_file_base.'-db.gz');
+		if ('finished' == $already_done) return basename($backup_file_base.'-db.gz');
 		if ('encrypted' == $already_done) return basename($backup_file_base.'-db.gz.crypt');
 
 		$total_tables = 0;
