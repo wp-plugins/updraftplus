@@ -29,7 +29,6 @@ TODO
 // Multiple jobs
 // Change FTP to use SSL by default
 // Multisite add-on should allow restoring of each blog individually
-// Tweak random_advert to not show the same one twice
 // When looking for files to delete, is the current encryption setting used? Should not be.
 // Create single zip, containing even WordPress itself
 // Have something reap any remaining .tmp files, e.g. once a week
@@ -78,12 +77,13 @@ define('UPDRAFT_TRANSTIME', 3600*9+5);
 // Load add-ons
 if (is_file(UPDRAFTPLUS_DIR.'/premium.php')) require_once(UPDRAFTPLUS_DIR.'/premium.php');
 
-if ($dir_handle = @opendir(UPDRAFTPLUS_DIR.'/addons')) {
+if ($dir_handle = opendir(UPDRAFTPLUS_DIR.'/addons')) {
 	while ($e = readdir($dir_handle)) {
 		if (is_file(UPDRAFTPLUS_DIR.'/addons/'.$e) && preg_match('/\.php$/', $e)) {
 			include_once(UPDRAFTPLUS_DIR.'/addons/'.$e);
 		}
 	}
+	@closedir($dir_handle);
 }
 
 if (!isset($updraftplus)) $updraftplus = new UpdraftPlus();
@@ -185,6 +185,21 @@ class UpdraftPlus {
 					add_action('admin_notices', array($this,'show_admin_warning_unreadablelog') );
 				}
 			}
+		}
+	}
+
+	// Cleans up temporary files found in the updraft directory
+	function clean_temporary_files() {
+		$updraft_dir = $this->backups_dir_location();
+		if ($handle = opendir($updraft_dir)) {
+			$now_time=time();
+			while (false !== ($entry = readdir($handle))) {
+				if (preg_match('/\.tmp(\.gz)?$/', $entry) && is_file($updraft_dir.'/'.$entry) && $now_time-filemtime($updraft_dir.'/'.$entry)>86400) {
+					$this->log("Deleting old temporary file: $entry");
+					@unlink($updraft_dir.'/'.$entry);
+				}
+			}
+			@closedir($handle);
 		}
 	}
 
@@ -434,6 +449,9 @@ class UpdraftPlus {
 		//generate backup information
 		$this->backup_time_nonce();
 		$this->logfile_open($this->nonce);
+
+		// Some house-cleaning
+		$this->clean_temporary_files();
 
 		// Log some information that may be helpful
 		$this->log("Tasks: Backup files: $backup_files (schedule: ".UpdraftPlus_Options::get_updraft_option('updraft_interval', 'unset').") Backup DB: $backup_database (schedule: ".UpdraftPlus_Options::get_updraft_option('updraft_interval_database', 'unset').")");
@@ -882,6 +900,7 @@ class UpdraftPlus {
 						elseif (isset($others_skip[$entry])) { $this->log("others: $entry: skipping: excluded by options"); }
 						else { $this->log("others: $entry: adding to list"); array_push($other_dirlist, $candidate); }
 					}
+					@closedir($handle);
 				} else {
 					$this->log('ERROR: Could not read the content directory: '.WP_CONTENT_DIR);
 					$this->error('Could not read the content directory: '.WP_CONTENT_DIR);
