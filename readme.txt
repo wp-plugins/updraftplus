@@ -3,13 +3,13 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, ftp, cloud, back up, multisite
 Requires at least: 3.2
 Tested up to: 3.5.1
-Stable tag: 1.4.13
+Stable tag: 1.4.14
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Minor tweaks
+Clean-up old rubbish, and display more status in final email
 
 == Description ==
 
@@ -100,8 +100,9 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.4.14 -02/19/2013 =
+= 1.4.14 - 02/19/2013 =
 * Display final status message in email
+* Clean-up any old temporary files detected
 
 = 1.4.13 - 02/18/2013 =
 * Some extra hooks for "fix time" add-on (http://updraftplus.com/shop/fix-time/)
