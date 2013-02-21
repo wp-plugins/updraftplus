@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson
-Version: 1.4.21
+Version: 1.4.22
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -2295,7 +2295,7 @@ class UpdraftPlus {
 								// Reset, in case this is a re-try
 								jQuery('#'+stid+'_st').html('Begun looking for this entity');
 								// Now send the actual request to kick it all off
-								jQuery.post(ajaxurl, jQuery('#uddownloadform_'+what).serialize());
+								jQuery.post(ajaxurl, jQuery('#uddownloadform_'+what+'_'+nonce).serialize());
 								// We don't want the form to submit as that replaces the document
 								return false;
 							}
@@ -2328,7 +2328,7 @@ class UpdraftPlus {
 								<td><b><?php echo date('Y-m-d G:i',$key)?></b></td>
 								<td>
 							<?php if (isset($value['db'])) { ?>
-									<form id="uddownloadform_db" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'db')" method="post">
+									<form id="uddownloadform_db_<?php echo $key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'db')" method="post">
 										<?php wp_nonce_field('updraftplus_download'); ?>
 										<input type="hidden" name="action" value="updraft_download_backup" />
 										<input type="hidden" name="type" value="db" />
@@ -2339,7 +2339,7 @@ class UpdraftPlus {
 								</td>
 								<td>
 							<?php if (isset($value['plugins'])) { ?>
-									<form id="uddownloadform_plugins" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'plugins')" method="post">
+									<form id="uddownloadform_plugins_<?php echo $key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'plugins')" method="post">
 										<?php wp_nonce_field('updraftplus_download'); ?>
 										<input type="hidden" name="action" value="updraft_download_backup" />
 										<input type="hidden" name="type" value="plugins" />
@@ -2350,7 +2350,7 @@ class UpdraftPlus {
 								</td>
 								<td>
 							<?php if (isset($value['themes'])) { ?>
-									<form id="uddownloadform_themes" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'themes')" method="post">
+									<form id="uddownloadform_themes_<?php echo $key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'themes')" method="post">
 										<?php wp_nonce_field('updraftplus_download'); ?>
 										<input type="hidden" name="action" value="updraft_download_backup" />
 										<input type="hidden" name="type" value="themes" />
@@ -2361,7 +2361,7 @@ class UpdraftPlus {
 								</td>
 								<td>
 							<?php if (isset($value['uploads'])) { ?>
-									<form id="uddownloadform_uploads" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'uploads')" method="post">
+									<form id="uddownloadform_uploads_<?php echo $key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'uploads')" method="post">
 										<?php wp_nonce_field('updraftplus_download'); ?>
 										<input type="hidden" name="action" value="updraft_download_backup" />
 										<input type="hidden" name="type" value="uploads" />
@@ -2372,7 +2372,7 @@ class UpdraftPlus {
 								</td>
 								<td>
 							<?php if (isset($value['others'])) { ?>
-									<form id="uddownloadform_others" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'others')" method="post">
+									<form id="uddownloadform_others_<?php echo $key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'others')" method="post">
 										<?php wp_nonce_field('updraftplus_download'); ?>
 										<input type="hidden" name="action" value="updraft_download_backup" />
 										<input type="hidden" name="type" value="others" />

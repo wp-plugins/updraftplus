@@ -100,7 +100,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.4.21 - 02/22/2013 =
+= 1.4.22 - 02/22/2013 =
 * Still in testing - do not deploy with important data
 * Now remembers what cloud service you used for historical backups, if you later switch
 * Now performs user downloads from the settings page asynchronously, meaning that enormous backups can be fetched this way
