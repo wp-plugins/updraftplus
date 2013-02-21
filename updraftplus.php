@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson
-Version: 1.4.20
+Version: 1.4.21
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -1339,7 +1339,7 @@ class UpdraftPlus {
 
 	// Acts as a WordPress options filter
 	function googledrive_clientid_checkchange($client_id) {
-		if (UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token') != '' && UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token') != $client_id) {
+		if (UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token') != '' && UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid') != $client_id) {
 			require_once(UPDRAFTPLUS_DIR.'/methods/googledrive.php');
 			UpdraftPlus_BackupModule_googledrive::gdrive_auth_revoke(true);
 		}
@@ -1412,7 +1412,7 @@ class UpdraftPlus {
 					$size = round(filesize($matches[1])/1024, 1);
 					echo "File downloading: ".basename($matches[1]).": $size Kb";
 				} else {
-					echo "No local copy present";
+					echo "No local copy present.";
 				}
 			}
 
@@ -2290,7 +2290,7 @@ class UpdraftPlus {
 								var stid = 'uddlstatus_'+nonce+'_'+what;
 								if (!jQuery('#'+stid).length) {
 									jQuery('#ud_downloadstatus').append('<div style="clear:left; border: 1px dashed; padding: 8px; margin-top: 4px; max-width:840px;" id="'+stid+'"><button onclick="jQuery(\'#'+stid+'\').fadeOut().remove();" type="button" style="float:right;">X</button><strong>Download '+what+' ('+nonce+')</strong>: <span id="'+stid+'_st">Begun looking for this entity</span></div>');
-									updraft_downloader_status(nonce, what);
+									setTimeout(function(){updraft_downloader_status(nonce, what)}, 200);
 								}
 								// Reset, in case this is a re-try
 								jQuery('#'+stid+'_st').html('Begun looking for this entity');
@@ -2311,8 +2311,8 @@ class UpdraftPlus {
 									dlstatus_sdata.timestamp = nonce;
 									dlstatus_sdata.type = what;
 									jQuery.get(ajaxurl, dlstatus_sdata, function(response) {
-										nexttimer = 1000;
-										if (dlstatus_lastlog == response) { nexttimer = 2500; }
+										nexttimer = 1250;
+										if (dlstatus_lastlog == response) { nexttimer = 3000; }
 										setTimeout(function(){updraft_downloader_status(nonce, what)}, nexttimer);
 										jQuery('#'+stid+'_st').html(response);
 										dlstatus_lastlog = response;
