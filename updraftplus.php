@@ -1507,9 +1507,9 @@ class UpdraftPlus {
 			echo "\r\n\r\n";
 			$this->download_file($file, $service, true);
 			if (is_readable($fullpath)) {
-				$this->log('Download was successful (file size: '.round(filesize($fullpath)/1024,1).' Kb)');
+				$this->log('Remote fetch was successful (file size: '.round(filesize($fullpath)/1024,1).' Kb)');
 			} else {
-				$this->log('Download failed');
+				$this->log('Remote fetch failed');
 			}
 		}
 
@@ -1523,7 +1523,7 @@ class UpdraftPlus {
 
 			set_transient('ud_dlfile_'.$timestamp.'_'.$type, 'failed', 3600);
 
-			echo 'Download failed. File '.$fullpath.' did not exist or was unreadable. If you delete local backups then remote retrieval may have failed.';
+			echo 'Remote fetch failed. File '.$fullpath.' did not exist or was unreadable. If you delete local backups then remote retrieval may have failed.';
 		}
 
 		@fclose($this->logfile_handle);
@@ -2143,6 +2143,12 @@ class UpdraftPlus {
 
 			<h2 style="clear:left;">Existing Schedule And Backups</h2>
 			<table class="form-table" style="float:left; clear: both; width:545px;">
+				<noscript>
+				<tr>
+					<th>JavaScript warning:</th>
+					<td style="color:red">This admin interface uses JavaScript heavily. You either need to activate it within your browser, or to use a JavaScript-capable browser.</td>
+				</tr>
+				</noscript>
 				<tr>
 					<?php
 					$updraft_dir = $this->backups_dir_location();
