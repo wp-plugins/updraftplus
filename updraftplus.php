@@ -8,7 +8,7 @@ Version: 1.4.14
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
-*/ 
+*/
 
 /*
 TODO
@@ -24,6 +24,7 @@ TODO
 // Warn the user if their zip-file creation is slooowww...
 // Create a "Want Support?" button/console, that leads them through what is needed, and performs some basic tests...
 // Resuming partial FTP uploads
+// Specific folders on DropBox
 // Provide backup/restoration for UpdraftPlus's settings, to allow 'bootstrap' on a fresh WP install - some kind of single-use code which a remote UpdraftPlus can use to authenticate
 // Multiple jobs
 // Change FTP to use SSL by default
@@ -241,7 +242,13 @@ class UpdraftPlus {
 	# Logs the given line, adding (relative) time stamp and newline
 	function log($line) {
 		if ($this->logfile_handle) fwrite($this->logfile_handle, sprintf("%08.03f", round(microtime(true)-$this->opened_log_time, 3))." ".$line."\n");
-		UpdraftPlus_Options::update_updraft_option("updraft_lastmessage", $line." (".date('M d H:i:s').")");
+		if ('download' == $this->jobdata_get('job_type')) {
+			// Download messages are keyed on the job (since they could be running several), and transient
+			// The values of the POST array were checked before
+			set_transient('ud_dlmess_'.$_POST['timestamp'].'_'.$_POST['type'], $line." (".date('M d H:i:s').")", 3600);
+		} else {
+			UpdraftPlus_Options::update_updraft_option("updraft_lastmessage", $line." (".date('M d H:i:s').")");
+		}
 	}
 
 	// This function is used by cloud methods to provide standardised logging, but more importantly to help us detect that meaningful activity took place during a resumption run, so that we can schedule further resumptions if it is worthwhile
@@ -280,7 +287,11 @@ class UpdraftPlus {
 
 		$btime = $this->backup_time;
 
-		$this->log("Backup run: resumption=$resumption_no, nonce=$bnonce, begun at=$btime");
+		$job_type = $this->jobdata_get('job_type');
+
+		$updraft_dir = $this->backups_dir_location();
+
+		$this->log("Backup run: resumption=$resumption_no, nonce=$bnonce, begun at=$btime, job type: $job_type");
 		$this->current_resumption = $resumption_no;
 
 		// Schedule again, to run in 5 minutes again, in case we again fail
@@ -302,7 +313,10 @@ class UpdraftPlus {
 		// This should be always called; if there were no files in this run, it returns us an empty array
 		$backup_array = $this->resumable_backup_of_files($resumption_no);
 		// This save, if there was something, is then immediately picked up again
-		if (is_array($backup_array)) $this->save_backup_history($backup_array);
+		if (is_array($backup_array)) {
+			$this->log("Saving backup status to database (elements: ".count($backup_array).")");
+			$this->save_backup_history($backup_array);
+		}
 
 		// Returns an array, most recent first, of backup sets
 		$backup_history = $this->get_backup_history();
@@ -330,8 +344,13 @@ class UpdraftPlus {
 			} else {
 				$this->log("Database dump: Creation was completed already");
 			}
+
 			$db_backup = $this->backup_db($backup_database);
-			if(is_array($our_files) && is_string($db_backup)) $our_files['db'] = $db_backup;
+
+			if(is_array($our_files) && is_string($db_backup)) {
+				$our_files['db'] = $db_backup;
+			}
+
 			if ($backup_database != 'encrypted') $this->jobdata_set("backup_database", 'finished');
 		} else {
 			$this->log("Unrecognised data when trying to ascertain if the database was backed up ($backup_database)");
@@ -345,8 +364,13 @@ class UpdraftPlus {
 		// Potentially encrypt the database if it is not already
 		if (isset($our_files['db']) && !preg_match("/\.crypt$/", $our_files['db'])) {
 			$our_files['db'] = $this->encrypt_file($our_files['db']);
-			$this->save_backup_history($our_files);
+			// No need to save backup history now, as it will happen in a few lines time
 			if (preg_match("/\.crypt$/", $our_files['db'])) $this->jobdata_set("backup_database", 'encrypted');
+		}
+
+		if (isset($our_files['db']) && file_exists($updraft_dir.'/'.$our_files['db'])) {
+			$our_files['db-size'] = filesize($updraft_dir.'/'.$our_files['db']);
+			$this->save_backup_history($our_files);
 		}
 
 		foreach ($our_files as $key => $file) {
@@ -403,7 +427,7 @@ class UpdraftPlus {
 		} else {
 			$this->jobdata = array($key => $value);
 		}
-		set_transient("updraft_jobdata_".$this->nonce, $this->jobdata, 14400);
+		if ($this->nonce) set_transient("updraft_jobdata_".$this->nonce, $this->jobdata, UPDRAFT_TRANSTIME);
 	}
 
 	function jobdata_get($key) {
@@ -474,6 +498,8 @@ class UpdraftPlus {
 
 		// This can be adapted if we see a need
 		$this->jobdata_set('resume_interval', 300);
+
+		$this->jobdata_set('job_type', 'backup');
 
 		$this->jobdata_set('backup_time', $this->backup_time);
 
@@ -703,6 +729,7 @@ class UpdraftPlus {
 					unset($backup_to_examine['db']);
 				}
 			}
+
 			if (isset($backup_to_examine['plugins']) || isset($backup_to_examine['themes']) || isset($backup_to_examine['uploads']) || isset($backup_to_examine['others'])) {
 				$file_backups_found++;
 				$this->log("$backup_datestamp: this set includes files; fileset count is now $file_backups_found");
@@ -721,8 +748,10 @@ class UpdraftPlus {
 					unset($backup_to_examine['others']);
 				}
 			}
+
 			// Delete backup set completely if empty, o/w just remove DB
-			if (count($backup_to_examine) == 0 || (count($backup_to_examine) == 1 && isset($backup_to_examine['nonce']))) {
+			// We search on the four keys which represent data, allowing other keys to be used to track other things
+			if (!isset($backup_to_examine['plugins']) && !isset($backup_to_examine['themes']) && !isset($backup_to_examine['others']) && !isset($backup_to_examine['uploads']) && !isset($backup_to_examine['db']) ) {
 				$this->log("$backup_datestamp: this backup set is now empty; will remove from history");
 				unset($backup_history[$backup_datestamp]);
 				if (isset($backup_to_examine['nonce'])) {
@@ -852,9 +881,13 @@ class UpdraftPlus {
 			if (UpdraftPlus_Options::get_updraft_option("updraft_include_$youwhat", true)) {
 				if ($transient_status == 'finished') {
 					$backup_array[$youwhat] = $backup_file_basename.'-'.$youwhat.'.zip';
+					if (file_exists($updraft_dir.'/'.$backup_file_basename.'-'.$youwhat.'.zip')) $backup_array[$youwhat.'-size'] = filesize($updraft_dir.'/'.$backup_file_basename.'-'.$youwhat.'.zip');
 				} else {
 					$created = $this->create_zip($whichdir, $youwhat, $updraft_dir, $backup_file_basename);
-					if ($created) $backup_array[$youwhat] = $created;
+					if ($created) {
+						$backup_array[$youwhat] = $created;
+						$backup_array[$youwhat.'-size'] = filesize($updraft_dir.'/'.$created);
+					}
 				}
 			} else {
 				$this->log("No backup of $youwhat: excluded by user's options");
@@ -866,6 +899,7 @@ class UpdraftPlus {
 
 			if ($transient_status == 'finished') {
 				$backup_array['others'] = $backup_file_basename.'-others.zip';
+				if (file_exists($updraft_dir.'/'.$backup_file_basename.'-others.zip')) $backup_array['others-size'] = filesize($updraft_dir.'/'.$backup_file_basename.'-others.zip');
 			} else {
 				$this->log("Beginning backup of other directories found in the content directory");
 
@@ -905,7 +939,10 @@ class UpdraftPlus {
 
 				if (count($other_dirlist)>0) {
 					$created = $this->create_zip($other_dirlist, 'others', $updraft_dir, $backup_file_basename);
-					if ($created) $backup_array['others'] = $created;
+					if ($created) {
+						$backup_array['others'] = $created;
+						$backup_array['others-size'] = filesize($updraft_dir.'/'.$created);
+					}
 				} else {
 					$this->log("No backup of other directories: there was nothing found to back up");
 				}
@@ -922,8 +959,10 @@ class UpdraftPlus {
 			$backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
 			$backup_history = (is_array($backup_history)) ? $backup_history : array();
 			$backup_array['nonce'] = $this->nonce;
+			$backup_array['service'] = $this->jobdata_get('service');
 			$backup_history[$this->backup_time] = $backup_array;
-			UpdraftPlus_Options::update_updraft_option('updraft_backup_history',$backup_history);
+
+			UpdraftPlus_Options::update_updraft_option('updraft_backup_history', $backup_history);
 		} else {
 			$this->log('Could not save backup history because we have no backup array. Backup probably failed.');
 			$this->error('Could not save backup history because we have no backup array. Backup probably failed.');
@@ -931,10 +970,11 @@ class UpdraftPlus {
 	}
 	
 	function get_backup_history() {
-		//$backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
+		$backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
+		// In fact, it looks like the line below actually *introduces* a race condition
 		//by doing a raw DB query to get the most up-to-date data from this option we slightly narrow the window for the multiple-cron race condition
-		global $wpdb;
-		$backup_history = @unserialize($wpdb->get_var($wpdb->prepare("SELECT option_value from $wpdb->options WHERE option_name='updraft_backup_history'")));
+// 		global $wpdb;
+// 		$backup_history = @unserialize($wpdb->get_var($wpdb->prepare("SELECT option_value from $wpdb->options WHERE option_name='updraft_backup_history'")));
 		if(is_array($backup_history)) {
 			krsort($backup_history); //reverse sort so earliest backup is last on the array. Then we can array_pop.
 		} else {
@@ -1358,6 +1398,24 @@ class UpdraftPlus {
 
 		if ('lastlog' == $_GET['subaction']) {
 			echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', '(Nothing yet logged)'));
+		} elseif ('downloadstatus' == $_GET['subaction'] && isset($_GET['timestamp']) && isset($_GET['type'])) {
+
+			echo get_transient('ud_dlmess_'.$_GET['timestamp'].'_'.$_GET['type']).'<br>';
+
+			if ($file = get_transient('ud_dlfile_'.$_GET['timestamp'].'_'.$_GET['type'])) {
+				if ('failed' == $file) {
+					echo "Download failed";
+				} elseif (preg_match('/^downloaded:(.*)$/', $file, $matches) && file_exists($matches[1])) {
+					$size = round(filesize($matches[1])/1024, 1);
+					echo "File ready: $size Kb: You should: <button type=\"button\" onclick=\"updraftplus_downloadstage2('".$_GET['timestamp']."', '".$_GET['type']."')\">Download to your computer</button> and then, if you wish, <button id=\"uddownloaddelete_".$_GET['timestamp']."_".$_GET['type']."\" type=\"button\" onclick=\"updraftplus_deletefromserver('".$_GET['timestamp']."', '".$_GET['type']."')\">Delete from your web server</button>";
+				} elseif (preg_match('/^downloading:(.*)$/', $file, $matches) && file_exists($matches[1])) {
+					$size = round(filesize($matches[1])/1024, 1);
+					echo "File downloading: ".basename($matches[1]).": $size Kb";
+				} else {
+					echo "No local copy present";
+				}
+			}
+
 		} elseif ($_POST['subaction'] == 'credentials_test') {
 			$method = (preg_match("/^[a-z0-9]+$/", $_POST['method'])) ? $_POST['method'] : "";
 
@@ -1373,20 +1431,118 @@ class UpdraftPlus {
 	}
 
 	function updraft_download_backup() {
-		$type = $_POST['type'];
-		$timestamp = (int)$_POST['timestamp'];
+
+		if (!isset($_REQUEST['_wpnonce']) || !wp_verify_nonce($_REQUEST['_wpnonce'], 'updraftplus_download')) die;
+
+		if (!isset($_REQUEST['timestamp']) || !is_numeric($_REQUEST['timestamp']) ||  !isset($_REQUEST['type']) || ('plugins' != $_REQUEST['type'] && 'themes' != $_REQUEST['type'] && 'uploads' != $_REQUEST['type'] && 'others' != $_REQUEST['type'] && 'db' != $_REQUEST['type'])) exit;
+
+		// Get the information on what is wanted
+		$type = $_REQUEST['type'];
+		$timestamp = $_REQUEST['timestamp'];
+
+		// You need a nonce before you can set job data. And we certainly don't yet have one.
+		$this->backup_time_nonce();
+
+		$debug_mode = UpdraftPlus_Options::get_updraft_option('updraft_debug_mode');
+
+		// Set the job type before logging, as there can be different logging destinations
+		$this->jobdata_set('job_type', 'download');
+
+		// Retrieve the information from our backup history
 		$backup_history = $this->get_backup_history();
+		// Base name
 		$file = $backup_history[$timestamp][$type];
+
+		// Where it should end up being downloaded to
 		$fullpath = $this->backups_dir_location().'/'.$file;
-		if(!is_readable($fullpath)) {
-			//if the file doesn't exist and they're using one of the cloud options, fetch it down from the cloud.
-			$this->download_backup($file);
+
+		if (isset($_GET['stage']) && '2' == $_GET['stage']) {
+			$this->spool_file($timestamp, $type, $fullpath);
+			die;
 		}
-		if(@is_readable($fullpath) && is_file($fullpath)) {
+
+		if (isset($_POST['stage']) && 'delete' == $_POST['stage']) {
+			@unlink($fullpath);
+			echo 'deleted';
+			$this->log('The file has been deleted');
+			die;
+		}
+
+		// TODO: FIXME: Failed downloads may leave log files forever (though they are small)
+		// Not that log() assumes that the data is in _POST, not _GET
+		if ($debug_mode) $this->logfile_open($this->nonce);
+
+		$this->log("Requested to obtain file: timestamp=$timestamp, type=$type");
+
+		// The AJAX responder that updates on progress wants to see this
+		set_transient('ud_dlfile_'.$timestamp.'_'.$type, 'downloading:'.$fullpath, 3600);
+
+		$service = (isset($backup_history[$timestamp]['service'])) ? $backup_history[$timestamp]['service'] : false;
+		$this->jobdata_set('service', $service);
+
+		// Fetch it from the cloud, if we have not already got it
+
+		$needs_downloading = false;
+		$known_size = isset($backup_history[$timestamp][$type.'-size']) ? $backup_history[$timestamp][$type.'-size'] : false;
+
+		if(!file_exists($fullpath)) {
+			//if the file doesn't exist and they're using one of the cloud options, fetch it down from the cloud.
+			$needs_downloading = true;
+			$this->log('File does not yet exist locally - needs downloading');
+		} elseif ($known_size>0 && filesize($fullpath) < $known_size) {
+			$this->log('The file was found locally but did not match the size in the backup history - will resume downloading');
+			$needs_downloading = true;
+		} elseif ($known_size>0) {
+			$this->log('The file was found locally and matched the recorded size from the backup history ('.round($known_size/1024,1).' Kb)');
+		} else {
+			$this->log('No file size was found recorded in the backup history. We will assume the local one is complete.');
+		}
+
+		if ($needs_downloading) {
+			// Close browser connection so that it can resume AJAX polling
+			header('Connection: close');
+			header('Content-Length: 0');
+			header('Content-Encoding: none');
+			session_write_close();
+			echo "\r\n\r\n";
+			$this->download_file($file, $service, true);
+			if (is_readable($fullpath)) {
+				$this->log('Download was successful (file size: '.round(filesize($fullpath)/1024,1).' Kb)');
+			} else {
+				$this->log('Download failed');
+			}
+		}
+
+		// Now, spool the thing to the browser
+		if(is_file($fullpath) && is_readable($fullpath)) {
+
+			// That message is then picked up by the AJAX listener
+			set_transient('ud_dlfile_'.$timestamp.'_'.$type, 'downloaded:'.$fullpath, 3600);
+
+		} else {
+
+			set_transient('ud_dlfile_'.$timestamp.'_'.$type, 'failed', 3600);
+
+			echo 'Download failed. File '.$fullpath.' did not exist or was unreadable. If you delete local backups then remote retrieval may have failed.';
+		}
+
+		@fclose($this->logfile_handle);
+  		if (!$debug_mode) @unlink($this->logfile_name);
+
+		exit;
+
+	}
+
+	function spool_file($timestamp, $type, $fullpath) {
+
+		if (file_exists($fullpath)) {
+
+			$file = basename($fullpath);
+
 			$len = filesize($fullpath);
 
 			$filearr = explode('.',$file);
-// 			//we've only got zip and gz...for now
+	// 			//we've only got zip and gz...for now
 			$file_ext = array_pop($filearr);
 			if($file_ext == 'zip') {
 				header('Content-type: application/zip');
@@ -1422,15 +1578,17 @@ class UpdraftPlus {
 			} else {
 				readfile($fullpath);
 			}
-			$this->delete_local($file);
-			exit; //we exit immediately because otherwise admin-ajax appends an additional zero to the end
+// 			$this->delete_local($file);
 		} else {
-			echo 'Download failed. File '.$fullpath.' did not exist or was unreadable. If you delete local backups then remote retrieval may have failed.';
+			echo "File not found";
 		}
 	}
-	
-	function download_backup($file) {
-		$service = UpdraftPlus_Options::get_updraft_option('updraft_service');
+
+	function download_file($file, $service=false, $detach_from_browser) {
+
+		if (!$service) $service = UpdraftPlus_Options::get_updraft_option('updraft_service');
+
+		$this->log("Requested file from remote service: service=$service, file=$file");
 
 		$method_include = UPDRAFTPLUS_DIR.'/methods/'.$service.'.php';
 		if (file_exists($method_include)) require_once($method_include);
@@ -1440,6 +1598,7 @@ class UpdraftPlus {
 			$remote_obj = new $objname;
 			$remote_obj->download($file);
 		} else {
+			$this->log("Automatic backup restoration is not available with the method: $service.");
 			$this->error("Automatic backup restoration is not available with the method: $service.");
 		}
 
@@ -1465,11 +1624,15 @@ class UpdraftPlus {
 		echo '<span style="font-weight:bold">Restoration Progress</span><div id="updraft-restore-progress">';
 
 		$updraft_dir = $this->backups_dir_location().'/';
+
+		$service = (isset($backup_history[$timestamp]['service'])) ? $backup_history[$timestamp]['service'] : false;
+
 		foreach($backup_history[$timestamp] as $type => $file) {
-			if ($type == 'nonce') continue;
+			// All restorable entities must be given explicitly, as we can store other arbitrary data in the history array
+			if ('themes' != $type && 'plugins' != $type && 'uploads' != $type && 'others' != $type && 'db' != $type) continue;
 			$fullpath = $updraft_dir.$file;
 			if(!is_readable($fullpath) && $type != 'db') {
-				$this->download_backup($file);
+				$this->download_file($file, $service);
 			}
 			# Types: uploads, themes, plugins, others, db
 			if(is_readable($fullpath) && $type != 'db') {
@@ -1631,7 +1794,7 @@ class UpdraftPlus {
 			if (!defined('UPDRAFTPLUS_PREMIUM')) {
 				return $this->url_start($urls,'updraftplus.com')."Need even more features and support? Check out UpdraftPlus Premium".$this->url_end($urls,'updraftplus.com');
 			} else {
-				return "Thanks for being an UpdraftPlus premium user. Keep visiting ".$this->url_start($urls,'www.updraftplus.com')."updraftplus.com".$this->url_end($urls,'www.updraftplus.com')." to see what's going on.";
+				return "Thanks for being an UpdraftPlus premium user. Keep visiting ".$this->url_start($urls,'updraftplus.com')."updraftplus.com".$this->url_end($urls,'updraftplus.com')." to see what's going on.";
 			}
 			break;
 		case 6:
@@ -2093,7 +2256,64 @@ class UpdraftPlus {
 				</tr>
 				<tr>
 					<td></td><td class="download-backups" style="display:none">
-						<em>Click on a button to download the corresponding file to your computer. If you are using the <a href="http://opera.com">Opera web browser</a> then you should turn Turbo mode off. <strong>Note</strong> - if you use remote storage (e.g. Amazon, Dropbox, FTP, Google Drive), then pressing a button will make UpdraftPlus try to bring a backup file back from the remote storage to your webserver, and from there to your computer. If the backup file is very big, then likely you will run out of time using this method. In that case you should get the file directly (i.e. visit Amazon S3's or Dropbox's website, etc.).</em>
+						<p><em><strong>Note</strong> - Pressing a button will make UpdraftPlus try to bring a backup file back from the remote storage (if any - e.g. Amazon S3, Dropbox, Google Drive, FTP) to your webserver, before then allowing you to download it to your computer. If the fetch from the remote storage stops progressing, then click again to resume from where it left off. Remember that you can always visit the cloud storage website vendor's website directly.</em></p>
+						<div id="ud_downloadstatus"></div>
+						<script>
+							var lastlog_lastmessage = "";
+							function updraftplus_deletefromserver(timestamp, type) {
+								var pdata = {
+									action: 'updraft_download_backup',
+									stage: 'delete',
+									timestamp: timestamp,
+									type: type,
+									_wpnonce: '<?php echo wp_create_nonce("updraftplus_download"); ?>'
+								};
+								jQuery.post(ajaxurl, pdata, function(response) {
+									if (response == 'deleted') {
+										
+									} else {
+										alert('We requested to delete the file, but could not understand the server\'s response '+response);
+									}
+								});
+							}
+							function updraftplus_downloadstage2(timestamp, type) {
+								location.href=ajaxurl+'?_wpnonce=<?php echo wp_create_nonce("updraftplus_download"); ?>&timestamp='+timestamp+'&type='+type+'&stage=2&action=updraft_download_backup';
+							}
+							function updraft_downloader(nonce, what) {
+								// Create somewhere for the status to be found
+								var stid = 'uddlstatus_'+nonce+'_'+what;
+								if (!jQuery('#'+stid).length) {
+									jQuery('#ud_downloadstatus').append('<div style="clear:left; border: 1px dashed; padding: 8px; margin-top: 4px; max-width:840px;" id="'+stid+'"><button onclick="jQuery(\'#'+stid+'\').fadeOut().remove();" type="button" style="float:right;">X</button><strong>Download '+what+' ('+nonce+')</strong>: <span id="'+stid+'_st">Begun looking for this entity</span></div>');
+									updraft_downloader_status(nonce, what);
+								}
+								// Reset, in case this is a re-try
+								jQuery('#'+stid+'_st').html('Begun looking for this entity');
+								// Now send the actual request to kick it all off
+								jQuery.post(ajaxurl, jQuery('#uddownloadform_'+what).serialize());
+								// We don't want the form to submit as that replaces the document
+								return false;
+							}
+							var dlstatus_sdata = {
+								action: 'updraft_ajax',
+								subaction: 'downloadstatus',
+								nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>'
+							};
+							dlstatus_lastlog = '';
+							function updraft_downloader_status(nonce, what) {
+								var stid = 'uddlstatus_'+nonce+'_'+what;
+								if (jQuery('#'+stid).length) {
+									dlstatus_sdata.timestamp = nonce;
+									dlstatus_sdata.type = what;
+									jQuery.get(ajaxurl, dlstatus_sdata, function(response) {
+										nexttimer = 1000;
+										if (dlstatus_lastlog == response) { nexttimer = 2500; }
+										setTimeout(function(){updraft_downloader_status(nonce, what)}, nexttimer);
+										jQuery('#'+stid+'_st').html(response);
+										dlstatus_lastlog = response;
+									});
+								}
+							}
+						</script>
 						<table>
 							<?php
 							foreach($backup_history as $key=>$value) {
@@ -2102,7 +2322,8 @@ class UpdraftPlus {
 								<td><b><?php echo date('Y-m-d G:i',$key)?></b></td>
 								<td>
 							<?php if (isset($value['db'])) { ?>
-									<form action="admin-ajax.php" method="post">
+									<form id="uddownloadform_db" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'db')" method="post">
+										<?php wp_nonce_field('updraftplus_download'); ?>
 										<input type="hidden" name="action" value="updraft_download_backup" />
 										<input type="hidden" name="type" value="db" />
 										<input type="hidden" name="timestamp" value="<?php echo $key?>" />
@@ -2112,37 +2333,41 @@ class UpdraftPlus {
 								</td>
 								<td>
 							<?php if (isset($value['plugins'])) { ?>
-									<form action="admin-ajax.php" method="post">
+									<form id="uddownloadform_plugins" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'plugins')" method="post">
+										<?php wp_nonce_field('updraftplus_download'); ?>
 										<input type="hidden" name="action" value="updraft_download_backup" />
 										<input type="hidden" name="type" value="plugins" />
 										<input type="hidden" name="timestamp" value="<?php echo $key?>" />
-										<input type="submit" value="Plugins" />
+										<input  type="submit" value="Plugins" />
 									</form>
 							<?php } else { echo "(No plugins)"; } ?>
 								</td>
 								<td>
 							<?php if (isset($value['themes'])) { ?>
-									<form action="admin-ajax.php" method="post">
+									<form id="uddownloadform_themes" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'themes')" method="post">
+										<?php wp_nonce_field('updraftplus_download'); ?>
 										<input type="hidden" name="action" value="updraft_download_backup" />
 										<input type="hidden" name="type" value="themes" />
 										<input type="hidden" name="timestamp" value="<?php echo $key?>" />
-										<input type="submit" value="Themes" />
+										<input  type="submit" value="Themes" />
 									</form>
 							<?php } else { echo "(No themes)"; } ?>
 								</td>
 								<td>
 							<?php if (isset($value['uploads'])) { ?>
-									<form action="admin-ajax.php" method="post">
+									<form id="uddownloadform_uploads" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'uploads')" method="post">
+										<?php wp_nonce_field('updraftplus_download'); ?>
 										<input type="hidden" name="action" value="updraft_download_backup" />
 										<input type="hidden" name="type" value="uploads" />
 										<input type="hidden" name="timestamp" value="<?php echo $key?>" />
-										<input type="submit" value="Uploads" />
+										<input  type="submit" value="Uploads" />
 									</form>
 							<?php } else { echo "(No uploads)"; } ?>
 								</td>
 								<td>
 							<?php if (isset($value['others'])) { ?>
-									<form action="admin-ajax.php" method="post">
+									<form id="uddownloadform_others" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'others')" method="post">
+										<?php wp_nonce_field('updraftplus_download'); ?>
 										<input type="hidden" name="action" value="updraft_download_backup" />
 										<input type="hidden" name="type" value="others" />
 										<input type="hidden" name="timestamp" value="<?php echo $key?>" />

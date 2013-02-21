@@ -207,10 +207,12 @@ class UpdraftPlus_BackupModule_s3 {
 		if (!empty($region)) {
 			$this->set_endpoint($s3, $region);
 			$fullpath = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir')).$file;
-			if (!$s3->getObject($bucket_name, $bucket_path.$file, $fullpath)) {
+			if (!$s3->getObject($bucket_name, $bucket_path.$file, $fullpath, true)) {
+				$updraftplus->log("S3 Error: Failed to download $file. Check your permissions and credentials.");
 				$updraftplus->error("S3 Error: Failed to download $file. Check your permissions and credentials.");
 			}
 		} else {
+			$updraftplus->log("S3 Error: Failed to access bucket $bucket_name. Check your permissions and credentials.");
 			$updraftplus->error("S3 Error: Failed to access bucket $bucket_name. Check your permissions and credentials.");
 		}
 

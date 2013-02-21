@@ -270,10 +270,11 @@ class UpdraftPlus_BackupModule_googledrive {
 				return false;
 			}
 			// Actually download the thing
-			$download_to = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir')).$file;
-			$gdocs_object->download_data($content_link, $download_to);
 
-			if (filesize($download_to) >0) {
+			$download_to = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir')).$file;
+			$gdocs_object->download_data($content_link, $download_to, true);
+
+			if (filesize($download_to) > 0) {
 				return true;
 			} else {
 				$updraftplus->error("Google Drive error: zero-size file was downloaded");
