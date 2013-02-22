@@ -3,7 +3,7 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, ftp, cloud, back up, multisite
 Requires at least: 3.2
 Tested up to: 3.5.1
-Stable tag: 1.4.14
+Stable tag: 1.4.15
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -21,6 +21,7 @@ Clean-up old rubbish, and display more status in final email
 * Files and databases can have separate schedules
 * Failed uploads are automatically resumed/retried
 * Select which files to backup (plugins, themes, content, other)
+* Download backup archives direct from your WordPress dashboard
 * Database backups can be encrypted for security
 * Debug mode that gives full logging of the backup
 * Thousands of users: widely tested and reliable
@@ -101,10 +102,10 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 == Changelog ==
 
 = 1.4.22 - 02/22/2013 =
-* Still in testing - do not deploy with important data
 * Now remembers what cloud service you used for historical backups, if you later switch
 * Now performs user downloads from the settings page asynchronously, meaning that enormous backups can be fetched this way
 * Fixed bug which forced GoogleDrive users to re-authenticate unnecessarily
+* Fixed apparent race condition that broke some backups (perhaps only occurred for users with some external cacheing setup)
 
 = 1.4.14 - 02/19/2013 =
 * Display final status message in email

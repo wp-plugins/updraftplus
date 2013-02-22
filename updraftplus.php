@@ -28,8 +28,8 @@ TODO
 // Provide backup/restoration for UpdraftPlus's settings, to allow 'bootstrap' on a fresh WP install - some kind of single-use code which a remote UpdraftPlus can use to authenticate
 // Multiple jobs
 // Change FTP to use SSL by default
-// Chunked downloading of material for resumption + do resume it
 // Disk free-space display
+// GoogleDrive in-dashboard download resumption loads the whole archive into memory - should instead either chunk or directly stream fo the file handle
 // Multisite add-on should allow restoring of each blog individually
 // When looking for files to delete, is the current encryption setting used? Should not be.
 // Create single zip, containing even WordPress itself
@@ -2262,7 +2262,7 @@ class UpdraftPlus {
 				</tr>
 				<tr>
 					<td></td><td class="download-backups" style="display:none">
-						<p><em><strong>Note</strong> - Pressing a button will make UpdraftPlus try to bring a backup file back from the remote storage (if any - e.g. Amazon S3, Dropbox, Google Drive, FTP) to your webserver, before then allowing you to download it to your computer. If the fetch from the remote storage stops progressing, then click again to resume from where it left off. Remember that you can always visit the cloud storage website vendor's website directly.</em></p>
+						<p><em><strong>Note</strong> - Pressing a button will make UpdraftPlus try to bring a backup file back from the remote storage (if any - e.g. Amazon S3, Dropbox, Google Drive, FTP) to your webserver, before then allowing you to download it to your computer. If the fetch from the remote storage stops progressing (wait 30 seconds to make sure), then click again to resume from where it left off. Remember that you can always visit the cloud storage website vendor's website directly.</em></p>
 						<div id="ud_downloadstatus"></div>
 						<script>
 							var lastlog_lastmessage = "";
