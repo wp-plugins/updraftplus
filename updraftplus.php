@@ -15,7 +15,6 @@ TODO
 //Put in old-WP-version warning, and point them to where they can get help
 //Add SFTP, Box.Net, SugarSync and Microsoft Skydrive support??
 //The restorer has a hard-coded wp-content - fix
-//Button for wiping files. Also auto-wipe on de-activate/de-install.
 //Change DB encryption to not require whole gzip in memory (twice)
 //improve error reporting / pretty up return messages in admin area. One thing: have a "backup is now finished" flag. Otherwise with the resuming things get ambiguous/confusing. See http://wordpress.org/support/topic/backup-status - user was not aware that backup completely failed. Maybe a "backup status" field for each nonce that gets updated? (Even via AJAX?)
 //?? On 'backup now', open up a Lightbox, count down 5 seconds, then start examining the log file (if it can be found)
@@ -28,24 +27,22 @@ TODO
 // Provide backup/restoration for UpdraftPlus's settings, to allow 'bootstrap' on a fresh WP install - some kind of single-use code which a remote UpdraftPlus can use to authenticate
 // Multiple jobs
 // Change FTP to use SSL by default
+// Chunked downloading of material for resumption + do resume it
+// Disk free-space display
 // Multisite add-on should allow restoring of each blog individually
 // When looking for files to delete, is the current encryption setting used? Should not be.
 // Create single zip, containing even WordPress itself
-// Have something reap any remaining .tmp files, e.g. once a week
 // When a new backup starts, AJAX-update the 'Last backup' display in the admin page.
 // Remove the recurrence of admin notices when settings are saved due to _wp_referer
 // Auto-detect what the real execution time is (max_execution_time is just one of the upper limits, there can be others, some insivible directly), and tweak our resumption time accordingly
-//http://w-shadow.com/blog/2010/09/02/automatic-updates-for-any-plugin/
-// Specify the exact time to run the backup (useful if you have big site, using a lot of CPU)
 
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
 // Does not delete old custom directories upon a restore?
-// Re-do making of zip files to allow resumption (every x files, store the state in a transient)
 // New sub-module to verify that the backups are there, independently of backup thread
 */
 
 /*  Portions copyright 2010 Paul Kehrer
-Portions copyright 2011-12 David Anderson
+Portions copyright 2011-13 David Anderson
 Other portions copyright as indicated authors in the relevant files
 Particular thanks to Sorin Iclanzan, author of the "Backup" plugin, from which much Google Drive code was taken under the GPLv3+
 
