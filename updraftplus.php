@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson
-Version: 1.4.26
+Version: 1.4.27
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -1425,6 +1425,8 @@ class UpdraftPlus {
 			echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', '(Nothing yet logged)'));
 		} elseif ('lastbackup' == $_GET['subaction']) {
 			echo $this->last_backup_html();
+		} elseif ('historystatus' == $_GET['subaction']) {
+			echo $this->existing_backup_table();
 		} elseif ('downloadstatus' == $_GET['subaction'] && isset($_GET['timestamp']) && isset($_GET['type'])) {
 
 			echo get_transient('ud_dlmess_'.$_GET['timestamp'].'_'.$_GET['type']).'<br>';
@@ -1994,6 +1996,21 @@ class UpdraftPlus {
 						lastbackup_laststatus = response;
 					});
 				}
+				var updraft_historytimer = 0;
+				function updraft_historytimertoggle() {
+					if (updraft_historytimer) {
+						clearTimeout(updraft_historytimer);
+						updraft_historytimer = 0;
+					} else {
+						updraft_updatehistory();
+						updraft_historytimer = setInterval(function(){updraft_updatehistory()}, 30000);
+					}
+				}
+				function updraft_updatehistory() {
+					jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'historystatus', nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>' }, function(response) {
+						jQuery('#updraft_existing_backups').html(response);
+					});
+				}
 
 				jQuery(document).ready(function() {
 					jQuery('#enableexpertmode').click(function() {
@@ -2325,11 +2342,11 @@ class UpdraftPlus {
 				</tr>
 				<tr>
 					<th>Download backups and logs:</th>
-					<td><a href="#" title="Click to see available backups" onclick="jQuery('.download-backups').toggle();return false;"><?php echo count($backup_history)?> available</a></td>
+					<td><a href="#" title="Click to see available backups" onclick="jQuery('.download-backups').toggle(); updraft_historytimertoggle();"><?php echo count($backup_history)?> available</a></td>
 				</tr>
 				<tr>
 					<td></td><td class="download-backups" style="display:none">
-						<p><em><strong>Note</strong> - Pressing a button will make UpdraftPlus try to bring a backup file back from the remote storage (if any - e.g. Amazon S3, Dropbox, Google Drive, FTP) to your webserver, before then allowing you to download it to your computer. If the fetch from the remote storage stops progressing (wait 30 seconds to make sure), then click again to resume from where it left off. Remember that you can always visit the cloud storage website vendor's website directly.</em></p>
+						<p><em><strong>Note</strong> - Pressing a button will make UpdraftPlus try to bring a backup file b		ack from the remote storage (if any - e.g. Amazon S3, Dropbox, Google Drive, FTP) to your webserver, before then allowing you to download it to your computer. If the fetch from the remote storage stops progressing (wait 30 seconds to make sure), then click again to resume from where it left off. Remember that you can always visit the cloud storage website vendor's website directly.</em></p>
 						<div id="ud_downloadstatus"></div>
 						<script>
 							var lastlog_lastmessage = "";
@@ -2387,80 +2404,11 @@ class UpdraftPlus {
 								}
 							}
 						</script>
-						<table>
+						<div id="updraft_existing_backups">
 							<?php
-							foreach($backup_history as $key=>$value) {
+								print $this->existing_backup_table($backup_history);
 							?>
-							<tr>
-								<td><b><?php echo date('Y-m-d G:i',$key)?></b></td>
-								<td>
-							<?php if (isset($value['db'])) { ?>
-									<form id="uddownloadform_db_<?php echo $key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'db')" method="post">
-										<?php wp_nonce_field('updraftplus_download'); ?>
-										<input type="hidden" name="action" value="updraft_download_backup" />
-										<input type="hidden" name="type" value="db" />
-										<input type="hidden" name="timestamp" value="<?php echo $key?>" />
-										<input type="submit" value="Database" />
-									</form>
-							<?php } else { echo "(No database)"; } ?>
-								</td>
-								<td>
-							<?php if (isset($value['plugins'])) { ?>
-									<form id="uddownloadform_plugins_<?php echo $key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'plugins')" method="post">
-										<?php wp_nonce_field('updraftplus_download'); ?>
-										<input type="hidden" name="action" value="updraft_download_backup" />
-										<input type="hidden" name="type" value="plugins" />
-										<input type="hidden" name="timestamp" value="<?php echo $key?>" />
-										<input  type="submit" value="Plugins" />
-									</form>
-							<?php } else { echo "(No plugins)"; } ?>
-								</td>
-								<td>
-							<?php if (isset($value['themes'])) { ?>
-									<form id="uddownloadform_themes_<?php echo $key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'themes')" method="post">
-										<?php wp_nonce_field('updraftplus_download'); ?>
-										<input type="hidden" name="action" value="updraft_download_backup" />
-										<input type="hidden" name="type" value="themes" />
-										<input type="hidden" name="timestamp" value="<?php echo $key?>" />
-										<input  type="submit" value="Themes" />
-									</form>
-							<?php } else { echo "(No themes)"; } ?>
-								</td>
-								<td>
-							<?php if (isset($value['uploads'])) { ?>
-									<form id="uddownloadform_uploads_<?php echo $key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'uploads')" method="post">
-										<?php wp_nonce_field('updraftplus_download'); ?>
-										<input type="hidden" name="action" value="updraft_download_backup" />
-										<input type="hidden" name="type" value="uploads" />
-										<input type="hidden" name="timestamp" value="<?php echo $key?>" />
-										<input  type="submit" value="Uploads" />
-									</form>
-							<?php } else { echo "(No uploads)"; } ?>
-								</td>
-								<td>
-							<?php if (isset($value['others'])) { ?>
-									<form id="uddownloadform_others_<?php echo $key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'others')" method="post">
-										<?php wp_nonce_field('updraftplus_download'); ?>
-										<input type="hidden" name="action" value="updraft_download_backup" />
-										<input type="hidden" name="type" value="others" />
-										<input type="hidden" name="timestamp" value="<?php echo $key?>" />
-										<input type="submit" value="Others" />
-									</form>
-							<?php } else { echo "(No others)"; } ?>
-								</td>
-								<td>
-							<?php if (isset($value['nonce']) && preg_match("/^[0-9a-f]{12}$/",$value['nonce']) && is_readable($updraft_dir.'/log.'.$value['nonce'].'.txt')) { ?>
-									<form action="options-general.php" method="get">
-										<input type="hidden" name="action" value="downloadlog" />
-										<input type="hidden" name="page" value="updraftplus" />
-										<input type="hidden" name="updraftplus_backup_nonce" value="<?php echo $value['nonce']; ?>" />
-										<input type="submit" value="Backup Log" />
-									</form>
-							<?php } else { echo "(No backup log)"; } ?>
-								</td>
-							</tr>
-							<?php }?>
-						</table>
+						</div>
 					</td>
 				</tr>
 			</table>
@@ -2529,6 +2477,89 @@ class UpdraftPlus {
 			/* ]]> */
 			</script>
 			<?php
+	}
+
+	function existing_backup_table($backup_history = false) {
+
+		// Fetch it if it was not passed
+		if ($backup_history === false) $backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
+		if (!is_array($backup_history)) $backup_history=array();
+
+		$updraft_dir = $this->backups_dir_location();
+
+		echo '<table>';
+		foreach($backup_history as $key=>$value) {
+		?>
+		<tr>
+			<td><b><?php echo date('Y-m-d G:i',$key)?></b></td>
+			<td>
+		<?php if (isset($value['db'])) { ?>
+				<form id="uddownloadform_db_<?php echo $key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'db')" method="post">
+					<?php wp_nonce_field('updraftplus_download'); ?>
+					<input type="hidden" name="action" value="updraft_download_backup" />
+					<input type="hidden" name="type" value="db" />
+					<input type="hidden" name="timestamp" value="<?php echo $key?>" />
+					<input type="submit" value="Database" />
+				</form>
+		<?php } else { echo "(No database)"; } ?>
+			</td>
+			<td>
+		<?php if (isset($value['plugins'])) { ?>
+				<form id="uddownloadform_plugins_<?php echo $key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'plugins')" method="post">
+					<?php wp_nonce_field('updraftplus_download'); ?>
+					<input type="hidden" name="action" value="updraft_download_backup" />
+					<input type="hidden" name="type" value="plugins" />
+					<input type="hidden" name="timestamp" value="<?php echo $key?>" />
+					<input  type="submit" value="Plugins" />
+				</form>
+		<?php } else { echo "(No plugins)"; } ?>
+			</td>
+			<td>
+		<?php if (isset($value['themes'])) { ?>
+				<form id="uddownloadform_themes_<?php echo $key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'themes')" method="post">
+					<?php wp_nonce_field('updraftplus_download'); ?>
+					<input type="hidden" name="action" value="updraft_download_backup" />
+					<input type="hidden" name="type" value="themes" />
+					<input type="hidden" name="timestamp" value="<?php echo $key?>" />
+					<input  type="submit" value="Themes" />
+				</form>
+		<?php } else { echo "(No themes)"; } ?>
+			</td>
+			<td>
+		<?php if (isset($value['uploads'])) { ?>
+				<form id="uddownloadform_uploads_<?php echo $key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'uploads')" method="post">
+					<?php wp_nonce_field('updraftplus_download'); ?>
+					<input type="hidden" name="action" value="updraft_download_backup" />
+					<input type="hidden" name="type" value="uploads" />
+					<input type="hidden" name="timestamp" value="<?php echo $key?>" />
+					<input  type="submit" value="Uploads" />
+				</form>
+		<?php } else { echo "(No uploads)"; } ?>
+			</td>
+			<td>
+		<?php if (isset($value['others'])) { ?>
+				<form id="uddownloadform_others_<?php echo $key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'others')" method="post">
+					<?php wp_nonce_field('updraftplus_download'); ?>
+					<input type="hidden" name="action" value="updraft_download_backup" />
+					<input type="hidden" name="type" value="others" />
+					<input type="hidden" name="timestamp" value="<?php echo $key?>" />
+					<input type="submit" value="Others" />
+				</form>
+		<?php } else { echo "(No others)"; } ?>
+			</td>
+			<td>
+		<?php if (isset($value['nonce']) && preg_match("/^[0-9a-f]{12}$/",$value['nonce']) && is_readable($updraft_dir.'/log.'.$value['nonce'].'.txt')) { ?>
+				<form action="options-general.php" method="get">
+					<input type="hidden" name="action" value="downloadlog" />
+					<input type="hidden" name="page" value="updraftplus" />
+					<input type="hidden" name="updraftplus_backup_nonce" value="<?php echo $value['nonce']; ?>" />
+					<input type="submit" value="Backup Log" />
+				</form>
+		<?php } else { echo "(No backup log)"; } ?>
+			</td>
+		</tr>
+		<?php }
+		echo '</table>';
 	}
 
 	function show_admin_warning($message, $class = "updated") {
