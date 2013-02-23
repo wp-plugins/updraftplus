@@ -4,19 +4,19 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson
-Version: 1.4.23
+Version: 1.4.26
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
 */
 
 /*
-TODO
+TODO - some are out of date/done, needs pruning
+//When a manual backup is run, use a timer to update the 'Download backups and logs' section, just like 'Last finished backup run'. Beware of over-writing anything that's in there from a resumable downloader.
+//Change DB encryption to not require whole gzip in memory (twice)
 //Put in old-WP-version warning, and point them to where they can get help
 //Add SFTP, Box.Net, SugarSync and Microsoft Skydrive support??
 //The restorer has a hard-coded wp-content - fix
-//Change DB encryption to not require whole gzip in memory (twice)
-//improve error reporting / pretty up return messages in admin area. One thing: have a "backup is now finished" flag. Otherwise with the resuming things get ambiguous/confusing. See http://wordpress.org/support/topic/backup-status - user was not aware that backup completely failed. Maybe a "backup status" field for each nonce that gets updated? (Even via AJAX?)
 //?? On 'backup now', open up a Lightbox, count down 5 seconds, then start examining the log file (if it can be found)
 //Should make clear in dashboard what is a non-fatal error (i.e. can be retried) - leads to unnecessary bug reports
 // Move the inclusion, cloud and retention data into the backup job (i.e. don't read current config, make it an attribute of each job). In fact, everything should be. So audit all code for where get_option is called inside a backup run: it shouldn't happen.
@@ -28,16 +28,15 @@ TODO
 // Specific folders on DropBox
 // Provide backup/restoration for UpdraftPlus's settings, to allow 'bootstrap' on a fresh WP install - some kind of single-use code which a remote UpdraftPlus can use to authenticate
 // Multiple jobs
+// Multisite - a separate 'blogs' zip
 // Allow connecting to remote storage, scanning + populating backup history from it
 // Change FTP to use SSL by default
-// Disk free-space display
 // GoogleDrive in-dashboard download resumption loads the whole archive into memory - should instead either chunk or directly stream fo the file handle
 // Multisite add-on should allow restoring of each blog individually
 // When looking for files to delete, is the current encryption setting used? Should not be.
 // Create single zip, containing even WordPress itself
 // When a new backup starts, AJAX-update the 'Last backup' display in the admin page.
 // Remove the recurrence of admin notices when settings are saved due to _wp_referer
-// Auto-detect what the real execution time is (max_execution_time is just one of the upper limits, there can be others, some insivible directly), and tweak our resumption time accordingly
 
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
 // Does not delete old custom directories upon a restore?
@@ -322,6 +321,7 @@ class UpdraftPlus {
 
 		// This should be always called; if there were no files in this run, it returns us an empty array
 		$backup_array = $this->resumable_backup_of_files($resumption_no);
+
 		// This save, if there was something, is then immediately picked up again
 		if (is_array($backup_array)) {
 			$this->log("Saving backup status to database (elements: ".count($backup_array).")");
@@ -1423,6 +1423,8 @@ class UpdraftPlus {
 
 		if ('lastlog' == $_GET['subaction']) {
 			echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', '(Nothing yet logged)'));
+		} elseif ('lastbackup' == $_GET['subaction']) {
+			echo $this->last_backup_html();
 		} elseif ('downloadstatus' == $_GET['subaction'] && isset($_GET['timestamp']) && isset($_GET['type'])) {
 
 			echo get_transient('ud_dlmess_'.$_GET['timestamp'].'_'.$_GET['type']).'<br>';
@@ -1844,8 +1846,9 @@ class UpdraftPlus {
 		}
 	}
 
-	function settings_formcontents() {
+	function settings_formcontents($last_backup_html) {
 		$updraft_dir = $this->backups_dir_location();
+
 		?>
 			<table class="form-table" style="width:850px;">
 			<tr>
@@ -1970,18 +1973,35 @@ class UpdraftPlus {
 					jQuery.get(ajaxurl, lastlog_sdata, function(response) {
 						nexttimer = 1500;
 						if (lastlog_lastmessage == response) { nexttimer = 4500; }
-						window.setTimeout(function(){updraft_showlastlog()}, nexttimer);
+						setTimeout(function(){updraft_showlastlog()}, nexttimer);
 						jQuery('#updraft_lastlogcontainer').html(response);
 						lastlog_lastmessage = response;
 					});
 				}
+				var lastbackup_sdata = {
+					action: 'updraft_ajax',
+					subaction: 'lastbackup',
+					nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>'
+				};
+				var lastbackup_laststatus = '<?php echo $last_backup_html?>'
+				function updraft_showlastbackup(){
+					jQuery.get(ajaxurl, lastbackup_sdata, function(response) {
+						if (lastbackup_laststatus == response) {
+							setTimeout(function(){updraft_showlastbackup()}, 7000);
+						} else {
+							jQuery('#updraft_last_backup').html(response);
+						}
+						lastbackup_laststatus = response;
+					});
+				}
+
 				jQuery(document).ready(function() {
 					jQuery('#enableexpertmode').click(function() {
 						jQuery('.expertmode').fadeIn();
 						return false;
 					});
 					<?php if (!is_writable($updraft_dir)) echo "jQuery('.backupdirrow').show();\n"; ?>
-					window.setTimeout(function(){updraft_showlastlog()}, 1200);
+					setTimeout(function(){updraft_showlastlog();}, 1200);
 					jQuery('.updraftplusmethod').hide();
 					<?php
 						if ($active_service) echo "jQuery('.${active_service}').show();";
@@ -2056,6 +2076,37 @@ class UpdraftPlus {
 		<?php
 	}
 
+	function last_backup_html() {
+
+		$updraft_last_backup = UpdraftPlus_Options::get_updraft_option('updraft_last_backup');
+
+		$updraft_dir = $this->backups_dir_location();
+
+		if($updraft_last_backup) {
+
+			if ($updraft_last_backup['success']) {
+				// Convert to GMT, then to blog time
+				$last_backup_text = get_date_from_gmt(gmdate('Y-m-d H:i:s', $updraft_last_backup['backup_time']), 'D, F j, Y H:i T');
+			} else {
+				$last_backup_text = implode("<br>",$updraft_last_backup['errors']);
+			}
+
+			if (!empty($updraft_last_backup['backup_nonce'])) {
+				$potential_log_file = $updraft_dir."/log.".$updraft_last_backup['backup_nonce'].".txt";
+				if (is_readable($potential_log_file)) $last_backup_text .= "<br><a href=\"?page=updraftplus&action=downloadlog&updraftplus_backup_nonce=".$updraft_last_backup['backup_nonce']."\">Download log file</a>";
+			}
+
+			$last_backup_color = ($updraft_last_backup['success']) ? 'green' : 'red';
+
+		} else {
+			$last_backup_text = 'No backup has been completed.';
+			$last_backup_color = 'blue';
+		}
+
+		return "<span style=\"color:${last_backup_color}\">${last_backup_text}</span>";
+
+	}
+
 	function settings_output() {
 
 		/*
@@ -2113,15 +2164,15 @@ class UpdraftPlus {
 		}
 		
 		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup') {
+			// For unknown reasons, the <script> runs twice if put inside the <div>
 			echo '<div class="updated fade" style="max-width: 800px; font-size:140%; line-height: 140%; padding:14px; clear:left;"><strong>Schedule backup:</strong> ';
 			if (wp_schedule_single_event(time()+5, 'updraft_backup_all') === false) {
 				$this->log("A backup run failed to schedule");
-				echo "Failed.";
+				echo "Failed.</div>";
 			} else {
-				echo "OK. Now load any page from your site to make sure the schedule can trigger.";
+				echo "OK. Now load any page from your site to make sure the schedule can trigger.</div><script>setTimeout(function(){updraft_showlastbackup();}, 7000);</script>";
 				$this->log("A backup run has been scheduled");
 			}
-			echo '</div>';
 		}
 
 		// updraft_file_ids is not deleted
@@ -2212,30 +2263,11 @@ class UpdraftPlus {
 						}
 					}
 					$current_time = get_date_from_gmt(gmdate('Y-m-d H:i:s'), 'D, F j, Y H:i T');
-					$updraft_last_backup = UpdraftPlus_Options::get_updraft_option('updraft_last_backup');
-					if($updraft_last_backup) {
-						if ($updraft_last_backup['success']) {
-							// Convert to GMT, then to blog time
-							$last_backup = get_date_from_gmt(gmdate('Y-m-d H:i:s', $updraft_last_backup['backup_time']), 'D, F j, Y H:i T');
-						} else {
-							$last_backup = implode("<br>",$updraft_last_backup['errors']);
-						}
 
-						$last_backup_color = ($updraft_last_backup['success']) ? 'green' : 'red';
-						if (!empty($updraft_last_backup['backup_nonce'])) {
-							$potential_log_file = $updraft_dir."/log.".$updraft_last_backup['backup_nonce'].".txt";
-							if (is_readable($potential_log_file)) $last_backup .= "<br><a href=\"?page=updraftplus&action=downloadlog&updraftplus_backup_nonce=".$updraft_last_backup['backup_nonce']."\">Download log file</a>";
-						}
-					} else {
-						$last_backup = 'No backup has been completed.';
-						$last_backup_color = 'blue';
-					}
+					$backup_disabled = (is_writable($updraft_dir)) ? '' : 'disabled="disabled"';
 
-					if(is_writable($updraft_dir)) {
-						$backup_disabled = "";
-					} else {
-						$backup_disabled = 'disabled="disabled"';
-					}
+					$last_backup_html = $this->last_backup_html();
+
 					?>
 
 					<th>Time now:</th>
@@ -2250,8 +2282,8 @@ class UpdraftPlus {
 					<td style="color:blue"><?php echo $next_scheduled_backup_database?></td>
 				</tr>
 				<tr>
-					<th>Last backup:</th>
-					<td style="color:<?php echo $last_backup_color ?>"><?php echo $last_backup?></td>
+					<th>Last finished backup run:</th>
+					<td id="updraft_last_backup"><?php echo $last_backup_html ?></td>
 				</tr>
 			</table>
 			<div style="float:left; width:200px; padding-top: 40px;">
@@ -2433,20 +2465,20 @@ class UpdraftPlus {
 				</tr>
 			</table>
 			<?php
-			if (!defined('UPDRAFTPLUS_PREMIUM') && is_multisite()) {
+			if (is_multisite() && !file_exists(UPDRAFTPLUS_DIR.'/addons/multisite.php')) {
 				?>
-				<h2>UpdraftPlus Premium</h2>
+				<h2>UpdraftPlus Multisite</h2>
 				<table>
 				<tr>
 				<td>
-				<p style="max-width:800px;">Do you need WordPress Multisite support? Please check out <a href="http://updraftplus.com">UpdraftPlus Premium</a> - and in coming weeks, it will add even more premium features. Why not support UpdraftPlus development?</p>
+				<p style="max-width:800px;">Do you need WordPress Multisite support? Please check out <a href="http://updraftplus.com">UpdraftPlus Premium</a>.</p>
 				</td>
 				</tr>
 				</table>
 			<?php } ?>
 			<h2>Configure Backup Contents And Schedule</h2>
 			<?php UpdraftPlus_Options::options_form_begin(); ?>
-				<?php $this->settings_formcontents(); ?>
+				<?php $this->settings_formcontents($last_backup_html); ?>
 			</form>
 			<div style="padding-top: 40px; display:none;" class="expertmode">
 				<hr>
@@ -2485,7 +2517,7 @@ class UpdraftPlus {
 						jQuery('.updraftplusmethod').hide();
 						var active_class = jQuery(this).val();
 						jQuery('.'+active_class).show();
-					})
+					});
 				})
 				jQuery(window).load(function() {
 					//this is for hiding the restore progress at the top after it is done

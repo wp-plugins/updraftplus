@@ -85,9 +85,8 @@ class UpdraftPlus_BackupModule_s3 {
 						$s3->setExceptions(true);
 						try {
 							$uploadId = $s3->initiateMultipartUpload($bucket_name, $filepath);
-						} catch  (Exception $e) {
+						} catch (Exception $e) {
 							$updraftplus->log('S3 error whilst trying initiateMultipartUpload: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
-							$s3->setExceptions(false);
 							$uploadId = false;
 						}
 						$s3->setExceptions(false);
