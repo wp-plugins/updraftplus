@@ -2346,7 +2346,7 @@ class UpdraftPlus {
 				</tr>
 				<tr>
 					<td></td><td class="download-backups" style="display:none">
-						<p><em><strong>Note</strong> - Pressing a button will make UpdraftPlus try to bring a backup file b		ack from the remote storage (if any - e.g. Amazon S3, Dropbox, Google Drive, FTP) to your webserver, before then allowing you to download it to your computer. If the fetch from the remote storage stops progressing (wait 30 seconds to make sure), then click again to resume from where it left off. Remember that you can always visit the cloud storage website vendor's website directly.</em></p>
+						<p><em><strong>Note</strong> - Pressing a button will make UpdraftPlus try to bring a backup file back from the remote storage (if any - e.g. Amazon S3, Dropbox, Google Drive, FTP) to your webserver, before then allowing you to download it to your computer. If the fetch from the remote storage stops progressing (wait 30 seconds to make sure), then click again to resume from where it left off. Remember that you can always visit the cloud storage website vendor's website directly.</em></p>
 						<div id="ud_downloadstatus"></div>
 						<script>
 							var lastlog_lastmessage = "";
