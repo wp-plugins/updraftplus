@@ -499,7 +499,7 @@ class UpdraftPlus {
 
 		# If the files and database schedules are the same, and if this the file one, then we rope in database too.
 		# On the other hand, if the schedules were the same and this was the database run, then there is nothing to do.
-		if (UpdraftPlus_Options::get_updraft_option('updraft_interval') == UpdraftPlus_Options::get_updraft_option('updraft_interval_database') || UpdraftPlus_Options::get_updraft_option('updraft_interval_database','xyz') == 'xyz' ) {
+		if (UpdraftPlus_Options::get_updraft_option('updraft_interval') == UpdraftPlus_Options::get_updraft_option('updraft_interval_database') || UpdraftPlus_Options::get_updraft_option('updraft_interval_database', 'xyz') == 'xyz' ) {
 			$backup_database = ($backup_files == true) ? true : false;
 		}
 
@@ -513,7 +513,7 @@ class UpdraftPlus {
 
 		$resume_interval = $this->minimum_resume_interval();
 		$max_execution_time = ini_get('max_execution_time');
-		if ($max_execution_time >0 && $resume_interval< $max_execution_time + 30) $resume_interval = $max_execution_time + 30;
+		if ($max_execution_time >0 && $max_execution_time<300 && $resume_interval< $max_execution_time + 30) $resume_interval = $max_execution_time + 30;
 
 		$initial_jobdata = array(
 			'resume_interval', $resume_interval,
