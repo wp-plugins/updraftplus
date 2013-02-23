@@ -108,6 +108,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * Fixed apparent race condition that broke some backups (perhaps only occurred for users with some external cacheing setup)
 * Include disk free space warning
 * More intelligent scheduling of resumptions, leading to faster completion on hosts with low max_execution_time values
+* Polls and updates in-page backup history status (no refresh required)
 
 = 1.4.14 - 02/19/2013 =
 * Display final status message in email
