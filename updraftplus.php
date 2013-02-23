@@ -1795,7 +1795,7 @@ class UpdraftPlus {
 			add_action('admin_notices', array($this,'show_admin_warning_dropbox') );
 		}
 
-		if (UpdraftPlus_Options::user_can_manage() && $this->disk_space_check(1024*1024*35*1024*1024) === false) add_action('admin_notices', array($this, 'show_admin_warning_diskspace'));
+		if (UpdraftPlus_Options::user_can_manage() && $this->disk_space_check(1024*1024*35) === false) add_action('admin_notices', array($this, 'show_admin_warning_diskspace'));
 
 	}
 
