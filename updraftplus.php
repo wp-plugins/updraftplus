@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP or email, on separate schedules.
 Author: David Anderson
-Version: 1.4.22
+Version: 1.4.23
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -24,9 +24,11 @@ TODO
 // Warn the user if their zip-file creation is slooowww...
 // Create a "Want Support?" button/console, that leads them through what is needed, and performs some basic tests...
 // Resuming partial FTP uploads
+// Make disk space check more intelligent (currently hard-coded at 35Mb)
 // Specific folders on DropBox
 // Provide backup/restoration for UpdraftPlus's settings, to allow 'bootstrap' on a fresh WP install - some kind of single-use code which a remote UpdraftPlus can use to authenticate
 // Multiple jobs
+// Allow connecting to remote storage, scanning + populating backup history from it
 // Change FTP to use SSL by default
 // Disk free-space display
 // GoogleDrive in-dashboard download resumption loads the whole archive into memory - should instead either chunk or directly stream fo the file handle
@@ -237,6 +239,8 @@ class UpdraftPlus {
 			$logline .= (method_exists('ZipArchive', 'addFile')) ? "Y" : "N";
 		}
 		$this->log($logline);
+		$disk_free_space = disk_free_space($updraft_dir);
+		$this->log("Free space on disk containing Updraft's temporary directory: ".round($disk_free_space/1048576,1)." Mb");
 	}
 
 	# Logs the given line, adding (relative) time stamp and newline
@@ -265,12 +269,18 @@ class UpdraftPlus {
 
 		if ($this->current_resumption >= 9 && $this->newresumption_scheduled == false && $percent > ( $this->current_resumption - 9)) {
 			$resume_interval = $this->jobdata_get('resume_interval');
-			if (!is_numeric($resume_interval) || $resume_interval<200) { $resume_interval = 200; }
+			if (!is_numeric($resume_interval) || $resume_interval<$this->minimum_resume_interval()) { $resume_interval = $this->minimum_resume_interval(); }
 			$schedule_for = time()+$resume_interval;
 			$this->newresumption_scheduled = $schedule_for;
 			$this->log("This is resumption ".$this->current_resumption.", but meaningful uploading is still taking place; so a new one will be scheduled");
 			wp_schedule_single_event($schedule_for, 'updraft_backup_resume', array($this->current_resumption + 1, $this->nonce));
 		}
+	}
+
+	function minimum_resume_interval() {
+		$inter = ini_get('max_execution_time');
+		if (!$inter || $inter>200) $inter = 200;
+		return $inter;
 	}
 
 	function backup_resume($resumption_no, $bnonce) {
@@ -297,12 +307,12 @@ class UpdraftPlus {
 		// Schedule again, to run in 5 minutes again, in case we again fail
 		// The actual interval can be increased (for future resumptions) by other code, if it detects apparent overlapping
 		$resume_interval = $this->jobdata_get('resume_interval');
-		if (!is_numeric($resume_interval) || $resume_interval<200) $resume_interval = 200;
+		if (!is_numeric($resume_interval) || $resume_interval<$this->minimum_resume_interval()) $resume_interval = $this->minimum_resume_interval();
 
 		// A different argument than before is needed otherwise the event is ignored
 		$next_resumption = $resumption_no+1;
 		if ($next_resumption < 10) {
-			$this->log("Scheduling a resumption ($next_resumption) in case this run gets aborted");
+			$this->log("Scheduling a resumption ($next_resumption) after $resume_interval seconds in case this run gets aborted");
 			$schedule_for = time()+$resume_interval;
 			wp_schedule_single_event($schedule_for, 'updraft_backup_resume', array($next_resumption, $bnonce));
 			$this->newresumption_scheduled = $schedule_for;
@@ -318,13 +328,8 @@ class UpdraftPlus {
 			$this->save_backup_history($backup_array);
 		}
 
-		// Returns an array, most recent first, of backup sets
-		$backup_history = $this->get_backup_history();
-		if (!isset($backup_history[$btime])) {
-			$this->log("Could not find a record in the database of a backup with this timestamp");
-		}
-
-		$our_files=$backup_history[$btime];
+		// Switch of variable name is purely vestigial
+		$our_files = $backup_array;
 		if (!is_array($our_files)) $our_files = array();
 
 		$undone_files = array();
@@ -421,14 +426,29 @@ class UpdraftPlus {
 		$this->boot_backup(false,true);
 	}
 
-	function jobdata_set($key, $value) {
-		if (is_array($this->jobdata)) {
+	// This works with any amount of settings, but we provide also a jobdata_set for efficiency as normally there's only one setting
+	function jobdata_set_multi() {
+		if (!is_array($this->jobdata)) $this->jobdata = array();
+
+		$args = func_num_args();
+
+		for ($i=1; $i<=$args/2; $i++) {
+			$key = func_get_arg($i*2-2);
+			$value = func_get_arg($i*2-1);
 			$this->jobdata[$key] = $value;
-		} else {
-			$this->jobdata = array($key => $value);
 		}
 		if ($this->nonce) set_transient("updraft_jobdata_".$this->nonce, $this->jobdata, UPDRAFT_TRANSTIME);
 	}
+
+	function jobdata_set($key, $value) {
+			if (is_array($this->jobdata)) {
+				$this->jobdata[$key] = $value;
+			} else {
+				$this->jobdata = array($key => $value);
+			}
+			set_transient("updraft_jobdata_".$this->nonce, $this->jobdata, 14400);
+	}
+
 
 	function jobdata_get($key) {
 		if (!is_array($this->jobdata)) {
@@ -491,17 +511,23 @@ class UpdraftPlus {
 			return;
 		}
 
+		$resume_interval = $this->minimum_resume_interval();
+		$max_execution_time = ini_get('max_execution_time');
+		if ($max_execution_time >0 && $resume_interval< $max_execution_time + 30) $resume_interval = $max_execution_time + 30;
+
+		$initial_jobdata = array(
+			'resume_interval', $resume_interval,
+			'job_type', 'backup',
+			'backup_time', $this->backup_time,
+			'service', UpdraftPlus_Options::get_updraft_option('updraft_service')
+		);
+
 		// Save what *should* be done, to make it resumable from this point on
-		if ($backup_database) $this->jobdata_set("backup_database", 'begun');
-		if ($backup_files) $this->jobdata_set('backup_files', 'begun');
-		$this->jobdata_set('service', UpdraftPlus_Options::get_updraft_option('updraft_service'));
+		if ($backup_database) array_push($initial_jobdata, 'backup_database', 'begun');
+		if ($backup_files) array_push($initial_jobdata, 'backup_files', 'begun');
 
-		// This can be adapted if we see a need
-		$this->jobdata_set('resume_interval', 300);
-
-		$this->jobdata_set('job_type', 'backup');
-
-		$this->jobdata_set('backup_time', $this->backup_time);
+		// Use of jobdata_set_multi saves around 200ms
+		call_user_func_array(array($this, 'jobdata_set_multi'), $initial_jobdata);
 
 		// Everthing is now set up; now go
 		$this->backup_resume(0, $this->nonce);
@@ -788,7 +814,7 @@ class UpdraftPlus {
 		// Reschedule - remove presently scheduled event
 		wp_clear_scheduled_hook('updraft_backup_resume', array($this->current_resumption + 1, $this->nonce));
 		// Add new event
-		if ($how_far_ahead < 200) $how_far_ahead=200;
+		if ($how_far_ahead < $this->minimum_resume_interval()) $how_far_ahead=$this->minimum_resume_interval();
 		$schedule_for = time() + $how_far_ahead;
 		wp_schedule_single_event($schedule_for, 'updraft_backup_resume', array($this->current_resumption + 1, $this->nonce));
 		$this->newresumption_scheduled = $schedule_for;
@@ -796,7 +822,7 @@ class UpdraftPlus {
 
 	function increase_resume_and_reschedule($howmuch = 120) {
 		$resume_interval = $this->jobdata_get('resume_interval');
-		if (!is_numeric($resume_interval) || $resume_interval<200) { $resume_interval = 200; }
+		if (!is_numeric($resume_interval) || $resume_interval<$this->minimum_resume_interval()) { $resume_interval = $this->minimum_resume_interval(); }
 		if ($this->newresumption_scheduled != false) $this->reschedule($resume_interval+$howmuch);
 		$this->jobdata_set('resume_interval', $resume_interval+$howmuch);
 		$this->log("To decrease the likelihood of overlaps, increasing resumption interval to: ".($resume_interval+$howmuch));
@@ -961,7 +987,6 @@ class UpdraftPlus {
 			$backup_array['nonce'] = $this->nonce;
 			$backup_array['service'] = $this->jobdata_get('service');
 			$backup_history[$this->backup_time] = $backup_array;
-
 			UpdraftPlus_Options::update_updraft_option('updraft_backup_history', $backup_history);
 		} else {
 			$this->log('Could not save backup history because we have no backup array. Backup probably failed.');
@@ -1737,6 +1762,13 @@ class UpdraftPlus {
 		return $memory_limit;
 	}
 
+	function disk_space_check($space) {
+		$updraft_dir = $this->backups_dir_location();
+		$disk_free_space = disk_free_space($updraft_dir);
+		if ($disk_free_space === false) return -1;
+		return ($disk_free_space > $space) ? true : false;
+	}
+
 	function memory_check($memory) {
 		$memory_limit = $this->memory_check_current();
 		return ($memory_limit >= $memory)?true:false;
@@ -1744,7 +1776,7 @@ class UpdraftPlus {
 
 	function execution_time_check($time) {
 		$setting = ini_get('max_execution_time');
-		return ( $setting==0  || $setting >= $time) ? true : false;
+		return ( $setting==0 || $setting >= $time) ? true : false;
 	}
 
 	function admin_init() {
@@ -1762,6 +1794,9 @@ class UpdraftPlus {
 		if (UpdraftPlus_Options::user_can_manage() && UpdraftPlus_Options::get_updraft_option('updraft_service') == "dropbox" && UpdraftPlus_Options::get_updraft_option('updraft_dropboxtk_request_token','') == '') {
 			add_action('admin_notices', array($this,'show_admin_warning_dropbox') );
 		}
+
+		if (UpdraftPlus_Options::user_can_manage() && $this->disk_space_check(1024*1024*35*1024*1024) === false) add_action('admin_notices', array($this, 'show_admin_warning_diskspace'));
+
 	}
 
 	function url_start($urls,$url) {
@@ -2117,11 +2152,11 @@ class UpdraftPlus {
 			if($deleted_old_dirs) echo '<div style="color:blue">Old directories successfully deleted.</div>';
 
 			if(!$this->memory_check(96)) {?>
-				<div style="color:orange">Your PHP memory limit is too low. UpdraftPlus attempted to raise it but was unsuccessful. This plugin may not work properly with a memory limit of less than 96 Mb (though on the other hand, it has been used successfully with a 32Mb limit - your mileage may vary, but don't blame us!). Current limit is: <?php echo $this->memory_check_current(); ?> Mb</div>
+				<div style="color:orange">Your PHP memory limit is quite low. UpdraftPlus attempted to raise it but was unsuccessful. This plugin may not work properly with a memory limit of less than 96 Mb (though on the other hand, it has been used successfully with a 32Mb limit - your mileage may vary, but don't blame us!). Current limit is: <?php echo $this->memory_check_current(); ?> Mb</div>
 			<?php
 			}
-			if(!$this->execution_time_check(300)) {?>
-				<div style="color:orange">Your PHP max_execution_time is less than 300 seconds. This probably means you're running in safe_mode. Either disable safe_mode or modify your php.ini to set max_execution_time to a higher number. If you do not, there is a chance Updraft will be unable to complete a backup. Present limit is: <?php echo ini_get('max_execution_time'); ?> seconds.</div>
+			if(!$this->execution_time_check(60)) {?>
+				<div style="color:orange">Your PHP max_execution_time is less than 60 seconds. This possibly means you're running in safe_mode. Either disable safe_mode or modify your php.ini to set max_execution_time to a higher number. If you do not, then longer will be needed to complete a backup. Present limit is: <?php echo ini_get('max_execution_time'); ?> seconds.</div>
 			<?php
 			}
 
@@ -2466,6 +2501,10 @@ class UpdraftPlus {
 
 	function show_admin_warning($message, $class = "updated") {
 		echo '<div id="updraftmessage" class="'.$class.' fade">'."<p>$message</p></div>";
+	}
+
+	function show_admin_warning_diskspace() {
+		$this->show_admin_warning('<strong>Warning:</strong> You have less than 35Mb of free disk space on the disk which UpdraftPlus is configured to use to create backups. UpdraftPlus could well run out of space. Contact your the operator of your server (e.g. your web hosting company) to resolve this issue.');
 	}
 
 	function show_admin_warning_unreadablelog() {

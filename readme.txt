@@ -101,11 +101,13 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.4.22 - 02/22/2013 =
+= 1.4.23 - 02/23/2013 =
 * Now remembers what cloud service you used for historical backups, if you later switch
 * Now performs user downloads from the settings page asynchronously, meaning that enormous backups can be fetched this way
 * Fixed bug which forced GoogleDrive users to re-authenticate unnecessarily
 * Fixed apparent race condition that broke some backups (perhaps only occurred for users with some external cacheing setup)
+* Include disk free space warning
+* More intelligent scheduling of resumptions, leading to faster completion on hosts with low max_execution_time values
 
 = 1.4.14 - 02/19/2013 =
 * Display final status message in email

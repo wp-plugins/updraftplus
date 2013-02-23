@@ -315,7 +315,7 @@ class UpdraftPlus_BackupModule_s3 {
 
 		if (isset($bucket_exists)) {
 			$try_file = md5(rand());
-			$this->set_endpoint($s3, $location);
+			self::set_endpoint($s3, $location);
 			if (!$s3->putObjectString($try_file, $bucket, $path.$try_file)) {
 				echo "Failure: We successfully $bucket_verb the bucket, but the attempt to create a file in it failed.";
 			} else {
