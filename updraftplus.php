@@ -279,7 +279,7 @@ class UpdraftPlus {
 
 	function minimum_resume_interval() {
 		$inter = ini_get('max_execution_time');
-		if (!$inter || $inter>200) $inter = 200;
+		if (!$inter || $inter>300) $inter = 300;
 		return $inter;
 	}
 
