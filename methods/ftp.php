@@ -9,7 +9,9 @@ class UpdraftPlus_BackupModule_ftp {
 		if( !class_exists('UpdraftPlus_ftp_wrapper')) require_once(UPDRAFTPLUS_DIR.'/includes/ftp.class.php');
 
 		$server = UpdraftPlus_Options::get_updraft_option('updraft_server_address');
-		$ftp = new UpdraftPlus_ftp_wrapper($server , UpdraftPlus_Options::get_updraft_option('updraft_ftp_login'), UpdraftPlus_Options::get_updraft_option('updraft_ftp_pass'));
+
+		$user = UpdraftPlus_Options::get_updraft_option('updraft_ftp_login');
+		$ftp = new UpdraftPlus_ftp_wrapper($server , $user, UpdraftPlus_Options::get_updraft_option('updraft_ftp_pass'));
 		$ftp->passive = true;
 
 		if (!$ftp->connect()) {
@@ -19,11 +21,11 @@ class UpdraftPlus_BackupModule_ftp {
 		}
 
 		//$ftp->make_dir(); we may need to recursively create dirs? TODO
-		
+
 		$ftp_remote_path = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_ftp_remote_path'));
 		foreach($backup_array as $file) {
 			$fullpath = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir')).$file;
-			$updraftplus->log("FTP upload attempt: $file -> ftp://$server/${ftp_remote_path}${file}");
+			$updraftplus->log("FTP upload attempt: $file -> ftp://$user@$server/${ftp_remote_path}${file}");
 			$timer_start = microtime(true);
 			$size_k = round(filesize($fullpath)/1024,1);
 			if ($ftp->put($fullpath, $ftp_remote_path.$file, FTP_BINARY)) {
