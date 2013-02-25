@@ -3,7 +3,7 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, ftp, cloud, back up, multisite
 Requires at least: 3.2
 Tested up to: 3.5.1
-Stable tag: 1.4.15
+Stable tag: 1.4.27
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -105,7 +105,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * Now remembers what cloud service you used for historical backups, if you later switch
 * Now performs user downloads from the settings page asynchronously, meaning that enormous backups can be fetched this way
 * Fixed bug which forced GoogleDrive users to re-authenticate unnecessarily
-* Fixed apparent race condition that broke some backups (perhaps only occurred for users with some external cacheing setup)
+* Fixed apparent race condition that broke some backups
 * Include disk free space warning
 * More intelligent scheduling of resumptions, leading to faster completion on hosts with low max_execution_time values
 * Polls and updates in-page backup history status (no refresh required)

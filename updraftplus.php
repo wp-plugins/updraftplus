@@ -14,7 +14,6 @@ Author URI: http://wordshell.net
 TODO - some are out of date/done, needs pruning
 //When a manual backup is run, use a timer to update the 'Download backups and logs' section, just like 'Last finished backup run'. Beware of over-writing anything that's in there from a resumable downloader.
 //Change DB encryption to not require whole gzip in memory (twice)
-//Put in old-WP-version warning, and point them to where they can get help
 //Add SFTP, Box.Net, SugarSync and Microsoft Skydrive support??
 //The restorer has a hard-coded wp-content - fix
 //?? On 'backup now', open up a Lightbox, count down 5 seconds, then start examining the log file (if it can be found)
@@ -1801,6 +1800,9 @@ class UpdraftPlus {
 
 		if (UpdraftPlus_Options::user_can_manage() && $this->disk_space_check(1024*1024*35) === false) add_action('admin_notices', array($this, 'show_admin_warning_diskspace'));
 
+		global $wp_version, $pagenow;
+		if ($pagenow == 'options-general.php' && version_compare($wp_version, '3.2', '<')) add_action('admin_notices', array($this, 'show_admin_warning_wordpressversion'));
+
 	}
 
 	function url_start($urls,$url) {
@@ -2337,7 +2339,7 @@ class UpdraftPlus {
 			<br style="clear:both" />
 			<table class="form-table">
 				<tr>
-					<th>Last backup log message:</th>
+					<th>Last log message:</th>
 					<td id="updraft_lastlogcontainer"><?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', '(Nothing yet logged)')); ?></td>
 				</tr>
 				<tr>
@@ -2568,6 +2570,10 @@ class UpdraftPlus {
 
 	function show_admin_warning_diskspace() {
 		$this->show_admin_warning('<strong>Warning:</strong> You have less than 35Mb of free disk space on the disk which UpdraftPlus is configured to use to create backups. UpdraftPlus could well run out of space. Contact your the operator of your server (e.g. your web hosting company) to resolve this issue.');
+	}
+
+	function show_admin_warning_wordpressversion() {
+		$this->show_admin_warning('<strong>Warning:</strong> UpdraftPlus does not officially support versions of WordPress before 3.2. It may work for you, but if it does not, then please be aware that no support is available until you upgrade WordPress.');
 	}
 
 	function show_admin_warning_unreadablelog() {
