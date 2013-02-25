@@ -3,7 +3,7 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, ftp, cloud, back up, multisite
 Requires at least: 3.2
 Tested up to: 3.5.1
-Stable tag: 1.4.28
+Stable tag: 1.4.29
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -101,7 +101,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.4.28 - 02/23/2013 =
+= 1.4.29 - 02/23/2013 =
 * Now remembers what cloud service you used for historical backups, if you later switch
 * Now performs user downloads from the settings page asynchronously, meaning that enormous backups can be fetched this way
 * Fixed bug which forced GoogleDrive users to re-authenticate unnecessarily
@@ -109,7 +109,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * Include disk free space warning
 * More intelligent scheduling of resumptions, leading to faster completion on hosts with low max_execution_time values
 * Polls and updates in-page backup history status (no refresh required)
-* Hooks for SFTP add-on
+* Hooks for SFTP + encrypted FTP add-on
 
 = 1.4.14 - 02/19/2013 =
 * Display final status message in email

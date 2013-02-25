@@ -1,6 +1,6 @@
 <?php
 /* from http://www.solutionbot.com/2009/01/02/php-ftp-class/ */
-class ftp_wrapper
+class UpdraftPlus_ftp_wrapper
 {
 	private $conn_id;
 	private $host;
@@ -8,9 +8,9 @@ class ftp_wrapper
 	private $password;
 	private $port;
 	public  $timeout = 90;
-	public  $passive = false;
-	public  $ssl 	 = false;
+	public  $passive = true;
 	public  $system_type = '';
+	public $login_type = 'non-encrypted';
  
 	public function __construct($host, $username, $password, $port = 21)
 	{
@@ -22,21 +22,7 @@ class ftp_wrapper
  
 	public function connect()
 	{
-		if ($this->ssl == false)
-		{
-			$this->conn_id = ftp_connect($this->host, $this->port);
-		}
-		else
-		{
-			if (function_exists('ftp_ssl_connect'))
-			{
-				$this->conn_id = ftp_ssl_connect($this->host, $this->port);
-			}
-			else
-			{
-				return false;	
-			}
-		}
+		$this->conn_id = ftp_connect($this->host, $this->port);
 
 		if ($this->conn_id === false) return false;
  
