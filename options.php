@@ -45,6 +45,8 @@ class UpdraftPlus_Options {
 		register_setting('updraft-options-group', 'updraft_s3_pass' );
 		register_setting('updraft-options-group', 'updraft_s3_remote_path' );
 
+		register_setting('updraft-options-group', 'updraft_scp_options' );
+
 		register_setting('updraft-options-group', 'updraft_dropbox_appkey' );
 		register_setting('updraft-options-group', 'updraft_dropbox_secret' );
 		register_setting('updraft-options-group', 'updraft_dropbox_folder' );

@@ -269,6 +269,15 @@ class UpdraftPlus_BackupModule_s3 {
 
 	public static function credentials_test() {
 
+		if (empty($_POST['apikey'])) {
+			echo "Failure: No API key was given.";
+			return;
+		}
+		if (empty($_POST['apisecret'])) {
+			echo "Failure: No API secret was given.";
+			return;
+		}
+
 		$key = $_POST['apikey'];
 		$secret = $_POST['apisecret'];
 		$path = $_POST['path'];
@@ -283,14 +292,6 @@ class UpdraftPlus_BackupModule_s3 {
 
 		if (empty($bucket)) {
 			echo "Failure: No bucket details were given.";
-			return;
-		}
-		if (empty($key)) {
-			echo "Failure: No API key was given.";
-			return;
-		}
-		if (empty($secret)) {
-			echo "Failure: No API secret was given.";
 			return;
 		}
 
