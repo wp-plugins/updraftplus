@@ -6,19 +6,16 @@ class UpdraftPlus_BackupModule_ftp {
 
 		global $updraftplus;
 
-		if( !class_exists('ftp_wrapper')) require_once(UPDRAFTPLUS_DIR.'/includes/ftp.class.php');
+		if( !class_exists('UpdraftPlus_ftp_wrapper')) require_once(UPDRAFTPLUS_DIR.'/includes/ftp.class.php');
 
 		$server = UpdraftPlus_Options::get_updraft_option('updraft_server_address');
-		$ftp = new ftp_wrapper($server , UpdraftPlus_Options::get_updraft_option('updraft_ftp_login'), UpdraftPlus_Options::get_updraft_option('updraft_ftp_pass'));
+		$ftp = new UpdraftPlus_ftp_wrapper($server , UpdraftPlus_Options::get_updraft_option('updraft_ftp_login'), UpdraftPlus_Options::get_updraft_option('updraft_ftp_pass'));
 		$ftp->passive = true;
 
 		if (!$ftp->connect()) {
-			$ftp->ssl = true;
-			if (!$ftp->connect()) {
-				$updraftplus->log("FTP Failure: we did not successfully log in with those credentials.");
-				$updraftplus->error("FTP login failure");
-				return false;
-			}
+			$updraftplus->log("FTP Failure: we did not successfully log in with those credentials.");
+			$updraftplus->error("FTP login failure");
+			return false;
 		}
 
 		//$ftp->make_dir(); we may need to recursively create dirs? TODO
@@ -53,25 +50,23 @@ class UpdraftPlus_BackupModule_ftp {
 	}
 
 	function download($file) {
-		if( !class_exists('ftp_wrapper')) require_once(UPDRAFTPLUS_DIR.'/includes/ftp.class.php');
+		if( !class_exists('UpdraftPlus_ftp_wrapper')) require_once(UPDRAFTPLUS_DIR.'/includes/ftp.class.php');
 
 		//handle errors at some point TODO
-		$ftp = new ftp_wrapper(UpdraftPlus_Options::get_updraft_option('updraft_server_address'),UpdraftPlus_Options::get_updraft_option('updraft_ftp_login'),UpdraftPlus_Options::get_updraft_option('updraft_ftp_pass'));
+		$ftp = new UpdraftPlus_ftp_wrapper(UpdraftPlus_Options::get_updraft_option('updraft_server_address'),UpdraftPlus_Options::get_updraft_option('updraft_ftp_login'),UpdraftPlus_Options::get_updraft_option('updraft_ftp_pass'));
 		$ftp->passive = true;
 
 		if (!$ftp->connect()) {
-			$ftp->ssl = true;
-			if (!$ftp->connect()) {
-				$updraftplus->log("FTP Failure: we did not successfully log in with those credentials.");
-				$updraftplus->error("FTP login failure");
-				return false;
-			}
+			$updraftplus->log("FTP Failure: we did not successfully log in with those credentials.");
+			$updraftplus->error("FTP login failure");
+			return false;
 		}
 
 		//$ftp->make_dir(); we may need to recursively create dirs? TODO
 		
 		$ftp_remote_path = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_ftp_remote_path'));
 		$fullpath = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir')).$file;
+
 		$ftp->get($fullpath, $ftp_remote_path.$file, FTP_BINARY);
 	}
 
@@ -97,9 +92,15 @@ class UpdraftPlus_BackupModule_ftp {
 
 	public static function config_print() {
 		?>
+
+		<tr class="updraftplusmethod ftp">
+			<th></th>
+			<td><em><?php echo apply_filters('updraft_sftp_ftps_notice', '<strong>Only non-encrypted FTP is supported by regular UpdraftPlus.</strong> If you want encryption (e.g. you are storing sensitive business data), then <a href="http://updraftplus.com/shop/sftp/">an add-on is available.</a>'); ?></em></td>
+		</tr>
+
 		<tr class="updraftplusmethod ftp">
 			<th>FTP Server:</th>
-			<td><input type="text" size="40" id="updraft_server_address" name="updraft_server_address" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_server_address')); ?>" /> <em>Both SSL and non-SSL are supported</em></td>
+			<td><input type="text" size="40" id="updraft_server_address" name="updraft_server_address" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_server_address')); ?>" /></td>
 		</tr>
 		<tr class="updraftplusmethod ftp">
 			<th>FTP Login:</th>
@@ -140,18 +141,15 @@ class UpdraftPlus_BackupModule_ftp {
 			return;
 		}
 
-		if( !class_exists('ftp_wrapper')) require_once(UPDRAFTPLUS_DIR.'/includes/ftp.class.php');
+		if( !class_exists('UpdraftPlus_ftp_wrapper')) require_once(UPDRAFTPLUS_DIR.'/includes/ftp.class.php');
 
 		//handle SSL and errors at some point TODO
-		$ftp = new ftp_wrapper($server, $login, $pass);
+		$ftp = new UpdraftPlus_ftp_wrapper($server, $login, $pass);
 		$ftp->passive = true;
 
 		if (!$ftp->connect()) {
-			$ftp->ssl = true;
-			if (!$ftp->connect()) {
-				echo "Failure: we did not successfully log in with those credentials.";
-				return;
-			}
+			echo "Failure: we did not successfully log in with those credentials.";
+			return;
 		}
 		//$ftp->make_dir(); we may need to recursively create dirs? TODO
 
@@ -162,7 +160,7 @@ class UpdraftPlus_BackupModule_ftp {
 			return;
 		}
 		if ($ftp->put(ABSPATH.'wp-includes/version.php', $fullpath, FTP_BINARY)) {
-			echo "Success: we successfully logged in, and confirmed our ability to create a file in the given directory.";
+			echo "Success: we successfully logged in, and confirmed our ability to create a file in the given directory (login type: ".$ftp->login_type.')';
 			@$ftp->delete($fullpath);
 		} else {
 			echo "Failure: we successfully logged in, but were not able to create a file in the given directory.";

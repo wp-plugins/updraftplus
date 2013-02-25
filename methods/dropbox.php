@@ -185,7 +185,7 @@ class UpdraftPlus_BackupModule_dropbox {
 
 		$try_the_other_one = false;
 		try {
-			$get = $dropbox->getFile($file, $updraft_dir.'/'.$file);
+			$get = $dropbox->getFile($file, $updraft_dir.'/'.$file, null, true);
 		} catch (Exception $e) {
 			// TODO: Remove this October 2013 (we stored in the wrong place for a while...)
 			$try_the_other_one = true;
@@ -197,7 +197,10 @@ class UpdraftPlus_BackupModule_dropbox {
 			$dropbox_folder = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dropbox_folder'));
 			$updraftplus->error('Dropbox error: '.$e);
 			try {
-				$get = $dropbox->getFile($file, $updraft_dir.'/'.$file);
+				$get = $dropbox->getFile($file, $updraft_dir.'/'.$file, null, true);
+				if (isset($get['response']['body'])) {
+					$updraftplus->log("Dropbox: downloaded ".round(strlen($get['response']['body'])/1024,1).' Kb');
+				}
 			}  catch (Exception $e) {
 				$updraftplus->error($possible_error);
 				$updraftplus->error($e->getMessage());

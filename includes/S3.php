@@ -753,9 +753,10 @@ class S3
 	* @param string $bucket Bucket name
 	* @param string $uri Object URI
 	* @param mixed $saveTo Filename or resource to write to
+	* @param boolean resume, if possible
 	* @return mixed
 	*/
-	public static function getObject($bucket, $uri, $saveTo = false)
+	public static function getObject($bucket, $uri, $saveTo = false, $resume = false)
 	{
 		$rest = new S3Request('GET', $bucket, $uri, self::$endpoint);
 		if ($saveTo !== false)
@@ -763,14 +764,23 @@ class S3
 			if (is_resource($saveTo))
 				$rest->fp =& $saveTo;
 			else
-				if (($rest->fp = @fopen($saveTo, 'wb')) !== false)
-					$rest->file = realpath($saveTo);
-				else
-					$rest->response->error = array('code' => 0, 'message' => 'Unable to open save file for writing: '.$saveTo);
+				if ($resume && file_exists($saveTo)) {
+					if (($rest->fp = @fopen($saveTo, 'ab')) !== false) {
+						$rest->setHeader('Range', "bytes=".filesize($saveTo).'-');
+						$rest->file = realpath($saveTo);
+					} else {
+						$rest->response->error = array('code' => 0, 'message' => 'Unable to open save file for writing: '.$saveTo);
+					}
+				} else {
+					if (($rest->fp = @fopen($saveTo, 'wb')) !== false)
+						$rest->file = realpath($saveTo);
+					else
+						$rest->response->error = array('code' => 0, 'message' => 'Unable to open save file for writing: '.$saveTo);
+				}
 		}
 		if ($rest->response->error === false) $rest->getResponse();
 
-		if ($rest->response->error === false && $rest->response->code !== 200)
+		if ($rest->response->error === false && ( !$resume && $rest->response->code != 200) || ( $resume && $rest->response->code != 206 && $rest->response->code != 200))
 			$rest->response->error = array('code' => $rest->response->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->response->error !== false)
 		{
