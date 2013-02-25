@@ -14,7 +14,7 @@ Author URI: http://wordshell.net
 TODO - some are out of date/done, needs pruning
 //When a manual backup is run, use a timer to update the 'Download backups and logs' section, just like 'Last finished backup run'. Beware of over-writing anything that's in there from a resumable downloader.
 //Change DB encryption to not require whole gzip in memory (twice)
-//Add SFTP, Box.Net, SugarSync and Microsoft Skydrive support??
+//Add Rackspace, Box.Net, SugarSync and Microsoft Skydrive support??
 //The restorer has a hard-coded wp-content - fix
 //?? On 'backup now', open up a Lightbox, count down 5 seconds, then start examining the log file (if it can be found)
 //Should make clear in dashboard what is a non-fatal error (i.e. can be retried) - leads to unnecessary bug reports
@@ -22,7 +22,7 @@ TODO - some are out of date/done, needs pruning
 // Should we resume if the only errors were upon deletion (i.e. the backup itself was fine?) Presently we do, but it displays errors for the user to confuse them. Perhaps better to make pruning a separate scheuled task??
 // Warn the user if their zip-file creation is slooowww...
 // Create a "Want Support?" button/console, that leads them through what is needed, and performs some basic tests...
-// Resuming partial FTP uploads
+// Resuming partial (S)FTP uploads
 // Make disk space check more intelligent (currently hard-coded at 35Mb)
 // Specific folders on DropBox
 // Provide backup/restoration for UpdraftPlus's settings, to allow 'bootstrap' on a fresh WP install - some kind of single-use code which a remote UpdraftPlus can use to authenticate
@@ -93,6 +93,8 @@ if (!$updraftplus->memory_check(192)) {
 
 if (!class_exists('UpdraftPlus_Options')) require_once(UPDRAFTPLUS_DIR.'/options.php');
 
+set_include_path(get_include_path().PATH_SEPARATOR.UPDRAFTPLUS_DIR.'/includes/phpseclib');
+
 class UpdraftPlus {
 
 	var $version;
@@ -105,8 +107,8 @@ class UpdraftPlus {
 		"dropbox" => "Dropbox",
 		"googledrive" => "Google Drive",
 		"ftp" => "FTP",
-		"email" => "Email",
-		'scp' => 'SCP / SFTP'
+		'sftp' => 'SFTP',
+		"email" => "Email"
 	);
 
 	var $dbhandle;
@@ -541,7 +543,7 @@ class UpdraftPlus {
 			$this->log("$file: applying encryption");
 			$encryption_error = 0;
 			$microstart = microtime(true);
-			require_once(UPDRAFTPLUS_DIR.'/includes/Rijndael.php');
+			require_once(UPDRAFTPLUS_DIR.'/includes/phpseclib/Crypt/Rijndael.php');
 			$rijndael = new Crypt_Rijndael();
 			$rijndael->setKey($encryption);
 			$updraft_dir = $this->backups_dir_location();
@@ -1364,7 +1366,7 @@ class UpdraftPlus {
 
 	// Acts as a WordPress options filter
 	function googledrive_clientid_checkchange($client_id) {
-		if (UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token') != '' && UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid') != $client_id) {
+		if (UpdraftPlus_Options::get_updraft_option('fdrive_token') != '' && UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid') != $client_id) {
 			require_once(UPDRAFTPLUS_DIR.'/methods/googledrive.php');
 			UpdraftPlus_BackupModule_googledrive::gdrive_auth_revoke(true);
 		}
@@ -1593,7 +1595,7 @@ class UpdraftPlus {
 				if ($encryption == "") {
 					$this->error('Decryption of database failed: the database file is encrypted, but you have no encryption key entered.');
 				} else {
-					require_once(dirname(__FILE__).'/includes/Rijndael.php');
+					require_once(dirname(__FILE__).'/includes/phpseclib/Crypt/Rijndael.php');
 					$rijndael = new Crypt_Rijndael();
 					$rijndael->setKey($encryption);
 					$in_handle = fopen($fullpath,'r');
@@ -2199,7 +2201,7 @@ class UpdraftPlus {
 		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_all') { $this->boot_backup(true,true); }
 		elseif (isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_db') { $this->backup_db(); }
 		elseif (isset($_POST['action']) && $_POST['action'] == 'updraft_wipesettings') {
-			$settings = array('updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_dropbox_folder', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_others_exclude', 'updraft_lastmessage', 'updraft_googledrive_clientid', 'updraft_googledrive_token', 'updraft_dropboxtk_request_token', 'updraft_dropboxtk_access_token', 'updraft_dropbox_folder', 'updraft_last_backup', 'updraft_starttime_files', 'updraft_starttime_db', 'updraft_scp_settings');
+			$settings = array('updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_dropbox_folder', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_others_exclude', 'updraft_lastmessage', 'updraft_googledrive_clientid', 'updraft_googledrive_token', 'updraft_dropboxtk_request_token', 'updraft_dropboxtk_access_token', 'updraft_dropbox_folder', 'updraft_last_backup', 'updraft_starttime_files', 'updraft_starttime_db', 'updraft_sftp_settings');
 			foreach ($settings as $s) {
 				UpdraftPlus_Options::delete_updraft_option($s);
 			}

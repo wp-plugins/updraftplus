@@ -3,19 +3,19 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, ftp, cloud, back up, multisite
 Requires at least: 3.2
 Tested up to: 3.5.1
-Stable tag: 1.4.27
+Stable tag: 1.4.28
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Clean-up old rubbish, and display more status in final email
+Various tweaks and bug-fixes; plus, asynchronous downloading
 
 == Description ==
 
-<a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3, Dropbox, Google Drive, FTP, and email) and restore with a single click. Backups of files and database can have separate schedules.
+<a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3, Dropbox, Google Drive, FTP, SFTP and email) and restore with a single click. Backups of files and database can have separate schedules.
 
-* Supports backups to Amazon S3, Dropbox, Google Drive, FTP (including SSL), email
+* Supports backups to Amazon S3, Dropbox, Google Drive, FTP (including SSL), email, SFTP
 * One-click restore
 * Backup automatically on a repeating schedule
 * Files and databases can have separate schedules
@@ -101,7 +101,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.4.27 - 02/23/2013 =
+= 1.4.28 - 02/23/2013 =
 * Now remembers what cloud service you used for historical backups, if you later switch
 * Now performs user downloads from the settings page asynchronously, meaning that enormous backups can be fetched this way
 * Fixed bug which forced GoogleDrive users to re-authenticate unnecessarily
@@ -109,6 +109,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * Include disk free space warning
 * More intelligent scheduling of resumptions, leading to faster completion on hosts with low max_execution_time values
 * Polls and updates in-page backup history status (no refresh required)
+* Hooks for SFTP add-on
 
 = 1.4.14 - 02/19/2013 =
 * Display final status message in email
