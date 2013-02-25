@@ -14,6 +14,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 	function restore_backup($backup_file, $type) {
 
+		// Various keys can get stored in the data - but only some represent actual data entities
 		if ($type != 'plugins' && $type != 'themes' && $type != 'others' && $type != 'uploads') continue;
 
 		global $wp_filesystem;
@@ -34,7 +35,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		$working_dir = $this->unpack_package($download , $delete);
 		if (is_wp_error($working_dir)) return $working_dir;
 		
-		if ($type == "others" ) {
+		if ($type == 'others' ) {
 
 			// In this special case, the backup contents are not in a folder, so it is not simply a case of moving the folder around, but rather looping over all that we find
 

@@ -85,9 +85,8 @@ class UpdraftPlus_BackupModule_s3 {
 						$s3->setExceptions(true);
 						try {
 							$uploadId = $s3->initiateMultipartUpload($bucket_name, $filepath);
-						} catch  (Exception $e) {
+						} catch (Exception $e) {
 							$updraftplus->log('S3 error whilst trying initiateMultipartUpload: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
-							$s3->setExceptions(false);
 							$uploadId = false;
 						}
 						$s3->setExceptions(false);
@@ -207,10 +206,12 @@ class UpdraftPlus_BackupModule_s3 {
 		if (!empty($region)) {
 			$this->set_endpoint($s3, $region);
 			$fullpath = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir')).$file;
-			if (!$s3->getObject($bucket_name, $bucket_path.$file, $fullpath)) {
+			if (!$s3->getObject($bucket_name, $bucket_path.$file, $fullpath, true)) {
+				$updraftplus->log("S3 Error: Failed to download $file. Check your permissions and credentials.");
 				$updraftplus->error("S3 Error: Failed to download $file. Check your permissions and credentials.");
 			}
 		} else {
+			$updraftplus->log("S3 Error: Failed to access bucket $bucket_name. Check your permissions and credentials.");
 			$updraftplus->error("S3 Error: Failed to access bucket $bucket_name. Check your permissions and credentials.");
 		}
 
@@ -268,6 +269,15 @@ class UpdraftPlus_BackupModule_s3 {
 
 	public static function credentials_test() {
 
+		if (empty($_POST['apikey'])) {
+			echo "Failure: No API key was given.";
+			return;
+		}
+		if (empty($_POST['apisecret'])) {
+			echo "Failure: No API secret was given.";
+			return;
+		}
+
 		$key = $_POST['apikey'];
 		$secret = $_POST['apisecret'];
 		$path = $_POST['path'];
@@ -282,14 +292,6 @@ class UpdraftPlus_BackupModule_s3 {
 
 		if (empty($bucket)) {
 			echo "Failure: No bucket details were given.";
-			return;
-		}
-		if (empty($key)) {
-			echo "Failure: No API key was given.";
-			return;
-		}
-		if (empty($secret)) {
-			echo "Failure: No API secret was given.";
 			return;
 		}
 
@@ -313,6 +315,7 @@ class UpdraftPlus_BackupModule_s3 {
 
 		if (isset($bucket_exists)) {
 			$try_file = md5(rand());
+			self::set_endpoint($s3, $location);
 			if (!$s3->putObjectString($try_file, $bucket, $path.$try_file)) {
 				echo "Failure: We successfully $bucket_verb the bucket, but the attempt to create a file in it failed.";
 			} else {

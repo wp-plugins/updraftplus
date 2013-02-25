@@ -72,6 +72,7 @@ class UpdraftPlus_BackupModule_ftp {
 		
 		$ftp_remote_path = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_ftp_remote_path'));
 		$fullpath = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir')).$file;
+
 		$ftp->get($fullpath, $ftp_remote_path.$file, FTP_BINARY);
 	}
 
