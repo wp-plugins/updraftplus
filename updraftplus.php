@@ -23,6 +23,7 @@ TODO - some are out of date/done, needs pruning
 // Warn the user if their zip-file creation is slooowww...
 // Create a "Want Support?" button/console, that leads them through what is needed, and performs some basic tests...
 // Resuming partial (S)FTP uploads
+// Translations
 // Make disk space check more intelligent (currently hard-coded at 35Mb)
 // Specific folders on DropBox
 // Provide backup/restoration for UpdraftPlus's settings, to allow 'bootstrap' on a fresh WP install - some kind of single-use code which a remote UpdraftPlus can use to authenticate
@@ -1817,7 +1818,7 @@ class UpdraftPlus {
 	}
 
 	function wordshell_random_advert($urls) {
-		if (defined('UPDRAFTPLUS_PREMIUM')) return "";
+		if (defined('UPDRAFTPLUS_NOADS')) return "";
 		$rad = rand(0,8);
 		switch ($rad) {
 		case 0:
@@ -1835,7 +1836,7 @@ class UpdraftPlus {
 			return $this->url_start($urls,'www.simbahosting.co.uk')."Need high-quality WordPress hosting from WordPress specialists? (Including automatic backups and 1-click installer). Get it from the creators of UpdraftPlus.".$this->url_end($urls,'www.simbahosting.co.uk');
 			break;
 		case 5:
-			if (!defined('UPDRAFTPLUS_PREMIUM')) {
+			if (!defined('UPDRAFTPLUS_NOADS')) {
 				return $this->url_start($urls,'updraftplus.com')."Need even more features and support? Check out UpdraftPlus Premium".$this->url_end($urls,'updraftplus.com');
 			} else {
 				return "Thanks for being an UpdraftPlus premium user. Keep visiting ".$this->url_start($urls,'updraftplus.com')."updraftplus.com".$this->url_end($urls,'updraftplus.com')." to see what's going on.";
@@ -2212,7 +2213,7 @@ class UpdraftPlus {
 		<div class="wrap">
 			<h1><?php echo $this->plugin_title; ?></h1>
 
-			Maintained by <b>David Anderson</b> (<a href="http://updraftplus.com">UpdraftPlus.Com</a> | <a href="http://david.dw-perspective.org.uk">Author Homepage</a> | <?php if (!defined('UPDRAFTPLUS_PREMIUM')) { ?><a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate">Donate</a> | <?php } ?><a href="http://wordpress.org/extend/plugins/updraftplus/faq/">FAQs</a> | <a href="http://profiles.wordpress.org/davidanderson/">My other WordPress plugins</a>). Version: <?php echo $this->version; ?>
+			Maintained by <b>David Anderson</b> (<a href="http://updraftplus.com">UpdraftPlus.Com</a> | <a href="http://david.dw-perspective.org.uk">Author Homepage</a> | <?php if (!defined('UPDRAFTPLUS_NOADS')) { ?><a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate">Donate</a> | <?php } ?><a href="http://wordpress.org/extend/plugins/updraftplus/faq/">FAQs</a> | <a href="http://profiles.wordpress.org/davidanderson/">My other WordPress plugins</a>). Version: <?php echo $this->version; ?>
 			<br>
 			<?php
 			if(isset($_GET['updraft_restore_success'])) {
