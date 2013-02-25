@@ -202,19 +202,30 @@ class Dropbox_API
      * @param string $file Path to file, relative to root, including path
      * @param string $outFile Filename to write the downloaded file to
      * @param string $revision The revision of the file to retrieve
+     * @param boolean $allow_resume - append to the file if it already exists
      * @return array
      */
-    public function getFile($file, $outFile = false, $revision = null)
+    public function getFile($file, $outFile = false, $revision = null, $allow_resume = false)
     {
         // Only allow php response format for this call
         if ($this->responseFormat !== 'php') {
             throw new Exception('This method only supports the `php` response format');
         }
+
+        $params = array('rev' => $revision);
         
         $handle = null;
         if ($outFile !== false) {
             // Create a file handle if $outFile is specified
-            if (!$handle = fopen($outFile, 'w')) {
+            if ($allow_resume && file_exists($outFile)) {
+               if (!$handle = fopen($outFile, 'a')) {
+                   throw new Exception("Unable to open file handle for $outFile");
+               } else {
+                   $this->OAuth->setOutFile($handle);
+                   $params['headers'] = array('Range: bytes='.filesize($outFile).'-');
+               }
+            }
+            elseif (!$handle = fopen($outFile, 'w')) {
                 throw new Exception("Unable to open file handle for $outFile");
             } else {
                 $this->OAuth->setOutFile($handle);
@@ -223,7 +234,6 @@ class Dropbox_API
         
         $file = $this->encodePath($file);        
         $call = 'files/' . $this->root . '/' . $file;
-        $params = array('rev' => $revision);
         $response = $this->fetch('GET', self::CONTENT_URL, $call, $params);
         
         // Close the file handle if one was opened
