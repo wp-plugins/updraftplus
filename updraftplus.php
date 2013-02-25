@@ -2,7 +2,7 @@
 /*
 Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
-Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, FTP, SFTP or email, on separate schedules.
+Description: Backup and restore: your content and database can be automatically backed up to Amazon S3, Dropbox, Google Drive, (S)FTP, or email, on separate schedules.
 Author: David Anderson
 Version: 1.4.29
 Donate link: http://david.dw-perspective.org.uk/donate
@@ -240,7 +240,7 @@ class UpdraftPlus {
 			$logline .= (method_exists('ZipArchive', 'addFile')) ? "Y" : "N";
 		}
 		$this->log($logline);
-		$disk_free_space = disk_free_space($updraft_dir);
+		$disk_free_space = @disk_free_space($updraft_dir);
 		$this->log("Free space on disk containing Updraft's temporary directory: ".round($disk_free_space/1048576,1)." Mb");
 	}
 
@@ -1770,8 +1770,8 @@ class UpdraftPlus {
 
 	function disk_space_check($space) {
 		$updraft_dir = $this->backups_dir_location();
-		$disk_free_space = disk_free_space($updraft_dir);
-		if ($disk_free_space === false) return -1;
+		$disk_free_space = @disk_free_space($updraft_dir);
+		if ($disk_free_space == false) return -1;
 		return ($disk_free_space > $space) ? true : false;
 	}
 
