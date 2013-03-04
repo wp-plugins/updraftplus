@@ -2,9 +2,9 @@
 /*
 Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
-Description: Backup and restore: your content and database can be backed up locally or to Amazon S3, Dropbox, Google Drive, (S)FTP & email, on separate schedules.
+Description: Backup and restore: your site can be backed up locally or to Amazon S3, Dropbox, Google Drive, (S)FTP, WebDAV & email, on automatic schedules.
 Author: David Anderson
-Version: 1.4.29
+Version: 1.4.30
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -109,6 +109,7 @@ class UpdraftPlus {
 		"googledrive" => "Google Drive",
 		"ftp" => "FTP",
 		'sftp' => 'SFTP',
+		'webdav' => 'WebDAV',
 		"email" => "Email"
 	);
 
@@ -253,8 +254,9 @@ class UpdraftPlus {
 			// The values of the POST array were checked before
 			set_transient('ud_dlmess_'.$_POST['timestamp'].'_'.$_POST['type'], $line." (".date('M d H:i:s').")", 3600);
 		} else {
-			UpdraftPlus_Options::update_updraft_option("updraft_lastmessage", $line." (".date('M d H:i:s').")");
+			UpdraftPlus_Options::update_updraft_option('updraft_lastmessage', $line." (".date('M d H:i:s').")");
 		}
+		if (isset($_SERVER['KONSOLE_DBUS_SESSION'])) print $line."\n";
 	}
 
 	// This function is used by cloud methods to provide standardised logging, but more importantly to help us detect that meaningful activity took place during a resumption run, so that we can schedule further resumptions if it is worthwhile
@@ -863,7 +865,7 @@ class UpdraftPlus {
 		# The paths in the zip should then begin with '$whichone', having removed WP_CONTENT_DIR from the front
 		$zipcode = $this->make_zipfile($create_from_dir, $zip_name);
 		if ($zipcode !== true) {
-			$this->log("ERROR: Zip failure: /*Could not create*/ $whichone zip: code=$zipcode");
+			$this->log("ERROR: Zip failure: Could not create $whichone zip: code=$zipcode");
 			$this->error("Could not create $whichone zip: code $zipcode. Consult the log file for more information.");
 			return false;
 		} else {
@@ -1501,7 +1503,7 @@ class UpdraftPlus {
 		}
 
 		// TODO: FIXME: Failed downloads may leave log files forever (though they are small)
-		// Not that log() assumes that the data is in _POST, not _GET
+		// Note that log() assumes that the data is in _POST, not _GET
 		if ($debug_mode) $this->logfile_open($this->nonce);
 
 		$this->log("Requested to obtain file: timestamp=$timestamp, type=$type");
