@@ -164,7 +164,7 @@ class UpdraftPlus {
 		add_filter('plugin_action_links', array($this, 'plugin_action_links'), 10, 2);
 		add_action('init', array($this, 'handle_url_actions'));
 
-		if (defined('UPDRAFTPLUS_PREFERPCLZIP')) { $this->zip_preferpcl = true; }
+		if (defined('UPDRAFTPLUS_PREFERPCLZIP') && UPDRAFTPLUS_PREFERPCLZIP === true) { $this->zip_preferpcl = true; }
 
 	}
 
