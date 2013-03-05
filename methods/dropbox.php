@@ -16,7 +16,7 @@ class UpdraftPlus_BackupModule_dropbox {
 
 		if ($this->current_file_size > 0) {
 			$percent = round(100*($offset/$this->current_file_size),1);
-			$updraftplus->record_uploaded_chunk($percent, "($uploadid, $offset)");
+			$updraftplus->record_uploaded_chunk($percent, "$uploadid, $offset");
 		} else {
 			$updraftplus->log("Dropbox: Chunked Upload: $offset bytes uploaded");
 		}
@@ -47,7 +47,6 @@ class UpdraftPlus_BackupModule_dropbox {
 		$dropbox_folder = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dropbox_folder'));
 
 		foreach($backup_array as $file) {
-			$updraftplus->log("Dropbox: Attempt to upload: $file");
 
 			$file_success = 1;
 
@@ -69,13 +68,16 @@ class UpdraftPlus_BackupModule_dropbox {
 				$upload_id = null;
 			}
 
-			// I did erroneously have $dropbox_folder as the third parameter in chunkedUpload... this causes a sub-directory to be created
 			// Old-style, single file put: $put = $dropbox->putFile($updraft_dir.'/'.$file, $dropbox_folder.$file);
 
 			$ourself = $this;
 
+			$ufile = apply_filters('updraftplus_dropbox_modpath', $file);
+
+			$updraftplus->log("Dropbox: Attempt to upload: $file to: $ufile");
+
 			try {
-				$dropbox->chunkedUpload($updraft_dir.'/'.$file, $file, '', true, $offset, $upload_id, array($ourself, 'chunked_callback'));
+				$dropbox->chunkedUpload($updraft_dir.'/'.$file, '', $ufile, true, $offset, $upload_id, array($ourself, 'chunked_callback'));
 			} catch (Exception $e) {
 				$updraftplus->log("Exception: ".$e->getMessage());
 				if (preg_match("/Submitted input out of alignment: got \[(\d+)\] expected \[(\d+)\]/i", $e->getMessage(), $matches)) {
@@ -84,15 +86,15 @@ class UpdraftPlus_BackupModule_dropbox {
 					$dropbox_wanted = $matches[2];
 					$updraftplus->log("Dropbox alignment error: tried=$we_tried, wanted=$dropbox_wanted; will attempt recovery");
 					try {
-						$dropbox->chunkedUpload($updraft_dir.'/'.$file, $file, '', true, $dropbox_wanted, $upload_id, array($ourself, 'chunked_callback'));
+						$dropbox->chunkedUpload($updraft_dir.'/'.$file, '', $ufile, true, $dropbox_wanted, $upload_id, array($ourself, 'chunked_callback'));
 					} catch (Exception $e) {
 						$updraftplus->log('Dropbox error: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
-						$updraftplus->error("Dropbox error: failed to upload file $file (see full log for more)");
+						$updraftplus->error("Dropbox error: failed to upload file to $ufile (see full log for more)");
 						$file_success = 0;
 					}
 				} else {
 					$updraftplus->log('Dropbox error: '.$e->getMessage());
-					$updraftplus->error("Dropbox error: failed to upload file $file (see full log for more)");
+					$updraftplus->error("Dropbox error: failed to upload file to $ufile (see full log for more)");
 					$file_success = 0;
 				}
 			}
@@ -119,7 +121,6 @@ class UpdraftPlus_BackupModule_dropbox {
 	function delete($file) {
 
 		global $updraftplus;
-		$updraftplus->log("Dropbox: request deletion: $file");
 
 		if (UpdraftPlus_Options::get_updraft_option('updraft_dropboxtk_request_token', 'xyz') == 'xyz') {
 			$updraftplus->log('You do not appear to be authenticated with Dropbox');
@@ -135,31 +136,19 @@ class UpdraftPlus_BackupModule_dropbox {
 			return false;
 		}
 
-		$dropbox_folder = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dropbox_folder'));
+		$ufile = apply_filters('updraftplus_dropbox_modpath', $file);
 
-		$file_success = 1;
+		$updraftplus->log("Dropbox: request deletion: $ufile");
+
 		try {
-			// Apparently $dropbox_folder is not needed
-			$dropbox->delete($file);
+			$dropbox->delete($ufile);
+			$file_success = 1;
 		} catch (Exception $e) {
 			$updraftplus->log('Dropbox error: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
-			// TODO
-			// Add this back October 2013 when removing the block below
-			//$updraftplus->error("Dropbox error: failed to delete file ($file): see log file for more info");
-			$file_success = 0;
 		}
-		if ($file_success) {
+
+		if (isset($file_success)) {
 			$updraftplus->log('Dropbox: delete succeeded');
-		} else {
-			$file_success = 1;
-			// We created the file in the wrong place for a while. This code is needed until October 2013, when it can be removed.
-			try {
-				$dropbox->delete($dropbox_folder.'/'.$file);
-			} catch (Exception $e) {
-				$updraftplus->log('Dropbox error: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
-				$file_success = 0;
-			}
-			if ($file_success) $updraftplus->log('Dropbox: delete succeeded (alternative path)');
 		}
 
 	}
@@ -184,20 +173,23 @@ class UpdraftPlus_BackupModule_dropbox {
 		$microtime = microtime(true);
 
 		$try_the_other_one = false;
+
+		$ufile = apply_filters('updraftplus_dropbox_modpath', $file);
+
 		try {
-			$get = $dropbox->getFile($file, $updraft_dir.'/'.$file, null, true);
+			$get = $dropbox->getFile($ufile, $updraft_dir.'/'.$file, null, true);
 		} catch (Exception $e) {
 			// TODO: Remove this October 2013 (we stored in the wrong place for a while...)
 			$try_the_other_one = true;
 			$possible_error = $e->getMessage();
+			$updraftplus->log('Dropbox error: '.$e);
 		}
 
-		// TODO: Remove this October 2013 (we stored in the wrong place for a while...)
+		// TODO: Remove this October 2013 (we stored files in the wrong place for a while...)
 		if ($try_the_other_one) {
 			$dropbox_folder = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dropbox_folder'));
-			$updraftplus->error('Dropbox error: '.$e);
 			try {
-				$get = $dropbox->getFile($file, $updraft_dir.'/'.$file, null, true);
+				$get = $dropbox->getFile($dropbox_folder.'/'.$file, $updraft_dir.'/'.$file, null, true);
 				if (isset($get['response']['body'])) {
 					$updraftplus->log("Dropbox: downloaded ".round(strlen($get['response']['body'])/1024,1).' Kb');
 				}
@@ -219,6 +211,8 @@ class UpdraftPlus_BackupModule_dropbox {
 				<p><em>Dropbox is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your blog is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.</em></p>
 				</td>
 			</tr>
+
+			<?php echo apply_filters('updraftplus_dropbox_extra_config', '<tr><td></td><td><strong>Need to use sub-folders?</strong> Backups are saved in apps/UpdraftPlus. If you back up several sites into the same Dropbox and want to organise with sub-folders, then <a href="http://updraftplus.com/shop/">there\'s an add-on for that.</a></td></tr>'); ?>
 
 			<tr class="updraftplusmethod dropbox">
 				<th>Authenticate with Dropbox:</th>
@@ -249,11 +243,6 @@ class UpdraftPlus_BackupModule_dropbox {
 			</tr>
 
 			<?php
-			// This setting should never have been used - it is legacy/deprecated
-			?>
-			<input type="hidden" name="updraft_dropbox_folder" value="">
-
-			<?php
 			// Legacy: only show this next setting to old users who had a setting stored
 			if (UpdraftPlus_Options::get_updraft_option('updraft_dropbox_appkey')) {
 			?>
@@ -269,30 +258,8 @@ class UpdraftPlus_BackupModule_dropbox {
 
 			<?php } ?>
 
-<!--		<tr class="updraftplusmethod dropbox">
-		<th></th>
-		<td><p><button id="updraft-dropbox-test" type="button" class="button-primary" style="font-size:18px !important">Test Dropbox Settings</button></p></td>
-		</tr>-->
 		<?php
 	}
-/*
-	function config_print_javascript_onready() {
-		?>
-		jQuery('#updraft-dropbox-test').click(function(){
-			var data = {
-				action: 'updraft_credentials_test',
-				method: 'dropbox',
-				nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>',
-				appkey: jQuery('#updraft_dropbox_appkey').val(),
-				secret: jQuery('#updraft_dropbox_secret').val(),
-				folder: jQuery('#updraft_dropbox_folder').val()
-			};
-			jQuery.post(ajaxurl, data, function(response) {
-					alert('Settings test result: ' + response);
-			});
-		});
-		<?php
-	}*/
 
 	public static function action_auth() {
 		if ( isset( $_GET['oauth_token'] ) ) {
