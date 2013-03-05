@@ -16,7 +16,7 @@ class UpdraftPlus_BackupModule_dropbox {
 
 		if ($this->current_file_size > 0) {
 			$percent = round(100*($offset/$this->current_file_size),1);
-			$updraftplus->record_uploaded_chunk($percent, "($uploadid, $offset)");
+			$updraftplus->record_uploaded_chunk($percent, "$uploadid, $offset");
 		} else {
 			$updraftplus->log("Dropbox: Chunked Upload: $offset bytes uploaded");
 		}
@@ -136,18 +136,20 @@ class UpdraftPlus_BackupModule_dropbox {
 			return false;
 		}
 
-		$file = apply_filters('updraftplus_dropbox_modpath', $file);
+		$ufile = apply_filters('updraftplus_dropbox_modpath', $file);
 
-		$updraftplus->log("Dropbox: request deletion: $file");
+		$updraftplus->log("Dropbox: request deletion: $ufile");
 
 		try {
-			$dropbox->delete($file);
+			$dropbox->delete($ufile);
 			$file_success = 1;
 		} catch (Exception $e) {
 			$updraftplus->log('Dropbox error: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
 		}
 
-		if (isset($file_success)) $updraftplus->log('Dropbox: delete succeeded');
+		if (isset($file_success)) {
+			$updraftplus->log('Dropbox: delete succeeded');
+		}
 
 	}
 
@@ -239,11 +241,6 @@ class UpdraftPlus_BackupModule_dropbox {
 			?>
 			</td>
 			</tr>
-
-			<?php
-			// This setting should never have been used - it is legacy/deprecated
-			?>
-			<input type="hidden" name="updraft_dropbox_folder" value="">
 
 			<?php
 			// Legacy: only show this next setting to old users who had a setting stored
