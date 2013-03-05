@@ -3,8 +3,8 @@
 Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your site can be backed up locally or to Amazon S3, Dropbox, Google Drive, (S)FTP, WebDAV & email, on automatic schedules.
-Author: David Anderson
-Version: 1.4.30
+Author: UpdraftPlus.Com, DavidAnderson
+Version: 1.4.31
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -12,6 +12,8 @@ Author URI: http://wordshell.net
 
 /*
 TODO - some are out of date/done, needs pruning
+//Allow use of /usr/bin/zip - since this can escape from PHP's memory limit. Can still batch as we do so, in order to monitor/measure progress
+// Make backup directory relative, to prevent needing to change it upon site moves
 //When a manual backup is run, use a timer to update the 'Download backups and logs' section, just like 'Last finished backup run'. Beware of over-writing anything that's in there from a resumable downloader.
 //Change DB encryption to not require whole gzip in memory (twice)
 //Add Rackspace, Box.Net, SugarSync and Microsoft Skydrive support??
@@ -30,7 +32,6 @@ TODO - some are out of date/done, needs pruning
 // Multiple jobs
 // Multisite - a separate 'blogs' zip
 // Allow connecting to remote storage, scanning + populating backup history from it
-// Change FTP to use SSL by default
 // GoogleDrive in-dashboard download resumption loads the whole archive into memory - should instead either chunk or directly stream fo the file handle
 // Multisite add-on should allow restoring of each blog individually
 // When looking for files to delete, is the current encryption setting used? Should not be.
@@ -164,7 +165,7 @@ class UpdraftPlus {
 		add_filter('plugin_action_links', array($this, 'plugin_action_links'), 10, 2);
 		add_action('init', array($this, 'handle_url_actions'));
 
-		if (defined('UPDRAFTPLUS_PREFERPCLZIP') && UPDRAFTPLUS_PREFERPCLZIP === true) { $this->zip_preferpcl = true; }
+		if (defined('UPDRAFTPLUS_PREFERPCLZIP') && UPDRAFTPLUS_PREFERPCLZIP == true) { $this->zip_preferpcl = true; }
 
 	}
 
@@ -236,7 +237,7 @@ class UpdraftPlus {
 		$this->opened_log_time = microtime(true);
 		$this->log("Opened log file at time: ".date('r'));
 		global $wp_version;
-		$logline = "UpdraftPlus: ".$this->version." WordPress: ".$wp_version." PHP: ".phpversion()." (".php_uname().") PHP Max Execution Time: ".@ini_get("max_execution_time")." ZipArchive::addFile exists: ";
+		$logline = "UpdraftPlus: ".$this->version." WP: ".$wp_version." PHP: ".phpversion()." (".php_uname().") max_execution_time: ".@ini_get("max_execution_time")." memory_limit: ".ini_get('memory_limit')." ZipArchive::addFile : ";
 		// method_exists causes some faulty PHP installations to segfault, leading to support requests
 		if (version_compare(phpversion(), '5.2.0', '>=') && extension_loaded('zip')) {
 			$logline .= 'Y';
@@ -258,7 +259,7 @@ class UpdraftPlus {
 		} else {
 			UpdraftPlus_Options::update_updraft_option('updraft_lastmessage', $line." (".date('M d H:i:s').")");
 		}
-		if (isset($_SERVER['KONSOLE_DBUS_SESSION'])) print $line."\n";
+		if (defined('UPDRAFTPLUS_CONSOLELOG')) print $line."\n";
 	}
 
 	// This function is used by cloud methods to provide standardised logging, but more importantly to help us detect that meaningful activity took place during a resumption run, so that we can schedule further resumptions if it is worthwhile
@@ -274,12 +275,7 @@ class UpdraftPlus {
 		// If they get 2 minutes on each run, and the file is 1Gb, then that equals 10.2Mb/120s = minimum 87Kb/s upload speed required
 
 		if ($this->current_resumption >= 9 && $this->newresumption_scheduled == false && $percent > ( $this->current_resumption - 9)) {
-			$resume_interval = $this->jobdata_get('resume_interval');
-			if (!is_numeric($resume_interval) || $resume_interval<$this->minimum_resume_interval()) { $resume_interval = $this->minimum_resume_interval(); }
-			$schedule_for = time()+$resume_interval;
-			$this->newresumption_scheduled = $schedule_for;
-			$this->log("This is resumption ".$this->current_resumption.", but meaningful uploading is still taking place; so a new one will be scheduled");
-			wp_schedule_single_event($schedule_for, 'updraft_backup_resume', array($this->current_resumption + 1, $this->nonce));
+			$this->something_useful_happened();
 		}
 	}
 
@@ -497,6 +493,12 @@ class UpdraftPlus {
 		//generate backup information
 		$this->backup_time_nonce();
 		$this->logfile_open($this->nonce);
+
+		if (!is_file($this->logfile_name)) {
+			$this->log('Failed to open log file ('.$this->logfile_name.') - you need to check your UpdraftPlus settings (your chosen directory for creating files in is not writable, or you ran out of disk space). Backup aborted.');
+			$this->error('Could not create files in the backup directory. Backup aborted - check your UpdraftPlus settings.');
+			return false;
+		}
 
 		// Some house-cleaning
 		$this->clean_temporary_files();
@@ -1834,7 +1836,7 @@ class UpdraftPlus {
 			return $this->url_start($urls,'wordshell.net')."Check out WordShell".$this->url_end($urls,'www.wordshell.net')." - manage WordPress from the command line - huge time-saver";
 			break;
 		case 3:
-			return "Want some more useful plugins? ".$this->url_start($urls,'profiles.wordpress.org/DavidAnderson/')."See my WordPress profile page for others.".$this->url_end($urls,'profiles.wordpress.org/DavidAnderson/');
+			return "Like UpdraftPlus and can spare one minute? ".$this->url_start($urls,'wordpress.org/support/view/plugin-reviews/updraftplus#postform')."Please help UpdraftPlus by giving a positive review at wordpress.org.".$this->url_end($urls,'wordpress.org/support/view/plugin-reviews/updraftplus#postform');
 			break;
 		case 4:
 			return $this->url_start($urls,'www.simbahosting.co.uk')."Need high-quality WordPress hosting from WordPress specialists? (Including automatic backups and 1-click installer). Get it from the creators of UpdraftPlus.".$this->url_end($urls,'www.simbahosting.co.uk');
@@ -2027,7 +2029,7 @@ class UpdraftPlus {
 						jQuery('.expertmode').fadeIn();
 						return false;
 					});
-					<?php if (!is_writable($updraft_dir)) echo "jQuery('.backupdirrow').show();\n"; ?>
+					<?php if (!@is_writable($updraft_dir)) echo "jQuery('.backupdirrow').show();\n"; ?>
 					setTimeout(function(){updraft_showlastlog();}, 1200);
 					jQuery('.updraftplusmethod').hide();
 					<?php
@@ -2064,15 +2066,16 @@ class UpdraftPlus {
 
 			<tr class="expertmode backupdirrow" style="display:none;">
 				<th>Backup directory:</th>
-				<td><input type="text" name="updraft_dir" style="width:525px" value="<?php echo htmlspecialchars($updraft_dir); ?>" /></td>
+				<td><input type="text" name="updraft_dir" id="updraft_dir" style="width:525px" value="<?php echo htmlspecialchars($updraft_dir); ?>" /></td>
 			</tr>
 			<tr class="expertmode backupdirrow" style="display:none;">
 				<td></td><td><?php
 
-					if(is_writable($updraft_dir)) {
+					// Suppress warnings, since if the user is dumping warnings to screen, then invalid JavaScript results and the screen breaks.
+					if(@is_writable($updraft_dir)) {
 						$dir_info = '<span style="color:green">Backup directory specified is writable, which is good.</span>';
 					} else {
-						$dir_info = '<span style="color:red">Backup directory specified is <b>not</b> writable, or does not exist. <span style="font-size:110%;font-weight:bold"><a href="options-general.php?page=updraftplus&action=updraft_create_backup_dir">Click here</a></span> to attempt to create the directory and set the permissions.  If that is unsuccessful check the permissions on your server or change it to another directory that is writable by your web server process.</span>';
+						$dir_info = '<span style="color:red">Backup directory specified is <b>not</b> writable, or does not exist. <span style="font-size:110%;font-weight:bold"><a href="options-general.php?page=updraftplus&action=updraft_create_backup_dir">Click here</a></span> to attempt to create the directory and set the permissions, or <a href="#" onclick="jQuery(\'#updraft_dir\').val(\''.WP_CONTENT_DIR.'/updraft\'); return false;">here to reset this option</a>.  If that is unsuccessful check the permissions on your server or change it to another directory that is writable by your web server process.</span>';
 					}
 
 					echo $dir_info ?> This is where UpdraftPlus will write the zip files it creates initially.  This directory must be writable by your web server. Typically you'll want to have it inside your wp-content folder (this is the default).  <b>Do not</b> place it inside your uploads dir, as that will cause recursion issues (backups of backups of backups of...).</td>
@@ -2682,27 +2685,74 @@ class UpdraftPlus {
 
 	// We batch up the files, rather than do them one at a time. So we are more efficient than open,one-write,close.
 	function makezip_addfiles($zipfile) {
+
+		// Short-circuit the null case, because we want to detect later if something useful happenned
+		if (count($this->zipfiles_dirbatched) == 0 && count($this->zipfiles_batched) == 0) return true;
+
+		// 05-Mar-2013 - added a new check on the total data added; it appears that things fall over if too much data is contained in the cumulative total of files that were addFile'd without a close-open cycle; presumably data is being stored in memory. In the case in question, it was a batch of MP3 files of around 100Mb each - 25 of those equals 2.5Gb!
+
+		$data_added_since_reopen = 0;
+
 		$zip = new ZipArchive();
 		if (file_exists($zipfile)) {
 			$opencode = $zip->open($zipfile);
+			$original_size = filesize($zipfile);
 		} else {
 			$opencode = $zip->open($zipfile, ZIPARCHIVE::CREATE);
+			$original_size = 0;
 		}
+
 		if ($opencode !== true) return array($opencode, 0);
 		// Make sure all directories are created before we start creating files
 		while ($dir = array_pop($this->zipfiles_dirbatched)) {
 			$zip->addEmptyDir($dir);
 		}
 		foreach ($this->zipfiles_batched as $file => $add_as) {
-			if (!isset($this->existing_files[$add_as]) || $this->existing_files[$add_as] != filesize($file)) {
+			$fsize = filesize($file);
+			if (!isset($this->existing_files[$add_as]) || $this->existing_files[$add_as] != filesize($fsize)) {
+
 				$zip->addFile($file, $add_as);
+
+				$data_added_since_reopen += $fsize;
+				# 25Mb - force a write-out and re-open
+				if ($data_added_since_reopen > 26214400) {
+
+					$before_size = filesize($zipfile);
+
+					$this->log("Adding batch to zip file: over 25Mb added on this batch (".round($data_added_since_reopen/1048576,1)." Mb); re-opening (prior size: ".round($before_size/1024,1).' Kb)');
+					if (!$zip->close()) {
+						$this->log("zip::Close returned an error");
+					}
+					unset($zip);
+					$zip = new ZipArchive();
+					$opencode = $zip->open($zipfile);
+					if ($opencode !== true) return array($opencode, 0);
+					$data_added_since_reopen = 0;
+					// Call here, in case we've got so many big files that we don't complete the whole routine
+					if (filesize($zipfile) > $before_size) $this->something_useful_happened();
+				}
 			}
 			$this->zipfiles_added++;
 			if ($this->zipfiles_added % 100 == 0) $this->log("Zip: ".basename($zipfile).": ".$this->zipfiles_added." files added (size: ".round(filesize($zipfile)/1024,1)." Kb)");
 		}
 		// Reset the array
 		$this->zipfiles_batched = array();
+		if (filesize($zipfile) > $original_size) $this->something_useful_happened();
 		return $zip->close();
+	}
+
+	function something_useful_happened() {
+
+		if ($this->current_resumption >= 9 && $this->newresumption_scheduled == false) {
+
+			$resume_interval = $this->jobdata_get('resume_interval');
+			if (!is_numeric($resume_interval) || $resume_interval<$this->minimum_resume_interval()) { $resume_interval = $this->minimum_resume_interval(); }
+			$schedule_for = time()+$resume_interval;
+			$this->newresumption_scheduled = $schedule_for;
+			$this->log("This is resumption ".$this->current_resumption.", but meaningful activity is still taking place; so a new one will be scheduled");
+			wp_schedule_single_event($schedule_for, 'updraft_backup_resume', array($this->current_resumption + 1, $this->nonce));
+		}
+
 	}
 
 	// This function recursively packs the zip, dereferencing symlinks but packing into a single-parent tree for universal unpacking
