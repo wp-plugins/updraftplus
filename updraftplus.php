@@ -2731,7 +2731,7 @@ class UpdraftPlus {
 		}
 		foreach ($this->zipfiles_batched as $file => $add_as) {
 			$fsize = filesize($file);
-			if (!isset($this->existing_files[$add_as]) || $this->existing_files[$add_as] != filesize($fsize)) {
+			if (!isset($this->existing_files[$add_as]) || $this->existing_files[$add_as] != $fsize) {
 
 				$zip->addFile($file, $add_as);
 
