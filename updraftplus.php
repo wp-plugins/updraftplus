@@ -322,6 +322,12 @@ class UpdraftPlus {
 			$this->log("The current run is our tenth attempt - will not schedule a further attempt until we see something useful happening");
 		}
 
+		// Sanity check
+		if (empty($this->backup_time)) {
+			$this->log('Abort this run: the backup_time parameter appears to be empty');
+			return false;
+		}
+
 		// This should be always called; if there were no files in this run, it returns us an empty array
 		$backup_array = $this->resumable_backup_of_files($resumption_no);
 
@@ -538,7 +544,7 @@ class UpdraftPlus {
 		// Use of jobdata_set_multi saves around 200ms
 		call_user_func_array(array($this, 'jobdata_set_multi'), $initial_jobdata);
 
-		// Everthing is now set up; now go
+		// Everything is now set up; now go
 		$this->backup_resume(0, $this->nonce);
 
 	}
@@ -817,6 +823,22 @@ class UpdraftPlus {
 			return unlink($fullpath);
 		}
 		return true;
+	}
+
+	// This function is not needed for backup success, according to the design, but it helps with efficient scheduling
+	function reschedule_if_needed() {
+		// If nothing is scheduled, then return
+		if (!$this->newresumption_scheduled) return;
+		$time_now = time();
+		$time_away = $this->newresumption_scheduled - $time_now;
+		// 30 is chosen because it is also used to detect recent activity on files (file mod times)
+		if ($time_away >0 && $time_away <= 30) {
+			$this->log('The scheduled resumption is within 30 seconds - will reschedule');
+			// Push 30 seconds into the future
+ 			// $this->reschedule(60);
+			// Increase interval generally by 30 seconds, on the assumption that our prior estimates were innaccurate (i.e. not just 30 seconds *this* time)
+			$this->increase_resume_and_reschedule(30);
+		}
 	}
 
 	function reschedule($how_far_ahead) {
@@ -2209,7 +2231,7 @@ class UpdraftPlus {
 		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_all') { $this->boot_backup(true,true); }
 		elseif (isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_db') { $this->backup_db(); }
 		elseif (isset($_POST['action']) && $_POST['action'] == 'updraft_wipesettings') {
-			$settings = array('updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_dropbox_folder', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_others_exclude', 'updraft_lastmessage', 'updraft_googledrive_clientid', 'updraft_googledrive_token', 'updraft_dropboxtk_request_token', 'updraft_dropboxtk_access_token', 'updraft_dropbox_folder', 'updraft_last_backup', 'updraft_starttime_files', 'updraft_starttime_db', 'updraft_sftp_settings');
+			$settings = array('updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_others_exclude', 'updraft_lastmessage', 'updraft_googledrive_clientid', 'updraft_googledrive_token', 'updraft_dropboxtk_request_token', 'updraft_dropboxtk_access_token', 'updraft_dropbox_folder', 'updraft_last_backup', 'updraft_starttime_files', 'updraft_starttime_db', 'updraft_sftp_settings');
 			foreach ($settings as $s) {
 				UpdraftPlus_Options::delete_updraft_option($s);
 			}
@@ -2742,17 +2764,16 @@ class UpdraftPlus {
 	}
 
 	function something_useful_happened() {
-
 		if ($this->current_resumption >= 9 && $this->newresumption_scheduled == false) {
-
 			$resume_interval = $this->jobdata_get('resume_interval');
 			if (!is_numeric($resume_interval) || $resume_interval<$this->minimum_resume_interval()) { $resume_interval = $this->minimum_resume_interval(); }
 			$schedule_for = time()+$resume_interval;
 			$this->newresumption_scheduled = $schedule_for;
 			$this->log("This is resumption ".$this->current_resumption.", but meaningful activity is still taking place; so a new one will be scheduled");
 			wp_schedule_single_event($schedule_for, 'updraft_backup_resume', array($this->current_resumption + 1, $this->nonce));
+		} else {
+			$this->reschedule_if_needed();
 		}
-
 	}
 
 	// This function recursively packs the zip, dereferencing symlinks but packing into a single-parent tree for universal unpacking
