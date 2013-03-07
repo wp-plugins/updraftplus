@@ -212,7 +212,7 @@ class UpdraftPlus_BackupModule_dropbox {
 				</td>
 			</tr>
 
-			<?php echo apply_filters('updraftplus_dropbox_extra_config', '<tr><td></td><td><strong>Need to use sub-folders?</strong> Backups are saved in apps/UpdraftPlus. If you back up several sites into the same Dropbox and want to organise with sub-folders, then <a href="http://updraftplus.com/shop/">there\'s an add-on for that.</a></td></tr>'); ?>
+			<?php echo apply_filters('updraftplus_dropbox_extra_config', '<tr class="updraftplusmethod dropbox"><td></td><td><strong>Need to use sub-folders?</strong> Backups are saved in apps/UpdraftPlus. If you back up several sites into the same Dropbox and want to organise with sub-folders, then <a href="http://updraftplus.com/shop/">there\'s an add-on for that.</a></td></tr>'); ?>
 
 			<tr class="updraftplusmethod dropbox">
 				<th>Authenticate with Dropbox:</th>
