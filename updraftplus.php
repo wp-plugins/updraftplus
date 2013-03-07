@@ -13,6 +13,7 @@ Author URI: http://wordshell.net
 /*
 TODO - some are out of date/done, needs pruning
 //Allow use of /usr/bin/zip - since this can escape from PHP's memory limit. Can still batch as we do so, in order to monitor/measure progress
+//Do an automated test periodically for the success of loop-back connections
 // Make backup directory relative, to prevent needing to change it upon site moves
 //When a manual backup is run, use a timer to update the 'Download backups and logs' section, just like 'Last finished backup run'. Beware of over-writing anything that's in there from a resumable downloader.
 //Change DB encryption to not require whole gzip in memory (twice)
