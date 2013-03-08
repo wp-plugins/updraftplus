@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your site can be backed up locally or to Amazon S3, Dropbox, Google Drive, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.4.33
+Version: 1.4.34
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -871,9 +871,16 @@ class UpdraftPlus {
 		if ($whichone != "others") $this->log("Beginning creation of dump of $whichone");
 
 		$full_path = $create_in_dir.'/'.$backup_file_basename.'-'.$whichone.'.zip';
+		$time_now = time();
 
 		if (file_exists($full_path)) {
 			$this->log("$backup_file_basename-$whichone.zip: this file has already been created");
+			$time_mod = (int)@filemtime($full_path);
+			if ($time_mod>100 && ($time_now-$time_mod)<30) {
+				$this->log("Terminate: the zip $full_path already exists, and was modified within the last 30 seconds (time_mod=$time_mod, time_now=$time_now, diff=".($time_now-$time_mod).", size=".filesize($full_path)."). This likely means that another UpdraftPlus run is still at work; so we will exit.");
+				$this->increase_resume_and_reschedule(120);
+				die;
+			}
 			return basename($full_path);
 		}
 
@@ -881,7 +888,6 @@ class UpdraftPlus {
 
 		// Firstly, make sure that the temporary file is not already being written to - which can happen if a resumption takes place whilst an old run is still active
 		$zip_name = $full_path.'.tmp';
-		$time_now = time();
 		$time_mod = (int)@filemtime($zip_name);
 		if (file_exists($zip_name) && $time_mod>100 && ($time_now-$time_mod)<30) {
 			$file_size = filesize($zip_name);
@@ -2738,6 +2744,7 @@ class UpdraftPlus {
 			$fsize = filesize($file);
 			if (!isset($this->existing_files[$add_as]) || $this->existing_files[$add_as] != $fsize) {
 
+				touch($file);
 				$zip->addFile($file, $add_as);
 
 				$data_added_since_reopen += $fsize;

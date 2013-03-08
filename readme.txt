@@ -9,7 +9,7 @@ Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Various tweaks and bug-fixes; plus, asynchronous downloading
+Many tweaks + small bug-fixes: recommended upgraded for all
 
 == Description ==
 
@@ -29,7 +29,7 @@ Various tweaks and bug-fixes; plus, asynchronous downloading
 
 = Don't Risk Anything Less =
 
-Your backups are worth the same as your entire investment in your website. The day may come when you get hacked, or your hosting company does, or they go bust - without good backups, you lose everything. Do you really want to entrust all your work to plugins with only a few thousand downloads, or that has no professional backing or support? Believe us - writing a reliable backup plugin that works consistently across the huge range of WordPress deployments is <em>hard</em>.
+Your backups are worth the same as your entire investment in your website. The day may come when you get hacked, or your hosting company does, or they go bust - without good backups, you lose everything. Do you really want to entrust all your work to plugins with only a few thousand downloads, or that has no professional backing or support? Believe us - writing a reliable backup plugin that works consistently across the huge range of WordPress deployments is hard.
 
 = Best New WordPress Plugin =
 
@@ -105,14 +105,14 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.4.33 - trunk, not yet released =
+= 1.4.34 - trunk, not yet released =
 * Improve batching on zip creation for sites with very large files
 * Unlimited early resumption if zip file creation takes too long
 * Suppress some warning notices that can break JavaScript on sites with notices sent to the browser
 * Earlier warning/failure if backup directory was not writable
 * Hooks for Dropbox folders add-on
 * More scheduler intelligence/optimisation
-* Further overlap detection
+* Further overlap detection, affecting enormous uploads
 
 = 1.4.30 - 03/04/2013 =
 * Hooks for WebDAV support via add-on
