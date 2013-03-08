@@ -285,7 +285,7 @@ class UpdraftPlus {
 	}
 
 	function minimum_resume_interval() {
-		$inter = ini_get('max_execution_time');
+		$inter = (int)ini_get('max_execution_time');
 		if (!$inter || $inter>300) $inter = 300;
 		if ($inter<35) $inter=35;
 		return $inter;
@@ -861,7 +861,7 @@ class UpdraftPlus {
 
 	function increase_resume_and_reschedule($howmuch = 120) {
 		$resume_interval = $this->jobdata_get('resume_interval');
-		if (!is_numeric($resume_interval) || $resume_interval<$this->minimum_resume_interval()) { $resume_interval = $this->minimum_resume_interval(); }
+		if (!is_numeric($resume_interval) || $resume_interval < $this->minimum_resume_interval()) { $resume_interval = $this->minimum_resume_interval(); }
 		if (!empty($this->newresumption_scheduled)) $this->reschedule($resume_interval+$howmuch);
 		$this->jobdata_set('resume_interval', $resume_interval+$howmuch);
 		$this->log("To decrease the likelihood of overlaps, increasing resumption interval to: $resume_interval + $howmuch = ".($resume_interval+$howmuch));
