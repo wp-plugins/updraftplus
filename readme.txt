@@ -105,7 +105,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.4.35 - trunk, not yet released =
+= 1.4.37 - trunk, not yet released =
 * Improve batching on zip creation for sites with very large files
 * Unlimited early resumption if zip file creation takes too long
 * Suppress some warning notices that can break JavaScript on sites with notices sent to the browser

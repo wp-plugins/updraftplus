@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your site can be backed up locally or to Amazon S3, Dropbox, Google Drive, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.4.35
+Version: 1.4.37
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -319,8 +319,8 @@ class UpdraftPlus {
 		// A different argument than before is needed otherwise the event is ignored
 		$next_resumption = $resumption_no+1;
 		if ($next_resumption < 10) {
-			$this->log("Scheduling a resumption ($next_resumption) after $resume_interval seconds in case this run gets aborted");
 			$schedule_for = time()+$resume_interval;
+			$this->log("Scheduling a resumption ($next_resumption) after $resume_interval seconds ($schedule_for) in case this run gets aborted");
 			wp_schedule_single_event($schedule_for, 'updraft_backup_resume', array($next_resumption, $bnonce));
 			$this->newresumption_scheduled = $schedule_for;
 		} else {
@@ -837,7 +837,7 @@ class UpdraftPlus {
 		$time_now = time();
 		$time_away = $this->newresumption_scheduled - $time_now;
 		// 30 is chosen because it is also used to detect recent activity on files (file mod times)
-		if ($time_away >0 && $time_away <= 30) {
+		if ($time_away >1 && $time_away <= 30) {
 			$this->log('The scheduled resumption is within 30 seconds - will reschedule');
 			// Push 30 seconds into the future
  			// $this->reschedule(60);
@@ -848,11 +848,13 @@ class UpdraftPlus {
 
 	function reschedule($how_far_ahead) {
 		// Reschedule - remove presently scheduled event
-		wp_clear_scheduled_hook('updraft_backup_resume', array($this->current_resumption + 1, $this->nonce));
+		$next_resumption = $this->current_resumption + 1;
+		wp_clear_scheduled_hook('updraft_backup_resume', array($next_resumption, $this->nonce));
 		// Add new event
 		if ($how_far_ahead < $this->minimum_resume_interval()) $how_far_ahead=$this->minimum_resume_interval();
 		$schedule_for = time() + $how_far_ahead;
-		wp_schedule_single_event($schedule_for, 'updraft_backup_resume', array($this->current_resumption + 1, $this->nonce));
+		$this->log("Rescheduling resumption $next_resumption: moving to $how_far_ahead seconds from now");
+		wp_schedule_single_event($schedule_for, 'updraft_backup_resume', array($next_resumption, $this->nonce));
 		$this->newresumption_scheduled = $schedule_for;
 	}
 
