@@ -916,6 +916,19 @@ class UpdraftPlus {
 		return basename($full_path);
 	}
 
+	// For detecting another run, and aborting if one was found
+	function check_recent_modification($file) {
+		if (file_exists($file)) {
+			$time_mod = (int)@filemtime($file);
+			$time_now = time();
+			if ($time_mod>100 && ($time_now-$time_mod)<30) {
+				$this->log("Terminate: the file $file already exists, and was modified within the last 30 seconds (time_mod=$time_mod, time_now=$time_now, diff=".($time_now-$time_mod).", size=".filesize($file)."). This likely means that another UpdraftPlus run is still at work; so we will exit.");
+				$this->increase_resume_and_reschedule(120);
+				die;
+			}
+		}
+	}
+
 	// This function is resumable
 	function backup_dirs($transient_status) {
 
@@ -946,10 +959,16 @@ class UpdraftPlus {
 
 		# Plugins, themes, uploads
 		foreach ($possible_backups as $youwhat => $whichdir) {
+
 			if (UpdraftPlus_Options::get_updraft_option("updraft_include_$youwhat", true)) {
+
+				$zip_file = $updraft_dir.'/'.$backup_file_basename.'-'.$youwhat.'.zip';
+
+				$this->check_recent_modification($zip_file);
+
 				if ($transient_status == 'finished') {
 					$backup_array[$youwhat] = $backup_file_basename.'-'.$youwhat.'.zip';
-					if (file_exists($updraft_dir.'/'.$backup_file_basename.'-'.$youwhat.'.zip')) $backup_array[$youwhat.'-size'] = filesize($updraft_dir.'/'.$backup_file_basename.'-'.$youwhat.'.zip');
+					if (file_exists($zip_file)) $backup_array[$youwhat.'-size'] = filesize($zip_file);
 				} else {
 					$created = $this->create_zip($whichdir, $youwhat, $updraft_dir, $backup_file_basename);
 					if ($created) {
@@ -965,9 +984,12 @@ class UpdraftPlus {
 		# Others
 		if (UpdraftPlus_Options::get_updraft_option('updraft_include_others', true)) {
 
+				$zip_file = $updraft_dir.'/'.$backup_file_basename.'-others.zip';
+				$this->check_recent_modification($zip_file);
+
 			if ($transient_status == 'finished') {
 				$backup_array['others'] = $backup_file_basename.'-others.zip';
-				if (file_exists($updraft_dir.'/'.$backup_file_basename.'-others.zip')) $backup_array['others-size'] = filesize($updraft_dir.'/'.$backup_file_basename.'-others.zip');
+				if (file_exists($zip_file)) $backup_array['others-size'] = filesize($zip_file);
 			} else {
 				$this->log("Beginning backup of other directories found in the content directory");
 
