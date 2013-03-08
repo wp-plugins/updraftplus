@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your site can be backed up locally or to Amazon S3, Dropbox, Google Drive, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.4.38
+Version: 1.4.39
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -861,7 +861,7 @@ class UpdraftPlus {
 	function increase_resume_and_reschedule($howmuch = 120) {
 		$resume_interval = $this->jobdata_get('resume_interval');
 		if (!is_numeric($resume_interval) || $resume_interval<$this->minimum_resume_interval()) { $resume_interval = $this->minimum_resume_interval(); }
-		if ($this->newresumption_scheduled != false) $this->reschedule($resume_interval+$howmuch);
+		if (!empty($this->newresumption_scheduled)) $this->reschedule($resume_interval+$howmuch);
 		$this->jobdata_set('resume_interval', $resume_interval+$howmuch);
 		$this->log("To decrease the likelihood of overlaps, increasing resumption interval to: ".($resume_interval+$howmuch));
 	}
