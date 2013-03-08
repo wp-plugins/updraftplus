@@ -119,7 +119,7 @@ class UpdraftPlus_BackupModule_s3 {
 							}
 							$etag = $s3->uploadPart($bucket_name, $filepath, $uploadId, $fullpath, $i);
 							if ($etag !== false && is_string($etag)) {
-								$updraftplus->record_uploaded_chunk(round(100*$i/$chunks,1), "$i, $etag");
+								$updraftplus->record_uploaded_chunk(round(100*$i/$chunks,1), "$i, $etag", $fullpath);
 								array_push($etags, $etag);
 								set_transient("upd_${hash}_e$i", $etag, UPDRAFT_TRANSTIME);
 								$successes++;

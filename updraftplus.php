@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your site can be backed up locally or to Amazon S3, Dropbox, Google Drive, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.4.32
+Version: 1.4.33
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -264,7 +264,11 @@ class UpdraftPlus {
 	}
 
 	// This function is used by cloud methods to provide standardised logging, but more importantly to help us detect that meaningful activity took place during a resumption run, so that we can schedule further resumptions if it is worthwhile
-	function record_uploaded_chunk($percent, $extra) {
+	function record_uploaded_chunk($percent, $extra, $file_path = false) {
+
+		// Touch the original file, which helps prevent overlapping runs
+		if ($file_path) touch($file_path);
+
 		// Log it
 		$service = $this->jobdata_get('service');
 		$log = ucfirst($service)." chunked upload: $percent % uploaded";

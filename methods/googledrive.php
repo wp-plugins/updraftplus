@@ -201,7 +201,7 @@ class UpdraftPlus_BackupModule_googledrive {
 			$counter = 0;
 			do {
 				$log_string = ($counter == 0) ? "URL: $res" : "";
-				$updraftplus->record_uploaded_chunk($d, $log_string);
+				$updraftplus->record_uploaded_chunk($d, $log_string, $file);
 
 				$counter++; if ($counter >= 20) $counter=0;
 

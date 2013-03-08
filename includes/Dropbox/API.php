@@ -173,7 +173,7 @@ class Dropbox_API
                     if (isset($response['body']->offset)) {
                         $offset = $response['body']->offset;
                         if ($callback) {
-                            call_user_func($callback, $offset, $uploadID);
+                            call_user_func($callback, $offset, $uploadID, $file);
                         }
                     }                    
                     

@@ -7,7 +7,7 @@ class UpdraftPlus_BackupModule_dropbox {
 	private $current_file_hash;
 	private $current_file_size;
 
-	function chunked_callback($offset, $uploadid) {
+	function chunked_callback($offset, $uploadid, $fullpath = false) {
 		global $updraftplus;
 
 		// Update upload ID
@@ -16,9 +16,11 @@ class UpdraftPlus_BackupModule_dropbox {
 
 		if ($this->current_file_size > 0) {
 			$percent = round(100*($offset/$this->current_file_size),1);
-			$updraftplus->record_uploaded_chunk($percent, "$uploadid, $offset");
+			$updraftplus->record_uploaded_chunk($percent, "$uploadid, $offset", $fullpath);
 		} else {
 			$updraftplus->log("Dropbox: Chunked Upload: $offset bytes uploaded");
+			// This act is done by record_uploaded_chunk, and helps prevent overlapping runs
+			touch($fullpath);
 		}
 
 	}
