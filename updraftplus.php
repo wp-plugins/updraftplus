@@ -833,7 +833,7 @@ class UpdraftPlus {
 	// This function is not needed for backup success, according to the design, but it helps with efficient scheduling
 	function reschedule_if_needed() {
 		// If nothing is scheduled, then return
-		if (!$this->newresumption_scheduled) return;
+		if (empty($this->newresumption_scheduled)) return;
 		$time_now = time();
 		$time_away = $this->newresumption_scheduled - $time_now;
 		// 30 is chosen because it is also used to detect recent activity on files (file mod times)
