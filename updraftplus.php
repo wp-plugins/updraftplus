@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your site can be backed up locally or to Amazon S3, Dropbox, Google Drive, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.4.40
+Version: 1.4.41
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -459,7 +459,8 @@ class UpdraftPlus {
 			if (is_array($this->jobdata)) {
 				$this->jobdata[$key] = $value;
 			} else {
-				$this->jobdata = array($key => $value);
+				$this->jobdata = get_transient("updraft_jobdata_".$this->nonce);
+				if (!is_array($this->jobdata)) $this->jobdata = array($key => $value);
 			}
 			set_transient("updraft_jobdata_".$this->nonce, $this->jobdata, 14400);
 	}
