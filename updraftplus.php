@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your site can be backed up locally or to Amazon S3, Dropbox, Google Drive, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.4.41
+Version: 1.4.42
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -252,7 +252,7 @@ class UpdraftPlus {
 
 	# Logs the given line, adding (relative) time stamp and newline
 	function log($line) {
-		if ($this->logfile_handle) fwrite($this->logfile_handle, sprintf("%08.03f", round(microtime(true)-$this->opened_log_time, 3))." ".$line."\n");
+		if ($this->logfile_handle) fwrite($this->logfile_handle, sprintf("%08.03f", round(microtime(true)-$this->opened_log_time, 3))." (".$this->current_resumption.") $line\n");
 		if ('download' == $this->jobdata_get('job_type')) {
 			// Download messages are keyed on the job (since they could be running several), and transient
 			// The values of the POST array were checked before
@@ -285,10 +285,12 @@ class UpdraftPlus {
 	}
 
 	function minimum_resume_interval() {
-		$inter = (int)ini_get('max_execution_time');
-		if (!$inter || $inter>300) $inter = 300;
-		if ($inter<35) $inter=35;
-		return $inter;
+		// Bringing this down brings in more risk of undetectable overlaps than is worth it
+		return 300;
+// 		$inter = (int)ini_get('max_execution_time');
+// 		if (!$inter || $inter>300) $inter = 300;
+// 		if ($inter<35) $inter=35;
+// 		return $inter;
 	}
 
 	function backup_resume($resumption_no, $bnonce) {
@@ -309,7 +311,9 @@ class UpdraftPlus {
 
 		$updraft_dir = $this->backups_dir_location();
 
-		$this->log("Backup run: resumption=$resumption_no, nonce=$bnonce, begun at=$btime, job type: $job_type");
+		$time_ago = time()-$btime;
+
+		$this->log("Backup run: resumption=$resumption_no, nonce=$bnonce, begun at=$btime (${time_ago}s ago), job type: $job_type");
 		$this->current_resumption = $resumption_no;
 
 		// Schedule again, to run in 5 minutes again, in case we again fail
@@ -534,8 +538,8 @@ class UpdraftPlus {
 		}
 
 		$resume_interval = $this->minimum_resume_interval();
-		$max_execution_time = ini_get('max_execution_time');
-		if ($max_execution_time >0 && $max_execution_time<300 && $resume_interval< $max_execution_time + 30) $resume_interval = $max_execution_time + 30;
+// 		$max_execution_time = ini_get('max_execution_time');
+// 		if ($max_execution_time >0 && $max_execution_time<300 && $resume_interval< $max_execution_time + 30) $resume_interval = $max_execution_time + 30;
 
 		$initial_jobdata = array(
 			'resume_interval', $resume_interval,
@@ -855,7 +859,7 @@ class UpdraftPlus {
 		// Add new event
 		if ($how_far_ahead < $this->minimum_resume_interval()) $how_far_ahead=$this->minimum_resume_interval();
 		$schedule_for = time() + $how_far_ahead;
-		$this->log("Rescheduling resumption $next_resumption: moving to $how_far_ahead seconds from now");
+		$this->log("Rescheduling resumption $next_resumption: moving to $how_far_ahead seconds from now ($schedule_for)");
 		wp_schedule_single_event($schedule_for, 'updraft_backup_resume', array($next_resumption, $this->nonce));
 		$this->newresumption_scheduled = $schedule_for;
 	}
@@ -2295,8 +2299,8 @@ class UpdraftPlus {
 				<div style="color:orange">Your PHP memory limit is quite low. UpdraftPlus attempted to raise it but was unsuccessful. This plugin may not work properly with a memory limit of less than 96 Mb (though on the other hand, it has been used successfully with a 32Mb limit - your mileage may vary, but don't blame us!). Current limit is: <?php echo $this->memory_check_current(); ?> Mb</div>
 			<?php
 			}
-			if(!$this->execution_time_check(60)) {?>
-				<div style="color:orange">Your PHP max_execution_time is less than 60 seconds. This possibly means you're running in safe_mode. Either disable safe_mode or modify your php.ini to set max_execution_time to a higher number. If you do not, then longer will be needed to complete a backup. Present limit is: <?php echo ini_get('max_execution_time'); ?> seconds.</div>
+			if(1==0 && !$this->execution_time_check(60)) {?>
+				<div style="color:orange">Your PHP max_execution_time is less than 60 seconds. This possibly means you're running in safe_mode. Either disable safe_mode or modify your php.ini to set max_execution_time to a higher number. If you do not, then longer will be needed to complete a backup (but that is all). Present limit is: <?php echo ini_get('max_execution_time'); ?> seconds.</div>
 			<?php
 			}
 
@@ -2793,7 +2797,7 @@ class UpdraftPlus {
 				}
 			}
 			$this->zipfiles_added++;
-			if ($this->zipfiles_added % 100 == 0) $this->log("Zip: ".basename($zipfile).": ".$this->zipfiles_added." files added (size: ".round(filesize($zipfile)/1024,1)." Kb)");
+			if ($this->zipfiles_added % 100 == 0) $this->log("Zip: ".basename($zipfile).": ".$this->zipfiles_added." files added (on-disk size: ".round(filesize($zipfile)/1024,1)." Kb)");
 		}
 		// Reset the array
 		$this->zipfiles_batched = array();
