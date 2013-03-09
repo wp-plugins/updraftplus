@@ -60,7 +60,7 @@ class UpdraftPlus_Options {
 		register_setting('updraft-options-group', 'updraft_ftp_pass' );
 		register_setting('updraft-options-group', 'updraft_ftp_remote_path' );
 		register_setting('updraft-options-group', 'updraft_server_address' );
-		register_setting('updraft-options-group', 'updraft_dir' );
+		register_setting('updraft-options-group', 'updraft_dir', array($updraftplus, 'prune_updraft_dir_prefix') );
 		register_setting('updraft-options-group', 'updraft_email');
 		register_setting('updraft-options-group', 'updraft_delete_local', 'absint' );
 		register_setting('updraft-options-group', 'updraft_debug_mode', 'absint' );

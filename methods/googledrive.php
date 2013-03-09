@@ -119,8 +119,10 @@ class UpdraftPlus_BackupModule_googledrive {
 
 		$this->gdocs_access_token = $access_token;
 
+		$updraft_dir = $updraftplus->backups_dir_location().'/';
+
 		foreach ($backup_array as $file) {
-			$file_path = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir')).$file;
+			$file_path = $updraft_dir.$file;
 			$file_name = basename($file_path);
 			$updraftplus->log("$file_name: Attempting to upload to Google Drive");
 			$timer_start = microtime(true);
@@ -271,7 +273,7 @@ class UpdraftPlus_BackupModule_googledrive {
 			}
 			// Actually download the thing
 
-			$download_to = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir')).$file;
+			$download_to = $updraftplus->backups_dir_location().'/'.$file;
 			$gdocs_object->download_data($content_link, $download_to, true);
 
 			if (filesize($download_to) > 0) {

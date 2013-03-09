@@ -53,11 +53,13 @@ class UpdraftPlus_BackupModule_s3 {
 			if (empty($region)) $region = $s3->getBucketLocation($bucket_name);
 			$this->set_endpoint($s3, $region);
 
+			$updraft_dir = $updraftplus->backups_dir_location().'/';
+
 			foreach($backup_array as $key => $file) {
 
 				// We upload in 5Mb chunks to allow more efficient resuming and hence uploading of larger files
 				// N.B.: 5Mb is Amazon's minimum. So don't go lower or you'll break it.
-				$fullpath = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir')).$file;
+				$fullpath = $updraft_dir.$file;
 				$orig_file_size = filesize($fullpath);
 				$chunks = floor($orig_file_size / 5242880);
 				// There will be a remnant unless the file size was exactly on a 5Mb boundary
@@ -205,7 +207,7 @@ class UpdraftPlus_BackupModule_s3 {
 		$region = @$s3->getBucketLocation($bucket_name);
 		if (!empty($region)) {
 			$this->set_endpoint($s3, $region);
-			$fullpath = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir')).$file;
+			$fullpath = $updraftplus->backups_dir_location().'/'.$file;
 			if (!$s3->getObject($bucket_name, $bucket_path.$file, $fullpath, true)) {
 				$updraftplus->log("S3 Error: Failed to download $file. Check your permissions and credentials.");
 				$updraftplus->error("S3 Error: Failed to download $file. Check your permissions and credentials.");

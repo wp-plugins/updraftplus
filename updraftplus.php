@@ -4,17 +4,16 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your site can be backed up locally or to Amazon S3, Dropbox, Google Drive, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.4.42
+Version: 1.4.43
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
 */
 
 /*
-TODO - some are out of date/done, needs pruning
+TODO - some of these are out of date/done, needs pruning
 //Allow use of /usr/bin/zip - since this can escape from PHP's memory limit. Can still batch as we do so, in order to monitor/measure progress
 //Do an automated test periodically for the success of loop-back connections
-// Make backup directory relative, to prevent needing to change it upon site moves
 //When a manual backup is run, use a timer to update the 'Download backups and logs' section, just like 'Last finished backup run'. Beware of over-writing anything that's in there from a resumable downloader.
 //Change DB encryption to not require whole gzip in memory (twice)
 //Add Rackspace, Box.Net, SugarSync and Microsoft Skydrive support??
@@ -28,7 +27,6 @@ TODO - some are out of date/done, needs pruning
 // Resuming partial (S)FTP uploads
 // Translations
 // Make disk space check more intelligent (currently hard-coded at 35Mb)
-// Specific folders on DropBox
 // Provide backup/restoration for UpdraftPlus's settings, to allow 'bootstrap' on a fresh WP install - some kind of single-use code which a remote UpdraftPlus can use to authenticate
 // Multiple jobs
 // Multisite - a separate 'blogs' zip
@@ -90,7 +88,7 @@ if ($dir_handle = opendir(UPDRAFTPLUS_DIR.'/addons')) {
 if (!isset($updraftplus)) $updraftplus = new UpdraftPlus();
 
 if (!$updraftplus->memory_check(192)) {
-# TODO: Better solution is to split the backup set into manageable chunks based on this limit
+// Experience appears to show that the memory limit is only likely to be hit (unless it is very low) by single files that are larger than available memory (when compressed)
 	@ini_set('memory_limit', '192M'); //up the memory limit for large backup files
 }
 
@@ -148,7 +146,7 @@ class UpdraftPlus {
 			if (preg_match("/Version: ([\d\.]+)(\r|\n)/", $file_data, $matches)) {
 				$this->version = $matches[1];
 			}
-			fclose( $fp );
+			fclose($fp);
 		}
 
 		# Create admin page
@@ -456,7 +454,7 @@ class UpdraftPlus {
 			$value = func_get_arg($i*2-1);
 			$this->jobdata[$key] = $value;
 		}
-		if ($this->nonce) set_transient("updraft_jobdata_".$this->nonce, $this->jobdata, UPDRAFT_TRANSTIME);
+		if (!empty($this->nonce)) set_transient("updraft_jobdata_".$this->nonce, $this->jobdata, UPDRAFT_TRANSTIME);
 	}
 
 	function jobdata_set($key, $value) {
@@ -1471,19 +1469,39 @@ class UpdraftPlus {
 		return $schedules;
 	}
 
+	// This options filter removes ABSPATH off the front of updraft_dir, if it is given absolutely and contained within it
+	function prune_updraft_dir_prefix($updraft_dir) {
+		if ('/' == substr($updraft_dir, 0, 1) || "\\" == substr($updraft_dir, 0, 1) || preg_match('/^[a-zA-Z]:/', $updraft_dir)) {
+			if (strpos($updraft_dir, ABSPATH) === 0) {
+				$updraft_dir = substr($updraft_dir, strlen(ABSPATH));
+			}
+		}
+		return $updraft_dir;
+	}
+
 	function backups_dir_location() {
+
 		if (!empty($this->backup_dir)) return $this->backup_dir;
+
 		$updraft_dir = untrailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir'));
+
+		// Do a test for a relative path
+		if ('/' != substr($updraft_dir, 0) && "\\" != substr($updraft_dir, 0) && !preg_match('/^[a-zA-Z]:/', $updraft_dir)) {
+			$updraft_dir = ABSPATH.$updraft_dir;
+		}
+
 		$default_backup_dir = WP_CONTENT_DIR.'/updraft';
 		//if the option isn't set, default it to /backups inside the upload dir
 		$updraft_dir = ($updraft_dir)?$updraft_dir:$default_backup_dir;
 		//check for the existence of the dir and an enumeration preventer.
 		if(!is_dir($updraft_dir) || !is_file($updraft_dir.'/index.html') || !is_file($updraft_dir.'/.htaccess')) {
 			@mkdir($updraft_dir, 0775, true);
-			@file_put_contents($updraft_dir.'/index.html','Nothing to see here.');
+			@file_put_contents($updraft_dir.'/index.html',"<html><body><a href=\"http://updraftplus.com\">WordPress backups by UpdraftPlus</a></body></html>");
 			@file_put_contents($updraft_dir.'/.htaccess','deny from all');
 		}
+
 		$this->backup_dir = $updraft_dir;
+
 		return $updraft_dir;
 	}
 	

@@ -22,9 +22,11 @@ class UpdraftPlus_BackupModule_ftp {
 
 		//$ftp->make_dir(); we may need to recursively create dirs? TODO
 
+		$updraft_dir = $updraftplus->backups_dir_location().'/';
+
 		$ftp_remote_path = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_ftp_remote_path'));
 		foreach($backup_array as $file) {
-			$fullpath = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir')).$file;
+			$fullpath = $updraft_dir.$file;
 			$updraftplus->log("FTP upload attempt: $file -> ftp://$user@$server/${ftp_remote_path}${file}");
 			$timer_start = microtime(true);
 			$size_k = round(filesize($fullpath)/1024,1);
@@ -67,7 +69,7 @@ class UpdraftPlus_BackupModule_ftp {
 		//$ftp->make_dir(); we may need to recursively create dirs? TODO
 		
 		$ftp_remote_path = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_ftp_remote_path'));
-		$fullpath = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir')).$file;
+		$fullpath = $updraftplus->backups_dir_location().'/'.$file;
 
 		$ftp->get($fullpath, $ftp_remote_path.$file, FTP_BINARY);
 	}
