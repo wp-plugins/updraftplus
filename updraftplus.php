@@ -1498,10 +1498,11 @@ class UpdraftPlus {
 
 		//if the option isn't set, default it to /backups inside the upload dir
 		//check for the existence of the dir and an enumeration preventer.
-		if(!is_dir($updraft_dir) || !is_file($updraft_dir.'/index.html') || !is_file($updraft_dir.'/.htaccess')) {
+		// index.php is for a sanity check - make sure that we're not somewhere unexpected
+		if((!is_dir($updraft_dir) || !is_file($updraft_dir.'/index.html') || !is_file($updraft_dir.'/.htaccess')) && !is_file($updraft_dir.'/index.php')) {
 			@mkdir($updraft_dir, 0775, true);
 			@file_put_contents($updraft_dir.'/index.html',"<html><body><a href=\"http://updraftplus.com\">WordPress backups by UpdraftPlus</a></body></html>");
-			@file_put_contents($updraft_dir.'/.htaccess','deny from all');
+			if (!is_file($updraft_dir.'/.htaccess')) @file_put_contents($updraft_dir.'/.htaccess','deny from all');
 		}
 
 		$this->backup_dir = $updraft_dir;
