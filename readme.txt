@@ -31,10 +31,6 @@ Many tweaks + small bug-fixes: recommended upgraded for all
 
 Your backups are worth the same as your entire investment in your website. The day may come when you get hacked, or your hosting company does, or they go bust - without good backups, you lose everything. Do you really want to entrust all your work to plugins with only a few thousand downloads, or that has no professional backing or support? Believe us - writing a reliable backup plugin that works consistently across the huge range of WordPress deployments is hard.
 
-= Best New WordPress Plugin =
-
-That's according to WordPress big cheese, Vladimir Prelovac. Check out his weekly chart to see where UpdraftPlus is right now: http://www.prelovac.com/vladimir/wordpress-plugins-rising-stars
-
 = UpdraftPlus Addons And Premium =
 
 UpdraftPlus is not crippled in any way - it is fully functional, with no annoying omissions. What we do have is various extra features, and guaranteed support, available <a href="http://updraftplus.com/">from our website, updraftplus.com</a>.
