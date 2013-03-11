@@ -113,14 +113,16 @@ class UpdraftPlus_BackupModule_googledrive {
 		// Do we have an access token?
 		if ( !$access_token = $this->access_token( UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token'), UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid'), UpdraftPlus_Options::get_updraft_option('updraft_googledrive_secret') )) {
 			$updraftplus->log('ERROR: Have not yet obtained an access token from Google (has the user authorised?)');
-			$updraftplus->error('Have not yet obtained an access token frmo Google - you need to authorise or re-authorise your connection to Google Drive.');
+			$updraftplus->error('Have not yet obtained an access token from Google - you need to authorise or re-authorise your connection to Google Drive.');
 			return new WP_Error( "no_access_token", "Have not yet obtained an access token from Google (has the user authorised?");
 		}
 
 		$this->gdocs_access_token = $access_token;
 
+		$updraft_dir = $updraftplus->backups_dir_location().'/';
+
 		foreach ($backup_array as $file) {
-			$file_path = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir')).$file;
+			$file_path = $updraft_dir.$file;
 			$file_name = basename($file_path);
 			$updraftplus->log("$file_name: Attempting to upload to Google Drive");
 			$timer_start = microtime(true);
@@ -201,7 +203,7 @@ class UpdraftPlus_BackupModule_googledrive {
 			$counter = 0;
 			do {
 				$log_string = ($counter == 0) ? "URL: $res" : "";
-				$updraftplus->record_uploaded_chunk($d, $log_string);
+				$updraftplus->record_uploaded_chunk($d, $log_string, $file);
 
 				$counter++; if ($counter >= 20) $counter=0;
 
@@ -270,10 +272,11 @@ class UpdraftPlus_BackupModule_googledrive {
 				return false;
 			}
 			// Actually download the thing
-			$download_to = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir')).$file;
-			$gdocs_object->download_data($content_link, $download_to);
 
-			if (filesize($download_to) >0) {
+			$download_to = $updraftplus->backups_dir_location().'/'.$file;
+			$gdocs_object->download_data($content_link, $download_to, true);
+
+			if (filesize($download_to) > 0) {
 				return true;
 			} else {
 				$updraftplus->error("Google Drive error: zero-size file was downloaded");
@@ -327,7 +330,7 @@ class UpdraftPlus_BackupModule_googledrive {
 			<tr class="updraftplusmethod googledrive">
 			<th>Google Drive:</th>
 			<td>
-			<p><a href="http://david.dw-perspective.org.uk/da/index.php/computer-resources/updraftplus-googledrive-authorisation/"><strong>For longer help, including screenshots, follow this link. The description below is sufficient for more expert users.</strong></a></p>
+			<p><a href="http://updraftplus.com/support/configuring-google-drive-api-access-in-updraftplus/"><strong>For longer help, including screenshots, follow this link. The description below is sufficient for more expert users.</strong></a></p>
 			<p><a href="https://code.google.com/apis/console/">Follow this link to your Google API Console</a>, and there create a Client ID in the API Access section. Select 'Web Application' as the application type.</p><p>You must add <kbd><?php echo admin_url('options-general.php?page=updraftplus&action=updraftmethod-googledrive-auth'); ?></kbd> as the authorised redirect URI (under &quot;More Options&quot;) when asked. N.B. If you install UpdraftPlus on several WordPress sites, then you cannot re-use your client ID; you must create a new one from your Google API console for each blog.
 
 			<?php
