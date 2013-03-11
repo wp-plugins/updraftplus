@@ -70,6 +70,7 @@ class Dropbox_Curl extends Dropbox_ConsumerAbstract
             $options[CURLOPT_HEADER] = false;
             $options[CURLOPT_FILE] = $this->outFile;
             $options[CURLOPT_BINARYTRANSFER] = true;
+            if (isset($additional['headers'])) $options[CURLOPT_HTTPHEADER] = $additional['headers'];
             $this->outFile = null;
         } elseif ($method == 'POST') { // POST
             $options[CURLOPT_POST] = true;
