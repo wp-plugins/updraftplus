@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your site can be backed up locally or to Amazon S3, Dropbox, Google Drive, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.4.47
+Version: 1.4.48
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -955,7 +955,7 @@ class UpdraftPlus {
 		$blog_name = preg_replace('/[^A-Za-z0-9_]/','', $blog_name);
 		if(!$blog_name) $blog_name = 'non_alpha_name';
 
-		$backup_file_basename = 'backup_'.date('Y-m-d-Hi', $this->backup_time).'_'.$blog_name.'_'.$this->nonce;
+		$backup_file_basename = 'backup_'.get_date_from_gmt(gmdate('Y-m-d H:i:s', $this->backup_time), 'Y-m-d-Hi').'_'.$blog_name.'_'.$this->nonce;
 
 		$backup_array = array();
 
@@ -1131,7 +1131,8 @@ class UpdraftPlus {
 		// Get the blog name and rip out all non-alphanumeric chars other than _
 		$blog_name = preg_replace('/[^A-Za-z0-9_]/','', str_replace(' ','_', substr(get_bloginfo(), 0, 96)));
 		if (!$blog_name) $blog_name = 'non_alpha_name';
-		$file_base = 'backup_'.date('Y-m-d-Hi',$this->backup_time).'_'.$blog_name.'_'.$this->nonce;
+
+		$file_base = 'backup_'.get_date_from_gmt(gmdate('Y-m-d H:i:s', $this->backup_time), 'Y-m-d-Hi').'_'.$blog_name.'_'.$this->nonce;
 		$backup_file_base = $updraft_dir.'/'.$file_base;
 
 		if ('finished' == $already_done) return basename($backup_file_base.'-db.gz');
@@ -1487,15 +1488,15 @@ class UpdraftPlus {
 		if (!empty($this->backup_dir)) return $this->backup_dir;
 
 		$updraft_dir = untrailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir'));
+		$default_backup_dir = WP_CONTENT_DIR.'/updraft';
+		$updraft_dir = ($updraft_dir)?$updraft_dir:$default_backup_dir;
 
 		// Do a test for a relative path
 		if ('/' != substr($updraft_dir, 0, 1) && "\\" != substr($updraft_dir, 0, 1) && !preg_match('/^[a-zA-Z]:/', $updraft_dir)) {
 			$updraft_dir = ABSPATH.$updraft_dir;
 		}
 
-		$default_backup_dir = WP_CONTENT_DIR.'/updraft';
 		//if the option isn't set, default it to /backups inside the upload dir
-		$updraft_dir = ($updraft_dir)?$updraft_dir:$default_backup_dir;
 		//check for the existence of the dir and an enumeration preventer.
 		if(!is_dir($updraft_dir) || !is_file($updraft_dir.'/index.html') || !is_file($updraft_dir.'/.htaccess')) {
 			@mkdir($updraft_dir, 0775, true);
