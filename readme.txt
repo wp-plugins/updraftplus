@@ -105,6 +105,9 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
+= 1.4.48 - trunk: not yet released/supported =
+* Use WordPress time for creation of filenames
+
 = 1.4.47 - 03/11/2013 =
 * Improve batching on zip creation for sites with very large files
 * Unlimited early resumption if zip file creation takes too long
