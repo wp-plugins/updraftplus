@@ -1488,15 +1488,15 @@ class UpdraftPlus {
 		if (!empty($this->backup_dir)) return $this->backup_dir;
 
 		$updraft_dir = untrailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir'));
+		$default_backup_dir = WP_CONTENT_DIR.'/updraft';
+		$updraft_dir = ($updraft_dir)?$updraft_dir:$default_backup_dir;
 
 		// Do a test for a relative path
 		if ('/' != substr($updraft_dir, 0, 1) && "\\" != substr($updraft_dir, 0, 1) && !preg_match('/^[a-zA-Z]:/', $updraft_dir)) {
 			$updraft_dir = ABSPATH.$updraft_dir;
 		}
 
-		$default_backup_dir = WP_CONTENT_DIR.'/updraft';
 		//if the option isn't set, default it to /backups inside the upload dir
-		$updraft_dir = ($updraft_dir)?$updraft_dir:$default_backup_dir;
 		//check for the existence of the dir and an enumeration preventer.
 		if(!is_dir($updraft_dir) || !is_file($updraft_dir.'/index.html') || !is_file($updraft_dir.'/.htaccess')) {
 			@mkdir($updraft_dir, 0775, true);
