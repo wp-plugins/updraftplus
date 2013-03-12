@@ -116,6 +116,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * Sort existing backups display by date
 * Use WordPress time for creation of filenames
 * Fix bug in 1.4.47 which caused problems on new site installs
+* Prevent erroneous warning when backup zip (usually uploads) has no files
 
 = 1.4.30 - 03/04/2013 =
 * Hooks for WebDAV support via add-on

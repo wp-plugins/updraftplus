@@ -213,8 +213,8 @@ class UpdraftPlus {
 		if ($file == plugin_basename(__FILE__)){
 			$settings_link = '<a href="'.site_url().'/wp-admin/options-general.php?page=updraftplus">'.__("Settings", "UpdraftPlus").'</a>';
 			array_unshift($links, $settings_link);
-			$settings_link = '<a href="http://david.dw-perspective.org.uk/donate">'.__("Donate","UpdraftPlus").'</a>';
-			array_unshift($links, $settings_link);
+// 			$settings_link = '<a href="http://david.dw-perspective.org.uk/donate">'.__("Donate","UpdraftPlus").'</a>';
+// 			array_unshift($links, $settings_link);
 			$settings_link = '<a href="http://updraftplus.com">'.__("Add-Ons / Pro Support","UpdraftPlus").'</a>';
 			array_unshift($links, $settings_link);
 		}
@@ -2696,7 +2696,7 @@ class UpdraftPlus {
 		// - No zip extension present and no relevant method present
 		// The zip extension check is not redundant, because method_exists segfaults some PHP installs, leading to support requests
 
-		// Fallback to PclZip - which my tests show is 25% slower
+		// Fallback to PclZip - which my tests show is 25% slower (and we can't resume)
 		if ($this->zip_preferpcl || (!extension_loaded('zip') && !method_exists('ZipArchive', 'AddFile'))) {
 			if(!class_exists('PclZip')) require_once(ABSPATH.'/wp-admin/includes/class-pclzip.php');
 			$zip_object = new PclZip($destination);
@@ -2731,7 +2731,8 @@ class UpdraftPlus {
 		$this->zipfiles_dirbatched = array();
 		$this->zipfiles_batched = array();
 
-		$last_error = -1;
+		// Magic value, used later to detect no error occurring
+		$last_error = 2349864;
 		if (is_array($source)) {
 			foreach ($source as $element) {
 				$howmany = $this->makezip_recursive_add($destination, $element, basename($element), $element);
@@ -2754,8 +2755,8 @@ class UpdraftPlus {
 			}
 		}
 
-	if ($this->zipfiles_added > 0) {
-		// ZipArchive::addFile sometimes fails 
+	if ($this->zipfiles_added > 0 || $last_error == 2349864) {
+		// ZipArchive::addFile sometimes fails
 		if (filesize($destination) < 100) {
 			// Retry with PclZip
 			$this->log("Zip::addFile apparently failed - retrying with PclZip");
@@ -2827,8 +2828,9 @@ class UpdraftPlus {
 		}
 		// Reset the array
 		$this->zipfiles_batched = array();
+		$ret =  $zip->close();
 		if (filesize($zipfile) > $original_size) $this->something_useful_happened();
-		return $zip->close();
+		return $ret;
 	}
 
 	function something_useful_happened() {
