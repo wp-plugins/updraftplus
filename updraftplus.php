@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your site can be backed up locally or to Amazon S3, Dropbox, Google Drive, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.4.49
+Version: 1.4.50
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -18,6 +18,7 @@ TODO - some of these are out of date/done, needs pruning
 //Change DB encryption to not require whole gzip in memory (twice)
 //Add Rackspace, Box.Net, SugarSync and Microsoft Skydrive support??
 //The restorer has a hard-coded wp-content - fix
+//Display amount of disk space that UD is using
 //?? On 'backup now', open up a Lightbox, count down 5 seconds, then start examining the log file (if it can be found)
 //Should make clear in dashboard what is a non-fatal error (i.e. can be retried) - leads to unnecessary bug reports
 // Move the inclusion, cloud and retention data into the backup job (i.e. don't read current config, make it an attribute of each job). In fact, everything should be. So audit all code for where get_option is called inside a backup run: it shouldn't happen.
@@ -26,6 +27,7 @@ TODO - some of these are out of date/done, needs pruning
 // Create a "Want Support?" button/console, that leads them through what is needed, and performs some basic tests...
 // Resuming partial (S)FTP uploads
 // Translations
+// Add-on to manage all your backups from a single dashboard
 // Make disk space check more intelligent (currently hard-coded at 35Mb)
 // Provide backup/restoration for UpdraftPlus's settings, to allow 'bootstrap' on a fresh WP install - some kind of single-use code which a remote UpdraftPlus can use to authenticate
 // Multiple jobs
@@ -1509,7 +1511,38 @@ class UpdraftPlus {
 
 		return $updraft_dir;
 	}
-	
+
+	function recursive_directory_size($directory) {
+		$size = 0;
+		if(substr($directory,-1) == '/') $directory = substr($directory,0,-1);
+
+		if(!file_exists($directory) || !is_dir($directory) || !is_readable($directory)) return -1;
+
+		if($handle = opendir($directory)) {
+			while(($file = readdir($handle)) !== false) {
+				$path = $directory.'/'.$file;
+				if($file != '.' && $file != '..') {
+					if(is_file($path)) {
+						$size += filesize($path);
+					} elseif(is_dir($path)) {
+						$handlesize = recursive_directory_size($path);
+						if($handlesize >= 0) { $size += $handlesize; } else { return -1; }
+					}
+				}
+			}
+			closedir($handle);
+		}
+		if ($size > 1073741824) {
+			return round($size / 1048576, 1).' Gb';
+		} elseif ($size > 1048576) {
+			return round($size / 1048576, 1).' Mb';
+		} elseif ($size > 1024) {
+			return round($size / 1024, 1).' Kb';
+		} else {
+			return round($size, 1).' bytes';
+		}
+	}
+
 	// Called via AJAX
 	function updraft_ajax_handler() {
 		// Test the nonce (probably not needed, since we're presumably admin-authed, but there's no harm)
@@ -1520,6 +1553,8 @@ class UpdraftPlus {
 			echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', '(Nothing yet logged)'));
 		} elseif ('lastbackup' == $_GET['subaction']) {
 			echo $this->last_backup_html();
+		} elseif ('diskspaceused' == $_GET['subaction']) {
+			echo $this->recursive_directory_size($this->backups_dir_location());
 		} elseif ('historystatus' == $_GET['subaction']) {
 			echo $this->existing_backup_table();
 		} elseif ('downloadstatus' == $_GET['subaction'] && isset($_GET['timestamp']) && isset($_GET['type'])) {
@@ -2095,6 +2130,7 @@ class UpdraftPlus {
 					});
 				}
 				var updraft_historytimer = 0;
+				var calculated_diskspace = 0;
 				function updraft_historytimertoggle() {
 					if (updraft_historytimer) {
 						clearTimeout(updraft_historytimer);
@@ -2102,6 +2138,10 @@ class UpdraftPlus {
 					} else {
 						updraft_updatehistory();
 						updraft_historytimer = setInterval(function(){updraft_updatehistory()}, 30000);
+						if (!calculated_diskspace) {
+							updraftplus_diskspace();
+							calculated_diskspace=1;
+						}
 					}
 				}
 				function updraft_updatehistory() {
@@ -2446,8 +2486,15 @@ class UpdraftPlus {
 				<tr>
 					<td></td><td class="download-backups" style="display:none">
 						<p><em><strong>Note</strong> - Pressing a button will make UpdraftPlus try to bring a backup file back from the remote storage (if any - e.g. Amazon S3, Dropbox, Google Drive, FTP) to your webserver, before then allowing you to download it to your computer. If the fetch from the remote storage stops progressing (wait 30 seconds to make sure), then click again to resume from where it left off. Remember that you can always visit the cloud storage website vendor's website directly. <strong>If you are using the Opera web browser, </strong> then turn Turbo/Road mode off.</em></p>
+						<p title="This is a count of the contents of your wp-content/updraft directory"><strong>Web-server disk space in use by UpdraftPlus:</strong> <span id="updraft_diskspaceused"><em>(calculating...)</em></span> <a href="#" onclick="updraftplus_diskspace(); return false;">(refresh)</a></p>
 						<div id="ud_downloadstatus"></div>
 						<script>
+							function updraftplus_diskspace() {
+								jQuery('#updraft_diskspaceused').html('<em>calculating...</em>');
+								jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'diskspaceused', nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>' }, function(response) {
+									jQuery('#updraft_diskspaceused').html(response);
+								});
+							}
 							var lastlog_lastmessage = "";
 							function updraftplus_deletefromserver(timestamp, type) {
 								var pdata = {

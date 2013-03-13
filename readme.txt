@@ -105,6 +105,9 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
+= 1.4.50 - trunk - not yet released/supported =
+* Display UpdraftPlus's disk space usage
+
 = 1.4.48 - 03/11/2013 =
 * Improve batching on zip creation for sites with very large files
 * Unlimited early resumption if zip file creation takes too long
