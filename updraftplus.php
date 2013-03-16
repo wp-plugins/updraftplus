@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your site can be backed up locally or to Amazon S3, Dropbox, Google Drive, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.4.50
+Version: 1.4.51
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -12,6 +12,8 @@ Author URI: http://wordshell.net
 
 /*
 TODO - some of these are out of date/done, needs pruning
+// Search for other TODO-s in the code
+//The "restore now" dropdown needs some jQuery to update it without requiring a page refresh
 //Allow use of /usr/bin/zip - since this can escape from PHP's memory limit. Can still batch as we do so, in order to monitor/measure progress
 //Do an automated test periodically for the success of loop-back connections
 //When a manual backup is run, use a timer to update the 'Download backups and logs' section, just like 'Last finished backup run'. Beware of over-writing anything that's in there from a resumable downloader.
@@ -1664,7 +1666,7 @@ class UpdraftPlus {
 			header('Content-Encoding: none');
 			session_write_close();
 			echo "\r\n\r\n";
-			$this->download_file($file, $service, true);
+			$this->download_file($file, $service);
 			if (is_readable($fullpath)) {
 				$this->log('Remote fetch was successful (file size: '.round(filesize($fullpath)/1024,1).' Kb)');
 			} else {
@@ -1743,7 +1745,7 @@ class UpdraftPlus {
 		}
 	}
 
-	function download_file($file, $service=false, $detach_from_browser) {
+	function download_file($file, $service=false) {
 
 		if (!$service) $service = UpdraftPlus_Options::get_updraft_option('updraft_service');
 
@@ -1758,12 +1760,15 @@ class UpdraftPlus {
 			$remote_obj->download($file);
 		} else {
 			$this->log("Automatic backup restoration is not available with the method: $service.");
-			$this->error("Automatic backup restoration is not available with the method: $service.");
+			$this->error("The backup archive for restoring ($file) could not be found. The remote storage method in use ($service) does not allow us to retrieve files. To proceed with this restoration, you need to obtain a copy of this file and place it inside UpdraftPlus's working folder (".$this->prune_updraft_dir_prefix($this->backups_dir_location()).") so that UpdraftPlus can use it.");
 		}
 
 	}
 		
 	function restore_backup($timestamp) {
+
+		// TODO: Get a nonce, so that we can log to disk
+
 		global $wp_filesystem;
 		$backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
 		if(!is_array($backup_history[$timestamp])) {
@@ -1780,7 +1785,7 @@ class UpdraftPlus {
 		}
 		
 		//if we make it this far then WP_Filesystem has been instantiated and is functional (tested with ftpext, what about suPHP and other situations where direct may work?)
-		echo '<span style="font-weight:bold">Restoration Progress</span><div id="updraft-restore-progress">';
+		echo '<h1>UpdraftPlus Restoration: Progress</h1><div id="updraft-restore-progress">';
 
 		$updraft_dir = $this->backups_dir_location().'/';
 
@@ -1793,6 +1798,10 @@ class UpdraftPlus {
 			if(!is_readable($fullpath) && $type != 'db') {
 				$this->download_file($file, $service);
 			}
+			// If a file size is stored in the backup data, then verify correctness of the local file
+			if (isset($backup_history[$timestamp][$file.'-size'])) {
+			// TODO
+			}
 			# Types: uploads, themes, plugins, others, db
 			if(is_readable($fullpath) && $type != 'db') {
 				if(!class_exists('WP_Upgrader')) require_once(ABSPATH . 'wp-admin/includes/class-wp-upgrader.php');
@@ -1804,6 +1813,9 @@ class UpdraftPlus {
 					echo '</div>'; //close the updraft_restore_progress div even if we error
 					return false;
 				}
+			} elseif ($type != 'db') {
+				$this->error("Could not find one of the files for restoration ($file)");
+				$this->log("Could not find one of the files for restoration ($file)");
 			}
 		}
 		echo '</div>'; //close the updraft_restore_progress div
@@ -1818,7 +1830,7 @@ class UpdraftPlus {
 	//deletes the -old directories that are created when a backup is restored.
 	function delete_old_dirs() {
 		global $wp_filesystem;
-		$credentials = request_filesystem_credentials("options-general.php?page=updraftplus&action=updraft_delete_old_dirs"); 
+		$credentials = request_filesystem_credentials(wp_nonce_url("options-general.php?page=updraftplus&action=updraft_delete_old_dirs", 'updraft_delete_old_dirs')); 
 		WP_Filesystem($credentials);
 		if ( $wp_filesystem->errors->get_error_code() ) { 
 			foreach ( $wp_filesystem->errors->get_error_messages() as $message )
@@ -1826,24 +1838,34 @@ class UpdraftPlus {
 			exit; 
 		}
 		
-		$to_delete = array('themes-old','plugins-old','uploads-old','others-old');
+		$list = $wp_filesystem->dirlist(WP_CONTENT_DIR);
 
-		foreach($to_delete as $name) {
-			//recursively delete
-			if(!$wp_filesystem->delete(WP_CONTENT_DIR.'/'.$name, true)) {
-				return false;
+		$return_code = true;
+
+		foreach ($list as $item) {
+			if (substr($item['name'], -4, 4) == "-old") {
+				//recursively delete
+				print "<strong>Delete: </strong>".htmlspecialchars($item['name']).": ";
+				if(!$wp_filesystem->delete(WP_CONTENT_DIR.'/'.$item['name'], true)) {
+					$return_code = false;
+					print "<strong>Failed</strong><br>";
+				} else {
+					print "<strong>OK</strong><br>";
+				}
 			}
 		}
-		return true;
+
+		// Old method: before we backed up 'others'
+		// 		$to_delete = array('themes-old','plugins-old','uploads-old');
+
+		return $return_code;
 	}
 	
 	//scans the content dir to see if any -old dirs are present
 	function scan_old_dirs() {
 		$dirArr = scandir(WP_CONTENT_DIR);
 		foreach($dirArr as $dir) {
-			if(strpos($dir,'-old') !== false) {
-				return true;
-			}
+			if(strpos($dir,'-old') !== false) return true;
 		}
 		return false;
 	}
@@ -2274,7 +2296,7 @@ class UpdraftPlus {
 			$backup_success = $this->restore_backup($_REQUEST['backup_timestamp']);
 			if(empty($this->errors) && $backup_success == true) {
 				echo '<p>Restore successful!</p><br/>';
-				echo '<b>Actions:</b> <a href="options-general.php?page=updraftplus&updraft_restore_success=true">Return to Updraft Configuration</a>.';
+				echo '<b>Actions:</b> <a href="options-general.php?page=updraftplus&updraft_restore_success=true">Return to UpdraftPlus Configuration</a>';
 				return;
 			} else {
 				echo '<p>Restore failed...</p><ul>';
@@ -2285,21 +2307,27 @@ class UpdraftPlus {
 					}
 					echo "</li>";
 				}
-				echo '</ul><b>Actions:</b> <a href="options-general.php?page=updraftplus">Return to Updraft Configuration</a>.';
+				echo '</ul><b>Actions:</b> <a href="options-general.php?page=updraftplus">Return to UpdraftPlus Configuration</a>';
 				return;
 			}
 			//uncomment the below once i figure out how i want the flow of a restoration to work.
-			//echo '<b>Actions:</b> <a href="options-general.php?page=updraftplus">Return to Updraft Configuration</a>.';
+			//echo '<b>Actions:</b> <a href="options-general.php?page=updraftplus">Return to UpdraftPlus Configuration</a>';
 		}
 		$deleted_old_dirs = false;
 		if(isset($_REQUEST['action']) && $_REQUEST['action'] == 'updraft_delete_old_dirs') {
+			
+			echo '<h1>UpdraftPlus - Remove old directories</h1>';
+
+			$nonce = (empty($_REQUEST['_wpnonce'])) ? "" : $_REQUEST['_wpnonce'];
+			if (!wp_verify_nonce($nonce, 'updraft_delete_old_dirs')) die('Security check');
+
 			if($this->delete_old_dirs()) {
+				echo '<p>Old directories successfully removed.</p><br/>';
 				$deleted_old_dirs = true;
 			} else {
 				echo '<p>Old directory removal failed for some reason. You may want to do this manually.</p><br/>';
 			}
-			echo '<p>Old directories successfully removed.</p><br/>';
-			echo '<b>Actions:</b> <a href="options-general.php?page=updraftplus">Return to Updraft Configuration</a>.';
+			echo '<b>Actions:</b> <a href="options-general.php?page=updraftplus">Return to UpdraftPlus Configuration</a>';
 			return;
 		}
 		
@@ -2315,7 +2343,7 @@ class UpdraftPlus {
 				echo '<p>Backup directory could not be created...</p><br/>';
 			}
 			echo '<p>Backup directory successfully created.</p><br/>';
-			echo '<b>Actions:</b> <a href="options-general.php?page=updraftplus">Return to Updraft Configuration</a>.';
+			echo '<b>Actions:</b> <a href="options-general.php?page=updraftplus">Return to UpdraftPlus Configuration</a>';
 			return;
 		}
 		
@@ -2350,13 +2378,13 @@ class UpdraftPlus {
 			<br>
 			<?php
 			if(isset($_GET['updraft_restore_success'])) {
-				echo "<div style=\"color:blue\">Your backup has been restored.  Your old themes, uploads, and plugins directories have been retained with \"-old\" appended to their name.  Remove them when you are satisfied that the backup worked properly.  At this time Updraft does not automatically restore your DB.  You will need to use an external tool like phpMyAdmin to perform that task.</div>";
+				echo "<div class=\"updated fade\" style=\"padding:8px;\"><strong>Your backup has been restored.</strong> Your old (themes, uploads, plugins, whatever) directories have been retained with \"-old\" appended to their name.  Remove them when you are satisfied that the backup worked properly.  At this time UpdraftPlus does not automatically restore your DB.  You will need to use an external tool like phpMyAdmin to perform that task.</div>";
 			}
 
 			$ws_advert = $this->wordshell_random_advert(1);
 			if ($ws_advert) { echo '<div class="updated fade" style="max-width: 800px; font-size:140%; line-height: 140%; padding:14px; clear:left;">'.$ws_advert.'</div>'; }
 
-			if($deleted_old_dirs) echo '<div style="color:blue">Old directories successfully deleted.</div>';
+			if($deleted_old_dirs) echo '<div style="color:blue" class=\"updated fade\">Old directories successfully deleted.</div>';
 
 			if(!$this->memory_check(96)) {?>
 				<div style="color:orange">Your PHP memory limit is quite low. UpdraftPlus attempted to raise it but was unsuccessful. This plugin may not work properly with a memory limit of less than 96 Mb (though on the other hand, it has been used successfully with a 32Mb limit - your mileage may vary, but don't blame us!). Current limit is: <?php echo $this->memory_check_current(); ?> Mb</div>
@@ -2368,11 +2396,13 @@ class UpdraftPlus {
 			}
 
 			if($this->scan_old_dirs()) {?>
-				<div style="color:orange">You have old directories from a previous backup. Click to delete them after you have verified that the restoration worked.</div>
+				<div class="updated fade" style="padding:8px;">You have old directories from a previous backup (technical information: these are found in wp-content, and suffixed with -old). Use this button to delete them (if you have verified that the restoration worked).
 				<form method="post" action="<?php echo remove_query_arg(array('updraft_restore_success','action')) ?>">
+					<?php wp_nonce_field('updraft_delete_old_dirs'); ?>
 					<input type="hidden" name="action" value="updraft_delete_old_dirs" />
 					<input type="submit" class="button-primary" value="Delete Old Dirs" onclick="return(confirm('Are you sure you want to delete the old directories?  This cannot be undone.'))" />
 				</form>
+				</div>
 			<?php
 			}
 			if(!empty($this->errors)) {
@@ -2486,7 +2516,7 @@ class UpdraftPlus {
 				<tr>
 					<td></td><td class="download-backups" style="display:none">
 						<p><em><strong>Note</strong> - Pressing a button will make UpdraftPlus try to bring a backup file back from the remote storage (if any - e.g. Amazon S3, Dropbox, Google Drive, FTP) to your webserver, before then allowing you to download it to your computer. If the fetch from the remote storage stops progressing (wait 30 seconds to make sure), then click again to resume from where it left off. Remember that you can always visit the cloud storage website vendor's website directly. <strong>If you are using the Opera web browser, </strong> then turn Turbo/Road mode off.</em></p>
-						<p title="This is a count of the contents of your wp-content/updraft directory"><strong>Web-server disk space in use by UpdraftPlus:</strong> <span id="updraft_diskspaceused"><em>(calculating...)</em></span> <a href="#" onclick="updraftplus_diskspace(); return false;">(refresh)</a></p>
+						<p title="This is a count of the contents of your wp-content/updraft directory">Web-server disk space in use by UpdraftPlus: <span id="updraft_diskspaceused"><em>(calculating...)</em></span> <a href="#" onclick="updraftplus_diskspace(); return false;">(refresh)</a></p>
 						<div id="ud_downloadstatus"></div>
 						<script>
 							function updraftplus_diskspace() {

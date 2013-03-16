@@ -105,8 +105,10 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.4.50 - trunk - not yet released/supported =
+= 1.4.51 - trunk - not yet released/supported =
 * Display UpdraftPlus's disk space usage
+* Correctly remove old 'other' directories from a restoration when requested
+* Various layout + niceness fixes upon restoration
 
 = 1.4.48 - 03/11/2013 =
 * Improve batching on zip creation for sites with very large files
