@@ -9,7 +9,7 @@ Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Many tweaks + small bug-fixes: recommended upgraded for all
+Many tweaks, optimisations + small bug-fixes: recommended upgrade for all
 
 == Description ==
 
@@ -105,10 +105,12 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.4.51 - trunk - not yet released/supported =
+= 1.4.52 - trunk - not yet released/supported =
 * Display UpdraftPlus's disk space usage
 * Correctly remove old 'other' directories from a restoration when requested
 * Various layout + niceness fixes upon restoration
+* Prevent deletion of local archives upon failed restoration when there was no cloud storage
+* Various usability tweaks for the admin UI
 
 = 1.4.48 - 03/11/2013 =
 * Improve batching on zip creation for sites with very large files

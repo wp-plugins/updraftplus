@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your site can be backed up locally or to Amazon S3, Dropbox, Google Drive, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.4.51
+Version: 1.4.52
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://wordshell.net
@@ -13,6 +13,7 @@ Author URI: http://wordshell.net
 /*
 TODO - some of these are out of date/done, needs pruning
 // Search for other TODO-s in the code
+// Send the user an email upon their first backup with tips on what to do (e.g. support/improve) (include legacy check to not bug existing users)
 //The "restore now" dropdown needs some jQuery to update it without requiring a page refresh
 //Allow use of /usr/bin/zip - since this can escape from PHP's memory limit. Can still batch as we do so, in order to monitor/measure progress
 //Do an automated test periodically for the success of loop-back connections
@@ -1229,9 +1230,7 @@ class UpdraftPlus {
 		$this->log($file_base.'-db.gz: finished writing out complete database file ('.round(filesize($backup_final_file_name)/1024,1).' Kb)');
 		$this->close($this->dbhandle);
 
-		foreach ($unlink_files as $unlink_file) {
-			@unlink($unlink_file);
-		}
+		foreach ($unlink_files as $unlink_file) @unlink($unlink_file);
 
 		if (count($this->errors)) {
 			return false;
@@ -1795,27 +1794,45 @@ class UpdraftPlus {
 			// All restorable entities must be given explicitly, as we can store other arbitrary data in the history array
 			if ('themes' != $type && 'plugins' != $type && 'uploads' != $type && 'others' != $type && 'db' != $type) continue;
 			$fullpath = $updraft_dir.$file;
+			echo "<h2>".ucfirst($type)."</h2>";
+			echo "Looking for $type archive: file name: ".htmlspecialchars($file)."<br>";
 			if(!is_readable($fullpath) && $type != 'db') {
+				echo "File is not locally present - needs retrieving from remote storage (for large files, it is better to do this in advance from the download console)<br>";
 				$this->download_file($file, $service);
 			}
 			// If a file size is stored in the backup data, then verify correctness of the local file
-			if (isset($backup_history[$timestamp][$file.'-size'])) {
-			// TODO
+			if (isset($backup_history[$timestamp][$type.'-size'])) {
+				$fs = $backup_history[$timestamp][$type.'-size'];
+				echo "Archive is expected to be size: ".round($fs/1024)." Kb :";
+				$as = @filesize($fullpath);
+				if ($as == $fs) {
+					echo "OK<br>";
+				} else {
+					echo "<strong>ERROR:</strong> is size: ".round($as/1024)." ($fs, $as)<br>";
+				}
+			} else {
+				echo "The backup records do not contain information about the proper size of this file.<br>";
 			}
 			# Types: uploads, themes, plugins, others, db
 			if(is_readable($fullpath) && $type != 'db') {
+
 				if(!class_exists('WP_Upgrader')) require_once(ABSPATH . 'wp-admin/includes/class-wp-upgrader.php');
 				require_once(UPDRAFTPLUS_DIR.'/includes/updraft-restorer.php');
 				$restorer = new Updraft_Restorer();
-				$val = $restorer->restore_backup($fullpath, $type);
+				$val = $restorer->restore_backup($fullpath, $type, $service);
+
 				if(is_wp_error($val)) {
-					print_r($val);
+					foreach ($val->get_error_messages() as $msg) {
+						echo '<strong>Error message:</strong> '.htmlspecialchars($msg).'<br>';
+					}
 					echo '</div>'; //close the updraft_restore_progress div even if we error
 					return false;
 				}
 			} elseif ($type != 'db') {
 				$this->error("Could not find one of the files for restoration ($file)");
-				$this->log("Could not find one of the files for restoration ($file)");
+				echo "Could not find one of the files for restoration ($file)";
+			} else {
+				echo "Databases are not yet restored through this mechanism - use your web host's control panel, phpMyAdmin or a similar tool<br>";
 			}
 		}
 		echo '</div>'; //close the updraft_restore_progress div
@@ -2007,7 +2024,7 @@ class UpdraftPlus {
 		$updraft_dir = $this->backups_dir_location();
 
 		?>
-			<table class="form-table" style="width:850px;">
+			<table class="form-table" style="width:900px;">
 			<tr>
 				<th>File backup intervals:</th>
 				<td><select name="updraft_interval">
@@ -2044,7 +2061,7 @@ class UpdraftPlus {
 			</td>
 			</tr>
 			<tr class="backup-interval-description">
-				<td></td><td><p>If you would like to automatically schedule backups, choose schedules from the dropdowns above. Backups will occur at the intervals specified. If the two schedules are the same, then the two backups will take place together. If you choose &quot;manual&quot; then you must click the &quot;Backup Now!&quot; button whenever you wish a backup to occur.</p>
+				<td></td><td><p>If you would like to automatically schedule backups, choose schedules from the dropdowns above. Backups will occur at the intervals specified. If the two schedules are the same, then the two backups will take place together. If you choose &quot;manual&quot; then you must click the &quot;Backup Now&quot; button whenever you wish a backup to occur.</p>
 				<?php echo apply_filters('updraftplus_fixtime_advert', '<p><strong>To fix the time at which a backup should take place, </strong> (e.g. if your server is busy at day and you want to run overnight), <a href="http://updraftplus.com/shop/fix-time/">use the &quot;Fix Time&quot; add-on</a></p>'); ?>
 				</td>
 			</tr>
@@ -2063,7 +2080,7 @@ class UpdraftPlus {
 				<input type="checkbox" name="updraft_include_themes" value="1" <?php echo $include_themes; ?> /> Themes<br>
 				<input type="checkbox" name="updraft_include_uploads" value="1" <?php echo $include_uploads; ?> /> Uploads<br>
 				<input type="checkbox" name="updraft_include_others" value="1" <?php echo $include_others; ?> /> Any other directories found inside wp-content <?php if (is_multisite()) echo "(which on a multisite install includes users' blog contents) "; ?>- but exclude these directories: <input type="text" name="updraft_include_others_exclude" size="44" value="<?php echo htmlspecialchars($include_others_exclude); ?>"/><br>
-				Include all of these, unless you are backing them up outside of UpdraftPlus. The above directories are usually everything (except for WordPress core itself which you can download afresh from WordPress.org). But if you have made customised modifications outside of these directories, you need to back them up another way. (<a href="http://wordshell.net">Use WordShell</a> for automatic backup, version control and patching).<br></td>
+				<p>Include all of these, unless you are backing them up outside of UpdraftPlus. The above directories are usually everything (except for WordPress core itself which you can download afresh from WordPress.org). But if you have made customised modifications outside of these directories, you need to back them up another way. (<a href="http://wordshell.net">Use WordShell</a> for automatic backup, version control and patching).</p></td>
 				</td>
 			</tr>
 			<tr>
@@ -2085,7 +2102,7 @@ class UpdraftPlus {
 
 			<h2>Copying Your Backup To Remote Storage</h2>
 
-			<table class="form-table" style="width:850px;">
+			<table class="form-table" style="width:900px;">
 			<tr>
 				<th>Choose your remote storage:</th>
 				<td><select name="updraft_service" id="updraft-service">
@@ -2153,17 +2170,17 @@ class UpdraftPlus {
 				}
 				var updraft_historytimer = 0;
 				var calculated_diskspace = 0;
-				function updraft_historytimertoggle() {
-					if (updraft_historytimer) {
-						clearTimeout(updraft_historytimer);
-						updraft_historytimer = 0;
-					} else {
+				function updraft_historytimertoggle(forceon) {
+					if (!updraft_historytimer || forceon == 1) {
 						updraft_updatehistory();
 						updraft_historytimer = setInterval(function(){updraft_updatehistory()}, 30000);
 						if (!calculated_diskspace) {
 							updraftplus_diskspace();
 							calculated_diskspace=1;
 						}
+					} else {
+						clearTimeout(updraft_historytimer);
+						updraft_historytimer = 0;
 					}
 				}
 				function updraft_updatehistory() {
@@ -2191,7 +2208,7 @@ class UpdraftPlus {
 				});
 			/* ]]> */
 			</script>
-			<table class="form-table" style="width:850px;">
+			<table class="form-table" style="width:900px;">
 			<tr>
 				<td colspan="2"><h2>Advanced / Debugging Settings</h2></td>
 			</tr>
@@ -2295,17 +2312,21 @@ class UpdraftPlus {
 		if(isset($_REQUEST['action']) && $_REQUEST['action'] == 'updraft_restore' && isset($_REQUEST['backup_timestamp'])) {
 			$backup_success = $this->restore_backup($_REQUEST['backup_timestamp']);
 			if(empty($this->errors) && $backup_success == true) {
-				echo '<p>Restore successful!</p><br/>';
+				echo '<p><strong>Restore successful!</strong></p>';
 				echo '<b>Actions:</b> <a href="options-general.php?page=updraftplus&updraft_restore_success=true">Return to UpdraftPlus Configuration</a>';
 				return;
 			} else {
-				echo '<p>Restore failed...</p><ul>';
+				echo '<p>Restore failed...</p><ul style="list-style: disc inside;">';
 				foreach ($this->errors as $err) {
-					echo "<li>";
-					if (is_string($err)) { echo htmlspecialchars($err); } else {
-						print_r($err);
+					if (is_wp_error($err)) {
+						foreach ($err->get_error_messages() as $msg) {
+							echo '<li>'.htmlspecialchars($msg).'<li>';
+						}
+					} elseif (is_string($err)) {
+						echo  "<li>".htmlspecialchars($err)."</li>";
+					} else {
+						print "<li>".print_r($err,true)."</li>";
 					}
-					echo "</li>";
 				}
 				echo '</ul><b>Actions:</b> <a href="options-general.php?page=updraftplus">Return to UpdraftPlus Configuration</a>';
 				return;
@@ -2374,7 +2395,7 @@ class UpdraftPlus {
 		<div class="wrap">
 			<h1><?php echo $this->plugin_title; ?></h1>
 
-			Maintained by <b>David Anderson</b> (<a href="http://updraftplus.com">UpdraftPlus.Com</a> | <a href="http://david.dw-perspective.org.uk">Author Homepage</a> | <?php if (!defined('UPDRAFTPLUS_NOADS')) { ?><a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate">Donate</a> | <?php } ?><a href="http://wordpress.org/extend/plugins/updraftplus/faq/">FAQs</a> | <a href="http://profiles.wordpress.org/davidanderson/">My other WordPress plugins</a>). Version: <?php echo $this->version; ?>
+			By UpdraftPlus.Com ( <a href="http://updraftplus.com">UpdraftPlus.Com</a> | <a href="http://david.dw-perspective.org.uk">Lead developer's homepage</a> | <?php if (!defined('UPDRAFTPLUS_NOADS')) { ?><a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate">Donate</a> | <?php } ?><a href="http://updraftplus.com/support/frequently-asked-questions/">FAQs</a> | <a href="http://profiles.wordpress.org/davidanderson/">Other WordPress plugins</a>). Version: <?php echo $this->version; ?>
 			<br>
 			<?php
 			if(isset($_GET['updraft_restore_success'])) {
@@ -2421,7 +2442,6 @@ class UpdraftPlus {
 					<td style="color:red">This admin interface uses JavaScript heavily. You either need to activate it within your browser, or to use a JavaScript-capable browser.</td>
 				</tr>
 				</noscript>
-				<tr>
 					<?php
 					$updraft_dir = $this->backups_dir_location();
 					// UNIX timestamp
@@ -2432,12 +2452,12 @@ class UpdraftPlus {
 						// Convert to blog time zone
 						$next_scheduled_backup = get_date_from_gmt($next_scheduled_backup_gmt, 'D, F j, Y H:i T');
 					} else {
-						$next_scheduled_backup = 'No backups are scheduled at this time.';
+						$next_scheduled_backup = 'Nothing currently scheduled';
 					}
 					
 					$next_scheduled_backup_database = wp_next_scheduled('updraft_backup_database');
 					if (UpdraftPlus_Options::get_updraft_option('updraft_interval_database',UpdraftPlus_Options::get_updraft_option('updraft_interval')) == UpdraftPlus_Options::get_updraft_option('updraft_interval')) {
-						$next_scheduled_backup_database = "Will take place at the same time as the files backup.";
+						$next_scheduled_backup_database = ('Nothing currently scheduled' == $next_scheduled_backup) ? $next_scheduled_backup : "At the same time as the files backup";
 					} else {
 						if ($next_scheduled_backup_database) {
 							// Convert to GMT
@@ -2445,7 +2465,7 @@ class UpdraftPlus {
 							// Convert to blog time zone
 							$next_scheduled_backup_database = get_date_from_gmt($next_scheduled_backup_database_gmt, 'D, F j, Y H:i T');
 						} else {
-							$next_scheduled_backup_database = 'No backups are scheduled at this time.';
+							$next_scheduled_backup_database = 'Nothing currently scheduled';
 						}
 					}
 					$current_time = get_date_from_gmt(gmdate('Y-m-d H:i:s'), 'D, F j, Y H:i T');
@@ -2456,50 +2476,33 @@ class UpdraftPlus {
 
 					?>
 
-					<th>Time now:</th>
-					<td style="color:blue"><?php echo $current_time?></td>
-				</tr>
 				<tr>
-					<th>Next scheduled files backup:</th>
-					<td style="color:blue"><?php echo $next_scheduled_backup?></td>
-				</tr>
-				<tr>
-					<th>Next scheduled DB backup:</th>
-					<td style="color:blue"><?php echo $next_scheduled_backup_database?></td>
+					<th>Next scheduled backups:</th>
+					<td>
+						<div style="width: 76px; float:left;">Files:</div><div style="color:blue; float:left;"><?php echo $next_scheduled_backup?></div>
+						<div style="width: 76px; clear: left; float:left;">Database: </div><div style="color:blue; float:left;"><?php echo $next_scheduled_backup_database?></div>
+						<div style="width: 76px; clear: left; float:left;">Time now: </div><div style="color:blue; float:left;"><?php echo $current_time?></div>
+					</td>
 				</tr>
 				<tr>
 					<th>Last finished backup run:</th>
 					<td id="updraft_last_backup"><?php echo $last_backup_html ?></td>
 				</tr>
 			</table>
-			<div style="float:left; width:200px; padding-top: 40px;">
+			<div style="float:left; width:200px; padding-top: 20px;">
 				<form method="post" action="">
 					<input type="hidden" name="action" value="updraft_backup" />
-					<p><input type="submit" <?php echo $backup_disabled ?> class="button-primary" value="Backup Now!" style="padding-top:2px;padding-bottom:2px;font-size:22px !important" onclick="return(confirm('This will schedule a one-time backup. To trigger the backup you should go ahead, then wait 10 seconds, then visit any page on your site. WordPress should then start the backup running in the background.'))"></p>
+					<p><input type="submit" <?php echo $backup_disabled ?> class="button-primary" value="Backup Now" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px;" onclick="return(confirm('This will schedule a one-time backup. To trigger the backup you should go ahead, then wait 10 seconds, then visit any page on your site. WordPress should then start the backup running in the background.'))"></p>
 				</form>
 				<div style="position:relative">
 					<div style="position:absolute;top:0;left:0">
 						<?php
 						$backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
 						$backup_history = (is_array($backup_history))?$backup_history:array();
+						$backup_history_sets = (count($backup_history) == 1) ? 'set' : 'sets';
 						$restore_disabled = (count($backup_history) == 0) ? 'disabled="disabled"' : "";
 						?>
-						<input type="button" class="button-primary" <?php echo $restore_disabled ?> value="Restore" style="padding-top:2px;padding-bottom:2px;font-size:22px !important" onclick="jQuery('#backup-restore').fadeIn('slow');jQuery(this).parent().fadeOut('slow')">
-					</div>
-					<div style="display:none;position:absolute;top:0;left:0" id="backup-restore">
-						<form method="post" action="">
-							<b>Choose: </b>
-							<select name="backup_timestamp" style="display:inline">
-								<?php
-								foreach($backup_history as $key=>$value) {
-									echo "<option value='$key'>".date('Y-m-d G:i',$key)."</option>\n";
-								}
-								?>
-							</select>
-
-							<input type="hidden" name="action" value="updraft_restore" />
-							<input type="submit" <?php echo $restore_disabled ?> class="button-primary" value="Restore Now!" style="padding-top:7px;margin-top:5px;padding-bottom:7px;font-size:24px !important" onclick="return(confirm('Restoring from backup will replace this site\'s themes, plugins, uploads and other content directories (according to what is contained in the backup set which you select). Database restoration cannot be done through this process - you must download the database and import yourself (e.g. through PHPMyAdmin). Do you wish to continue with the restoration process?'))" />
-						</form>
+						<input type="button" class="button-primary" <?php echo $restore_disabled ?> value="Restore" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px;" onclick="jQuery('.download-backups').slideDown(); updraft_historytimertoggle(1);">
 					</div>
 				</div>
 			</div>
@@ -2510,13 +2513,16 @@ class UpdraftPlus {
 					<td id="updraft_lastlogcontainer"><?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', '(Nothing yet logged)')); ?></td>
 				</tr>
 				<tr>
-					<th>Download backups and logs:</th>
-					<td><a href="#" title="Click to see available backups" onclick="jQuery('.download-backups').toggle(); updraft_historytimertoggle();"><?php echo count($backup_history)?> available</a></td>
+					<th>Backups, logs &amp; restoring:</th>
+					<td><a id="updraft_showbackups" href="#" title="Click to see available backups" onclick="jQuery('.download-backups').toggle(); updraft_historytimertoggle(0);"><?php echo count($backup_history).' '.$backup_history_sets; ?> available</a></td>
 				</tr>
 				<tr>
-					<td></td><td class="download-backups" style="display:none">
-						<p><em><strong>Note</strong> - Pressing a button will make UpdraftPlus try to bring a backup file back from the remote storage (if any - e.g. Amazon S3, Dropbox, Google Drive, FTP) to your webserver, before then allowing you to download it to your computer. If the fetch from the remote storage stops progressing (wait 30 seconds to make sure), then click again to resume from where it left off. Remember that you can always visit the cloud storage website vendor's website directly. <strong>If you are using the Opera web browser, </strong> then turn Turbo/Road mode off.</em></p>
-						<p title="This is a count of the contents of your wp-content/updraft directory">Web-server disk space in use by UpdraftPlus: <span id="updraft_diskspaceused"><em>(calculating...)</em></span> <a href="#" onclick="updraftplus_diskspace(); return false;">(refresh)</a></p>
+					<td></td><td class="download-backups" style="display:none; border: 1px dotted; ">
+						<p style="max-width: 740px;"><ul style="list-style: disc inside;">
+						<li><strong>Downloading:</strong> Pressing a button for Database/Plugins/Themes/Uploads/Others will make UpdraftPlus try to bring the backup file back from the remote storage (if any - e.g. Amazon S3, Dropbox, Google Drive, FTP) to your webserver. Then you will be allowed to download it to your computer. If the fetch from the remote storage stops progressing (wait 30 seconds to make sure), then press again to resume. Remember that you can also visit the cloud storage vendor's website directly.</li>
+						<li><strong>Restoring:</strong> Press the button for the backup you wish to restore. If your site is large and you are using remote storage, then you should first click on each entity in order to retrieve it back to the webserver. This will prevent time-outs from occuring during the restore process itself.</li>
+						<li><strong>Opera web browser:</strong> If you are using this, then turn Turbo/Road mode off.</li>
+						<li title="This is a count of the contents of your wp-content/updraft directory"><strong>Web-server disk space in use by UpdraftPlus:</strong> <span id="updraft_diskspaceused"><em>(calculating...)</em></span> <a href="#" onclick="updraftplus_diskspace(); return false;">(refresh)</a></li></ul>
 						<div id="ud_downloadstatus"></div>
 						<script>
 							function updraftplus_diskspace() {
@@ -2735,6 +2741,13 @@ class UpdraftPlus {
 					<input type="submit" value="Backup Log" />
 				</form>
 		<?php } else { echo "(No backup log)"; } ?>
+			</td>
+			<td>
+				<form method="post" action="">
+				<input type="hidden" name="backup_timestamp" value="<?php echo $key;?>">
+					<input type="hidden" name="action" value="updraft_restore" />
+					<input type="submit" <?php echo $restore_disabled ?> class="button-primary" value="Restore Now" style="padding-top:2px;padding-bottom:2px;font-size:16px !important; min-height:26px;" onclick="return(confirm('Restoring from backup will replace this site\'s themes, plugins, uploads and other content directories (according to what is contained in the backup set which you select). Database restoration cannot be done through this process - you must download the database and import yourself (e.g. through PHPMyAdmin). Do you wish to continue with the restoration process?'))" />
+				</form>
 			</td>
 		</tr>
 		<?php }

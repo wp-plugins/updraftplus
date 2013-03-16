@@ -23,7 +23,7 @@ class UpdraftPlus_Options {
 
 	public static function add_admin_pages() {
 		global $updraftplus;
-		add_submenu_page('options-general.php', "UpdraftPlus", "UpdraftPlus", "manage_options", "updraftplus", array($updraftplus, "settings_output"));
+		add_submenu_page('options-general.php', "UpdraftPlus", "UpdraftPlus Backups", "manage_options", "updraftplus", array($updraftplus, "settings_output"));
 	}
 
 	public static function options_form_begin() {

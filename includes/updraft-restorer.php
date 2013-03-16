@@ -12,7 +12,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		$this->strings['delete_failed'] = __('Failed to delete working directory after restoring.');
 	}
 
-	function restore_backup($backup_file, $type) {
+	function restore_backup($backup_file, $type, $service) {
 
 		// Various keys can get stored in the data - but only some represent actual data entities
 		if ($type != 'plugins' && $type != 'themes' && $type != 'others' && $type != 'uploads') continue;
@@ -31,8 +31,12 @@ class Updraft_Restorer extends WP_Upgrader {
 			return $download;
 		
 		$delete = (UpdraftPlus_Options::get_updraft_option('updraft_delete_local')) ? true : false;
+		if ('none' == $service) {
+			if ($delete) echo 'Will not delete the archive after unpacking it, because there was no cloud storage for this backup<br>';
+			$delete = false;
+		}
 
-		$working_dir = $this->unpack_package($download , $delete);
+		$working_dir = $this->unpack_package($download, $delete);
 		if (is_wp_error($working_dir)) return $working_dir;
 		
 		if ($type == 'others' ) {
@@ -78,10 +82,9 @@ class Updraft_Restorer extends WP_Upgrader {
 			return new WP_Error('delete_failed', $this->strings['delete_failed']);
 		}
 
-		
 		switch($type) {
 			case 'uploads':
-				@$wp_filesystem->chmod($wp_dir . "wp-content/$type", 0777, true);
+				@$wp_filesystem->chmod($wp_dir . "wp-content/$type", 0775, true);
 			break;
 			default:
 				@$wp_filesystem->chmod($wp_dir . "wp-content/$type", FS_CHMOD_DIR);
