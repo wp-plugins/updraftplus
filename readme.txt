@@ -9,23 +9,24 @@ Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-Many tweaks, optimisations + small bug-fixes: recommended upgrade for all
+New feature: selective restoration; plus many tweaks, optimisations + small bug-fixes: recommended upgrade for all
 
 == Description ==
 
 <a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3, Dropbox, Google Drive, FTP, SFTP, WebDAV and email) and restore with a single click. Backups of files and database can have separate schedules.
 
 * Supports backups to Amazon S3, Dropbox, Google Drive, FTP (including SSL), email, SFTP and WebDAV
-* One-click restore
+* Quick restore
 * Backup automatically on a repeating schedule
 * Files and databases can have separate schedules
 * Failed uploads are automatically resumed/retried
 * Select which files to backup (plugins, themes, content, other)
+* Select which components of a backup to restore
 * Download backup archives direct from your WordPress dashboard
 * Database backups can be encrypted for security
 * Debug mode that gives full logging of the backup
 * Thousands of users: widely tested and reliable
-* Premium/multi-site version and support available - <a href="http://updraftplus.com">http://updraftplus.com</a>
+* Premium version and support available - <a href="http://updraftplus.com">http://updraftplus.com</a>
 
 = Don't Risk Anything Less =
 
@@ -105,12 +106,14 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.4.52 - trunk - not yet released/supported =
+= 1.5.1 - trunk - not yet released/supported =
+* When restoring, you can now select only some components to restore
+* Multisite add-on now stores/restores blogs and mu-plugins separately
 * Display UpdraftPlus's disk space usage
 * Correctly remove old 'other' directories from a restoration when requested
 * Various layout + niceness fixes upon restoration
 * Prevent deletion of local archives upon failed restoration when there was no cloud storage
-* Various usability tweaks for the admin UI
+* Various usability tweaks for the admin UI, including showing multisite warning only on UD's pages
 
 = 1.4.48 - 03/11/2013 =
 * Improve batching on zip creation for sites with very large files
@@ -345,6 +348,10 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 == Screenshots ==
 
 1. Configuration page
+
+2. Restoring from a backup
+
+3. Showing and downloading backup sets
 
 We recognise and thank the following for code and/or libraries used and/or modified under the terms of their licences:
 * UpdraftPlus is based on the original Updraft by Paul Kehrer (Twitter: http://twitter.com/reaperhulk, Blog: http://langui.sh)

@@ -74,7 +74,7 @@ class UpdraftPlus_Options {
 		register_setting('updraft-options-group', 'updraft_starttime_db', array($updraftplus, 'hourminute') );
 
 		global $pagenow;
-		if (is_multisite() && $pagenow == 'options-general.php') {
+		if (is_multisite() && $pagenow == 'options-general.php' && isset($_REQUEST['page']) && 'updraftplus' == substr($_REQUEST['page'], 0, 11)) {
 			add_action('admin_notices', array('UpdraftPlus_Options', 'show_admin_warning_multisite') );
 		}
 
@@ -84,7 +84,7 @@ class UpdraftPlus_Options {
 
 		global $updraftplus;
 
-		$updraftplus->show_admin_warning('<strong>UpdraftPlus warning:</strong> This is a WordPress multi-site (a.k.a. network) installation. <a href="http://updraftplus.com">WordPress Multisite is supported by UpdraftPlus Premium</a>. Non-premium UpdraftPlus does not support multi-site installations securely. <strong>Every</strong> blog admin can both back up (and hence access the data, including passwords, from) and restore (including with customised modifications, e.g. changed passwords) <strong>the entire network</strong>. Unless you are the only blog admin user across the entire network, you should immediately de-activate UpdraftPlus. (This applies to all WordPress backup plugins unless they have been explicitly coded for multisite compatibility).', "error");
+		$updraftplus->show_admin_warning('<strong>UpdraftPlus warning:</strong> This is a WordPress multi-site (a.k.a. network) installation. <a href="http://updraftplus.com">WordPress Multisite is supported, with extra features, by UpdraftPlus Premium, or the Multisite add-on</a>. Without upgrading, UpdraftPlus allows <strong>every</strong> blog admin who can modify plugin settings to back up (and hence access the data, including passwords, from) and restore (including with customised modifications, e.g. changed passwords) <strong>the entire network</strong>. (This applies to all WordPress backup plugins unless they have been explicitly coded for multisite compatibility).', "error");
 
 	}
 

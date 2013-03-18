@@ -4,24 +4,25 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your site can be backed up locally or to Amazon S3, Dropbox, Google Drive, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.4.52
+Version: 1.5.1
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
-Author URI: http://wordshell.net
+Author URI: http://updraftplus.com
 */
 
 /*
 TODO - some of these are out of date/done, needs pruning
+// Add an appeal for translators to email me
+// Separate out all restoration code and admin UI into separate file/classes (optimisation)?
 // Search for other TODO-s in the code
 // Send the user an email upon their first backup with tips on what to do (e.g. support/improve) (include legacy check to not bug existing users)
-//The "restore now" dropdown needs some jQuery to update it without requiring a page refresh
 //Allow use of /usr/bin/zip - since this can escape from PHP's memory limit. Can still batch as we do so, in order to monitor/measure progress
 //Do an automated test periodically for the success of loop-back connections
 //When a manual backup is run, use a timer to update the 'Download backups and logs' section, just like 'Last finished backup run'. Beware of over-writing anything that's in there from a resumable downloader.
 //Change DB encryption to not require whole gzip in memory (twice)
 //Add Rackspace, Box.Net, SugarSync and Microsoft Skydrive support??
+//Make it easier to find add-ons
 //The restorer has a hard-coded wp-content - fix
-//Display amount of disk space that UD is using
 //?? On 'backup now', open up a Lightbox, count down 5 seconds, then start examining the log file (if it can be found)
 //Should make clear in dashboard what is a non-fatal error (i.e. can be retried) - leads to unnecessary bug reports
 // Move the inclusion, cloud and retention data into the backup job (i.e. don't read current config, make it an attribute of each job). In fact, everything should be. So audit all code for where get_option is called inside a backup run: it shouldn't happen.
@@ -299,6 +300,39 @@ class UpdraftPlus {
 // 		return $inter;
 	}
 
+	// This important function returns a list of file entities that can potentially be backed up (subject to users settings), and optionally further meta-data about them
+	function get_backupable_file_entities($include_others = true, $full_info = false) {
+
+		$wp_upload_dir = wp_upload_dir();
+
+		if ($full_info) {
+			$arr = array(
+				'plugins' => array('path' => WP_PLUGIN_DIR, 'description' => 'Plugins'),
+				'themes' => array('path' => WP_CONTENT_DIR.'/themes', 'description' => 'Themes'),
+				'uploads' => array('path' => $wp_upload_dir['basedir'], 'description' => 'Uploads')
+			);
+		} else {
+			$arr = array(
+				'plugins' => WP_PLUGIN_DIR,
+				'themes' => WP_CONTENT_DIR.'/themes',
+				'uploads' => $wp_upload_dir['basedir']
+			);
+		}
+
+		$arr = apply_filters('updraft_backupable_file_entities', $arr, $full_info);
+
+		if ($include_others) {
+			if ($full_info) {
+				$arr['others'] = array('path' => WP_CONTENT_DIR, 'description' => 'Others');
+			} else {
+				$arr['others'] = WP_CONTENT_DIR;
+			}
+		}
+
+		return $arr;
+
+	}
+
 	function backup_resume($resumption_no, $bnonce) {
 
 		@ignore_user_abort(true);
@@ -403,10 +437,12 @@ class UpdraftPlus {
 			$this->save_backup_history($our_files);
 		}
 
+		$backupable_entities = $this->get_backupable_file_entities(true);
+
 		foreach ($our_files as $key => $file) {
 
 			// Only continue if the stored info was about a dump
-			if ($key != 'plugins' && $key != 'themes' && $key != 'others' && $key != 'uploads' && $key != 'db') continue;
+			if (!isset($backupable_entities[$key]) && $key != 'db') continue;
 
 			$hash = md5($file);
 			$fullpath = $this->backups_dir_location().'/'.$file;
@@ -772,6 +808,8 @@ class UpdraftPlus {
 		$file_backups_found = 0;
 		$this->log("Number of backup sets in history: ".count($backup_history));
 
+		$backupable_entities = $this->get_backupable_file_entities(true);
+
 		foreach ($backup_history as $backup_datestamp => $backup_to_examine) {
 			// $backup_to_examine is an array of file names, keyed on db/plugins/themes/uploads
 			// The new backup_history array is saved afterwards, so remember to unset the ones that are to be deleted
@@ -788,28 +826,42 @@ class UpdraftPlus {
 				}
 			}
 
-			if (isset($backup_to_examine['plugins']) || isset($backup_to_examine['themes']) || isset($backup_to_examine['uploads']) || isset($backup_to_examine['others'])) {
+			$contains_files = false;
+			foreach ($backupable_entities as $entity => $info) {
+				if (isset($backup_to_examine[$entity])) {
+					$contains_files = true;
+					break;
+				}
+			}
+
+			if ($contains_files) {
 				$file_backups_found++;
 				$this->log("$backup_datestamp: this set includes files; fileset count is now $file_backups_found");
 				if ($file_backups_found > $updraft_retain) {
 					$this->log("$backup_datestamp: over retain limit ($updraft_retain); will delete this file set");
-					$file = isset($backup_to_examine['plugins']) ? $backup_to_examine['plugins'] : "";
-					$file2 = isset($backup_to_examine['themes']) ? $backup_to_examine['themes'] : "";
-					$file3 = isset($backup_to_examine['uploads']) ? $backup_to_examine['uploads'] : "";
-					$file4 = isset($backup_to_examine['others']) ? $backup_to_examine['others'] : "";
-					foreach (array($file, $file2, $file3, $file4) as $dofile) {
-						if (!empty($dofile)) $this->prune_file($service, $dofile, $backup_method_object, $backup_passback);
+					
+					foreach ($backupable_entities as $entity => $info) {
+						if (!empty($backup_to_examine[$entity])) {
+							$this->prune_file($service, $backup_to_examine[$entity], $backup_method_object, $backup_passback);
+						}
+						unset($backup_to_examine[$entity]);
 					}
-					unset($backup_to_examine['plugins']);
-					unset($backup_to_examine['themes']);
-					unset($backup_to_examine['uploads']);
-					unset($backup_to_examine['others']);
+
+				}
+			}
+
+			// Get new result, post-deletion
+			$contains_files = false;
+			foreach ($backupable_entities as $entity => $info) {
+				if (isset($backup_to_examine[$entity])) {
+					$contains_files = true;
+					break;
 				}
 			}
 
 			// Delete backup set completely if empty, o/w just remove DB
 			// We search on the four keys which represent data, allowing other keys to be used to track other things
-			if (!isset($backup_to_examine['plugins']) && !isset($backup_to_examine['themes']) && !isset($backup_to_examine['others']) && !isset($backup_to_examine['uploads']) && !isset($backup_to_examine['db']) ) {
+			if (!$contains_files && !isset($backup_to_examine['db']) ) {
 				$this->log("$backup_datestamp: this backup set is now empty; will remove from history");
 				unset($backup_history[$backup_datestamp]);
 				if (isset($backup_to_examine['nonce'])) {
@@ -964,12 +1016,7 @@ class UpdraftPlus {
 
 		$backup_array = array();
 
-		$wp_themes_dir = WP_CONTENT_DIR.'/themes';
-		$wp_upload_dir = wp_upload_dir();
-		$wp_upload_dir = $wp_upload_dir['basedir'];
-		$wp_plugins_dir = WP_PLUGIN_DIR;
-
-		$possible_backups = array ('plugins' => $wp_plugins_dir, 'themes' => $wp_themes_dir, 'uploads' => $wp_upload_dir);
+		$possible_backups = $this->get_backupable_file_entities(false);
 
 		# Plugins, themes, uploads
 		foreach ($possible_backups as $youwhat => $whichdir) {
@@ -995,7 +1042,7 @@ class UpdraftPlus {
 			}
 		}
 
-		# Others
+		# Others - needs special/separate handling, since its purpose is to mop up everything else
 		if (UpdraftPlus_Options::get_updraft_option('updraft_include_others', true)) {
 
 				$zip_file = $updraft_dir.'/'.$backup_file_basename.'-others.zip';
@@ -1025,15 +1072,23 @@ class UpdraftPlus {
 
 				$this->log('Looking for candidates to back up in: '.WP_CONTENT_DIR);
 				if ($handle = opendir(WP_CONTENT_DIR)) {
+				
+					$possible_backups_dirs = array_flip($possible_backups);
+				
 					while (false !== ($entry = readdir($handle))) {
 						$candidate = WP_CONTENT_DIR.'/'.$entry;
-						if ($entry == "." || $entry == "..") { ; }
-						elseif ($candidate == $updraft_dir) { $this->log("others: $entry: skipping: this is the updraft directory"); }
-						elseif ($candidate == $wp_themes_dir) { $this->log("others: $entry: skipping: this is the themes directory"); }
-						elseif ($candidate == $wp_upload_dir) { $this->log("others: $entry: skipping: this is the uploads directory"); }
-						elseif ($candidate == $wp_plugins_dir) { $this->log("others: $entry: skipping: this is the plugins directory"); }
-						elseif (isset($others_skip[$entry])) { $this->log("others: $entry: skipping: excluded by options"); }
-						else { $this->log("others: $entry: adding to list"); array_push($other_dirlist, $candidate); }
+						if ($entry != "." && $entry != "..") {
+							if (isset($possible_backups_dirs[$candidate])) {
+								$this->log("others: $entry: skipping: this is the ".$possible_backups_dirs[$candidate]." directory");
+							} elseif ($candidate == $updraft_dir) {
+								$this->log("others: $entry: skipping: this is the updraft directory");
+							} elseif (isset($others_skip[$entry])) {
+								$this->log("others: $entry: skipping: excluded by options");
+							} else {
+								$this->log("others: $entry: adding to list");
+								array_push($other_dirlist, $candidate);
+							}
+						}
 					}
 					@closedir($handle);
 				} else {
@@ -1594,7 +1649,15 @@ class UpdraftPlus {
 
 		if (!isset($_REQUEST['_wpnonce']) || !wp_verify_nonce($_REQUEST['_wpnonce'], 'updraftplus_download')) die;
 
-		if (!isset($_REQUEST['timestamp']) || !is_numeric($_REQUEST['timestamp']) ||  !isset($_REQUEST['type']) || ('plugins' != $_REQUEST['type'] && 'themes' != $_REQUEST['type'] && 'uploads' != $_REQUEST['type'] && 'others' != $_REQUEST['type'] && 'db' != $_REQUEST['type'])) exit;
+		if (!isset($_REQUEST['timestamp']) || !is_numeric($_REQUEST['timestamp']) ||  !isset($_REQUEST['type'])) exit;
+
+		$backupable_entities = $this->get_backupable_file_entities(true);
+		$type_match = false;
+		foreach ($backupable_entities as $type => $info) {
+			if ($_REQUEST['type'] == $type) $type_match = true;
+		}
+
+		if (!$type_match && $_REQUEST['type'] != 'db') exit;
 
 		// Get the information on what is wanted
 		$type = $_REQUEST['type'];
@@ -1766,8 +1829,6 @@ class UpdraftPlus {
 		
 	function restore_backup($timestamp) {
 
-		// TODO: Get a nonce, so that we can log to disk
-
 		global $wp_filesystem;
 		$backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
 		if(!is_array($backup_history[$timestamp])) {
@@ -1790,11 +1851,29 @@ class UpdraftPlus {
 
 		$service = (isset($backup_history[$timestamp]['service'])) ? $backup_history[$timestamp]['service'] : false;
 
+		if (!isset($_POST['updraft_restore']) || !is_array($_POST['updraft_restore'])) {
+			echo '<p>ABORT: Could not find the information on which entities to restore.</p>';
+			return false;
+		}
+
+		$entities_to_restore = array_flip($_POST['updraft_restore']);
+
+		$backupable_entities = $this->get_backupable_file_entities(true, true);
+
 		foreach($backup_history[$timestamp] as $type => $file) {
 			// All restorable entities must be given explicitly, as we can store other arbitrary data in the history array
-			if ('themes' != $type && 'plugins' != $type && 'uploads' != $type && 'others' != $type && 'db' != $type) continue;
+			 
+			if (!isset($backupable_entities[$type]) && 'db' != $type) continue;
+
+			echo "<h2>".$backupable_entities[$type]['description']."</h2>";
+
+			if (!isset($entities_to_restore[$type])) {
+				echo "<p>This component was not selected for restoration - skipping.</p>";
+				continue;
+			}
+
 			$fullpath = $updraft_dir.$file;
-			echo "<h2>".ucfirst($type)."</h2>";
+
 			echo "Looking for $type archive: file name: ".htmlspecialchars($file)."<br>";
 			if(!is_readable($fullpath) && $type != 'db') {
 				echo "File is not locally present - needs retrieving from remote storage (for large files, it is better to do this in advance from the download console)<br>";
@@ -1819,7 +1898,7 @@ class UpdraftPlus {
 				if(!class_exists('WP_Upgrader')) require_once(ABSPATH . 'wp-admin/includes/class-wp-upgrader.php');
 				require_once(UPDRAFTPLUS_DIR.'/includes/updraft-restorer.php');
 				$restorer = new Updraft_Restorer();
-				$val = $restorer->restore_backup($fullpath, $type, $service);
+				$val = $restorer->restore_backup($fullpath, $type, $service, $backupable_entities[$type]);
 
 				if(is_wp_error($val)) {
 					foreach ($val->get_error_messages() as $msg) {
@@ -1871,9 +1950,6 @@ class UpdraftPlus {
 				}
 			}
 		}
-
-		// Old method: before we backed up 'others'
-		// 		$to_delete = array('themes-old','plugins-old','uploads-old');
 
 		return $return_code;
 	}
@@ -1959,6 +2035,7 @@ class UpdraftPlus {
 			@ini_set('track_errors',1);
 		}
 		wp_enqueue_script('jquery');
+		wp_enqueue_script('jquery-ui-dialog');
 
 		if (UpdraftPlus_Options::user_can_manage() && UpdraftPlus_Options::get_updraft_option('updraft_service') == "googledrive" && UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid','') != '' && UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token','') == '') {
 			add_action('admin_notices', array($this,'show_admin_warning_googledrive') );
@@ -2065,21 +2142,23 @@ class UpdraftPlus {
 				<?php echo apply_filters('updraftplus_fixtime_advert', '<p><strong>To fix the time at which a backup should take place, </strong> (e.g. if your server is busy at day and you want to run overnight), <a href="http://updraftplus.com/shop/fix-time/">use the &quot;Fix Time&quot; add-on</a></p>'); ?>
 				</td>
 			</tr>
-			<?php
-				# The true (default value if non-existent) here has the effect of forcing a default of on.
-				$include_themes = (UpdraftPlus_Options::get_updraft_option('updraft_include_themes',true)) ? 'checked="checked"' : "";
-				$include_plugins = (UpdraftPlus_Options::get_updraft_option('updraft_include_plugins',true)) ? 'checked="checked"' : "";
-				$include_uploads = (UpdraftPlus_Options::get_updraft_option('updraft_include_uploads',true)) ? 'checked="checked"' : "";
-				$include_others = (UpdraftPlus_Options::get_updraft_option('updraft_include_others',true)) ? 'checked="checked"' : "";
-				$include_others_exclude = UpdraftPlus_Options::get_updraft_option('updraft_include_others_exclude',UPDRAFT_DEFAULT_OTHERS_EXCLUDE);
-			?>
 			<tr>
 				<th>Include in files backup:</th>
 				<td>
-				<input type="checkbox" name="updraft_include_plugins" value="1" <?php echo $include_plugins; ?> /> Plugins<br>
-				<input type="checkbox" name="updraft_include_themes" value="1" <?php echo $include_themes; ?> /> Themes<br>
-				<input type="checkbox" name="updraft_include_uploads" value="1" <?php echo $include_uploads; ?> /> Uploads<br>
-				<input type="checkbox" name="updraft_include_others" value="1" <?php echo $include_others; ?> /> Any other directories found inside wp-content <?php if (is_multisite()) echo "(which on a multisite install includes users' blog contents) "; ?>- but exclude these directories: <input type="text" name="updraft_include_others_exclude" size="44" value="<?php echo htmlspecialchars($include_others_exclude); ?>"/><br>
+
+			<?php
+				$backupable_entities = $this->get_backupable_file_entities(true, true);
+				$include_others_exclude = UpdraftPlus_Options::get_updraft_option('updraft_include_others_exclude',UPDRAFT_DEFAULT_OTHERS_EXCLUDE);
+				# The true (default value if non-existent) here has the effect of forcing a default of on.
+				foreach ($backupable_entities as $key => $info) {
+					$included = (UpdraftPlus_Options::get_updraft_option("updraft_include_$key",true)) ? 'checked="checked"' : "";
+					if ('others' == $key) {
+						?><input id="updraft_include_others" type="checkbox" name="updraft_include_others" value="1" <?php echo $included; ?> /> <label for="updraft_include_<?php echo $key ?>">Any other directories found inside wp-content but exclude these directories:</label> <input type="text" name="updraft_include_others_exclude" size="44" value="<?php echo htmlspecialchars($include_others_exclude); ?>"/><br><?php
+					} else {
+						echo "<input id=\"updraft_include_$key\" type=\"checkbox\" name=\"updraft_include_$key\" value=\"1\" $included /><label for=\"updraft_include_$key\">".$info['description']."</label><br>";
+					}
+				}
+			?>
 				<p>Include all of these, unless you are backing them up outside of UpdraftPlus. The above directories are usually everything (except for WordPress core itself which you can download afresh from WordPress.org). But if you have made customised modifications outside of these directories, you need to back them up another way. (<a href="http://wordshell.net">Use WordShell</a> for automatic backup, version control and patching).</p></td>
 				</td>
 			</tr>
@@ -2190,6 +2269,26 @@ class UpdraftPlus {
 				}
 
 				jQuery(document).ready(function() {
+					jQuery( "#updraft-restore-modal" ).dialog({
+						autoOpen: false, height: 385, width: 480, modal: true,
+						buttons: {
+							Restore: function() {
+								var anyselected = 0;
+								jQuery('input[name="updraft_restore[]"]').each(function(x,y){
+									if (jQuery(y).is(':checked')) {
+										anyselected = 1;
+										//alert(jQuery(y).val());
+									}
+								});
+								if (anyselected == 1) {
+									jQuery('#updraft_restore_form').submit();
+								} else {
+									alert('You did not select any components to restore. Please select at least one, and then try again.');
+								}
+							},
+							Cancel: function() { jQuery(this).dialog("close"); }
+						}
+					});
 					jQuery('#enableexpertmode').click(function() {
 						jQuery('.expertmode').fadeIn();
 						return false;
@@ -2214,7 +2313,7 @@ class UpdraftPlus {
 			</tr>
 			<tr>
 				<th>Debug mode:</th>
-				<td><input type="checkbox" name="updraft_debug_mode" value="1" <?php echo $debug_mode; ?> /> <br>Check this to receive more information and emails on the backup process - useful if something is going wrong. You <strong>must</strong> send me this log if you are filing a bug report.</td>
+				<td><input type="checkbox" id="updraft_debug_mode" name="updraft_debug_mode" value="1" <?php echo $debug_mode; ?> /> <br><label for="updraft_debug_mode">Check this to receive more information and emails on the backup process - useful if something is going wrong. You <strong>must</strong> send us this log if you are filing a bug report.</label></td>
 			</tr>
 			<tr>
 				<th>Expert settings:</th>
@@ -2226,7 +2325,7 @@ class UpdraftPlus {
 
 			<tr class="deletelocal expertmode" style="display:none;">
 				<th>Delete local backup:</th>
-				<td><input type="checkbox" name="updraft_delete_local" value="1" <?php if ($delete_local) echo 'checked="checked"'; ?>> <br>Uncheck this to prevent deletion of any superfluous backup files from your server after the backup run finishes (i.e. any files despatched remotely will also remain locally, and any files being kept locally will not be subject to the retention limits).</td>
+				<td><input type="checkbox" id="updraft_delete_local" name="updraft_delete_local" value="1" <?php if ($delete_local) echo 'checked="checked"'; ?>> <br><label for="updraft_delete_local">Uncheck this to prevent deletion of any superfluous backup files from your server after the backup run finishes (i.e. any files despatched remotely will also remain locally, and any files being kept locally will not be subject to the retention limits).</label></td>
 			</tr>
 
 			<tr class="expertmode backupdirrow" style="display:none;">
@@ -2303,6 +2402,8 @@ class UpdraftPlus {
 	}
 
 	function settings_output() {
+
+		wp_enqueue_style('jquery-ui', UPDRAFTPLUS_URL.'/includes/jquery-ui-1.8.22.custom.css'); 
 
 		/*
 		we use request here because the initial restore is triggered by a POSTed form. we then may need to obtain credentials 
@@ -2384,7 +2485,7 @@ class UpdraftPlus {
 		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_all') { $this->boot_backup(true,true); }
 		elseif (isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_db') { $this->backup_db(); }
 		elseif (isset($_POST['action']) && $_POST['action'] == 'updraft_wipesettings') {
-			$settings = array('updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_others_exclude', 'updraft_lastmessage', 'updraft_googledrive_clientid', 'updraft_googledrive_token', 'updraft_dropboxtk_request_token', 'updraft_dropboxtk_access_token', 'updraft_dropbox_folder', 'updraft_last_backup', 'updraft_starttime_files', 'updraft_starttime_db', 'updraft_sftp_settings');
+			$settings = array('updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_blogs', 'updraft_include_mu-plugins', 'updraft_include_others_exclude', 'updraft_lastmessage', 'updraft_googledrive_clientid', 'updraft_googledrive_token', 'updraft_dropboxtk_request_token', 'updraft_dropboxtk_access_token', 'updraft_dropbox_folder', 'updraft_last_backup', 'updraft_starttime_files', 'updraft_starttime_db', 'updraft_sftp_settings');
 			foreach ($settings as $s) {
 				UpdraftPlus_Options::delete_updraft_option($s);
 			}
@@ -2502,7 +2603,7 @@ class UpdraftPlus {
 						$backup_history_sets = (count($backup_history) == 1) ? 'set' : 'sets';
 						$restore_disabled = (count($backup_history) == 0) ? 'disabled="disabled"' : "";
 						?>
-						<input type="button" class="button-primary" <?php echo $restore_disabled ?> value="Restore" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px;" onclick="jQuery('.download-backups').slideDown(); updraft_historytimertoggle(1);">
+						<input type="button" class="button-primary" <?php echo $restore_disabled ?> value="Restore" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px;" onclick="jQuery('.download-backups').slideDown(); updraft_historytimertoggle(1); jQuery('html,body').animate({scrollTop: jQuery('#updraft_lastlogcontainer').offset().top},'slow');">
 					</div>
 				</div>
 			</div>
@@ -2517,7 +2618,7 @@ class UpdraftPlus {
 					<td><a id="updraft_showbackups" href="#" title="Click to see available backups" onclick="jQuery('.download-backups').toggle(); updraft_historytimertoggle(0);"><?php echo count($backup_history).' '.$backup_history_sets; ?> available</a></td>
 				</tr>
 				<tr>
-					<td></td><td class="download-backups" style="display:none; border: 1px dotted; ">
+					<td></td><td class="download-backups" style="display:none; border: 1px dotted;">
 						<p style="max-width: 740px;"><ul style="list-style: disc inside;">
 						<li><strong>Downloading:</strong> Pressing a button for Database/Plugins/Themes/Uploads/Others will make UpdraftPlus try to bring the backup file back from the remote storage (if any - e.g. Amazon S3, Dropbox, Google Drive, FTP) to your webserver. Then you will be allowed to download it to your computer. If the fetch from the remote storage stops progressing (wait 30 seconds to make sure), then press again to resume. Remember that you can also visit the cloud storage vendor's website directly.</li>
 						<li><strong>Restoring:</strong> Press the button for the backup you wish to restore. If your site is large and you are using remote storage, then you should first click on each entity in order to retrieve it back to the webserver. This will prevent time-outs from occuring during the restore process itself.</li>
@@ -2586,7 +2687,7 @@ class UpdraftPlus {
 								}
 							}
 						</script>
-						<div id="updraft_existing_backups">
+						<div id="updraft_existing_backups" style="margin-bottom:12px;">
 							<?php
 								print $this->existing_backup_table($backup_history);
 							?>
@@ -2594,6 +2695,23 @@ class UpdraftPlus {
 					</td>
 				</tr>
 			</table>
+<div id="updraft-restore-modal" title="UpdraftPlus - Restore backup">
+<p><strong>Restore backup from:</strong> <span id="updraft_restore_date"></span></p>
+<p>Restoring will replace this site's themes, plugins, uploads and/or other content directories (according to what is contained in the backup set, and your selection). Choose the components to restore:</p>
+<form id="updraft_restore_form" method="post">
+	<fieldset>
+		<input type="hidden" name="action" value="updraft_restore">
+		<input type="hidden" name="backup_timestamp" value="0" id="updraft_restore_timestamp">
+		<?php
+			$backupable_entities = $this->get_backupable_file_entities(true, true);
+			foreach ($backupable_entities as $type => $info) {
+				echo '<div><input id="updraft_restore_'.$type.'" type="checkbox" name="updraft_restore[]" value="'.$type.'"> <label for="updraft_restore_'.$type.'">'.$info['description'].'</label><br></div>';
+			}
+		?>
+		<p><em>Databases cannot yet be restored from here - you must download the database file and take it to your web hosting company's control panel.</em></p>
+	</fieldset>
+</form>
+</div>
 			<?php
 			if (is_multisite() && !file_exists(UPDRAFTPLUS_DIR.'/addons/multisite.php')) {
 				?>
@@ -2601,7 +2719,7 @@ class UpdraftPlus {
 				<table>
 				<tr>
 				<td>
-				<p style="max-width:800px;">Do you need WordPress Multisite support? Please check out <a href="http://updraftplus.com">UpdraftPlus Premium</a>.</p>
+				<p style="max-width:800px;">Do you need WordPress Multisite support? Please check out <a href="http://updraftplus.com/">UpdraftPlus Premium, or the stand-alone Multisite add-on</a>.</p>
 				</td>
 				</tr>
 				</table>
@@ -2669,14 +2787,18 @@ class UpdraftPlus {
 
 		$updraft_dir = $this->backups_dir_location();
 
+		$backupable_entities = $this->get_backupable_file_entities(true, true);
+
 		echo '<table>';
 
 		krsort($backup_history);
 
 		foreach($backup_history as $key=>$value) {
-		?>
+			$pretty_date = date('Y-m-d G:i',$key);
+			$entities = '';
+			?>
 		<tr>
-			<td><b><?php echo date('Y-m-d G:i',$key)?></b></td>
+			<td><b><?php echo $pretty_date?></b></td>
 			<td>
 		<?php if (isset($value['db'])) { ?>
 				<form id="uddownloadform_db_<?php echo $key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'db')" method="post">
@@ -2686,52 +2808,27 @@ class UpdraftPlus {
 					<input type="hidden" name="timestamp" value="<?php echo $key?>" />
 					<input type="submit" value="Database" />
 				</form>
-		<?php } else { echo "(No database)"; } ?>
+		<?php } else { echo "(No&nbsp;database)"; } ?>
 			</td>
-			<td>
-		<?php if (isset($value['plugins'])) { ?>
-				<form id="uddownloadform_plugins_<?php echo $key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'plugins')" method="post">
+
+		<?php
+			foreach ($backupable_entities as $type => $info) {
+				echo '<td>';
+				if (isset($value[$type])) {
+					$entities .= '/'.$type.'/';
+					$sdescrip = preg_replace('/ \(.*\)$/', '', $info['description']);
+				?>
+				<form id="uddownloadform_<?php echo $type.'_'.$key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader('<?php echo $key."', '".$type;?>')" method="post">
 					<?php wp_nonce_field('updraftplus_download'); ?>
 					<input type="hidden" name="action" value="updraft_download_backup" />
-					<input type="hidden" name="type" value="plugins" />
+					<input type="hidden" name="type" value="<?php echo $type; ?>" />
 					<input type="hidden" name="timestamp" value="<?php echo $key?>" />
-					<input  type="submit" value="Plugins" />
+					<input  type="submit" title="Press here to download <?php echo lcfirst($info['description']); ?>" value="<?php echo $sdescrip;?>" />
 				</form>
-		<?php } else { echo "(No plugins)"; } ?>
+		<?php } else { echo "(No&nbsp;".lcfirst($info['description']).")"; } ?>
 			</td>
-			<td>
-		<?php if (isset($value['themes'])) { ?>
-				<form id="uddownloadform_themes_<?php echo $key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'themes')" method="post">
-					<?php wp_nonce_field('updraftplus_download'); ?>
-					<input type="hidden" name="action" value="updraft_download_backup" />
-					<input type="hidden" name="type" value="themes" />
-					<input type="hidden" name="timestamp" value="<?php echo $key?>" />
-					<input  type="submit" value="Themes" />
-				</form>
-		<?php } else { echo "(No themes)"; } ?>
-			</td>
-			<td>
-		<?php if (isset($value['uploads'])) { ?>
-				<form id="uddownloadform_uploads_<?php echo $key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'uploads')" method="post">
-					<?php wp_nonce_field('updraftplus_download'); ?>
-					<input type="hidden" name="action" value="updraft_download_backup" />
-					<input type="hidden" name="type" value="uploads" />
-					<input type="hidden" name="timestamp" value="<?php echo $key?>" />
-					<input  type="submit" value="Uploads" />
-				</form>
-		<?php } else { echo "(No uploads)"; } ?>
-			</td>
-			<td>
-		<?php if (isset($value['others'])) { ?>
-				<form id="uddownloadform_others_<?php echo $key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'others')" method="post">
-					<?php wp_nonce_field('updraftplus_download'); ?>
-					<input type="hidden" name="action" value="updraft_download_backup" />
-					<input type="hidden" name="type" value="others" />
-					<input type="hidden" name="timestamp" value="<?php echo $key?>" />
-					<input type="submit" value="Others" />
-				</form>
-		<?php } else { echo "(No others)"; } ?>
-			</td>
+		<?php }; ?>
+
 			<td>
 		<?php if (isset($value['nonce']) && preg_match("/^[0-9a-f]{12}$/",$value['nonce']) && is_readable($updraft_dir.'/log.'.$value['nonce'].'.txt')) { ?>
 				<form action="options-general.php" method="get">
@@ -2740,16 +2837,28 @@ class UpdraftPlus {
 					<input type="hidden" name="updraftplus_backup_nonce" value="<?php echo $value['nonce']; ?>" />
 					<input type="submit" value="Backup Log" />
 				</form>
-		<?php } else { echo "(No backup log)"; } ?>
+		<?php } else { echo "(No&nbsp;backup&nbsp;log)"; } ?>
 			</td>
 			<td>
 				<form method="post" action="">
-				<input type="hidden" name="backup_timestamp" value="<?php echo $key;?>">
+					<input type="hidden" name="backup_timestamp" value="<?php echo $key;?>">
 					<input type="hidden" name="action" value="updraft_restore" />
-					<input type="submit" <?php echo $restore_disabled ?> class="button-primary" value="Restore Now" style="padding-top:2px;padding-bottom:2px;font-size:16px !important; min-height:26px;" onclick="return(confirm('Restoring from backup will replace this site\'s themes, plugins, uploads and other content directories (according to what is contained in the backup set which you select). Database restoration cannot be done through this process - you must download the database and import yourself (e.g. through PHPMyAdmin). Do you wish to continue with the restoration process?'))" />
+					<?php if ($entities) { ?><button title="After pressing this button, you will be given the option to choose which components you wish to restore" type="button" <?php echo $restore_disabled ?> class="button-primary" style="padding-top:2px;padding-bottom:2px;font-size:16px !important; min-height:26px;" onclick="updraft_restore_options('<?php echo $entities;?>'); jQuery('#updraft_restore_timestamp').val('<?php echo $key;?>'); jQuery('#updraft_restore_date').html('<?php echo $pretty_date;?>'); jQuery('#updraft-restore-modal').dialog('open');">Restore</button><?php } ?>
 				</form>
 			</td>
 		</tr>
+		<script>
+		function updraft_restore_options(entities) {
+			jQuery('input[name="updraft_restore[]"]').each(function(x,y){
+				var entity = jQuery(y).val();
+				if (entities.indexOf('/'+entity+'/') != -1) {
+					jQuery(y).removeAttr('disabled').parent().show();
+				} else {
+					jQuery(y).attr('disabled','disabled').parent().hide();
+				}
+			});
+		}
+		</script>
 		<?php }
 		echo '</table>';
 	}

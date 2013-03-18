@@ -12,14 +12,13 @@ class Updraft_Restorer extends WP_Upgrader {
 		$this->strings['delete_failed'] = __('Failed to delete working directory after restoring.');
 	}
 
-	function restore_backup($backup_file, $type, $service) {
-
-		// Various keys can get stored in the data - but only some represent actual data entities
-		if ($type != 'plugins' && $type != 'themes' && $type != 'others' && $type != 'uploads') continue;
+	function restore_backup($backup_file, $type, $service, $info) {
 
 		global $wp_filesystem;
 		$this->init();
 		$this->backup_strings();
+
+		$dirname = basename($info['path']);
 
 		$res = $this->fs_connect(array(ABSPATH, WP_CONTENT_DIR) );
 		if(!$res) exit;
@@ -66,12 +65,12 @@ class Updraft_Restorer extends WP_Upgrader {
 		} else {
 		
 			show_message($this->strings['moving_old']);
-			if ( !$wp_filesystem->move($wp_dir . "wp-content/$type", $wp_dir . "wp-content/$type-old", true) ) {
+			if ( !$wp_filesystem->move($wp_dir . "wp-content/$dirname", $wp_dir . "wp-content/$dirname-old", true) ) {
 				return new WP_Error('old_move_failed', $this->strings['old_move_failed']);
 			}
 
 			show_message($this->strings['moving_backup']);
-			if ( !$wp_filesystem->move($working_dir . "/$type", $wp_dir . "wp-content/$type", true) ) {
+			if ( !$wp_filesystem->move($working_dir . "/$dirname", $wp_dir . "wp-content/$dirname", true) ) {
 				return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
 			}
 			
@@ -84,10 +83,10 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		switch($type) {
 			case 'uploads':
-				@$wp_filesystem->chmod($wp_dir . "wp-content/$type", 0775, true);
+				@$wp_filesystem->chmod($wp_dir . "wp-content/$dirname", 0775, true);
 			break;
 			default:
-				@$wp_filesystem->chmod($wp_dir . "wp-content/$type", FS_CHMOD_DIR);
+				@$wp_filesystem->chmod($wp_dir . "wp-content/$dirname", FS_CHMOD_DIR);
 		}
 	}
 
