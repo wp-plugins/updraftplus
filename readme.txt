@@ -30,7 +30,7 @@ New feature: selective restoration; plus many tweaks, optimisations + small bug-
 
 = Don't Risk Anything Less =
 
-Your backups are worth the same as your entire investment in your website. The day may come when you get hacked, or your hosting company does, or they go bust - without good backups, you lose everything. Do you really want to entrust all your work to plugins with only a few thousand downloads, or that has no professional backing or support? Believe us - writing a reliable backup plugin that works consistently across the huge range of WordPress deployments is hard.
+Your backups are worth the same as your entire investment in your website. The day may come when you get hacked, or your hosting company does, or they go bust - without good backups, you lose everything. Do you really want to entrust all your work to plugins with only a few thousand downloads, or that has no professional backup or support? Believe us - writing a reliable backup plugin that works consistently across the huge range of WordPress deployments is hard.
 
 = Best New WordPress Plugin =
 
@@ -106,7 +106,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.5.1 - trunk - not yet released/supported =
+= 1.5.2 - trunk - not yet released/supported =
 * When restoring, you can now select only some components to restore
 * Multisite add-on now stores/restores blogs and mu-plugins separately
 * Display UpdraftPlus's disk space usage
@@ -114,6 +114,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * Various layout + niceness fixes upon restoration
 * Prevent deletion of local archives upon failed restoration when there was no cloud storage
 * Various usability tweaks for the admin UI, including showing multisite warning only on UD's pages
+* Clean up temporary files left behind by zipArchive::addFile
 
 = 1.4.48 - 03/11/2013 =
 * Improve batching on zip creation for sites with very large files

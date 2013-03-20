@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your site can be backed up locally or to Amazon S3, Dropbox, Google Drive, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.5.1
+Version: 1.5.2
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Author URI: http://updraftplus.com
@@ -15,6 +15,7 @@ TODO - some of these are out of date/done, needs pruning
 // Add an appeal for translators to email me
 // Separate out all restoration code and admin UI into separate file/classes (optimisation)?
 // Search for other TODO-s in the code
+// Test restoration when uploads dir is /assets/ (e.g. with Shoestrap theme)
 // Send the user an email upon their first backup with tips on what to do (e.g. support/improve) (include legacy check to not bug existing users)
 //Allow use of /usr/bin/zip - since this can escape from PHP's memory limit. Can still batch as we do so, in order to monitor/measure progress
 //Do an automated test periodically for the success of loop-back connections
@@ -205,7 +206,8 @@ class UpdraftPlus {
 		if ($handle = opendir($updraft_dir)) {
 			$now_time=time();
 			while (false !== ($entry = readdir($handle))) {
-				if (preg_match('/\.tmp(\.gz)?$/', $entry) && is_file($updraft_dir.'/'.$entry) && $now_time-filemtime($updraft_dir.'/'.$entry)>86400) {
+				// The latter match is for files created internally by zipArchive::addFile
+				if ((preg_match('/\.tmp(\.gz)?$/', $entry) || preg_match('/\.zip\.tmp\.([A-Za-z0-9]){6}?$/', $entry)) && is_file($updraft_dir.'/'.$entry) && $now_time-filemtime($updraft_dir.'/'.$entry)>86400) {
 					$this->log("Deleting old temporary file: $entry");
 					@unlink($updraft_dir.'/'.$entry);
 				}
