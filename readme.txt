@@ -115,6 +115,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * Prevent deletion of local archives upon failed restoration when there was no cloud storage
 * Various usability tweaks for the admin UI, including showing multisite warning only on UD's pages
 * Clean up temporary files left behind by zipArchive::addFile
+* Improved help for people with broken schedulers
 
 = 1.4.48 - 03/11/2013 =
 * Improve batching on zip creation for sites with very large files

@@ -2291,6 +2291,17 @@ class UpdraftPlus {
 							Cancel: function() { jQuery(this).dialog("close"); }
 						}
 					});
+
+					jQuery( "#updraft-backupnow-modal" ).dialog({
+						autoOpen: false, height: 265, width: 375, modal: true,
+						buttons: {
+							'Backup Now': function() {
+								jQuery('#updraft-backupnow-form').submit();
+							},
+							Cancel: function() { jQuery(this).dialog("close"); }
+						}
+					});
+
 					jQuery('#enableexpertmode').click(function() {
 						jQuery('.expertmode').fadeIn();
 						return false;
@@ -2478,7 +2489,7 @@ class UpdraftPlus {
 				$this->log("A backup run failed to schedule");
 				echo "Failed.</div>";
 			} else {
-				echo "OK. Now load any page from your site to make sure the schedule can trigger.</div><script>setTimeout(function(){updraft_showlastbackup();}, 7000);</script>";
+				echo "OK. Now load any page from your site to make sure the schedule can trigger. You should then see activity in the &quot;Last log message&quot; field below. <a href=\"http://updraftplus.com/faqs/my-scheduled-backups-and-pressing-backup-now-does-nothing-however-pressing-debug-backup-does-produce-a-backup/\">Nothing happening? Follow this link for help.</a></div><script>setTimeout(function(){updraft_showlastbackup();}, 7000);</script>";
 				$this->log("A backup run has been scheduled");
 			}
 		}
@@ -2593,10 +2604,7 @@ class UpdraftPlus {
 				</tr>
 			</table>
 			<div style="float:left; width:200px; padding-top: 20px;">
-				<form method="post" action="">
-					<input type="hidden" name="action" value="updraft_backup" />
-					<p><input type="submit" <?php echo $backup_disabled ?> class="button-primary" value="Backup Now" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px;" onclick="return(confirm('This will schedule a one-time backup. To trigger the backup you should go ahead, then wait 10 seconds, then visit any page on your site. WordPress should then start the backup running in the background.'))"></p>
-				</form>
+				<p><button type="button" <?php echo $backup_disabled ?> class="button-primary" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px;" onclick="jQuery('#updraft-backupnow-modal').dialog('open');">Backup Now</button></p>
 				<div style="position:relative">
 					<div style="position:absolute;top:0;left:0">
 						<?php
@@ -2714,6 +2722,19 @@ class UpdraftPlus {
 	</fieldset>
 </form>
 </div>
+
+<div id="updraft-backupnow-modal" title="UpdraftPlus - Perform a backup now">
+
+	<p>This will schedule a one-time backup. To proceed, press 'Backup Now', then wait 10 seconds, then visit any page on your site. WordPress should then start the backup running in the background.</p>
+
+	<form id="updraft-backupnow-form" method="post" action="">
+		<input type="hidden" name="action" value="updraft_backup" />
+	</form>
+
+	<p>Does nothing happen when you schedule backups? <a href="http://updraftplus.com/faqs/my-scheduled-backups-and-pressing-backup-now-does-nothing-however-pressing-debug-backup-does-produce-a-backup/">Go here for help.</a></p>
+
+</div>
+
 			<?php
 			if (is_multisite() && !file_exists(UPDRAFTPLUS_DIR.'/addons/multisite.php')) {
 				?>
