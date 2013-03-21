@@ -106,7 +106,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.5.2 - trunk - not yet released/supported =
+= 1.5.3 - trunk - not yet released/supported =
 * When restoring, you can now select only some components to restore
 * Multisite add-on now stores/restores blogs and mu-plugins separately
 * Display UpdraftPlus's disk space usage
@@ -114,6 +114,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * Various layout + niceness fixes upon restoration
 * Prevent deletion of local archives upon failed restoration when there was no cloud storage
 * Various usability tweaks for the admin UI, including showing multisite warning only on UD's pages
+* Fix incorrect restoration (since 1.4.0) of directory-less paths from 'others' zip
 * Clean up temporary files left behind by zipArchive::addFile
 * Improved help for people with broken schedulers
 
