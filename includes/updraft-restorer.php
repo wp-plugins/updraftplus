@@ -7,8 +7,8 @@ class Updraft_Restorer extends WP_Upgrader {
 		$this->strings['moving_old'] = __('Moving old directory out of the way...');
 		$this->strings['moving_backup'] = __('Moving unpackaged backup in place...');
 		$this->strings['cleaning_up'] = __('Cleaning up detritus...');
-		$this->strings['old_move_failed'] = __('Could not move old dir out of the way.');
-		$this->strings['new_move_failed'] = __('Could not move new dir into place. Check your wp-content/upgrade folder.');
+		$this->strings['old_move_failed'] = __('Could not move old directory out of the way. Perhaps you already have -old directories that need deleting first?');
+		$this->strings['new_move_failed'] = __('Could not move new directory into place. Check your wp-content/upgrade folder.');
 		$this->strings['delete_failed'] = __('Failed to delete working directory after restoring.');
 	}
 
@@ -46,12 +46,23 @@ class Updraft_Restorer extends WP_Upgrader {
 			if ( !empty($upgrade_files) ) {
 				foreach ( $upgrade_files as $filestruc ) {
 					$file = $filestruc['name'];
+
+					// Correctly restore files in 'others' in no directory that were wrongly backed up in versions 1.4.0 - 1.4.48
+					if (preg_match('/^([\-_A-Za-z0-9]+\.php)$/', $file, $matches) && $wp_filesystem->exists($working_dir . "/$file/$file")) {
+						echo "Found file: $file/$file: presuming this is a backup with a known fault (backup made with versions 1.4.0 - 1.4.48); will rename to simply $file<br>";
+						$file = $matches[1];
+						$tmp_file = rand(0,999999999).'.php';
+						// Rename directory
+						$wp_filesystem->move($working_dir . "/$file", $working_dir . "/".$tmp_file, true);
+						$wp_filesystem->move($working_dir . "/$tmp_file/$file", $working_dir ."/".$file, true);
+						$wp_filesystem->rmdir($working_dir . "/$tmp_file", false);
+					}
 					# Sanity check (should not be possible as these were excluded at backup time)
 					if ($file != "plugins" && $file != "themes" && $file != "uploads" && $file != "upgrade") {
 						# First, move the existing one, if necessary (may not be present)
 						if ($wp_filesystem->exists($wp_dir . "wp-content/$file")) {
 							if ( !$wp_filesystem->move($wp_dir . "wp-content/$file", $wp_dir . "wp-content/$file-old", true) ) {
-								return new WP_Error('old_move_failed', $this->strings['old_move_failed']);
+								return new WP_Error('old_move_failed', $this->strings['old_move_failed']." (wp-content/$file)");
 							}
 						}
 						# Now, move in the new one

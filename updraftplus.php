@@ -15,6 +15,7 @@ TODO - some of these are out of date/done, needs pruning
 // Add an appeal for translators to email me
 // Separate out all restoration code and admin UI into separate file/classes (optimisation)?
 // Search for other TODO-s in the code
+// Store meta-data on which version of UD the backup was made with (will help if we ever introduce quirks that need ironing)
 // Test restoration when uploads dir is /assets/ (e.g. with Shoestrap theme)
 // Send the user an email upon their first backup with tips on what to do (e.g. support/improve) (include legacy check to not bug existing users)
 //Allow use of /usr/bin/zip - since this can escape from PHP's memory limit. Can still batch as we do so, in order to monitor/measure progress
@@ -1845,7 +1846,7 @@ class UpdraftPlus {
 				show_message($message); 
 			exit; 
 		}
-		
+
 		//if we make it this far then WP_Filesystem has been instantiated and is functional (tested with ftpext, what about suPHP and other situations where direct may work?)
 		echo '<h1>UpdraftPlus Restoration: Progress</h1><div id="updraft-restore-progress">';
 
@@ -1867,10 +1868,14 @@ class UpdraftPlus {
 			 
 			if (!isset($backupable_entities[$type]) && 'db' != $type) continue;
 
-			echo "<h2>".$backupable_entities[$type]['description']."</h2>";
+			if ($type == 'db') {
+				echo "<h2>Database</h2>";
+			} else {
+				echo "<h2>".$backupable_entities[$type]['description']."</h2>";
+			}
 
 			if (!isset($entities_to_restore[$type])) {
-				echo "<p>This component was not selected for restoration - skipping.</p>";
+				echo "<p>$type: This component was not selected for restoration - skipping.</p>";
 				continue;
 			}
 
