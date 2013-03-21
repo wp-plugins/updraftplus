@@ -43,6 +43,18 @@ class Updraft_Restorer extends WP_Upgrader {
 			if ( !empty($upgrade_files) ) {
 				foreach ( $upgrade_files as $filestruc ) {
 					$file = $filestruc['name'];
+
+					// Correctly restore files in 'others' in no directory that were wrongly backed up in versions 1.4.0 - 1.4.48
+					if (preg_match('/^([\-_A-Za-z0-9]+\.php)$/', $file, $matches) && $wp_filesystem->exists($working_dir . "/$file/$file")) {
+						echo "Found file: $file/$file: presuming this is a backup with a known fault (backup made with versions 1.4.0 - 1.4.48); will rename to simply $file<br>";
+						$file = $matches[1];
+						$tmp_file = rand(0,999999999).'.php';
+						// Rename directory
+						$wp_filesystem->move($working_dir . "/$file", $working_dir . "/".$tmp_file, true);
+						$wp_filesystem->move($working_dir . "/$tmp_file/$file", $working_dir ."/".$file, true);
+						$wp_filesystem->rmdir($working_dir . "/$tmp_file", false);
+					}
+
 					# Sanity check (should not be possible as these were excluded at backup time)
 					if ($file != "plugins" && $file != "themes" && $file != "uploads" && $file != "upgrade") {
 						# First, move the existing one, if necessary (may not be present)
