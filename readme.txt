@@ -115,6 +115,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * Prevent deletion of local archives upon failed restoration when there was no cloud storage
 * Various usability tweaks for the admin UI, including showing multisite warning only on UD's pages
 * Fix incorrect restoration (since 1.4.0) of directory-less paths from 'others' zip
+* Fix prevention of Dropbox re-authentication when Dropbox returns 5xx first time (library error)
 * Clean up temporary files left behind by zipArchive::addFile
 * Improved help for people with broken schedulers
 
