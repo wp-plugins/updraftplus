@@ -43,7 +43,8 @@ abstract class Dropbox_ConsumerAbstract
      */
     protected function authenticate()
     {
-        if ((!$this->storage->get('access_token'))) {
+        $access_token = $this->storage->get('access_token');
+        if (empty($access_token) || !isset($access_token->oauth_token)) {
             try {
                 $this->getAccessToken();
             } catch(Dropbox_Exception $e) {
