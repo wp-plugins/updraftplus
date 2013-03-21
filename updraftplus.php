@@ -2861,8 +2861,8 @@ class UpdraftPlus {
 
 		if(is_file($fullpath)) {
 			if (is_readable($fullpath)) {
-				$key = $use_path_when_storing.'/'.basename($fullpath);
-				$this->zipfiles_batched[$fullpath] = $use_path_when_storing.'/'.basename($fullpath);
+				$key = ($fullpath == $original_fullpath) ? basename($fullpath) : $use_path_when_storing.'/'.basename($fullpath);
+				$this->zipfiles_batched[$fullpath] = $key;
 				@touch($zipfile);
 			} else {
 				$this->log("$fullpath: unreadable file");
