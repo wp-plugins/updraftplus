@@ -26,15 +26,12 @@ New feature: selective restoration; plus many tweaks, optimisations + small bug-
 * Database backups can be encrypted for security
 * Debug mode that gives full logging of the backup
 * Thousands of users: widely tested and reliable
+* Internationalised (translations very welcome - see below)
 * Premium version and support available - <a href="http://updraftplus.com">http://updraftplus.com</a>
 
 = Don't Risk Anything Less =
 
 Your backups are worth the same as your entire investment in your website. The day may come when you get hacked, or your hosting company does, or they go bust - without good backups, you lose everything. Do you really want to entrust all your work to plugins with only a few thousand downloads, or that has no professional backup or support? Believe us - writing a reliable backup plugin that works consistently across the huge range of WordPress deployments is hard.
-
-= Best New WordPress Plugin =
-
-That's according to WordPress big cheese, Vladimir Prelovac. Check out his weekly chart to see where UpdraftPlus is right now: http://www.prelovac.com/vladimir/wordpress-plugins-rising-stars
 
 = UpdraftPlus Addons And Premium =
 
@@ -45,6 +42,10 @@ If you need WordPress multisite compatibility (you'll know if you do), <a href="
 = Professional / Enterprise support agreements available =
 
 UpdraftPlus is written by professional WordPress developers. If your site needs guaranteed support, then we are available. Just  <a href="http://updraftplus.com/shop/">go to our shop.</a>
+
+= Are you multi-lingual? Can you translate? =
+
+Are you able to translate UpdraftPlus into another language? UpdraftPlus's code is already internationalized. Just grab the .pot file from <a href="http://plugins.svn.wordpress.org/updraftplus/trunk/languages/updraftplus.pot">http://plugins.svn.wordpress.org/updraftplus/trunk/languages/updraftplus.pot</a>, load it into any application for translating, and sent it to us (contact@updraftplus.com) when done. We will add your name to the 'Notes' page here.
 
 = Other support =
 
@@ -107,6 +108,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 == Changelog ==
 
 = 1.5.4 - trunk - not yet released/supported =
+* Now translatable - .pot file included (translators welcome!)
 * When restoring, you can now select only some components to restore
 * Multisite add-on (http://updraftplus.com/shop/) now stores/restores blogs and mu-plugins separately
 * Display UpdraftPlus's disk space usage
