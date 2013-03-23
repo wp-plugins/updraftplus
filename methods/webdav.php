@@ -10,7 +10,7 @@ class UpdraftPlus_BackupModule_webdav {
 		$addon_exists = apply_filters('updraft_webdav_exists', 'no');
 		if ($addon_exists !== 'yes') {
 			$updraftplus->log('You do not have the UpdraftPlus WebDAV add-on installed - get it from http://updraftplus.com/shop/');
-			$updraftplus->error('You do not have the UpdraftPlus WebDAV add-on installed - get it from http://updraftplus.com/shop/');
+			$updraftplus->error(sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'),'WebDAV','http://updraftplus.com/shop/'));
 			return false;
 		}
 
@@ -31,7 +31,7 @@ class UpdraftPlus_BackupModule_webdav {
 		$addon_exists = apply_filters('updraft_webdav_exists', 'no');
 		if ($addon_exists !== 'yes') {
 			$updraftplus->log('You do not have the UpdraftPlus WebDAV add-on installed - get it from http://updraftplus.com/shop/');
-			$updraftplus->error('You do not have the UpdraftPlus WebDAV add-on installed - get it from http://updraftplus.com/shop/');
+			$updraftplus->error(sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'),'WebDAV','http://updraftplus.com/shop/'));
 			return false;
 		}
 
@@ -47,7 +47,7 @@ class UpdraftPlus_BackupModule_webdav {
 		$addon_exists = apply_filters('updraft_webdav_exists', 'no');
 		if ($addon_exists !== 'yes') {
 			$updraftplus->log('You do not have the UpdraftPlus WebDAV add-on installed - get it from http://updraftplus.com/shop/');
-			$updraftplus->error('You do not have the UpdraftPlus WebDAV add-on installed - get it from http://updraftplus.com/shop/');
+			$updraftplus->error(sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'),'WebDAV','http://updraftplus.com/shop/'));
 			return false;
 		}
 
@@ -60,10 +60,12 @@ class UpdraftPlus_BackupModule_webdav {
 	// Note that logging is not available from this context; it will do nothing.
 	function config_print() {
 
+		$link = sprintf(__('%s support is available as an add-on','updraftplus'),'WebDAV').' - <a href="http://updraftplus.com/shop/webdav/">'.__('follow this link to get it','updraftplus');
+
 		$default = <<<ENDHERE
 		<tr class="updraftplusmethod webdav">
 			<th>WebDAV:</th>
-			<td>WebDAV support is available as an add-on - <a href="http://updraftplus.com/shop/webdav/">follow this link to get it.</a></td>
+			<td>$link</a></td>
 		</tr>
 ENDHERE;
 

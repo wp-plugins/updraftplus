@@ -10,7 +10,7 @@ class UpdraftPlus_BackupModule_sftp {
 		$addon_exists = apply_filters('updraft_sftp_exists', 'no');
 		if ($addon_exists !== 'yes') {
 			$updraftplus->log('You do not have the UpdraftPlus SFTP add-on installed - get it from http://updraftplus.com/shop/');
-			$updraftplus->error('You do not have the UpdraftPlus SFTP add-on installed - get it from http://updraftplus.com/shop/');
+			$updraftplus->error(sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'),'SFTP','http://updraftplus.com/shop/'));
 			return false;
 		}
 
@@ -31,7 +31,7 @@ class UpdraftPlus_BackupModule_sftp {
 		$addon_exists = apply_filters('updraft_sftp_exists', 'no');
 		if ($addon_exists !== 'yes') {
 			$updraftplus->log('You do not have the UpdraftPlus SFTP add-on installed - get it from http://updraftplus.com/shop/');
-			$updraftplus->error('You do not have the UpdraftPlus SFTP add-on installed - get it from http://updraftplus.com/shop/');
+			$updraftplus->error(sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'),'SFTP','http://updraftplus.com/shop/'));
 			return false;
 		}
 
@@ -47,7 +47,7 @@ class UpdraftPlus_BackupModule_sftp {
 		$addon_exists = apply_filters('updraft_sftp_exists', 'no');
 		if ($addon_exists !== 'yes') {
 			$updraftplus->log('You do not have the UpdraftPlus SFTP add-on installed - get it from http://updraftplus.com/shop/');
-			$updraftplus->error('You do not have the UpdraftPlus SFTP add-on installed - get it from http://updraftplus.com/shop/');
+			$updraftplus->error(sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'),'SFTP','http://updraftplus.com/shop/'));
 			return false;
 		}
 
@@ -60,10 +60,12 @@ class UpdraftPlus_BackupModule_sftp {
 	// Note that logging is not available from this context; it will do nothing.
 	function config_print() {
 
+		$link = sprintf(__('%s support is available as an add-on','updraftplus'),'SFTP').' - <a href="http://updraftplus.com/shop/sftp/">'.__('follow this link to get it','updraftplus');
+
 		$default = <<<ENDHERE
 		<tr class="updraftplusmethod sftp">
 			<th>SFTP:</th>
-			<td>SFTP support is available as an add-on - <a href="http://updraftplus.com/shop/sftp/">follow this link to get it.</a></td>
+			<td>$link</a></td>
 		</tr>
 ENDHERE;
 
@@ -77,7 +79,6 @@ ENDHERE;
 	public static function credentials_test() {
 
 		do_action('updraft_sftp_credentials_test');
-
 		die;
 
 	}

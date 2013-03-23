@@ -74,7 +74,7 @@ class UpdraftPlus_BackupModule_s3 {
 				if ($chunks < 2) {
 					if (!$s3->putObjectFile($fullpath, $bucket_name, $filepath)) {
 						$updraftplus->log("S3 regular upload: failed ($fullpath)");
-						$updraftplus->error("S3 Error: Failed to upload $file.");
+						$updraftplus->error("$file: ".sprintf(__('%s Error: Failed to upload','updraftplus'),'S3'));
 					} else {
 						$updraftplus->log("S3 regular upload: success");
 						$updraftplus->uploaded_file($file);
@@ -95,7 +95,7 @@ class UpdraftPlus_BackupModule_s3 {
 
 						if (empty($uploadId)) {
 							$updraftplus->log("S3 upload: failed: could not get uploadId for multipart upload ($filepath)");
-							$updraftplus->error("S3 upload: getting uploadID for multipart upload failed - see log file for more details");
+							$updraftplus->error(__("S3 upload: getting uploadID for multipart upload failed - see log file for more details",'updraftplus'));
 							continue;
 						} else {
 							$updraftplus->log("S3 chunked upload: got multipart ID: $uploadId");
@@ -127,7 +127,7 @@ class UpdraftPlus_BackupModule_s3 {
 								$successes++;
 							} else {
 								$updraftplus->log("S3 chunk $i: upload failed");
-								$updraftplus->error("S3 chunk $i: upload failed");
+								$updraftplus->error(sprintf(__("S3 chunk %s: upload failed",'updraftplus'),$i));
 							}
 						}
 					}
@@ -140,12 +140,12 @@ class UpdraftPlus_BackupModule_s3 {
 								$updraftplus->log("S3 upload ($key): re-assembly succeeded");
 								$updraftplus->uploaded_file($file);
 							} else {
-								$updraftplus->log("S3 upload ($key): re-assembly failed");
-								$updraftplus->error("S3 upload ($key): re-assembly failed ($file)");
+								$updraftplus->log("S3 upload ($key): re-assembly failed ($file)");
+								$updraftplus->error(sprintf(__('S3 upload (%s): re-assembly failed (see log for more details)','updraftplus'),$key));
 							}
 						} catch (Exception $e) {
 							$updraftplus->log("S3 re-assembly error ($key): ".$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
-							$updraftplus->error("S3 re-assembly error ($key): ".$e->getMessage().' (see log file for more)');
+							$updraftplus->error($e->getMessage().": ".sprint(__('S3 re-assembly error (%s): (see log file for more)','updraftplus'),$e->getMessage()));
 						}
 						// Remember to unset, as the deletion code later reuses the object
 						$s3->setExceptions(false);
@@ -157,7 +157,7 @@ class UpdraftPlus_BackupModule_s3 {
 			$updraftplus->prune_retained_backups('s3', $this, array('s3_object' => $s3, 's3_orig_bucket_name' => $orig_bucket_name));
 		} else {
 			$updraftplus->log("S3 Error: Failed to create bucket $bucket_name.");
-			$updraftplus->error("S3 Error: Failed to create bucket $bucket_name. Check your permissions and credentials.");
+			$updraftplus->error(sprintf(__('S3 Error: Failed to create bucket %s. Check your permissions and credentials.','updraftplus'),$bucket_name));
 		}
 	}
 
@@ -210,11 +210,11 @@ class UpdraftPlus_BackupModule_s3 {
 			$fullpath = $updraftplus->backups_dir_location().'/'.$file;
 			if (!$s3->getObject($bucket_name, $bucket_path.$file, $fullpath, true)) {
 				$updraftplus->log("S3 Error: Failed to download $file. Check your permissions and credentials.");
-				$updraftplus->error("S3 Error: Failed to download $file. Check your permissions and credentials.");
+				$updraftplus->error(sprintf(__('S3 Error: Failed to download %s. Check your permissions and credentials.','updraftplus'),$file));
 			}
 		} else {
 			$updraftplus->log("S3 Error: Failed to access bucket $bucket_name. Check your permissions and credentials.");
-			$updraftplus->error("S3 Error: Failed to access bucket $bucket_name. Check your permissions and credentials.");
+			$updraftplus->error(sprintf(__('S3 Error: Failed to access bucket %s. Check your permissions and credentials.','updraftplus'),$bucket_name));
 		}
 
 	}
@@ -243,28 +243,28 @@ class UpdraftPlus_BackupModule_s3 {
 	?>
 		<tr class="updraftplusmethod s3">
 			<td></td>
-			<td><img src="https://d36cz9buwru1tt.cloudfront.net/Powered-by-Amazon-Web-Services.jpg" alt="Amazon Web Services"><p><em>Amazon S3 is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your blog is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.</em></p></td>
+			<td><img src="https://d36cz9buwru1tt.cloudfront.net/Powered-by-Amazon-Web-Services.jpg" alt="Amazon Web Services"><p><em><?php printf(__('%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your blog is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.','updraftplus'),'Amazon S3');?></em></p></td>
 		</tr>
 		<tr class="updraftplusmethod s3">
 		<th></th>
 		<td>
-			<p>Get your access key and secret key <a href="http://aws.amazon.com/console/">from your AWS console</a>, then pick a (globally unique - all Amazon S3 users) bucket name (letters and numbers) (and optionally a path) to use for storage. This bucket will be created for you if it does not already exist.</p>
+			<p><?php _e('Get your access key and secret key <a href="http://aws.amazon.com/console/">from your AWS console</a>, then pick a (globally unique - all Amazon S3 users) bucket name (letters and numbers) (and optionally a path) to use for storage. This bucket will be created for you if it does not already exist.','updraftplus');?></p>
 		</td></tr>
 		<tr class="updraftplusmethod s3">
-			<th>S3 access key:</th>
+			<th><?php _e('S3 access key','updraftplus');?>:</th>
 			<td><input type="text" autocomplete="off" style="width: 292px" id="updraft_s3_apikey" name="updraft_s3_login" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_s3_login')) ?>" /></td>
 		</tr>
 		<tr class="updraftplusmethod s3">
-			<th>S3 secret key:</th>
+			<th><?php _e('S3 secret key','updraftplus');?>:</th>
 			<td><input type="text" autocomplete="off" style="width: 292px" id="updraft_s3_apisecret" name="updraft_s3_pass" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_s3_pass')); ?>" /></td>
 		</tr>
 		<tr class="updraftplusmethod s3">
-			<th>S3 location:</th>
+			<th><?php _e('S3 location','updraftplus');?>::</th>
 			<td>s3://<input type="text" style="width: 292px" name="updraft_s3_remote_path" id="updraft_s3_path" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_s3_remote_path')); ?>" /></td>
 		</tr>
 		<tr class="updraftplusmethod s3">
 		<th></th>
-		<td><p><button id="updraft-s3-test" type="button" class="button-primary" style="font-size:18px !important">Test S3 Settings</button></p></td>
+		<td><p><button id="updraft-s3-test" type="button" class="button-primary" style="font-size:18px !important"><?php echo sprintf(__('Test %s Settings','updraftplus'),'S3');?></button></p></td>
 		</tr>
 	<?php
 	}
@@ -272,11 +272,11 @@ class UpdraftPlus_BackupModule_s3 {
 	public static function credentials_test() {
 
 		if (empty($_POST['apikey'])) {
-			echo "Failure: No API key was given.";
+			printf(__("Failure: No %s was given.",'updraftplus'),__('API key','updraftplus'));
 			return;
 		}
 		if (empty($_POST['apisecret'])) {
-			echo "Failure: No API secret was given.";
+			printf(__("Failure: No %s was given.",'updraftplus'),__('API secret','updraftplus'));
 			return;
 		}
 
@@ -293,7 +293,7 @@ class UpdraftPlus_BackupModule_s3 {
 		}
 
 		if (empty($bucket)) {
-			echo "Failure: No bucket details were given.";
+			_e("Failure: No bucket details were given.",'updraftplus');
 			return;
 		}
 
@@ -303,15 +303,17 @@ class UpdraftPlus_BackupModule_s3 {
 		$location = @$s3->getBucketLocation($bucket);
 		if ($location) {
 			$bucket_exists = true;
-			$bucket_verb = "accessed (Amazon region: $location)";
+			$bucket_verb =__('Amazon region','updraftplus').": $location: ";
+// 			$bucket_verb = "accessed (".__('Amazon region','updraftplus').": $location)";
 			$bucket_region = $location;
 		} else {
 			$try_to_create_bucket = @$s3->putBucket($bucket, S3::ACL_PRIVATE);
 			if ($try_to_create_bucket) {
-				$bucket_verb = 'created';
+// 				$bucket_verb = 'created';
+ 				$bucket_verb = '';
 				$bucket_exists = true;
 			} else {
-				echo "Failure: We could not successfully access or create such a bucket. Please check your access credentials, and if those are correct then try another bucket name (as another S3 user may already have taken your name).";
+				_e("Failure: We could not successfully access or create such a bucket. Please check your access credentials, and if those are correct then try another bucket name (as another S3 user may already have taken your name).",'updraftplus');
 			}
 		}
 
@@ -319,9 +321,9 @@ class UpdraftPlus_BackupModule_s3 {
 			$try_file = md5(rand());
 			self::set_endpoint($s3, $location);
 			if (!$s3->putObjectString($try_file, $bucket, $path.$try_file)) {
-				echo "Failure: We successfully $bucket_verb the bucket, but the attempt to create a file in it failed.";
+				echo __('Failure','updraftplus').": ${bucket_verb}".__('We successfully accessed the bucket, but the attempt to create a file in it failed.','updraftplus');
 			} else {
-				echo "Success: we $bucket_verb the bucket, and were able to create files within it.";
+				echo  __('Success','updraftplus').": ${bucket_verb}".__('We accessed the bucket, and were able to create files within it.','updraftplus');
 				@$s3->deleteObject($bucket, $path.$try_file);
 			}
 		}

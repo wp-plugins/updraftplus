@@ -32,7 +32,7 @@ class UpdraftPlus_BackupModule_dropbox {
 
 		if (UpdraftPlus_Options::get_updraft_option('updraft_dropboxtk_request_token', 'xyz') == 'xyz') {
 			$updraftplus->log('You do not appear to be authenticated with Dropbox');
-			$updraftplus->error('You do not appear to be authenticated with Dropbox');
+			$updraftplus->error(__('You do not appear to be authenticated with Dropbox','updraftplus'));
 			return false;
 		}
 
@@ -43,7 +43,8 @@ class UpdraftPlus_BackupModule_dropbox {
 			$dropbox->setChunkSize(524288); // 512Kb
 		} catch (Exception $e) {
 			$updraftplus->log('Dropbox error: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
-			$updraftplus->error('Dropbox error: '.$e->getMessage().' (see log file for more)');
+			$updraftplus->error('Dropbox ',sprintf(__('error: %s (see log file for more)','updraftplus'), $e->getMessage()));
+
 			return false;
 		}
 
@@ -93,12 +94,13 @@ class UpdraftPlus_BackupModule_dropbox {
 						$dropbox->chunkedUpload($updraft_dir.'/'.$file, '', $ufile, true, $dropbox_wanted, $upload_id, array($ourself, 'chunked_callback'));
 					} catch (Exception $e) {
 						$updraftplus->log('Dropbox error: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
-						$updraftplus->error("Dropbox error: failed to upload file to $ufile (see full log for more)");
+
+						$updraftplus->error('Dropbox ',sprintf(__('error: failed to upload file to %s (see log file for more)','updraftplus'), $ufile));
 						$file_success = 0;
 					}
 				} else {
 					$updraftplus->log('Dropbox error: '.$e->getMessage());
-					$updraftplus->error("Dropbox error: failed to upload file to $ufile (see full log for more)");
+					$updraftplus->error('Dropbox ',sprintf(__('error: failed to upload file to %s (see log file for more)','updraftplus'), $ufile));
 					$file_success = 0;
 				}
 			}
@@ -162,7 +164,7 @@ class UpdraftPlus_BackupModule_dropbox {
 		global $updraftplus;
 
 		if (UpdraftPlus_Options::get_updraft_option('updraft_dropboxtk_request_token', 'xyz') == 'xyz') {
-			$updraftplus->error('You do not appear to be authenticated with Dropbox');
+			$updraftplus->error(__('You do not appear to be authenticated with Dropbox','updraftplus'));
 			return false;
 		}
 
@@ -212,15 +214,19 @@ class UpdraftPlus_BackupModule_dropbox {
 				<td></td>
 				<td>
 				<img alt="Dropbox logo" src="<?php echo UPDRAFTPLUS_URL.'/images/dropbox-logo.png' ?>">
-				<p><em>Dropbox is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your blog is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.</em></p>
+				<p><em><?php printf(__('%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your blog is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.','updraftplus'),'Dropbox');?></em></p>
 				</td>
 			</tr>
 
-			<?php echo apply_filters('updraftplus_dropbox_extra_config', '<tr class="updraftplusmethod dropbox"><td></td><td><strong>Need to use sub-folders?</strong> Backups are saved in apps/UpdraftPlus. If you back up several sites into the same Dropbox and want to organise with sub-folders, then <a href="http://updraftplus.com/shop/">there\'s an add-on for that.</a></td></tr>'); ?>
+			<?php
+
+				$defmsg = '<tr class="updraftplusmethod dropbox"><td></td><td><strong>'.__('Need to use sub-folders?','updraftplus').'</strong> '.__('Backups are saved in','updraftplus').' apps/UpdraftPlus. '.__('If you back up several sites into the same Dropbox and want to organise with sub-folders, then ','updraftplus').'<a href="http://updraftplus.com/shop/">'.__("there's an add-on for that.",'updraftplus').'</a></td></tr>';
+
+				echo apply_filters('updraftplus_dropbox_extra_config', $defmsg); ?>
 
 			<tr class="updraftplusmethod dropbox">
-				<th>Authenticate with Dropbox:</th>
-				<td><p><?php if (UpdraftPlus_Options::get_updraft_option('updraft_dropboxtk_request_token','xyz') != 'xyz') echo "<strong>(You appear to be already authenticated).</strong>"; ?> <a href="?page=updraftplus&action=updraftmethod-dropbox-auth&updraftplus_dropboxauth=doit"><strong>After</strong> you have saved your settings (by clicking &quot;Save Changes&quot; below), then come back here once and click this link to complete authentication with Dropbox.</a>
+				<th><?php _e('Authenticate with Dropbox','updraftplus');?>:</th>
+				<td><p><?php if (UpdraftPlus_Options::get_updraft_option('updraft_dropboxtk_request_token','xyz') != 'xyz') echo "<strong>(You appear to be already authenticated).</strong>"; ?> <a href="?page=updraftplus&action=updraftmethod-dropbox-auth&updraftplus_dropboxauth=doit"><?php echo htmlspecialchars(__('<strong>After</strong> you have saved your settings (by clicking "Save Changes" below), then come back here once and click this link to complete authentication with Dropbox.','updraftplus'));?></a>
 				</p>
 				</td>
 			</tr>
@@ -231,15 +237,15 @@ class UpdraftPlus_BackupModule_dropbox {
 			<?php
 			// Check requirements.
 			if (!function_exists('mcrypt_encrypt')) {
-				?><p><strong>Warning:</strong> Your web server's PHP installation does not included a required module (MCrypt). Please contact your web hosting provider's support. UpdraftPlus's Dropbox module <strong>requires</strong> MCrypt. Please do not file any support requests; there is no alternative.</p><?php
+				?><p><strong><?php _e('Warning','updraftplus'); ?>:</strong> <?php _e("Your web server's PHP installation does not included a required module (MCrypt). Please contact your web hosting provider's support. UpdraftPlus's Dropbox module <strong>requires</strong> MCrypt. Please do not file any support requests; there is no alternative.",'updraftplus');?></p><?php
 			}
 			if (!function_exists("curl_init")) {
-				?><p><strong>Warning:</strong> Your web server's PHP installation does not included a required module (Curl). Please contact your web hosting provider's support. UpdraftPlus's Dropbox module <strong>requires</strong> Curl. Your only options to get this working are 1) Install/enable curl or 2) Hire us or someone else to code additional support options into UpdraftPlus. 3) Wait, possibly forever, for someone else to do this.</p><?php
+				?><p><strong><?php _e('Warning','updraftplus'); ?>:</strong> <?php _e("Your web server's PHP installation does not included a required module (Curl). Please contact your web hosting provider's support. UpdraftPlus's Dropbox module <strong>requires</strong> Curl. Your only options to get this working are 1) Install/enable curl or 2) Hire us or someone else to code additional support options into UpdraftPlus. 3) Wait, possibly forever, for someone else to do this.",'updraftplus');?></p><?php
 			} else {
 				$curl_version = curl_version();
 				$curl_ssl_supported= ($curl_version['features'] & CURL_VERSION_SSL);
 				if (!$curl_ssl_supported) {
-				?><p><strong>Warning:</strong> Your web server's PHP/Curl installation does not support https access. We cannot access Dropbox without this support. Please contact your web hosting provider's support. UpdraftPlus's Dropbox module <strong>requires</strong> Curl+https. Your only options to get this working are 1) Install/enable curl with https or 2) Hire us or someone else to code additional support options into UpdraftPlus. 3) Wait, possibly forever, for someone else to do this.</p><?php
+				?><p><strong><?php _e('Warning','updraftplus'); ?>:</strong> <?php e_("Your web server's PHP/Curl installation does not support https access. We cannot access Dropbox without this support. Please contact your web hosting provider's support. UpdraftPlus's Dropbox module <strong>requires</strong> Curl+https. Your only options to get this working are 1) Install/enable curl with https or 2) Hire us or someone else to code additional support options into UpdraftPlus. 3) Wait, possibly forever, for someone else to do this.",'updraftplus');?></p><?php
 				}
 			}
 			?>
@@ -284,13 +290,13 @@ class UpdraftPlus_BackupModule_dropbox {
 		$dropbox = self::bootstrap();
 		$accountInfo = $dropbox->accountInfo();
 
-		$message = "<strong>Success</strong>: you have authenticated your Dropbox account";
+		$message = "<strong>".__('Success','updraftplus').'</strong>: '.sprintf(__('you have authenticated your %s account','updraftplus'),'Dropbox');
 
 		if ($accountInfo['code'] != "200") {
-			$message .= " (though part of the returned information was not as expected - your mileage may vary)". $accountInfo['code'];
+			$message .= " (".__('though part of the returned information was not as expected - your mileage may vary','updraftplus').")". $accountInfo['code'];
 		} else {
 			$body = $accountInfo['body'];
-			$message .= ". Your Dropbox account name: ".htmlspecialchars($body->display_name);
+			$message .= ". ".sprintf(__('Your %s account name','updraftplus'),'Dropbox').": ".htmlspecialchars($body->display_name);
 		}
 		$updraftplus->show_admin_warning($message);
 
