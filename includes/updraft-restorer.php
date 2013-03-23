@@ -2,14 +2,14 @@
 class Updraft_Restorer extends WP_Upgrader {
 
 	function backup_strings() {
-		$this->strings['no_package'] = __('Backup file not available.');
-		$this->strings['unpack_package'] = __('Unpacking backup...');
-		$this->strings['moving_old'] = __('Moving old directory out of the way...');
-		$this->strings['moving_backup'] = __('Moving unpackaged backup in place...');
-		$this->strings['cleaning_up'] = __('Cleaning up detritus...');
-		$this->strings['old_move_failed'] = __('Could not move old directory out of the way. Perhaps you already have -old directories that need deleting first?');
-		$this->strings['new_move_failed'] = __('Could not move new directory into place. Check your wp-content/upgrade folder.');
-		$this->strings['delete_failed'] = __('Failed to delete working directory after restoring.');
+		$this->strings['no_package'] = __('Backup file not available.','updraftplus');
+		$this->strings['unpack_package'] = __('Unpacking backup...','updraftplus');
+		$this->strings['moving_old'] = __('Moving old directory out of the way...','updraftplus');
+		$this->strings['moving_backup'] = __('Moving unpacked backup in place...','updraftplus');
+		$this->strings['cleaning_up'] = __('Cleaning up rubbish...','updraftplus');
+		$this->strings['old_move_failed'] = __('Could not move old directory out of the way. Perhaps you already have -old directories that need deleting first?','updraftplus');
+		$this->strings['new_move_failed'] = __('Could not move new directory into place. Check your wp-content/upgrade folder.','updraftplus');
+		$this->strings['delete_failed'] = __('Failed to delete working directory after restoring.','updraftplus');
 	}
 
 	function restore_backup($backup_file, $type, $service, $info) {
@@ -31,7 +31,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		
 		$delete = (UpdraftPlus_Options::get_updraft_option('updraft_delete_local')) ? true : false;
 		if ('none' == $service) {
-			if ($delete) echo 'Will not delete the archive after unpacking it, because there was no cloud storage for this backup<br>';
+			if ($delete) _e('Will not delete the archive after unpacking it, because there was no cloud storage for this backup','updraftplus').'<br>';
 			$delete = false;
 		}
 
