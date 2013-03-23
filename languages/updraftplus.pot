@@ -1,5 +1,5 @@
 # Copyright (C) 2013 UpdraftPlus - Backup/Restore
-# This file is distributed under the same license as the UpdraftPlus - Backup/Restore package.
+# This file is distributed under the same license as the UpdraftPlus - Backup/Restore package and additionally the BSD licence (2-clause).
 msgid ""
 msgstr ""
 "Project-Id-Version: UpdraftPlus - Backup/Restore 1.5.4\n"
