@@ -52,7 +52,7 @@ class Dropbox_ConsumerWordPress extends Dropbox_ConsumerAbstract
             $args = array( 'body' => $request['postfields'] );
             $response = wp_remote_post($request['url'], $args );
         } elseif ($method == 'PUT' && $this->inFile) {
-            return new WP_Error('unsupported', __("WordPress does not have a native HTTP PUT function"));
+            return new WP_Error('unsupported', "WordPress does not have a native HTTP PUT function");
         }
 
         // If the response body is not a JSON encoded string

@@ -172,9 +172,15 @@ class UpdraftPlus {
 		add_filter('cron_schedules', array($this,'modify_cron_schedules'));
 		add_filter('plugin_action_links', array($this, 'plugin_action_links'), 10, 2);
 		add_action('init', array($this, 'handle_url_actions'));
+		add_action('plugins_loaded', array($this, 'load_translations'));
 
 		if (defined('UPDRAFTPLUS_PREFERPCLZIP') && UPDRAFTPLUS_PREFERPCLZIP == true) { $this->zip_preferpcl = true; }
 
+	}
+
+	function load_translations() {
+		// Tell WordPress where to find the translations
+		load_plugin_textdomain('updraftplus', false, basename(dirname(__FILE__)).'/languages');
 	}
 
 	// Handle actions passed on to method plugins; e.g. Google OAuth 2.0 - ?page=updraftplus&action=updraftmethod-googledrive-auth
