@@ -1,10 +1,10 @@
 # Copyright (C) 2013 UpdraftPlus - Backup/Restore
-# This file is distributed under the same license as the UpdraftPlus - Backup/Restore package and additionally the BSD licence (2-clause).
+# This file is distributed under the same license as the UpdraftPlus - Backup/Restore package.
 msgid ""
 msgstr ""
 "Project-Id-Version: UpdraftPlus - Backup/Restore 1.5.4\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/updraftplus\n"
-"POT-Creation-Date: 2013-03-23 19:07:01+00:00\n"
+"POT-Creation-Date: 2013-03-23 19:53:13+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -535,6 +535,14 @@ msgid "Backed up"
 msgstr ""
 
 #: updraftplus.php:728
+msgid "WordPress backup is complete"
+msgstr ""
+
+#: updraftplus.php:728
+msgid "Backup contains"
+msgstr ""
+
+#: updraftplus.php:728
 msgid "Latest status"
 msgstr ""
 
@@ -736,6 +744,7 @@ msgid "File backup intervals"
 msgstr ""
 
 #: updraftplus.php:2124
+msgctxt "i.e. Non-automatic"
 msgid "Manual"
 msgstr ""
 
