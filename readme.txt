@@ -106,10 +106,11 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.5.3 - trunk - not yet released/supported =
+= 1.5.4 - trunk - not yet released/supported =
 * When restoring, you can now select only some components to restore
 * Multisite add-on (http://updraftplus.com/shop/) now stores/restores blogs and mu-plugins separately
 * Display UpdraftPlus's disk space usage
+* Internationalisation hooks in main body of plugin
 * Correctly remove old 'other' directories from a restoration when requested
 * Various layout + niceness fixes upon restoration
 * Prevent deletion of local archives upon failed restoration when there was no cloud storage
