@@ -611,17 +611,28 @@ class UpdraftPlus_GDocs {
 
 	}
 
-	public function download_data( $link, $saveas ) {
+	public function download_data( $link, $saveas, $allow_resume = false ) {
 
-		$result = $this->request( $link );
+		if ($allow_resume && is_file($saveas)) {
+			$headers = array('Range' => 'bytes='.filesize($saveas).'-');
+			$put_flag = FILE_APPEND;
+		} else {
+			$headers = array();
+			$put_flag = NULL;
+		}
+
+		$result = $this->request($link, 'GET', $headers);
 
 		if ( is_wp_error( $result ) )
 			return $result;
 
-		if ( $result['response']['code'] != '200' )
+		if ( $result['response']['code'] != '200' && (!$allow_resume || 206 !== $result['response']['code']))
 			return new WP_Error( 'bad_response', "Received response code '" . $result['response']['code'] . " " . $result['response']['message'] . "' while trying to get '" . $url . "'." );
 
-		file_put_contents($saveas, $result['body']);
+		global $updraftplus;
+		$updraftplus->log("Google Drive downloaded bytes: ".strlen($result['body']));
+
+		file_put_contents($saveas, $result['body'], $put_flag);
 
 	}
 
