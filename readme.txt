@@ -108,7 +108,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 = 1.5.3 - trunk - not yet released/supported =
 * When restoring, you can now select only some components to restore
-* Multisite add-on now stores/restores blogs and mu-plugins separately
+* Multisite add-on (http://updraftplus.com/shop/) now stores/restores blogs and mu-plugins separately
 * Display UpdraftPlus's disk space usage
 * Correctly remove old 'other' directories from a restoration when requested
 * Various layout + niceness fixes upon restoration
@@ -116,7 +116,9 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * Various usability tweaks for the admin UI, including showing multisite warning only on UD's pages
 * Fix incorrect restoration (since 1.4.0) of directory-less paths from 'others' zip
 * Fix prevention of Dropbox re-authentication when Dropbox returns 5xx first time (library error)
+* Clear Dropbox credentials if the user explicitly re-authenticates
 * Clean up temporary files left behind by zipArchive::addFile
+* Tweak Dropbox library to work from behind very weird proxies that double-surround the HTTP header
 * Improved help for people with broken schedulers
 
 = 1.4.48 - 03/11/2013 =

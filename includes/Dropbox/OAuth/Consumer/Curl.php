@@ -101,7 +101,7 @@ class Dropbox_Curl extends Dropbox_ConsumerAbstract
             $message = $response['body']->error . ' (Status Code: ' . $response['code'] . ')';
             throw new Dropbox_Exception($message);
         }
-        
+
         return $response;
     }
     
@@ -120,14 +120,14 @@ class Dropbox_Curl extends Dropbox_ConsumerAbstract
         
         // If the status code is 100, the API server must send a final response
         // We need to explode the response again to get the actual response
-        if (preg_match('#^HTTP/1.1 100#', $lines[0])) {
+        if (preg_match('#^HTTP/1.1 100#i', $lines[0])) {
             list($headers, $response) = explode("\r\n\r\n", $response, 2);
             $lines = explode("\r\n", $headers);
         }
         
         // Get the HTTP response code from the first line
         $first = array_shift($lines);
-        $pattern = '#^HTTP/1.1 ([0-9]{3})#';
+        $pattern = '#^HTTP/1.1 ([0-9]{3})#i';
         preg_match($pattern, $first, $matches);
         $code = $matches[1];
         
@@ -143,6 +143,13 @@ class Dropbox_Curl extends Dropbox_ConsumerAbstract
         if (!$body = json_decode($response)) {
             $body = $response;
         }
+
+         if (is_string($body)) {
+             $body_lines = explode("\r\n", $body);
+             if (preg_match('#^HTTP/1.1 100#i', $body_lines[0]) && preg_match('#^HTTP/1.#i', $body_lines[2])) {
+             return $this->parse($body);
+             }
+         }
         
         return array('code' => $code, 'body' => $body, 'headers' => $headers);
     }

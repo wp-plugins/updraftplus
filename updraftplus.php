@@ -15,6 +15,7 @@ TODO - some of these are out of date/done, needs pruning
 // Add an appeal for translators to email me
 // Separate out all restoration code and admin UI into separate file/classes (optimisation)?
 // Search for other TODO-s in the code
+// Make mcrypt warning on dropbox more prominent - one customer missed it
 // Store meta-data on which version of UD the backup was made with (will help if we ever introduce quirks that need ironing)
 // Test restoration when uploads dir is /assets/ (e.g. with Shoestrap theme)
 // Send the user an email upon their first backup with tips on what to do (e.g. support/improve) (include legacy check to not bug existing users)
