@@ -36,6 +36,8 @@ class UpdraftPlus_BackupModule_dropbox {
 			return false;
 		}
 
+		$updraftplus->log("Dropbox: access gained");
+
 		try {
 			$dropbox = $this->bootstrap();
 			$dropbox->setChunkSize(524288); // 512Kb
@@ -267,6 +269,11 @@ class UpdraftPlus_BackupModule_dropbox {
 		if ( isset( $_GET['oauth_token'] ) ) {
 			self::auth_token();
 		} elseif (isset($_GET['updraftplus_dropboxauth'])) {
+			// Clear out the existing credentials
+			if ('doit' == $_GET['updraftplus_dropboxauth']) {
+				UpdraftPlus_Options::update_updraft_option("updraft_dropboxtk_request_token",'');
+				UpdraftPlus_Options::update_updraft_option("updraft_dropboxtk_access_token",'');
+			}
 			self::auth_request();
 		}
 	}
