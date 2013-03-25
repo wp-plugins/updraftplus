@@ -45,7 +45,7 @@ UpdraftPlus is written by professional WordPress developers. If your site needs 
 
 = Are you multi-lingual? Can you translate? =
 
-Are you able to translate UpdraftPlus into another language? UpdraftPlus's code is already internationalized. Just grab the .pot file from <a href="http://plugins.svn.wordpress.org/updraftplus/trunk/languages/updraftplus.pot">http://plugins.svn.wordpress.org/updraftplus/trunk/languages/updraftplus.pot</a>, load it into any application for translating, and sent it to us (contact@updraftplus.com) when done. We will add your name to the 'Notes' page here.
+Are you able to translate UpdraftPlus into another language? UpdraftPlus's code is already internationalized. Just grab the .pot file from <a href="http://plugins.svn.wordpress.org/updraftplus/trunk/languages/updraftplus.pot">http://plugins.svn.wordpress.org/updraftplus/trunk/languages/updraftplus.pot</a>, load it into any application for translating, and send it to us (contact@updraftplus.com) when done. We will add your name to the 'Notes' page here.
 
 = Other support =
 
@@ -106,6 +106,9 @@ Yes; especially before you submit any support requests.
 Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ . I am also available for hire for bespoke work.
 
 == Changelog ==
+
+= 1.5.6 - not yet released/supported =
+* Built-in multi-uploader, allowing easier restoration of old backup sets
 
 = 1.5.5 - not yet released/supported =
 * Now translatable - .pot file included (translators welcome!)

@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your site can be backed up locally or to Amazon S3, Dropbox, Google Drive, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.5.5
+Version: 1.5.6
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -39,7 +39,6 @@ TODO - some of these are out of date/done, needs pruning
 // Make disk space check more intelligent (currently hard-coded at 35Mb)
 // Provide backup/restoration for UpdraftPlus's settings, to allow 'bootstrap' on a fresh WP install - some kind of single-use code which a remote UpdraftPlus can use to authenticate
 // Multiple jobs
-// Multisite - a separate 'blogs' zip
 // Allow connecting to remote storage, scanning + populating backup history from it
 // GoogleDrive in-dashboard download resumption loads the whole archive into memory - should instead either chunk or directly stream fo the file handle
 // Multisite add-on should allow restoring of each blog individually
@@ -160,7 +159,9 @@ class UpdraftPlus {
 		}
 
 		# Create admin page
-		add_action('admin_init', array($this, 'admin_init'));
+		add_action('admin_init', array($this,'admin_init'));
+		add_action('admin_head', array($this,'admin_head'));
+		add_action('wp_ajax_plupload_action', array($this,'plupload_action'));
 		add_action('updraft_backup', array($this,'backup_files'));
 		add_action('updraft_backup_database', array($this,'backup_database'));
 		# backup_all is used by the manual "Backup Now" button
@@ -179,9 +180,148 @@ class UpdraftPlus {
 
 	}
 
+	function upload_dir($uploads) {
+		$updraft_dir = $this->backups_dir_location();
+		if (is_writable($updraft_dir)) $uploads['path'] = $updraft_dir;
+		return $uploads;
+	}
+
+	// We do actually want to over-write
+	function unique_filename_callback($dir, $name, $ext) {
+		return $name.$ext;
+	}
+
+	function plupload_action() {
+		// check ajax noonce
+
+		check_ajax_referer('updraft-uploader');
+
+		$updraft_dir = $this->backups_dir_location();
+		if (!is_writable($updraft_dir)) exit;
+
+		add_filter('upload_dir', array($this, 'upload_dir'));
+		// handle file upload
+
+		$farray = array(
+				'test_form' => true,
+				'action' => 'plupload_action'
+			);
+
+		if (isset($_POST['chunks'])) {
+			$farray['test_type'] = false;
+			$farray['ext'] = 'zip';
+			$farray['type'] = 'application/zip';
+		} else {
+			$farray['unique_filename_callback'] = array($this, 'unique_filename_callback');
+		}
+
+		$status = wp_handle_upload(
+			$_FILES['async-upload'],
+			$farray
+		);
+		remove_filter('upload_dir', array($this, 'upload_dir'));
+
+		if (isset($status['error'])) {
+			echo 'ERROR:'.$status['error'];
+			exit;
+		}
+
+		// If this was the chunk, then we should instead be concatenating onto the final file
+		if (isset($_POST['chunks']) && isset($_POST['chunk']) && preg_match('/^[0-9]+$/',$_POST['chunk'])) {
+			$final_file = $_POST['name'];
+error_log("CHUNK: ".$status['file'].": MOVE TO: ".$final_file.'.'.$_POST['chunk'].'.zip.tmp');
+			rename($status['file'], $updraft_dir.'/'.$final_file.'.'.$_POST['chunk'].'.zip.tmp');
+			$status['file'] = $updraft_dir.'/'.$final_file.'.'.$_POST['chunk'].'.zip.tmp';
+
+			// Final chunk? If so, then stich it all back together
+			if ($_POST['chunk'] == $_POST['chunks']-1) {
+error_log('FINAL CHUNK');
+				if ($wh = fopen($updraft_dir.'/'.$final_file, 'wb')) {
+					for ($i=0 ; $i<$_POST['chunks']; $i++) {
+						$rf = $updraft_dir.'/'.$final_file.'.'.$i.'.zip.tmp';
+						if ($rh = fopen($rf, 'rb')) {
+							while ($line = fread($rh, 32768)) fwrite($wh, $line);
+							fclose($rh);
+							@unlink($rf);
+						}
+					}
+					fclose($wh);
+					$status['file'] = $updraft_dir.'/'.$final_file;
+				}
+			}
+
+		}
+
+		if (!isset($_POST['chunks']) || (isset($_POST['chunk']) && $_POST['chunk'] == $_POST['chunks']-1)) {
+			$file = basename($status['file']);
+			if (!preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+\.(zip|gz|gz\.crypt)$/i', $file)) {
+
+				@unlink($file);
+				echo 'ERROR:'.__('Bad filename format - this does not look like a file created by UpdraftPlus','updraftplus');
+				exit;
+			}
+		}
+
+		// send the uploaded file url in response
+		echo 'OK:'.$status['url'];
+		exit;
+	}
+
 	function load_translations() {
 		// Tell WordPress where to find the translations
 		load_plugin_textdomain('updraftplus', false, basename(dirname(__FILE__)).'/languages');
+	}
+
+	function admin_head() {
+
+		global $pagenow;
+		if ($pagenow != 'options-general.php' || !isset($_REQUEST['page']) && 'updraftplus' != $_REQUEST['page']) return;
+
+// 		$chunk_size = wp_max_upload_size()-1024;
+
+		$plupload_init = array(
+			'runtimes' => 'html5,silverlight,flash,html4',
+			'browse_button' => 'plupload-browse-button',
+			'container' => 'plupload-upload-ui',
+			'drop_element' => 'drag-drop-area',
+			'file_data_name' => 'async-upload',
+			'multiple_queues' => true,
+			'max_file_size' => '100Gb',
+			'chunk_size' => '4Mb',
+			'url' => admin_url('admin-ajax.php'),
+			'flash_swf_url' => includes_url('js/plupload/plupload.flash.swf'),
+			'silverlight_xap_url' => includes_url('js/plupload/plupload.silverlight.xap'),
+			'filters' => array(array('title' => __('Allowed Files'), 'extensions' => 'zip,gz,crypt')),
+			'multipart' => true,
+			'multi_selection' => true,
+			'urlstream_upload' => true,
+			// additional post data to send to our ajax hook
+			'multipart_params' => array(
+				'_ajax_nonce' => wp_create_nonce('updraft-uploader'),
+				'action' => 'plupload_action'
+			)
+		);
+
+		?><script type="text/javascript">var updraft_plupload_config=<?php echo json_encode($plupload_init); ?>;</script>
+		<style type="text/css">
+		#filelist {
+		width: 100%;
+		
+		}
+		#filelist .file {
+		padding: 5px;
+		background: #ececec;
+		border: solid 1px #ccc;
+		margin: 4px 0;
+		}
+		#filelist .fileprogress {
+		width: 0%;
+		background: #f6a828;
+		height: 5px;
+		}
+		</style>
+		<?php
+
 	}
 
 	// Handle actions passed on to method plugins; e.g. Google OAuth 2.0 - ?page=updraftplus&action=updraftmethod-googledrive-auth
@@ -2100,13 +2240,12 @@ class UpdraftPlus {
 	}
 
 	function admin_init() {
+
 		if(UpdraftPlus_Options::get_updraft_option('updraft_debug_mode')) {
 			@ini_set('display_errors',1);
 			@error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 			@ini_set('track_errors',1);
 		}
-		wp_enqueue_script('jquery');
-		wp_enqueue_script('jquery-ui-dialog');
 
 		if (UpdraftPlus_Options::user_can_manage() && UpdraftPlus_Options::get_updraft_option('updraft_service') == "googledrive" && UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid','') != '' && UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token','') == '') {
 			add_action('admin_notices', array($this,'show_admin_warning_googledrive') );
@@ -2120,6 +2259,14 @@ class UpdraftPlus {
 
 		global $wp_version, $pagenow;
 		if ($pagenow == 'options-general.php' && version_compare($wp_version, '3.2', '<')) add_action('admin_notices', array($this, 'show_admin_warning_wordpressversion'));
+
+		if ($pagenow == 'options-general.php' && isset($_REQUEST['page']) && 'updraftplus' == $_REQUEST['page']) {
+			wp_enqueue_script('jquery');
+			wp_enqueue_script('jquery-ui-dialog');
+			wp_enqueue_script('plupload-all');
+			wp_register_script('updraftplus-plupload', UPDRAFTPLUS_URL.'/includes/ud-plupload.js', array('jquery'));
+			wp_enqueue_script('updraftplus-plupload');
+		}
 
 	}
 
@@ -2345,6 +2492,7 @@ class UpdraftPlus {
 				}
 
 				jQuery(document).ready(function() {
+
 					jQuery( "#updraft-restore-modal" ).dialog({
 						autoOpen: false, height: 385, width: 480, modal: true,
 						buttons: {
@@ -2705,9 +2853,26 @@ class UpdraftPlus {
 					<td></td><td class="download-backups" style="display:none; border: 1px dotted;">
 						<p style="max-width: 740px;"><ul style="list-style: disc inside;">
 						<li><strong><?php _e('Downloading','updraftplus');?>:</strong> <?php _e("Pressing a button for Database/Plugins/Themes/Uploads/Others will make UpdraftPlus try to bring the backup file back from the remote storage (if any - e.g. Amazon S3, Dropbox, Google Drive, FTP) to your webserver. Then you will be allowed to download it to your computer. If the fetch from the remote storage stops progressing (wait 30 seconds to make sure), then press again to resume. Remember that you can also visit the cloud storage vendor's website directly.",'updraftplus');?></li>
-						<li><strong><?php _e('Restoring','updraftplus');?>:</strong> <?php _e("Press the button for the backup you wish to restore. If your site is large and you are using remote storage, then you should first click on each entity in order to retrieve it back to the webserver. This will prevent time-outs from occuring during the restore process itself.",'updraftplus');?></li>
+						<li><strong><?php _e('Restoring','updraftplus');?>:</strong> <?php _e("Press the button for the backup you wish to restore. If your site is large and you are using remote storage, then you should first click on each entity in order to retrieve it back to the webserver. This will prevent time-outs from occuring during the restore process itself.",'updraftplus');?> <?php _e('More tasks:','updraftplus');?> <a href="#" onclick="jQuery('#updraft-plupload-modal').slideToggle(); return false;"><?php _e('upload backup files','updraftplus');?></a> | <a href="#" onclick="updraft_updatehistory(1); return false;" title="<?php _e('Press here to look inside your UpdraftPlus directory (in your web hosting space) for any new backup sets that you have uploaded. The location of this directory is set in the expert settings, below.','updraftplus'); ?>"><?php _e('rescan folder for new backup sets','updraftplus');?></a></li>
 						<li><strong><?php _e('Opera web browser','updraftplus');?>:</strong> <?php _e('If you are using this, then turn Turbo/Road mode off.','updraftplus');?></li>
-						<li title="<?php _e('This is a count of the contents of your Updraft directory','updraftplus');?>"><strong><?php _e('Web-server disk space in use by UpdraftPlus','updraftplus');?>:</strong> <span id="updraft_diskspaceused"><em>(calculating...)</em></span> <a href="#" onclick="updraftplus_diskspace(); return false;"><?php _e('refresh','updraftplus');?></a> | <a href="#" onclick="updraft_updatehistory(1); return false;" title="<?php _e('Press here to look inside your UpdraftPlus directory (in your web hosting space) for any new backup sets that you have uploaded. The location of this directory is set in the expert settings, below.','updraftplus'); ?>"><?php _e('rescan folder for new backup sets','updraftplus');?></a></li></ul>
+						<li title="<?php _e('This is a count of the contents of your Updraft directory','updraftplus');?>"><strong><?php _e('Web-server disk space in use by UpdraftPlus','updraftplus');?>:</strong> <span id="updraft_diskspaceused"><em>(calculating...)</em></span> <a href="#" onclick="updraftplus_diskspace(); return false;"><?php _e('refresh','updraftplus');?></a></li></ul>
+
+						<div id="updraft-plupload-modal" title="<?php _e('UpdraftPlus - Upload backup files','updraftplus'); ?>" style="width: 75%; margin: 16px; display:none; margin-left: 100px;">
+						<p><em><?php _e("Upload files into UpdraftPlus. Use this to import backups made on a different WordPress installation." ,'updraftplus');?></em></p>
+							<div id="plupload-upload-ui" style="width: 70%;">
+								<div id="drag-drop-area">
+									<div class="drag-drop-inside">
+									<p class="drag-drop-info"><?php _e('Drop backup zips here'); ?></p>
+									<p><?php _ex('or', 'Uploader: Drop zip files here - or - Select Files'); ?></p>
+									<p class="drag-drop-buttons"><input id="plupload-browse-button" type="button" value="<?php esc_attr_e('Select Files'); ?>" class="button" /></p>
+									</div>
+								</div>
+								<div id="filelist">
+								</div>
+							</div>
+
+						</div>
+
 						<div id="ud_downloadstatus"></div>
 						<script>
 							function updraftplus_diskspace() {
@@ -2779,6 +2944,7 @@ class UpdraftPlus {
 					</td>
 				</tr>
 			</table>
+
 <div id="updraft-restore-modal" title="UpdraftPlus - <?php _e('Restore backup','updraftplus');?>">
 <p><strong><?php _e('Restore backup from','updraftplus');?>:</strong> <span id="updraft_restore_date"></span></p>
 <p><?php _e("Restoring will replace this site's themes, plugins, uploads and/or other content directories (according to what is contained in the backup set, and your selection",'updraftplus');?>). <?php _e('Choose the components to restore','updraftplus');?>:</p>
