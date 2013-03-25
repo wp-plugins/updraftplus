@@ -216,7 +216,7 @@ class UpdraftPlus {
 			$now_time=time();
 			while (false !== ($entry = readdir($handle))) {
 				// The latter match is for files created internally by zipArchive::addFile
-				if ((preg_match('/\.tmp(\.gz)?$/', $entry) || preg_match('/\.zip\.tmp\.([A-Za-z0-9]){6}?$/', $entry)) && is_file($updraft_dir.'/'.$entry) && $now_time-filemtime($updraft_dir.'/'.$entry)>86400) {
+				if ((preg_match('/\.tmp(\.gz)?$/i', $entry) || preg_match('/\.zip\.tmp\.([A-Za-z0-9]){6}?$/i', $entry)) && is_file($updraft_dir.'/'.$entry) && $now_time-filemtime($updraft_dir.'/'.$entry)>86400) {
 					$this->log("Deleting old temporary file: $entry");
 					@unlink($updraft_dir.'/'.$entry);
 				}
@@ -1610,6 +1610,60 @@ class UpdraftPlus {
 		}
 	}
 
+	// This function examines inside the updraft directory to see if any new archives have been uploaded. If so, it adds them to the backup set. (No removal of items from the backup set is done)
+	function rebuild_backup_history() {
+
+		$known_files = array();
+		$known_nonces = array();
+		$changes = false;
+
+		$backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
+		if (!is_array($backup_history)) $backup_history = array();
+
+		// Accumulate a list of known files
+		foreach ($backup_history as $btime => $bdata) {
+			foreach ($bdata as $key => $value) {
+				// Record which set this file is found in
+				if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+\.(zip|gz)$/i', $value, $matches)) {
+					$nonce = $matches[2];
+					$known_files[$value] = $nonce;
+					$known_nonces[$nonce] = $btime;
+				}
+			}
+		}
+		
+		$updraft_dir = $this->backups_dir_location();
+
+		if (!is_dir($updraft_dir)) return;
+
+		if (!$handle = opendir($updraft_dir)) return;
+	
+		while (false !== ($entry = readdir($handle))) {
+			if ($entry != "." && $entry != "..") {
+				if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)\.(zip|gz)$/i', $entry, $matches)) {
+					$btime = strtotime($matches[1]);
+					if ($btime > 100) {
+						if (!isset($known_files[$entry])) {
+							$changes = true;
+							$nonce = $matches[2];
+							$type = $matches[3];
+							// The time from the filename does not include seconds. Need to identify the seconds to get the right time
+							if (isset($known_nonces[$nonce])) $btime = $known_nonces[$nonce];
+							if (!isset($backup_history[$btime])) $backup_history[$btime] = array();
+							$backup_history[$btime][$type] = $entry;
+							$backup_history[$btime][$type.'-size'] = filesize($updraft_dir.'/'.$entry);
+							$backup_history[$btime]['nonce'] = $nonce;
+						}
+					}
+				}
+			}
+		}
+
+
+		if ($changes) UpdraftPlus_Options::update_updraft_option('updraft_backup_history', $backup_history);
+
+	}
+
 	// Called via AJAX
 	function updraft_ajax_handler() {
 		// Test the nonce (probably not needed, since we're presumably admin-authed, but there's no harm)
@@ -1623,6 +1677,8 @@ class UpdraftPlus {
 		} elseif ('diskspaceused' == $_GET['subaction']) {
 			echo $this->recursive_directory_size($this->backups_dir_location());
 		} elseif ('historystatus' == $_GET['subaction']) {
+			$rescan = (isset($_GET['rescan']) && $_GET['rescan'] == 1);
+			if ($rescan) $this->rebuild_backup_history();
 			echo $this->existing_backup_table();
 		} elseif ('downloadstatus' == $_GET['subaction'] && isset($_GET['timestamp']) && isset($_GET['type'])) {
 
@@ -2268,8 +2324,8 @@ class UpdraftPlus {
 				var calculated_diskspace = 0;
 				function updraft_historytimertoggle(forceon) {
 					if (!updraft_historytimer || forceon == 1) {
-						updraft_updatehistory();
-						updraft_historytimer = setInterval(function(){updraft_updatehistory()}, 30000);
+						updraft_updatehistory(0);
+						updraft_historytimer = setInterval(function(){updraft_updatehistory(0)}, 30000);
 						if (!calculated_diskspace) {
 							updraftplus_diskspace();
 							calculated_diskspace=1;
@@ -2279,8 +2335,11 @@ class UpdraftPlus {
 						updraft_historytimer = 0;
 					}
 				}
-				function updraft_updatehistory() {
-					jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'historystatus', nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>' }, function(response) {
+				function updraft_updatehistory(rescan) {
+					if (rescan == 1) {
+						jQuery('#updraft_existing_backups').html('<p style="text-align:center;"><em>Rescanning (looking for backups that you have uploaded manually into the internal backup store)...</em></p>');
+					}
+					jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'historystatus', nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>', rescan: rescan }, function(response) {
 						jQuery('#updraft_existing_backups').html(response);
 					});
 				}
@@ -2648,7 +2707,7 @@ class UpdraftPlus {
 						<li><strong><?php _e('Downloading','updraftplus');?>:</strong> <?php _e("Pressing a button for Database/Plugins/Themes/Uploads/Others will make UpdraftPlus try to bring the backup file back from the remote storage (if any - e.g. Amazon S3, Dropbox, Google Drive, FTP) to your webserver. Then you will be allowed to download it to your computer. If the fetch from the remote storage stops progressing (wait 30 seconds to make sure), then press again to resume. Remember that you can also visit the cloud storage vendor's website directly.",'updraftplus');?></li>
 						<li><strong><?php _e('Restoring','updraftplus');?>:</strong> <?php _e("Press the button for the backup you wish to restore. If your site is large and you are using remote storage, then you should first click on each entity in order to retrieve it back to the webserver. This will prevent time-outs from occuring during the restore process itself.",'updraftplus');?></li>
 						<li><strong><?php _e('Opera web browser','updraftplus');?>:</strong> <?php _e('If you are using this, then turn Turbo/Road mode off.','updraftplus');?></li>
-						<li title="<?php _e('This is a count of the contents of your Updraft directory','updraftplus');?>"><strong><?php _e('Web-server disk space in use by UpdraftPlus','updraftplus');?>:</strong> <span id="updraft_diskspaceused"><em>(calculating...)</em></span> <a href="#" onclick="updraftplus_diskspace(); return false;">(refresh)</a></li></ul>
+						<li title="<?php _e('This is a count of the contents of your Updraft directory','updraftplus');?>"><strong><?php _e('Web-server disk space in use by UpdraftPlus','updraftplus');?>:</strong> <span id="updraft_diskspaceused"><em>(calculating...)</em></span> <a href="#" onclick="updraftplus_diskspace(); return false;"><?php _e('refresh','updraftplus');?></a> | <a href="#" onclick="updraft_updatehistory(1); return false;" title="<?php _e('Press here to look inside your UpdraftPlus directory (in your web hosting space) for any new backup sets that you have uploaded. The location of this directory is set in the expert settings, below.','updraftplus'); ?>"><?php _e('rescan folder for new backup sets','updraftplus');?></a></li></ul>
 						<div id="ud_downloadstatus"></div>
 						<script>
 							function updraftplus_diskspace() {
