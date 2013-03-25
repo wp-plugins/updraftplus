@@ -8,9 +8,11 @@ class UpdraftPlus_BackupModule_email {
 
 		global $updraftplus;
 
+		$updraft_dir = $updraftplus->backups_dir_location().'/';
+
 		foreach ($backup_array as $type => $file) {
-			$fullpath = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir')).$file;
-			wp_mail(UpdraftPlus_Options::get_updraft_option('updraft_email'), "WordPress Backup ".date('Y-m-d H:i',$updraftplus->backup_time), "Backup is of the $type.  Be wary; email backups may fail because of file size limitations on mail servers.", null, array($fullpath));
+			$fullpath = $updraft_dir.$file;
+			wp_mail(UpdraftPlus_Options::get_updraft_option('updraft_email'), __("WordPress Backup",'updraftplus')." ".date('Y-m-d H:i',$updraftplus->backup_time), __("Backup is of:",'updraftplus')." ".$type.".  ".__('Be wary; email backups may fail because of file size limitations on mail servers.','updraftplus'), null, array($fullpath));
 			$updraftplus->uploaded_file($file);
 		}
 		$updraftplus->prune_retained_backups("email", null, null);
@@ -19,8 +21,8 @@ class UpdraftPlus_BackupModule_email {
 	public static function config_print() {
 		?>
 		<tr class="updraftplusmethod email">
-			<th>Note:</th>
-			<td>The email address entered above will be used. If choosing &quot;E-Mail&quot;, then be aware that mail servers tend to have size limits; typically around 10-20Mb; backups larger than any limits will not arrive. If you really need a large backup via email, then you could fund a new feature (to break the backup set into configurable-size pieces) - but the demand has not yet existed for such a feature.</td>
+			<th><?php _e('Note:','updraftplus');?></th>
+			<td><?php echo htmlspecialchars(__('The email address entered above will be used. If choosing "E-Mail", then <strong>be aware</strong> that mail servers tend to have size limits; typically around 10-20Mb; backups larger than any limits will not arrive. If you really need a large backup via email, then you could fund a new feature (to break the backup set into configurable-size pieces) - but the demand has not yet existed for such a feature.','updraftplus'));?></td>
 		</tr>
 		<?php
 	}
