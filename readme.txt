@@ -25,6 +25,7 @@ Many tweaks + small bug-fixes: recommended upgraded for all
 * Database backups can be encrypted for security
 * Debug mode that gives full logging of the backup
 * Thousands of users: widely tested and reliable
+* Internationalised (translations very welcome - see below)
 * Premium/multi-site version and support available - <a href="http://updraftplus.com">http://updraftplus.com</a>
 
 = Don't Risk Anything Less =
@@ -44,6 +45,10 @@ If you need WordPress multisite compatibility (you'll know if you do), <a href="
 = Professional / Enterprise support agreements available =
 
 UpdraftPlus is written by professional WordPress developers. If your site needs guaranteed support, then we are available. Just  <a href="http://updraftplus.com/shop/">go to our shop.</a>
+
+= Are you multi-lingual? Can you translate? =
+
+Are you able to translate UpdraftPlus into another language? UpdraftPlus's code is already internationalized. Just grab the .pot file from <a href="http://plugins.svn.wordpress.org/updraftplus/trunk/languages/updraftplus.pot">http://plugins.svn.wordpress.org/updraftplus/trunk/languages/updraftplus.pot</a>, load it into any application for translating, and sent it to us (contact@updraftplus.com) when done. We will add your name to the 'Notes' page here.
 
 = Other support =
 
