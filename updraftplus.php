@@ -229,13 +229,11 @@ class UpdraftPlus {
 		// If this was the chunk, then we should instead be concatenating onto the final file
 		if (isset($_POST['chunks']) && isset($_POST['chunk']) && preg_match('/^[0-9]+$/',$_POST['chunk'])) {
 			$final_file = $_POST['name'];
-error_log("CHUNK: ".$status['file'].": MOVE TO: ".$final_file.'.'.$_POST['chunk'].'.zip.tmp');
 			rename($status['file'], $updraft_dir.'/'.$final_file.'.'.$_POST['chunk'].'.zip.tmp');
 			$status['file'] = $updraft_dir.'/'.$final_file.'.'.$_POST['chunk'].'.zip.tmp';
 
 			// Final chunk? If so, then stich it all back together
 			if ($_POST['chunk'] == $_POST['chunks']-1) {
-error_log('FINAL CHUNK');
 				if ($wh = fopen($updraft_dir.'/'.$final_file, 'wb')) {
 					for ($i=0 ; $i<$_POST['chunks']; $i++) {
 						$rf = $updraft_dir.'/'.$final_file.'.'.$i.'.zip.tmp';
