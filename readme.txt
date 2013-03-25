@@ -107,7 +107,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.5.4 - trunk - not yet released/supported =
+= 1.5.5 - not yet released/supported =
 * Now translatable - .pot file included (translators welcome!)
 * When restoring, you can now select only some components to restore
 * Multisite add-on (http://updraftplus.com/shop/) now stores/restores blogs and mu-plugins separately
