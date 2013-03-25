@@ -9,7 +9,7 @@ Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
 == Upgrade Notice ==
-New feature: selective restoration; plus many tweaks, optimisations + small bug-fixes: recommended upgrade for all
+New features: selective restoration, importing remote backups; plus many tweaks, optimisations + small bug-fixes: recommended upgrade for all
 
 == Description ==
 
@@ -110,6 +110,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 = 1.5.5 - not yet released/supported =
 * Now translatable - .pot file included (translators welcome!)
 * When restoring, you can now select only some components to restore
+* History of previous backups can re-scan to find backups manually imported (e.g. via FTP)
 * Multisite add-on (http://updraftplus.com/shop/) now stores/restores blogs and mu-plugins separately
 * Display UpdraftPlus's disk space usage
 * Internationalisation hooks in main body of plugin
