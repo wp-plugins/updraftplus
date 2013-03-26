@@ -2508,17 +2508,17 @@ class UpdraftPlus {
 									alert('You did not select any components to restore. Please select at least one, and then try again.');
 								}
 							},
-							Cancel: function() { jQuery(this).dialog("close"); }
+							'<?php _e('Cancel','updraftplus');?>: function() { jQuery(this).dialog("close"); }
 						}
 					});
 
 					jQuery( "#updraft-backupnow-modal" ).dialog({
 						autoOpen: false, height: 265, width: 375, modal: true,
 						buttons: {
-							'Backup Now': function() {
+							'<?php _e('Backup Now','updraftplus');?>': function() {
 								jQuery('#updraft-backupnow-form').submit();
 							},
-							Cancel: function() { jQuery(this).dialog("close"); }
+							'<?php _e('Cancel','updraftplus');?>': function() { jQuery(this).dialog("close"); }
 						}
 					});
 
@@ -2824,7 +2824,7 @@ class UpdraftPlus {
 				</tr>
 			</table>
 			<div style="float:left; width:200px; padding-top: 20px;">
-				<p><button type="button" <?php echo $backup_disabled ?> class="button-primary" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px;" onclick="jQuery('#updraft-backupnow-modal').dialog('open');">Backup Now</button></p>
+				<p><button type="button" <?php echo $backup_disabled ?> class="button-primary" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px;" onclick="jQuery('#updraft-backupnow-modal').dialog('open');"><?php _e('Backup Now','updraftplus');?></button></p>
 				<div style="position:relative">
 					<div style="position:absolute;top:0;left:0">
 						<?php
@@ -2833,7 +2833,7 @@ class UpdraftPlus {
 						$backup_history_sets = (count($backup_history) == 1) ? 'set' : 'sets';
 						$restore_disabled = (count($backup_history) == 0) ? 'disabled="disabled"' : "";
 						?>
-						<input type="button" class="button-primary" <?php echo $restore_disabled ?> value="Restore" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px;" onclick="jQuery('.download-backups').slideDown(); updraft_historytimertoggle(1); jQuery('html,body').animate({scrollTop: jQuery('#updraft_lastlogcontainer').offset().top},'slow');">
+						<input type="button" class="button-primary" <?php echo $restore_disabled ?> value="<?php _e('Restore','updraftplus');?>" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px;" onclick="jQuery('.download-backups').slideDown(); updraft_historytimertoggle(1); jQuery('html,body').animate({scrollTop: jQuery('#updraft_lastlogcontainer').offset().top},'slow');">
 					</div>
 				</div>
 			</div>
@@ -3104,7 +3104,7 @@ class UpdraftPlus {
 				<form method="post" action="">
 					<input type="hidden" name="backup_timestamp" value="<?php echo $key;?>">
 					<input type="hidden" name="action" value="updraft_restore" />
-					<?php if ($entities) { ?><button title="<?php _e('After pressing this button, you will be given the option to choose which components you wish to restore','updraftplus');?>" type="button" <?php echo $restore_disabled ?> class="button-primary" style="padding-top:2px;padding-bottom:2px;font-size:16px !important; min-height:26px;" onclick="updraft_restore_options('<?php echo $entities;?>'); jQuery('#updraft_restore_timestamp').val('<?php echo $key;?>'); jQuery('#updraft_restore_date').html('<?php echo $pretty_date;?>'); jQuery('#updraft-restore-modal').dialog('open');">Restore</button><?php } ?>
+					<?php if ($entities) { ?><button title="<?php _e('After pressing this button, you will be given the option to choose which components you wish to restore','updraftplus');?>" type="button" <?php echo $restore_disabled ?> class="button-primary" style="padding-top:2px;padding-bottom:2px;font-size:16px !important; min-height:26px;" onclick="updraft_restore_options('<?php echo $entities;?>'); jQuery('#updraft_restore_timestamp').val('<?php echo $key;?>'); jQuery('#updraft_restore_date').html('<?php echo $pretty_date;?>'); jQuery('#updraft-restore-modal').dialog('open');"><?php _e('Restore','updraftplus');?></button><?php } ?>
 				</form>
 			</td>
 		</tr>
