@@ -56,7 +56,8 @@ class UpdraftPlus_BackupModule_ftp {
 	function download($file) {
 		if( !class_exists('UpdraftPlus_ftp_wrapper')) require_once(UPDRAFTPLUS_DIR.'/includes/ftp.class.php');
 
-		//handle errors at some point TODO
+		global $updraftplus;
+
 		$ftp = new UpdraftPlus_ftp_wrapper(UpdraftPlus_Options::get_updraft_option('updraft_server_address'),UpdraftPlus_Options::get_updraft_option('updraft_ftp_login'),UpdraftPlus_Options::get_updraft_option('updraft_ftp_pass'));
 		$ftp->passive = true;
 
@@ -71,7 +72,13 @@ class UpdraftPlus_BackupModule_ftp {
 		$ftp_remote_path = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_ftp_remote_path'));
 		$fullpath = $updraftplus->backups_dir_location().'/'.$file;
 
-		$ftp->get($fullpath, $ftp_remote_path.$file, FTP_BINARY);
+		$size = 0;
+		if (file_exists($fullpath)) {
+			$size = filesize($fullpath);
+			$updraftplus->log("File already exists locally; will resume: size: $size");
+		}
+
+		$ftp->get($fullpath, $ftp_remote_path.$file, FTP_BINARY, $size, $updraftplus);
 	}
 
 	public static function config_print_javascript_onready() {

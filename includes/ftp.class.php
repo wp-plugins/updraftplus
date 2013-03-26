@@ -51,7 +51,7 @@ class UpdraftPlus_ftp_wrapper
 		}
 	}
  
-	public function put($local_file_path, $remote_file_path, $mode = FTP_ASCII)
+	public function put($local_file_path, $remote_file_path, $mode = FTP_BINARY)
 	{
 		if (ftp_put($this->conn_id, $remote_file_path, $local_file_path, $mode))
 		{
@@ -63,51 +63,52 @@ class UpdraftPlus_ftp_wrapper
 		}
 	}
  
-	public function get($local_file_path, $remote_file_path, $mode = FTP_ASCII)
-	{
-		if (ftp_get($this->conn_id, $local_file_path, $remote_file_path, $mode))
-		{
+	public function get($local_file_path, $remote_file_path, $mode = FTP_BINARY, $position = 0,  $updraftplus = false) {
+
+		// The FTP_AUTO_SEEK flag, on by default, deals with seeking within the local file
+		$ret = ftp_nb_get($this->conn_id, $local_file_path, $remote_file_path, $mode, $position);
+
+		if (false == $ret) return false;
+
+		while ($ret == FTP_MOREDATA) {
+
+			if ($updraftplus) $updraftplus->log("FTP fetch: file size is now: ".filesize($local_file_path));
+
+			$ret = ftp_nb_continue($this->conn_id);
+		}
+
+		if ($ret == FTP_FINISHED) {
+			if ($updraftplus) $updraftplus->log("FTP fetch: fetch complete");
 			return true;
-		}
-		else
-		{
+		} else {
+			if ($updraftplus) $updraftplus->log("FTP fetch: fetch failed");
 			return false;
-		}
+		} 
+
 	}
  
 	public function chmod($permissions, $remote_filename)
 	{
-		if ($this->is_octal($permissions))
-		{
+		if ($this->is_octal($permissions)) {
 			$result = ftp_chmod($this->conn_id, $permissions, $remote_filename);
-			if ($result)
-			{
+			if ($result) {
 				return true;
-			}
-			else
-			{
+			} else {
 				return false;
 			}
-		}
-		else
-		{
+		} else {
 			throw new Exception('$permissions must be an octal number');
 		}
 	}
  
-	public function chdir($directory)
-	{
+	public function chdir($directory) {
 		ftp_chdir($this->conn_id, $directory);
 	}
  
-	public function delete($remote_file_path)
-	{
-		if (ftp_delete($this->conn_id, $remote_file_path))
-		{
+	public function delete($remote_file_path) {
+		if (ftp_delete($this->conn_id, $remote_file_path)) {
 			return true;
-		}
-		else
-		{
+		} else {
 			return false;
 		}
 	}
