@@ -107,7 +107,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.5.7 - not yet released/supported =
+= 1.5.8 - not yet released/supported =
 * Built-in multi-uploader, allowing easier restoration of old backup sets
 
 = 1.5.5 - not yet released/supported =
