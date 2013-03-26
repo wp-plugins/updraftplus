@@ -3,7 +3,7 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, ftp, webdav, back up, multisite
 Requires at least: 3.2
 Tested up to: 3.5.1
-Stable tag: 1.4.48
+Stable tag: 1.5.5
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -110,10 +110,10 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 = 1.5.8 - not yet released/supported =
 * Built-in multi-uploader, allowing easier restoration of old backup sets
 
-= 1.5.5 - not yet released/supported =
+= 1.5.5 - 03/26/2013 =
 * Now translatable - .pot file included (translators welcome!)
 * When restoring, you can now select only some components to restore
-* History of previous backups can re-scan to find backups manually imported (e.g. via FTP)
+* History of previous backups can re-scan to find backups manually imported (e.g. via FTP) (trunk has drag-and-drop uploader)
 * Multisite add-on (http://updraftplus.com/shop/) now stores/restores blogs and mu-plugins separately
 * Display UpdraftPlus's disk space usage
 * Internationalisation hooks in main body of plugin
