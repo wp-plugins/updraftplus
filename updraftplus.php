@@ -275,7 +275,7 @@ class UpdraftPlus {
 		global $pagenow;
 		if ($pagenow != 'options-general.php' || !isset($_REQUEST['page']) && 'updraftplus' != $_REQUEST['page']) return;
 
-// 		$chunk_size = wp_max_upload_size()-1024;
+ 		$chunk_size = min(wp_max_upload_size()-1024, 1024*1024*2);
 
 		$plupload_init = array(
 			'runtimes' => 'html5,silverlight,flash,html4',
@@ -285,7 +285,7 @@ class UpdraftPlus {
 			'file_data_name' => 'async-upload',
 			'multiple_queues' => true,
 			'max_file_size' => '100Gb',
-			'chunk_size' => '4Mb',
+			'chunk_size' => $chunk_size.'b',
 			'url' => admin_url('admin-ajax.php'),
 			'flash_swf_url' => includes_url('js/plupload/plupload.flash.swf'),
 			'silverlight_xap_url' => includes_url('js/plupload/plupload.silverlight.xap'),
