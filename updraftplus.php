@@ -2362,17 +2362,17 @@ class UpdraftPlus {
 									alert('You did not select any components to restore. Please select at least one, and then try again.');
 								}
 							},
-							Cancel: function() { jQuery(this).dialog("close"); }
+							<?php _e('Cancel','updraftplus');?>: function() { jQuery(this).dialog("close"); }
 						}
 					});
 
 					jQuery( "#updraft-backupnow-modal" ).dialog({
 						autoOpen: false, height: 265, width: 375, modal: true,
 						buttons: {
-							'Backup Now': function() {
+							'<?php _e('Backup Now','updraftplus');?>': function() {
 								jQuery('#updraft-backupnow-form').submit();
 							},
-							Cancel: function() { jQuery(this).dialog("close"); }
+							<?php _e('Cancel','updraftplus');?>: function() { jQuery(this).dialog("close"); }
 						}
 					});
 
@@ -2678,7 +2678,7 @@ class UpdraftPlus {
 				</tr>
 			</table>
 			<div style="float:left; width:200px; padding-top: 20px;">
-				<p><button type="button" <?php echo $backup_disabled ?> class="button-primary" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px;" onclick="jQuery('#updraft-backupnow-modal').dialog('open');">Backup Now</button></p>
+				<p><button type="button" <?php echo $backup_disabled ?> class="button-primary" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px;" onclick="jQuery('#updraft-backupnow-modal').dialog('open');"><?php _e('Backup Now','updraftplus');?></button></p>
 				<div style="position:relative">
 					<div style="position:absolute;top:0;left:0">
 						<?php
@@ -2687,7 +2687,7 @@ class UpdraftPlus {
 						$backup_history_sets = (count($backup_history) == 1) ? 'set' : 'sets';
 						$restore_disabled = (count($backup_history) == 0) ? 'disabled="disabled"' : "";
 						?>
-						<input type="button" class="button-primary" <?php echo $restore_disabled ?> value="Restore" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px;" onclick="jQuery('.download-backups').slideDown(); updraft_historytimertoggle(1); jQuery('html,body').animate({scrollTop: jQuery('#updraft_lastlogcontainer').offset().top},'slow');">
+						<input type="button" class="button-primary" <?php echo $restore_disabled ?> value="<?php _e('Restore','updraftplus');?>" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px;" onclick="jQuery('.download-backups').slideDown(); updraft_historytimertoggle(1); jQuery('html,body').animate({scrollTop: jQuery('#updraft_lastlogcontainer').offset().top},'slow');">
 					</div>
 				</div>
 			</div>
@@ -2920,9 +2920,9 @@ class UpdraftPlus {
 					<input type="hidden" name="action" value="updraft_download_backup" />
 					<input type="hidden" name="type" value="<?php echo $type; ?>" />
 					<input type="hidden" name="timestamp" value="<?php echo $key?>" />
-					<input  type="submit" title="Press here to download <?php echo lcfirst($info['description']); ?>" value="<?php echo $sdescrip;?>" />
+					<input type="submit" title="<?php echo __('Press here to download','updraftplus').' '.strtolower($info['description']); ?>" value="<?php echo $sdescrip;?>" />
 				</form>
-		<?php } else { echo "(No&nbsp;".lcfirst($info['description']).")"; } ?>
+		<?php } else { echo "(No&nbsp;".strtolower($info['description']).")"; } ?>
 			</td>
 		<?php }; ?>
 
