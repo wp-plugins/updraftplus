@@ -30,7 +30,7 @@ class UpdraftPlus_BackupModule_ftp {
 			$updraftplus->log("FTP upload attempt: $file -> ftp://$user@$server/${ftp_remote_path}${file}");
 			$timer_start = microtime(true);
 			$size_k = round(filesize($fullpath)/1024,1);
-			if ($ftp->put($fullpath, $ftp_remote_path.$file, FTP_BINARY)) {
+			if ($ftp->put($fullpath, $ftp_remote_path.$file, FTP_BINARY, true, $updraftplus)) {
 				$updraftplus->log("FTP upload attempt successful (".$size_k."Kb in ".(round(microtime(true)-$timer_start,2)).'s)');
 				$updraftplus->uploaded_file($file);
 			} else {
@@ -72,13 +72,13 @@ class UpdraftPlus_BackupModule_ftp {
 		$ftp_remote_path = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_ftp_remote_path'));
 		$fullpath = $updraftplus->backups_dir_location().'/'.$file;
 
-		$size = 0;
+		$resume = false;
 		if (file_exists($fullpath)) {
-			$size = filesize($fullpath);
-			$updraftplus->log("File already exists locally; will resume: size: $size");
+			$resume = true;
+			$updraftplus->log("File already exists locally; will resume: size: ".filesize($fullpath));
 		}
 
-		$ftp->get($fullpath, $ftp_remote_path.$file, FTP_BINARY, $size, $updraftplus);
+		$ftp->get($fullpath, $ftp_remote_path.$file, FTP_BINARY, $resume, $updraftplus);
 	}
 
 	public static function config_print_javascript_onready() {
@@ -103,6 +103,11 @@ class UpdraftPlus_BackupModule_ftp {
 
 	public static function config_print() {
 		?>
+
+		<tr class="updraftplusmethod ftp">
+			<td></td>
+			<td><p><em><?php printf(__('%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your blog is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.','updraftplus'),'FTP');?></em></p></td>
+		</tr>
 
 		<tr class="updraftplusmethod ftp">
 			<th></th>
@@ -170,7 +175,7 @@ class UpdraftPlus_BackupModule_ftp {
 			_e("Failure: an unexpected internal UpdraftPlus error occurred when testing the credentials - please contact the developer");
 			return;
 		}
-		if ($ftp->put(ABSPATH.'wp-includes/version.php', $fullpath, FTP_BINARY)) {
+		if ($ftp->put(ABSPATH.'wp-includes/version.php', $fullpath, FTP_BINARY, false)) {
 			echo __("Success: we successfully logged in, and confirmed our ability to create a file in the given directory (login type:",'updraftplus')." ".$ftp->login_type.')';
 			@$ftp->delete($fullpath);
 		} else {

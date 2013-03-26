@@ -91,7 +91,7 @@ You can check the changelog for changes; but the original Updraft, before I fork
 
 = Any known bugs ? =
 
-Not a bug, but one issue to be aware of is that backups of very large sites (lots of uploaded media) are quite complex matters, given the limits of running inside WordPress on a huge variety of different web hosting setups. With large sites, you need to use Amazon S3, which UpdraftPlus supports (since 0.9.20), Google Drive (0.9.21), Dropbox (since 1.2.19) or WebDAV (since 1.4.30), because these support chunked, resumable uploads. Other backup methods have code (since 0.9.0) to retry failed uploads of an archive, but the upload cannot be chunked, so if an archive is enormous (i.e. cannot be completely uploaded in the time that PHP is allowed for running on your web host) it cannot work.
+Not a bug, but one issue to be aware of is that backups of very large sites (lots of uploaded media) are quite complex matters, given the limits of running inside WordPress on a huge variety of different web hosting setups. With large sites, you need to use Amazon S3, which UpdraftPlus supports (since 0.9.20), Google Drive (0.9.21), Dropbox (since 1.2.19), WebDAV (since 1.4.30), or FTP (since 1.5.9) because these support chunked, resumable uploads. Other backup methods have code (since 0.9.0) to retry failed uploads of an archive, but the upload cannot be chunked, so if an archive is enormous (i.e. cannot be completely uploaded in the time that PHP is allowed for running on your web host) it cannot work.
 
 = My site was hacked, and I have no backups! I thought UpdraftPlus was working! Can I kill you? =
 
@@ -107,8 +107,9 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.5.8 - not yet released/supported =
+= 1.5.9 - not yet released/supported =
 * Built-in multi-uploader, allowing easier restoration of old backup sets
+* FTP and FTPS (not SFTP) are now chunked and resumable (both download and upload), subject to your FTP server responding correctly to SIZE
 
 = 1.5.5 - 03/26/2013 =
 * Now translatable - .pot file included (translators welcome!)
@@ -127,6 +128,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * Clean up temporary files left behind by zipArchive::addFile
 * Tweak Dropbox library to work from behind very weird proxies that double-surround the HTTP header
 * Improved help for people with broken schedulers
+* Fix FTP download error
 
 = 1.4.48 - 03/11/2013 =
 * Improve batching on zip creation for sites with very large files
