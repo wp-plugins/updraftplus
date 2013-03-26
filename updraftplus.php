@@ -2508,7 +2508,7 @@ class UpdraftPlus {
 									alert('You did not select any components to restore. Please select at least one, and then try again.');
 								}
 							},
-							'<?php _e('Cancel','updraftplus');?>: function() { jQuery(this).dialog("close"); }
+							'<?php _e('Cancel','updraftplus');?>': function() { jQuery(this).dialog("close"); }
 						}
 					});
 
