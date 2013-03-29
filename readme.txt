@@ -110,6 +110,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 = 1.5.9 - not yet released/supported =
 * Built-in multi-uploader, allowing easier restoration of old backup sets
 * FTP and FTPS (not SFTP) are now chunked and resumable (both download and upload), subject to your FTP server responding correctly to SIZE
+* Clear PHP's file stat cache when checking for zip file activity - fixes potential halt on very enormous sites
 
 = 1.5.5 - 03/26/2013 =
 * Now translatable - .pot file included (translators welcome!)

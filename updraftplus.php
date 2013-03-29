@@ -16,12 +16,14 @@ TODO - some of these are out of date/done, needs pruning
 // Add an appeal for translators to email me
 // Separate out all restoration code and admin UI into separate file/classes (optimisation)?
 // Search for other TODO-s in the code
+// Test in PHP 5.4
 // Make mcrypt warning on dropbox more prominent - one customer missed it
 // Store meta-data on which version of UD the backup was made with (will help if we ever introduce quirks that need ironing)
 // Test restoration when uploads dir is /assets/ (e.g. with Shoestrap theme)
 // Send the user an email upon their first backup with tips on what to do (e.g. support/improve) (include legacy check to not bug existing users)
 //Allow use of /usr/bin/zip - since this can escape from PHP's memory limit. Can still batch as we do so, in order to monitor/measure progress
 // Database decrypter
+// Easier download of 'in progress' backup logs (not just last completed)
 //Do an automated test periodically for the success of loop-back connections
 //When a manual backup is run, use a timer to update the 'Download backups and logs' section, just like 'Last finished backup run'. Beware of over-writing anything that's in there from a resumable downloader.
 //Change DB encryption to not require whole gzip in memory (twice)
@@ -3248,6 +3250,7 @@ class UpdraftPlus {
 		if (file_exists($zipfile)) {
 			$opencode = $zip->open($zipfile);
 			$original_size = filesize($zipfile);
+			clearstatcache($zipfile);
 		} else {
 			$opencode = $zip->open($zipfile, ZIPARCHIVE::CREATE);
 			$original_size = 0;
@@ -3270,6 +3273,7 @@ class UpdraftPlus {
 				if ($data_added_since_reopen > 26214400) {
 
 					$before_size = filesize($zipfile);
+					clearstatcache($zipfile);
 
 					$this->log("Adding batch to zip file: over 25Mb added on this batch (".round($data_added_since_reopen/1048576,1)." Mb); re-opening (prior size: ".round($before_size/1024,1).' Kb)');
 					if (!$zip->close()) {
@@ -3282,6 +3286,7 @@ class UpdraftPlus {
 					$data_added_since_reopen = 0;
 					// Call here, in case we've got so many big files that we don't complete the whole routine
 					if (filesize($zipfile) > $before_size) $this->something_useful_happened();
+					clearstatcache($zipfile);
 				}
 			}
 			$this->zipfiles_added++;
@@ -3296,11 +3301,11 @@ class UpdraftPlus {
 
 	function something_useful_happened() {
 		if ($this->current_resumption >= 9 && $this->newresumption_scheduled == false) {
+			$this->log("This is resumption ".$this->current_resumption.", but meaningful activity is still taking place; so a new one will be scheduled");
 			$resume_interval = $this->jobdata_get('resume_interval');
 			if (!is_numeric($resume_interval) || $resume_interval<$this->minimum_resume_interval()) { $resume_interval = $this->minimum_resume_interval(); }
 			$schedule_for = time()+$resume_interval;
 			$this->newresumption_scheduled = $schedule_for;
-			$this->log("This is resumption ".$this->current_resumption.", but meaningful activity is still taking place; so a new one will be scheduled");
 			wp_schedule_single_event($schedule_for, 'updraft_backup_resume', array($this->current_resumption + 1, $this->nonce));
 		} else {
 			$this->reschedule_if_needed();

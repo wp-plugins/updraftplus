@@ -59,7 +59,7 @@ class UpdraftPlus_ftp_wrapper
 		if ($resume) {
 			$existing_size = ftp_size($this->conn_id, $remote_file_path);
 			if ($existing_size <=0) { $resume = false; $existing_size = 0; }
-			if ($updraftplus) {
+			elseif ($updraftplus) {
 				$updraftplus->log("File already exists at remote site: size $existing_size. Will attempt resumption.");
 				if ($existing_size >= $file_size) {
 					$updraftplus->log("File is apparently already completely uploaded");
