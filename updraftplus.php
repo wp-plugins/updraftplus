@@ -3083,6 +3083,7 @@ class UpdraftPlus {
 		if (file_exists($zipfile)) {
 			$opencode = $zip->open($zipfile);
 			$original_size = filesize($zipfile);
+			clearstatcache($zipfile);
 		} else {
 			$opencode = $zip->open($zipfile, ZIPARCHIVE::CREATE);
 			$original_size = 0;
@@ -3105,6 +3106,7 @@ class UpdraftPlus {
 				if ($data_added_since_reopen > 26214400) {
 
 					$before_size = filesize($zipfile);
+					clearstatcache($zipfile);
 
 					$this->log("Adding batch to zip file: over 25Mb added on this batch (".round($data_added_since_reopen/1048576,1)." Mb); re-opening (prior size: ".round($before_size/1024,1).' Kb)');
 					if (!$zip->close()) {
@@ -3117,6 +3119,7 @@ class UpdraftPlus {
 					$data_added_since_reopen = 0;
 					// Call here, in case we've got so many big files that we don't complete the whole routine
 					if (filesize($zipfile) > $before_size) $this->something_useful_happened();
+					clearstatcache($zipfile);
 				}
 			}
 			$this->zipfiles_added++;
