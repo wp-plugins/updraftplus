@@ -45,7 +45,7 @@ UpdraftPlus is written by professional WordPress developers. If your site needs 
 
 = Are you multi-lingual? Can you translate? =
 
-Are you able to translate UpdraftPlus into another language? UpdraftPlus's code is already internationalized. Just grab the .pot file from <a href="http://plugins.svn.wordpress.org/updraftplus/trunk/languages/updraftplus.pot">http://plugins.svn.wordpress.org/updraftplus/trunk/languages/updraftplus.pot</a>, load it into any application for translating, and send it to us (contact@updraftplus.com) when done. We will add your name to the 'Notes' page here.
+Are you able to translate UpdraftPlus into another language? UpdraftPlus's code is already internationalized. Just grab the .pot file from <a href="http://plugins.svn.wordpress.org/updraftplus/trunk/languages/updraftplus.pot">http://plugins.svn.wordpress.org/updraftplus/trunk/languages/updraftplus.pot</a>, load it into any application for translating, and send it to us (contact@updraftplus.com) when done. We will add your name to the <a href="http://wordpress.org/extend/plugins/updraftplus/other_notes/">'Notes' page here</a>.
 
 = Other support =
 
@@ -112,6 +112,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FTP and FTPS (not SFTP) are now chunked and resumable (both download and upload), subject to your FTP server responding correctly to SIZE
 * Clear PHP's file stat cache when checking for zip file activity - fixes potential halt on very enormous sites
 * Caught some untranslated strings
+* German translation: thanks to Marcel Herrguth <mherrguth@mrgeneration.de>
 
 = 1.5.5 - 03/26/2013 =
 * Now translatable - .pot file included (translators welcome!)
@@ -371,11 +372,17 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 3. Showing and downloading backup sets
 
 We recognise and thank the following for code and/or libraries used and/or modified under the terms of their licences:
-* UpdraftPlus is based on the original Updraft by Paul Kehrer (Twitter: http://twitter.com/reaperhulk, Blog: http://langui.sh)
+* UpdraftPlus is derived from the original Updraft by Paul Kehrer (Twitter: http://twitter.com/reaperhulk, Blog: http://langui.sh)
 * Sorin Iclanzan, http://profiles.wordpress.org/hel.io/
 * Ben Tadiar, https://github.com/BenTheDesigner/Dropbox
 * Beau Brownlee, http://www.solutionbot.com/2009/01/02/php-ftp-class/
 * Donovan Schonknecht, http://undesigned.org.za/2007/10/22/amazon-s3-php-class
+
+== Translators ==
+
+Many thanks to:
+
+* German (de_DE): Marcel Herrguth <mherrguth@mrgeneration.de>
 
 == License ==
 
@@ -384,7 +391,7 @@ We recognise and thank the following for code and/or libraries used and/or modif
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
+    the Free Software Foundation; either version 3 of the License, or
     (at your option) any later version.
 
     This program is distributed in the hope that it will be useful,
