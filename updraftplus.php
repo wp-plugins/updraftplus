@@ -2287,6 +2287,10 @@ class UpdraftPlus {
 			return $this->url_start($urls,'updraftplus.com')."Want more features or paid, guaranteed support? Check out UpdraftPlus.Com".$this->url_end($urls,'updraftplus.com');
 			break;
 		case 1:
+			if (defined('WPLANG') && strlen(WPLANG)>0 && !is_file(UPDRAFTPLUS_DIR.'/languages/updraftplus-'.WPLANG.
+'.mo')) {
+				return __('Can you translate? Want to improve UpdraftPlus for speakers of your language?','updraftplus').$this->url_start($urls,'david.dw-perspective.org.uk/donate').__("Please make a donation", 'updraftplus').$this->url_end($urls,'david.dw-perspective.org.uk/donate');
+			};
 			return __('Find UpdraftPlus useful?','updraftplus').$this->url_start($urls,'david.dw-perspective.org.uk/donate').__("Please make a donation", 'updraftplus').$this->url_end($urls,'david.dw-perspective.org.uk/donate');
 		case 2:
 			return $this->url_start($urls,'wordshell.net')."Check out WordShell".$this->url_end($urls,'www.wordshell.net')." - manage WordPress from the command line - huge time-saver";

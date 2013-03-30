@@ -45,9 +45,11 @@ UpdraftPlus is written by professional WordPress developers. If your site needs 
 
 = Are you multi-lingual? Can you translate? =
 
-Are you able to translate UpdraftPlus into another language? UpdraftPlus's code is already internationalized. Just grab the .pot file from <a href="http://plugins.svn.wordpress.org/updraftplus/trunk/languages/updraftplus.pot">http://plugins.svn.wordpress.org/updraftplus/trunk/languages/updraftplus.pot</a>, load it into any application for translating, and send it to us (contact@updraftplus.com) when done. Many thanks to the existing translators:
+Are you able to translate UpdraftPlus into another language? Are you ready to help speakers of your language? UpdraftPlus itself is ready and waiting - the only work needed is the translating. The translation process is easy - go here for instructions: <a href="http://updraftplus.com/translate/">http://updraftplus.com/translate/</a>. (Or if you're an expert WordPress translator already, then just pick out the .pot file from the wp-content/plugins/updraftplus/languages/ directory).
 
-* German (de_DE): Marcel Herrguth <mherrguth@mrgeneration.de>
+Many thanks to the existing translators:
+
+* German (de_DE): Marcel Herrguth - mherrguth@mrgeneration.de
 
 = Other support =
 
