@@ -45,7 +45,9 @@ UpdraftPlus is written by professional WordPress developers. If your site needs 
 
 = Are you multi-lingual? Can you translate? =
 
-Are you able to translate UpdraftPlus into another language? UpdraftPlus's code is already internationalized. Just grab the .pot file from <a href="http://plugins.svn.wordpress.org/updraftplus/trunk/languages/updraftplus.pot">http://plugins.svn.wordpress.org/updraftplus/trunk/languages/updraftplus.pot</a>, load it into any application for translating, and send it to us (contact@updraftplus.com) when done. We will add your name to the <a href="http://wordpress.org/extend/plugins/updraftplus/other_notes/">'Notes' page here</a>.
+Are you able to translate UpdraftPlus into another language? UpdraftPlus's code is already internationalized. Just grab the .pot file from <a href="http://plugins.svn.wordpress.org/updraftplus/trunk/languages/updraftplus.pot">http://plugins.svn.wordpress.org/updraftplus/trunk/languages/updraftplus.pot</a>, load it into any application for translating, and send it to us (contact@updraftplus.com) when done. Many thanks to the existing translators:
+
+* German (de_DE): Marcel Herrguth <mherrguth@mrgeneration.de>
 
 = Other support =
 
@@ -369,12 +371,6 @@ We recognise and thank the following for code and/or libraries used and/or modif
 * Ben Tadiar, https://github.com/BenTheDesigner/Dropbox
 * Beau Brownlee, http://www.solutionbot.com/2009/01/02/php-ftp-class/
 * Donovan Schonknecht, http://undesigned.org.za/2007/10/22/amazon-s3-php-class
-
-== Translators ==
-
-Many thanks to:
-
-* German (de_DE): Marcel Herrguth <mherrguth@mrgeneration.de>
 
 == License ==
 
