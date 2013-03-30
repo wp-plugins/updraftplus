@@ -809,13 +809,13 @@ class UpdraftPlus {
 		// Make sure that the final status is shown
 		if (empty($this->errors)) {
 			$send_an_email = true;
-			$final_message = "The backup apparently succeeded and is now complete";
+			$final_message = __("The backup apparently succeeded and is now complete",'updraftplus');
 		} elseif ($this->newresumption_scheduled == false) {
 			$send_an_email = true;
-			$final_message = "The backup attempt has finished, apparently unsuccessfully";
+			$final_message = __("The backup attempt has finished, apparently unsuccessfully",'updraftplus');
 		} else {
 			// There are errors, but a resumption will be attempted
-			$final_message = "The backup has not finished; a resumption is scheduled within 5 minutes";
+			$final_message = __("The backup has not finished; a resumption is scheduled within 5 minutes",'updraftplus');
 		}
 
 		// Now over-ride the decision to send an email, if needed
@@ -2416,7 +2416,7 @@ class UpdraftPlus {
 
 					?>
 					<option value="none" <?php
-						if ($active_service == "none") echo $set; ?>>None</option>
+						if ($active_service == "none") echo $set; ?>><?php _e('None','updraftplus'); ?></option>
 					<?php
 					foreach ($this->backup_methods as $method => $description) {
 						echo "<option value=\"$method\"";
@@ -2497,7 +2497,7 @@ class UpdraftPlus {
 					jQuery( "#updraft-restore-modal" ).dialog({
 						autoOpen: false, height: 385, width: 480, modal: true,
 						buttons: {
-							Restore: function() {
+							'<?php _e('Restore','updraftplus');?>': function() {
 								var anyselected = 0;
 								jQuery('input[name="updraft_restore[]"]').each(function(x,y){
 									if (jQuery(y).is(':checked')) {
@@ -2565,7 +2565,7 @@ class UpdraftPlus {
 			</tr>
 
 			<tr class="expertmode backupdirrow" style="display:none;">
-				<th>Backup directory:</th>
+				<th><?php _e('Backup directory','updraftplus');?>:</th>
 				<td><input type="text" name="updraft_dir" id="updraft_dir" style="width:525px" value="<?php echo htmlspecialchars($this->prune_updraft_dir_prefix($updraft_dir)); ?>" /></td>
 			</tr>
 			<tr class="expertmode backupdirrow" style="display:none;">
@@ -2816,7 +2816,7 @@ class UpdraftPlus {
 				<tr>
 					<th><?php _e('Next scheduled backups','updraftplus');?>:</th>
 					<td>
-						<div style="width: 76px; float:left;">Files:</div><div style="color:blue; float:left;"><?php echo $next_scheduled_backup?></div>
+						<div style="width: 76px; float:left;"><?php _e('Files','updraftplus'); ?>:</div><div style="color:blue; float:left;"><?php echo $next_scheduled_backup?></div>
 						<div style="width: 76px; clear: left; float:left;"><?php _e('Database','updraftplus');?>: </div><div style="color:blue; float:left;"><?php echo $next_scheduled_backup_database?></div>
 						<div style="width: 76px; clear: left; float:left;"><?php _e('Time now','updraftplus');?>: </div><div style="color:blue; float:left;"><?php echo $current_time?></div>
 					</td>
@@ -2833,7 +2833,6 @@ class UpdraftPlus {
 						<?php
 						$backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
 						$backup_history = (is_array($backup_history))?$backup_history:array();
-						$backup_history_sets = (count($backup_history) == 1) ? 'set' : 'sets';
 						$restore_disabled = (count($backup_history) == 0) ? 'disabled="disabled"' : "";
 						?>
 						<input type="button" class="button-primary" <?php echo $restore_disabled ?> value="<?php _e('Restore','updraftplus');?>" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px;" onclick="jQuery('.download-backups').slideDown(); updraft_historytimertoggle(1); jQuery('html,body').animate({scrollTop: jQuery('#updraft_lastlogcontainer').offset().top},'slow');">
@@ -2843,12 +2842,12 @@ class UpdraftPlus {
 			<br style="clear:both" />
 			<table class="form-table">
 				<tr>
-					<th>Last log message:</th>
-					<td id="updraft_lastlogcontainer"><?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', '(Nothing yet logged)')); ?></td>
+					<th><?php _e('Last log message','updraftplus');?>:</th>
+					<td id="updraft_lastlogcontainer"><?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', __('(Nothing yet logged)','updraftplus'))	); ?></td>
 				</tr>
 				<tr>
-					<th>Backups, logs &amp; restoring:</th>
-					<td><a id="updraft_showbackups" href="#" title="<?php _e('Press to see available backups','updraftplus');?>" onclick="jQuery('.download-backups').toggle(); updraft_historytimertoggle(0);"><?php echo count($backup_history).' '.$backup_history_sets; ?> available</a></td>
+					<th><?php echo htmlspecialchars(__('Backups, logs & restoring','updraftplus')); ?>:</th>
+					<td><a id="updraft_showbackups" href="#" title="<?php _e('Press to see available backups','updraftplus');?>" onclick="jQuery('.download-backups').toggle(); updraft_historytimertoggle(0);"><?php echo sprintf(__('%d set(s) available', 'updraftplus'), count($backup_history)); ?> available</a></td>
 				</tr>
 				<tr>
 					<td></td><td class="download-backups" style="display:none; border: 1px dotted;">
@@ -2964,7 +2963,7 @@ class UpdraftPlus {
 </form>
 </div>
 
-<div id="updraft-backupnow-modal" title="UpdraftPlus - Perform a backup now">
+<div id="updraft-backupnow-modal" title="UpdraftPlus - <?php _e('Perform a backup now','updraftplus'); ?>">
 
 	<p><?php _e("This will schedule a one-time backup. To proceed, press 'Backup Now', then wait 10 seconds, then visit any page on your site. WordPress should then start the backup running in the background.",'updraftplus');?></p>
 
@@ -2999,9 +2998,9 @@ class UpdraftPlus {
 				<?php
 				$peak_memory_usage = memory_get_peak_usage(true)/1024/1024;
 				$memory_usage = memory_get_usage(true)/1024/1024;
-				echo 'Peak memory usage: '.$peak_memory_usage.' MB<br/>';
-				echo 'Current memory usage: '.$memory_usage.' MB<br/>';
-				echo 'PHP memory limit: '.ini_get('memory_limit').' <br/>';
+				echo __('Peak memory usage','updraftplus').': '.$peak_memory_usage.' MB<br/>';
+				echo __('Current memory usage','updraftplus').': '.$memory_usage.' MB<br/>';
+				echo __('PHP memory limit','updraftplus').': '.ini_get('memory_limit').' <br/>';
 				?>
 				</p>
 				<p style="max-width: 600px;"><?php _e('The buttons below will immediately execute a backup run, independently of WordPress\'s scheduler. If these work whilst your scheduled backups and the "Backup Now" button do absolutely nothing (i.e. not even produce a log file), then it means that your scheduler is broken. You should then disable all your other plugins, and try the "Backup Now" button. If that fails, then contact your web hosting company and ask them if they have disabled wp-cron. If it succeeds, then re-activate your other plugins one-by-one, and find the one that is the problem and report a bug to them.','updraftplus');?></p>
@@ -3018,7 +3017,7 @@ class UpdraftPlus {
 				<p style="max-width: 600px;"><?php _e('This button will delete all UpdraftPlus settings (but not any of your existing backups from your cloud storage). You will then need to enter all your settings again. You can also do this before deactivating/deinstalling UpdraftPlus if you wish.','updraftplus');?></p>
 				<form method="post">
 					<input type="hidden" name="action" value="updraft_wipesettings" />
-					<p><input type="submit" class="button-primary" value="Wipe All Settings" onclick="return(confirm('<?php echo htmlspecialchars(__('This will delete all your UpdraftPlus settings - are you sure you want to do this?'));?>'))" /></p>
+					<p><input type="submit" class="button-primary" value="<?php _e('Wipe All Settings','updraftplus'); ?>" onclick="return(confirm('<?php echo htmlspecialchars(__('This will delete all your UpdraftPlus settings - are you sure you want to do this?'));?>'))" /></p>
 				</form>
 			</div>
 
@@ -3089,7 +3088,7 @@ class UpdraftPlus {
 					<input type="hidden" name="timestamp" value="<?php echo $key?>" />
 					<input  type="submit" title="<?php echo __('Press here to download','updraftplus').' '.strtolower($info['description']); ?>" value="<?php echo $sdescrip;?>" />
 				</form>
-		<?php } else { echo "(No&nbsp;".strtolower($info['description']).")"; } ?>
+		<?php } else { printf(_x('(No %s)','Message shown when no such object is available','updraftplus'), strtolower($info['description'])); } ?>
 			</td>
 		<?php }; ?>
 
@@ -3099,7 +3098,7 @@ class UpdraftPlus {
 					<input type="hidden" name="action" value="downloadlog" />
 					<input type="hidden" name="page" value="updraftplus" />
 					<input type="hidden" name="updraftplus_backup_nonce" value="<?php echo $value['nonce']; ?>" />
-					<input type="submit" value="Backup Log" />
+					<input type="submit" value="<?php _e('Backup Log','updraftplus');?>" />
 				</form>
 		<?php } else { echo "(No&nbsp;backup&nbsp;log)"; } ?>
 			</td>
