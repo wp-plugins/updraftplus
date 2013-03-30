@@ -117,6 +117,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * Clear PHP's file stat cache when checking for zip file activity - fixes potential halt on very enormous sites
 * Caught some untranslated strings
 * German translation: thanks to Marcel Herrguth <mherrguth@mrgeneration.de>
+* Respect WordPress's WP_MAX_MEMORY_LIMIT constant
 
 = 1.5.5 - 03/26/2013 =
 * Now translatable - .pot file included (translators welcome!)
