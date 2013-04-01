@@ -49,7 +49,8 @@ Are you able to translate UpdraftPlus into another language? Are you ready to he
 
 Many thanks to the existing translators:
 
-* German (de_DE): Marcel Herrguth <mherrguth@mrgeneration.de>
+* Deutsch / German (de_DE): Marcel Herrguth - mherrguth@mrgeneration.de
+* Magyar / Hungarian (hu_HU): Victor Szepe - http://www.szepe.net
 
 = Other support =
 
