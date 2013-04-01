@@ -13,10 +13,12 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
-// Add an appeal for translators to email me
+// Add an appeal for translators to email me. If it a fails, use Google Translate Tools and appeal for native users to correct it.
 // Separate out all restoration code and admin UI into separate file/classes (optimisation)?
 // Search for other TODO-s in the code
 // Test in PHP 5.4
+// Switch to Google Drive SDK
+// Ability to re-scan existing cloud storage
 // Make mcrypt warning on dropbox more prominent - one customer missed it
 // Store meta-data on which version of UD the backup was made with (will help if we ever introduce quirks that need ironing)
 // Test restoration when uploads dir is /assets/ (e.g. with Shoestrap theme)
@@ -37,7 +39,6 @@ TODO - some of these are out of date/done, needs pruning
 // Warn the user if their zip-file creation is slooowww...
 // Create a "Want Support?" button/console, that leads them through what is needed, and performs some basic tests...
 // Resuming partial (S)FTP uploads
-// Translations
 // Add-on to manage all your backups from a single dashboard
 // Make disk space check more intelligent (currently hard-coded at 35Mb)
 // Provide backup/restoration for UpdraftPlus's settings, to allow 'bootstrap' on a fresh WP install - some kind of single-use code which a remote UpdraftPlus can use to authenticate

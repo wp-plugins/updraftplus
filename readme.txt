@@ -49,7 +49,8 @@ Are you able to translate UpdraftPlus into another language? Are you ready to he
 
 Many thanks to the existing translators:
 
-* German (de_DE): Marcel Herrguth - mherrguth@mrgeneration.de
+* Deutsch / German (de_DE): Marcel Herrguth - mherrguth@mrgeneration.de
+* Magyar / Hungarian (hu_HU): Victor Szepe - http://www.szepe.net
 
 = Other support =
 
@@ -116,7 +117,8 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FTP and FTPS (not SFTP) are now chunked and resumable (both download and upload), subject to your FTP server responding correctly to SIZE
 * Clear PHP's file stat cache when checking for zip file activity - fixes potential halt on very enormous sites
 * Caught some untranslated strings
-* German translation: thanks to Marcel Herrguth <mherrguth@mrgeneration.de>
+* German translation: thanks to Marcel Herrguth - mherrguth@mrgeneration.de
+* Hungarian translation: thanks to Victor Szepe - http://www.szepe.net
 * Respect WordPress's WP_MAX_MEMORY_LIMIT constant
 
 = 1.5.5 - 03/26/2013 =
