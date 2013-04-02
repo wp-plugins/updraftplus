@@ -1830,7 +1830,7 @@ msgid "SFTP user setting"
 msgstr "SFTP felhasználó"
 
 #: addons/sftp.php:32
-msgid "SFTP passwrd"
+msgid "SFTP password"
 msgstr "SFTP jelszó"
 
 #: addons/sftp.php:50 addons/sftp.php:293
