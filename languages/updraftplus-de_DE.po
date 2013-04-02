@@ -1837,7 +1837,7 @@ msgid "SFTP user setting"
 msgstr "SFTP-Benutzereinstellungen"
 
 #: addons/sftp.php:32
-msgid "SFTP passwrd"
+msgid "SFTP password"
 msgstr "SFTP-Passwort"
 
 #: addons/sftp.php:50 addons/sftp.php:293
