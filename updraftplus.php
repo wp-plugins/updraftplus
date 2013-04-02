@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your site can be backed up locally or to Amazon S3, Dropbox, Google Drive, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.5.9
+Version: 1.5.10
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -17,6 +17,7 @@ TODO - some of these are out of date/done, needs pruning
 // Separate out all restoration code and admin UI into separate file/classes (optimisation)?
 // Search for other TODO-s in the code
 // Test in PHP 5.4
+// Save database encryption key inside backup history on per-db basis, so that if it changes we can still decrypt
 // Switch to Google Drive SDK
 // Ability to re-scan existing cloud storage
 // Make mcrypt warning on dropbox more prominent - one customer missed it
@@ -166,6 +167,7 @@ class UpdraftPlus {
 		add_action('admin_init', array($this,'admin_init'));
 		add_action('admin_head', array($this,'admin_head'));
 		add_action('wp_ajax_plupload_action', array($this,'plupload_action'));
+		add_action('wp_ajax_plupload_action2', array($this,'plupload_action2'));
 		add_action('updraft_backup', array($this,'backup_files'));
 		add_action('updraft_backup_database', array($this,'backup_database'));
 		# backup_all is used by the manual "Backup Now" button
@@ -206,10 +208,7 @@ class UpdraftPlus {
 		add_filter('upload_dir', array($this, 'upload_dir'));
 		// handle file upload
 
-		$farray = array(
-				'test_form' => true,
-				'action' => 'plupload_action'
-			);
+		$farray = array( 'test_form' => true, 'action' => 'plupload_action' );
 
 		if (isset($_POST['chunks'])) {
 			$farray['test_type'] = false;
@@ -269,6 +268,81 @@ class UpdraftPlus {
 		exit;
 	}
 
+	function plupload_action2() {
+		// check ajax noonce
+
+		check_ajax_referer('updraft-uploader');
+
+		$updraft_dir = $this->backups_dir_location();
+		if (!is_writable($updraft_dir)) exit;
+
+		add_filter('upload_dir', array($this, 'upload_dir'));
+		// handle file upload
+
+		$farray = array( 'test_form' => true, 'action' => 'plupload_action2' );
+
+		$farray['test_type'] = false;
+		$farray['ext'] = 'crypt';
+		$farray['type'] = 'application/octet-stream';
+
+		if (isset($_POST['chunks'])) {
+// 			$farray['ext'] = 'zip';
+// 			$farray['type'] = 'application/zip';
+		} else {
+			$farray['unique_filename_callback'] = array($this, 'unique_filename_callback');
+		}
+
+		$status = wp_handle_upload(
+			$_FILES['async-upload'],
+			$farray
+		);
+		remove_filter('upload_dir', array($this, 'upload_dir'));
+
+		if (isset($status['error'])) {
+			echo 'ERROR:'.$status['error'];
+			exit;
+		}
+
+		// If this was the chunk, then we should instead be concatenating onto the final file
+		if (isset($_POST['chunks']) && isset($_POST['chunk']) && preg_match('/^[0-9]+$/',$_POST['chunk'])) {
+			$final_file = $_POST['name'];
+			rename($status['file'], $updraft_dir.'/'.$final_file.'.'.$_POST['chunk'].'.zip.tmp');
+			$status['file'] = $updraft_dir.'/'.$final_file.'.'.$_POST['chunk'].'.zip.tmp';
+
+			// Final chunk? If so, then stich it all back together
+			if ($_POST['chunk'] == $_POST['chunks']-1) {
+				if ($wh = fopen($updraft_dir.'/'.$final_file, 'wb')) {
+					for ($i=0 ; $i<$_POST['chunks']; $i++) {
+						$rf = $updraft_dir.'/'.$final_file.'.'.$i.'.zip.tmp';
+						if ($rh = fopen($rf, 'rb')) {
+							while ($line = fread($rh, 32768)) fwrite($wh, $line);
+							fclose($rh);
+							@unlink($rf);
+						}
+					}
+					fclose($wh);
+					$status['file'] = $updraft_dir.'/'.$final_file;
+				}
+			}
+
+		}
+
+		if (!isset($_POST['chunks']) || (isset($_POST['chunk']) && $_POST['chunk'] == $_POST['chunks']-1)) {
+			$file = basename($status['file']);
+			if (!preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+\.(gz\.crypt)$/i', $file)) {
+
+				@unlink($file);
+				echo 'ERROR:'.__('Bad filename format - this does not look like an encrypted database file created by UpdraftPlus','updraftplus');
+				exit;
+			}
+		}
+
+		// send the uploaded file url in response
+// 		echo 'OK:'.$status['url'];
+		echo 'OK:'.$file;
+		exit;
+	}
+
 	function load_translations() {
 		// Tell WordPress where to find the translations
 		load_plugin_textdomain('updraftplus', false, basename(dirname(__FILE__)).'/languages');
@@ -305,21 +379,37 @@ class UpdraftPlus {
 		);
 
 		?><script type="text/javascript">var updraft_plupload_config=<?php echo json_encode($plupload_init); ?>;</script>
+		<?php
+			$plupload_init['browse_button'] = 'plupload-browse-button2';
+			$plupload_init['container'] = 'plupload-upload-ui2';
+			$plupload_init['drop_element'] = 'drag-drop-area2';
+			$plupload_init['multipart_params']['action'] = 'plupload_action2';
+			$plupload_init['filters'] = array(array('title' => __('Allowed Files'), 'extensions' => 'crypt'));
+		?><script type="text/javascript">var updraft_plupload_config2=<?php echo json_encode($plupload_init); ?>;
+		var updraft_downloader_nonce = '<?php wp_create_nonce("updraftplus_download"); ?>'
+		</script>
 		<style type="text/css">
-		#filelist {
-		width: 100%;
-		
+		.drag-drop #drag-drop-area2 {
+			border: 4px dashed #ddd;
+			height: 200px;
 		}
-		#filelist .file {
-		padding: 5px;
-		background: #ececec;
-		border: solid 1px #ccc;
-		margin: 4px 0;
+		#drag-drop-area2 .drag-drop-inside {
+			margin: 36px auto 0;
+			width: 350px;
 		}
-		#filelist .fileprogress {
-		width: 0%;
-		background: #f6a828;
-		height: 5px;
+		#filelist, #filelist2 {
+			width: 100%;
+		}
+		#filelist .file, #filelist2 .file {
+			padding: 5px;
+			background: #ececec;
+			border: solid 1px #ccc;
+			margin: 4px 0;
+		}
+		#filelist .fileprogress, #filelist2 .fileprogress {
+			width: 0%;
+			background: #f6a828;
+			height: 5px;
 		}
 		</style>
 		<?php
@@ -338,6 +428,7 @@ class UpdraftPlus {
 				$call_method = "action_".$matches[2];
 				if (method_exists($call_class, $call_method)) call_user_func(array($call_class,$call_method));
 			} elseif ($_GET['action'] == 'downloadlog' && isset($_GET['updraftplus_backup_nonce']) && preg_match("/^[0-9a-f]{12}$/",$_GET['updraftplus_backup_nonce'])) {
+				// No WordPress nonce is needed here or for the next, since the backup is already nonce-based
 				$updraft_dir = $this->backups_dir_location();
 				$log_file = $updraft_dir.'/log.'.$_GET['updraftplus_backup_nonce'].'.txt';
 				if (is_readable($log_file)) {
@@ -346,6 +437,16 @@ class UpdraftPlus {
 					exit;
 				} else {
 					add_action('admin_notices', array($this,'show_admin_warning_unreadablelog') );
+				}
+			} elseif ($_GET['action'] == 'downloadfile' && isset($_GET['updraftplus_file']) && preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+\.(gz\.crypt)$/i', $_GET['updraftplus_file'])) {
+				$updraft_dir = $this->backups_dir_location();
+				$spool_file = $updraft_dir.'/'.$_GET['updraftplus_file'];
+				if (is_readable($spool_file)) {
+					$dkey = (isset($_GET['decrypt_key'])) ? $_GET['decrypt_key'] : "";
+					$this->spool_file('db', $spool_file, $dkey);
+					exit;
+				} else {
+					add_action('admin_notices', array($this,'show_admin_warning_unreadablefile') );
 				}
 			}
 		}
@@ -1766,7 +1867,7 @@ class UpdraftPlus {
 		foreach ($backup_history as $btime => $bdata) {
 			foreach ($bdata as $key => $value) {
 				// Record which set this file is found in
-				if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+\.(zip|gz)$/i', $value, $matches)) {
+				if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+\.(zip|gz|gz\.crypt)$/i', $value, $matches)) {
 					$nonce = $matches[2];
 					$known_files[$value] = $nonce;
 					$known_nonces[$nonce] = $btime;
@@ -1782,7 +1883,7 @@ class UpdraftPlus {
 	
 		while (false !== ($entry = readdir($handle))) {
 			if ($entry != "." && $entry != "..") {
-				if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)\.(zip|gz)$/i', $entry, $matches)) {
+				if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)\.(zip|gz|gz\.crypt)$/i', $entry, $matches)) {
 					$btime = strtotime($matches[1]);
 					if ($btime > 100) {
 						if (!isset($known_files[$entry])) {
@@ -1889,7 +1990,7 @@ class UpdraftPlus {
 		$fullpath = $this->backups_dir_location().'/'.$file;
 
 		if (isset($_GET['stage']) && '2' == $_GET['stage']) {
-			$this->spool_file($timestamp, $type, $fullpath);
+			$this->spool_file($type, $fullpath);
 			die;
 		}
 
@@ -1965,7 +2066,7 @@ class UpdraftPlus {
 
 	}
 
-	function spool_file($timestamp, $type, $fullpath) {
+	function spool_file($type, $fullpath, $encryption = "") {
 
 		if (file_exists($fullpath)) {
 
@@ -1976,38 +2077,38 @@ class UpdraftPlus {
 			$filearr = explode('.',$file);
 	// 			//we've only got zip and gz...for now
 			$file_ext = array_pop($filearr);
-			if($file_ext == 'zip') {
-				header('Content-type: application/zip');
-			} else {
-				// This catches both when what was popped was 'crypt' (*-db.gz.crypt) and when it was 'gz' (unencrypted)
-				header('Content-type: application/x-gzip');
-			}
 			header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
 			header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
 			header("Content-Length: $len;");
+
 			if ($file_ext == 'crypt') {
-				header("Content-Disposition: attachment; filename=\"".substr($file,0,-6)."\";");
-			} else {
-				header("Content-Disposition: attachment; filename=\"$file\";");
-			}
-			ob_end_flush();
-			if ($file_ext == 'crypt') {
-				$encryption = UpdraftPlus_Options::get_updraft_option('updraft_encryptionphrase');
+				if ($encryption == "") $encryption = UpdraftPlus_Options::get_updraft_option('updraft_encryptionphrase');
 				if ($encryption == "") {
+					header('Content-type: text/plain');
+					_e("Decryption failed. The database file is encrypted, but you have no encryption key entered.",'updraftplus');
 					$this->error('Decryption of database failed: the database file is encrypted, but you have no encryption key entered.');
 				} else {
 					require_once(dirname(__FILE__).'/includes/phpseclib/Crypt/Rijndael.php');
 					$rijndael = new Crypt_Rijndael();
 					$rijndael->setKey($encryption);
-					$in_handle = fopen($fullpath,'r');
-					$ciphertext = "";
-					while (!feof ($in_handle)) {
-						$ciphertext .= fread($in_handle, 16384);
+					$ciphertext = $rijndael->decrypt(file_get_contents($fullpath));
+					if ($ciphertext) {
+						header('Content-type: application/x-gzip');
+						header("Content-Disposition: attachment; filename=\"".substr($file,0,-6)."\";");
+						print $ciphertext;
+					} else {
+						header('Content-type: text/plain');
+						echo __("Decryption failed. The most likely cause is that you used the wrong key.",'updraftplus')." ".__('The decryption key used:','updraftplus').' '.$encryption;
+						
 					}
-					fclose ($in_handle);
-					print $rijndael->decrypt($ciphertext);
 				}
 			} else {
+				if ($file_ext == 'zip') {
+					header('Content-type: application/zip');
+				} else {
+					header('Content-type: application/x-gzip');
+				}
+				header("Content-Disposition: attachment; filename=\"$file\";");
 				readfile($fullpath);
 			}
 // 			$this->delete_local($file);
@@ -2397,10 +2498,30 @@ class UpdraftPlus {
 				<?php
 				$updraft_encryptionphrase = UpdraftPlus_Options::get_updraft_option('updraft_encryptionphrase');
 				?>
-				<td><input type="text" name="updraft_encryptionphrase" value="<?php echo $updraft_encryptionphrase ?>" style="width:132px" /></td>
+				<td><input type="text" name="updraft_encryptionphrase" id="updraft_encryptionphrase" value="<?php echo $updraft_encryptionphrase ?>" style="width:132px" /></td>
 			</tr>
 			<tr class="backup-crypt-description">
-				<td></td><td><?php _e('If you enter text here, it is used to encrypt backups (Rijndael). <strong>Do make a separate record of it and do not lose it, or all your backups <em>will</em> be useless.</strong> Presently, only the database file is encrypted. This is also the key used to decrypt backups from this admin interface (so if you change it, then automatic decryption will not work until you change it back). You can also use the file example-decrypt.php from inside the UpdraftPlus plugin directory to decrypt manually.','updraftplus');?></td>
+				<td></td><td><p><?php _e('If you enter text here, it is used to encrypt backups (Rijndael). <strong>Do make a separate record of it and do not lose it, or all your backups <em>will</em> be useless.</strong> Presently, only the database file is encrypted. This is also the key used to decrypt backups from this admin interface (so if you change it, then automatic decryption will not work until you change it back).','updraftplus');?> <a href="#" onclick="jQuery('#updraftplus_db_decrypt').val(jQuery('#updraft_encryptionphrase').val()); jQuery('#updraft-manualdecrypt-modal').slideToggle(); return false;"><?php _e('You can also decrypt a database manually here.','updraftplus');?></a></p>
+
+				<div id="updraft-manualdecrypt-modal" style="width: 85%; margin: 16px; display:none; margin-left: 100px;">
+					<p><h3><?php _e("Manually decrypt a database backup file" ,'updraftplus');?></h3></p>
+					<div id="plupload-upload-ui2" style="width: 80%;">
+						<div id="drag-drop-area2">
+							<div class="drag-drop-inside">
+								<p class="drag-drop-info"><?php _e('Drop encrypted database files (db.crypt.gz files) here to upload them for decryption'); ?></p>
+								<p><?php _ex('or', 'Uploader: Drop .crypt.db.gz files here to upload them for decryption - or - Select Files'); ?></p>
+								<p class="drag-drop-buttons"><input id="plupload-browse-button2" type="button" value="<?php esc_attr_e('Select Files'); ?>" class="button" /></p>
+								<p style="margin-top: 18px;"><?php _e('Use decryption key','updraftplus')?>: <input id="updraftplus_db_decrypt" type="text" size="12"></input></p>
+							</div>
+						</div>
+						<div id="filelist2">
+						</div>
+					</div>
+
+				</div>
+
+
+				</td>
 			</tr>
 			</table>
 
@@ -2968,7 +3089,6 @@ class UpdraftPlus {
 </div>
 
 <div id="updraft-backupnow-modal" title="UpdraftPlus - <?php _e('Perform a backup now','updraftplus'); ?>">
-
 	<p><?php _e("This will schedule a one-time backup. To proceed, press 'Backup Now', then wait 10 seconds, then visit any page on your site. WordPress should then start the backup running in the background.",'updraftplus');?></p>
 
 	<form id="updraft-backupnow-form" method="post" action="">
@@ -2976,7 +3096,6 @@ class UpdraftPlus {
 	</form>
 
 	<p><?php _e('Does nothing happen when you schedule backups?','updraftplus');?> <a href="http://updraftplus.com/faqs/my-scheduled-backups-and-pressing-backup-now-does-nothing-however-pressing-debug-backup-does-produce-a-backup/"><?php _e('Go here for help.','updraft');?></a></p>
-
 </div>
 
 			<?php
@@ -3144,6 +3263,10 @@ class UpdraftPlus {
 
 	function show_admin_warning_unreadablelog() {
 		$this->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus')/':</strong> '.__('The log file could not be read.','updraftplus'));
+	}
+
+	function show_admin_warning_unreadablefile() {
+		$this->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus')/':</strong> '.__('The given file could not be read.','updraftplus'));
 	}
 
 	function show_admin_warning_dropbox() {

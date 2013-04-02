@@ -112,9 +112,10 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.5.9 - not yet released/supported =
+= 1.5.10 - not yet released/supported =
 * Built-in multi-uploader, allowing easier restoration of old backup sets
 * FTP and FTPS (not SFTP) are now chunked and resumable (both download and upload), subject to your FTP server responding correctly to SIZE
+* Built in drag-and-drop database decrypter for manual decryption
 * Clear PHP's file stat cache when checking for zip file activity - fixes potential halt on very enormous sites
 * Caught some untranslated strings
 * German translation: thanks to Marcel Herrguth - mherrguth@mrgeneration.de
