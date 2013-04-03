@@ -20,12 +20,16 @@ class UpdraftPlus_Admin {
 	function wp_loaded() {
 
 		add_action('admin_head', array($this,'admin_head'));
+		add_action('admin_init', array($this,'admin_init'));
 		add_filter('plugin_action_links', array($this, 'plugin_action_links'), 10, 2);
 		add_action('wp_ajax_updraft_download_backup', array($this, 'updraft_download_backup'));
 		add_action('wp_ajax_updraft_ajax', array($this, 'updraft_ajax_handler'));
 		add_action('wp_ajax_plupload_action', array($this,'plupload_action'));
 		add_action('wp_ajax_plupload_action2', array($this,'plupload_action2'));
 
+	}
+
+	function admin_init() {
 		global $updraftplus;
 
 		if(UpdraftPlus_Options::get_updraft_option('updraft_debug_mode')) {
