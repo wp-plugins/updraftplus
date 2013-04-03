@@ -4,7 +4,7 @@ if (!defined ('ABSPATH')) die ('No direct access allowed');
 
 // For the purposes of improving site performance (don't load in 10s of Kilobytes of un-needed code on every page load), admin-area code is being progressively moved here.
 
-// This gets called in admin_init
+// This gets called in wp_loaded, which is slightly before admin_init (so our object can get used by those hooking admin_init)
 
 global $updraftplus_admin;
 if (empty($updraftplus_admin)) $updraftplus_admin = new UpdraftPlus_Admin();
@@ -13,11 +13,11 @@ class UpdraftPlus_Admin {
 
 	function __construct() {
 
-		$this->admin_init();
+		$this->wp_loaded();
 
 	}
 
-	function admin_init() {
+	function wp_loaded() {
 
 		add_action('admin_head', array($this,'admin_head'));
 		add_filter('plugin_action_links', array($this, 'plugin_action_links'), 10, 2);

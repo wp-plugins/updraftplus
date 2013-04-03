@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your site can take backups locally, or backup to Amazon S3, Dropbox, Google Drive, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.5.11
+Version: 1.5.12
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -158,7 +158,7 @@ class UpdraftPlus {
 
 		# Create admin page
 		add_action('init', array($this, 'handle_url_actions'));
-		add_action('admin_init', array($this,'admin_init'));
+		add_action('wp_loaded', array($this,'wp_loaded'));
 		add_action('updraft_backup', array($this,'backup_files'));
 		add_action('updraft_backup_database', array($this,'backup_database'));
 		# backup_all is used by the manual "Backup Now" button	
@@ -1428,12 +1428,6 @@ class UpdraftPlus {
 
 	/*END OF WP-DB-BACKUP BLOCK */
 
-	function hourminute($pot) {
-		if (preg_match("/^[0-2][0-9]:[0-5][0-9]$/", $pot)) return $pot;
-		if ('' == $pot) return date('H:i', time()+300);
-		return '00:00';
-	}
-
 	/*
 	this function is both the backup scheduler and ostensibly a filter callback for saving the option.
 	it is called in the register_setting for the updraft_interval, which means when the admin settings 
@@ -1602,7 +1596,7 @@ class UpdraftPlus {
 		return ($memory_limit >= $memory)?true:false;
 	}
 
-	function admin_init() {
+	function wp_loaded() {
 		// We are in the admin area: now load all that code
 		require_once(UPDRAFTPLUS_DIR.'/admin.php');
 	}
