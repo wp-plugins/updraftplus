@@ -1,5 +1,7 @@
 <?php
 
+if (!defined ('ABSPATH')) die ('No direct access allowed');
+
 // For the purposes of improving site performance (don't load in 10s of Kilobytes of un-needed code on every page load), admin-area code is being progressively moved here.
 
 // This gets called in admin_init

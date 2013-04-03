@@ -112,7 +112,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.5.10 - not yet released/supported =
+= 1.5.11 - not yet released/supported =
 * Built-in multi-uploader, allowing easier restoration of old backup sets
 * FTP and FTPS (not SFTP) are now chunked and resumable (both download and upload), subject to your FTP server responding correctly to SIZE
 * Built in drag-and-drop database decrypter for manual decryption
@@ -121,7 +121,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * German translation: thanks to Marcel Herrguth - mherrguth@mrgeneration.de
 * Hungarian translation: thanks to Szépe Viktor - http://www.szepe.net
 * Respect WordPress's WP_MAX_MEMORY_LIMIT constant
-* Re-factoring of admin-area code into a separate lazy-loaded file, to reduce memory consumption on sites generally
+* Re-factoring of admin-area and some backup code into separate lazy-loaded files, to reduce memory consumption on sites generally
 * A small typo slipped into 1.5.5 which prevented some Google Drive users from setting up new installations
 
 = 1.5.5 - 03/26/2013 =
