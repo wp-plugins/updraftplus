@@ -2976,11 +2976,11 @@ class UpdraftPlus {
 	}
 
 	function show_admin_warning_unreadablelog() {
-		$this->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus')/':</strong> '.__('The log file could not be read.','updraftplus'));
+		$this->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus').'</strong> '.__('The log file could not be read.','updraftplus'));
 	}
 
 	function show_admin_warning_dropbox() {
-		$this->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus')/':</strong> <a href="options-general.php?page=updraftplus&action=updraftmethod-dropbox-auth&updraftplus_dropboxauth=doit">.'.sprintf(__('Click here to authenticate your %s account (you will not be able to back up to %s without it).','updraftplus'),'Dropbox','Dropbox').'</a>');
+		$this->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus').'</strong> <a href="options-general.php?page=updraftplus&action=updraftmethod-dropbox-auth&updraftplus_dropboxauth=doit">.'.sprintf(__('Click here to authenticate your %s account (you will not be able to back up to %s without it).','updraftplus'),'Dropbox','Dropbox').'</a>');
 	}
 
 	function show_admin_warning_googledrive() {
