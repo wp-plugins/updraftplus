@@ -164,8 +164,8 @@ class UpdraftPlus {
 		}
 
 		# Create admin page
+		add_action('init', array($this, 'init'));
 		add_action('admin_init', array($this,'admin_init'));
-		add_action('admin_head', array($this,'admin_head'));
 		add_action('wp_ajax_plupload_action', array($this,'plupload_action'));
 		add_action('wp_ajax_plupload_action2', array($this,'plupload_action2'));
 		add_action('updraft_backup', array($this,'backup_files'));
@@ -178,13 +178,59 @@ class UpdraftPlus {
 		add_action('wp_ajax_updraft_ajax', array($this, 'updraft_ajax_handler'));
 		# http://codex.wordpress.org/Plugin_API/Filter_Reference/cron_schedules
 		add_filter('cron_schedules', array($this,'modify_cron_schedules'));
-		add_filter('plugin_action_links', array($this, 'plugin_action_links'), 10, 2);
-		add_action('init', array($this, 'handle_url_actions'));
 		add_action('plugins_loaded', array($this, 'load_translations'));
 
 		if (defined('UPDRAFTPLUS_PREFERPCLZIP') && UPDRAFTPLUS_PREFERPCLZIP == true) { $this->zip_preferpcl = true; }
 
 	}
+
+	// Handle actions passed on to method plugins; e.g. Google OAuth 2.0 - ?page=updraftplus&action=updraftmethod-googledrive-auth
+	// Also handle action=downloadlog
+	function handle_url_actions() {
+
+		// First, basic security check: must be an admin page, with ability to manage options, with the right parameters
+		if ( UpdraftPlus_Options::user_can_manage() && isset( $_GET['page'] ) && $_GET['page'] == 'updraftplus' && isset($_GET['action']) ) {
+			if (preg_match("/^updraftmethod-([a-z]+)-([a-z]+)$/", $_GET['action'], $matches) && file_exists(UPDRAFTPLUS_DIR.'/methods/'.$matches[1].'.php')) {
+				$method = $matches[1];
+				require_once(UPDRAFTPLUS_DIR.'/methods/'.$method.'.php');
+				$call_class = "UpdraftPlus_BackupModule_".$method;
+				$call_method = "action_".$matches[2];
+				if (method_exists($call_class, $call_method)) call_user_func(array($call_class,$call_method));
+			} elseif ($_GET['action'] == 'downloadlog' && isset($_GET['updraftplus_backup_nonce']) && preg_match("/^[0-9a-f]{12}$/",$_GET['updraftplus_backup_nonce'])) {
+				// No WordPress nonce is needed here or for the next, since the backup is already nonce-based
+				$updraft_dir = $this->backups_dir_location();
+				$log_file = $updraft_dir.'/log.'.$_GET['updraftplus_backup_nonce'].'.txt';
+				if (is_readable($log_file)) {
+					header('Content-type: text/plain');
+					readfile($log_file);
+					exit;
+				} else {
+					add_action('admin_notices', array($this,'show_admin_warning_unreadablelog') );
+				}
+			} elseif ($_GET['action'] == 'downloadfile' && isset($_GET['updraftplus_file']) && preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+\.(gz\.crypt)$/i', $_GET['updraftplus_file'])) {
+				$updraft_dir = $this->backups_dir_location();
+				$spool_file = $updraft_dir.'/'.$_GET['updraftplus_file'];
+				if (is_readable($spool_file)) {
+					$dkey = (isset($_GET['decrypt_key'])) ? $_GET['decrypt_key'] : "";
+					$this->spool_file('db', $spool_file, $dkey);
+					exit;
+				} else {
+					add_action('admin_notices', array($this,'show_admin_warning_unreadablefile') );
+				}
+			}
+		}
+	}
+
+	function show_admin_warning_unreadablelog() {
+		global $updraftplus_admin;
+		$updraftplus_admin->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus').':</strong> '.__('The log file could not be read.','updraftplus'));
+	}
+
+	function show_admin_warning_unreadablefile() {
+		global $updraftplus_admin;
+		$updraftplus_admin->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus').':</strong> '.__('The given file could not be read.','updraftplus'));
+	}
+
 
 	function upload_dir($uploads) {
 		$updraft_dir = $this->backups_dir_location();
@@ -348,109 +394,7 @@ class UpdraftPlus {
 		load_plugin_textdomain('updraftplus', false, basename(dirname(__FILE__)).'/languages');
 	}
 
-	function admin_head() {
 
-		global $pagenow;
-		if ($pagenow != 'options-general.php' || !isset($_REQUEST['page']) && 'updraftplus' != $_REQUEST['page']) return;
-
- 		$chunk_size = min(wp_max_upload_size()-1024, 1024*1024*2);
-
-		$plupload_init = array(
-			'runtimes' => 'html5,silverlight,flash,html4',
-			'browse_button' => 'plupload-browse-button',
-			'container' => 'plupload-upload-ui',
-			'drop_element' => 'drag-drop-area',
-			'file_data_name' => 'async-upload',
-			'multiple_queues' => true,
-			'max_file_size' => '100Gb',
-			'chunk_size' => $chunk_size.'b',
-			'url' => admin_url('admin-ajax.php'),
-			'flash_swf_url' => includes_url('js/plupload/plupload.flash.swf'),
-			'silverlight_xap_url' => includes_url('js/plupload/plupload.silverlight.xap'),
-			'filters' => array(array('title' => __('Allowed Files'), 'extensions' => 'zip,gz,crypt')),
-			'multipart' => true,
-			'multi_selection' => true,
-			'urlstream_upload' => true,
-			// additional post data to send to our ajax hook
-			'multipart_params' => array(
-				'_ajax_nonce' => wp_create_nonce('updraft-uploader'),
-				'action' => 'plupload_action'
-			)
-		);
-
-		?><script type="text/javascript">var updraft_plupload_config=<?php echo json_encode($plupload_init); ?>;</script>
-		<?php
-			$plupload_init['browse_button'] = 'plupload-browse-button2';
-			$plupload_init['container'] = 'plupload-upload-ui2';
-			$plupload_init['drop_element'] = 'drag-drop-area2';
-			$plupload_init['multipart_params']['action'] = 'plupload_action2';
-			$plupload_init['filters'] = array(array('title' => __('Allowed Files'), 'extensions' => 'crypt'));
-		?><script type="text/javascript">var updraft_plupload_config2=<?php echo json_encode($plupload_init); ?>;
-		var updraft_downloader_nonce = '<?php wp_create_nonce("updraftplus_download"); ?>'
-		</script>
-		<style type="text/css">
-		.drag-drop #drag-drop-area2 {
-			border: 4px dashed #ddd;
-			height: 200px;
-		}
-		#drag-drop-area2 .drag-drop-inside {
-			margin: 36px auto 0;
-			width: 350px;
-		}
-		#filelist, #filelist2 {
-			width: 100%;
-		}
-		#filelist .file, #filelist2 .file {
-			padding: 5px;
-			background: #ececec;
-			border: solid 1px #ccc;
-			margin: 4px 0;
-		}
-		#filelist .fileprogress, #filelist2 .fileprogress {
-			width: 0%;
-			background: #f6a828;
-			height: 5px;
-		}
-		</style>
-		<?php
-
-	}
-
-	// Handle actions passed on to method plugins; e.g. Google OAuth 2.0 - ?page=updraftplus&action=updraftmethod-googledrive-auth
-	// Also handle action=downloadlog
-	function handle_url_actions() {
-		// First, basic security check: must be an admin page, with ability to manage options, with the right parameters
-		if ( UpdraftPlus_Options::user_can_manage() && isset( $_GET['page'] ) && $_GET['page'] == 'updraftplus' && isset($_GET['action']) ) {
-			if (preg_match("/^updraftmethod-([a-z]+)-([a-z]+)$/", $_GET['action'], $matches) && file_exists(UPDRAFTPLUS_DIR.'/methods/'.$matches[1].'.php')) {
-				$method = $matches[1];
-				require_once(UPDRAFTPLUS_DIR.'/methods/'.$method.'.php');
-				$call_class = "UpdraftPlus_BackupModule_".$method;
-				$call_method = "action_".$matches[2];
-				if (method_exists($call_class, $call_method)) call_user_func(array($call_class,$call_method));
-			} elseif ($_GET['action'] == 'downloadlog' && isset($_GET['updraftplus_backup_nonce']) && preg_match("/^[0-9a-f]{12}$/",$_GET['updraftplus_backup_nonce'])) {
-				// No WordPress nonce is needed here or for the next, since the backup is already nonce-based
-				$updraft_dir = $this->backups_dir_location();
-				$log_file = $updraft_dir.'/log.'.$_GET['updraftplus_backup_nonce'].'.txt';
-				if (is_readable($log_file)) {
-					header('Content-type: text/plain');
-					readfile($log_file);
-					exit;
-				} else {
-					add_action('admin_notices', array($this,'show_admin_warning_unreadablelog') );
-				}
-			} elseif ($_GET['action'] == 'downloadfile' && isset($_GET['updraftplus_file']) && preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+\.(gz\.crypt)$/i', $_GET['updraftplus_file'])) {
-				$updraft_dir = $this->backups_dir_location();
-				$spool_file = $updraft_dir.'/'.$_GET['updraftplus_file'];
-				if (is_readable($spool_file)) {
-					$dkey = (isset($_GET['decrypt_key'])) ? $_GET['decrypt_key'] : "";
-					$this->spool_file('db', $spool_file, $dkey);
-					exit;
-				} else {
-					add_action('admin_notices', array($this,'show_admin_warning_unreadablefile') );
-				}
-			}
-		}
-	}
 
 	// Cleans up temporary files found in the updraft directory
 	function clean_temporary_files() {
@@ -466,19 +410,6 @@ class UpdraftPlus {
 			}
 			@closedir($handle);
 		}
-	}
-
-	# Adds the settings link under the plugin on the plugin screen.
-	function plugin_action_links($links, $file) {
-		if ($file == plugin_basename(__FILE__)){
-			$settings_link = '<a href="'.site_url().'/wp-admin/options-general.php?page=updraftplus">'.__("Settings", "updraftplus").'</a>';
-			array_unshift($links, $settings_link);
-// 			$settings_link = '<a href="http://david.dw-perspective.org.uk/donate">'.__("Donate","UpdraftPlus").'</a>';
-// 			array_unshift($links, $settings_link);
-			$settings_link = '<a href="http://updraftplus.com">'.__("Add-Ons / Pro Support","updraftplus").'</a>';
-			array_unshift($links, $settings_link);
-		}
-		return $links;
 	}
 
 	function backup_time_nonce() {
@@ -2344,32 +2275,7 @@ class UpdraftPlus {
 
 	function admin_init() {
 
-		if(UpdraftPlus_Options::get_updraft_option('updraft_debug_mode')) {
-			@ini_set('display_errors',1);
-			@error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
-			@ini_set('track_errors',1);
-		}
-
-		if (UpdraftPlus_Options::user_can_manage() && UpdraftPlus_Options::get_updraft_option('updraft_service') == "googledrive" && UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid','') != '' && UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token','') == '') {
-			add_action('admin_notices', array($this,'show_admin_warning_googledrive') );
-		}
-
-		if (UpdraftPlus_Options::user_can_manage() && UpdraftPlus_Options::get_updraft_option('updraft_service') == "dropbox" && UpdraftPlus_Options::get_updraft_option('updraft_dropboxtk_request_token','') == '') {
-			add_action('admin_notices', array($this,'show_admin_warning_dropbox') );
-		}
-
-		if (UpdraftPlus_Options::user_can_manage() && $this->disk_space_check(1024*1024*35) === false) add_action('admin_notices', array($this, 'show_admin_warning_diskspace'));
-
-		global $wp_version, $pagenow;
-		if ($pagenow == 'options-general.php' && version_compare($wp_version, '3.2', '<')) add_action('admin_notices', array($this, 'show_admin_warning_wordpressversion'));
-
-		if ($pagenow == 'options-general.php' && isset($_REQUEST['page']) && 'updraftplus' == $_REQUEST['page']) {
-			wp_enqueue_script('jquery');
-			wp_enqueue_script('jquery-ui-dialog');
-			wp_enqueue_script('plupload-all');
-			wp_register_script('updraftplus-plupload', UPDRAFTPLUS_URL.'/includes/ud-plupload.js', array('jquery'));
-			wp_enqueue_script('updraftplus-plupload');
-		}
+		require_once(UPDRAFTPLUS_DIR.'/admin.php');
 
 	}
 
@@ -2814,12 +2720,10 @@ class UpdraftPlus {
 			return;
 		}
 		
-		if(isset($_GET['error'])) {
-			$this->show_admin_warning(htmlspecialchars($_GET['error']), 'error');
-		}
-		if(isset($_GET['message'])) {
-			$this->show_admin_warning(htmlspecialchars($_GET['message']));
-		}
+		global $updraftplus_admin;
+
+		if(isset($_GET['error'])) $updraftplus_admin->show_admin_warning(htmlspecialchars($_GET['error']), 'error');
+		if(isset($_GET['message'])) $updraftplus_admin->show_admin_warning(htmlspecialchars($_GET['message']));
 
 		if(isset($_GET['action']) && $_GET['action'] == 'updraft_create_backup_dir') {
 			if(!$this->create_backup_dir()) {
@@ -2850,7 +2754,7 @@ class UpdraftPlus {
 			foreach ($settings as $s) {
 				UpdraftPlus_Options::delete_updraft_option($s);
 			}
-			$this->show_admin_warning(__("Your settings have been wiped.",'updraftplus'));
+			$updraftplus_admin->show_admin_warning(__("Your settings have been wiped.",'updraftplus'));
 		}
 
 		?>
@@ -3249,33 +3153,6 @@ class UpdraftPlus {
 		echo '</table>';
 	}
 
-	function show_admin_warning($message, $class = "updated") {
-		echo '<div id="updraftmessage" class="'.$class.' fade">'."<p>$message</p></div>";
-	}
-
-	function show_admin_warning_diskspace() {
-		$this->show_admin_warning('<strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__('You have less than %s of free disk space on the disk which UpdraftPlus is configured to use to create backups. UpdraftPlus could well run out of space. Contact your the operator of your server (e.g. your web hosting company) to resolve this issue.','updraftplus'),'35 Mb'));
-	}
-
-	function show_admin_warning_wordpressversion() {
-		$this->show_admin_warning('<strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__('UpdraftPlus does not officially support versions of WordPress before %s. It may work for you, but if it does not, then please be aware that no support is available until you upgrade WordPress.'),'3.2'),'updraftplus');
-	}
-
-	function show_admin_warning_unreadablelog() {
-		$this->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus')/':</strong> '.__('The log file could not be read.','updraftplus'));
-	}
-
-	function show_admin_warning_unreadablefile() {
-		$this->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus')/':</strong> '.__('The given file could not be read.','updraftplus'));
-	}
-
-	function show_admin_warning_dropbox() {
-		$this->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus')/':</strong> <a href="options-general.php?page=updraftplus&action=updraftmethod-dropbox-auth&updraftplus_dropboxauth=doit">.'.sprintf(__('Click here to authenticate your %s account (you will not be able to back up to %s without it).','updraftplus'),'Dropbox','Dropbox').'</a>');
-	}
-
-	function show_admin_warning_googledrive() {
-		$this->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus').'</strong> <a href="options-general.php?page=updraftplus&action=updraftmethod-googledrive-auth&updraftplus_googleauth=doit">.'.sprintf(__('Click here to authenticate your %s account (you will not be able to back up to %s without it).','updraftplus'),'Google Drive','Google Drive').'</a>');
-	}
 
 	// Caution: $source is allowed to be an array, not just a filename
 	function make_zipfile($source, $destination) {

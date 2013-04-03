@@ -121,6 +121,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * German translation: thanks to Marcel Herrguth - mherrguth@mrgeneration.de
 * Hungarian translation: thanks to Szépe Viktor - http://www.szepe.net
 * Respect WordPress's WP_MAX_MEMORY_LIMIT constant
+* A small typo slipped into 1.5.5 which prevented some Google Drive users from setting up new installations
 
 = 1.5.5 - 03/26/2013 =
 * Now translatable - .pot file included (translators welcome!)
