@@ -22,8 +22,8 @@ class UpdraftPlus_Options {
 	}
 
 	public static function add_admin_pages() {
-		global $updraftplus;
-		add_submenu_page('options-general.php', 'UpdraftPlus', __('UpdraftPlus Backups','updraftplus'), "manage_options", "updraftplus", array($updraftplus, "settings_output"));
+		global $updraftplus_admin;
+		add_submenu_page('options-general.php', 'UpdraftPlus', __('UpdraftPlus Backups','updraftplus'), "manage_options", "updraftplus", array($updraftplus_admin, "settings_output"));
 	}
 
 	public static function options_form_begin() {
@@ -91,7 +91,7 @@ class UpdraftPlus_Options {
 
 }
 
-add_action('admin_init', array('UpdraftPlus_Options', 'admin_init'));
+add_action('admin_init', array('UpdraftPlus_Options', 'admin_init'), 15);
 add_action('admin_menu', array('UpdraftPlus_Options', 'add_admin_pages'));
 
 ?>
