@@ -16,7 +16,7 @@ New features: selective restoration, importing remote backups; plus many tweaks,
 <a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3, Dropbox, Google Drive, FTP, SFTP, WebDAV and email) and restore with a single click. Backups of files and database can have separate schedules.
 
 * Supports backups to Amazon S3, Dropbox, Google Drive, FTP (including SSL), email, SFTP and WebDAV
-* Quick restore
+* Quick restore (both file and database backups)
 * Backup automatically on a repeating schedule
 * Files and databases can have separate schedules
 * Failed uploads are automatically resumed/retried
@@ -113,6 +113,8 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 == Changelog ==
 
 = 1.5.11 - not yet released/supported =
+* Now restores databases (we recommend the MySQL command-line for versions created with previous versions of UpdraftPlus)
+* Batch INSERT commands in database backups, for much faster restoration (typically 95% faster)
 * Built-in multi-uploader, allowing easier restoration of old backup sets
 * FTP and FTPS (not SFTP) are now chunked and resumable (both download and upload), subject to your FTP server responding correctly to SIZE
 * Built in drag-and-drop database decrypter for manual decryption

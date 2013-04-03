@@ -635,7 +635,9 @@ class UpdraftPlus_Admin {
 			<br>
 			<?php
 			if(isset($_GET['updraft_restore_success'])) {
-				echo "<div class=\"updated fade\" style=\"padding:8px;\"><strong>".__('Your backup has been restored.','updraftplus').'</strong> '.__('Your old (themes, uploads, plugins, whatever) directories have been retained with "-old" appended to their name. Remove them when you are satisfied that the backup worked properly.').' '.__('At this time UpdraftPlus does not automatically restore your database. You will need to use an external tool like phpMyAdmin to perform that task.','updraftplus')."</div>";
+				// If we restored the database, then that will have out-of-date information which may confuse the user - so automatically re-scan for them.
+				$this->rebuild_backup_history();
+				echo "<div class=\"updated fade\" style=\"padding:8px;\"><strong>".__('Your backup has been restored.','updraftplus').'</strong> '.__('Your old (themes, uploads, plugins, whatever) directories have been retained with "-old" appended to their name. Remove them when you are satisfied that the backup worked properly.')."</div>";
 			}
 
 			$ws_advert = $updraftplus->wordshell_random_advert(1);
@@ -846,18 +848,24 @@ class UpdraftPlus_Admin {
 
 <div id="updraft-restore-modal" title="UpdraftPlus - <?php _e('Restore backup','updraftplus');?>">
 <p><strong><?php _e('Restore backup from','updraftplus');?>:</strong> <span id="updraft_restore_date"></span></p>
-<p><?php _e("Restoring will replace this site's themes, plugins, uploads and/or other content directories (according to what is contained in the backup set, and your selection",'updraftplus');?>). <?php _e('Choose the components to restore','updraftplus');?>:</p>
+<p><?php _e("Restoring will replace this site's themes, plugins, uploads, database and/or other content directories (according to what is contained in the backup set, and your selection",'updraftplus');?>). <?php _e('Choose the components to restore','updraftplus');?>:</p>
 <form id="updraft_restore_form" method="post">
 	<fieldset>
 		<input type="hidden" name="action" value="updraft_restore">
 		<input type="hidden" name="backup_timestamp" value="0" id="updraft_restore_timestamp">
 		<?php
+
+		# The 'off' check is for badly configured setups - http://wordpress.org/support/topic/plugin-wp-super-cache-warning-php-safe-mode-enabled-but-safe-mode-is-off
+		if(@ini_get('safe_mode') && strtolower(@ini_get('safe_mode')) != "off") {
+			echo "<p><em>".__('Your web server has PHP\'s so-called safe_mode active.','updraftplus').' '.__('This makes time-outs much more likely. You are recommended to turn safe_mode off, or to restore only one entity at a time, <a href="http://updraftplus.com/faqs/i-want-to-restore-but-have-either-cannot-or-have-failed-to-do-so-from-the-wp-admin-console/">or to restore manually</a>.', 'updraftplus')."</em></p><br/>";
+		}
+
 			$backupable_entities = $updraftplus->get_backupable_file_entities(true, true);
 			foreach ($backupable_entities as $type => $info) {
 				echo '<div><input id="updraft_restore_'.$type.'" type="checkbox" name="updraft_restore[]" value="'.$type.'"> <label for="updraft_restore_'.$type.'">'.$info['description'].'</label><br></div>';
 			}
 		?>
-		<p><em><?php _e("Databases cannot yet be restored from here - you must download the database file and take it to your web hosting company's control panel.",'updraftplus');?></em></p>
+		<div><input id="updraft_restore_db" type="checkbox" name="updraft_restore[]" value="db"> <label for="updraft_restore_db"><?php _e('Database','updraftplus'); ?></label><br></div>
 	</fieldset>
 </form>
 </div>
@@ -1402,7 +1410,10 @@ class UpdraftPlus_Admin {
 		<tr>
 			<td><b><?php echo $pretty_date?></b></td>
 			<td>
-		<?php if (isset($value['db'])) { ?>
+		<?php if (isset($value['db'])) {
+					$entities .= '/db/';
+					$sdescrip = preg_replace('/ \(.*\)$/', '', __('Database','updraftplus'));
+		?>
 				<form id="uddownloadform_db_<?php echo $key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'db')" method="post">
 					<?php wp_nonce_field('updraftplus_download'); ?>
 					<input type="hidden" name="action" value="updraft_download_backup" />
@@ -1573,7 +1584,7 @@ class UpdraftPlus_Admin {
 			$fullpath = $updraft_dir.$file;
 
 			echo "Looking for $type archive: file name: ".htmlspecialchars($file)."<br>";
-			if(!is_readable($fullpath) && $type != 'db') {
+			if(!is_readable($fullpath)) {
 				echo __("File is not locally present - needs retrieving from remote storage (for large files, it is better to do this in advance from the download console)",'updraftplus')."<br>";
 				$this->download_file($file, $service);
 			}
@@ -1591,7 +1602,7 @@ class UpdraftPlus_Admin {
 				echo __("The backup records do not contain information about the proper size of this file.",'updraftplus')."<br>";
 			}
 			# Types: uploads, themes, plugins, others, db
-			if(is_readable($fullpath) && $type != 'db') {
+			if(is_readable($fullpath)) {
 
 				if(!class_exists('WP_Upgrader')) require_once(ABSPATH . 'wp-admin/includes/class-wp-upgrader.php');
 				require_once(UPDRAFTPLUS_DIR.'/includes/updraft-restorer.php');
@@ -1605,19 +1616,12 @@ class UpdraftPlus_Admin {
 					echo '</div>'; //close the updraft_restore_progress div even if we error
 					return false;
 				}
-			} elseif ($type != 'db') {
+			} else {
 				$updraftplus->error("$file: ".__('Could not find one of the files for restoration', 'updraftplus'));
 				echo __('Could not find one of the files for restoration', 'updraftplus').": ($file)";
-			} else {
-				echo __("Databases are not yet restored through this mechanism - use your web host's control panel, phpMyAdmin or a similar tool",'updraftplus')."<br>";
 			}
 		}
 		echo '</div>'; //close the updraft_restore_progress div
-		# The 'off' check is for badly configured setups - http://wordpress.org/support/topic/plugin-wp-super-cache-warning-php-safe-mode-enabled-but-safe-mode-is-off
-		if(@ini_get('safe_mode') && strtolower(@ini_get('safe_mode')) != "off") {
-			echo "<p>".__('Database could not be restored because PHP safe_mode is active on your server.  You will need to manually restore the file via phpMyAdmin or another method.', 'updraftplus')."</p><br/>";
-			return false;
-		}
 		return true;
 	}
 

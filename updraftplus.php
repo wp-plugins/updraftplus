@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your site can take backups locally, or backup to Amazon S3, Dropbox, Google Drive, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.5.13
+Version: 1.5.14
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -386,7 +386,7 @@ class UpdraftPlus {
 
 		// Sanity check
 		if (empty($this->backup_time)) {
-			$this->log('Abort this run: the backup_time parameter appears to be empty');
+			$this->log('Abort this run: the backup_time parameter appears to be empty (this is usually caused by resuming an already-complete backup, or by your site having a faulty object cache active (e.g. W3 Total Cache\'s object cache))');
 			return false;
 		}
 
@@ -1124,6 +1124,7 @@ class UpdraftPlus {
 
 		//Begin new backup of MySql
 		$this->stow("# " . 'WordPress MySQL database backup' . "\n");
+		$this->stow("# " . 'Created by UpdraftPlus (http://updraftplus.com)' . "\n");
 		$this->stow("#\n");
 		$this->stow("# " . sprintf(__('Generated: %s','wp-db-backup'),date("l j. F Y H:i T")) . "\n");
 		$this->stow("# " . sprintf(__('Hostname: %s','wp-db-backup'),DB_HOST) . "\n");
@@ -1310,13 +1311,12 @@ class UpdraftPlus {
 			$this->stow($create_table[0][1] . ' ;');
 			
 			if (false === $table_structure) {
-				$err_msg = sprintf(__('Error getting table structure of %s','wp-db-backup'), $table);
-				//$this->error($err_msg);
+				$err_msg = sprintf('Error getting table structure of %s', $table);
 				$this->stow("#\n# $err_msg\n#\n");
 			}
 		
 			// Comment in SQL-file
-			$this->stow("\n\n#\n# " . sprintf(__('Data contents of table %s','wp-db-backup'),$this->backquote($table)) . "\n#\n");
+			$this->stow("\n\n#\n# " . sprintf('Data contents of table %s',$this->backquote($table)) . "\n#\n");
 		}
 		
 		// In UpdraftPlus, segment is always 'none'
@@ -1342,12 +1342,14 @@ class UpdraftPlus {
 
 			do {
 				if ( !@ini_get('safe_mode') || strtolower(@ini_get('safe_mode')) == "off") @set_time_limit(15*60);
+
 				$table_data = $wpdb->get_results("SELECT * FROM $table LIMIT {$row_start}, {$row_inc}", ARRAY_A);
-				$entries = 'INSERT INTO ' . $this->backquote($table) . ' VALUES (';
+				$entries = 'INSERT INTO ' . $this->backquote($table) . ' VALUES ';
 				//    \x08\\x09, not required
 				$search = array("\x00", "\x0a", "\x0d", "\x1a");
 				$replace = array('\0', '\n', '\r', '\Z');
 				if($table_data) {
+					$thisentry = "";
 					foreach ($table_data as $row) {
 						$total_rows++;
 						$values = array();
@@ -1361,8 +1363,16 @@ class UpdraftPlus {
 								$values[] = "'" . str_replace($search, $replace, str_replace('\'', '\\\'', str_replace('\\', '\\\\', $value))) . "'";
 							}
 						}
-						$this->stow(" \n" . $entries . implode(', ', $values) . ');');
+						if ($thisentry) $thisentry .= ",\n ";
+						$thisentry .= '('.implode(', ', $values).')';
+						// Flush every 512Kb
+						if (strlen($thisentry) > 524288) {
+							$this->stow(" \n".$entries.$thisentry.';');
+							$thisentry = "";
+						}
+						
 					}
+					if ($thisentry) $this->stow(" \n".$entries.$thisentry.';');
 					$row_start += $row_inc;
 				}
 			} while((count($table_data) > 0) and ($segment=='none'));
@@ -1538,7 +1548,7 @@ class UpdraftPlus {
 					_e("Decryption failed. The database file is encrypted, but you have no encryption key entered.",'updraftplus');
 					$this->error('Decryption of database failed: the database file is encrypted, but you have no encryption key entered.');
 				} else {
-					require_once(dirname(__FILE__).'/includes/phpseclib/Crypt/Rijndael.php');
+					require_once(UPDRAFTPLUS_DIR.'/includes/phpseclib/Crypt/Rijndael.php');
 					$rijndael = new Crypt_Rijndael();
 					$rijndael->setKey($encryption);
 					$ciphertext = $rijndael->decrypt(file_get_contents($fullpath));
