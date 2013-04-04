@@ -77,9 +77,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-// 15 minutes
-@set_time_limit(900);
-
 define('UPDRAFTPLUS_DIR', dirname(__FILE__));
 define('UPDRAFTPLUS_URL', plugins_url('', __FILE__));
 define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php,backup,backups');
@@ -89,6 +86,7 @@ define('UPDRAFT_TRANSTIME', 3600*9+5);
 
 // Load add-ons
 if (is_file(UPDRAFTPLUS_DIR.'/premium.php')) require_once(UPDRAFTPLUS_DIR.'/premium.php');
+if (is_file(UPDRAFTPLUS_DIR.'/autoload.php')) require_once(UPDRAFTPLUS_DIR.'/autoload.php');
 
 if ($dir_handle = opendir(UPDRAFTPLUS_DIR.'/addons')) {
 	while ($e = readdir($dir_handle)) {
@@ -168,7 +166,6 @@ class UpdraftPlus {
 		# http://codex.wordpress.org/Plugin_API/Filter_Reference/cron_schedules
 		add_filter('cron_schedules', array($this,'modify_cron_schedules'));
 		add_action('plugins_loaded', array($this, 'load_translations'));
-		add_action('updraftplus_weekly_ping', array($this, 'weekly_ping_perform'));
 
 		register_deactivation_hook(__FILE__, array($this, 'deactivation'));
 
@@ -349,6 +346,9 @@ class UpdraftPlus {
 	}
 
 	function backup_resume($resumption_no, $bnonce) {
+
+		// 15 minutes
+		@set_time_limit(900);
 
 		@ignore_user_abort(true);
 		// This is scheduled for 5 minutes after a backup job starts
@@ -563,6 +563,8 @@ class UpdraftPlus {
 	function boot_backup($backup_files, $backup_database) {
 
 		@ignore_user_abort(true);
+		// 15 minutes
+		@set_time_limit(900);
 
 		//generate backup information
 		$this->backup_time_nonce();
@@ -576,7 +578,7 @@ class UpdraftPlus {
 
 		// Some house-cleaning
 		$this->clean_temporary_files();
-		if (!UpdraftPlus_Options::get_updraft_option('updraft_disable_ping')) $this->weekly_ping_check_enabled();
+		do_action('updraftplus_boot_backup');
 
 		// Log some information that may be helpful
 		$this->log("Tasks: Backup files: $backup_files (schedule: ".UpdraftPlus_Options::get_updraft_option('updraft_interval', 'unset').") Backup DB: $backup_database (schedule: ".UpdraftPlus_Options::get_updraft_option('updraft_interval_database', 'unset').")");
@@ -1466,38 +1468,6 @@ class UpdraftPlus {
 		return wp_filter_nohtml_kses($interval);
 	}
 
-	// This function sends a weekly ping to ping.updraftplus.com. No personal information is sent - only (as you can see from the code), the statistical information of your WordPress + PHP + UpdraftPlus versions, and your cloud backup method. This information helps us to know how UpdraftPlus is being used, and to target our feature development to help our user base. If you do not like this, then you can disable it whenever you please in the 'Expert Settings'.
-	function weekly_ping_perform() {
-
-		// Do not go ahead if the user disabled this
-		if (UpdraftPlus_Options::get_updraft_option('updraft_disable_ping')) return;
-
-		// Gather the information. Note that the 'site id' below is a one-way hash. i.e. It is not possible to reverse it to know which site it is - only to know whether it is the same site as another (so that we do not gather duplicates in our statistics)
-		require(ABSPATH.'wp-includes/version.php');
-		global $wp_version;
-		$site_info = array(
-			'php' => phpversion(),
-			'wp' => $wp_version,
-			'updraftplus' => $this->version,
-			'multisite' => (is_multisite() ? 1 : 0),
-			'memory_limit' => ini_get('memory_limit'),
-			'service' => UpdraftPlus_Options::get_updraft_option('updraft_service')
-		);
-
-		# Turn it into an easy-to-send URL
-		$serialized = base64_encode(serialize($site_info));
-
-		# Attempt the request. We don't care about the result.
-		$ignore = wp_remote_get('http://ping.updraftplus.com/ping.txt?sid='.md5(site_url()).'&info='.$serialized , array('blocking' => false));
-	}
-
-	// Check if the WP scheduled event exists
-	function weekly_ping_check_enabled() {
-		if ( !wp_next_scheduled( 'updraftplus_weekly_ping' ) ) {
-			wp_schedule_event( time()+300, 'weekly', 'updraftplus_weekly_ping');
-		}
-	}
-
 	function deactivation () {
 		wp_clear_scheduled_hook('updraftplus_weekly_ping');
 	}
@@ -1567,6 +1537,8 @@ class UpdraftPlus {
 	}
 
 	function spool_file($type, $fullpath, $encryption = "") {
+
+		@set_time_limit(900);
 
 		if (file_exists($fullpath)) {
 
