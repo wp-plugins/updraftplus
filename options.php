@@ -73,6 +73,8 @@ class UpdraftPlus_Options {
 		register_setting('updraft-options-group', 'updraft_starttime_files', array('UpdraftPlus_Options', 'hourminute') );
 		register_setting('updraft-options-group', 'updraft_starttime_db', array('UpdraftPlus_Options', 'hourminute') );
 
+		register_setting('updraft-options-group', 'updraft_disable_ping', array($updraftplus_admin, 'ping_filter') );
+
 		global $pagenow;
 		if (is_multisite() && $pagenow == 'options-general.php' && isset($_REQUEST['page']) && 'updraftplus' == substr($_REQUEST['page'], 0, 11)) {
 			add_action('admin_notices', array('UpdraftPlus_Options', 'show_admin_warning_multisite') );

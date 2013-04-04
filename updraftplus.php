@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your site can take backups locally, or backup to Amazon S3, Dropbox, Google Drive, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.5.14
+Version: 1.5.15
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -14,12 +14,14 @@ Author URI: http://updraftplus.com
 /*
 TODO - some of these are out of date/done, needs pruning
 // Add an appeal for translators to email me. If it a fails, use Google Translate Tools and appeal for native users to correct it.
-// Separate out all restoration code and admin UI into separate file/classes (optimisation)?
 // Search for other TODO-s in the code
 // Test in PHP 5.4
+// Provide an expert option to disable sslverify on WP HTTP requests. Mention in FAQs etc.
 // Save database encryption key inside backup history on per-db basis, so that if it changes we can still decrypt
-// Switch to Google Drive SDK
+// Switch to Google Drive SDK. Google folders. https://developers.google.com/drive/folder
+// GlotPress
 // Ability to re-scan existing cloud storage
+// Migrator - search+replace the database
 // Make mcrypt warning on dropbox more prominent - one customer missed it
 // Store meta-data on which version of UD the backup was made with (will help if we ever introduce quirks that need ironing)
 // Test restoration when uploads dir is /assets/ (e.g. with Shoestrap theme)
@@ -39,7 +41,7 @@ TODO - some of these are out of date/done, needs pruning
 // Should we resume if the only errors were upon deletion (i.e. the backup itself was fine?) Presently we do, but it displays errors for the user to confuse them. Perhaps better to make pruning a separate scheuled task??
 // Warn the user if their zip-file creation is slooowww...
 // Create a "Want Support?" button/console, that leads them through what is needed, and performs some basic tests...
-// Resuming partial (S)FTP uploads
+// Chunking + resuming on SFTP
 // Add-on to manage all your backups from a single dashboard
 // Make disk space check more intelligent (currently hard-coded at 35Mb)
 // Provide backup/restoration for UpdraftPlus's settings, to allow 'bootstrap' on a fresh WP install - some kind of single-use code which a remote UpdraftPlus can use to authenticate
@@ -53,14 +55,12 @@ TODO - some of these are out of date/done, needs pruning
 // Remove the recurrence of admin notices when settings are saved due to _wp_referer
 
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
-// Does not delete old custom directories upon a restore?
 // New sub-module to verify that the backups are there, independently of backup thread
 */
 
 /*  Portions copyright 2010 Paul Kehrer
 Portions copyright 2011-13 David Anderson
 Other portions copyright as indicated authors in the relevant files
-Particular thanks to Sorin Iclanzan, author of the "Backup" plugin, from which much Google Drive code was taken under the GPLv3+
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -168,6 +168,9 @@ class UpdraftPlus {
 		# http://codex.wordpress.org/Plugin_API/Filter_Reference/cron_schedules
 		add_filter('cron_schedules', array($this,'modify_cron_schedules'));
 		add_action('plugins_loaded', array($this, 'load_translations'));
+		add_action('updraftplus_weekly_ping', array($this, 'weekly_ping_perform'));
+
+		register_deactivation_hook(__FILE__, array($this, 'deactivation'));
 
 	}
 
@@ -573,6 +576,7 @@ class UpdraftPlus {
 
 		// Some house-cleaning
 		$this->clean_temporary_files();
+		if (!UpdraftPlus_Options::get_updraft_option('updraft_disable_ping')) $this->weekly_ping_check_enabled();
 
 		// Log some information that may be helpful
 		$this->log("Tasks: Backup files: $backup_files (schedule: ".UpdraftPlus_Options::get_updraft_option('updraft_interval', 'unset').") Backup DB: $backup_database (schedule: ".UpdraftPlus_Options::get_updraft_option('updraft_interval_database', 'unset').")");
@@ -1460,6 +1464,42 @@ class UpdraftPlus {
 			break;
 		}
 		return wp_filter_nohtml_kses($interval);
+	}
+
+	// This function sends a weekly ping to ping.updraftplus.com. No personal information is sent - only (as you can see from the code), the statistical information of your WordPress + PHP + UpdraftPlus versions, and your cloud backup method. This information helps us to know how UpdraftPlus is being used, and to target our feature development to help our user base. If you do not like this, then you can disable it whenever you please in the 'Expert Settings'.
+	function weekly_ping_perform() {
+
+		// Do not go ahead if the user disabled this
+		if (UpdraftPlus_Options::get_updraft_option('updraft_disable_ping')) return;
+
+		// Gather the information. Note that the 'site id' below is a one-way hash. i.e. It is not possible to reverse it to know which site it is - only to know whether it is the same site as another (so that we do not gather duplicates in our statistics)
+		require(ABSPATH.'wp-includes/version.php');
+		global $wp_version;
+		$site_info = array(
+			'php' => phpversion(),
+			'wp' => $wp_version,
+			'updraftplus' => $this->version,
+			'multisite' => (is_multisite() ? 1 : 0),
+			'memory_limit' => ini_get('memory_limit'),
+			'service' => UpdraftPlus_Options::get_updraft_option('updraft_service')
+		);
+
+		# Turn it into an easy-to-send URL
+		$serialized = base64_encode(serialize($site_info));
+
+		# Attempt the request. We don't care about the result.
+		$ignore = wp_remote_get('http://ping.updraftplus.com/ping.txt?sid='.md5(site_url()).'&info='.$serialized , array('blocking' => false));
+	}
+
+	// Check if the WP scheduled event exists
+	function weekly_ping_check_enabled() {
+		if ( !wp_next_scheduled( 'updraftplus_weekly_ping' ) ) {
+			wp_schedule_event( time()+300, 'weekly', 'updraftplus_weekly_ping');
+		}
+	}
+
+	function deactivation () {
+		wp_clear_scheduled_hook('updraftplus_weekly_ping');
 	}
 
 	// Acts as a WordPress options filter

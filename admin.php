@@ -169,6 +169,17 @@ class UpdraftPlus_Admin {
 		$this->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus').'</strong> <a href="options-general.php?page=updraftplus&action=updraftmethod-googledrive-auth&updraftplus_googleauth=doit">.'.sprintf(__('Click here to authenticate your %s account (you will not be able to back up to %s without it).','updraftplus'),'Google Drive','Google Drive').'</a>');
 	}
 
+	function ping_filter($disable) {
+		$disable = absint($disable);
+		if ($disable) {
+			wp_clear_scheduled_hook('updraftplus_weekly_ping');
+		} else {
+			global $updraftplus;
+			$updraftplus->weekly_ping_check_enabled();
+		}
+		return $disable;
+	}
+
 	// This options filter removes ABSPATH off the front of updraft_dir, if it is given absolutely and contained within it
 	function prune_updraft_dir_prefix($updraft_dir) {
 		if ('/' == substr($updraft_dir, 0, 1) || "\\" == substr($updraft_dir, 0, 1) || preg_match('/^[a-zA-Z]:/', $updraft_dir)) {
@@ -398,10 +409,12 @@ class UpdraftPlus_Admin {
 
 		$farray = array( 'test_form' => true, 'action' => 'plupload_action' );
 
+		$farray['test_type'] = false;
+		$farray['ext'] = 'x-gzip';
+		$farray['type'] = 'application/octet-stream';
+
 		if (isset($_POST['chunks'])) {
-			$farray['test_type'] = false;
-			$farray['ext'] = 'zip';
-			$farray['type'] = 'application/zip';
+
 		} else {
 			$farray['unique_filename_callback'] = array($this, 'unique_filename_callback');
 		}
@@ -1158,6 +1171,8 @@ class UpdraftPlus_Admin {
 				<td><select name="updraft_service" id="updraft-service">
 					<?php
 					$debug_mode = (UpdraftPlus_Options::get_updraft_option('updraft_debug_mode')) ? 'checked="checked"' : "";
+					$disable_ping = (UpdraftPlus_Options::get_updraft_option('updraft_disable_ping')) ? 'checked="checked"' : "";
+
 
 					$set = 'selected="selected"';
 
@@ -1303,7 +1318,7 @@ class UpdraftPlus_Admin {
 			</tr>
 			<tr>
 				<th><?php _e('Expert settings','updraftplus');?>:</th>
-				<td><a id="enableexpertmode" href="#"><?php _e('Show expert settings','updraftplus');?></a> - <?php _e("click this to show some further options; don't bother with this unless you have a problem or are curious.",'updraftplus');?></td>
+				<td><a id="enableexpertmode" href="#"><?php _e('Show expert settings','updraftplus');?></a> - <?php _e("click this to show some further options; don't bother with this unless you have a problem or are curious.",'updraftplus');?> <?php _e('One option here disables UpdraftPlus from reporting aggregated usage statistics.', 'updraftplus');?></td>
 			</tr>
 			<?php
 			$delete_local = UpdraftPlus_Options::get_updraft_option('updraft_delete_local', 1);
@@ -1329,6 +1344,10 @@ class UpdraftPlus_Admin {
 					}
 
 					echo $dir_info.' '.__("This is where UpdraftPlus will write the zip files it creates initially.  This directory must be writable by your web server. Typically you'll want to have it inside your wp-content folder (this is the default).  <b>Do not</b> place it inside your uploads dir, as that will cause recursion issues (backups of backups of backups of...).",'updraftplus');?></td>
+			</tr>
+			<tr class="expertmode" style="display:none;">
+				<th><?php _e('Disable weekly ping','updraftplus');?>:</th>
+				<td><input type="checkbox" id="updraft_disable_ping" name="updraft_disable_ping" value="1" <?php echo $disable_ping; ?> /> <br><label for="updraft_disable_ping"><?php _e('Once a week, UpdraftPlus will send brief, non-personal statistics back to us. The only data sent is your UpdraftPlus, WordPress and PHP versions, other technical details about your webserver setup, and which remote storage method you chose (no personal details - just whether it was Dropbox, FTP, etc.). No personal information is sent, and we use the information only to know the overall percentages of users using different facilities. The data is permanently deleted after being included in these statistics. This helps us to focus our development to help our users in the most efficient way. If, however, you do not wish this site to send any statistics then check this box, and no data will be sent.','updraftplus');?></label></td>
 			</tr>
 			<tr>
 			<td></td>
