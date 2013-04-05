@@ -292,6 +292,7 @@ class UpdraftPlus_Admin {
 		} else {
 
 			set_transient('ud_dlfile_'.$timestamp.'_'.$type, 'failed', 3600);
+			set_transient('ud_dlerrors_'.$timestamp.'_'.$type, $updraftplus->errors, 3600);
 
 			echo 'Remote fetch failed. File '.$fullpath.' did not exist or was unreadable. If you delete local backups then remote retrieval may have failed.';
 		}
@@ -356,7 +357,15 @@ class UpdraftPlus_Admin {
 
 			if ($file = get_transient('ud_dlfile_'.$_GET['timestamp'].'_'.$_GET['type'])) {
 				if ('failed' == $file) {
-					$response['e'] = __('Download failed','updraftplus');
+					$response['e'] = __('Download failed','updraftplus').'<br>';
+					$errs = get_transient('ud_dlerrors_'.$_GET['timestamp'].'_'.$_GET['type']);
+					if (is_array($errs) && !empty($errs)) {
+						$response['e'] .= '<ul style="list-style: disc inside;">';
+						foreach ($errs as $err) {
+							$response['e'] .= '<li>'.htmlspecialchars($err).'</li>';
+						}
+						$response['e'] .= '</ul>';
+					}
 				} elseif (preg_match('/^downloaded:(\d+):(.*)$/', $file, $matches) && file_exists($matches[2])) {
 					$response['p'] = 100;
 					$response['f'] = $matches[2];
@@ -868,7 +877,7 @@ class UpdraftPlus_Admin {
 										try {
 											var resp = jQuery.parseJSON(response);
 											if (resp.e != null) {
-												jQuery('#'+stid+' .raw').html('<strong><?php _e('Error:','updraftplus'); ?>:</strong> '+resp.e);
+												jQuery('#'+stid+' .raw').html('<strong><?php _e('Error:','updraftplus'); ?></strong> '+resp.e);
 												console.log(resp);
 											} else if (resp.p != null) {
 												setTimeout(function(){updraft_downloader_status(base, nonce, what)}, nexttimer);
