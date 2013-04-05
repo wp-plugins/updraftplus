@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your site can take backups locally, or backup to Amazon S3, Dropbox, Google Drive, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.5.15
+Version: 1.5.16
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -16,6 +16,7 @@ TODO - some of these are out of date/done, needs pruning
 // Add an appeal for translators to email me. If it a fails, use Google Translate Tools and appeal for native users to correct it.
 // Search for other TODO-s in the code
 // Test in PHP 5.4
+// Add in downloading in the 'Restore' modal, and remove the advice to do so manually.
 // Provide an expert option to disable sslverify on WP HTTP requests. Mention in FAQs etc.
 // Save database encryption key inside backup history on per-db basis, so that if it changes we can still decrypt
 // Switch to Google Drive SDK. Google folders. https://developers.google.com/drive/folder

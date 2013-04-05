@@ -25,7 +25,7 @@ New features: selective restoration, importing remote backups; plus many tweaks,
 * Download backup archives direct from your WordPress dashboard
 * Database backups can be encrypted for security
 * Debug mode that gives full logging of the backup
-* Thousands of users: widely tested and reliable
+* Thousands of users: widely tested and reliable (over 100,000 downloads)
 * Internationalised (translations very welcome - see below)
 * Premium version and support available - <a href="http://updraftplus.com">http://updraftplus.com</a>
 

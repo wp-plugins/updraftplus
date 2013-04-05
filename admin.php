@@ -108,19 +108,26 @@ class UpdraftPlus_Admin {
 			margin: 36px auto 0;
 			width: 350px;
 		}
-		#filelist, #filelist2 {
+		#filelist, #filelist2  {
 			width: 100%;
 		}
-		#filelist .file, #filelist2 .file {
+		#filelist .file, #filelist2 .file, #ud_downloadstatus .file {
 			padding: 5px;
 			background: #ececec;
 			border: solid 1px #ccc;
 			margin: 4px 0;
 		}
-		#filelist .fileprogress, #filelist2 .fileprogress {
+		#filelist .fileprogress, #filelist2 .fileprogress, #ud_downloadstatus .dlfileprogress {
 			width: 0%;
 			background: #f6a828;
 			height: 5px;
+		}
+		#ud_downloadstatus .raw {
+			margin-top: 8px;
+			clear:left;
+		}
+		#ud_downloadstatus .file {
+			margin-top: 8px;
 		}
 		</style>
 		<?php
@@ -235,8 +242,7 @@ class UpdraftPlus_Admin {
 
 		$updraftplus->log("Requested to obtain file: timestamp=$timestamp, type=$type");
 
-		// The AJAX responder that updates on progress wants to see this
-		set_transient('ud_dlfile_'.$timestamp.'_'.$type, 'downloading:'.$fullpath, 3600);
+		$known_size = isset($backup_history[$timestamp][$type.'-size']) ? $backup_history[$timestamp][$type.'-size'] : 0;
 
 		$service = (isset($backup_history[$timestamp]['service'])) ? $backup_history[$timestamp]['service'] : false;
 		$updraftplus->jobdata_set('service', $service);
@@ -244,7 +250,6 @@ class UpdraftPlus_Admin {
 		// Fetch it from the cloud, if we have not already got it
 
 		$needs_downloading = false;
-		$known_size = isset($backup_history[$timestamp][$type.'-size']) ? $backup_history[$timestamp][$type.'-size'] : false;
 
 		if(!file_exists($fullpath)) {
 			//if the file doesn't exist and they're using one of the cloud options, fetch it down from the cloud.
@@ -257,7 +262,11 @@ class UpdraftPlus_Admin {
 			$updraftplus->log('The file was found locally and matched the recorded size from the backup history ('.round($known_size/1024,1).' Kb)');
 		} else {
 			$updraftplus->log('No file size was found recorded in the backup history. We will assume the local one is complete.');
+			$known_size  = filesize($fullpath);
 		}
+
+		// The AJAX responder that updates on progress wants to see this
+		set_transient('ud_dlfile_'.$timestamp.'_'.$type, "downloading:$known_size:$fullpath", 3600);
 
 		if ($needs_downloading) {
 			// Close browser connection so that it can resume AJAX polling
@@ -278,7 +287,7 @@ class UpdraftPlus_Admin {
 		if(is_file($fullpath) && is_readable($fullpath)) {
 
 			// That message is then picked up by the AJAX listener
-			set_transient('ud_dlfile_'.$timestamp.'_'.$type, 'downloaded:'.$fullpath, 3600);
+			set_transient('ud_dlfile_'.$timestamp.'_'.$type, 'downloaded:'.filesize($fullpath).":$fullpath", 3600);
 
 		} else {
 
@@ -302,7 +311,7 @@ class UpdraftPlus_Admin {
 
 		if (!$service) $service = UpdraftPlus_Options::get_updraft_option('updraft_service');
 
-		$updraftplus->log("Requested file from remote service: service=$service, file=$file");
+		$updraftplus->log("Requested file from remote service: $service:$file");
 
 		$method_include = UPDRAFTPLUS_DIR.'/methods/'.$service.'.php';
 		if (file_exists($method_include)) require_once($method_include);
@@ -339,21 +348,39 @@ class UpdraftPlus_Admin {
 			echo $this->existing_backup_table();
 		} elseif ('downloadstatus' == $_GET['subaction'] && isset($_GET['timestamp']) && isset($_GET['type'])) {
 
-			echo get_transient('ud_dlmess_'.$_GET['timestamp'].'_'.$_GET['type']).'<br>';
+// 			$updraft_dir = $updraftplus->backups_dir_location();
+
+			$response = array();
+
+			$response['m'] = get_transient('ud_dlmess_'.$_GET['timestamp'].'_'.$_GET['type']).'<br>';
 
 			if ($file = get_transient('ud_dlfile_'.$_GET['timestamp'].'_'.$_GET['type'])) {
 				if ('failed' == $file) {
-					echo "Download failed";
-				} elseif (preg_match('/^downloaded:(.*)$/', $file, $matches) && file_exists($matches[1])) {
-					$size = round(filesize($matches[1])/1024, 1);
-					echo "File ready: $size Kb: You should: <button type=\"button\" onclick=\"updraftplus_downloadstage2('".$_GET['timestamp']."', '".$_GET['type']."')\">Download to your computer</button> and then, if you wish, <button id=\"uddownloaddelete_".$_GET['timestamp']."_".$_GET['type']."\" type=\"button\" onclick=\"updraftplus_deletefromserver('".$_GET['timestamp']."', '".$_GET['type']."')\">Delete from your web server</button>";
-				} elseif (preg_match('/^downloading:(.*)$/', $file, $matches) && file_exists($matches[1])) {
-					$size = round(filesize($matches[1])/1024, 1);
-					echo __('File downloading', 'updraftplus').": ".basename($matches[1]).": $size Kb";
+					$response['e'] = __('Download failed','updraftplus');
+				} elseif (preg_match('/^downloaded:(\d+):(.*)$/', $file, $matches) && file_exists($matches[2])) {
+					$response['p'] = 100;
+					$response['f'] = $matches[2];
+					$response['s'] = (int)$matches[1];
+					$response['t'] = (int)$matches[1];
+					$response['m'] = __('File ready.', 'updraftplus');
+				} elseif (preg_match('/^downloading:(\d+):(.*)$/', $file, $matches) && file_exists($matches[2])) {
+					// Convert to bytes
+					$response['f'] = $matches[2];
+					$total_size = (int)max($matches[1], 1);
+					$cur_size = filesize($matches[2]);
+					$response['s'] = $cur_size;
+					$response['t'] = $total_size;
+					$response['m'] .= __("Download in progress", 'updraftplus').' ('.round($cur_size/1024).' / '.round($total_size, 1024).' Kb)';
+					$response['p'] = round(100*$cur_size/$total_size);
 				} else {
-					echo __("No local copy present.", 'updraftplus');
+					$response['m'] .= __('No local copy present.', 'updraftplus');
+					$response['p'] = 0;
+					$response['s'] = 0;
+					$response['t'] = 1;
 				}
 			}
+
+			echo json_encode($response);
 
 		} elseif ($_POST['subaction'] == 'credentials_test') {
 			$method = (preg_match("/^[a-z0-9]+$/", $_POST['method'])) ? $_POST['method'] : "";
@@ -628,7 +655,7 @@ class UpdraftPlus_Admin {
 		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_all') { $updraftplus->boot_backup(true,true); }
 		elseif (isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_db') { $updraftplus->backup_db(); }
 		elseif (isset($_POST['action']) && $_POST['action'] == 'updraft_wipesettings') {
-			$settings = array('updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_blogs', 'updraft_include_mu-plugins', 'updraft_include_others_exclude', 'updraft_lastmessage', 'updraft_googledrive_clientid', 'updraft_googledrive_token', 'updraft_dropboxtk_request_token', 'updraft_dropboxtk_access_token', 'updraft_dropbox_folder', 'updraft_last_backup', 'updraft_starttime_files', 'updraft_starttime_db', 'updraft_sftp_settings');
+			$settings = array('updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_blogs', 'updraft_include_mu-plugins', 'updraft_include_others_exclude', 'updraft_lastmessage', 'updraft_googledrive_clientid', 'updraft_googledrive_token', 'updraft_dropboxtk_request_token', 'updraft_dropboxtk_access_token', 'updraft_dropbox_folder', 'updraft_last_backup', 'updraft_starttime_files', 'updraft_starttime_db', 'updraft_sftp_settings', 'updraft_disable_ping');
 			foreach ($settings as $s) {
 				UpdraftPlus_Options::delete_updraft_option($s);
 			}
@@ -684,7 +711,7 @@ class UpdraftPlus_Admin {
 			<table class="form-table" style="float:left; clear: both; width:545px;">
 				<noscript>
 				<tr>
-					<th><?php _e('JavaScript warning','updraftplus');?>:</th>
+					<th><?php _e('	avaScript warning','updraftplus');?>:</th>
 					<td style="color:red"><?php _e('This admin interface uses JavaScript heavily. You either need to activate it within your browser, or to use a JavaScript-capable browser.','updraftplus');?></td>
 				</tr>
 				</noscript>
@@ -810,15 +837,14 @@ class UpdraftPlus_Admin {
 							function updraftplus_downloadstage2(timestamp, type) {
 								location.href=ajaxurl+'?_wpnonce=<?php echo wp_create_nonce("updraftplus_download"); ?>&timestamp='+timestamp+'&type='+type+'&stage=2&action=updraft_download_backup';
 							}
-							function updraft_downloader(nonce, what) {
+							function updraft_downloader(base, nonce, what) {
 								// Create somewhere for the status to be found
-								var stid = 'uddlstatus_'+nonce+'_'+what;
+								var stid = base+nonce+'_'+what;
 								if (!jQuery('#'+stid).length) {
-									jQuery('#ud_downloadstatus').append('<div style="clear:left; border: 1px dashed; padding: 8px; margin-top: 4px; max-width:840px;" id="'+stid+'"><button onclick="jQuery(\'#'+stid+'\').fadeOut().remove();" type="button" style="float:right;">X</button><strong>Download '+what+' ('+nonce+')</strong>: <span id="'+stid+'_st">Begun looking for this entity</span></div>');
-									setTimeout(function(){updraft_downloader_status(nonce, what)}, 200);
+									jQuery('#ud_downloadstatus').append('<div style="clear:left; border: 1px solid; padding: 8px; margin-top: 4px; max-width:840px;" id="'+stid+'"><button onclick="jQuery(\'#'+stid+'\').fadeOut().remove();" type="button" style="float:right; margin-bottom: 8px;">X</button><strong>Download '+what+' ('+nonce+')</strong>:<div class="raw">Begun looking for this entity</div><div class="file" id="'+stid+'_st"><div class="dlfileprogress" style="width: 0;"></div></div>');
+									// <b><span class="dlname">??</span></b> (<span class="dlsofar">?? KB</span>/<span class="dlsize">??</span> KB)
+									setTimeout(function(){updraft_downloader_status(base, nonce, what)}, 200);
 								}
-								// Reset, in case this is a re-try
-								jQuery('#'+stid+'_st').html('Begun looking for this entity');
 								// Now send the actual request to kick it all off
 								jQuery.post(ajaxurl, jQuery('#uddownloadform_'+what+'_'+nonce).serialize());
 								// We don't want the form to submit as that replaces the document
@@ -830,17 +856,41 @@ class UpdraftPlus_Admin {
 								nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>'
 							};
 							dlstatus_lastlog = '';
-							function updraft_downloader_status(nonce, what) {
-								var stid = 'uddlstatus_'+nonce+'_'+what;
+							function updraft_downloader_status(base, nonce, what) {
+								// Get the DOM id of the status div (add _st for the id of the file itself)
+								var stid = base+nonce+'_'+what;
 								if (jQuery('#'+stid).length) {
 									dlstatus_sdata.timestamp = nonce;
 									dlstatus_sdata.type = what;
 									jQuery.get(ajaxurl, dlstatus_sdata, function(response) {
 										nexttimer = 1250;
 										if (dlstatus_lastlog == response) { nexttimer = 3000; }
-										setTimeout(function(){updraft_downloader_status(nonce, what)}, nexttimer);
-										jQuery('#'+stid+'_st').html(response);
-										dlstatus_lastlog = response;
+										try {
+											var resp = jQuery.parseJSON(response);
+											if (resp.e != null) {
+												jQuery('#'+stid+' .raw').html('<strong><?php _e('Error:','updraftplus'); ?>:</strong> '+resp.e);
+												console.log(resp);
+											} else if (resp.p != null) {
+												setTimeout(function(){updraft_downloader_status(base, nonce, what)}, nexttimer);
+												jQuery('#'+stid+'_st .dlfileprogress').width(resp.p+'%');
+												//jQuery('#'+stid+'_st .dlsofar').html(Math.round(resp.s/1024));
+												//jQuery('#'+stid+'_st .dlsize').html(Math.round(resp.t/1024));
+												if (resp.m != null) {
+													if (resp.p < 100 || base != 'uddlstatus_') {
+														jQuery('#'+stid+' .raw').html(resp.m);
+													} else {
+														jQuery('#'+stid+' .raw').html('<?php _e('File ready.','updraftplus'); ?> <?php _e('You should:','updraftplus'); ?> <button type="button" onclick="updraftplus_downloadstage2(\''+nonce+'\', \''+what+'\')\">Download to your computer</button> and then, if you wish, <button id="uddownloaddelete_'+nonce+'_'+what+'" type="button" onclick="updraftplus_deletefromserver(\''+nonce+'\', \''+what+'\')\">Delete from your web server</button>');
+													}
+												}
+												dlstatus_lastlog = response;
+											} else if (resp.m != null) {
+													jQuery('#'+stid+' .raw').html(resp.m);
+											} else {
+												alert('<?php _e('Download error: the server sent us a response (JSON) which we did not understand', 'updraftplus'); ?> ('+response+')');
+											}
+										} catch(err) {
+											alert('<?php _e('Download error: the server sent us a response which we did not understand.', 'updraftplus'); ?> <?php _e("Error:",'updraftplus');?> '+err);
+										}
 									});
 								}
 							}
@@ -1423,7 +1473,7 @@ class UpdraftPlus_Admin {
 					$entities .= '/db/';
 					$sdescrip = preg_replace('/ \(.*\)$/', '', __('Database','updraftplus'));
 		?>
-				<form id="uddownloadform_db_<?php echo $key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader(<?php echo $key;?>, 'db')" method="post">
+				<form id="uddownloadform_db_<?php echo $key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader('uddlstatus_', <?php echo $key;?>, 'db')" method="post">
 					<?php wp_nonce_field('updraftplus_download'); ?>
 					<input type="hidden" name="action" value="updraft_download_backup" />
 					<input type="hidden" name="type" value="db" />
@@ -1440,7 +1490,7 @@ class UpdraftPlus_Admin {
 					$entities .= '/'.$type.'/';
 					$sdescrip = preg_replace('/ \(.*\)$/', '', $info['description']);
 				?>
-				<form id="uddownloadform_<?php echo $type.'_'.$key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader('<?php echo $key."', '".$type;?>')" method="post">
+				<form id="uddownloadform_<?php echo $type.'_'.$key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader('uddlstatus_', '<?php echo $key."', '".$type;?>')" method="post">
 					<?php wp_nonce_field('updraftplus_download'); ?>
 					<input type="hidden" name="action" value="updraft_download_backup" />
 					<input type="hidden" name="type" value="<?php echo $type; ?>" />
