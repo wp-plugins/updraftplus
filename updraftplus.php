@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your site can take backups locally, or backup to Amazon S3, Dropbox, Google Drive, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.5.16
+Version: 1.5.17
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -21,6 +21,7 @@ TODO - some of these are out of date/done, needs pruning
 // Save database encryption key inside backup history on per-db basis, so that if it changes we can still decrypt
 // Switch to Google Drive SDK. Google folders. https://developers.google.com/drive/folder
 // GlotPress
+// Convert S3.php to use WP's native HTTP functions
 // Ability to re-scan existing cloud storage
 // Migrator - search+replace the database
 // Make mcrypt warning on dropbox more prominent - one customer missed it
@@ -172,6 +173,10 @@ class UpdraftPlus {
 
 	}
 
+	function add_curl_capath($handle) {
+		if (!UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts')) curl_setopt($handle, CURLOPT_CAINFO, UPDRAFTPLUS_DIR.'/includes/cacert.pem' );
+	}
+
 	// Handle actions passed on to method plugins; e.g. Google OAuth 2.0 - ?page=updraftplus&action=updraftmethod-googledrive-auth
 	// Also handle action=downloadlog
 	function handle_url_actions() {
@@ -183,7 +188,11 @@ class UpdraftPlus {
 				require_once(UPDRAFTPLUS_DIR.'/methods/'.$method.'.php');
 				$call_class = "UpdraftPlus_BackupModule_".$method;
 				$call_method = "action_".$matches[2];
+
+				add_action('http_api_curl', array($this, 'add_curl_capath'));
 				if (method_exists($call_class, $call_method)) call_user_func(array($call_class,$call_method));
+				remove_action('http_api_curl', array($this, 'add_curl_capath'));
+
 			} elseif ($_GET['action'] == 'downloadlog' && isset($_GET['updraftplus_backup_nonce']) && preg_match("/^[0-9a-f]{12}$/",$_GET['updraftplus_backup_nonce'])) {
 				// No WordPress nonce is needed here or for the next, since the backup is already nonce-based
 				$updraft_dir = $this->backups_dir_location();
@@ -769,7 +778,9 @@ class UpdraftPlus {
 		@set_time_limit(900);
 
 		$method_include = UPDRAFTPLUS_DIR.'/methods/'.$service.'.php';
+		add_action('http_api_curl', array($this, 'add_curl_capath'));
 		if (file_exists($method_include)) require_once($method_include);
+		remove_action('http_api_curl', array($this, 'add_curl_capath'));
 
 		if ($service == "none") {
 			$this->log("No remote despatch: user chose no remote backup service");
@@ -1475,9 +1486,12 @@ class UpdraftPlus {
 
 	// Acts as a WordPress options filter
 	function googledrive_clientid_checkchange($client_id) {
-		if (UpdraftPlus_Options::get_updraft_option('fdrive_token') != '' && UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid') != $client_id) {
+		if (UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token') != '' && UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid') != $client_id) {
 			require_once(UPDRAFTPLUS_DIR.'/methods/googledrive.php');
+			add_action('http_api_curl', array($this, 'add_curl_capath'));
 			UpdraftPlus_BackupModule_googledrive::gdrive_auth_revoke(true);
+			remove_action('http_api_curl', array($this, 'add_curl_capath'));
+
 		}
 		return $client_id;
 	}

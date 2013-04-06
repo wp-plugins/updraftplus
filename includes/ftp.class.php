@@ -1,7 +1,6 @@
 <?php
-/* from http://www.solutionbot.com/2009/01/02/php-ftp-class/ */
-class UpdraftPlus_ftp_wrapper
-{
+/* Adapted from http://www.solutionbot.com/2009/01/02/php-ftp-class/ */
+class UpdraftPlus_ftp_wrapper {
 	private $conn_id;
 	private $host;
 	private $username;
@@ -10,6 +9,7 @@ class UpdraftPlus_ftp_wrapper
 	public  $timeout = 90;
 	public  $passive = true;
 	public  $system_type = '';
+	public $ssl = false;
 	public $login_type = 'non-encrypted';
  
 	public function __construct($host, $username, $password, $port = 21)
@@ -144,8 +144,7 @@ class UpdraftPlus_ftp_wrapper
 
 	}
 
-	public function chmod($permissions, $remote_filename)
-	{
+	public function chmod($permissions, $remote_filename) {
 		if ($this->is_octal($permissions)) {
 			$result = ftp_chmod($this->conn_id, $permissions, $remote_filename);
 			if ($result) {
@@ -170,8 +169,7 @@ class UpdraftPlus_ftp_wrapper
 		}
 	}
  
-	public function make_dir($directory)
-	{
+	public function make_dir($directory) {
 		if (ftp_mkdir($this->conn_id, $directory))
 		{
 			return true;
@@ -182,8 +180,7 @@ class UpdraftPlus_ftp_wrapper
 		}
 	}
  
-	public function rename($old_name, $new_name)
-	{
+	public function rename($old_name, $new_name) {
 		if (ftp_rename($this->conn_id, $old_name, $new_name))
 		{
 			return true;
@@ -194,8 +191,7 @@ class UpdraftPlus_ftp_wrapper
 		}
 	}
  
-	public function remove_dir($directory)
-	{
+	public function remove_dir($directory) {
 		if (ftp_rmdir($this->conn_id, $directory))
 		{
 			return true;
@@ -206,29 +202,24 @@ class UpdraftPlus_ftp_wrapper
 		}
 	}
  
-	public function dir_list($directory)
-	{
+	public function dir_list($directory) {
 		$contents = ftp_nlist($this->conn_id, $directory);
 		return $contents;
 	}
  
-	public function cdup()
-	{
+	public function cdup() {
 		ftp_cdup($this->conn_id);
 	}
  
-	public function current_dir()
-	{
+	public function current_dir() {
 		return ftp_pwd($this->conn_id);
 	}
  
-	private function is_octal($i) 
-	{
+	private function is_octal($i) {
     	return decoct(octdec($i)) == $i;
 	}
  
-	public function __destruct()
-	{
+	public function __destruct() {
 		if ($this->conn_id)
 		{
 			ftp_close($this->conn_id);

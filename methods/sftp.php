@@ -60,12 +60,12 @@ class UpdraftPlus_BackupModule_sftp {
 	// Note that logging is not available from this context; it will do nothing.
 	function config_print() {
 
-		$link = sprintf(__('%s support is available as an add-on','updraftplus'),'SFTP').' - <a href="http://updraftplus.com/shop/sftp/">'.__('follow this link to get it','updraftplus');
+		$link = sprintf(__('%s support is available as an add-on','updraftplus'),'SFTP').' - <a href="http://updraftplus.com/shop/sftp/">'.__('follow this link to get it','updraftplus').'</a>';
 
 		$default = <<<ENDHERE
 		<tr class="updraftplusmethod sftp">
 			<th>SFTP:</th>
-			<td>$link</a></td>
+			<td>$link</td>
 		</tr>
 ENDHERE;
 

@@ -45,12 +45,21 @@ class UpdraftPlus_Options {
 		register_setting('updraft-options-group', 'updraft_s3_pass' );
 		register_setting('updraft-options-group', 'updraft_s3_remote_path' );
 
+		register_setting('updraft-options-group', 'updraft_cloudfiles_authurl' );
+		register_setting('updraft-options-group', 'updraft_cloudfiles_user' );
+		register_setting('updraft-options-group', 'updraft_cloudfiles_apikey' );
+		register_setting('updraft-options-group', 'updraft_cloudfiles_path' );
+
 		register_setting('updraft-options-group', 'updraft_sftp_settings' );
 		register_setting('updraft-options-group', 'updraft_webdav_settings' );
 
 		register_setting('updraft-options-group', 'updraft_dropbox_appkey' );
 		register_setting('updraft-options-group', 'updraft_dropbox_secret' );
 		register_setting('updraft-options-group', 'updraft_dropbox_folder' );
+
+		register_setting('updraft-options-group', 'updraft_ssl_nossl', 'absint' );
+		register_setting('updraft-options-group', 'updraft_ssl_useservercerts', 'absint' );
+		register_setting('updraft-options-group', 'updraft_ssl_disableverify', 'absint' );
 
 		register_setting('updraft-options-group', 'updraft_googledrive_clientid', array($updraftplus, 'googledrive_clientid_checkchange') );
 		register_setting('updraft-options-group', 'updraft_googledrive_secret' );

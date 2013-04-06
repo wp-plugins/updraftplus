@@ -256,7 +256,7 @@ class UpdraftPlus_Admin {
 			$needs_downloading = true;
 			$updraftplus->log('File does not yet exist locally - needs downloading');
 		} elseif ($known_size>0 && filesize($fullpath) < $known_size) {
-			$updraftplus->log('The file was found locally but did not match the size in the backup history - will resume downloading');
+			$updraftplus->log("The file was found locally (".filesize($fullpath).") but did not match the size in the backup history ($known_size) - will resume downloading");
 			$needs_downloading = true;
 		} elseif ($known_size>0) {
 			$updraftplus->log('The file was found locally and matched the recorded size from the backup history ('.round($known_size/1024,1).' Kb)');
@@ -277,6 +277,7 @@ class UpdraftPlus_Admin {
 			echo "\r\n\r\n";
 			$this->download_file($file, $service);
 			if (is_readable($fullpath)) {
+				clearstatcache($fullpath);
 				$updraftplus->log('Remote fetch was successful (file size: '.round(filesize($fullpath)/1024,1).' Kb)');
 			} else {
 				$updraftplus->log('Remote fetch failed');
@@ -349,8 +350,6 @@ class UpdraftPlus_Admin {
 			echo $this->existing_backup_table();
 		} elseif ('downloadstatus' == $_GET['subaction'] && isset($_GET['timestamp']) && isset($_GET['type'])) {
 
-// 			$updraft_dir = $updraftplus->backups_dir_location();
-
 			$response = array();
 
 			$response['m'] = get_transient('ud_dlmess_'.$_GET['timestamp'].'_'.$_GET['type']).'<br>';
@@ -379,7 +378,7 @@ class UpdraftPlus_Admin {
 					$cur_size = filesize($matches[2]);
 					$response['s'] = $cur_size;
 					$response['t'] = $total_size;
-					$response['m'] .= __("Download in progress", 'updraftplus').' ('.round($cur_size/1024).' / '.round($total_size, 1024).' Kb)';
+					$response['m'] .= __("Download in progress", 'updraftplus').' ('.round($cur_size/1024).' / '.round(($total_size/1024)).' Kb)';
 					$response['p'] = round(100*$cur_size/$total_size);
 				} else {
 					$response['m'] .= __('No local copy present.', 'updraftplus');
@@ -664,7 +663,8 @@ class UpdraftPlus_Admin {
 		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_all') { $updraftplus->boot_backup(true,true); }
 		elseif (isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_db') { $updraftplus->backup_db(); }
 		elseif (isset($_POST['action']) && $_POST['action'] == 'updraft_wipesettings') {
-			$settings = array('updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_blogs', 'updraft_include_mu-plugins', 'updraft_include_others_exclude', 'updraft_lastmessage', 'updraft_googledrive_clientid', 'updraft_googledrive_token', 'updraft_dropboxtk_request_token', 'updraft_dropboxtk_access_token', 'updraft_dropbox_folder', 'updraft_last_backup', 'updraft_starttime_files', 'updraft_starttime_db', 'updraft_sftp_settings', 'updraft_disable_ping');
+			$settings = array('updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others',
+			'updraft_include_blogs', 'updraft_include_mu-plugins', 'updraft_include_others_exclude', 'updraft_lastmessage', 'updraft_googledrive_clientid', 'updraft_googledrive_token', 'updraft_dropboxtk_request_token', 'updraft_dropboxtk_access_token', 'updraft_dropbox_folder', 'updraft_last_backup', 'updraft_starttime_files', 'updraft_starttime_db', 'updraft_sftp_settings', 'updraft_disable_ping', 'updraft_cloudfiles_user', 'updraft_cloudfiles_apikey', 'updraft_cloudfiles_path', 'updraft_cloudfiles_authurl', 'updraft_ssl_useservercerts', 'updraft_ssl_disableverify');
 			foreach ($settings as $s) {
 				UpdraftPlus_Options::delete_updraft_option($s);
 			}
@@ -1120,7 +1120,7 @@ class UpdraftPlus_Admin {
 			<table class="form-table" style="width:900px;">
 			<tr>
 				<th><?php _e('File backup intervals','updraftplus'); ?>:</th>
-				<td><select name="updraft_interval">
+				<td><select id="updraft_interval" name="updraft_interval" onchange="updraft_check_same_times();">
 					<?php
 					$intervals = array ("manual" => _x("Manual",'i.e. Non-automatic','updraftplus'), 'every4hours' => __("Every 4 hours",'updraftplus'), 'every8hours' => __("Every 8 hours",'updraftplus'), 'twicedaily' => __("Every 12 hours",'updraftplus'), 'daily' => __("Daily",'updraftplus'), 'weekly' => __("Weekly",'updraftplus'), 'fortnightly' => __("Fortnightly",'updraftplus'), 'monthly' => __("Monthly",'updraftplus'));
 					foreach ($intervals as $cronsched => $descrip) {
@@ -1139,7 +1139,7 @@ class UpdraftPlus_Admin {
 			</tr>
 			<tr>
 				<th><?php _e('Database backup intervals','updraftplus'); ?>:</th>
-				<td><select name="updraft_interval_database">
+				<td><select id="updraft_interval_database" name="updraft_interval_database" onchange="updraft_check_same_times();">
 					<?php
 					foreach ($intervals as $cronsched => $descrip) {
 						echo "<option value=\"$cronsched\" ";
@@ -1147,7 +1147,7 @@ class UpdraftPlus_Admin {
 						echo ">$descrip</option>\n";
 					}
 					?>
-					</select> <?php echo apply_filters('updraftplus_schedule_showdbconfig', '<input type="hidden" name="updraftplus_starttime_db" value="">'); ?>
+					</select> <span id="updraft_db_timings"><?php echo apply_filters('updraftplus_schedule_showdbconfig', '<input type="hidden" name="updraftplus_starttime_db" value="">'); ?></span>
 					<?php
 					echo __('and retain this many backups', 'updraftplus').': ';
 					$updraft_retain_db = UpdraftPlus_Options::get_updraft_option('updraft_retain_db', $updraft_retain);
@@ -1161,7 +1161,7 @@ class UpdraftPlus_Admin {
 				</td>
 			</tr>
 			<tr>
-				<th>Include in files backup:</th>
+				<th><?php _e('Include in files backup','updraftplus');?>:</th>
 				<td>
 
 			<?php
@@ -1309,7 +1309,17 @@ class UpdraftPlus_Admin {
 					});
 				}
 
+				function updraft_check_same_times() {
+					if (jQuery('#updraft_interval').val() == jQuery('#updraft_interval_database').val() && jQuery('#updraft_interval').val() != 'manual') {
+						jQuery('#updraft_db_timings').css('opacity','0.25');
+					} else {
+						jQuery('#updraft_db_timings').css('opacity','1');
+					}
+				}
+
 				jQuery(document).ready(function() {
+
+					updraft_check_same_times();
 
 					jQuery( "#updraft-restore-modal" ).dialog({
 						autoOpen: false, height: 385, width: 480, modal: true,
@@ -1381,6 +1391,7 @@ class UpdraftPlus_Admin {
 				<td><input type="checkbox" id="updraft_delete_local" name="updraft_delete_local" value="1" <?php if ($delete_local) echo 'checked="checked"'; ?>> <br><label for="updraft_delete_local"><?php _e('Uncheck this to prevent deletion of any superfluous backup files from your server after the backup run finishes (i.e. any files despatched remotely will also remain locally, and any files being kept locally will not be subject to the retention limits).','updraftplus');?></label></td>
 			</tr>
 
+
 			<tr class="expertmode backupdirrow" style="display:none;">
 				<th><?php _e('Backup directory','updraftplus');?>:</th>
 				<td><input type="text" name="updraft_dir" id="updraft_dir" style="width:525px" value="<?php echo htmlspecialchars($this->prune_updraft_dir_prefix($updraft_dir)); ?>" /></td>
@@ -1397,7 +1408,24 @@ class UpdraftPlus_Admin {
 
 					echo $dir_info.' '.__("This is where UpdraftPlus will write the zip files it creates initially.  This directory must be writable by your web server. Typically you'll want to have it inside your wp-content folder (this is the default).  <b>Do not</b> place it inside your uploads dir, as that will cause recursion issues (backups of backups of backups of...).",'updraftplus');?></td>
 			</tr>
+
+			<tr class="expertmode" style="display:none;">
+				<th><?php _e('Use the server\'s SSL certificates','updraftplus');?>:</th>
+				<td><input type="checkbox" id="updraft_ssl_useservercerts" name="updraft_ssl_useservercerts" value="1" <?php if (UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts')) echo 'checked="checked"'; ?>> <br><label for="updraft_ssl_useservercerts"><?php _e('By default UpdraftPlus its own store of SSL certificates to verify the identity of remote sites (i.e. to make sure it is talking to the real Dropbox, Amazon S3, etc., and not an attacker). We keep these up to date. However, if you get an SSL error, then choosing this option (which causes UpdraftPlus to use your web server\'s collection instead) may help.','updraftplus');?></label></td>
+			</tr>
+
+			<tr class="expertmode" style="display:none;">
+				<th><?php _e('Do not verify SSL certificates','updraftplus');?>:</th>
+				<td><input type="checkbox" id="updraft_ssl_disableverify" name="updraft_ssl_disableverify" value="1" <?php if (UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify')) echo 'checked="checked"'; ?>> <br><label for="updraft_ssl_disableverify"><?php _e('Choosing this option lowers your security by stopping UpdraftPlus from verifying the identity of encrypted sites that it connects to (e.g. Dropbox, Google Drive). It means that UpdraftPlus will be using SSL only for encryption of traffic, and not for authentication.','updraftplus');?> <?php _e('Note that not all cloud backup methods are necessarily using SSL authentication.', 'updraftplus');?></label></td>
+			</tr>
+
+			<tr class="expertmode" style="display:none;">
+				<th><?php _e('Disable SSL entirely where possible', 'updraftplus');?>:</th>
+				<td><input type="checkbox" id="updraft_ssl_nossl" name="updraft_ssl_nossl" value="1" <?php if (UpdraftPlus_Options::get_updraft_option('updraft_ssl_nossl')) echo 'checked="checked"'; ?>> <br><label for="updraft_ssl_nossl"><?php _e('Choosing this option lowers your security by stopping UpdraftPlus from using SSL for authentication and encrypted transport at all, where possible. Note that some cloud storage providers do not allow this (e.g. Dropbox), so with those providers this setting will have no effect.','updraftplus');?> <a href="http://updraftplus.com/faqs/i-get-ssl-certificate-errors-when-backing-up-andor-restoring/">See this FAQ also.</a></label></td>
+			</tr>
+
 			<?php do_action('updraftplus_configprint_expertoptions'); ?>
+
 			<tr>
 			<td></td>
 			<td>
@@ -1422,6 +1450,25 @@ class UpdraftPlus_Admin {
 			</tr>
 		</table>
 		<?php
+	}
+
+	function curl_check($service, $has_fallback = false) {
+		// Check requirements
+		if (!function_exists("curl_init")) {
+			?><p><strong><?php _e('Warning','updraftplus'); ?>:</strong> <?php echo sprintf(__('Your web server\'s PHP installation does not included a required module (%s). Please contact your web hosting provider\'s support.', 'updraftplus'), 'Curl'); ?> <?php echo sprintf(__("UpdraftPlus's %s module <strong>requires</strong> Curl. Your only options to get this working are 1) Install/enable curl or 2) Hire us or someone else to code additional support options into UpdraftPlus. 3) Wait, possibly forever, for someone else to do this.",'updraftplus'),$service);?></p><?php
+		} else {
+			$curl_version = curl_version();
+			$curl_ssl_supported= ($curl_version['features'] & CURL_VERSION_SSL);
+			if (!$curl_ssl_supported) {
+				if ($has_fallback) {
+					?><p><strong><?php _e('Warning','updraftplus'); ?>:</strong> <?php echo sprintf(__("Your web server's PHP/Curl installation does not support https access. Communications with %s will be unencrypted. ask your web host to install Curl/SSL in order to gain the ability for encryption (via an add-on).",'updraftplus'),$service);?></p><?php
+				} else {
+					?><p><strong><?php _e('Warning','updraftplus'); ?>:</strong> <?php echo sprintf(__("Your web server's PHP/Curl installation does not support https access. We cannot access %s without this support. Please contact your web hosting provider's support. %s <strong>requires</strong> Curl+https. Please do not file any support requests; there is no alternative.",'updraftplus'),$service);?></p><?php
+				}
+			} else {
+				?><p><em><?php echo sprintf(__("Good news: Your site's communications with %s can be encrypted. If you see any errors to do with encryption, then look in the 'Expert Settings' for more help.", 'updraftplus'),$service);?></em></p><?php
+			}
+		}
 	}
 
 	function recursive_directory_size($directory) {

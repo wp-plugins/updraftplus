@@ -1,6 +1,6 @@
 === UpdraftPlus Backup ===
 Contributors: David Anderson
-Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, ftp, webdav, back up, multisite
+Tags: backup, restore, database, rackspace, amazon, s3, dropbox, google drive, ftp, webdav, back up, multisite
 Requires at least: 3.2
 Tested up to: 3.5.1
 Stable tag: 1.5.5
@@ -13,9 +13,9 @@ New features: selective restoration, importing remote backups; plus many tweaks,
 
 == Description ==
 
-<a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3, Dropbox, Google Drive, FTP, SFTP, WebDAV and email) and restore with a single click. Backups of files and database can have separate schedules.
+<a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3, Dropbox, Google Drive, Rackspace Cloud, FTP, SFTP, WebDAV and email) and restore with a single click. Backups of files and database can have separate schedules.
 
-* Supports backups to Amazon S3, Dropbox, Google Drive, FTP (including SSL), email, SFTP and WebDAV
+* Supports backups to Amazon S3, Dropbox, Google Drive, Rackspace Cloud, FTP (including SSL), email, SFTP and WebDAV
 * Quick restore (both file and database backups)
 * Backup automatically on a repeating schedule
 * Files and databases can have separate schedules
@@ -51,6 +51,8 @@ Many thanks to the existing translators:
 
 * Deutsch / German (de_DE): Marcel Herrguth - mherrguth@mrgeneration.de
 * Magyar / Hungarian (hu_HU): Szépe Viktor - http://www.szepe.net
+
+Disclaimer: Use of a translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
 
 = Other support =
 
@@ -112,17 +114,23 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.5.11 - not yet released/supported =
+= 1.5.16 - not yet released/supported =
 * Now restores databases (we recommend the MySQL command-line for versions created with previous versions of UpdraftPlus)
 * Batch INSERT commands in database backups, for much faster restoration (typically 95% faster)
+* Rackspace Cloud Files support (http://www.rackspace.com/cloud/files/)
 * Built-in multi-uploader, allowing easier restoration of old backup sets
 * FTP and FTPS (not SFTP) are now chunked and resumable (both download and upload), subject to your FTP server responding correctly to SIZE
 * Built in drag-and-drop database decrypter for manual decryption
 * Clear PHP's file stat cache when checking for zip file activity - fixes potential halt on very enormous sites
 * Caught some untranslated strings
+* In fix-time add-on, fade UI when relevant
 * German translation: thanks to Marcel Herrguth - mherrguth@mrgeneration.de
 * Hungarian translation: thanks to Szépe Viktor - http://www.szepe.net
 * Respect WordPress's WP_MAX_MEMORY_LIMIT constant
+* Improved UI of downloader
+* Added encryption (used by default) to Amazon S3 communications
+* Ship up-to-date SSL certificates, and added expert options to prefer server SSL CA certificates, and to disable peer verification
+* Tweaked al relevant methods to follow the general SSL CA certificate options
 * Re-factoring of admin-area and some backup code into separate lazy-loaded files, to reduce memory consumption on sites generally
 * A small typo slipped into 1.5.5 which prevented some Google Drive users from setting up new installations
 
@@ -409,3 +417,4 @@ We recognise and thank the following for code and/or libraries used and/or modif
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+Furthermore, reliance upon any non-English translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
