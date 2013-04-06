@@ -1,5 +1,7 @@
 <?php
 
+# TODO: In the delete method, we need to list all potential chunks, and delete them too.
+
 class UpdraftPlus_BackupModule_cloudfiles {
 
 	function backup($backup_array) {
@@ -94,7 +96,8 @@ class UpdraftPlus_BackupModule_cloudfiles {
 							$chunk_object = new CF_Object($cont_obj, $upload_remotepath);
 							$chunk_object->content_type = "application/zip";
 							// Without this, some versions of Curl add Expect: 100-continue, which results in Curl then giving this back: curl error: 55) select/poll returned error
-							$chunk_object->headers = array('Expect' => '');
+							// Didn't make the difference - instead we just check below for actual success even when Curl reports an error
+							// $chunk_object->headers = array('Expect' => '');
 
 							$remote_size = (isset($chunk_object->content_length)) ? $chunk_object->content_length : 0;
 
@@ -311,7 +314,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 		<tr class="updraftplusmethod cloudfiles">
 			<td></td>
 			<td><img alt="Rackspace Cloud Files" src="<?php echo UPDRAFTPLUS_URL.'/images/rackspacecloud-logo.png' ?>">
-				<p><em>Chunked uploading is not yet supported, so your web server must allow PHP to run long enough to upload the largest archive.<!-- <?php printf(__('%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your blog is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.','updraftplus'),'Rackspace Cloud Files');?> --></em></p></td>
+				<p><em><?php printf(__('%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your blog is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.','updraftplus'),'Rackspace Cloud Files');?></em></p></td>
 		</tr>
 
 
@@ -319,7 +322,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 		<tr class="updraftplusmethod cloudfiles">
 		<th></th>
 			<td>
-				<p><?php _e('Get your API key <a href="https://mycloud.rackspace.com/">from your Rackspace Cloud console</a> (read instructions <a href="http://www.rackspace.com/knowledge_center/article/rackspace-cloud-essentials-1-generating-your-api-key">here</a>), then pick a container name to use for storage. This container will be created for you if it does not already exist.','updraftplus');?></p>
+				<p><?php _e('Get your API key <a href="https://mycloud.rackspace.com/">from your Rackspace Cloud console</a> (read instructions <a href="http://www.rackspace.com/knowledge_center/article/rackspace-cloud-essentials-1-generating-your-api-key">here</a>), then pick a container name to use for storage. This container will be created for you if it does not already exist.','updraftplus');?>. <a href="http://updraftplus.com/faqs/there-appear-to-be-lots-of-extra-files-in-my-rackspace-cloud-files-container/"><?php _e('Also, you should read this important FAQ.', 'updraftplus'); ?></a></p>
 			</td>
 		</tr>
 		<tr class="updraftplusmethod cloudfiles">
