@@ -46,7 +46,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 			return;
 		}
 
-		$chunk_size = 0.2*1024*1024;
+		$chunk_size = (int)(0.2*1024*1024);
 
 		foreach($backup_array as $key => $file) {
 
@@ -98,9 +98,9 @@ class UpdraftPlus_BackupModule_cloudfiles {
 							$remote_size = (isset($chunk_object->content_length)) ? $chunk_object->content_length : 0;
 
 							if ($remote_size >= $upload_size) {
-								$updraftplus->log("Cloud Files: Chunk $i: already uploaded");
+								$updraftplus->log("Cloud Files: Chunk $i ($upload_start - $upload_end): already uploaded");
 							} else {
-								$updraftplus->log("Cloud Files: Chunk $i: begin upload");
+								$updraftplus->log("Cloud Files: Chunk $i ($upload_start - $upload_end): begin upload");
 								// Upload the chunk
 								fseek($fp, $upload_start);
 								try {
