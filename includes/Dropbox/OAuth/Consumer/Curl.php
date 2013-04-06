@@ -62,7 +62,7 @@ class Dropbox_Curl extends Dropbox_ConsumerAbstract
         
         // Get the default options array
         $options = $this->defaultOptions;
-        if (!UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts') {
+        if (!UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts')) {
             $options[CURLOPT_CAINFO] = UPDRAFTPLUS_DIR.'/includes/ca-bundle.pem';
         }
         if (UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify')) {
