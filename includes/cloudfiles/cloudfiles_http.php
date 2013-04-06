@@ -244,7 +244,11 @@ class UpdraftPlus_CF_Http
         if (!is_null($this->cabundle_path)) {
             curl_setopt($curl_ch, CURLOPT_CAINFO, $this->cabundle_path);
         }
-        if (!UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify')) curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, True);
+        if (UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify')) {
+            curl_setopt($curl_ch, CURLOPT_SSL_VERIFYPEER, false);
+        } else {
+            curl_setopt($curl_ch, CURLOPT_SSL_VERIFYPEER, true);
+        }
 
         curl_setopt($curl_ch, CURLOPT_VERBOSE, $this->dbug);
         curl_setopt($curl_ch, CURLOPT_FOLLOWLOCATION, 1);
@@ -1351,7 +1355,11 @@ class UpdraftPlus_CF_Http
         if (!is_null($this->cabundle_path)) {
             curl_setopt($ch, CURLOPT_CAINFO, $this->cabundle_path);
         }
-        if (!UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify')) curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, True);
+        if (UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify')) {
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		} else {
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+		}
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
         curl_setopt($ch, CURLOPT_MAXREDIRS, 4);
