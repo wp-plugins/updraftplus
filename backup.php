@@ -211,7 +211,7 @@ class UpdraftPlus_Backup {
 			$fsize = filesize($file);
 			if (!isset($this->existing_files[$add_as]) || $this->existing_files[$add_as] != $fsize) {
 
-				touch($file);
+				@touch($zipfile);
 				$zip->addFile($file, $add_as);
 
 				$data_added_since_reopen += $fsize;

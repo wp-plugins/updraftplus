@@ -1,7 +1,5 @@
 <?php
 
-// TODO: Chunking and resuming on uploading is not yet tested	
-
 class UpdraftPlus_BackupModule_cloudfiles {
 
 	function backup($backup_array) {
@@ -46,7 +44,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 			return;
 		}
 
-		$chunk_size = (int)(0.2*1024*1024);
+		$chunk_size = 5*1024*1024;
 
 		foreach($backup_array as $key => $file) {
 
@@ -77,12 +75,13 @@ class UpdraftPlus_BackupModule_cloudfiles {
 					$updraftplus->log("Cloud Files upload: $file (chunks: $chunks) -> cloudfiles://$user@$container/$cfpath ($uploaded_size)");
 
 					if ($chunks < 2) {
-						if (!$object->load_from_filename($fullpath)) {
-							$updraftplus->log("Cloud Files regular upload: failed ($fullpath)");
-							$updraftplus->error("$file: ".sprintf(__('%s Error: Failed to upload','updraftplus'),'Cloud Files'));
-						} else {
+						try {
+							$object->load_from_filename($fullpath);
 							$updraftplus->log("Cloud Files regular upload: success");
 							$updraftplus->uploaded_file($file);
+						} catch (Exception $e) {
+							$updraftplus->log("Cloud Files regular upload: failed ($file) (".$e->getMessage().")");
+							$updraftplus->error("$file: ".sprintf(__('%s Error: Failed to upload','updraftplus'),'Cloud Files'));
 						}
 					} else {
 						$errors_so_far = 0;
@@ -94,6 +93,8 @@ class UpdraftPlus_BackupModule_cloudfiles {
 
 							$chunk_object = new CF_Object($cont_obj, $upload_remotepath);
 							$chunk_object->content_type = "application/zip";
+							// Without this, some versions of Curl add Expect: 100-continue, which results in Curl then giving this back: curl error: 55) select/poll returned error
+							$chunk_object->headers = array('Expect' => '');
 
 							$remote_size = (isset($chunk_object->content_length)) ? $chunk_object->content_length : 0;
 
@@ -107,22 +108,41 @@ class UpdraftPlus_BackupModule_cloudfiles {
 									$chunk_object->write($fp, $upload_size, false);
 									$updraftplus->record_uploaded_chunk(round(100*$i/$chunks,1), $i, $fullpath);
 								} catch (Exception $e) {
-									$updraftplus->log("Cloud Files chunk upload: failed ($file / $i) (".$e->getMessage().")");
-									$updraftplus->error("$file: ".sprintf(__('%s Error: Failed to upload','updraftplus'),'Cloud Files'));
-									$errors_so_far++;
-									if ($errors_so_far >=3 ) return false;
+									$updraftplus->log("Cloud Files chunk upload: error: ($file / $i) (".$e->getMessage().")");
+									// Experience shows that Curl sometimes returns a select/poll error (curl error 55) even when everything succeeded. Google seems to indicate that this is a known bug.
+									
+									$chunk_object = new CF_Object($cont_obj, $upload_remotepath);
+									$chunk_object->content_type = "application/zip";
+									$remote_size = (isset($chunk_object->content_length)) ? $chunk_object->content_length : 0;
+									
+									if ($remote_size >= $upload_size) {
+
+										$updraftplus->log("$file: Chunk now exists; ignoring error (presuming it was an apparently known curl bug)");
+
+									} else {
+
+										$updraftplus->error("$file: ".sprintf(__('%s Error: Failed to upload','updraftplus'),'Cloud Files'));
+										$errors_so_far++;
+										if ($errors_so_far >=3 ) return false;
+
+									}
+
 								}
 							}
 						}
 						if ($errors_so_far) return false;
 						// All chunks are uploaded - now upload the manifest
-						$object->manifest = $container."/".$cfpath."_";
+						
 						try {
+							$object->manifest = $container."/".$cfpath."_";
+							// Put a zero-length file
+							$object->write("", 0, false);
 							$object->sync_manifest();
 // 						} catch (InvalidResponseException $e) {
 						} catch (Exception $e) {
 							$updraftplus->log('Cloud Files error - failed to re-assemble chunks ('.$e->getMessage().')');
 							$updraftplus->error(__('Cloud Files error - failed to re-assemble chunks', 'updraftplus').' ('.$e->getMessage().')');
+							return false;
 						}
 					}
 
@@ -134,7 +154,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 			} catch (Exception $e) {
 				$updraftplus->log(__('Cloud Files error - failed to upload file', 'updraftplus').' ('.$e->getMessage().')');
 				$updraftplus->error(__('Cloud Files error - failed to upload file', 'updraftplus').' ('.$e->getMessage().')');
-				return;
+				return false;
 			}
 
 		}
