@@ -1,6 +1,6 @@
 <?php
 
-// TODO: Chunking and resuming on uploading is not yet tested
+// TODO: Chunking and resuming on uploading is not yet tested	
 
 class UpdraftPlus_BackupModule_cloudfiles {
 
@@ -88,7 +88,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 						$errors_so_far = 0;
 						for ($i = 1 ; $i <= $chunks; $i++) {
 							$upload_start = ($i-1)*$chunk_size;
-							$upload_end = max($i*$chunk_size-1, $orig_file_size);
+							$upload_end = min($i*$chunk_size-1, $orig_file_size);
 							$upload_remotepath = $cfpath."_$i";
 							$upload_size = $upload_end - $upload_start;
 
