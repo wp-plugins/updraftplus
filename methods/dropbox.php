@@ -245,7 +245,7 @@ class UpdraftPlus_BackupModule_dropbox {
 				$curl_version = curl_version();
 				$curl_ssl_supported= ($curl_version['features'] & CURL_VERSION_SSL);
 				if (!$curl_ssl_supported) {
-				?><p><strong><?php _e('Warning','updraftplus'); ?>:</strong> <?php e_("Your web server's PHP/Curl installation does not support https access. We cannot access Dropbox without this support. Please contact your web hosting provider's support. UpdraftPlus's Dropbox module <strong>requires</strong> Curl+https. Your only options to get this working are 1) Install/enable curl with https or 2) Hire us or someone else to code additional support options into UpdraftPlus. 3) Wait, possibly forever, for someone else to do this.",'updraftplus');?></p><?php
+				?><p><strong><?php _e('Warning','updraftplus'); ?>:</strong> <?php _e("Your web server's PHP/Curl installation does not support https access. We cannot access Dropbox without this support. Please contact your web hosting provider's support. UpdraftPlus's Dropbox module <strong>requires</strong> Curl+https. Your only options to get this working are 1) Install/enable curl with https or 2) Hire us or someone else to code additional support options into UpdraftPlus. 3) Wait, possibly forever, for someone else to do this.",'updraftplus');?></p><?php
 				}
 			}
 			?>

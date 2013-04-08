@@ -2139,6 +2139,9 @@ class UpdraftPlus {
 			return $this->url_start($urls,'updraftplus.com')."Want more features or paid, guaranteed support? Check out UpdraftPlus.Com".$this->url_end($urls,'updraftplus.com');
 			break;
 		case 1:
+			if (defined('WPLANG') && strlen(WPLANG)>0 && !is_file(UPDRAFTPLUS_DIR.'/languages/updraftplus-'.WPLANG.
+'.mo')) return __('Can you translate? Want to improve UpdraftPlus for speakers of your language?','updraftplus').$this->url_start($urls,'updraftplus.com/translate/')."Please go here for instructions - it is easy.".$this->url_end($urls,'updraftplus.com/translate/');
+
 			return __('Find UpdraftPlus useful?','updraftplus').$this->url_start($urls,'david.dw-perspective.org.uk/donate').__("Please make a donation", 'updraftplus').$this->url_end($urls,'david.dw-perspective.org.uk/donate');
 		case 2:
 			return $this->url_start($urls,'wordshell.net')."Check out WordShell".$this->url_end($urls,'www.wordshell.net')." - manage WordPress from the command line - huge time-saver";
@@ -2362,17 +2365,17 @@ class UpdraftPlus {
 									alert('You did not select any components to restore. Please select at least one, and then try again.');
 								}
 							},
-							Cancel: function() { jQuery(this).dialog("close"); }
+							<?php _e('Cancel','updraftplus');?>: function() { jQuery(this).dialog("close"); }
 						}
 					});
 
 					jQuery( "#updraft-backupnow-modal" ).dialog({
 						autoOpen: false, height: 265, width: 375, modal: true,
 						buttons: {
-							'Backup Now': function() {
+							'<?php _e('Backup Now','updraftplus');?>': function() {
 								jQuery('#updraft-backupnow-form').submit();
 							},
-							Cancel: function() { jQuery(this).dialog("close"); }
+							<?php _e('Cancel','updraftplus');?>: function() { jQuery(this).dialog("close"); }
 						}
 					});
 
@@ -2678,7 +2681,7 @@ class UpdraftPlus {
 				</tr>
 			</table>
 			<div style="float:left; width:200px; padding-top: 20px;">
-				<p><button type="button" <?php echo $backup_disabled ?> class="button-primary" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px;" onclick="jQuery('#updraft-backupnow-modal').dialog('open');">Backup Now</button></p>
+				<p><button type="button" <?php echo $backup_disabled ?> class="button-primary" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px;" onclick="jQuery('#updraft-backupnow-modal').dialog('open');"><?php _e('Backup Now','updraftplus');?></button></p>
 				<div style="position:relative">
 					<div style="position:absolute;top:0;left:0">
 						<?php
@@ -2687,7 +2690,7 @@ class UpdraftPlus {
 						$backup_history_sets = (count($backup_history) == 1) ? 'set' : 'sets';
 						$restore_disabled = (count($backup_history) == 0) ? 'disabled="disabled"' : "";
 						?>
-						<input type="button" class="button-primary" <?php echo $restore_disabled ?> value="Restore" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px;" onclick="jQuery('.download-backups').slideDown(); updraft_historytimertoggle(1); jQuery('html,body').animate({scrollTop: jQuery('#updraft_lastlogcontainer').offset().top},'slow');">
+						<input type="button" class="button-primary" <?php echo $restore_disabled ?> value="<?php _e('Restore','updraftplus');?>" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px;" onclick="jQuery('.download-backups').slideDown(); updraft_historytimertoggle(1); jQuery('html,body').animate({scrollTop: jQuery('#updraft_lastlogcontainer').offset().top},'slow');">
 					</div>
 				</div>
 			</div>
@@ -2920,9 +2923,9 @@ class UpdraftPlus {
 					<input type="hidden" name="action" value="updraft_download_backup" />
 					<input type="hidden" name="type" value="<?php echo $type; ?>" />
 					<input type="hidden" name="timestamp" value="<?php echo $key?>" />
-					<input  type="submit" title="Press here to download <?php echo lcfirst($info['description']); ?>" value="<?php echo $sdescrip;?>" />
+					<input type="submit" title="<?php echo __('Press here to download','updraftplus').' '.strtolower($info['description']); ?>" value="<?php echo $sdescrip;?>" />
 				</form>
-		<?php } else { echo "(No&nbsp;".lcfirst($info['description']).")"; } ?>
+		<?php } else { echo "(No&nbsp;".strtolower($info['description']).")"; } ?>
 			</td>
 		<?php }; ?>
 
@@ -2973,15 +2976,15 @@ class UpdraftPlus {
 	}
 
 	function show_admin_warning_unreadablelog() {
-		$this->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus')/':</strong> '.__('The log file could not be read.','updraftplus'));
+		$this->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus').'</strong> '.__('The log file could not be read.','updraftplus'));
 	}
 
 	function show_admin_warning_dropbox() {
-		$this->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus')/':</strong> <a href="options-general.php?page=updraftplus&action=updraftmethod-dropbox-auth&updraftplus_dropboxauth=doit">.'.sprintf(__('Click here to authenticate your %s account (you will not be able to back up to %s without it).','updraftplus'),'Dropbox','Dropbox').'</a>');
+		$this->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus').'</strong> <a href="options-general.php?page=updraftplus&action=updraftmethod-dropbox-auth&updraftplus_dropboxauth=doit">.'.sprintf(__('Click here to authenticate your %s account (you will not be able to back up to %s without it).','updraftplus'),'Dropbox','Dropbox').'</a>');
 	}
 
 	function show_admin_warning_googledrive() {
-		$this->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus')/':</strong> <a href="options-general.php?page=updraftplus&action=updraftmethod-googledrive-auth&updraftplus_googleauth=doit">.'.sprintf(__('Click here to authenticate your %s account (you will not be able to back up to %s without it).','updraftplus'),'Google Drive','Google Drive').'</a>');
+		$this->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus').'</strong> <a href="options-general.php?page=updraftplus&action=updraftmethod-googledrive-auth&updraftplus_googleauth=doit">.'.sprintf(__('Click here to authenticate your %s account (you will not be able to back up to %s without it).','updraftplus'),'Google Drive','Google Drive').'</a>');
 	}
 
 	// Caution: $source is allowed to be an array, not just a filename
@@ -3083,6 +3086,7 @@ class UpdraftPlus {
 		if (file_exists($zipfile)) {
 			$opencode = $zip->open($zipfile);
 			$original_size = filesize($zipfile);
+			clearstatcache($zipfile);
 		} else {
 			$opencode = $zip->open($zipfile, ZIPARCHIVE::CREATE);
 			$original_size = 0;
@@ -3105,6 +3109,7 @@ class UpdraftPlus {
 				if ($data_added_since_reopen > 26214400) {
 
 					$before_size = filesize($zipfile);
+					clearstatcache($zipfile);
 
 					$this->log("Adding batch to zip file: over 25Mb added on this batch (".round($data_added_since_reopen/1048576,1)." Mb); re-opening (prior size: ".round($before_size/1024,1).' Kb)');
 					if (!$zip->close()) {
@@ -3117,6 +3122,7 @@ class UpdraftPlus {
 					$data_added_since_reopen = 0;
 					// Call here, in case we've got so many big files that we don't complete the whole routine
 					if (filesize($zipfile) > $before_size) $this->something_useful_happened();
+					clearstatcache($zipfile);
 				}
 			}
 			$this->zipfiles_added++;
@@ -3126,6 +3132,7 @@ class UpdraftPlus {
 		$this->zipfiles_batched = array();
 		$ret =  $zip->close();
 		if (filesize($zipfile) > $original_size) $this->something_useful_happened();
+		clearstatcache(zipfile);
 		return $ret;
 	}
 

@@ -56,6 +56,8 @@ class UpdraftPlus_BackupModule_ftp {
 	function download($file) {
 		if( !class_exists('UpdraftPlus_ftp_wrapper')) require_once(UPDRAFTPLUS_DIR.'/includes/ftp.class.php');
 
+		global $updraftplus;
+
 		//handle errors at some point TODO
 		$ftp = new UpdraftPlus_ftp_wrapper(UpdraftPlus_Options::get_updraft_option('updraft_server_address'),UpdraftPlus_Options::get_updraft_option('updraft_ftp_login'),UpdraftPlus_Options::get_updraft_option('updraft_ftp_pass'));
 		$ftp->passive = true;

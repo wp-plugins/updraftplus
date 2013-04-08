@@ -3,7 +3,7 @@ Contributors: David Anderson
 Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, ftp, webdav, back up, multisite
 Requires at least: 3.2
 Tested up to: 3.5.1
-Stable tag: 1.4.48
+Stable tag: 1.5.5
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -45,7 +45,12 @@ UpdraftPlus is written by professional WordPress developers. If your site needs 
 
 = Are you multi-lingual? Can you translate? =
 
-Are you able to translate UpdraftPlus into another language? UpdraftPlus's code is already internationalized. Just grab the .pot file from <a href="http://plugins.svn.wordpress.org/updraftplus/trunk/languages/updraftplus.pot">http://plugins.svn.wordpress.org/updraftplus/trunk/languages/updraftplus.pot</a>, load it into any application for translating, and sent it to us (contact@updraftplus.com) when done. We will add your name to the 'Notes' page here.
+Are you able to translate UpdraftPlus into another language? Are you ready to help speakers of your language? UpdraftPlus itself is ready and waiting - the only work needed is the translating. The translation process is easy - go here for instructions: <a href="http://updraftplus.com/translate/">http://updraftplus.com/translate/</a>. (Or if you're an expert WordPress translator already, then just pick out the .pot file from the wp-content/plugins/updraftplus/languages/ directory).
+
+Many thanks to the existing translators:
+
+* Deutsch / German (de_DE): Marcel Herrguth - mherrguth@mrgeneration.de
+* Magyar / Hungarian (hu_HU): Szépe Viktor - http://www.szepe.net
 
 = Other support =
 
@@ -107,10 +112,10 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.5.5 - not yet released/supported =
+= 1.5.5 - 2013/03/26 =
 * Now translatable - .pot file included (translators welcome!)
 * When restoring, you can now select only some components to restore
-* History of previous backups can re-scan to find backups manually imported (e.g. via FTP)
+* History of previous backups can re-scan to find backups manually imported (e.g. via FTP) (trunk version has drag-and-drop import)
 * Multisite add-on (http://updraftplus.com/shop/) now stores/restores blogs and mu-plugins separately
 * Display UpdraftPlus's disk space usage
 * Internationalisation hooks in main body of plugin
