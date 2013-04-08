@@ -1,8 +1,33 @@
 <?php
 
+# TODO: Implement list_dir (needed for deleting all potential chunks)
 # TODO: In the delete method, we need to list all potential chunks, and delete them too.
+# TODO: Change chunks to have names beginning with chunk-do-not-delete to avoid confusion
+# TODO: Migrate to getCF()
 
 class UpdraftPlus_BackupModule_cloudfiles {
+
+	function list_dir() {
+	}
+
+	// This function does not catch any exceptions - that should be done by the caller
+	function getCF($user, $apikey, $authurl, $useservercerts = false) {
+		
+		if(!class_exists('CF_Authentication')) require_once(UPDRAFTPLUS_DIR.'/includes/cloudfiles/cloudfiles.php');
+
+		$auth = new CF_Authentication($user, $apikey, NULL, $authurl);
+
+		$updraftplus->log("Cloud Files authentication URL: $authurl");
+
+		$auth->authenticate();
+
+		$conn = new CF_Connection($auth);
+
+		if (!$useservercerts) $conn->ssl_use_cabundle(UPDRAFTPLUS_DIR.'/includes/cacert.pem');
+
+		return $conn;
+
+	}
 
 	function backup($backup_array) {
 
@@ -12,8 +37,6 @@ class UpdraftPlus_BackupModule_cloudfiles {
 		$path = untrailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_path'));
 		$authurl = UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_authurl', 'https://auth.api.rackspacecloud.com');
 
-		$updraftplus->log("Cloud Files authentication URL: $authurl");
-
 		if (preg_match("#^([^/]+)/(.*)$#", $path, $bmatches)) {
 			$container = $bmatches[1];
 			$path = $bmatches[2];
@@ -22,24 +45,20 @@ class UpdraftPlus_BackupModule_cloudfiles {
 			$path = "";
 		}
 
-		if(!class_exists('CF_Authentication')) require_once(UPDRAFTPLUS_DIR.'/includes/cloudfiles/cloudfiles.php');
-
 		$user = UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_user');
-
-		$auth = new CF_Authentication($user, UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_apikey'), NULL, $authurl);
+		$apikey = UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_apikey');
+		
 		try {
-			$auth->authenticate();
-		} catch(Exception $e) {
+			$conn = $this->getCF($user, $apikey, $authurl, UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'));
+			$cont_obj = $conn->create_container($container);
+		} catch(AuthenticationException $e) {
 			$updraftplus->log('Cloud Files authentication failed ('.$e->getMessage().')');
 			$updraftplus->error(__('Cloud Files authentication failed','updraftplus').' ('.$e->getMessage().')');
-		}
-
-		try {
-			$conn = new CF_Connection($auth);
-			if (!UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts')) {
-				$conn->ssl_use_cabundle(UPDRAFTPLUS_DIR.'/includes/cacert.pem');
-			}
-			$cont_obj = $conn->create_container($container);
+			return false;
+		} catch(NoSuchAccountException $s) {
+			$updraftplus->log('Cloud Files authentication failed ('.$e->getMessage().')');
+			$updraftplus->error(__('Cloud Files authentication failed','updraftplus').' ('.$e->getMessage().')');
+			return false;
 		} catch (Exception $e) {
 			$updraftplus->log('Cloud Files error - failed to create and access the container ('.$e->getMessage().')');
 			$updraftplus->error(__('Cloud Files error - failed to create and access the container', 'updraftplus').' ('.$e->getMessage().')');
@@ -178,11 +197,9 @@ class UpdraftPlus_BackupModule_cloudfiles {
 		$updraftplus->log("Cloud Files: Delete remote: container=$container, path=$fpath");
 
 		try {
-			if (!$cont_obj->delete_object($fpath)) {
-				$updraftplus->log("Cloud Files: Delete failed");
-			}
+			$cont_obj->delete_object($fpath);
 		} catch  (Exception $e) {
-			$updraftplus->log('Cloud Files delete failed: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
+			$updraftplus->log('Cloud Files delete failed: '.$e->getMessage());
 		}
 
 	}
