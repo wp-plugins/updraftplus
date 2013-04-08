@@ -22,8 +22,8 @@ class UpdraftPlus_Options {
 	}
 
 	public static function add_admin_pages() {
-		global $updraftplus;
-		add_submenu_page('options-general.php', 'UpdraftPlus', __('UpdraftPlus Backups','updraftplus'), "manage_options", "updraftplus", array($updraftplus, "settings_output"));
+		global $updraftplus_admin;
+		add_submenu_page('options-general.php', 'UpdraftPlus', __('UpdraftPlus Backups','updraftplus'), "manage_options", "updraftplus", array($updraftplus_admin, "settings_output"));
 	}
 
 	public static function options_form_begin() {
@@ -33,7 +33,7 @@ class UpdraftPlus_Options {
 
 	public static function admin_init() {
 
-		global $updraftplus;
+		global $updraftplus, $updraftplus_admin;
 		register_setting('updraft-options-group', 'updraft_interval', array($updraftplus, 'schedule_backup') );
 		register_setting('updraft-options-group', 'updraft_interval_database', array($updraftplus, 'schedule_backup_database') );
 		register_setting('updraft-options-group', 'updraft_retain', array($updraftplus, 'retain_range') );
@@ -60,7 +60,7 @@ class UpdraftPlus_Options {
 		register_setting('updraft-options-group', 'updraft_ftp_pass' );
 		register_setting('updraft-options-group', 'updraft_ftp_remote_path' );
 		register_setting('updraft-options-group', 'updraft_server_address' );
-		register_setting('updraft-options-group', 'updraft_dir', array($updraftplus, 'prune_updraft_dir_prefix') );
+		register_setting('updraft-options-group', 'updraft_dir', array($updraftplus_admin, 'prune_updraft_dir_prefix') );
 		register_setting('updraft-options-group', 'updraft_email');
 		register_setting('updraft-options-group', 'updraft_delete_local', 'absint' );
 		register_setting('updraft-options-group', 'updraft_debug_mode', 'absint' );
@@ -70,8 +70,10 @@ class UpdraftPlus_Options {
 		register_setting('updraft-options-group', 'updraft_include_others', 'absint' );
 		register_setting('updraft-options-group', 'updraft_include_others_exclude' );
 
-		register_setting('updraft-options-group', 'updraft_starttime_files', array($updraftplus, 'hourminute') );
-		register_setting('updraft-options-group', 'updraft_starttime_db', array($updraftplus, 'hourminute') );
+		register_setting('updraft-options-group', 'updraft_starttime_files', array('UpdraftPlus_Options', 'hourminute') );
+		register_setting('updraft-options-group', 'updraft_starttime_db', array('UpdraftPlus_Options', 'hourminute') );
+
+		register_setting('updraft-options-group', 'updraft_disable_ping', array('UpdraftPlus_Options', 'pingfilter') );
 
 		global $pagenow;
 		if (is_multisite() && $pagenow == 'options-general.php' && isset($_REQUEST['page']) && 'updraftplus' == substr($_REQUEST['page'], 0, 11)) {
@@ -80,14 +82,22 @@ class UpdraftPlus_Options {
 
 	}
 
-	public static function show_admin_warning_multisite() {
-
-		global $updraftplus;
-
-		$updraftplus->show_admin_warning('<strong>UpdraftPlus warning:</strong> This is a WordPress multi-site (a.k.a. network) installation. <a href="http://updraftplus.com">WordPress Multisite is supported, with extra features, by UpdraftPlus Premium, or the Multisite add-on</a>. Without upgrading, UpdraftPlus allows <strong>every</strong> blog admin who can modify plugin settings to back up (and hence access the data, including passwords, from) and restore (including with customised modifications, e.g. changed passwords) <strong>the entire network</strong>. (This applies to all WordPress backup plugins unless they have been explicitly coded for multisite compatibility).', "error");
-
+	public static function pingfilter($disable) {
+		return apply_filters('updraftplus_pingfilter', $disable);
 	}
 
+	public static function hourminute($pot) {
+		if (preg_match("/^[0-2][0-9]:[0-5][0-9]$/", $pot)) return $pot;
+		if ('' == $pot) return date('H:i', time()+300);
+		return '00:00';
+	}
+
+	public static function show_admin_warning_multisite() {
+
+		global $updraftplus_admin;
+		$updraftplus_admin->show_admin_warning('<strong>UpdraftPlus warning:</strong> This is a WordPress multi-site (a.k.a. network) installation. <a href="http://updraftplus.com">WordPress Multisite is supported, with extra features, by UpdraftPlus Premium, or the Multisite add-on</a>. Without upgrading, UpdraftPlus allows <strong>every</strong> blog admin who can modify plugin settings to back up (and hence access the data, including passwords, from) and restore (including with customised modifications, e.g. changed passwords) <strong>the entire network</strong>. (This applies to all WordPress backup plugins unless they have been explicitly coded for multisite compatibility).', "error");
+
+	}
 
 }
 

@@ -27,13 +27,11 @@ function rijndael_decrypt_file($file, $key) {
 	require_once(dirname(__FILE__).'/includes/phpseclib/Crypt/Rijndael.php');
 
 	$rijndael = new Crypt_Rijndael();
+
 	$rijndael->setKey($key);
-	$in_handle = fopen($file,'r');
-	$ciphertext = "";
-	while (!feof ($in_handle)) {
-		$ciphertext .= fread($in_handle, 16384);
-	}
-	fclose ($in_handle);
+
+	$ciphertext = file_get_contents($file);
+
 	print $rijndael->decrypt($ciphertext);
 
 }
