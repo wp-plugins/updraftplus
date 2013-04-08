@@ -3132,6 +3132,7 @@ class UpdraftPlus {
 		$this->zipfiles_batched = array();
 		$ret =  $zip->close();
 		if (filesize($zipfile) > $original_size) $this->something_useful_happened();
+		clearstatcache(zipfile);
 		return $ret;
 	}
 
