@@ -3126,7 +3126,7 @@ class UpdraftPlus {
 					$opencode = $zip->open($zipfile);
 					if ($opencode !== true) return array($opencode, 0);
 					$data_added_since_reopen = 0;
-					$zipfiles_lastwritetime = time();
+					$this->zipfiles_lastwritetime = time();
 					// Call here, in case we've got so many big files that we don't complete the whole routine
 					if (filesize($zipfile) > $before_size) $this->something_useful_happened();
 					clearstatcache($zipfile);
@@ -3139,7 +3139,7 @@ class UpdraftPlus {
 		// Reset the array
 		$this->zipfiles_batched = array();
 		$ret =  $zip->close();
-		$zipfiles_lastwritetime = time();
+		$this->zipfiles_lastwritetime = time();
 		if (filesize($zipfile) > $original_size) $this->something_useful_happened();
 		clearstatcache($zipfile);
 		return $ret;
