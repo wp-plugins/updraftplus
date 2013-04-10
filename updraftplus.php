@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your site can be backed up locally or to Amazon S3, Dropbox, Google Drive, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.5.5
+Version: 1.5.6
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -144,6 +144,7 @@ class UpdraftPlus {
 	var $zipfiles_existingfiles;
 	var $zipfiles_dirbatched;
 	var $zipfiles_batched;
+	var $zipfiles_lastwritetime;
 
 	var $zip_preferpcl = false;
 
@@ -3029,6 +3030,7 @@ class UpdraftPlus {
 		$this->zipfiles_added = 0;
 		$this->zipfiles_dirbatched = array();
 		$this->zipfiles_batched = array();
+		$this->zipfiles_lastwritetime = time();
 
 		// Magic value, used later to detect no error occurring
 		$last_error = 2349864;
@@ -3101,17 +3103,21 @@ class UpdraftPlus {
 			$fsize = filesize($file);
 			if (!isset($this->existing_files[$add_as]) || $this->existing_files[$add_as] != $fsize) {
 
-				touch($file);
+				@touch($zipfile);
 				$zip->addFile($file, $add_as);
 
 				$data_added_since_reopen += $fsize;
 				# 25Mb - force a write-out and re-open
-				if ($data_added_since_reopen > 26214400) {
+				if ($data_added_since_reopen > 26214400 || (time() - $this->zipfiles_lastwritetime) > 2) {
 
 					$before_size = filesize($zipfile);
 					clearstatcache($zipfile);
 
-					$this->log("Adding batch to zip file: over 25Mb added on this batch (".round($data_added_since_reopen/1048576,1)." Mb); re-opening (prior size: ".round($before_size/1024,1).' Kb)');
+					if ($data_added_since_reopen > 26214400) {
+						$this->log("Adding batch to zip file: over 25Mb added on this batch (".round($data_added_since_reopen/1048576,1)." Mb); re-opening (prior size: ".round($before_size/1024,1).' Kb)');
+					} else {
+						$this->log("Adding batch to zip file: over 2 seconds have passed since the last write (".round($data_added_since_reopen/1048576,1)." Mb); re-opening (prior size: ".round($before_size/1024,1).' Kb)');
+					}
 					if (!$zip->close()) {
 						$this->log("zip::Close returned an error");
 					}
@@ -3120,19 +3126,22 @@ class UpdraftPlus {
 					$opencode = $zip->open($zipfile);
 					if ($opencode !== true) return array($opencode, 0);
 					$data_added_since_reopen = 0;
+					$zipfiles_lastwritetime = time();
 					// Call here, in case we've got so many big files that we don't complete the whole routine
 					if (filesize($zipfile) > $before_size) $this->something_useful_happened();
 					clearstatcache($zipfile);
 				}
 			}
 			$this->zipfiles_added++;
+			// Don't call something_useful_happened() here - nothing necessarily happens until close() is called
 			if ($this->zipfiles_added % 100 == 0) $this->log("Zip: ".basename($zipfile).": ".$this->zipfiles_added." files added (on-disk size: ".round(filesize($zipfile)/1024,1)." Kb)");
 		}
 		// Reset the array
 		$this->zipfiles_batched = array();
 		$ret =  $zip->close();
+		$zipfiles_lastwritetime = time();
 		if (filesize($zipfile) > $original_size) $this->something_useful_happened();
-		clearstatcache(zipfile);
+		clearstatcache($zipfile);
 		return $ret;
 	}
 
