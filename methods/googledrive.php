@@ -92,7 +92,7 @@ class UpdraftPlus_BackupModule_googledrive {
 				$json_values = json_decode( $result['body'], true );
 				if ( isset( $json_values['refresh_token'] ) ) {
 					UpdraftPlus_Options::update_updraft_option('updraft_googledrive_token', $json_values['refresh_token']); // Save token
-					header('Location: '.admin_url('options-general.php?page=updraftplus&message='.__('Success','updraftplus').' '.sprintf(__('you have authenticated your %s account','updraftplus'),__('Google Drive','updraftplus'))));
+					header('Location: '.admin_url('options-general.php?page=updraftplus&message='.__('Success','updraftplus').': '.sprintf(__('you have authenticated your %s account','updraftplus'),__('Google Drive','updraftplus'))));
 
 				}
 				else {

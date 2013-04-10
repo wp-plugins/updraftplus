@@ -1,6 +1,22 @@
 <?php
 class Updraft_Restorer extends WP_Upgrader {
 
+	function backup_strings() {
+		$this->strings['not_possible'] = __('UpdraftPlus is not able to directly restore this kind of entity. It must be restored manually.','updraftplus');
+		$this->strings['no_package'] = __('Backup file not available.','updraftplus');
+		$this->strings['unpack_package'] = __('Unpacking backup...','updraftplus');
+		$this->strings['decrypt_database'] = __('Decrypting database (can take a while)...','updraftplus');
+		$this->strings['decrypted_database'] = __('Database successfully decrypted.','updraftplus');
+		$this->strings['moving_old'] = __('Moving old directory out of the way...','updraftplus');
+		$this->strings['moving_backup'] = __('Moving unpacked backup in place...','updraftplus');
+		$this->strings['restore_database'] = __('Restoring the database (on a large site this can take a long time - if it times out (which can happen if your web hosting company has configured your hosting to limit resources) then you should use a different method, such as phpMyAdmin)...','updraftplus');
+		$this->strings['cleaning_up'] = __('Cleaning up rubbish...','updraftplus');
+		$this->strings['old_delete_failed'] = __('Could not move old directory out of the way. Perhaps you already have -old directories that need deleting first?','updraftplus');
+		$this->strings['old_move_failed'] = __('Could not delete old directory.','updraftplus');
+		$this->strings['new_move_failed'] = __('Could not move new directory into place. Check your wp-content/upgrade folder.','updraftplus');
+		$this->strings['delete_failed'] = __('Failed to delete working directory after restoring.','updraftplus');
+	}
+
 	function unpack_package($package, $delete_package = true) {
 
 		// If not database, then it is a zip - unpack in the usual way
@@ -65,18 +81,58 @@ class Updraft_Restorer extends WP_Upgrader {
 
 	}
 
-	function backup_strings() {
-		$this->strings['no_package'] = __('Backup file not available.','updraftplus');
-		$this->strings['unpack_package'] = __('Unpacking backup...','updraftplus');
-		$this->strings['decrypt_database'] = __('Decrypting database (can take a while)...','updraftplus');
-		$this->strings['decrypted_database'] = __('Database successfully decrypted.','updraftplus');
-		$this->strings['moving_old'] = __('Moving old directory out of the way...','updraftplus');
-		$this->strings['moving_backup'] = __('Moving unpacked backup in place...','updraftplus');
-		$this->strings['restore_database'] = __('Restoring the database (on a large site this can take a long time - if it times out (which can happen if your web hosting company has configured your hosting to limit resources) then you should use a different method, such as phpMyAdmin)...','updraftplus');
-		$this->strings['cleaning_up'] = __('Cleaning up rubbish...','updraftplus');
-		$this->strings['old_move_failed'] = __('Could not move old directory out of the way. Perhaps you already have -old directories that need deleting first?','updraftplus');
-		$this->strings['new_move_failed'] = __('Could not move new directory into place. Check your wp-content/upgrade folder.','updraftplus');
-		$this->strings['delete_failed'] = __('Failed to delete working directory after restoring.','updraftplus');
+	// For moving files out of a directory into their new location
+	// The only purpose of the $type parameter is to detect 'others' and apply a historical bugfix
+	// Must use only wp_filesystem
+	// $dest_dir must already have a trailing slash
+	function move_backup_in($working_dir, $dest_dir, $make_backup = true, $do_not_overwrite = array('plugins', 'themes', 'uploads', 'upgrade'), $type = 'not-others') {
+
+		global $wp_filesystem;
+
+		$upgrade_files = $wp_filesystem->dirlist($working_dir);
+
+		if ( !empty($upgrade_files) ) {
+			foreach ( $upgrade_files as $filestruc ) {
+				$file = $filestruc['name'];
+
+				// Correctly restore files in 'others' in no directory that were wrongly backed up in versions 1.4.0 - 1.4.48
+				if ('others' == $type && preg_match('/^([\-_A-Za-z0-9]+\.php)$/', $file, $matches) && $wp_filesystem->exists($working_dir . "/$file/$file")) {
+					echo "Found file: $file/$file: presuming this is a backup with a known fault (backup made with versions 1.4.0 - 1.4.48); will rename to simply $file<br>";
+					$file = $matches[1];
+					$tmp_file = rand(0,999999999).'.php';
+					// Rename directory
+					$wp_filesystem->move($working_dir . "/$file", $working_dir . "/".$tmp_file, true);
+					$wp_filesystem->move($working_dir . "/$tmp_file/$file", $working_dir ."/".$file, true);
+					$wp_filesystem->rmdir($working_dir . "/$tmp_file", false);
+				}
+
+				# Sanity check (should not be possible as these were excluded at backup time)
+				if (!in_array($file, $do_not_overwrite)) {
+					# First, move the existing one, if necessary (may not be present)
+					if ($wp_filesystem->exists($dest_dir.$file)) {
+						if ($make_backup) {
+							if ( !$wp_filesystem->move($dest_dir.$file, $dest_dir.$file.'-old', true) ) {
+								return new WP_Error('old_move_failed', $this->strings['old_move_failed']." (wp-content/$file)");
+							}
+						} else {
+							if (!$wp_filesystem->delete($dest_dir.$file, true)) {
+								return new WP_Error('old_delete_failed', $this->strings['old_delete_failed']." ($file)");
+							}
+// 							if ( !$wp_filesystem->move($dest_dir.$file, $working_dir.'/'.$file.'-old', true) ) {
+// 								return new WP_Error('old_move_failed', $this->strings['old_move_failed']." (wp-content/$file)");
+// 							}
+						}
+					}
+					# Now, move in the new one
+					if ( !$wp_filesystem->move($working_dir . "/".$file, $dest_dir.$file, true) ) {
+						return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
+					}
+				}
+			}
+		}
+
+		return true;
+
 	}
 
 	function restore_backup($backup_file, $type, $service, $info) {
@@ -112,36 +168,8 @@ class Updraft_Restorer extends WP_Upgrader {
 
 			// In this special case, the backup contents are not in a folder, so it is not simply a case of moving the folder around, but rather looping over all that we find
 
-			$upgrade_files = $wp_filesystem->dirlist($working_dir);
-			if ( !empty($upgrade_files) ) {
-				foreach ( $upgrade_files as $filestruc ) {
-					$file = $filestruc['name'];
+			$this->move_backup_in($working_dir, $wp_dir."wp-content/", true, array('plugins', 'themes', 'uploads', 'upgrade'), 'others');
 
-					// Correctly restore files in 'others' in no directory that were wrongly backed up in versions 1.4.0 - 1.4.48
-					if (preg_match('/^([\-_A-Za-z0-9]+\.php)$/', $file, $matches) && $wp_filesystem->exists($working_dir . "/$file/$file")) {
-						echo "Found file: $file/$file: presuming this is a backup with a known fault (backup made with versions 1.4.0 - 1.4.48); will rename to simply $file<br>";
-						$file = $matches[1];
-						$tmp_file = rand(0,999999999).'.php';
-						// Rename directory
-						$wp_filesystem->move($working_dir . "/$file", $working_dir . "/".$tmp_file, true);
-						$wp_filesystem->move($working_dir . "/$tmp_file/$file", $working_dir ."/".$file, true);
-						$wp_filesystem->rmdir($working_dir . "/$tmp_file", false);
-					}
-					# Sanity check (should not be possible as these were excluded at backup time)
-					if ($file != "plugins" && $file != "themes" && $file != "uploads" && $file != "upgrade") {
-						# First, move the existing one, if necessary (may not be present)
-						if ($wp_filesystem->exists($wp_dir . "wp-content/$file")) {
-							if ( !$wp_filesystem->move($wp_dir . "wp-content/$file", $wp_dir . "wp-content/$file-old", true) ) {
-								return new WP_Error('old_move_failed', $this->strings['old_move_failed']." (wp-content/$file)");
-							}
-						}
-						# Now, move in the new one
-						if ( !$wp_filesystem->move($working_dir . "/$file", $wp_dir . "wp-content/$file", true) ) {
-							return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
-						}
-					}
-				}
-			}
 		} elseif ('db' == $type) {
 
 			// There is a file backup.db.gz inside the working directory
@@ -241,27 +269,37 @@ class Updraft_Restorer extends WP_Upgrader {
 			echo sprintf(__('Finished: lines processed: %d in %.2f seconds','updraftplus'),$line, $time_taken)."<br>";
 			gzclose($dbhandle);
 			@unlink($working_dir.'/backup.db.gz');
-		} else {
-		
-			show_message($this->strings['moving_old']);
-			if ( !$wp_filesystem->move($wp_dir . "wp-content/$dirname", $wp_dir . "wp-content/$dirname-old", true) ) {
-				return new WP_Error('old_move_failed', $this->strings['old_move_failed']);
-			}
 
-			show_message($this->strings['moving_backup']);
-			if ( !$wp_filesystem->move($working_dir . "/$dirname", $wp_dir . "wp-content/$dirname", true) ) {
-				return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
+		} else {
+
+			show_message($this->strings['moving_old']);
+
+			$movedin = apply_filters('updraftplus_restore_movein_'.$type, $working_dir, $wp_dir);
+			// A filter, to allow add-ons to perform the install of non-standard entities, or to indicate that it's not possible
+			if ($movedin === false) {
+				show_message($this->strings['not_possible']);
+			} elseif ($movedin !== true) {
+				if ( !$wp_filesystem->move($wp_dir . "wp-content/$dirname", $wp_dir . "wp-content/$dirname-old", true) ) {
+					return new WP_Error('old_move_failed', $this->strings['old_move_failed']);
+				}
+
+				show_message($this->strings['moving_backup']);
+				if ( !$wp_filesystem->move($working_dir . "/$dirname", $wp_dir . "wp-content/$dirname", true) ) {
+					return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
+				}
 			}
-			
 		}
 
 		// Non-recursive, so the directory needs to be empty
 		show_message($this->strings['cleaning_up']);
 		if (!$wp_filesystem->delete($working_dir) ) {
-			return new WP_Error('delete_failed', $this->strings['delete_failed']);
+			return new WP_Error('delete_failed', $this->strings['delete_failed'].' ('.$working_dir.')');
 		}
 
 		switch($type) {
+			case 'wpcore':
+				@$wp_filesystem->chmod($wp_dir, FS_CHMOD_DIR);
+			break;
 			case 'uploads':
 				@$wp_filesystem->chmod($wp_dir . "wp-content/$dirname", 0775, true);
 			break;

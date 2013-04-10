@@ -22,7 +22,7 @@ class UpdraftPlus_ftp_wrapper {
  
 	public function connect()
 	{
-		$this->conn_id = ftp_connect($this->host, $this->port);
+		$this->conn_id = ftp_connect($this->host, $this->port, 30);
 
 		if ($this->conn_id === false) return false;
  

@@ -340,8 +340,6 @@ class UpdraftPlus_BackupModule_s3 {
 			return;
 		}
 
-error_log(serialize(array($key, $secret, $useservercerts, $disableverify, $nossl)));
-
 		$s3 = self::getS3($key, $secret, $useservercerts, $disableverify, $nossl);
 
 		$location = @$s3->getBucketLocation($bucket);
@@ -364,16 +362,21 @@ error_log(serialize(array($key, $secret, $useservercerts, $disableverify, $nossl
 		if (isset($bucket_exists)) {
 			$try_file = md5(rand());
 			self::set_endpoint($s3, $location);
-			if (!$s3->putObjectString($try_file, $bucket, $path.$try_file)) {
-				echo __('Failure','updraftplus').": ${bucket_verb}".__('We successfully accessed the bucket, but the attempt to create a file in it failed.','updraftplus');
-			} else {
-				echo  __('Success','updraftplus').": ${bucket_verb}".__('We accessed the bucket, and were able to create files within it.','updraftplus').' ';
-				if ($s3->useSSL) {
-					echo sprintf(__('The communication with %s was encrypted.', 'updraftplus'), 'Amazon S3');
+			$s3->setExceptions(true);
+			try {
+				if (!$s3->putObjectString($try_file, $bucket, $path.$try_file)) {
+					echo __('Failure','updraftplus').": ${bucket_verb}".__('We successfully accessed the bucket, but the attempt to create a file in it failed.','updraftplus');
 				} else {
-					echo sprintf(__('The communication with %s was not encrypted.', 'updraftplus'), 'Amazon S3');
+					echo  __('Success','updraftplus').": ${bucket_verb}".__('We accessed the bucket, and were able to create files within it.','updraftplus').' ';
+					if ($s3->useSSL) {
+						echo sprintf(__('The communication with %s was encrypted.', 'updraftplus'), 'Amazon S3');
+					} else {
+						echo sprintf(__('The communication with %s was not encrypted.', 'updraftplus'), 'Amazon S3');
+					}
+					@$s3->deleteObject($bucket, $path.$try_file);
 				}
-				@$s3->deleteObject($bucket, $path.$try_file);
+			} catch (Exception $e) {
+				echo __('Failure','updraftplus').": ${bucket_verb}".__('We successfully accessed the bucket, but the attempt to create a file in it failed.','updraftplus').' ('.$e->getMessage().')';
 			}
 		}
 

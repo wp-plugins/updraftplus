@@ -244,7 +244,9 @@ class UpdraftPlus_CF_Http
         if (!is_null($this->cabundle_path)) {
             curl_setopt($curl_ch, CURLOPT_CAINFO, $this->cabundle_path);
         }
-        if (UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify')) {
+        if (defined('UPDRAFTPLUS_SSL_DISABLEVERIFY')) {
+            curl_setopt($curl_ch, CURLOPT_SSL_VERIFYPEER, UPDRAFTPLUS_SSL_DISABLEVERIFY);
+        } elseif (UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify')) {
             curl_setopt($curl_ch, CURLOPT_SSL_VERIFYPEER, false);
         } else {
             curl_setopt($curl_ch, CURLOPT_SSL_VERIFYPEER, true);

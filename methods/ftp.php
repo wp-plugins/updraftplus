@@ -128,7 +128,7 @@ class UpdraftPlus_BackupModule_ftp {
 
 		<tr class="updraftplusmethod ftp">
 			<th></th>
-			<td><em><?php echo apply_filters('updraft_sftp_ftps_notice', '<strong>'.__('Only non-encrypted FTP is supported by regular UpdraftPlus.').'</strong> <a href="http://updraftplus.com/shop/sftp/">'.__('If you want encryption (e.g. you are storing sensitive business data), then an add-on is available.','updraftplus')).'</a>'; ?></em></td>
+			<td><em><?php echo apply_filters('updraft_sftp_ftps_notice', '<strong>'.htmlspecialchars(__('Only non-encrypted FTP is supported by regular UpdraftPlus.').'</strong> <a href="http://updraftplus.com/shop/sftp/">'.__('If you want encryption (e.g. you are storing sensitive business data), then an add-on is available.','updraftplus'))).'</a>'; ?></em></td>
 		</tr>
 
 		<tr class="updraftplusmethod ftp">

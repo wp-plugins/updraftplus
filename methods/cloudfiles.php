@@ -1,9 +1,9 @@
 <?php
 
+# TODO: Test again (some code has been changed)
 # TODO: Implement list_dir (needed for deleting all potential chunks)
 # TODO: In the delete method, we need to list all potential chunks, and delete them too.
 # TODO: Change chunks to have names beginning with chunk-do-not-delete to avoid confusion
-# TODO: Migrate to getCF()
 
 class UpdraftPlus_BackupModule_cloudfiles {
 
@@ -14,6 +14,8 @@ class UpdraftPlus_BackupModule_cloudfiles {
 	function getCF($user, $apikey, $authurl, $useservercerts = false) {
 		
 		if(!class_exists('CF_Authentication')) require_once(UPDRAFTPLUS_DIR.'/includes/cloudfiles/cloudfiles.php');
+
+		if (!defined('UPDRAFTPLUS_SSL_DISABLEVERIFY')) define('UPDRAFTPLUS_SSL_DISABLEVERIFY', UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify'));
 
 		$auth = new CF_Authentication($user, $apikey, NULL, $authurl);
 
@@ -209,22 +211,21 @@ class UpdraftPlus_BackupModule_cloudfiles {
 		global $updraftplus;
 		$updraft_dir = $updraftplus->backups_dir_location();
 
-		if(!class_exists('CF_Authentication')) require_once(UPDRAFTPLUS_DIR.'/includes/cloudfiles/cloudfiles.php');
-
-		$user = UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_user');
-		$authurl = UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_authurl', 'https://auth.api.rackspacecloud.com');
-
-		$auth = new CF_Authentication($user, UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_apikey'), NULL, $authurl);
-
 		try {
-			$auth->authenticate();
-		} catch(Exception $e) {
+			$conn = $this->getCF($user, $apikey, $authurl, UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'));
+			$cont_obj = $conn->create_container($container);
+		} catch(AuthenticationException $e) {
+			$updraftplus->log('Cloud Files authentication failed ('.$e->getMessage().')');
 			$updraftplus->error(__('Cloud Files authentication failed','updraftplus').' ('.$e->getMessage().')');
-		}
-
-		$conn = new CF_Connection($auth);
-		if (!UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts')) {
-			$conn->ssl_use_cabundle(UPDRAFTPLUS_DIR.'/includes/cacert.pem');
+			return false;
+		} catch(NoSuchAccountException $s) {
+			$updraftplus->log('Cloud Files authentication failed ('.$e->getMessage().')');
+			$updraftplus->error(__('Cloud Files authentication failed','updraftplus').' ('.$e->getMessage().')');
+			return false;
+		} catch (Exception $e) {
+			$updraftplus->log('Cloud Files error - failed to create and access the container ('.$e->getMessage().')');
+			$updraftplus->error(__('Cloud Files error - failed to create and access the container', 'updraftplus').' ('.$e->getMessage().')');
+			return;
 		}
 
 		$path = untrailingslashit(get_option('updraft_cloudfiles_path'));
@@ -420,26 +421,19 @@ class UpdraftPlus_BackupModule_cloudfiles {
 			return;
 		}
 
-		if (!class_exists('CF_Authentication')) require_once(UPDRAFTPLUS_DIR.'/includes/cloudfiles/cloudfiles.php');
-
-		$auth = new CF_Authentication($user, $key, NULL, $authurl);
+		define('UPDRAFTPLUS_SSL_DISABLEVERIFY', $disableverify);
 
 		try {
-			$auth->authenticate();
-		} catch(Exception $e) {
-			echo __('Cloud Files authentication failed', 'updraftplus').' ('.$e->getMessage().')';
+			$conn = $this->getCF($user, $apikey, $authurl, $useservercerts);
+		} catch(AuthenticationException $e) {
+			echo __('Cloud Files authentication failed','updraftplus').' ('.$e->getMessage().')');
 			die;
-		}
-
-		try {
-			$conn = new CF_Connection($auth);
-			if (!$useservercerts) {
-				$conn->ssl_use_cabundle(UPDRAFTPLUS_DIR.'/includes/cacert.pem');
-			}
-			$cont_obj = $conn->create_container($container);
+		} catch(NoSuchAccountException $s) {
+			echo __('Cloud Files authentication failed','updraftplus').' ('.$e->getMessage().')');
+			die;
 		} catch (Exception $e) {
-			echo __('Cloud Files error - failed to create and access the container', 'updraftplus').' ('.$e->getMessage().')';
-			return;
+			echo __('Cloud Files authentication failed','updraftplus').' ('.$e->getMessage().')');
+			die;
 		}
 
 		$try_file = md5(rand());

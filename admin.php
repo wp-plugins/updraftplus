@@ -4,7 +4,7 @@ if (!defined ('ABSPATH')) die ('No direct access allowed');
 
 // For the purposes of improving site performance (don't load in 10s of Kilobytes of un-needed code on every page load), admin-area code is being progressively moved here.
 
-// This gets called in wp_loaded, which is slightly before admin_init (so our object can get used by those hooking admin_init)
+// This gets called in admin_init, earlier than default (so our object can get used by those hooking admin_init). Or possibly in admin_menu.
 
 global $updraftplus_admin;
 if (empty($updraftplus_admin)) $updraftplus_admin = new UpdraftPlus_Admin();
@@ -13,23 +13,19 @@ class UpdraftPlus_Admin {
 
 	function __construct() {
 
-		$this->wp_loaded();
+		$this->admin_init();
 
 	}
 
-	function wp_loaded() {
+	function admin_init() {
 
 		add_action('admin_head', array($this,'admin_head'));
-		add_action('admin_init', array($this,'admin_init'));
 		add_filter('plugin_action_links', array($this, 'plugin_action_links'), 10, 2);
 		add_action('wp_ajax_updraft_download_backup', array($this, 'updraft_download_backup'));
 		add_action('wp_ajax_updraft_ajax', array($this, 'updraft_ajax_handler'));
 		add_action('wp_ajax_plupload_action', array($this,'plupload_action'));
 		add_action('wp_ajax_plupload_action2', array($this,'plupload_action2'));
 
-	}
-
-	function admin_init() {
 		global $updraftplus;
 
 		if(UpdraftPlus_Options::get_updraft_option('updraft_debug_mode')) {
@@ -663,7 +659,7 @@ class UpdraftPlus_Admin {
 		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_all') { $updraftplus->boot_backup(true,true); }
 		elseif (isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_db') { $updraftplus->backup_db(); }
 		elseif (isset($_POST['action']) && $_POST['action'] == 'updraft_wipesettings') {
-			$settings = array('updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others',
+			$settings = array('updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_wpcore',
 			'updraft_include_blogs', 'updraft_include_mu-plugins', 'updraft_include_others_exclude', 'updraft_lastmessage', 'updraft_googledrive_clientid', 'updraft_googledrive_token', 'updraft_dropboxtk_request_token', 'updraft_dropboxtk_access_token', 'updraft_dropbox_folder', 'updraft_last_backup', 'updraft_starttime_files', 'updraft_starttime_db', 'updraft_sftp_settings', 'updraft_disable_ping', 'updraft_cloudfiles_user', 'updraft_cloudfiles_apikey', 'updraft_cloudfiles_path', 'updraft_cloudfiles_authurl', 'updraft_ssl_useservercerts', 'updraft_ssl_disableverify');
 			foreach ($settings as $s) {
 				UpdraftPlus_Options::delete_updraft_option($s);
@@ -732,7 +728,7 @@ class UpdraftPlus_Admin {
 						// Convert to GMT
 						$next_scheduled_backup_gmt = gmdate('Y-m-d H:i:s', $next_scheduled_backup);
 						// Convert to blog time zone
-						$next_scheduled_backup = get_date_from_gmt($next_scheduled_backup_gmt, 'D, F j, Y H:i T');
+						$next_scheduled_backup = get_date_from_gmt($next_scheduled_backup_gmt, 'D, F j, Y H:i');
 					} else {
 						$next_scheduled_backup = __('Nothing currently scheduled','updraftplus');
 					}
@@ -745,12 +741,12 @@ class UpdraftPlus_Admin {
 							// Convert to GMT
 							$next_scheduled_backup_database_gmt = gmdate('Y-m-d H:i:s', $next_scheduled_backup_database);
 							// Convert to blog time zone
-							$next_scheduled_backup_database = get_date_from_gmt($next_scheduled_backup_database_gmt, 'D, F j, Y H:i T');
+							$next_scheduled_backup_database = get_date_from_gmt($next_scheduled_backup_database_gmt, 'D, F j, Y H:i');
 						} else {
 							$next_scheduled_backup_database = __('Nothing currently scheduled','updraftplus');
 						}
 					}
-					$current_time = get_date_from_gmt(gmdate('Y-m-d H:i:s'), 'D, F j, Y H:i T');
+					$current_time = get_date_from_gmt(gmdate('Y-m-d H:i:s'), 'D, F j, Y H:i');
 
 					$backup_disabled = (is_writable($updraft_dir)) ? '' : 'disabled="disabled"';
 
@@ -852,7 +848,7 @@ class UpdraftPlus_Admin {
 								if (!jQuery('#'+stid).length) {
 									jQuery('#ud_downloadstatus').append('<div style="clear:left; border: 1px solid; padding: 8px; margin-top: 4px; max-width:840px;" id="'+stid+'"><button onclick="jQuery(\'#'+stid+'\').fadeOut().remove();" type="button" style="float:right; margin-bottom: 8px;">X</button><strong>Download '+what+' ('+nonce+')</strong>:<div class="raw">Begun looking for this entity</div><div class="file" id="'+stid+'_st"><div class="dlfileprogress" style="width: 0;"></div></div>');
 									// <b><span class="dlname">??</span></b> (<span class="dlsofar">?? KB</span>/<span class="dlsize">??</span> KB)
-									setTimeout(function(){updraft_downloader_status(base, nonce, what)}, 200);
+									setTimeout(function(){updraft_downloader_status(base, nonce, what)}, 300);
 								}
 								// Now send the actual request to kick it all off
 								jQuery.post(ajaxurl, jQuery('#uddownloadform_'+what+'_'+nonce).serialize());
@@ -869,6 +865,7 @@ class UpdraftPlus_Admin {
 								// Get the DOM id of the status div (add _st for the id of the file itself)
 								var stid = base+nonce+'_'+what;
 								if (jQuery('#'+stid).length) {
+// 									console.log(stid+": "+jQuery('#'+stid).length);
 									dlstatus_sdata.timestamp = nonce;
 									dlstatus_sdata.type = what;
 									jQuery.get(ajaxurl, dlstatus_sdata, function(response) {
@@ -876,11 +873,11 @@ class UpdraftPlus_Admin {
 										if (dlstatus_lastlog == response) { nexttimer = 3000; }
 										try {
 											var resp = jQuery.parseJSON(response);
+											var cancel_repeat = 0;
 											if (resp.e != null) {
 												jQuery('#'+stid+' .raw').html('<strong><?php _e('Error:','updraftplus'); ?></strong> '+resp.e);
 												console.log(resp);
 											} else if (resp.p != null) {
-												setTimeout(function(){updraft_downloader_status(base, nonce, what)}, nexttimer);
 												jQuery('#'+stid+'_st .dlfileprogress').width(resp.p+'%');
 												//jQuery('#'+stid+'_st .dlsofar').html(Math.round(resp.s/1024));
 												//jQuery('#'+stid+'_st .dlsize').html(Math.round(resp.t/1024));
@@ -896,7 +893,9 @@ class UpdraftPlus_Admin {
 													jQuery('#'+stid+' .raw').html(resp.m);
 											} else {
 												alert('<?php _e('Download error: the server sent us a response (JSON) which we did not understand', 'updraftplus'); ?> ('+response+')');
+												cancel_repeat = 1;
 											}
+											if (cancel_repeat == 0) { setTimeout(function(){updraft_downloader_status(base, nonce, what)}, nexttimer); }
 										} catch(err) {
 											alert('<?php _e('Download error: the server sent us a response which we did not understand.', 'updraftplus'); ?> <?php _e("Error:",'updraftplus');?> '+err);
 										}
@@ -1089,7 +1088,7 @@ class UpdraftPlus_Admin {
 
 			if ($updraft_last_backup['success']) {
 				// Convert to GMT, then to blog time
-				$last_backup_text = get_date_from_gmt(gmdate('Y-m-d H:i:s', $updraft_last_backup['backup_time']), 'D, F j, Y H:i T');
+				$last_backup_text = get_date_from_gmt(gmdate('Y-m-d H:i:s', $updraft_last_backup['backup_time']), 'D, F j, Y H:i');
 			} else {
 				$last_backup_text = implode("<br>",$updraft_last_backup['errors']);
 			}
@@ -1169,15 +1168,15 @@ class UpdraftPlus_Admin {
 				$include_others_exclude = UpdraftPlus_Options::get_updraft_option('updraft_include_others_exclude',UPDRAFT_DEFAULT_OTHERS_EXCLUDE);
 				# The true (default value if non-existent) here has the effect of forcing a default of on.
 				foreach ($backupable_entities as $key => $info) {
-					$included = (UpdraftPlus_Options::get_updraft_option("updraft_include_$key",true)) ? 'checked="checked"' : "";
+					$included = (UpdraftPlus_Options::get_updraft_option("updraft_include_$key", apply_filters("updraftplus_defaultoption_include_".$key, true))) ? 'checked="checked"' : "";
 					if ('others' == $key) {
 						?><input id="updraft_include_others" type="checkbox" name="updraft_include_others" value="1" <?php echo $included; ?> /> <label for="updraft_include_<?php echo $key ?>"><?php echo __('Any other directories found inside wp-content but exclude these directories:', 'updraftplus');?></label> <input type="text" name="updraft_include_others_exclude" size="44" value="<?php echo htmlspecialchars($include_others_exclude); ?>"/><br><?php
 					} else {
-						echo "<input id=\"updraft_include_$key\" type=\"checkbox\" name=\"updraft_include_$key\" value=\"1\" $included /><label for=\"updraft_include_$key\">".$info['description']."</label><br>";
+						echo "<input id=\"updraft_include_$key\" type=\"checkbox\" name=\"updraft_include_$key\" value=\"1\" $included /><label for=\"updraft_include_$key\"> ".$info['description']."</label><br>";
 					}
 				}
 			?>
-				<p><?php echo __('Include all of these, unless you are backing them up outside of UpdraftPlus. The above directories are usually everything (except for WordPress core itself which you can download afresh from WordPress.org). But if you have made customised modifications outside of these directories, you need to back them up another way.', 'updraftplus') ?> (<a href="http://wordshell.net"><?php echo __('Use WordShell for automatic backup, version control and patching', 'updraftplus');?></a>).</p></td>
+				<p><?php echo apply_filters('updraftplus_admin_directories_description', __('The above directories are everything, except for WordPress core itself which you can download afresh from WordPress.org.', 'updraftplus').' <a href="http://updraftplus.com/shop/">'.htmlspecialchars(__('Or, get the "More Files" add-on from our shop.', 'updraftplus'))); ?></a> <a href="http://wordshell.net"></p><p>(<?php echo __('Use WordShell for automatic backup, version control and patching', 'updraftplus');?></a>).</p></td>
 				</td>
 			</tr>
 			<tr>
@@ -1553,7 +1552,7 @@ class UpdraftPlus_Admin {
 					<input type="hidden" name="timestamp" value="<?php echo $key?>" />
 					<input  type="submit" title="<?php echo __('Press here to download','updraftplus').' '.strtolower($info['description']); ?>" value="<?php echo $sdescrip;?>" />
 				</form>
-		<?php } else { printf(_x('(No %s)','Message shown when no such object is available','updraftplus'), strtolower($info['description'])); } ?>
+		<?php } else { printf(_x('(No %s)','Message shown when no such object is available','updraftplus'), preg_replace('/\s\(.{12,}\)/', '', strtolower($info['description']))); } ?>
 			</td>
 		<?php }; ?>
 
@@ -1708,7 +1707,7 @@ class UpdraftPlus_Admin {
 			// If a file size is stored in the backup data, then verify correctness of the local file
 			if (isset($backup_history[$timestamp][$type.'-size'])) {
 				$fs = $backup_history[$timestamp][$type.'-size'];
-				echo __("Archive is expected to be size:",'updraftplus')." ".round($fs/1024)." Kb :";
+				echo __("Archive is expected to be size:",'updraftplus')." ".round($fs/1024)." Kb: ";
 				$as = @filesize($fullpath);
 				if ($as == $fs) {
 					echo "OK<br>";

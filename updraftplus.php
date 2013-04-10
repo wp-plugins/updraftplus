@@ -16,6 +16,7 @@ TODO - some of these are out of date/done, needs pruning
 // Add an appeal for translators to email me. If it a fails, use Google Translate Tools and appeal for native users to correct it.
 // Search for other TODO-s in the code
 // Test in PHP 5.4
+// Count available time before doing a database restore
 // Add in downloading in the 'Restore' modal, and remove the advice to do so manually.
 // Provide an expert option to disable sslverify on WP HTTP requests. Mention in FAQs etc.
 // Save database encryption key inside backup history on per-db basis, so that if it changes we can still decrypt
@@ -158,7 +159,10 @@ class UpdraftPlus {
 
 		# Create admin page
 		add_action('init', array($this, 'handle_url_actions'));
-		add_action('wp_loaded', array($this,'wp_loaded'));
+		// Run earlier than default - hence earlier than other components
+		add_action('admin_init', array($this,'admin_init'), 9);
+		// admin_menu runs earlier, and we need it because options.php wants to use $updraftplus_admin before admin_init happens
+		add_action('admin_menu', array($this,'admin_init'), 9);
 		add_action('updraft_backup', array($this,'backup_files'));
 		add_action('updraft_backup_database', array($this,'backup_database'));
 		# backup_all is used by the manual "Backup Now" button	
@@ -171,6 +175,12 @@ class UpdraftPlus {
 
 		register_deactivation_hook(__FILE__, array($this, 'deactivation'));
 
+	}
+
+	function admin_init() {
+		// We are in the admin area: now load all that code
+		global $updraftplus_admin;
+		if (empty($updraftplus_admin)) require_once(UPDRAFTPLUS_DIR.'/admin.php');
 	}
 
 	function add_curl_capath($handle) {
@@ -343,6 +353,7 @@ class UpdraftPlus {
 
 		$arr = apply_filters('updraft_backupable_file_entities', $arr, $full_info);
 
+		// We always then add 'others' on to the end
 		if ($include_others) {
 			if ($full_info) {
 				$arr['others'] = array('path' => WP_CONTENT_DIR, 'description' => __('Others','updraftplus'));
@@ -535,7 +546,6 @@ class UpdraftPlus {
 			}
 			set_transient("updraft_jobdata_".$this->nonce, $this->jobdata, 14400);
 	}
-
 
 	function jobdata_get($key) {
 		if (!is_array($this->jobdata)) {
@@ -1003,7 +1013,8 @@ class UpdraftPlus {
 		# Plugins, themes, uploads
 		foreach ($possible_backups as $youwhat => $whichdir) {
 
-			if (UpdraftPlus_Options::get_updraft_option("updraft_include_$youwhat", true)) {
+			// TODO: Should store what is wanted in the job description
+			if (UpdraftPlus_Options::get_updraft_option("updraft_include_$youwhat", apply_filters("updraftplus_defaultoption_include_$youwhat", true))) {
 
 				$zip_file = $updraft_dir.'/'.$backup_file_basename.'-'.$youwhat.'.zip';
 
@@ -1013,7 +1024,12 @@ class UpdraftPlus {
 					$backup_array[$youwhat] = $backup_file_basename.'-'.$youwhat.'.zip';
 					if (file_exists($zip_file)) $backup_array[$youwhat.'-size'] = filesize($zip_file);
 				} else {
-					$created = $updraftplus_backup->create_zip($whichdir, $youwhat, $updraft_dir, $backup_file_basename);
+					# Apply a filter to allow add-ons to provide their own method for creating a zip of the entity
+					$created = apply_filters('updraftplus_backup_makezip_'.$youwhat, $whichdir, $backup_file_basename);
+					# If the filter did not lead to something being created, then use the default method
+					if ($created == $whichdir) {
+						$created = $updraftplus_backup->create_zip($whichdir, $youwhat, $updraft_dir, $backup_file_basename);
+					}
 					if ($created) {
 						$backup_array[$youwhat] = $created;
 						$backup_array[$youwhat.'-size'] = filesize($updraft_dir.'/'.$created);
@@ -1045,38 +1061,14 @@ class UpdraftPlus {
 					A string containing a list of filename or dirname separated by a comma.
 				*/
 
-				# Initialise
-				$other_dirlist = array(); 
-
+				# Create an array of directories to be skipped
 				$others_skip = preg_split("/,/",UpdraftPlus_Options::get_updraft_option('updraft_include_others_exclude', UPDRAFT_DEFAULT_OTHERS_EXCLUDE));
 				# Make the values into the keys
 				$others_skip = array_flip($others_skip);
 
-				$this->log('Looking for candidates to back up in: '.WP_CONTENT_DIR);
-				if ($handle = opendir(WP_CONTENT_DIR)) {
-				
-					$possible_backups_dirs = array_flip($possible_backups);
-				
-					while (false !== ($entry = readdir($handle))) {
-						$candidate = WP_CONTENT_DIR.'/'.$entry;
-						if ($entry != "." && $entry != "..") {
-							if (isset($possible_backups_dirs[$candidate])) {
-								$this->log("others: $entry: skipping: this is the ".$possible_backups_dirs[$candidate]." directory");
-							} elseif ($candidate == $updraft_dir) {
-								$this->log("others: $entry: skipping: this is the updraft directory");
-							} elseif (isset($others_skip[$entry])) {
-								$this->log("others: $entry: skipping: excluded by options");
-							} else {
-								$this->log("others: $entry: adding to list");
-								array_push($other_dirlist, $candidate);
-							}
-						}
-					}
-					@closedir($handle);
-				} else {
-					$this->log('ERROR: Could not read the content directory: '.WP_CONTENT_DIR);
-					$this->error(__('Could not read the content directory', 'updraftplus').': '.WP_CONTENT_DIR);
-				}
+				$possible_backups_dirs = array_flip($possible_backups);
+
+				$other_dirlist = $this->compile_folder_list_for_backup(WP_CONTENT_DIR, $possible_backups_dirs, $others_skip);
 
 				if (count($other_dirlist)>0) {
 					$created = $updraftplus_backup->create_zip($other_dirlist, 'others', $updraft_dir, $backup_file_basename);
@@ -1087,12 +1079,48 @@ class UpdraftPlus {
 				} else {
 					$this->log("No backup of other directories: there was nothing found to back up");
 				}
+
 			# If we are not already finished
 			}
 		} else {
 			$this->log("No backup of other directories: excluded by user's options");
 		}
 		return $backup_array;
+	}
+
+	// avoid_these_dirs and skip_these_dirs ultimately do the same thing; but avoid_these_dirs takes full paths whereas skip_these_dirs takes basenames; and they are logged differently (avoid is potentially dangerous; skip is just a preference). They are allowed to overlap.
+	function compile_folder_list_for_backup($backup_from_inside_dir, $avoid_these_dirs, $skip_these_dirs) {
+
+		$dirlist = array(); 
+
+		$this->log('Looking for candidates to back up in: '.$backup_from_inside_dir);
+
+		$updraft_dir = $this->backups_dir_location();
+		if ($handle = opendir($backup_from_inside_dir)) {
+		
+			while (false !== ($entry = readdir($handle))) {
+				$candidate = $backup_from_inside_dir.'/'.$entry;
+				if ($entry != "." && $entry != "..") {
+					if (isset($avoid_these_dirs[$candidate])) {
+						$this->log("finding files: $entry: skipping: this is the ".$avoid_these_dirs[$candidate]." directory");
+					} elseif ($candidate == $updraft_dir) {
+						$this->log("finding files: $entry: skipping: this is the updraft directory");
+					} elseif (isset($skip_these_dirs[$entry])) {
+						$this->log("finding files: $entry: skipping: excluded by options");
+					} else {
+						$this->log("finding files: $entry: adding to list");
+						array_push($dirlist, $candidate);
+					}
+				}
+			}
+			@closedir($handle);
+		} else {
+			$this->log('ERROR: Could not read the directory: '.$backup_from_inside_dir);
+			$this->error(__('Could not read the directory', 'updraftplus').': '.$backup_from_inside_dir);
+		}
+
+		return $dirlist;
+
 	}
 
 	function save_backup_history($backup_array) {
@@ -1631,11 +1659,6 @@ class UpdraftPlus {
 	function memory_check($memory) {
 		$memory_limit = $this->memory_check_current();
 		return ($memory_limit >= $memory)?true:false;
-	}
-
-	function wp_loaded() {
-		// We are in the admin area: now load all that code
-		require_once(UPDRAFTPLUS_DIR.'/admin.php');
 	}
 
 	function url_start($urls,$url) {

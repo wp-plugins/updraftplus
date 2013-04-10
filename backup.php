@@ -15,6 +15,8 @@ class UpdraftPlus_Backup {
 	var $zipfiles_dirbatched;
 	var $zipfiles_batched;
 
+	var $zipfiles_lastwritetime;
+
 	var $zip_preferpcl = false;
 
 	// This function recursively packs the zip, dereferencing symlinks but packing into a single-parent tree for universal unpacking
@@ -137,6 +139,7 @@ class UpdraftPlus_Backup {
 		$this->zipfiles_added = 0;
 		$this->zipfiles_dirbatched = array();
 		$this->zipfiles_batched = array();
+		$this->zipfiles_lastwritetime = time();
 
 		// Magic value, used later to detect no error occurring
 		$last_error = 2349864;
@@ -216,12 +219,16 @@ class UpdraftPlus_Backup {
 
 				$data_added_since_reopen += $fsize;
 				# 25Mb - force a write-out and re-open
-				if ($data_added_since_reopen > 26214400) {
+				if ($data_added_since_reopen > 26214400 || (time() - $this->zipfiles_lastwritetime) > 2) {
 
 					$before_size = filesize($zipfile);
 					clearstatcache($zipfile);
 
-					$updraftplus->log("Adding batch to zip file: over 25Mb added on this batch (".round($data_added_since_reopen/1048576,1)." Mb); re-opening (prior size: ".round($before_size/1024,1).' Kb)');
+					if ($data_added_since_reopen > 26214400) {
+						$updraftplus->log("Adding batch to zip file: over 25Mb added on this batch (".round($data_added_since_reopen/1048576,1)." Mb); re-opening (prior size: ".round($before_size/1024,1).' Kb)');
+					} else {
+						$updraftplus->log("Adding batch to zip file: over 2 seconds have passed since the last write (".round($data_added_since_reopen/1048576,1)." Mb); re-opening (prior size: ".round($before_size/1024,1).' Kb)');
+					}
 					if (!$zip->close()) {
 						$updraftplus->log("zip::Close returned an error");
 					}
@@ -230,17 +237,20 @@ class UpdraftPlus_Backup {
 					$opencode = $zip->open($zipfile);
 					if ($opencode !== true) return array($opencode, 0);
 					$data_added_since_reopen = 0;
+					$zipfiles_lastwritetime = time();
 					// Call here, in case we've got so many big files that we don't complete the whole routine
 					if (filesize($zipfile) > $before_size) $updraftplus->something_useful_happened();
 					clearstatcache($zipfile);
 				}
 			}
 			$this->zipfiles_added++;
+			// Don't call something_useful_happened() here - nothing necessarily happens until close() is called
 			if ($this->zipfiles_added % 100 == 0) $updraftplus->log("Zip: ".basename($zipfile).": ".$this->zipfiles_added." files added (on-disk size: ".round(filesize($zipfile)/1024,1)." Kb)");
 		}
 		// Reset the array
 		$this->zipfiles_batched = array();
 		$ret =  $zip->close();
+		$zipfiles_lastwritetime = time();
 		if (filesize($zipfile) > $original_size) $updraftplus->something_useful_happened();
 		clearstatcache($zipfile);
 		return $ret;
