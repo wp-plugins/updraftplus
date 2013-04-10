@@ -426,13 +426,13 @@ class UpdraftPlus_BackupModule_cloudfiles {
 		try {
 			$conn = $this->getCF($user, $apikey, $authurl, $useservercerts);
 		} catch(AuthenticationException $e) {
-			echo __('Cloud Files authentication failed','updraftplus').' ('.$e->getMessage().')');
+			echo __('Cloud Files authentication failed','updraftplus').' ('.$e->getMessage().')';
 			die;
 		} catch(NoSuchAccountException $s) {
-			echo __('Cloud Files authentication failed','updraftplus').' ('.$e->getMessage().')');
+			echo __('Cloud Files authentication failed','updraftplus').' ('.$e->getMessage().')';
 			die;
 		} catch (Exception $e) {
-			echo __('Cloud Files authentication failed','updraftplus').' ('.$e->getMessage().')');
+			echo __('Cloud Files authentication failed','updraftplus').' ('.$e->getMessage().')';
 			die;
 		}
 
