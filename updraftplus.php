@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your site can be backed up locally or to Amazon S3, Dropbox, Google Drive, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.5.8
+Version: 1.5.9
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -351,11 +351,19 @@ class UpdraftPlus {
 		// This is scheduled for 5 minutes after a backup job starts
 
 		// Restore state
+		$resumption_extralog = '';
 		if ($resumption_no > 0) {
 			$this->nonce = $bnonce;
 			$this->backup_time = $this->jobdata_get('backup_time');
 			$this->logfile_open($bnonce);
+
+			$time_passed = $this->jobdata_get('run_times');
+			if (!is_array($time_passed)) $time_passed = array();
+
+			$prev_resumption = $resumption_no - 1;
+			if (isset($time_passed[$prev_resumption])) $resumption_extralog = ", previous check-in=".round($time_passed[$prev_resumption], 1)."s";
 		}
+
 
 		$btime = $this->backup_time;
 
@@ -366,11 +374,9 @@ class UpdraftPlus {
 		$time_ago = time()-$btime;
 
 		$this->current_resumption = $resumption_no;
-		$this->log("Backup run: resumption=$resumption_no, nonce=$bnonce, begun at=$btime (${time_ago}s ago), job type: $job_type");
+		$this->log("Backup run: resumption=$resumption_no, nonce=$bnonce, begun at=$btime (${time_ago}s ago), job type: $job_type".$resumption_extralog);
 
 		if ($resumption_no == 8) {
-			$time_passed = $this->jobdata_get('run_times');
-			if (!is_array($time_passed)) $time_passed = array();
 			$timings_string = "";
 			$run_times_known=0;
 			for ($i=0; $i<=7; $i++) {
