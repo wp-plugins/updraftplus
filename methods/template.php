@@ -53,7 +53,7 @@ class UpdraftPlus_BackupModule_template {
 	// config_print: prints out table rows for the configuration screen
 	// Your rows need to have a class exactly matching your method (in this example, template), and also a class of updraftplusmethod
 	// Note that logging is not available from this context; it will do nothing.
-	function config_print() {
+	public static function config_print() {
 
 		?>
 			<tr class="updraftplusmethod template">

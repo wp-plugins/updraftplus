@@ -58,7 +58,7 @@ class UpdraftPlus_BackupModule_sftp {
 	// config_print: prints out table rows for the configuration screen
 	// Your rows need to have a class exactly matching your method (in this example, sftp), and also a class of updraftplusmethod
 	// Note that logging is not available from this context; it will do nothing.
-	function config_print() {
+	public static function config_print() {
 
 		$link = sprintf(__('%s support is available as an add-on','updraftplus'),'SFTP').' - <a href="http://updraftplus.com/shop/sftp/">'.__('follow this link to get it','updraftplus').'</a>';
 
