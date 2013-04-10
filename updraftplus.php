@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: your site can be backed up locally or to Amazon S3, Dropbox, Google Drive, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.5.6
+Version: 1.5.8
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -3126,7 +3126,7 @@ class UpdraftPlus {
 					$opencode = $zip->open($zipfile);
 					if ($opencode !== true) return array($opencode, 0);
 					$data_added_since_reopen = 0;
-					$zipfiles_lastwritetime = time();
+					$this->zipfiles_lastwritetime = time();
 					// Call here, in case we've got so many big files that we don't complete the whole routine
 					if (filesize($zipfile) > $before_size) $this->something_useful_happened();
 					clearstatcache($zipfile);
@@ -3139,7 +3139,7 @@ class UpdraftPlus {
 		// Reset the array
 		$this->zipfiles_batched = array();
 		$ret =  $zip->close();
-		$zipfiles_lastwritetime = time();
+		$this->zipfiles_lastwritetime = time();
 		if (filesize($zipfile) > $original_size) $this->something_useful_happened();
 		clearstatcache($zipfile);
 		return $ret;
