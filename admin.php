@@ -685,8 +685,8 @@ class UpdraftPlus_Admin {
 
 			if($deleted_old_dirs) echo '<div style="color:blue" class=\"updated fade\">'.__('Old directories successfully deleted.','updraftplus').'</div>';
 
-			if(!$updraftplus->memory_check(96)) {?>
-				<div style="color:orange"><?php _e("Your PHP memory limit is quite low. UpdraftPlus attempted to raise it but was unsuccessful. This plugin may not work properly with a memory limit of less than 96 Mb (though on the other hand, it has been used successfully with a 32Mb limit - your experience may vary, but don't blame us!).",'updraftplus');?> <?php _e('Current limit is:','updraftplus');?> <?php echo $this->memory_check_current(); ?> Mb</div>
+			if(!$updraftplus->memory_check(64)) {?>
+				<div style="color:orange"><?php _e("Your PHP memory limit (set by your web hosting company) is quite low. UpdraftPlus attempted to raise it but was unsuccessful. This plugin may struggle with a memory limit of less than 64 Mb  - especially if you have very large files uploaded (though on the other hand, many sites will bhe  successful with a 32Mb limit - your experience may vary).",'updraftplus');?> <?php _e('Current limit is:','updraftplus');?> <?php echo $this->memory_check_current(); ?> Mb</div>
 			<?php
 			}
 			if(1==0 && !$this->execution_time_check(60)) {?>
