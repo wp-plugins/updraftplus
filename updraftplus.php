@@ -368,6 +368,24 @@ class UpdraftPlus {
 		$this->current_resumption = $resumption_no;
 		$this->log("Backup run: resumption=$resumption_no, nonce=$bnonce, begun at=$btime (${time_ago}s ago), job type: $job_type");
 
+		if ($resumption_no == 8) {
+			$time_passed = $this->jobdata_get('run_times');
+			if (!is_array($time_passed)) $time_passed = array();
+			$timings_string = "";
+			$run_times_known=0;
+			for ($i=0; $i<=7; $i++) {
+				$timings_string .= "$i:";
+				if (isset($time_passed[$i])) {
+					$timings_string .=  round($time_passed[$i], 1).' ';
+					$run_times_known++;
+				} else {
+					$timings_string .=  '? ';
+				}
+			}
+			$this->log("Time passed on previous resumptions: $passed");
+			// TODO: If there's sufficient data and an upper limit clearly lower than our present resume_interval, then decrease the resume_interval
+		}
+
 		// Schedule again, to run in 5 minutes again, in case we again fail
 		// The actual interval can be increased (for future resumptions) by other code, if it detects apparent overlapping
 		$resume_interval = $this->jobdata_get('resume_interval');
@@ -3146,6 +3164,13 @@ class UpdraftPlus {
 	}
 
 	function something_useful_happened() {
+
+		// First, update the record of maximum detected runtime on each run
+		$time_passed = $this->jobdata_get('run_times');
+		if (!is_array($time_passed)) $time_passed = array();
+		$time_passed[$this->current_resumption] = microtime(true)-$this->opened_log_time;
+		$this->jobdata_set('run_times', $time_passed);
+
 		if ($this->current_resumption >= 9 && $this->newresumption_scheduled == false) {
 			$resume_interval = $this->jobdata_get('resume_interval');
 			if (!is_numeric($resume_interval) || $resume_interval<$this->minimum_resume_interval()) { $resume_interval = $this->minimum_resume_interval(); }
