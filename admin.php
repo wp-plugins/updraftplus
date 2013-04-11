@@ -26,9 +26,9 @@ class UpdraftPlus_Admin {
 		add_action('wp_ajax_plupload_action', array($this,'plupload_action'));
 		add_action('wp_ajax_plupload_action2', array($this,'plupload_action2'));
 
-		global $updraftplus;
+		global $updraftplus, $wp_version, $pagenow;
 
-		if(UpdraftPlus_Options::get_updraft_option('updraft_debug_mode')) {
+		if($pagenow == 'options-general.php' && isset($_REQUEST['page']) && 'updraftplus' == $_REQUEST['page'] && UpdraftPlus_Options::get_updraft_option('updraft_debug_mode')) {
 			@ini_set('display_errors',1);
 			@error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 		}
@@ -43,7 +43,6 @@ class UpdraftPlus_Admin {
 
 		if (UpdraftPlus_Options::user_can_manage() && $this->disk_space_check(1024*1024*35) === false) add_action('admin_notices', array($this, 'show_admin_warning_diskspace'));
 
-		global $wp_version, $pagenow;
 		if ($pagenow == 'options-general.php' && version_compare($wp_version, '3.2', '<')) add_action('admin_notices', array($this, 'show_admin_warning_wordpressversion'));
 
 		if ($pagenow == 'options-general.php' && isset($_REQUEST['page']) && 'updraftplus' == $_REQUEST['page']) {
@@ -266,14 +265,14 @@ class UpdraftPlus_Admin {
 
 		if ($needs_downloading) {
 			// Close browser connection so that it can resume AJAX polling
-			header('Connection: close');
 			header('Content-Length: 0');
+			header('Connection: close');
 			header('Content-Encoding: none');
-			session_write_close();
+			if (session_id()) session_write_close();
 			echo "\r\n\r\n";
 			$this->download_file($file, $service);
 			if (is_readable($fullpath)) {
-				clearstatcache($fullpath);
+				clearstatcache();
 				$updraftplus->log('Remote fetch was successful (file size: '.round(filesize($fullpath)/1024,1).' Kb)');
 			} else {
 				$updraftplus->log('Remote fetch failed');
@@ -716,7 +715,7 @@ class UpdraftPlus_Admin {
 			<table class="form-table" style="float:left; clear: both; width:545px;">
 				<noscript>
 				<tr>
-					<th><?php _e('	avaScript warning','updraftplus');?>:</th>
+					<th><?php _e('JavaScript warning','updraftplus');?>:</th>
 					<td style="color:red"><?php _e('This admin interface uses JavaScript heavily. You either need to activate it within your browser, or to use a JavaScript-capable browser.','updraftplus');?></td>
 				</tr>
 				</noscript>
@@ -784,7 +783,10 @@ class UpdraftPlus_Admin {
 			<table class="form-table">
 				<tr>
 					<th><?php _e('Last log message','updraftplus');?>:</th>
-					<td id="updraft_lastlogcontainer"><?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', __('(Nothing yet logged)','updraftplus'))	); ?></td>
+					<td>
+						<span id="updraft_lastlogcontainer"><?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', __('(Nothing yet logged)','updraftplus'))); ?></span><br>
+						<a href="?page=updraftplus&action=downloadlatestmodlog&wpnonce=<?php echo wp_create_nonce('updraftplus_download') ?>"><?php _e('Download most recently modified log file','updraftplus');?></a>
+					</td>
 				</tr>
 				<tr>
 					<th><?php echo htmlspecialchars(__('Backups, logs & restoring','updraftplus')); ?>:</th>
@@ -1491,7 +1493,7 @@ class UpdraftPlus_Admin {
 			closedir($handle);
 		}
 		if ($size > 1073741824) {
-			return round($size / 1048576, 1).' Gb';
+			return round($size / 1073741824, 1).' Gb';
 		} elseif ($size > 1048576) {
 			return round($size / 1048576, 1).' Mb';
 		} elseif ($size > 1024) {

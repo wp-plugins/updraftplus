@@ -242,10 +242,10 @@ class UpdraftPlus_Backup {
 					if (filesize($zipfile) > $before_size) $updraftplus->something_useful_happened();
 					clearstatcache();
 				}
-			}
+			}	
 			$this->zipfiles_added++;
 			// Don't call something_useful_happened() here - nothing necessarily happens until close() is called
-			if ($this->zipfiles_added % 100 == 0) $updraftplus->log("Zip: ".basename($zipfile).": ".$this->zipfiles_added." files added (on-disk size: ".round(filesize($zipfile)/1024,1)." Kb)");
+			if ($this->zipfiles_added % 100 == 0) $updraftplus->log("Zip: ".basename($zipfile).": ".$this->zipfiles_added." files added (on-disk size: ".round(filesize($zipfile)/1024,1)." Kb, lwt=".round(time() - $this->zipfiles_lastwritetime,1)."s)");
 		}
 		// Reset the array
 		$this->zipfiles_batched = array();

@@ -114,27 +114,29 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.5.17 - not yet released/supported =
-* Now restores databases (we recommend the MySQL command-line for versions created with previous versions of UpdraftPlus)
-* Batch INSERT commands in database backups, for much faster restoration (typically 95% faster)
-* Rackspace Cloud Files support (http://www.rackspace.com/cloud/files/)
-* Built-in multi-uploader, allowing easier restoration of old backup sets
-* FTP and FTPS (not SFTP) are now chunked and resumable (both download and upload), subject to your FTP server responding correctly to SIZE
-* Built in drag-and-drop database decrypter for manual decryption
-* Clear PHP's file stat cache when checking for zip file activity - fixes potential halt on very enormous sites or sites with very low PHP timeouts
-* Caught some untranslated strings
-* In fix-time add-on, fade UI when relevant
-* German translation: thanks to Marcel Herrguth - mherrguth@mrgeneration.de
-* Hungarian translation: thanks to Szépe Viktor - http://www.szepe.net
-* Respect WordPress's WP_MAX_MEMORY_LIMIT constant
-* Improved UI of downloader
-* Added encryption (used by default) to Amazon S3 communications
-* Ship up-to-date SSL certificates, and added expert options to prefer server SSL CA certificates, and to disable peer verification
-* Remove timezone display from local time - WordPress's get_date_from_gmt function does not completely do what the manual says it does
-* Decrease FTP timeouts to improve our chances of getting back an error before PHP aborts
-* Tweaked al relevant methods to follow the general SSL CA certificate options
-* Re-factoring of admin-area and some backup code into separate lazy-loaded files, to reduce memory consumption on sites generally
-* A small typo slipped into 1.5.5 which prevented some Google Drive users from setting up new installations
+= 1.5.20 - not yet released/supported =
+* FEATURE: Now restores databases (we recommend the MySQL command-line for versions created with previous versions of UpdraftPlus)
+* FEATURE: Rackspace Cloud Files support (http://www.rackspace.com/cloud/files/)
+* FEATURE: Built-in multi-uploader, allowing easier restoration of old backup sets
+* FEATURE: Allow instant downloading of the most recently modified log file
+* FEATURE: Built in drag-and-drop database decrypter for manual decryption
+* FEATURE: German translation: thanks to Marcel Herrguth - mherrguth@mrgeneration.de
+* FEATURE: Hungarian translation: thanks to Szépe Viktor - http://www.szepe.net
+* FEATURE: Added encryption (used by default) to Amazon S3 communications
+* RELIABILITY: Various algorithm tweaks to help larger sites on lower resources. Largest site a known user has: 1.5Gb
+* RELIABILITY/FEATURE: Ship up-to-date SSL certificates, and added expert options to prefer server SSL CA certificates, and to disable peer verification
+* SPEED: Batch INSERT commands in database backups, for much faster restoration (typically 95% faster)
+* SPEED/RELIABILITY: FTP and FTPS (not SFTP) are now chunked and resumable (both download and upload), subject to your FTP server responding correctly to SIZE
+* SPEED: Re-factoring of admin-area and some backup code into separate lazy-loaded files, to reduce memory consumption on sites generally
+* FIX: Clear PHP's file stat cache when checking for zip file activity - fixes potential halt on very enormous sites or sites with very low PHP timeouts.
+* FIX: Caught some untranslated strings
+* FIX: Respect WordPress's WP_MAX_MEMORY_LIMIT constant
+* FIX: Remove timezone display from local time - WordPress's get_date_from_gmt function does not completely do what the manual says it does
+* FIX: A small typo slipped into 1.5.5 which prevented some Google Drive users from setting up new installations
+* TWEAK: In fix-time add-on, fade UI when relevant
+* TWEAK: Improved UI of downloader
+* TWEAK: Decrease FTP timeouts to improve our chances of getting back an error before PHP aborts
+* TWEAK: Tweaked al relevant methods to follow the general SSL CA certificate options
 
 = 1.5.5 - 03/26/2013 =
 * Now translatable - .pot file included (translators welcome!)

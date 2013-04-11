@@ -2,9 +2,9 @@
 /*
 Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
-Description: Backup and restore: your site can take backups locally, or backup to Amazon S3, Dropbox, Google Drive, (S)FTP, WebDAV & email, on automatic schedules.
+Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.5.19
+Version: 1.5.20
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -14,8 +14,10 @@ Author URI: http://updraftplus.com
 /*
 TODO - some of these are out of date/done, needs pruning
 // Add an appeal for translators to email me. If it a fails, use Google Translate Tools and appeal for native users to correct it.
+// Automatically detect LiteSpeed and scan .htaccess and send them to the relevant FAQ
 // Search for other TODO-s in the code
 // Test in PHP 5.4
+// Better Dropbox errors (see item in To-Do box)
 // Count available time before doing a database restore
 // Add in downloading in the 'Restore' modal, and remove the advice to do so manually.
 // Provide an expert option to disable sslverify on WP HTTP requests. Mention in FAQs etc.
@@ -181,6 +183,41 @@ class UpdraftPlus {
 		// We are in the admin area: now load all that code
 		global $updraftplus_admin;
 		if (empty($updraftplus_admin)) require_once(UPDRAFTPLUS_DIR.'/admin.php');
+
+		if (isset($_GET['wpnonce']) && isset($_GET['page']) && isset($_GET['action']) && $_GET['page'] == 'updraftplus' && $_GET['action'] == 'downloadlatestmodlog' && wp_verify_nonce($_GET['wpnonce'], 'updraftplus_download')) {
+
+			$updraft_dir = $this->backups_dir_location();
+
+			$log_file = '';
+			$mod_time = 0;
+
+			if ($handle = opendir($updraft_dir)) {
+				while (false !== ($entry = readdir($handle))) {
+					// The latter match is for files created internally by zipArchive::addFile
+					if (preg_match('/^log\.[a-z0-9]+\.txt$/i', $entry)) {
+						$mtime = filemtime($updraft_dir.'/'.$entry);
+						if ($mtime > $mod_time) {
+							$mod_time = $mtime;
+							$log_file = $updraft_dir.'/'.$entry;
+						}
+					}
+				}
+				@closedir($handle);
+			}
+
+			if ($mod_time >0) {
+				if (is_readable($log_file)) {
+					header('Content-type: text/plain');
+					readfile($log_file);
+					exit;
+				} else {
+					add_action('admin_notices', array($this,'show_admin_warning_unreadablelog') );
+				}
+			} else {
+					add_action('admin_notices', array($this,'show_admin_warning_nolog') );
+			}
+		}
+
 	}
 
 	function add_curl_capath($handle) {
@@ -231,6 +268,11 @@ class UpdraftPlus {
 	function show_admin_warning_unreadablelog() {
 		global $updraftplus_admin;
 		$updraftplus_admin->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus').':</strong> '.__('The log file could not be read.','updraftplus'));
+	}
+
+	function show_admin_warning_nolog() {
+		global $updraftplus_admin;
+		$updraftplus_admin->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus').':</strong> '.__('No log files were found.','updraftplus'));
 	}
 
 	function show_admin_warning_unreadablefile() {
@@ -395,10 +437,18 @@ class UpdraftPlus {
 		// This is scheduled for 5 minutes after a backup job starts
 
 		// Restore state
+		$resumption_extralog = '';
 		if ($resumption_no > 0) {
 			$this->nonce = $bnonce;
 			$this->backup_time = $this->jobdata_get('backup_time');
 			$this->logfile_open($bnonce);
+
+			$time_passed = $this->jobdata_get('run_times');
+			if (!is_array($time_passed)) $time_passed = array();
+
+			$prev_resumption = $resumption_no - 1;
+			if (isset($time_passed[$prev_resumption])) $resumption_extralog = ", previous check-in=".round($time_passed[$prev_resumption], 1)."s";
+
 		}
 
 		$btime = $this->backup_time;
@@ -410,11 +460,17 @@ class UpdraftPlus {
 		$time_ago = time()-$btime;
 
 		$this->current_resumption = $resumption_no;
-		$this->log("Backup run: resumption=$resumption_no, nonce=$bnonce, begun at=$btime (${time_ago}s ago), job type: $job_type");
+		$this->log("Backup run: resumption=$resumption_no, nonce=$bnonce, begun at=$btime (${time_ago}s ago), job type=$job_type".$resumption_extralog);
 
+		// Schedule again, to run in 5 minutes again, in case we again fail
+		// The actual interval can be increased (for future resumptions) by other code, if it detects apparent overlapping
+		$resume_interval = $this->jobdata_get('resume_interval');
+		if (!is_numeric($resume_interval) || $resume_interval<$this->minimum_resume_interval()) $resume_interval = $this->minimum_resume_interval();
+
+		// We just do this once, as we don't want to be in permanent conflict with the overlap detector
 		if ($resumption_no == 8) {
-			$time_passed = $this->jobdata_get('run_times');
-			if (!is_array($time_passed)) $time_passed = array();
+			$max_time = 0;
+			// $time_passed is set earlier
 			$timings_string = "";
 			$run_times_known=0;
 			for ($i=0; $i<=7; $i++) {
@@ -422,18 +478,18 @@ class UpdraftPlus {
 				if (isset($time_passed[$i])) {
 					$timings_string .=  round($time_passed[$i], 1).' ';
 					$run_times_known++;
+					if ($time_passed[$i] > $max_time) $max_time = round($time_passed[$i]);
 				} else {
 					$timings_string .=  '? ';
 				}
 			}
-			$this->log("Time passed on previous resumptions: $passed");
-			// TODO: If there's sufficient data and an upper limit clearly lower than our present resume_interval, then decrease the resume_interval
+			$this->log("Time passed on previous resumptions: $timings_string (known: $run_times_known, max: $max_time)");
+			if ($run_times_known >= 6 && ($max_time + 35 < $resume_interval)) {
+				$resume_interval = round($max_time + 35);
+				$this->log("Based on the available data, we are bringing the resumption interval down to: $resume_interval seconds");
+				$this->jobdata_set('resume_interval', $resume_interval);
+			}
 		}
-
-		// Schedule again, to run in 5 minutes again, in case we again fail
-		// The actual interval can be increased (for future resumptions) by other code, if it detects apparent overlapping
-		$resume_interval = $this->jobdata_get('resume_interval');
-		if (!is_numeric($resume_interval) || $resume_interval<$this->minimum_resume_interval()) $resume_interval = $this->minimum_resume_interval();
 
 		// A different argument than before is needed otherwise the event is ignored
 		$next_resumption = $resumption_no+1;
@@ -443,7 +499,7 @@ class UpdraftPlus {
 			wp_schedule_single_event($schedule_for, 'updraft_backup_resume', array($next_resumption, $bnonce));
 			$this->newresumption_scheduled = $schedule_for;
 		} else {
-			$this->log(sprintf('The current run is attempt number %d - will not schedule a further attempt until we see something useful happening', 10));
+			$this->log(sprintf('The current run is resumption number %d - will not schedule a further attempt until we see something useful happening', $resumption_no));
 		}
 
 		// Sanity check
@@ -1000,11 +1056,18 @@ class UpdraftPlus {
 		$this->newresumption_scheduled = $schedule_for;
 	}
 
-	function increase_resume_and_reschedule($howmuch = 120) {
+	function increase_resume_and_reschedule($howmuch = 120, $force_schedule = false) {
+
 		$resume_interval = $this->jobdata_get('resume_interval');
-		if (!is_numeric($resume_interval) || $resume_interval < $this->minimum_resume_interval()) { $resume_interval = $this->minimum_resume_interval(); }
-		if (!empty($this->newresumption_scheduled)) $this->reschedule($resume_interval+$howmuch);
+		if (!is_numeric($resume_interval) || $resume_interval < $this->minimum_resume_interval()) $resume_interval = $this->minimum_resume_interval();
+
+		if (empty($this->newresumption_scheduled) && $force_schedule) {
+			$this->log("A new resumption will be scheduled to prevent the job ending");
+		}
+
+		if (!empty($this->newresumption_scheduled) || $force_schedule) $this->reschedule($resume_interval+$howmuch);
 		$this->jobdata_set('resume_interval', $resume_interval+$howmuch);
+
 		$this->log("To decrease the likelihood of overlaps, increasing resumption interval to: $resume_interval + $howmuch = ".($resume_interval+$howmuch));
 	}
 
@@ -1014,9 +1077,7 @@ class UpdraftPlus {
 			$time_mod = (int)@filemtime($file);
 			$time_now = time();
 			if ($time_mod>100 && ($time_now-$time_mod)<30) {
-				$this->log("Terminate: the file $file already exists, and was modified within the last 30 seconds (time_mod=$time_mod, time_now=$time_now, diff=".($time_now-$time_mod).", size=".filesize($file)."). This likely means that another UpdraftPlus run is still at work; so we will exit.");
-				$this->increase_resume_and_reschedule(120);
-				die;
+				$this->terminate_due_to_activity($file, $time_now, $time_mod);
 			}
 		}
 	}
@@ -1298,10 +1359,7 @@ class UpdraftPlus {
 		$time_now = time();
 		$time_mod = (int)@filemtime($backup_final_file_name);
 		if (file_exists($backup_final_file_name) && $time_mod>100 && ($time_now-$time_mod)<20) {
-			$file_size = filesize($backup_final_file_name);
-			$this->log("Terminate: the final database file ($backup_final_file_name) exists, and was modified within the last 20 seconds (time_mod=$time_mod, time_now=$time_now, diff=".($time_now-$time_mod).", size=$file_size). This likely means that another UpdraftPlus run is at work; so we will exit.");
-			$this->increase_resume_and_reschedule(120);
-			die;
+			$this->terminate_due_to_activity($backup_final_file_name, $time_now, $time_mod);
 		} elseif (file_exists($backup_final_file_name)) {
 			$this->log("The final database file ($backup_final_file_name) exists, but was apparently not modified within the last 20 seconds (time_mod=$time_mod, time_now=$time_now, diff=".($time_now-$time_mod)."). Thus we assume that another UpdraftPlus terminated; thus we will continue.");
 		}
@@ -1345,6 +1403,13 @@ class UpdraftPlus {
 		}
 
 	} //wp_db_backup
+
+	function terminate_due_to_activity($file, $time_now, $time_mod) {
+		$file_size = filesize($file);
+		$this->log("Terminate: the final database file ($file) exists, and was modified within the last 20 seconds (time_mod=$time_mod, time_now=$time_now, diff=".($time_now-$time_mod).", size=$file_size). This likely means that another UpdraftPlus run is at work; so we will exit.");
+		$this->increase_resume_and_reschedule(120, true);
+		die;
+	}
 
 	/**
 	 * Taken partially from phpMyAdmin and partially from
@@ -1718,7 +1783,7 @@ class UpdraftPlus {
 			if (defined('WPLANG') && strlen(WPLANG)>0 && !is_file(UPDRAFTPLUS_DIR.'/languages/updraftplus-'.WPLANG.
 '.mo')) return __('Can you translate? Want to improve UpdraftPlus for speakers of your language?','updraftplus').$this->url_start($urls,'updraftplus.com/translate/')."Please go here for instructions - it is easy.".$this->url_end($urls,'updraftplus.com/translate/');
 
-			return __('Find UpdraftPlus useful?','updraftplus').$this->url_start($urls,'david.dw-perspective.org.uk/donate').__("Please make a donation", 'updraftplus').$this->url_end($urls,'david.dw-perspective.org.uk/donate');
+			return __('Find UpdraftPlus useful?','updraftplus').' '.$this->url_start($urls,'david.dw-perspective.org.uk/donate').__("Please make a donation", 'updraftplus').$this->url_end($urls,'david.dw-perspective.org.uk/donate');
 		case 2:
 			return $this->url_start($urls,'wordshell.net')."Check out WordShell".$this->url_end($urls,'www.wordshell.net')." - manage WordPress from the command line - huge time-saver";
 			break;
