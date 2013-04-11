@@ -293,7 +293,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 			// $object->save_to_filename($fullpath);
 
 		} catch (NoSuchObjectException $e) {
-			$updraftplus->log('Cloud Files error - no such file exists at Cloud Files','updraftplus').' ('.$e->getMessage().')');
+			$updraftplus->log('Cloud Files error - no such file exists at Cloud Files ('.$e->getMessage().')');
 			$updraftplus->error(__('Cloud Files error - no such file exists at Cloud Files','updraftplus').' ('.$e->getMessage().')');
 			return false;
 		} catch(Exception $e) {
