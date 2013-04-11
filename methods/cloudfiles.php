@@ -297,7 +297,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 			$updraftplus->error(__('Cloud Files error - no such file exists at Cloud Files','updraftplus').' ('.$e->getMessage().')');
 			return false;
 		} catch(Exception $e) {
-			$updraftplus->log(__('Cloud Files error - failed to download the file','updraftplus').' ('.$e->getMessage().')');
+			$updraftplus->log('Cloud Files error - failed to download the file ('.$e->getMessage().')');
 			$updraftplus->error(__('Cloud Files error - failed to download the file','updraftplus').' ('.$e->getMessage().')');
 			return false;
 		}
