@@ -23,6 +23,7 @@ class UpdraftPlus_BackupModule_googledrive {
 		$updraftplus->log("Google Drive: requesting access token: client_id=$client_id");
 
 		$query_body = array( 'refresh_token' => $token, 'client_id' => $client_id, 'client_secret' => $client_secret, 'grant_type' => 'refresh_token' );
+
 		$result = wp_remote_post('https://accounts.google.com/o/oauth2/token', array('timeout' => '15', 'method' => 'POST', 'body' => $query_body) );
 
 		if (is_wp_error($result)) {
@@ -91,7 +92,7 @@ class UpdraftPlus_BackupModule_googledrive {
 				$json_values = json_decode( $result['body'], true );
 				if ( isset( $json_values['refresh_token'] ) ) {
 					UpdraftPlus_Options::update_updraft_option('updraft_googledrive_token', $json_values['refresh_token']); // Save token
-					header('Location: '.admin_url('options-general.php?page=updraftplus&message='.__('Success','updraftplus').' '.sprintf(__('you have authenticated your %s account','updraftplus'),__('Google Drive','updraftplus'))));
+					header('Location: '.admin_url('options-general.php?page=updraftplus&message='.__('Success','updraftplus').': '.sprintf(__('you have authenticated your %s account','updraftplus'),__('Google Drive','updraftplus'))));
 
 				}
 				else {
@@ -309,6 +310,11 @@ class UpdraftPlus_BackupModule_googledrive {
 			$this->gdocs->set_option( 'chunk_size', 0.2 ); # 0.2Mb; change from default of 512Kb
 			$this->gdocs->set_option( 'request_timeout', 15 ); # Change from default of 5s
 			$this->gdocs->set_option( 'max_resume_attempts', 36 ); # Doesn't look like GDocs class actually uses this anyway
+			if (UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify')) {
+				$this->gdocs->set_option('ssl_verify', false);
+			} else {
+				$this->gdocs->set_option('ssl_verify', true);
+			}
 		}
 		return true;
 	}
