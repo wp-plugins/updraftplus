@@ -28,10 +28,7 @@ class UpdraftPlus_Admin {
 
 		global $updraftplus, $wp_version, $pagenow;
 
-		if($pagenow == 'options-general.php' && isset($_REQUEST['page']) && 'updraftplus' == $_REQUEST['page'] && UpdraftPlus_Options::get_updraft_option('updraft_debug_mode')) {
-			@ini_set('display_errors',1);
-			@error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
-		}
+		// First, the checks that are on all (admin) pages:
 
 		if (UpdraftPlus_Options::user_can_manage() && UpdraftPlus_Options::get_updraft_option('updraft_service') == "googledrive" && UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid','') != '' && UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token','') == '') {
 			add_action('admin_notices', array($this,'show_admin_warning_googledrive') );
@@ -43,15 +40,29 @@ class UpdraftPlus_Admin {
 
 		if (UpdraftPlus_Options::user_can_manage() && $this->disk_space_check(1024*1024*35) === false) add_action('admin_notices', array($this, 'show_admin_warning_diskspace'));
 
-		if ($pagenow == 'options-general.php' && version_compare($wp_version, '3.2', '<')) add_action('admin_notices', array($this, 'show_admin_warning_wordpressversion'));
+		// Next, the actions that only come on the UpdraftPlus page
+		if ($pagenow != 'options-general.php' || !isset($_REQUEST['page']) || 'updraftplus' != $_REQUEST['page']) return;
 
-		if ($pagenow == 'options-general.php' && isset($_REQUEST['page']) && 'updraftplus' == $_REQUEST['page']) {
+		if(UpdraftPlus_Options::get_updraft_option('updraft_debug_mode')) {
+			@ini_set('display_errors',1);
+			@error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
+		}
+
+		// LiteSpeed has a generic problem with terminating cron jobs
+		if (isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'LiteSpeed') !== false) {
+			if (!is_file(ABSPATH.'.htaccess') || !preg_match('/noabort/i', file_get_contents(ABSPATH.'.htaccess'))) {
+				add_action('admin_notices', array($this, 'show_admin_warning_litespeed'));
+			}
+		}
+
+		if (version_compare($wp_version, '3.2', '<')) add_action('admin_notices', array($this, 'show_admin_warning_wordpressversion'));
+
 			wp_enqueue_script('jquery');
 			wp_enqueue_script('jquery-ui-dialog');
 			wp_enqueue_script('plupload-all');
 			wp_register_script('updraftplus-plupload', UPDRAFTPLUS_URL.'/includes/ud-plupload.js', array('jquery'));
 			wp_enqueue_script('updraftplus-plupload');
-		}
+
 	}
 
 	function admin_head() {
@@ -161,6 +172,10 @@ class UpdraftPlus_Admin {
 
 	function show_admin_warning_wordpressversion() {
 		$this->show_admin_warning('<strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__('UpdraftPlus does not officially support versions of WordPress before %s. It may work for you, but if it does not, then please be aware that no support is available until you upgrade WordPress.'),'3.2'),'updraftplus');
+	}
+
+	function show_admin_warning_litespeed() {
+		$this->show_admin_warning('<strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__('Your website is hosted using the %s web server.','updraftplus'),'LiteSpeed').' <a href="http://updraftplus.com/faqs/i-am-having-trouble-backing-up-and-my-web-hosting-company-uses-the-litespeed-webserver/">'.__('Please consult this FAQ if you have problems backing up.', 'updraftplus').'</a>');
 	}
 
 	function show_admin_warning_dropbox() {

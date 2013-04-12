@@ -51,6 +51,7 @@ Many thanks to the existing translators:
 
 * Deutsch / German (de_DE): Marcel Herrguth - mherrguth@mrgeneration.de
 * Magyar / Hungarian (hu_HU): Szépe Viktor - http://www.szepe.net
+* Spanish / Español (es_ES): Fernando Villasmil - villasmil.fernando@gmail.com               
 
 Disclaimer: Use of a translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
 
@@ -120,8 +121,9 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: Built-in multi-uploader, allowing easier restoration of old backup sets
 * FEATURE: Allow instant downloading of the most recently modified log file
 * FEATURE: Built in drag-and-drop database decrypter for manual decryption
-* FEATURE: German translation: thanks to Marcel Herrguth - mherrguth@mrgeneration.de
-* FEATURE: Hungarian translation: thanks to Szépe Viktor - http://www.szepe.net
+* FEATURE: Deutsch / German translation: thanks to Marcel Herrguth - mherrguth@mrgeneration.de
+* FEATURE: Magyar / Hungarian translation: thanks to Szépe Viktor - http://www.szepe.net
+* FEATURE: Spanish / Español translation: thanks to Fernando Villasmil - villasmil.fernando@gmail.com                                                                                                                                                                                                                                    
 * FEATURE: Added encryption (used by default) to Amazon S3 communications
 * RELIABILITY: Various algorithm tweaks to help larger sites on lower resources. Largest site a known user has: 1.5Gb
 * RELIABILITY/FEATURE: Ship up-to-date SSL certificates, and added expert options to prefer server SSL CA certificates, and to disable peer verification
