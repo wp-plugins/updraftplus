@@ -23,6 +23,7 @@ TODO - some of these are out of date/done, needs pruning
 // Save database encryption key inside backup history on per-db basis, so that if it changes we can still decrypt
 // Switch to Google Drive SDK. Google folders. https://developers.google.com/drive/folder
 // GlotPress
+// Affiliate links? (I have no need...)
 // Convert S3.php to use WP's native HTTP functions
 // Ability to re-scan existing cloud storage
 // Migrator - search+replace the database
@@ -31,7 +32,7 @@ TODO - some of these are out of date/done, needs pruning
 // Test restoration when uploads dir is /assets/ (e.g. with Shoestrap theme)
 // Send the user an email upon their first backup with tips on what to do (e.g. support/improve) (include legacy check to not bug existing users)
 //Allow use of /usr/bin/zip - since this can escape from PHP's memory limit. Can still batch as we do so, in order to monitor/measure progress
-// Database decrypter
+// GoogleDrive folders
 // Easier download of 'in progress' backup logs (not just last completed)
 //Do an automated test periodically for the success of loop-back connections
 //When a manual backup is run, use a timer to update the 'Download backups and logs' section, just like 'Last finished backup run'. Beware of over-writing anything that's in there from a resumable downloader.

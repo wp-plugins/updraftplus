@@ -1,5 +1,5 @@
 === UpdraftPlus Backup ===
-Contributors: David Anderson
+Contributors: DavidAnderson
 Tags: backup, restore, database, rackspace, amazon, s3, dropbox, google drive, ftp, webdav, back up, multisite
 Requires at least: 3.2
 Tested up to: 3.5.1
@@ -8,14 +8,13 @@ Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
-== Upgrade Notice ==
-New features: selective restoration, importing remote backups; plus many tweaks, optimisations + small bug-fixes: recommended upgrade for all
+Easy and complete backups and restoration. Manual or automated backups (Amazon S3, Dropbox, Google Drive, Rackspace, FTP, SFTP, WebDAV, email).
 
 == Description ==
 
 <a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3, Dropbox, Google Drive, Rackspace Cloud, FTP, SFTP, WebDAV and email) and restore with a single click. Backups of files and database can have separate schedules.
 
-* Supports backups to Amazon S3, Dropbox, Google Drive, Rackspace Cloud, FTP (including SSL), email, SFTP and WebDAV
+* Supports backups to Amazon S3, Dropbox, Google Drive, Rackspace Cloud Files, FTP (including SSL), email, SFTP and WebDAV
 * Quick restore (both file and database backups)
 * Backup automatically on a repeating schedule
 * Files and databases can have separate schedules
@@ -425,3 +424,6 @@ We recognise and thank the following for code and/or libraries used and/or modif
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 Furthermore, reliance upon any non-English translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
+
+== Upgrade Notice ==
+New features: selective restoration, importing remote backups; plus many tweaks, optimisations + small bug-fixes: recommended upgrade for all
