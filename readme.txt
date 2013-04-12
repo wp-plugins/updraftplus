@@ -115,7 +115,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.5.20 - not yet released/supported =
+= 1.5.21 - not yet released/supported =
 * FEATURE: Now restores databases (we recommend the MySQL command-line for versions created with previous versions of UpdraftPlus)
 * FEATURE: Rackspace Cloud Files support (http://www.rackspace.com/cloud/files/)
 * FEATURE: Built-in multi-uploader, allowing easier restoration of old backup sets
@@ -125,6 +125,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: Magyar / Hungarian translation: thanks to Szépe Viktor - http://www.szepe.net
 * FEATURE: Spanish / Español translation: thanks to Fernando Villasmil - villasmil.fernando@gmail.com                                                                                                                                                                                                                                    
 * FEATURE: Added encryption (used by default) to Amazon S3 communications
+* FEATURE: New "more files" add-on, allowing backup of WordPress core and non-WordPress files
 * RELIABILITY: Various algorithm tweaks to help larger sites on lower resources. Largest site a known user has: 1.5Gb
 * RELIABILITY/FEATURE: Ship up-to-date SSL certificates, and added expert options to prefer server SSL CA certificates, and to disable peer verification
 * SPEED: Batch INSERT commands in database backups, for much faster restoration (typically 95% faster)

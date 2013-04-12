@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.5.20
+Version: 1.5.21
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -14,7 +14,6 @@ Author URI: http://updraftplus.com
 /*
 TODO - some of these are out of date/done, needs pruning
 // Add an appeal for translators to email me. If it a fails, use Google Translate Tools and appeal for native users to correct it.
-// Automatically detect LiteSpeed and scan .htaccess and send them to the relevant FAQ
 // Search for other TODO-s in the code
 // Test in PHP 5.4
 // Better Dropbox errors (see item in To-Do box)
@@ -123,6 +122,7 @@ class UpdraftPlus {
 	var $backup_methods = array (
 		"s3" => "Amazon S3",
 		"dropbox" => "Dropbox",
+		'cloudfiles' => 'Rackspace Cloud Files',
 		"googledrive" => "Google Drive",
 		"ftp" => "FTP",
 		'sftp' => 'SFTP',
@@ -375,8 +375,10 @@ class UpdraftPlus {
 
 		if ($this->current_resumption >= 9 && $this->newresumption_scheduled == false) {
 			$this->log("This is resumption ".$this->current_resumption.", but meaningful activity is still taking place; so a new one will be scheduled");
-			$resume_interval = $this->jobdata_get('resume_interval');
-			if (!is_numeric($resume_interval) || $resume_interval<$this->minimum_resume_interval()) { $resume_interval = $this->minimum_resume_interval(); }
+			// We just use max here to make sure we get a number at all
+			$resume_interval = max($this->jobdata_get('resume_interval'), 75);
+			// Don't consult the minimum here
+			// if (!is_numeric($resume_interval) || $resume_interval<$this->minimum_resume_interval()) { $resume_interval = $this->minimum_resume_interval(); }
 			$schedule_for = time()+$resume_interval;
 			$this->newresumption_scheduled = $schedule_for;
 			wp_schedule_single_event($schedule_for, 'updraft_backup_resume', array($this->current_resumption + 1, $this->nonce));
