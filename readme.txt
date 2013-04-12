@@ -1,5 +1,5 @@
 === UpdraftPlus Backup ===
-Contributors: David Anderson
+Contributors: DavidAnderson
 Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, ftp, webdav, back up, multisite
 Requires at least: 3.2
 Tested up to: 3.5.1
@@ -8,8 +8,7 @@ Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
-== Upgrade Notice ==
-New features: selective restoration, importing remote backups; plus many tweaks, optimisations + small bug-fixes: recommended upgrade for all
+Easy and complete backups and restoration. Manual or automated backups (Amazon S3, Dropbox, Google Drive, Rackspace, FTP, SFTP, WebDAV, email).
 
 == Description ==
 
@@ -394,3 +393,5 @@ We recognise and thank the following for code and/or libraries used and/or modif
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+== Upgrade Notice ==
+New features: selective restoration, importing remote backups; plus many tweaks, optimisations + small bug-fixes: recommended upgrade for all
