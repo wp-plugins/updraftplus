@@ -30,6 +30,12 @@ class UpdraftPlus_BackupModule_dropbox {
 		global $updraftplus;
 		$updraftplus->log("Dropbox: begin cloud upload");
 
+		if (!function_exists('mcrypt_encrypt')) {
+			$updraftplus->log('The mcrypt PHP module is not installed');
+			$updraftplus->error(sprintf(__('The %s PHP module is not installed', 'updraftplus'), 'mcrypt'));
+			return false;
+		}
+
 		if (UpdraftPlus_Options::get_updraft_option('updraft_dropboxtk_request_token', 'xyz') == 'xyz') {
 			$updraftplus->log('You do not appear to be authenticated with Dropbox');
 			$updraftplus->error(__('You do not appear to be authenticated with Dropbox','updraftplus'));

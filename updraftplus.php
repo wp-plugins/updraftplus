@@ -13,40 +13,40 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
-// Add an appeal for translators to email me. If it a fails, use Google Translate Tools and appeal for native users to correct it.
+// Add an appeal for translators to email me.
 // Search for other TODO-s in the code
-// Test in PHP 5.4
+// Update all-features page at updraftplus.com (not updated after 1.5.5)
 // Better Dropbox errors (see item in To-Do box)
 // Count available time before doing a database restore
+// Put in more info on the restoration process, especially advice
 // Add in downloading in the 'Restore' modal, and remove the advice to do so manually.
-// Provide an expert option to disable sslverify on WP HTTP requests. Mention in FAQs etc.
 // Save database encryption key inside backup history on per-db basis, so that if it changes we can still decrypt
 // Switch to Google Drive SDK. Google folders. https://developers.google.com/drive/folder
 // GlotPress
 // Affiliate links? (I have no need...)
 // Convert S3.php to use WP's native HTTP functions
 // Ability to re-scan existing cloud storage
-// Migrator - search+replace the database
-// Make mcrypt warning on dropbox more prominent - one customer missed it
+// Migrator - search+replace the database, list+download from remote, kick-off backup remotely
+// Dropbox uses one mcrypt function - port to phpseclib for more portability
 // Store meta-data on which version of UD the backup was made with (will help if we ever introduce quirks that need ironing)
 // Test restoration when uploads dir is /assets/ (e.g. with Shoestrap theme)
 // Send the user an email upon their first backup with tips on what to do (e.g. support/improve) (include legacy check to not bug existing users)
 //Allow use of /usr/bin/zip - since this can escape from PHP's memory limit. Can still batch as we do so, in order to monitor/measure progress
-// GoogleDrive folders
-// Easier download of 'in progress' backup logs (not just last completed)
+// GoogleDrive +Rackspace folders
 //Do an automated test periodically for the success of loop-back connections
 //When a manual backup is run, use a timer to update the 'Download backups and logs' section, just like 'Last finished backup run'. Beware of over-writing anything that's in there from a resumable downloader.
 //Change DB encryption to not require whole gzip in memory (twice)
-//Add Rackspace, Box.Net, SugarSync and Microsoft Skydrive support??
+//Add Box.Net, SugarSync and Microsoft Skydrive support??
 //Make it easier to find add-ons
 //The restorer has a hard-coded wp-content - fix
-//?? On 'backup now', open up a Lightbox, count down 5 seconds, then start examining the log file (if it can be found)
+//?? On 'backup now', open up a modal, count down 5 seconds, open page via modal, then start examining the log file (if it can be found)
 //Should make clear in dashboard what is a non-fatal error (i.e. can be retried) - leads to unnecessary bug reports
 // Move the inclusion, cloud and retention data into the backup job (i.e. don't read current config, make it an attribute of each job). In fact, everything should be. So audit all code for where get_option is called inside a backup run: it shouldn't happen.
 // Should we resume if the only errors were upon deletion (i.e. the backup itself was fine?) Presently we do, but it displays errors for the user to confuse them. Perhaps better to make pruning a separate scheuled task??
 // Warn the user if their zip-file creation is slooowww...
 // Create a "Want Support?" button/console, that leads them through what is needed, and performs some basic tests...
 // Chunking + resuming on SFTP
+// Add-on to check integrity of backups
 // Add-on to manage all your backups from a single dashboard
 // Make disk space check more intelligent (currently hard-coded at 35Mb)
 // Provide backup/restoration for UpdraftPlus's settings, to allow 'bootstrap' on a fresh WP install - some kind of single-use code which a remote UpdraftPlus can use to authenticate
@@ -56,7 +56,6 @@ TODO - some of these are out of date/done, needs pruning
 // Multisite add-on should allow restoring of each blog individually
 // When looking for files to delete, is the current encryption setting used? Should not be.
 // Create single zip, containing even WordPress itself
-// When a new backup starts, AJAX-update the 'Last backup' display in the admin page.
 // Remove the recurrence of admin notices when settings are saved due to _wp_referer
 
 Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed

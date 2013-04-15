@@ -951,6 +951,7 @@ class UpdraftPlus_Admin {
 		<div><input id="updraft_restore_db" type="checkbox" name="updraft_restore[]" value="db"> <label for="updraft_restore_db"><?php _e('Database','updraftplus'); ?></label><br></div>
 	</fieldset>
 </form>
+<p><em><a href="http://updraftplus.com/faqs/what-should-i-understand-before-undertaking-a-restoration/" target="_new"><?php _e('Do read this helpful article of useful things to know before restoring.','updraftplus');?></a></em></p>
 </div>
 
 <div id="updraft-backupnow-modal" title="UpdraftPlus - <?php _e('Perform a backup now','updraftplus'); ?>">

@@ -1,9 +1,9 @@
 === UpdraftPlus Backup ===
 Contributors: DavidAnderson
 Tags: backup, restore, database, rackspace, amazon, s3, dropbox, google drive, ftp, webdav, back up, multisite
-Requires at least: 3.2
+Requires at least: 3.1
 Tested up to: 3.5.1
-Stable tag: 1.5.5
+Stable tag: 1.5.21
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -27,6 +27,7 @@ Easy and complete backups and restoration. Manual or automated backups (Amazon S
 * Thousands of users: widely tested and reliable (over 100,000 downloads)
 * Internationalised (translations very welcome - see below)
 * Premium version and support available - <a href="http://updraftplus.com">http://updraftplus.com</a>
+* Tested and supported on all current PHP versions (5.2, 5.3, 5.4)
 
 = Don't Risk Anything Less =
 
@@ -135,6 +136,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FIX: Respect WordPress's WP_MAX_MEMORY_LIMIT constant
 * FIX: Remove timezone display from local time - WordPress's get_date_from_gmt function does not completely do what the manual says it does
 * FIX: A small typo slipped into 1.5.5 which prevented some Google Drive users from setting up new installations
+* FIX: Fix strict coding warnings on PHP 5.4
 * TWEAK: In fix-time add-on, fade UI when relevant
 * TWEAK: Improved UI of downloader
 * TWEAK: Decrease FTP timeouts to improve our chances of getting back an error before PHP aborts
@@ -426,4 +428,4 @@ We recognise and thank the following for code and/or libraries used and/or modif
 Furthermore, reliance upon any non-English translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
 
 == Upgrade Notice ==
-New features: selective restoration, importing remote backups; plus many tweaks, optimisations + small bug-fixes: recommended upgrade for all
+New features: restore database, Rackspace Cloud Files, multi-uploader of external backups, drag-and-drop decrypter, translations, algorithm improvements, tweaks, bug fixes - recommended upgrade for all
