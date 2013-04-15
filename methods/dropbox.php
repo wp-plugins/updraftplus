@@ -284,7 +284,7 @@ class UpdraftPlus_BackupModule_dropbox {
 	}
 
 	function show_authed_admin_warning() {
-		global $updraftplus;
+		global $updraftplus_admin;
 
 		$dropbox = self::bootstrap();
 		$accountInfo = $dropbox->accountInfo();
@@ -297,7 +297,7 @@ class UpdraftPlus_BackupModule_dropbox {
 			$body = $accountInfo['body'];
 			$message .= ". ".sprintf(__('Your %s account name','updraftplus'),'Dropbox').": ".htmlspecialchars($body->display_name);
 		}
-		$updraftplus->show_admin_warning($message);
+		$updraftplus_admin->show_admin_warning($message);
 
 	}
 
