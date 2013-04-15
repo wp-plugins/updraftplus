@@ -115,7 +115,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.5.21 - not yet released/supported =
+= 1.5.21 - 04/15/2013 =
 * FEATURE: Now restores databases (we recommend the MySQL command-line for versions created with previous versions of UpdraftPlus)
 * FEATURE: Rackspace Cloud Files support (http://www.rackspace.com/cloud/files/)
 * FEATURE: Built-in multi-uploader, allowing easier restoration of old backup sets
