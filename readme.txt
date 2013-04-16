@@ -114,7 +114,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 == Changelog ==
 
 = 1.5.22 - 04/16/2013 =
-* FIX: 1.5.21 broke Dropbox authentication for new sites. Upgrade if you had that issue.
+* FIX: 1.5.21 broke Dropbox authentication for some users. Upgrade if you had that issue.
 
 = 1.5.21 - 04/15/2013 =
 * FEATURE: Now restores databases (we recommend the MySQL command-line for versions created with previous versions of UpdraftPlus)
@@ -429,4 +429,4 @@ We recognise and thank the following for code and/or libraries used and/or modif
 Furthermore, reliance upon any non-English translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
 
 == Upgrade Notice ==
-1.5.21: New features: restore database, Rackspace Cloud Files, multi-uploader of external backups, drag-and-drop decrypter, translations, algorithm improvements, tweaks, bug fixes - recommended upgrade for all. 1.5.22: Version 1.5.21 broke Dropbox authentication for new sites. Upgrade if you had that issue.
+1.5.21: New features: restore database, Rackspace Cloud Files, multi-uploader of external backups, drag-and-drop decrypter, translations, algorithm improvements, tweaks, bug fixes - recommended upgrade for all. 1.5.22: Version 1.5.21 broke Dropbox authentication for some users. Upgrade if you had that issue.
