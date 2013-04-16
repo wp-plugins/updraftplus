@@ -1,22 +1,21 @@
 === UpdraftPlus Backup ===
-Contributors: David Anderson
-Tags: backup, restore, database, cloud, amazon, s3, dropbox, google drive, ftp, webdav, back up, multisite
-Requires at least: 3.2
+Contributors: DavidAnderson
+Tags: backup, restore, database, rackspace, amazon, s3, dropbox, google drive, ftp, webdav, back up, multisite
+Requires at least: 3.1
 Tested up to: 3.5.1
-Stable tag: 1.4.48
+Stable tag: 1.5.22
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
-== Upgrade Notice ==
-New features: selective restoration, importing remote backups; plus many tweaks, optimisations + small bug-fixes: recommended upgrade for all
+Easy and complete backups and restoration. Manual or automated backups (Amazon S3, Dropbox, Google Drive, Rackspace, FTP, SFTP, WebDAV, email).
 
 == Description ==
 
-<a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3, Dropbox, Google Drive, FTP, SFTP, WebDAV and email) and restore with a single click. Backups of files and database can have separate schedules.
+<a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3, Dropbox, Google Drive, Rackspace Cloud, FTP, SFTP, WebDAV and email) and restore with a single click. Backups of files and database can have separate schedules.
 
-* Supports backups to Amazon S3, Dropbox, Google Drive, FTP (including SSL), email, SFTP and WebDAV
-* Quick restore
+* Supports backups to Amazon S3, Dropbox, Google Drive, Rackspace Cloud Files, FTP (including SSL), email, SFTP and WebDAV
+* Quick restore (both file and database backups)
 * Backup automatically on a repeating schedule
 * Files and databases can have separate schedules
 * Failed uploads are automatically resumed/retried
@@ -25,9 +24,10 @@ New features: selective restoration, importing remote backups; plus many tweaks,
 * Download backup archives direct from your WordPress dashboard
 * Database backups can be encrypted for security
 * Debug mode that gives full logging of the backup
-* Thousands of users: widely tested and reliable
+* Thousands of users: widely tested and reliable (over 100,000 downloads)
 * Internationalised (translations very welcome - see below)
 * Premium version and support available - <a href="http://updraftplus.com">http://updraftplus.com</a>
+* Tested and supported on all current PHP versions (5.2, 5.3, 5.4)
 
 = Don't Risk Anything Less =
 
@@ -45,7 +45,13 @@ UpdraftPlus is written by professional WordPress developers. If your site needs 
 
 = Are you multi-lingual? Can you translate? =
 
-Are you able to translate UpdraftPlus into another language? UpdraftPlus's code is already internationalized. Just grab the .pot file from <a href="http://plugins.svn.wordpress.org/updraftplus/trunk/languages/updraftplus.pot">http://plugins.svn.wordpress.org/updraftplus/trunk/languages/updraftplus.pot</a>, load it into any application for translating, and send it to us (contact@updraftplus.com) when done. We will add your name to the 'Notes' page here.
+Are you able to translate UpdraftPlus into another language? Are you ready to help speakers of your language? UpdraftPlus itself is ready and waiting - the only work needed is the translating. The translation process is easy - go here for instructions: <a href="http://updraftplus.com/translate/">http://updraftplus.com/translate/</a>. (Or if you're an expert WordPress translator already, then just pick out the .pot file from the wp-content/plugins/updraftplus/languages/ directory).
+
+Many thanks to the existing translators:
+
+* Deutsch / German (de_DE): Marcel Herrguth - mherrguth@mrgeneration.de
+* Magyar / Hungarian (hu_HU): Szépe Viktor - http://www.szepe.net
+* Spanish / Español (es_ES): Fernando Villasmil - villasmil.fernando@gmail.com               
 
 = Other support =
 
@@ -91,7 +97,7 @@ You can check the changelog for changes; but the original Updraft, before I fork
 
 = Any known bugs ? =
 
-Not a bug, but one issue to be aware of is that backups of very large sites (lots of uploaded media) are quite complex matters, given the limits of running inside WordPress on a huge variety of different web hosting setups. With large sites, you need to use Amazon S3, which UpdraftPlus supports (since 0.9.20), Google Drive (0.9.21), Dropbox (since 1.2.19) or WebDAV (since 1.4.30), because these support chunked, resumable uploads. Other backup methods have code (since 0.9.0) to retry failed uploads of an archive, but the upload cannot be chunked, so if an archive is enormous (i.e. cannot be completely uploaded in the time that PHP is allowed for running on your web host) it cannot work.
+Not a bug, but one issue to be aware of is that backups of very large sites (lots of uploaded media) are quite complex matters, given the limits of running inside WordPress on a huge variety of different web hosting setups. With large sites, you need to use Amazon S3, which UpdraftPlus supports (since 0.9.20), Google Drive (0.9.21), Dropbox (since 1.2.19), WebDAV (since 1.4.30), or FTP (since 1.5.9) because these support chunked, resumable uploads. Other backup methods have code (since 0.9.0) to retry failed uploads of an archive, but the upload cannot be chunked, so if an archive is enormous (i.e. cannot be completely uploaded in the time that PHP is allowed for running on your web host) it cannot work.
 
 = My site was hacked, and I have no backups! I thought UpdraftPlus was working! Can I kill you? =
 
@@ -107,13 +113,40 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.5.7 - not yet released/supported =
-* Built-in multi-uploader, allowing easier restoration of old backup sets
+= 1.5.22 - 04/16/2013 =
+* FIX: 1.5.21 broke Dropbox authentication for new sites. Upgrade if you had that issue.
 
-= 1.5.5 - not yet released/supported =
+= 1.5.21 - 04/15/2013 =
+* FEATURE: Now restores databases (we recommend the MySQL command-line for versions created with previous versions of UpdraftPlus)
+* FEATURE: Rackspace Cloud Files support (http://www.rackspace.com/cloud/files/)
+* FEATURE: Built-in multi-uploader, allowing easier restoration of old backup sets
+* FEATURE: Allow instant downloading of the most recently modified log file
+* FEATURE: Built in drag-and-drop database decrypter for manual decryption
+* FEATURE: Deutsch / German translation: thanks to Marcel Herrguth - mherrguth@mrgeneration.de
+* FEATURE: Magyar / Hungarian translation: thanks to Szépe Viktor - http://www.szepe.net
+* FEATURE: Spanish / Español translation: thanks to Fernando Villasmil - villasmil.fernando@gmail.com                                                                                                                                                                                                                                    
+* FEATURE: Added encryption (used by default) to Amazon S3 communications
+* FEATURE: New "more files" add-on, allowing backup of WordPress core and non-WordPress files
+* RELIABILITY: Various algorithm tweaks to help larger sites on lower resources. Largest site a known user has: 1.5Gb
+* RELIABILITY/FEATURE: Ship up-to-date SSL certificates, and added expert options to prefer server SSL CA certificates, and to disable peer verification
+* SPEED: Batch INSERT commands in database backups, for much faster restoration (typically 95% faster)
+* SPEED/RELIABILITY: FTP and FTPS (not SFTP) are now chunked and resumable (both download and upload), subject to your FTP server responding correctly to SIZE
+* SPEED: Re-factoring of admin-area and some backup code into separate lazy-loaded files, to reduce memory consumption on sites generally
+* FIX: Clear PHP's file stat cache when checking for zip file activity - fixes potential halt on very enormous sites or sites with very low PHP timeouts.
+* FIX: Caught some untranslated strings
+* FIX: Respect WordPress's WP_MAX_MEMORY_LIMIT constant
+* FIX: Remove timezone display from local time - WordPress's get_date_from_gmt function does not completely do what the manual says it does
+* FIX: A small typo slipped into 1.5.5 which prevented some Google Drive users from setting up new installations
+* FIX: Fix strict coding warnings on PHP 5.4
+* TWEAK: In fix-time add-on, fade UI when relevant
+* TWEAK: Improved UI of downloader
+* TWEAK: Decrease FTP timeouts to improve our chances of getting back an error before PHP aborts
+* TWEAK: Tweaked al relevant methods to follow the general SSL CA certificate options
+
+= 1.5.5 - 03/26/2013 =
 * Now translatable - .pot file included (translators welcome!)
 * When restoring, you can now select only some components to restore
-* History of previous backups can re-scan to find backups manually imported (e.g. via FTP)
+* History of previous backups can re-scan to find backups manually imported (e.g. via FTP) (trunk has drag-and-drop uploader)
 * Multisite add-on (http://updraftplus.com/shop/) now stores/restores blogs and mu-plugins separately
 * Display UpdraftPlus's disk space usage
 * Internationalisation hooks in main body of plugin
@@ -127,6 +160,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * Clean up temporary files left behind by zipArchive::addFile
 * Tweak Dropbox library to work from behind very weird proxies that double-surround the HTTP header
 * Improved help for people with broken schedulers
+* Fix FTP download error
 
 = 1.4.48 - 03/11/2013 =
 * Improve batching on zip creation for sites with very large files
@@ -367,7 +401,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 3. Showing and downloading backup sets
 
 We recognise and thank the following for code and/or libraries used and/or modified under the terms of their licences:
-* UpdraftPlus is based on the original Updraft by Paul Kehrer (Twitter: http://twitter.com/reaperhulk, Blog: http://langui.sh)
+* UpdraftPlus is derived from the original Updraft by Paul Kehrer (Twitter: http://twitter.com/reaperhulk, Blog: http://langui.sh)
 * Sorin Iclanzan, http://profiles.wordpress.org/hel.io/
 * Ben Tadiar, https://github.com/BenTheDesigner/Dropbox
 * Beau Brownlee, http://www.solutionbot.com/2009/01/02/php-ftp-class/
@@ -380,7 +414,7 @@ We recognise and thank the following for code and/or libraries used and/or modif
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
+    the Free Software Foundation; either version 3 of the License, or
     (at your option) any later version.
 
     This program is distributed in the hope that it will be useful,
@@ -392,3 +426,7 @@ We recognise and thank the following for code and/or libraries used and/or modif
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+Furthermore, reliance upon any non-English translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
+
+== Upgrade Notice ==
+1.5.21: New features: restore database, Rackspace Cloud Files, multi-uploader of external backups, drag-and-drop decrypter, translations, algorithm improvements, tweaks, bug fixes - recommended upgrade for all. 1.5.22: Version 1.5.21 broke Dropbox authentication for new sites. Upgrade if you had that issue.

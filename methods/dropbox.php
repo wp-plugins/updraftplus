@@ -30,6 +30,12 @@ class UpdraftPlus_BackupModule_dropbox {
 		global $updraftplus;
 		$updraftplus->log("Dropbox: begin cloud upload");
 
+		if (!function_exists('mcrypt_encrypt')) {
+			$updraftplus->log('The mcrypt PHP module is not installed');
+			$updraftplus->error(sprintf(__('The %s PHP module is not installed', 'updraftplus'), 'mcrypt'));
+			return false;
+		}
+
 		if (UpdraftPlus_Options::get_updraft_option('updraft_dropboxtk_request_token', 'xyz') == 'xyz') {
 			$updraftplus->log('You do not appear to be authenticated with Dropbox');
 			$updraftplus->error(__('You do not appear to be authenticated with Dropbox','updraftplus'));
@@ -237,17 +243,10 @@ class UpdraftPlus_BackupModule_dropbox {
 			<?php
 			// Check requirements.
 			if (!function_exists('mcrypt_encrypt')) {
-				?><p><strong><?php _e('Warning','updraftplus'); ?>:</strong> <?php _e("Your web server's PHP installation does not included a required module (MCrypt). Please contact your web hosting provider's support. UpdraftPlus's Dropbox module <strong>requires</strong> MCrypt. Please do not file any support requests; there is no alternative.",'updraftplus');?></p><?php
+				?><p><strong><?php _e('Warning','updraftplus'); ?>:</strong> <?php echo sprintf(__('Your web server\'s PHP installation does not included a required module (%s). Please contact your web hosting provider\'s support.', 'updraftplus'), 'mcrypt'); ?> <?php echo sprintf(__("UpdraftPlus's %s module <strong>requires</strong> %s. Please do not file any support requests; there is no alternative.",'updraftplus'),'Dropbox', 'mcrypt');?></p><?php
 			}
-			if (!function_exists("curl_init")) {
-				?><p><strong><?php _e('Warning','updraftplus'); ?>:</strong> <?php _e("Your web server's PHP installation does not included a required module (Curl). Please contact your web hosting provider's support. UpdraftPlus's Dropbox module <strong>requires</strong> Curl. Your only options to get this working are 1) Install/enable curl or 2) Hire us or someone else to code additional support options into UpdraftPlus. 3) Wait, possibly forever, for someone else to do this.",'updraftplus');?></p><?php
-			} else {
-				$curl_version = curl_version();
-				$curl_ssl_supported= ($curl_version['features'] & CURL_VERSION_SSL);
-				if (!$curl_ssl_supported) {
-				?><p><strong><?php _e('Warning','updraftplus'); ?>:</strong> <?php e_("Your web server's PHP/Curl installation does not support https access. We cannot access Dropbox without this support. Please contact your web hosting provider's support. UpdraftPlus's Dropbox module <strong>requires</strong> Curl+https. Your only options to get this working are 1) Install/enable curl with https or 2) Hire us or someone else to code additional support options into UpdraftPlus. 3) Wait, possibly forever, for someone else to do this.",'updraftplus');?></p><?php
-				}
-			}
+			global $updraftplus_admin;
+			$updraftplus_admin->curl_check('Dropbox', false);
 			?>
 			</td>
 			</tr>
@@ -285,7 +284,7 @@ class UpdraftPlus_BackupModule_dropbox {
 	}
 
 	function show_authed_admin_warning() {
-		global $updraftplus;
+		global $updraftplus_admin;
 
 		$dropbox = self::bootstrap();
 		$accountInfo = $dropbox->accountInfo();
@@ -298,7 +297,7 @@ class UpdraftPlus_BackupModule_dropbox {
 			$body = $accountInfo['body'];
 			$message .= ". ".sprintf(__('Your %s account name','updraftplus'),'Dropbox').": ".htmlspecialchars($body->display_name);
 		}
-		$updraftplus->show_admin_warning($message);
+		$updraftplus_admin->show_admin_warning($message);
 
 	}
 
@@ -347,7 +346,15 @@ class UpdraftPlus_BackupModule_dropbox {
 		// Get the DropBox API access details
 		list($d2, $d1) = self::defaults();
 		if (empty($sec)) { $sec = base64_decode($d1); }; if (empty($key)) { $key = base64_decode($d2); }
-		$OAuth = new Dropbox_Curl($sec, $key, $storage, $callback);
+
+		try {
+			$OAuth = new Dropbox_Curl($sec, $key, $storage, $callback);
+		} catch (Exception $e) {
+			global $updraftplus;
+			$updraftplus->log("Dropbox Curl Error: ".$e->getMessage());
+			$updraftplus->error("Dropbox Curl Error: ".$e->getMessage());
+			return false;
+		}
 		return new Dropbox_API($OAuth);
 	}
 

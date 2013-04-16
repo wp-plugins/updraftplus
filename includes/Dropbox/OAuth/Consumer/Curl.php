@@ -14,8 +14,7 @@ class Dropbox_Curl extends Dropbox_ConsumerAbstract
      * Default cURL options
      * @var array
      */
-    private $defaultOptions = array(
-        CURLOPT_SSL_VERIFYPEER => true,
+    protected $defaultOptions = array(
         CURLOPT_VERBOSE        => true,
         CURLOPT_HEADER         => true,
         CURLINFO_HEADER_OUT    => false,
@@ -23,6 +22,14 @@ class Dropbox_Curl extends Dropbox_ConsumerAbstract
         CURLOPT_FOLLOWLOCATION => false,
     );
     
+     /**
+     * Store the last response form the API
+     * @var mixed
+     */
+    protected $lastResponse = null;
+    
+    /**
+
     /**
      * Set properties and begin authentication
      * @param string $key
@@ -63,7 +70,14 @@ class Dropbox_Curl extends Dropbox_ConsumerAbstract
         
         // Get the default options array
         $options = $this->defaultOptions;
-        $options[CURLOPT_CAINFO] = dirname(__FILE__) . '/ca-bundle.pem';
+        if (!UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts')) {
+            $options[CURLOPT_CAINFO] = UPDRAFTPLUS_DIR.'/includes/cacert.pem';
+        }
+        if (UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify')) {
+            $options[CURLOPT_SSL_VERIFYPEER] = false;
+        } else {
+            $options[CURLOPT_SSL_VERIFYPEER] = true;
+        }
         
         if ($method == 'GET' && $this->outFile) { // GET
             $options[CURLOPT_RETURNTRANSFER] = false;
@@ -87,22 +101,59 @@ class Dropbox_Curl extends Dropbox_ConsumerAbstract
         // Set the cURL options at once
         curl_setopt_array($handle, $options);
         
-        // Execute and parse the response
+        // Execute, get any error and close
         $response = curl_exec($handle);
+        $error = curl_error($handle);
         curl_close($handle);
         
-        // Parse the response if it is a string
-        if (is_string($response)) {
-            $response = $this->parse($response);
+        //Check if a cURL error has occured
+        if ($response === false) {
+            throw new Dropbox_CurlException($error);
+        } else {
+            // Parse the response if it is a string
+            if (is_string($response)) {
+                $response = $this->parse($response);
+            }
+            
+            // Set the last response
+            $this->lastResponse = $response;
+            
+            // The API doesn't return an error message for the 304 status code...
+            // 304's are only returned when the path supplied during metadata calls has not been modified
+            if ($response['code'] == 304) {
+                $response['body'] = new \stdClass;
+                $response['body']->error = 'The folder contents have not changed';
+            }
+            
+            // Check if an error occurred and throw an Exception
+            if (!empty($response['body']->error)) {
+                // Dropbox returns error messages inconsistently...
+                if ($response['body']->error instanceof \stdClass) {
+                    $array = array_values((array) $response['body']->error);
+                    $message = $array[0];
+                } else {
+                    $message = $response['body']->error;
+                }
+                     
+                // Throw an Exception with the appropriate with the appropriate message and code
+                switch ($response['code']) {
+                    case 304:
+                        throw new Dropbox_NotModifiedException($message, 304);
+                    case 400:
+                        throw new Dropbox_BadRequestException($message, 400);
+                    case 404:
+                        throw new Dropbox_NotFoundException($message, 404);
+                    case 406:
+                        throw new Dropbox_NotAcceptableException($message, 406);
+                    case 415:
+                        throw new Dropbox_UnsupportedMediaTypeException($message, 415);
+                    default:
+                        throw new Dropbox_Exception($message, $response['code']);
+                }
+            }
+                
+            return $response;
         }
-        
-        // Check if an error occurred and throw an Exception
-        if (!empty($response['body']->error)) {
-            $message = $response['body']->error . ' (Status Code: ' . $response['code'] . ')';
-            throw new Dropbox_Exception($message);
-        }
-
-        return $response;
     }
     
     /**
@@ -153,4 +204,13 @@ class Dropbox_Curl extends Dropbox_ConsumerAbstract
         
         return array('code' => $code, 'body' => $body, 'headers' => $headers);
     }
+
+    /**
+     * Return the response for the last API request
+     * @return mixed
+     */
+    public function getlastResponse()
+    {
+       return $this->lastResponse;
+     }
 }

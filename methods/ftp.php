@@ -2,17 +2,28 @@
 
 class UpdraftPlus_BackupModule_ftp {
 
+	// Get FTP object with parameters set
+	function getFTP($server, $user, $pass, $disable_ssl = false, $passive = true) {
+
+		if( !class_exists('UpdraftPlus_ftp_wrapper')) require_once(UPDRAFTPLUS_DIR.'/includes/ftp.class.php');
+
+		$ftp = new UpdraftPlus_ftp_wrapper($server, $user, $pass);
+
+		if ($disable_ssl) $ftp->ssl = false;
+		if ($passive) $ftp->passive = true;
+
+		return $ftp;
+
+	}
+
 	function backup($backup_array) {
 
 		global $updraftplus;
 
-		if( !class_exists('UpdraftPlus_ftp_wrapper')) require_once(UPDRAFTPLUS_DIR.'/includes/ftp.class.php');
-
 		$server = UpdraftPlus_Options::get_updraft_option('updraft_server_address');
-
 		$user = UpdraftPlus_Options::get_updraft_option('updraft_ftp_login');
-		$ftp = new UpdraftPlus_ftp_wrapper($server , $user, UpdraftPlus_Options::get_updraft_option('updraft_ftp_pass'));
-		$ftp->passive = true;
+
+		$ftp = $this->getFTP($server, $user, UpdraftPlus_Options::get_updraft_option('updraft_ftp_pass'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_nossl'));
 
 		if (!$ftp->connect()) {
 			$updraftplus->log("FTP Failure: we did not successfully log in with those credentials.");
@@ -30,7 +41,7 @@ class UpdraftPlus_BackupModule_ftp {
 			$updraftplus->log("FTP upload attempt: $file -> ftp://$user@$server/${ftp_remote_path}${file}");
 			$timer_start = microtime(true);
 			$size_k = round(filesize($fullpath)/1024,1);
-			if ($ftp->put($fullpath, $ftp_remote_path.$file, FTP_BINARY)) {
+			if ($ftp->put($fullpath, $ftp_remote_path.$file, FTP_BINARY, true, $updraftplus)) {
 				$updraftplus->log("FTP upload attempt successful (".$size_k."Kb in ".(round(microtime(true)-$timer_start,2)).'s)');
 				$updraftplus->uploaded_file($file);
 			} else {
@@ -56,9 +67,13 @@ class UpdraftPlus_BackupModule_ftp {
 	function download($file) {
 		if( !class_exists('UpdraftPlus_ftp_wrapper')) require_once(UPDRAFTPLUS_DIR.'/includes/ftp.class.php');
 
-		//handle errors at some point TODO
-		$ftp = new UpdraftPlus_ftp_wrapper(UpdraftPlus_Options::get_updraft_option('updraft_server_address'),UpdraftPlus_Options::get_updraft_option('updraft_ftp_login'),UpdraftPlus_Options::get_updraft_option('updraft_ftp_pass'));
-		$ftp->passive = true;
+		global $updraftplus;
+
+		$ftp = $this->getFTP(
+			UpdraftPlus_Options::get_updraft_option('updraft_server_address'),
+			UpdraftPlus_Options::get_updraft_option('updraft_ftp_login'),
+			UpdraftPlus_Options::get_updraft_option('updraft_ftp_pass'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_nossl')
+		);
 
 		if (!$ftp->connect()) {
 			$updraftplus->log("FTP Failure: we did not successfully log in with those credentials.");
@@ -71,7 +86,13 @@ class UpdraftPlus_BackupModule_ftp {
 		$ftp_remote_path = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_ftp_remote_path'));
 		$fullpath = $updraftplus->backups_dir_location().'/'.$file;
 
-		$ftp->get($fullpath, $ftp_remote_path.$file, FTP_BINARY);
+		$resume = false;
+		if (file_exists($fullpath)) {
+			$resume = true;
+			$updraftplus->log("File already exists locally; will resume: size: ".filesize($fullpath));
+		}
+
+		$ftp->get($fullpath, $ftp_remote_path.$file, FTP_BINARY, $resume, $updraftplus);
 	}
 
 	public static function config_print_javascript_onready() {
@@ -85,7 +106,10 @@ class UpdraftPlus_BackupModule_ftp {
 				server: jQuery('#updraft_server_address').val(),
 				login: jQuery('#updraft_ftp_login').val(),
 				pass: jQuery('#updraft_ftp_pass').val(),
-				path: jQuery('#updraft_ftp_remote_path').val()
+				path: jQuery('#updraft_ftp_remote_path').val(),
+				disableverify: (jQuery('#updraft_ssl_disableverify').is(':checked')) ? 1 : 0,
+				useservercerts: (jQuery('#updraft_ssl_useservercerts').is(':checked')) ? 1 : 0,
+				nossl: (jQuery('#updraft_ssl_nossl').is(':checked')) ? 1 : 0,
 			};
 			jQuery.post(ajaxurl, data, function(response) {
 					alert('<?php _e('Settings test result','updraftplus');?>: ' + response);
@@ -98,8 +122,13 @@ class UpdraftPlus_BackupModule_ftp {
 		?>
 
 		<tr class="updraftplusmethod ftp">
+			<td></td>
+			<td><p><em><?php printf(__('%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your blog is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.','updraftplus'),'FTP');?></em></p></td>
+		</tr>
+
+		<tr class="updraftplusmethod ftp">
 			<th></th>
-			<td><em><?php echo apply_filters('updraft_sftp_ftps_notice', '<strong>'.__('Only non-encrypted FTP is supported by regular UpdraftPlus.').'</strong> <a href="http://updraftplus.com/shop/sftp/">'.__('If you want encryption (e.g. you are storing sensitive business data), then an add-on is available.','updraftplus')).'</a>'; ?></em></td>
+			<td><em><?php echo apply_filters('updraft_sftp_ftps_notice', '<strong>'.htmlspecialchars(__('Only non-encrypted FTP is supported by regular UpdraftPlus.').'</strong> <a href="http://updraftplus.com/shop/sftp/">'.__('If you want encryption (e.g. you are storing sensitive business data), then an add-on is available.','updraftplus'))).'</a>'; ?></em></td>
 		</tr>
 
 		<tr class="updraftplusmethod ftp">
@@ -131,6 +160,7 @@ class UpdraftPlus_BackupModule_ftp {
 		$login = $_POST['login'];
 		$pass = $_POST['pass'];
 		$path = $_POST['path'];
+		$nossl = $_POST['nossl'];
 
 		if (empty($server)) {
 			_e("Failure: No server details were given.",'updraftplus');
@@ -145,11 +175,7 @@ class UpdraftPlus_BackupModule_ftp {
 			return;
 		}
 
-		if( !class_exists('UpdraftPlus_ftp_wrapper')) require_once(UPDRAFTPLUS_DIR.'/includes/ftp.class.php');
-
-		//handle SSL and errors at some point TODO
-		$ftp = new UpdraftPlus_ftp_wrapper($server, $login, $pass);
-		$ftp->passive = true;
+		$ftp = self::getFTP($server, $login, $pass, $nossl);
 
 		if (!$ftp->connect()) {
 			_e("Failure: we did not successfully log in with those credentials.",'updraftplus');
@@ -163,7 +189,7 @@ class UpdraftPlus_BackupModule_ftp {
 			_e("Failure: an unexpected internal UpdraftPlus error occurred when testing the credentials - please contact the developer");
 			return;
 		}
-		if ($ftp->put(ABSPATH.'wp-includes/version.php', $fullpath, FTP_BINARY)) {
+		if ($ftp->put(ABSPATH.'wp-includes/version.php', $fullpath, FTP_BINARY, false)) {
 			echo __("Success: we successfully logged in, and confirmed our ability to create a file in the given directory (login type:",'updraftplus')." ".$ftp->login_type.')';
 			@$ftp->delete($fullpath);
 		} else {
