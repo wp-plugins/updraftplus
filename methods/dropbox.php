@@ -346,7 +346,15 @@ class UpdraftPlus_BackupModule_dropbox {
 		// Get the DropBox API access details
 		list($d2, $d1) = self::defaults();
 		if (empty($sec)) { $sec = base64_decode($d1); }; if (empty($key)) { $key = base64_decode($d2); }
-		$OAuth = new Dropbox_Curl($sec, $key, $storage, $callback);
+
+		try {
+			$OAuth = new Dropbox_Curl($sec, $key, $storage, $callback);
+		} catch (Exception $e) {
+			global $updraftplus;
+			$updraftplus->log("Dropbox Curl Error: ".$e->getMessage());
+			$updraftplus->error("Dropbox Curl Error: ".$e->getMessage());
+			return false;
+		}
 		return new Dropbox_API($OAuth);
 	}
 

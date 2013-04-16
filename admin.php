@@ -179,7 +179,7 @@ class UpdraftPlus_Admin {
 	}
 
 	function show_admin_warning_dropbox() {
-		$this->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus').':</strong> <a href="options-general.php?page=updraftplus&action=updraftmethod-dropbox-auth&updraftplus_dropboxauth=doit">.'.sprintf(__('Click here to authenticate your %s account (you will not be able to back up to %s without it).','updraftplus'),'Dropbox','Dropbox').'</a>');
+		$this->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus').'</strong> <a href="options-general.php?page=updraftplus&action=updraftmethod-dropbox-auth&updraftplus_dropboxauth=doit">'.sprintf(__('Click here to authenticate your %s account (you will not be able to back up to %s without it).','updraftplus'),'Dropbox','Dropbox').'</a>');
 	}
 
 	function show_admin_warning_googledrive() {
@@ -719,10 +719,11 @@ class UpdraftPlus_Admin {
 			<?php
 			}
 			if(!empty($updraftplus->errors)) {
+				echo '<div class="error fade" style="padding:8px;">';
 				foreach($updraftplus->errors as $error) {
-					// ignoring severity
-					echo '<div style="color:red">'.$error['error'].'</div>';
+					echo '<div style="color:red">'.$error.'</div>';
 				}
+				echo '</div>';
 			}
 			?>
 

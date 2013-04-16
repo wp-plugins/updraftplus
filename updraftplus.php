@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.5.21
+Version: 1.5.22
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -1563,7 +1563,7 @@ class UpdraftPlus {
 	}
 
 	function error($error) {
-		if (count($this->errors) == 0) $this->log("An error condition has occurred for the first time on this run");
+		if (count($this->errors) == 0) $this->log("An error condition has occurred for the first time during this job");
 		$this->errors[] = $error;
 		return true;
 	}
