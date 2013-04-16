@@ -53,8 +53,6 @@ Many thanks to the existing translators:
 * Magyar / Hungarian (hu_HU): Szépe Viktor - http://www.szepe.net
 * Spanish / Español (es_ES): Fernando Villasmil - villasmil.fernando@gmail.com               
 
-Disclaimer: Use of a translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
-
 = Other support =
 
 We hang out in the support forum for this plugin - http://wordpress.org/support/plugin/updraftplus - however, to save our time so that we can spend it on development, please read the plugin's Frequently Asked Questions - <a href="http://updraftplus.com/support/frequently-asked-questions/">http://updraftplus.com/support/frequently-asked-questions/</a> - before going there, and ensure that you have updated to the latest released version of UpdraftPlus.

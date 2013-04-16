@@ -317,6 +317,7 @@ class UpdraftPlus {
 		$this->logfile_handle = fopen($this->logfile_name, 'a');
 		$this->opened_log_time = microtime(true);
 		$this->log('Opened log file at time: '.date('r'));
+		@include(ABSPATH.'wp-includes/version.php');
 		global $wp_version;
 		$logline = "UpdraftPlus: ".$this->version." WP: ".$wp_version." PHP: ".phpversion()." (".php_uname().") Server: ".$_SERVER["SERVER_SOFTWARE"]." max_execution_time: ".@ini_get("max_execution_time")." memory_limit: ".ini_get('memory_limit')." ZipArchive::addFile : ";
 
