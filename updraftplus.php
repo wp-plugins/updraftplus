@@ -14,7 +14,11 @@ Author URI: http://updraftplus.com
 /*
 TODO - some of these are out of date/done, needs pruning
 // Add an appeal for translators to email me.
+// Check Dropbox free space before upload
 // Search for other TODO-s in the code
+// More files add-on: allow further backup of arbitrary directories
+// More DB add-on
+// Unlimited customers should be auto-emailed each time they add a site (security)
 // Update all-features page at updraftplus.com (not updated after 1.5.5)
 // Better Dropbox errors (see item in To-Do box)
 // Count available time before doing a database restore
