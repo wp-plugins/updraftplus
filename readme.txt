@@ -113,6 +113,9 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
+= 1.5.23 - not yet released/supported =
+* Fix mcrypt call in Dropbox module to be compatible with PHP 5.2/Windows
+
 = 1.5.22 - 04/16/2013 =
 * FIX: 1.5.21 broke Dropbox authentication for some users. Upgrade if you had that issue.
 

@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.5.22
+Version: 1.5.23
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -14,6 +14,7 @@ Author URI: http://updraftplus.com
 /*
 TODO - some of these are out of date/done, needs pruning
 // Add an appeal for translators to email me.
+// Migrator - search+replace the database, list+download from remote, kick-off backup remotely
 // Check Dropbox free space before upload
 // Search for other TODO-s in the code
 // More files add-on: allow further backup of arbitrary directories
@@ -30,7 +31,6 @@ TODO - some of these are out of date/done, needs pruning
 // Affiliate links? (I have no need...)
 // Convert S3.php to use WP's native HTTP functions
 // Ability to re-scan existing cloud storage
-// Migrator - search+replace the database, list+download from remote, kick-off backup remotely
 // Dropbox uses one mcrypt function - port to phpseclib for more portability
 // Store meta-data on which version of UD the backup was made with (will help if we ever introduce quirks that need ironing)
 // Test restoration when uploads dir is /assets/ (e.g. with Shoestrap theme)
