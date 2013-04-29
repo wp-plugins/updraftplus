@@ -14,6 +14,8 @@ Easy and complete backups and restoration. Manual or automated backups (Amazon S
 
 <a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3, Dropbox, Google Drive, Rackspace Cloud, FTP, SFTP, WebDAV and email) and restore with a single click. Backups of files and database can have separate schedules.
 
+* Thousands of users: widely tested and reliable (over 115,000 downloads). Ranks 102 on rankwp.com out of 24,000 plugins (top 0.5%).
+* Top-quality: ranks 38th out of 24,000 plugins for quality on rankwp.com (top 0.25% - last checked 26th April 2013).
 * Supports backups to Amazon S3, Dropbox, Google Drive, Rackspace Cloud Files, FTP (including SSL), email, SFTP and WebDAV
 * Quick restore (both file and database backups)
 * Backup automatically on a repeating schedule
@@ -24,7 +26,6 @@ Easy and complete backups and restoration. Manual or automated backups (Amazon S
 * Download backup archives direct from your WordPress dashboard
 * Database backups can be encrypted for security
 * Debug mode that gives full logging of the backup
-* Thousands of users: widely tested and reliable (over 100,000 downloads)
 * Internationalised (translations very welcome - see below)
 * Premium version and support available - <a href="http://updraftplus.com">http://updraftplus.com</a>
 * Tested and supported on all current PHP versions (5.2, 5.3, 5.4)
@@ -51,7 +52,8 @@ Many thanks to the existing translators:
 
 * Deutsch / German (de_DE): Marcel Herrguth - mherrguth@mrgeneration.de
 * Magyar / Hungarian (hu_HU): Szépe Viktor - http://www.szepe.net
-* Spanish / Español (es_ES): Fernando Villasmil - villasmil.fernando@gmail.com               
+* Español / Spanish (es_ES): Fernando Villasmil - villasmil.fernando@gmail.com
+* Nederlands / Dutch (nl_NL): Hans van der Vlist - hansvandervlist@gmail.com
 
 = Other support =
 
@@ -113,8 +115,16 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.5.23 - not yet released/supported =
-* Fix mcrypt call in Dropbox module to be compatible with PHP 5.2/Windows
+= 1.6.0 - not yet released/supported =
+* FEATURE: New "Migrator" add-on for moving sites from one WordPress install to another
+* FEATURE: The "more files" add-on can now back up any files from anywhere on your filesystem (not just parts of WordPress)
+* FEATURE: The "more files" add-on can now exclude specified directories from the backup of WordPress core
+* FEATURE: Dropbox and Google Drive now check available quota before uploading
+* FEATURE: Nederlands / Dutch (nl_NL) translation: thanks to Hans van der Vlist - hansvandervlist@gmail.com
+* FIX: Fix mcrypt call in Dropbox module to be compatible with PHP 5.2/Windows
+* FIX: Allow top-level "Restore" button even if no backup sets currently known (to allow uploading some)
+* TWEAK: Database backup now includes more info about original WP install (e.g. WP/PHP versions)
+* TWEAK: The "more files" add-on now allows the user to choose whether to restore wp-config.php or not (and gives help)
 
 = 1.5.22 - 04/16/2013 =
 * FIX: 1.5.21 broke Dropbox authentication for some users. Upgrade if you had that issue.

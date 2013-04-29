@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.5.23
+Version: 1.6.0
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -14,16 +14,20 @@ Author URI: http://updraftplus.com
 /*
 TODO - some of these are out of date/done, needs pruning
 // Add an appeal for translators to email me.
+// Deal with gigantic database tables - e.g. those over a million rows on cheap hosting. Also indicate beforehand how many rows there are.
+// When restoring core, need an option to retain database settings / exclude wp-config.php
+// Produce a command-line version of the restorer (so that people with shell access are immune from server-enforced timeouts)
+// More sophisticated pruning options - e.g. "but only keep 1 backup every <x> <days> after <y> <weeks>"
 // Migrator - search+replace the database, list+download from remote, kick-off backup remotely
-// Check Dropbox free space before upload
+// April 20, 2015: This is the date when the Google Documents API is likely to stop working (https://developers.google.com/google-apps/documents-list/terms)
+// Fix-time add-on should also fix the day/date, when relevant
 // Search for other TODO-s in the code
-// More files add-on: allow further backup of arbitrary directories
-// More DB add-on
+// Stand-alone installer - take a look at this: http://wordpress.org/extend/plugins/duplicator/screenshots/
+// Migrator should search+replace table by table if possible. Pick the "Backup of: " field out the db dump to get site_url() in advance. Perform an action each table. Remember which ones have been done. Then at the end, pick up those not done.
+// More DB add-on (other non-WP tables; even other databases)
 // Unlimited customers should be auto-emailed each time they add a site (security)
 // Update all-features page at updraftplus.com (not updated after 1.5.5)
-// Better Dropbox errors (see item in To-Do box)
 // Count available time before doing a database restore
-// Put in more info on the restoration process, especially advice
 // Add in downloading in the 'Restore' modal, and remove the advice to do so manually.
 // Save database encryption key inside backup history on per-db basis, so that if it changes we can still decrypt
 // Switch to Google Drive SDK. Google folders. https://developers.google.com/drive/folder
@@ -40,7 +44,7 @@ TODO - some of these are out of date/done, needs pruning
 //Do an automated test periodically for the success of loop-back connections
 //When a manual backup is run, use a timer to update the 'Download backups and logs' section, just like 'Last finished backup run'. Beware of over-writing anything that's in there from a resumable downloader.
 //Change DB encryption to not require whole gzip in memory (twice)
-//Add Box.Net, SugarSync and Microsoft Skydrive support??
+//Add DreamObjects, Box.Net, SugarSync, Me.Ga and Microsoft Skydrive support??
 //Make it easier to find add-ons
 //The restorer has a hard-coded wp-content - fix
 //?? On 'backup now', open up a modal, count down 5 seconds, open page via modal, then start examining the log file (if it can be found)
@@ -233,7 +237,8 @@ class UpdraftPlus {
 	function handle_url_actions() {
 
 		// First, basic security check: must be an admin page, with ability to manage options, with the right parameters
-		if ( UpdraftPlus_Options::user_can_manage() && isset( $_GET['page'] ) && $_GET['page'] == 'updraftplus' && isset($_GET['action']) ) {
+		// Also, only on GET because WordPress on the options page repeats parameters sometimes when POST-ing via the _wp_referer field
+		if (isset($_SERVER['REQUEST_METHOD']) && 'GET' == $_SERVER['REQUEST_METHOD'] && UpdraftPlus_Options::user_can_manage() && isset( $_GET['page'] ) && $_GET['page'] == 'updraftplus' && isset($_GET['action']) ) {
 			if (preg_match("/^updraftmethod-([a-z]+)-([a-z]+)$/", $_GET['action'], $matches) && file_exists(UPDRAFTPLUS_DIR.'/methods/'.$matches[1].'.php')) {
 				$method = $matches[1];
 				require_once(UPDRAFTPLUS_DIR.'/methods/'.$method.'.php');
@@ -422,7 +427,7 @@ class UpdraftPlus {
 
 		$arr = apply_filters('updraft_backupable_file_entities', $arr, $full_info);
 
-		// We always then add 'others' on to the end
+		// We then add 'others' on to the end
 		if ($include_others) {
 			if ($full_info) {
 				$arr['others'] = array('path' => WP_CONTENT_DIR, 'description' => __('Others','updraftplus'));
@@ -430,6 +435,9 @@ class UpdraftPlus {
 				$arr['others'] = WP_CONTENT_DIR;
 			}
 		}
+
+		// Entries that should be added after 'others'
+		$arr = apply_filters('updraft_backupable_file_entities_final', $arr, $full_info);
 
 		return $arr;
 
@@ -1274,9 +1282,14 @@ class UpdraftPlus {
 
 	function backup_db_header() {
 
-		//Begin new backup of MySql
-		$this->stow("# " . 'WordPress MySQL database backup' . "\n");
-		$this->stow("# " . 'Created by UpdraftPlus (http://updraftplus.com)' . "\n");
+		@include(ABSPATH.'wp-includes/version.php');
+		global $wp_version;
+
+		$this->stow("# WordPress MySQL database backup\n");
+		$this->stow("# Created by UpdraftPlus version ".$this->version." (http://updraftplus.com)\n");
+		$this->stow("# WordPress Version: $wp_version, running on PHP ".phpversion()." (".$_SERVER["SERVER_SOFTWARE"].")\n");
+		$this->stow("# Backup of: ".site_url()."\n");
+
 		$this->stow("#\n");
 		$this->stow("# " . sprintf(__('Generated: %s','wp-db-backup'),date("l j. F Y H:i T")) . "\n");
 		$this->stow("# " . sprintf(__('Hostname: %s','wp-db-backup'),DB_HOST) . "\n");

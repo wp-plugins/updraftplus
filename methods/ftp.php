@@ -123,7 +123,7 @@ class UpdraftPlus_BackupModule_ftp {
 
 		<tr class="updraftplusmethod ftp">
 			<td></td>
-			<td><p><em><?php printf(__('%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your blog is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.','updraftplus'),'FTP');?></em></p></td>
+			<td><p><em><?php printf(__('%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your site is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.','updraftplus'),'FTP');?></em></p></td>
 		</tr>
 
 		<tr class="updraftplusmethod ftp">

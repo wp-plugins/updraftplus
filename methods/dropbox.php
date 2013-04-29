@@ -59,6 +59,35 @@ class UpdraftPlus_BackupModule_dropbox {
 
 		foreach($backup_array as $file) {
 
+			$available_quota = -1;
+
+			// If we experience any failures collecting account info, then carry on anyway
+			try {
+
+				$accountInfo = $dropbox->accountInfo();
+
+				if ($accountInfo['code'] != "200") {
+					$message = "Dropbox account/info did not return HTTP 200; returned: ". $accountInfo['code'];
+				} elseif (!isset($accountInfo['body'])) {
+					$message = "Dropbox account/info did not return the expected data";
+				} else {
+					$body = $accountInfo['body'];
+					if (!isset($body->quota_info)) {
+						$message = "Dropbox account/info did not return the expected data";
+					} else {
+						$quota_info = $body->quota_info;
+						$total_quota = $quota_info->quota;
+						$normal_quota = $quota_info->normal;
+						$shared_quota = $quota_info->shared;
+						$available_quota = $total_quota - ($normal_quota + $shared_quota);
+						$message = "Dropbox quota usage: normal=".round($normal_quota/1048576,1)." Mb, shared=".round($shared_quota/1048576,1)." Mb, total=".round($total_quota/1048576,1)." Mb, available=".round($available_quota/1048576,1)." Mb";
+					}
+				}
+				$updraftplus->log($message);
+			} catch (Exception $e) {
+				$updraftplus->log("Dropbox error: exception occurred whilst getting account info: ".$e->getMessage());
+			}
+
 			$file_success = 1;
 
 			$hash = md5($file);
@@ -66,6 +95,13 @@ class UpdraftPlus_BackupModule_dropbox {
 
 			$filesize = filesize($updraft_dir.'/'.$file);
 			$this->current_file_size = $filesize;
+
+			// We don't actually abort now - there's no harm in letting it try and then fail
+			if ($available_quota != -1 && $available_quota < $filesize) {
+				$updraftplus->log("File upload expected to fail: file ($file) size is $filesize b, whereas available quota is only $available_quota b");
+				$updraftplus->error(sprintf(__("Account full: your %s account has only %d bytes left, but the file to be uploaded is %d bytes",'updraftplus'),'Dropbox', $available_quota, $filesize));
+			}
+
 			// Into Kb
 			$filesize = $filesize/1024;
 			$microtime = microtime(true);
@@ -220,7 +256,7 @@ class UpdraftPlus_BackupModule_dropbox {
 				<td></td>
 				<td>
 				<img alt="Dropbox logo" src="<?php echo UPDRAFTPLUS_URL.'/images/dropbox-logo.png' ?>">
-				<p><em><?php printf(__('%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your blog is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.','updraftplus'),'Dropbox');?></em></p>
+				<p><em><?php printf(__('%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your site is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.','updraftplus'),'Dropbox');?></em></p>
 				</td>
 			</tr>
 
@@ -295,7 +331,19 @@ class UpdraftPlus_BackupModule_dropbox {
 			$message .= " (".__('though part of the returned information was not as expected - your mileage may vary','updraftplus').")". $accountInfo['code'];
 		} else {
 			$body = $accountInfo['body'];
-			$message .= ". ".sprintf(__('Your %s account name','updraftplus'),'Dropbox').": ".htmlspecialchars($body->display_name);
+			$message .= ". <br>".sprintf(__('Your %s account name: %s','updraftplus'),'Dropbox', htmlspecialchars($body->display_name));
+
+			try {
+				$quota_info = $body->quota_info;
+				$total_quota = max($quota_info->quota, 1);
+				$normal_quota = $quota_info->normal;
+				$shared_quota = $quota_info->shared;
+				$available_quota =$total_quota - ($normal_quota + $shared_quota);
+				$used_perc = round(($normal_quota + $shared_quota)*100/$total_quota, 1);
+				$message .= ' <br>'.sprintf(__('Your %s quota usage: %s %% used, %s available','updraftplus'), 'Dropbox', $used_perc, round($available_quota/1048576, 1).' Mb');
+			} catch (Exception $e) {
+			}
+
 		}
 		$updraftplus_admin->show_admin_warning($message);
 

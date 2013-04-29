@@ -31,6 +31,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		$this->skin->feedback('unpack_package');
 
 		$upgrade_folder = $wp_filesystem->wp_content_dir() . 'upgrade/';
+		@$wp_filesystem->mkdir($upgrade_folder, 0775);
 
 		//Clean up contents of upgrade directory beforehand.
 		$upgrade_files = $wp_filesystem->dirlist($upgrade_folder);
@@ -46,7 +47,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		if ( $wp_filesystem->is_dir($working_dir) )
 			$wp_filesystem->delete($working_dir, true);
 
-		if (!$wp_filesystem->mkdir($working_dir, 0775)) return new WP_Error('mkdir_failed', __('Failed to create a temporary directory','updraftplus'));
+		if (!$wp_filesystem->mkdir($working_dir, 0775)) return new WP_Error('mkdir_failed', __('Failed to create a temporary directory','updraftplus').' ('.$working_dir.')');
 
 		// Unpack package to working directory
 		if (preg_match('/\.crypt$/i', $package)) {
@@ -82,7 +83,7 @@ class Updraft_Restorer extends WP_Upgrader {
 	}
 
 	// For moving files out of a directory into their new location
-	// The only purpose of the $type parameter is to detect 'others' and apply a historical bugfix
+	// The only purpose of the $type parameter is 1) to detect 'others' and apply a historical bugfix 2) to detect wpcore, and apply the setting for what to do with wp-config.php
 	// Must use only wp_filesystem
 	// $dest_dir must already have a trailing slash
 	function move_backup_in($working_dir, $dest_dir, $make_backup = true, $do_not_overwrite = array('plugins', 'themes', 'uploads', 'upgrade'), $type = 'not-others') {
@@ -104,6 +105,17 @@ class Updraft_Restorer extends WP_Upgrader {
 					$wp_filesystem->move($working_dir . "/$file", $working_dir . "/".$tmp_file, true);
 					$wp_filesystem->move($working_dir . "/$tmp_file/$file", $working_dir ."/".$file, true);
 					$wp_filesystem->rmdir($working_dir . "/$tmp_file", false);
+				}
+
+				if ('wpcore' == $type && 'wp-config.php' == $file) {
+					if (empty($_POST['updraft_restorer_wpcore_includewpconfig'])) {
+						_e('wp-config.php from backup: will restore as wp-config-backup.php', 'updraftplus');
+						$wp_filesystem->move($working_dir . "/$file", $working_dir . "/wp-config-backup.php", true);
+						$file = "wp-config-backup.php";
+					} else {
+						_e('wp-config.php from backup: restoring (as per user\'s request)', 'updraftplus');
+					}
+					echo '<br>';
 				}
 
 				# Sanity check (should not be possible as these were excluded at backup time)
@@ -137,11 +149,14 @@ class Updraft_Restorer extends WP_Upgrader {
 
 	function restore_backup($backup_file, $type, $service, $info) {
 
+		if ($type == 'more') {
+			show_message($this->strings['not_possible']);
+			return;
+		}
+
 		global $wp_filesystem;
 		$this->init();
 		$this->backup_strings();
-
-		$dirname = basename($info['path']);
 
 		$res = $this->fs_connect(array(ABSPATH, WP_CONTENT_DIR) );
 		if(!$res) exit;
@@ -166,11 +181,15 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		if ($type == 'others' ) {
 
+			$dirname = basename($info['path']);
+
 			// In this special case, the backup contents are not in a folder, so it is not simply a case of moving the folder around, but rather looping over all that we find
 
 			$this->move_backup_in($working_dir, $wp_dir."wp-content/", true, array('plugins', 'themes', 'uploads', 'upgrade'), 'others');
 
 		} elseif ('db' == $type) {
+
+			do_action('updraftplus_restore_db_pre');
 
 			// There is a file backup.db.gz inside the working directory
 
@@ -180,8 +199,6 @@ class Updraft_Restorer extends WP_Upgrader {
 				return false;
 			}
 
-
-			global $wpdb;
 
 			if (!is_readable($working_dir.'/backup.db.gz')) return new WP_Error('gzopen_failed',__('Failed to find database file','updraftplus'));
 
@@ -193,9 +210,13 @@ class Updraft_Restorer extends WP_Upgrader {
 
 			$line = 0;
 
+			global $wpdb;
+
 			// Line up a wpdb-like object to use
 			// mysql_query will throw E_DEPRECATED from PHP 5.5, so we expect WordPress to have switched to something else by then
-			$use_wpdb = (version_compare(phpversion(), '5.5', '>=') || !function_exists('mysql_query') || !$wpdb->is_mysql || !$wpdb->ready) ? true : false;
+// 			$use_wpdb = (version_compare(phpversion(), '5.5', '>=') || !function_exists('mysql_query') || !$wpdb->is_mysql || !$wpdb->ready) ? true : false;
+			// Seems not - PHP 5.5 is immanent for release
+			$use_wpdb = (!function_exists('mysql_query') || !$wpdb->is_mysql || !$wpdb->ready) ? true : false;
 
 			if (false == $use_wpdb) {
 				// We have our own extension which drops lots of the overhead on the query
@@ -235,7 +256,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 				# The timed overhead of this is negligible
 				if (preg_match('/^\s*create table \`?([^\`]*)`?\s+\(/i', $sql_line, $matches)) {
-					echo __('Restoring table','updraftplus').": ".htmlspecialchars($matches[1])."<br>";
+					echo '<strong>'.__('Restoring table','updraftplus').":</strong> ".htmlspecialchars($matches[1])."<br>";
 				}
 				
 				if ($use_wpdb) {
@@ -247,7 +268,7 @@ class Updraft_Restorer extends WP_Upgrader {
 				}
 				
 				if (!$req) {
-					echo sprintf(_x('An error (%s) occured:', 'The user is being told the number of times an error has happened, e.g. An error (27) occurred', 'updraftplus'), $errors).' '.$wpdb_obj->last_error.' - '.__('the database query being run was: ','updraftplus').' '.htmlspecialchars($sql_line).'<br>';
+					echo sprintf(_x('An error (%s) occured:', 'The user is being told the number of times an error has happened, e.g. An error (27) occurred', 'updraftplus'), $errors)." - ".htmlspecialchars($last_error)." - ".__('the database query being run was:','updraftplus').' '.htmlspecialchars($sql_line).'<br>';
 					$errors++;
 					if ($errors>49) {
 						return new WP_Error('too_many_db_errors', __('Too many database errors have occurred - aborting restoration (you will need to restore manually)','updraftplus'));
@@ -271,6 +292,8 @@ class Updraft_Restorer extends WP_Upgrader {
 			@unlink($working_dir.'/backup.db.gz');
 
 		} else {
+
+			$dirname = basename($info['path']);
 
 			show_message($this->strings['moving_old']);
 
@@ -304,6 +327,7 @@ class Updraft_Restorer extends WP_Upgrader {
 				@$wp_filesystem->chmod($wp_dir . "wp-content/$dirname", 0775, true);
 			break;
 			case 'db':
+				do_action('updraftplus_restored_db');
 			break;
 			default:
 				@$wp_filesystem->chmod($wp_dir . "wp-content/$dirname", FS_CHMOD_DIR);
