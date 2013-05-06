@@ -327,7 +327,7 @@ class UpdraftPlus_Admin {
 
 		if (!$service) $service = UpdraftPlus_Options::get_updraft_option('updraft_service');
 
-		$updraftplus->log("Requested file from remote service: $service:$file");
+		$updraftplus->log("Requested file from remote service: $service: $file");
 
 		$method_include = UPDRAFTPLUS_DIR.'/methods/'.$service.'.php';
 		if (file_exists($method_include)) require_once($method_include);
@@ -603,8 +603,8 @@ class UpdraftPlus_Admin {
 
 		/*
 		we use request here because the initial restore is triggered by a POSTed form. we then may need to obtain credentials 
-		for the WP_Filesystem. to do this WP outputs a form that we can't insert variables into (apparently). So the values are 
-		passed back in as GET parameters. REQUEST covers both GET and POST so this weird logic works.
+		for the WP_Filesystem. to do this WP outputs a form, but we don't pass our parameters via that. So the values are 
+		passed back in as GET parameters. REQUEST covers both GET and POST so this logic works.
 		*/
 		if(isset($_REQUEST['action']) && $_REQUEST['action'] == 'updraft_restore' && isset($_REQUEST['backup_timestamp'])) {
 			$backup_success = $this->restore_backup($_REQUEST['backup_timestamp']);
@@ -1751,7 +1751,17 @@ ENDHERE;
 			return false;
 		}
 
-		$credentials = request_filesystem_credentials("options-general.php?page=updraftplus&action=updraft_restore&backup_timestamp=$timestamp"); 
+		// request_filesystem_credentials passes on fields just via hidden name/value pairs.
+		// Build array of parameters to be passed via this
+		$extra_fields = array();
+		if (isset($_POST['updraft_restore']) && is_array($_POST['updraft_restore'])) {
+			foreach ($_POST['updraft_restore'] as $entity) {
+				$_POST['updraft_restore_'.$entity] = 1;
+				$extra_fields[] = 'updraft_restore_'.$entity;
+			}
+		}
+
+		$credentials = request_filesystem_credentials("options-general.php?page=updraftplus&action=updraft_restore&backup_timestamp=$timestamp", '', false, false, $extra_fields);
 		WP_Filesystem($credentials);
 		if ( $wp_filesystem->errors->get_error_code() ) { 
 			foreach ( $wp_filesystem->errors->get_error_messages() as $message )
@@ -1766,13 +1776,31 @@ ENDHERE;
 
 		$service = (isset($backup_history[$timestamp]['service'])) ? $backup_history[$timestamp]['service'] : false;
 
-		if ((!isset($_POST['updraft_restore'])) || (!is_array($_POST['updraft_restore']))) {
+		// Now, need to turn any updraft_restore_<entity> fields (that came from a potential WP_Filesystem form) back into parts of the _POST array (which we want to use)
+		if (empty($_POST['updraft_restore']) || (!is_array($_POST['updraft_restore']))) $_POST['updraft_restore'] = array();
+
+		$entities_to_restore = array_flip($_POST['updraft_restore']);
+
+		foreach ($_POST as $key => $value) {
+			if (strpos($key, 'updraft_restore_') === 0) {
+				$nkey = substr($key, 16);
+				if (!isset($entities_to_restore[$nkey])) {
+					$_POST['updraft_restore'][] = $nkey;
+					$entities_to_restore[$nkey] = 1;
+				}
+			}
+		}
+
+		if (count($_POST['updraft_restore']) == 0) {
 			echo '<p>'.__('ABORT: Could not find the information on which entities to restore.', 'updraftplus').'</p>';
 			echo '<p>'.__('If making a request for support, please include this information:','updraftplus').' '.count($_POST).' : '.htmlspecialchars(serialize($_POST)).'</p>';
 			return false;
 		}
 
-		$entities_to_restore = array_flip($_POST['updraft_restore']);
+		/*
+		$_POST['updraft_restore'] is typically something like: array( 0=>'db', 1=>'plugins', 2=>'themes'), etc.
+		i.e. array ( 'db', 'plugins', themes')
+		*/
 
 		$backupable_entities = $updraftplus->get_backupable_file_entities(true, true);
 
