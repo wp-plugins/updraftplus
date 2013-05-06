@@ -14,7 +14,7 @@ Easy and complete backups and restoration. Manual or automated backups (Amazon S
 
 <a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3, Dropbox, Google Drive, Rackspace Cloud, FTP, SFTP, WebDAV and email) and restore with a single click. Backups of files and database can have separate schedules.
 
-* Thousands of users: widely tested and reliable (over 115,000 downloads). Ranks 102 on rankwp.com out of 24,000 plugins (top 0.5%).
+* Thousands of users: widely tested and reliable (over 120,000 downloads). Ranks 102 on rankwp.com out of 24,000 plugins (top 0.5%).
 * Top-quality: ranks 38th out of 24,000 plugins for quality on rankwp.com (top 0.25% - last checked 26th April 2013).
 * Supports backups to Amazon S3, Dropbox, Google Drive, Rackspace Cloud Files, FTP (including SSL), email, SFTP and WebDAV
 * Quick restore (both file and database backups)
@@ -75,7 +75,7 @@ Check out <a href="http://updraftplus.com/updraftplus-full-feature-list/">our fu
 
 Firstly, please make sure you read this FAQ through to the end - it may already have the answer you need. If it does, then please consider a donation (http://david.dw-perspective.org.uk/donate); it takes time to develop this plugin and FAQ.
 
-If it does not, then contact me! This is a complex plugin and the only way I can ensure it's robust is to get bug reports and fix the problems that crop up. Please make sure you are using the latest version of the plugin, and that you include the version in your bug report - if you are not using the latest, then the first thing you will be asked to do is upgrade.
+If it does not, then contact me! This is a complex backup plugin and the only way I can ensure it's robust is to get bug reports and fix the problems that crop up. Please make sure you are using the latest version of the plugin, and that you include the version in your bug report - if you are not using the latest, then the first thing you will be asked to do is upgrade.
 
 Please turn on debugging mode (in the UpdraftPlus options page) and then try again, and after that send me the log if you can find it (there are links to download logs on the UpdraftPlus settings page; or you may be emailed it; failing that, it is in the directory wp-content/updraft, so FTP in and look for it there). If you cannot find the log, then I may not be able to help so much, but you can try - include as much information as you can when reporting (PHP version, your blog's site, the error you saw and how you got to the page that caused it, etcetera).
 
@@ -119,14 +119,14 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= 1.6.0 - not yet released/supported =
-* FEATURE: New "Migrator" add-on for moving sites from one WordPress install to another
+= 1.6.1 - 05/06/2013 =
+* FEATURE: New "Migrator" add-on for moving sites from one WordPress install to another (http://updraftplus.com/shop/)
 * FEATURE: The "More files" add-on can now back up any files from anywhere on your filesystem (not just parts of WordPress)
 * FEATURE: The "More files" add-on can now exclude specified directories from the backup of WordPress core
 * FEATURE: Dropbox and Google Drive now check available quota before uploading
 * FEATURE: Nederlands / Dutch (nl_NL) translation: thanks to Hans van der Vlist - hansvandervlist@gmail.com
 * FEATURE: The SFTP/FTPS add-on now supports implicit encryption (so now both explicit + implicit are supported)
-* FIX: Fix corruption issue in larger Rackspace Cloud Files backups (caused by a bug in Rackspace's own Cloud Files library)
+* FIX: Fix corruption issue in larger Rackspace Cloud Files backups (fixed a bug in Rackspace's Cloud Files library)
 * FIX: Fix mcrypt call in Dropbox module to be compatible with PHP 5.2 on Windows, and with ancient FreeBSD versions which have no /dev/urandom
 * FIX: Allow top-level "Restore" button even if no backup sets currently known (to allow uploading some)
 * TWEAK: Database backup now includes more info about original WP install (e.g. WP/PHP versions)
@@ -421,17 +421,20 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 3. Showing and downloading backup sets
 
-We recognise and thank the following for code and/or libraries used and/or modified under the terms of their licences:
+We recognise and thank the following for code and/or libraries used and/or modified under the terms of their open source licences:
+
 * UpdraftPlus is derived from the original Updraft by Paul Kehrer (Twitter: http://twitter.com/reaperhulk, Blog: http://langui.sh)
 * Sorin Iclanzan, http://profiles.wordpress.org/hel.io/
 * Ben Tadiar, https://github.com/BenTheDesigner/Dropbox
 * Beau Brownlee, http://www.solutionbot.com/2009/01/02/php-ftp-class/
 * Donovan Schonknecht, http://undesigned.org.za/2007/10/22/amazon-s3-php-class
+* Rackspace US, Inc., https://github.com/rackerlabs/php-cloudfiles
+* Jim Wigginton, http://phpseclib.sourceforge.net
+* Dave Coveney, https://github.com/interconnectit/Search-Replace-DB/
 
 == License ==
 
-    Portions copyright 2011-3 David Anderson
-    Portions copyright 2010 Paul Kehrer
+    Copyright 2011-3 David Anderson
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
