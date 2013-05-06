@@ -13,6 +13,7 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
+// When you migrate/restore, if there is a .htaccess, warn about it.
 // Add an appeal for translators to email me.
 // Deal with gigantic database tables - e.g. those over a million rows on cheap hosting. Also indicate beforehand how many rows there are.
 // When restoring core, need an option to retain database settings / exclude wp-config.php
@@ -100,7 +101,7 @@ define('UPDRAFT_TRANSTIME', 3600*9+5);
 if (is_file(UPDRAFTPLUS_DIR.'/premium.php')) require_once(UPDRAFTPLUS_DIR.'/premium.php');
 if (is_file(UPDRAFTPLUS_DIR.'/autoload.php')) require_once(UPDRAFTPLUS_DIR.'/autoload.php');
 
-if ($dir_handle = opendir(UPDRAFTPLUS_DIR.'/addons')) {
+if (is_dir(UPDRAFTPLUS_DIR.'/addons') && $dir_handle = opendir(UPDRAFTPLUS_DIR.'/addons')) {
 	while ($e = readdir($dir_handle)) {
 		if (is_file(UPDRAFTPLUS_DIR.'/addons/'.$e) && preg_match('/\.php$/', $e)) {
 			include_once(UPDRAFTPLUS_DIR.'/addons/'.$e);
