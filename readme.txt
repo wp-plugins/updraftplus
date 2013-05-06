@@ -3,7 +3,7 @@ Contributors: DavidAnderson
 Tags: backup, restore, database, rackspace, amazon, s3, dropbox, google drive, ftp, webdav, back up, multisite
 Requires at least: 3.1
 Tested up to: 3.5.1
-Stable tag: 1.5.22
+Stable tag: 1.6.1
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -126,7 +126,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: Dropbox and Google Drive now check available quota before uploading
 * FEATURE: Nederlands / Dutch (nl_NL) translation: thanks to Hans van der Vlist - hansvandervlist@gmail.com
 * FEATURE: The SFTP/FTPS add-on now supports implicit encryption (so now both explicit + implicit are supported)
-* FIX: Fix corruption issue in larger Rackspace Cloud Files backups (fixed a bug in Rackspace's Cloud Files library)
+* FIX: Fix serious corruption issue in larger Rackspace Cloud Files backups (fixed a bug in Rackspace's Cloud Files library)
 * FIX: Fix mcrypt call in Dropbox module to be compatible with PHP 5.2 on Windows, and with ancient FreeBSD versions which have no /dev/urandom
 * FIX: Allow top-level "Restore" button even if no backup sets currently known (to allow uploading some)
 * TWEAK: Database backup now includes more info about original WP install (e.g. WP/PHP versions)
