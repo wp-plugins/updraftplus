@@ -655,8 +655,9 @@ class UpdraftPlus_Admin {
 		if(isset($_GET['action']) && $_GET['action'] == 'updraft_create_backup_dir') {
 			if(!$this->create_backup_dir()) {
 				echo '<p>'.__('Backup directory could not be created','updraftplus').'...</p><br/>';
+			} else {
+				echo '<p>'.__('Backup directory successfully created.','updraftplus').'</p><br/>';
 			}
-			echo '<p>'.__('Backup directory successfully created.','updraftplus').'</p><br/>';
 			echo '<b>'.__('Actions','updraftplus').':</b> <a href="options-general.php?page=updraftplus">'.__('Return to UpdraftPlus Configuration','updraftplus').'</a>';
 			return;
 		}
@@ -1084,7 +1085,8 @@ class UpdraftPlus_Admin {
 			exit; 
 		}
 		
-		$list = $wp_filesystem->dirlist(WP_CONTENT_DIR);
+		$content_dir = $wp_filesystem->wp_content_dir();
+		$list = $wp_filesystem->dirlist($content_dir);
 
 		$return_code = true;
 
@@ -1092,7 +1094,7 @@ class UpdraftPlus_Admin {
 			if (substr($item['name'], -4, 4) == "-old") {
 				//recursively delete
 				print "<strong>".__('Delete','updraftplus').": </strong>".htmlspecialchars($item['name']).": ";
-				if(!$wp_filesystem->delete(WP_CONTENT_DIR.'/'.$item['name'], true)) {
+				if(!$wp_filesystem->delete($content_dir.$item['name'], true)) {
 					$return_code = false;
 					print "<strong>Failed</strong><br>";
 				} else {
@@ -1114,7 +1116,8 @@ class UpdraftPlus_Admin {
 		}
 
 		$updraft_dir = $updraftplus->backups_dir_location();
-		$default_backup_dir = WP_CONTENT_DIR.'/updraft';
+
+		$default_backup_dir = $wp_filesystem->wp_content_dir().'updraft';
 		$updraft_dir = ($updraft_dir)?$updraft_dir:$default_backup_dir;
 
 		if (!$wp_filesystem->mkdir($updraft_dir, 0775)) return false;

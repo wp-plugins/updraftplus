@@ -126,9 +126,11 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: Dropbox and Google Drive now check available quota before uploading
 * FEATURE: Nederlands / Dutch (nl_NL) translation: thanks to Hans van der Vlist - hansvandervlist@gmail.com
 * FEATURE: The SFTP/FTPS add-on now supports implicit encryption (so now both explicit + implicit are supported)
-* FIX: Fix corruption issue in larger Rackspace Cloud Files backups (fixed a bug in Rackspace's Cloud Files library)
+* FIX: Google Drive now requires additional permissions to download your files - you will need to re-authenticate if you are downloading or restoring.
+* FIX: Fix serious corruption issue in larger Rackspace Cloud Files backups (fixed a bug in Rackspace's Cloud Files library)
 * FIX: Fix mcrypt call in Dropbox module to be compatible with PHP 5.2 on Windows, and with ancient FreeBSD versions which have no /dev/urandom
 * FIX: Allow top-level "Restore" button even if no backup sets currently known (to allow uploading some)
+* FIX: Fixed issue hindering restoration on web hosting setups with file permissions that invoked WP's remote filesystem methods
 * TWEAK: Database backup now includes more info about original WP install (e.g. WP/PHP versions)
 * TWEAK: The "More files" add-on now allows the user to choose whether to restore wp-config.php or not (and gives help)
 * TWEAK: Added an approximate expected row count when beginning to dump out a table
@@ -453,4 +455,4 @@ We recognise and thank the following for code and/or libraries used and/or modif
 Furthermore, reliance upon any non-English translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
 
 == Upgrade Notice ==
-1.6.1: Various new features. Small bug fixes + one larger corruption issue in larger Rackspace Cloud Files backups (a bug in Rackspace's library). Recommended update for all.
+1.6.1: Various new features. Small bug fixes + one larger corruption issue in larger Rackspace Cloud Files backups (a bug in Rackspace's library). Recommended update for all. Google Drive users should re-authenticate in order to download or restore (due to a change made by Google).
