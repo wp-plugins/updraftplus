@@ -30,6 +30,12 @@ class UpdraftPlus_BackupModule_dropbox {
 		global $updraftplus;
 		$updraftplus->log("Dropbox: begin cloud upload");
 
+		if (!function_exists('mcrypt_encrypt')) {
+			$updraftplus->log('The mcrypt PHP module is not installed');
+			$updraftplus->error(sprintf(__('The %s PHP module is not installed', 'updraftplus'), 'mcrypt'));
+			return false;
+		}
+
 		if (UpdraftPlus_Options::get_updraft_option('updraft_dropboxtk_request_token', 'xyz') == 'xyz') {
 			$updraftplus->log('You do not appear to be authenticated with Dropbox');
 			$updraftplus->error(__('You do not appear to be authenticated with Dropbox','updraftplus'));
@@ -53,6 +59,35 @@ class UpdraftPlus_BackupModule_dropbox {
 
 		foreach($backup_array as $file) {
 
+			$available_quota = -1;
+
+			// If we experience any failures collecting account info, then carry on anyway
+			try {
+
+				$accountInfo = $dropbox->accountInfo();
+
+				if ($accountInfo['code'] != "200") {
+					$message = "Dropbox account/info did not return HTTP 200; returned: ". $accountInfo['code'];
+				} elseif (!isset($accountInfo['body'])) {
+					$message = "Dropbox account/info did not return the expected data";
+				} else {
+					$body = $accountInfo['body'];
+					if (!isset($body->quota_info)) {
+						$message = "Dropbox account/info did not return the expected data";
+					} else {
+						$quota_info = $body->quota_info;
+						$total_quota = $quota_info->quota;
+						$normal_quota = $quota_info->normal;
+						$shared_quota = $quota_info->shared;
+						$available_quota = $total_quota - ($normal_quota + $shared_quota);
+						$message = "Dropbox quota usage: normal=".round($normal_quota/1048576,1)." Mb, shared=".round($shared_quota/1048576,1)." Mb, total=".round($total_quota/1048576,1)." Mb, available=".round($available_quota/1048576,1)." Mb";
+					}
+				}
+				$updraftplus->log($message);
+			} catch (Exception $e) {
+				$updraftplus->log("Dropbox error: exception occurred whilst getting account info: ".$e->getMessage());
+			}
+
 			$file_success = 1;
 
 			$hash = md5($file);
@@ -60,6 +95,13 @@ class UpdraftPlus_BackupModule_dropbox {
 
 			$filesize = filesize($updraft_dir.'/'.$file);
 			$this->current_file_size = $filesize;
+
+			// We don't actually abort now - there's no harm in letting it try and then fail
+			if ($available_quota != -1 && $available_quota < $filesize) {
+				$updraftplus->log("File upload expected to fail: file ($file) size is $filesize b, whereas available quota is only $available_quota b");
+				$updraftplus->error(sprintf(__("Account full: your %s account has only %d bytes left, but the file to be uploaded is %d bytes",'updraftplus'),'Dropbox', $available_quota, $filesize));
+			}
+
 			// Into Kb
 			$filesize = $filesize/1024;
 			$microtime = microtime(true);
@@ -214,7 +256,7 @@ class UpdraftPlus_BackupModule_dropbox {
 				<td></td>
 				<td>
 				<img alt="Dropbox logo" src="<?php echo UPDRAFTPLUS_URL.'/images/dropbox-logo.png' ?>">
-				<p><em><?php printf(__('%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your blog is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.','updraftplus'),'Dropbox');?></em></p>
+				<p><em><?php printf(__('%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your site is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.','updraftplus'),'Dropbox');?></em></p>
 				</td>
 			</tr>
 
@@ -237,17 +279,10 @@ class UpdraftPlus_BackupModule_dropbox {
 			<?php
 			// Check requirements.
 			if (!function_exists('mcrypt_encrypt')) {
-				?><p><strong><?php _e('Warning','updraftplus'); ?>:</strong> <?php _e("Your web server's PHP installation does not included a required module (MCrypt). Please contact your web hosting provider's support. UpdraftPlus's Dropbox module <strong>requires</strong> MCrypt. Please do not file any support requests; there is no alternative.",'updraftplus');?></p><?php
+				?><p><strong><?php _e('Warning','updraftplus'); ?>:</strong> <?php echo sprintf(__('Your web server\'s PHP installation does not included a required module (%s). Please contact your web hosting provider\'s support.', 'updraftplus'), 'mcrypt'); ?> <?php echo sprintf(__("UpdraftPlus's %s module <strong>requires</strong> %s. Please do not file any support requests; there is no alternative.",'updraftplus'),'Dropbox', 'mcrypt');?></p><?php
 			}
-			if (!function_exists("curl_init")) {
-				?><p><strong><?php _e('Warning','updraftplus'); ?>:</strong> <?php _e("Your web server's PHP installation does not included a required module (Curl). Please contact your web hosting provider's support. UpdraftPlus's Dropbox module <strong>requires</strong> Curl. Your only options to get this working are 1) Install/enable curl or 2) Hire us or someone else to code additional support options into UpdraftPlus. 3) Wait, possibly forever, for someone else to do this.",'updraftplus');?></p><?php
-			} else {
-				$curl_version = curl_version();
-				$curl_ssl_supported= ($curl_version['features'] & CURL_VERSION_SSL);
-				if (!$curl_ssl_supported) {
-				?><p><strong><?php _e('Warning','updraftplus'); ?>:</strong> <?php e_("Your web server's PHP/Curl installation does not support https access. We cannot access Dropbox without this support. Please contact your web hosting provider's support. UpdraftPlus's Dropbox module <strong>requires</strong> Curl+https. Your only options to get this working are 1) Install/enable curl with https or 2) Hire us or someone else to code additional support options into UpdraftPlus. 3) Wait, possibly forever, for someone else to do this.",'updraftplus');?></p><?php
-				}
-			}
+			global $updraftplus_admin;
+			$updraftplus_admin->curl_check('Dropbox', false);
 			?>
 			</td>
 			</tr>
@@ -285,7 +320,7 @@ class UpdraftPlus_BackupModule_dropbox {
 	}
 
 	function show_authed_admin_warning() {
-		global $updraftplus;
+		global $updraftplus_admin;
 
 		$dropbox = self::bootstrap();
 		$accountInfo = $dropbox->accountInfo();
@@ -296,9 +331,21 @@ class UpdraftPlus_BackupModule_dropbox {
 			$message .= " (".__('though part of the returned information was not as expected - your mileage may vary','updraftplus').")". $accountInfo['code'];
 		} else {
 			$body = $accountInfo['body'];
-			$message .= ". ".sprintf(__('Your %s account name','updraftplus'),'Dropbox').": ".htmlspecialchars($body->display_name);
+			$message .= ". <br>".sprintf(__('Your %s account name: %s','updraftplus'),'Dropbox', htmlspecialchars($body->display_name));
+
+			try {
+				$quota_info = $body->quota_info;
+				$total_quota = max($quota_info->quota, 1);
+				$normal_quota = $quota_info->normal;
+				$shared_quota = $quota_info->shared;
+				$available_quota =$total_quota - ($normal_quota + $shared_quota);
+				$used_perc = round(($normal_quota + $shared_quota)*100/$total_quota, 1);
+				$message .= ' <br>'.sprintf(__('Your %s quota usage: %s %% used, %s available','updraftplus'), 'Dropbox', $used_perc, round($available_quota/1048576, 1).' Mb');
+			} catch (Exception $e) {
+			}
+
 		}
-		$updraftplus->show_admin_warning($message);
+		$updraftplus_admin->show_admin_warning($message);
 
 	}
 
@@ -347,7 +394,15 @@ class UpdraftPlus_BackupModule_dropbox {
 		// Get the DropBox API access details
 		list($d2, $d1) = self::defaults();
 		if (empty($sec)) { $sec = base64_decode($d1); }; if (empty($key)) { $key = base64_decode($d2); }
-		$OAuth = new Dropbox_Curl($sec, $key, $storage, $callback);
+
+		try {
+			$OAuth = new Dropbox_Curl($sec, $key, $storage, $callback);
+		} catch (Exception $e) {
+			global $updraftplus;
+			$updraftplus->log("Dropbox Curl Error: ".$e->getMessage());
+			$updraftplus->error("Dropbox Curl Error: ".$e->getMessage());
+			return false;
+		}
 		return new Dropbox_API($OAuth);
 	}
 

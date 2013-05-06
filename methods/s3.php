@@ -2,8 +2,35 @@
 
 class UpdraftPlus_BackupModule_s3 {
 
-	function getS3($key, $secret) {
-		return new S3($key, $secret);
+	// Get an S3 object, after setting our options
+	function getS3($key, $secret, $useservercerts, $disableverify, $nossl) {
+		global $updraftplus;
+
+		if (!class_exists('S3')) require_once(UPDRAFTPLUS_DIR.'/includes/S3.php');
+
+		$s3 = new S3($key, $secret);
+		if (!$nossl) {
+			$curl_version = (function_exists('curl_version')) ? curl_version() : array('features' => null);
+			$curl_ssl_supported= ($curl_version['features'] & CURL_VERSION_SSL);
+			if ($curl_ssl_supported) {
+				$s3->useSSL = true;
+				if ($disableverify) {
+					$s3->useSSLValidation = false;
+					$updraftplus->log("S3: Disabling verification of SSL certificates");
+				}
+				if ($useservercerts) {
+					$updraftplus->log("S3: Using the server's SSL certificates");
+				} else {
+					$s3->SSLCACert = UPDRAFTPLUS_DIR.'/includes/cacert.pem';
+				}
+			} else {
+				$updraftplus->log("S3: Curl/SSL is not available. Communications with Amazon S3 will not be encrypted.");
+			}
+		} else {
+			$s3->useSSL = false;
+			$updraftplus->log("SSL was disabled via the user's preference. Communications with Amazon S3 will not be encrypted.");
+		}
+		return $s3;
 	}
 
 	function set_endpoint($obj, $region) {
@@ -32,9 +59,10 @@ class UpdraftPlus_BackupModule_s3 {
 
 		global $updraftplus;
 
-		if (!class_exists('S3')) require_once(UPDRAFTPLUS_DIR.'/includes/S3.php');
-
-		$s3 = $this->getS3(UpdraftPlus_Options::get_updraft_option('updraft_s3_login'), UpdraftPlus_Options::get_updraft_option('updraft_s3_pass'));
+		$s3 = $this->getS3(
+			UpdraftPlus_Options::get_updraft_option('updraft_s3_login'), UpdraftPlus_Options::get_updraft_option('updraft_s3_pass'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify'),
+			UpdraftPlus_Options::get_updraft_option('updraft_ssl_nossl')
+		);
 
 		$bucket_name = untrailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_s3_remote_path'));
 		$bucket_path = "";
@@ -66,7 +94,7 @@ class UpdraftPlus_BackupModule_s3 {
 				if ($orig_file_size % 5242880 > 0 ) $chunks++;
 				$hash = md5($file);
 
-				$updraftplus->log("S3 upload ($region): $fullpath (chunks: $chunks) -> s3://$bucket_name/$bucket_path$file");
+				$updraftplus->log("S3 upload ($region): $file (chunks: $chunks) -> s3://$bucket_name/$bucket_path$file");
 
 				$filepath = $bucket_path.$file;
 
@@ -192,9 +220,11 @@ class UpdraftPlus_BackupModule_s3 {
 	function download($file) {
 
 		global $updraftplus;
-		if(!class_exists('S3')) require_once(UPDRAFTPLUS_DIR.'/includes/S3.php');
 
-		$s3 = $this->getS3(UpdraftPlus_Options::get_updraft_option('updraft_s3_login'), UpdraftPlus_Options::get_updraft_option('updraft_s3_pass'));
+		$s3 = $this->getS3(
+			UpdraftPlus_Options::get_updraft_option('updraft_s3_login'), UpdraftPlus_Options::get_updraft_option('updraft_s3_pass'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify'),
+			UpdraftPlus_Options::get_updraft_option('updraft_ssl_nossl')
+		);
 
 		$bucket_name = untrailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_s3_remote_path'));
 		$bucket_path = "";
@@ -229,7 +259,10 @@ class UpdraftPlus_BackupModule_s3 {
 				nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>',
 				apikey: jQuery('#updraft_s3_apikey').val(),
 				apisecret: jQuery('#updraft_s3_apisecret').val(),
-				path: jQuery('#updraft_s3_path').val()
+				path: jQuery('#updraft_s3_path').val(),
+				disableverify: (jQuery('#updraft_ssl_disableverify').is(':checked')) ? 1 : 0,
+				useservercerts: (jQuery('#updraft_ssl_useservercerts').is(':checked')) ? 1 : 0,
+				nossl: (jQuery('#updraft_ssl_nossl').is(':checked')) ? 1 : 0,
 			};
 			jQuery.post(ajaxurl, data, function(response) {
 					alert('Settings test result: ' + response);
@@ -243,12 +276,12 @@ class UpdraftPlus_BackupModule_s3 {
 	?>
 		<tr class="updraftplusmethod s3">
 			<td></td>
-			<td><img src="https://d36cz9buwru1tt.cloudfront.net/Powered-by-Amazon-Web-Services.jpg" alt="Amazon Web Services"><p><em><?php printf(__('%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your blog is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.','updraftplus'),'Amazon S3');?></em></p></td>
+			<td><img src="https://d36cz9buwru1tt.cloudfront.net/Powered-by-Amazon-Web-Services.jpg" alt="Amazon Web Services"><p><em><?php printf(__('%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your site is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.','updraftplus'),'Amazon S3');?></em></p></td>
 		</tr>
 		<tr class="updraftplusmethod s3">
 		<th></th>
 		<td>
-			<p><?php _e('Get your access key and secret key <a href="http://aws.amazon.com/console/">from your AWS console</a>, then pick a (globally unique - all Amazon S3 users) bucket name (letters and numbers) (and optionally a path) to use for storage. This bucket will be created for you if it does not already exist.','updraftplus');?></p>
+			<p><?php _e('Get your access key and secret key <a href="http://aws.amazon.com/console/">from your AWS console</a>, then pick a (globally unique - all Amazon S3 users) bucket name (letters and numbers) (and optionally a path) to use for storage. This bucket will be created for you if it does not already exist.','updraftplus');?> <a href="http://updraftplus.com/faqs/i-get-ssl-certificate-errors-when-backing-up-andor-restoring/"><?php _e('If you see errors about SSL certificates, then please go here for help.','updraftplus');?></a></p>
 		</td></tr>
 		<tr class="updraftplusmethod s3">
 			<th><?php _e('S3 access key','updraftplus');?>:</th>
@@ -265,6 +298,13 @@ class UpdraftPlus_BackupModule_s3 {
 		<tr class="updraftplusmethod s3">
 		<th></th>
 		<td><p><button id="updraft-s3-test" type="button" class="button-primary" style="font-size:18px !important"><?php echo sprintf(__('Test %s Settings','updraftplus'),'S3');?></button></p></td>
+		</tr>
+
+		<tr class="updraftplusmethod s3">
+		<th></th>
+		<td>
+			<?php global $updraftplus_admin; $updraftplus_admin->curl_check('Amazon S3', true); ?>
+		</td>
 		</tr>
 	<?php
 	}
@@ -283,6 +323,9 @@ class UpdraftPlus_BackupModule_s3 {
 		$key = $_POST['apikey'];
 		$secret = $_POST['apisecret'];
 		$path = $_POST['path'];
+		$useservercerts = (isset($_POST['useservercerts'])) ? absint($_POST['useservercerts']) : 0;
+		$disableverify = (isset($_POST['disableverify'])) ? absint($_POST['disableverify']) : 0;
+		$nossl = (isset($_POST['nossl'])) ? absint($_POST['nossl']) : 0;
 
 		if (preg_match("#^([^/]+)/(.*)$#", $path, $bmatches)) {
 			$bucket = $bmatches[1];
@@ -297,8 +340,7 @@ class UpdraftPlus_BackupModule_s3 {
 			return;
 		}
 
-		if (!class_exists('S3')) require_once(UPDRAFTPLUS_DIR.'/includes/S3.php');
-		$s3 = new S3($key, $secret);
+		$s3 = self::getS3($key, $secret, $useservercerts, $disableverify, $nossl);
 
 		$location = @$s3->getBucketLocation($bucket);
 		if ($location) {
@@ -320,11 +362,21 @@ class UpdraftPlus_BackupModule_s3 {
 		if (isset($bucket_exists)) {
 			$try_file = md5(rand());
 			self::set_endpoint($s3, $location);
-			if (!$s3->putObjectString($try_file, $bucket, $path.$try_file)) {
-				echo __('Failure','updraftplus').": ${bucket_verb}".__('We successfully accessed the bucket, but the attempt to create a file in it failed.','updraftplus');
-			} else {
-				echo  __('Success','updraftplus').": ${bucket_verb}".__('We accessed the bucket, and were able to create files within it.','updraftplus');
-				@$s3->deleteObject($bucket, $path.$try_file);
+			$s3->setExceptions(true);
+			try {
+				if (!$s3->putObjectString($try_file, $bucket, $path.$try_file)) {
+					echo __('Failure','updraftplus').": ${bucket_verb}".__('We successfully accessed the bucket, but the attempt to create a file in it failed.','updraftplus');
+				} else {
+					echo  __('Success','updraftplus').": ${bucket_verb}".__('We accessed the bucket, and were able to create files within it.','updraftplus').' ';
+					if ($s3->useSSL) {
+						echo sprintf(__('The communication with %s was encrypted.', 'updraftplus'), 'Amazon S3');
+					} else {
+						echo sprintf(__('The communication with %s was not encrypted.', 'updraftplus'), 'Amazon S3');
+					}
+					@$s3->deleteObject($bucket, $path.$try_file);
+				}
+			} catch (Exception $e) {
+				echo __('Failure','updraftplus').": ${bucket_verb}".__('We successfully accessed the bucket, but the attempt to create a file in it failed.','updraftplus').' ('.$e->getMessage().')';
 			}
 		}
 
