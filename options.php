@@ -63,7 +63,7 @@ class UpdraftPlus_Options {
 
 		register_setting('updraft-options-group', 'updraft_googledrive_clientid', array($updraftplus, 'googledrive_clientid_checkchange') );
 		register_setting('updraft-options-group', 'updraft_googledrive_secret' );
-		register_setting('updraft-options-group', 'updraft_googledrive_remotepath' );
+		register_setting('updraft-options-group', 'updraft_googledrive_remotepath', array($updraftplus_admin, 'googledrive_remove_folderurlprefix') );
 
 		register_setting('updraft-options-group', 'updraft_ftp_login' );
 		register_setting('updraft-options-group', 'updraft_ftp_pass' );

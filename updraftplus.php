@@ -44,7 +44,7 @@ TODO - some of these are out of date/done, needs pruning
 //Do an automated test periodically for the success of loop-back connections
 //When a manual backup is run, use a timer to update the 'Download backups and logs' section, just like 'Last finished backup run'. Beware of over-writing anything that's in there from a resumable downloader.
 //Change DB encryption to not require whole gzip in memory (twice)
-//Add DreamObjects, Box.Net, SugarSync, Me.Ga and Microsoft Skydrive support??
+//Add DreamObjects, Box.Net, SugarSync, Me.Ga support??
 //Make it easier to find add-ons
 //The restorer has a hard-coded wp-content - fix
 //?? On 'backup now', open up a modal, count down 5 seconds, open page via modal, then start examining the log file (if it can be found)
@@ -1471,7 +1471,7 @@ class UpdraftPlus {
 			$this->stow("#\n");
 			$this->stow("\n");
 			
-			$create_table = $wpdb->get_results("SHOW CREATE TABLE $table", ARRAY_N);
+			$create_table = $wpdb->get_results("SHOW CREATE TABLE `$table`", ARRAY_N);
 			if (false === $create_table) {
 				$err_msg = sprintf(__('Error with SHOW CREATE TABLE for %s.','wp-db-backup'), $table);
 				//$this->error($err_msg);
@@ -1484,6 +1484,15 @@ class UpdraftPlus {
 				$this->stow("#\n# $err_msg\n#\n");
 			}
 		
+			$table_status = $wpdb->get_row("SHOW TABLE STATUS WHERE Name='$table'");
+			if (isset($table_status->Rows)) {
+				$rows = $table_status->Rows;
+				$this->log("Table $table: Total expected rows (approximate): ".$rows);
+				if ($rows > 500000) {
+					$this->log("Table $table: $rows is very many rows - we hope your web hosting company gives you enough resources to dump out that table in the backup");
+				}
+			}
+
 			// Comment in SQL-file
 			$this->stow("\n\n#\n# " . sprintf('Data contents of table %s',$this->backquote($table)) . "\n#\n");
 		}

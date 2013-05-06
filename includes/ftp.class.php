@@ -10,6 +10,8 @@ class UpdraftPlus_ftp_wrapper {
 	public  $passive = true;
 	public  $system_type = '';
 	public $ssl = false;
+	public $use_server_certs = false;
+	public $disable_verify = true;
 	public $login_type = 'non-encrypted';
  
 	public function __construct($host, $username, $password, $port = 21)
@@ -58,11 +60,12 @@ class UpdraftPlus_ftp_wrapper {
 		$existing_size = 0;
 		if ($resume) {
 			$existing_size = ftp_size($this->conn_id, $remote_file_path);
-			if ($existing_size <=0) { $resume = false; $existing_size = 0; }
-			elseif ($updraftplus) {
-				$updraftplus->log("File already exists at remote site: size $existing_size. Will attempt resumption.");
+			if ($existing_size <=0) {
+				$resume = false; $existing_size = 0;
+			} else {
+				if (is_a($updraftplus, 'UpdraftPlus')) $updraftplus->log("File already exists at remote site: size $existing_size. Will attempt resumption.");
 				if ($existing_size >= $file_size) {
-					$updraftplus->log("File is apparently already completely uploaded");
+					if (is_a($updraftplus, 'UpdraftPlus')) $updraftplus->log("File is apparently already completely uploaded");
 					return true;
 				}
 			}
@@ -79,7 +82,7 @@ class UpdraftPlus_ftp_wrapper {
 		// $existing_size can now be re-purposed
 
 		while ($ret == FTP_MOREDATA) {
-			if ($updraftplus) {
+			if (is_a($updraftplus, 'UpdraftPlus')) {
 				$new_size = ftell($fh);
 				if ($new_size - $existing_size > 524288) {
 					$existing_size = $new_size;
@@ -94,7 +97,7 @@ class UpdraftPlus_ftp_wrapper {
 		fclose($fh);
 
 		if ($ret != FTP_FINISHED) {
-			if ($updraftplus) $updraftplus->log("FTP upload: error ($ret)");
+			if (is_a($updraftplus, 'UpdraftPlus')) $updraftplus->log("FTP upload: error ($ret)");
 			return false;
 		}
 

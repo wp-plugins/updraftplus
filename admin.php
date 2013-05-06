@@ -140,6 +140,10 @@ class UpdraftPlus_Admin {
 
 	}
 
+	function googledrive_remove_folderurlprefix($input) {
+		return str_replace('https://drive.google.com/#folders/', '', $input);
+	}
+
 	function disk_space_check($space) {
 		global $updraftplus;
 		$updraft_dir = $updraftplus->backups_dir_location();

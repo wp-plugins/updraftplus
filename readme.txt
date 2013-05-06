@@ -93,6 +93,10 @@ After you have set up UpdraftPlus, you must check that your backups are taking p
 
 UpdraftPlus supports resuming backup runs right from the beginning, so that it does not need to do everything in a single go; but this has limits. If your website is huge and your web hosting company gives your tiny resources on an over-loaded server, then your solution is to purchase better web hosting, or to hire me professionally. Otherwise, this is not considered a bug. UpdraftPlus is known to successfully back up websites that run into the gigabytes on web servers that are not resource-starved.
 
+= Will you support Windows Live SkyDrive? =
+
+No. Microsoft forbid the use of SkyDrive by backup utilities - see http://msdn.microsoft.com/en-us/library/live/hh826521.aspx ("Here are some examples of nonconforming apps: Apps that automatically back up files or folders to SkyDrive.").
+
 = How is this better than the original Updraft? =
 
 You can check the changelog for changes; but the original Updraft, before I forked it, had three major problems. Firstly, it only backed up WP core tables from the database; if any of your plugins stored data in extra tables, then they were not backed up. Secondly, it only backed up your plugins/themes/uploads and not any further directories inside wp-content that other plugins might have created. Thirdly, the database backup did not include charset information, which meant that you needed to know some SQL wizardry to actually be able to use the backup. I made UpdraftPlus out of my experience of trying to back up several sites with Updraft. Then, I added encryption for the database file for extra peace of mind, and future-proofed by getting rid of some deprecated aspects. Since then, many new features have been added, e.g. resuming of failed uploads, and Dropbox support.
@@ -117,14 +121,18 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 = 1.6.0 - not yet released/supported =
 * FEATURE: New "Migrator" add-on for moving sites from one WordPress install to another
-* FEATURE: The "more files" add-on can now back up any files from anywhere on your filesystem (not just parts of WordPress)
-* FEATURE: The "more files" add-on can now exclude specified directories from the backup of WordPress core
+* FEATURE: The "More files" add-on can now back up any files from anywhere on your filesystem (not just parts of WordPress)
+* FEATURE: The "More files" add-on can now exclude specified directories from the backup of WordPress core
 * FEATURE: Dropbox and Google Drive now check available quota before uploading
 * FEATURE: Nederlands / Dutch (nl_NL) translation: thanks to Hans van der Vlist - hansvandervlist@gmail.com
-* FIX: Fix mcrypt call in Dropbox module to be compatible with PHP 5.2/Windows
+* FEATURE: The SFTP/FTPS add-on now supports implicit encryption (so now both explicit + implicit are supported)
+* FIX: Fix corruption issue in larger Rackspace Cloud Files backups (caused by a bug in Rackspace's own Cloud Files library)
+* FIX: Fix mcrypt call in Dropbox module to be compatible with PHP 5.2 on Windows, and with ancient FreeBSD versions which have no /dev/urandom
 * FIX: Allow top-level "Restore" button even if no backup sets currently known (to allow uploading some)
 * TWEAK: Database backup now includes more info about original WP install (e.g. WP/PHP versions)
-* TWEAK: The "more files" add-on now allows the user to choose whether to restore wp-config.php or not (and gives help)
+* TWEAK: The "More files" add-on now allows the user to choose whether to restore wp-config.php or not (and gives help)
+* TWEAK: Added an approximate expected row count when beginning to dump out a table
+* TWEAK: Remove the Google Drive URL prefix automatically for those who don't spot the instruction to do so
 
 = 1.5.22 - 04/16/2013 =
 * FIX: 1.5.21 broke Dropbox authentication for some users. Upgrade if you had that issue.
@@ -442,4 +450,4 @@ We recognise and thank the following for code and/or libraries used and/or modif
 Furthermore, reliance upon any non-English translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
 
 == Upgrade Notice ==
-1.5.21: New features: restore database, Rackspace Cloud Files, multi-uploader of external backups, drag-and-drop decrypter, translations, algorithm improvements, tweaks, bug fixes - recommended upgrade for all. 1.5.22: Version 1.5.21 broke Dropbox authentication for some users. Upgrade if you had that issue.
+1.6.1: Various new features. Small bug fixes + one larger corruption issue in larger Rackspace Cloud Files backups (a bug in Rackspace's library). Recommended update for all.

@@ -3,13 +3,21 @@
 class UpdraftPlus_BackupModule_ftp {
 
 	// Get FTP object with parameters set
-	function getFTP($server, $user, $pass, $disable_ssl = false, $passive = true) {
+	function getFTP($server, $user, $pass, $disable_ssl = false, $disable_verify = true, $use_server_certs = false, $passive = true) {
 
 		if( !class_exists('UpdraftPlus_ftp_wrapper')) require_once(UPDRAFTPLUS_DIR.'/includes/ftp.class.php');
 
-		$ftp = new UpdraftPlus_ftp_wrapper($server, $user, $pass);
+		$port = 21;
+		if (preg_match('/^(.*):(\d+)$/', $server, $matches)) {
+			$server = $matches[1];
+			$port = $matches[2];
+		}
+
+		$ftp = new UpdraftPlus_ftp_wrapper($server, $user, $pass, $port);
 
 		if ($disable_ssl) $ftp->ssl = false;
+		$ftp->use_server_certs = $use_server_certs;
+		$ftp->disable_verify = $disable_verify;
 		if ($passive) $ftp->passive = true;
 
 		return $ftp;
@@ -23,7 +31,13 @@ class UpdraftPlus_BackupModule_ftp {
 		$server = UpdraftPlus_Options::get_updraft_option('updraft_server_address');
 		$user = UpdraftPlus_Options::get_updraft_option('updraft_ftp_login');
 
-		$ftp = $this->getFTP($server, $user, UpdraftPlus_Options::get_updraft_option('updraft_ftp_pass'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_nossl'));
+		$ftp = $this->getFTP(
+			$server,
+			$user,
+			UpdraftPlus_Options::get_updraft_option('updraft_ftp_pass'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_nossl'),
+			UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify'),
+			UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts')
+		);
 
 		if (!$ftp->connect()) {
 			$updraftplus->log("FTP Failure: we did not successfully log in with those credentials.");
@@ -72,7 +86,9 @@ class UpdraftPlus_BackupModule_ftp {
 		$ftp = $this->getFTP(
 			UpdraftPlus_Options::get_updraft_option('updraft_server_address'),
 			UpdraftPlus_Options::get_updraft_option('updraft_ftp_login'),
-			UpdraftPlus_Options::get_updraft_option('updraft_ftp_pass'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_nossl')
+			UpdraftPlus_Options::get_updraft_option('updraft_ftp_pass'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_nossl'),
+			UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify'),
+			UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts')
 		);
 
 		if (!$ftp->connect()) {
@@ -112,7 +128,7 @@ class UpdraftPlus_BackupModule_ftp {
 				nossl: (jQuery('#updraft_ssl_nossl').is(':checked')) ? 1 : 0,
 			};
 			jQuery.post(ajaxurl, data, function(response) {
-					alert('<?php _e('Settings test result','updraftplus');?>: ' + response);
+				alert('<?php _e('Settings test result','updraftplus');?>: ' + response);
 			});
 		});
 		<?php
@@ -162,6 +178,9 @@ class UpdraftPlus_BackupModule_ftp {
 		$path = $_POST['path'];
 		$nossl = $_POST['nossl'];
 
+		$disable_verify = $_POST['disableverify'];
+		$use_server_certs = $_POST['useservercerts'];
+
 		if (empty($server)) {
 			_e("Failure: No server details were given.",'updraftplus');
 			return;
@@ -175,7 +194,7 @@ class UpdraftPlus_BackupModule_ftp {
 			return;
 		}
 
-		$ftp = self::getFTP($server, $login, $pass, $nossl);
+		$ftp = self::getFTP($server, $login, $pass, $nossl, $disable_verify, $use_server_certs);
 
 		if (!$ftp->connect()) {
 			_e("Failure: we did not successfully log in with those credentials.",'updraftplus');
@@ -189,7 +208,7 @@ class UpdraftPlus_BackupModule_ftp {
 			_e("Failure: an unexpected internal UpdraftPlus error occurred when testing the credentials - please contact the developer");
 			return;
 		}
-		if ($ftp->put(ABSPATH.'wp-includes/version.php', $fullpath, FTP_BINARY, false)) {
+		if ($ftp->put(ABSPATH.'wp-includes/version.php', $fullpath, FTP_BINARY, false, true)) {
 			echo __("Success: we successfully logged in, and confirmed our ability to create a file in the given directory (login type:",'updraftplus')." ".$ftp->login_type.')';
 			@$ftp->delete($fullpath);
 		} else {
