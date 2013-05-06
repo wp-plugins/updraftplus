@@ -2330,10 +2330,12 @@ class CF_Object
             }
             $ct_data = substr($data, 0, 64);
         } else {
+            // The original Rackspace library used rewind() instead of ftell/fseek here - which meant fseek(0), which was sometimes wrong
+            $fpos = ftell($data);
             $this->content_length = $bytes;
             $fp = $data;
             $ct_data = fread($data, 64);
-            rewind($data);
+            fseek($data, $fpos);
         }
 
         $this->_guess_content_type($ct_data);
@@ -2528,12 +2530,13 @@ class CF_Object
 
         if (function_exists("hash_init") && is_resource($data)) {
             $ctx = hash_init('md5');
+            $fpos = ftell($data);
             while (!feof($data)) {
                 $buffer = fgets($data, 65536);
                 hash_update($ctx, $buffer);
             }
             $md5 = hash_final($ctx, false);
-            rewind($data);
+            fseek($data, $fpos);
         } elseif ((string)is_file($data)) {
             $md5 = md5_file($data);
         } else {

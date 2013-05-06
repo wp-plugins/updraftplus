@@ -1,10 +1,5 @@
 <?php
 
-# TODO: Test again (some code has been changed)
-# TODO: Implement list_dir (needed for deleting all potential chunks)
-# TODO: In the delete method, we need to list all potential chunks, and delete them too.
-# TODO: Change chunks to have names beginning with chunk-do-not-delete to avoid confusion
-
 class UpdraftPlus_BackupModule_cloudfiles {
 
 	// This function does not catch any exceptions - that should be done by the caller
@@ -113,10 +108,11 @@ class UpdraftPlus_BackupModule_cloudfiles {
 						$errors_so_far = 0;
 						for ($i = 1 ; $i <= $chunks; $i++) {
 							$upload_start = ($i-1)*$chunk_size;
-							$upload_end = min($i*$chunk_size-1, $orig_file_size);
+							// The file size -1 equals the byte offset of the final byte
+							$upload_end = min($i*$chunk_size-1, $orig_file_size-1);
 							$upload_remotepath = $chunk_path."_$i";
-							$upload_size = $upload_end - $upload_start;
-
+							// Don't forget the +1; otherwise the last byte is omitted
+							$upload_size = $upload_end - $upload_start + 1;
 							$chunk_object = new CF_Object($cont_obj, $upload_remotepath);
 							$chunk_object->content_type = "application/zip";
 							// Without this, some versions of Curl add Expect: 100-continue, which results in Curl then giving this back: curl error: 55) select/poll returned error
@@ -359,7 +355,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 		<tr class="updraftplusmethod cloudfiles">
 			<td></td>
 			<td><img alt="Rackspace Cloud Files" src="<?php echo UPDRAFTPLUS_URL.'/images/rackspacecloud-logo.png' ?>">
-				<p><em><?php printf(__('%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your blog is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.','updraftplus'),'Rackspace Cloud Files');?></em></p></td>
+				<p><em><?php printf(__('%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your site is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.','updraftplus'),'Rackspace Cloud Files');?></em></p></td>
 		</tr>
 
 
