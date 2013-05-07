@@ -818,6 +818,9 @@ class UpdraftPlus_Admin {
 						<li><strong><?php _e('Downloading','updraftplus');?>:</strong> <?php _e("Pressing a button for Database/Plugins/Themes/Uploads/Others will make UpdraftPlus try to bring the backup file back from the remote storage (if any - e.g. Amazon S3, Dropbox, Google Drive, FTP) to your webserver. Then you will be allowed to download it to your computer. If the fetch from the remote storage stops progressing (wait 30 seconds to make sure), then press again to resume. Remember that you can also visit the cloud storage vendor's website directly.",'updraftplus');?></li>
 						<li><strong><?php _e('Restoring','updraftplus');?>:</strong> <?php _e("Press the button for the backup you wish to restore. If your site is large and you are using remote storage, then you should first click on each entity in order to retrieve it back to the webserver. This will prevent time-outs from occuring during the restore process itself.",'updraftplus');?> <?php _e('More tasks:','updraftplus');?> <a href="#" onclick="jQuery('#updraft-plupload-modal').slideToggle(); return false;"><?php _e('upload backup files','updraftplus');?></a> | <a href="#" onclick="updraft_updatehistory(1); return false;" title="<?php _e('Press here to look inside your UpdraftPlus directory (in your web hosting space) for any new backup sets that you have uploaded. The location of this directory is set in the expert settings, below.','updraftplus'); ?>"><?php _e('rescan folder for new backup sets','updraftplus');?></a></li>
 						<li><strong><?php _e('Opera web browser','updraftplus');?>:</strong> <?php _e('If you are using this, then turn Turbo/Road mode off.','updraftplus');?></li>
+						<?php if (UpdraftPlus_Options::get_updraft_option('updraft_service') == 'googledrive') {
+							?><li><strong><?php _e('Google Drive','updraftplus');?>:</strong> <?php _e('Google changed their permissions setup recently (April 2013). To download or restore from Google Drive, you <strong>must</strong> first re-authenticate (using the link in the Google Drive configuration section).','updraftplus');?></li>
+						<?php } ?>
 						<li title="<?php _e('This is a count of the contents of your Updraft directory','updraftplus');?>"><strong><?php _e('Web-server disk space in use by UpdraftPlus','updraftplus');?>:</strong> <span id="updraft_diskspaceused"><em>(calculating...)</em></span> <a href="#" onclick="updraftplus_diskspace(); return false;"><?php _e('refresh','updraftplus');?></a></li></ul>
 
 						<div id="updraft-plupload-modal" title="<?php _e('UpdraftPlus - Upload backup files','updraftplus'); ?>" style="width: 75%; margin: 16px; display:none; margin-left: 100px;">
@@ -1117,7 +1120,7 @@ class UpdraftPlus_Admin {
 
 		$updraft_dir = $updraftplus->backups_dir_location();
 
-		$default_backup_dir = $wp_filesystem->wp_content_dir().'updraft';
+		$default_backup_dir = $wp_filesystem->find_folder($updraft_dir);
 		$updraft_dir = ($updraft_dir)?$updraft_dir:$default_backup_dir;
 
 		if (!$wp_filesystem->mkdir($updraft_dir, 0775)) return false;
@@ -1763,6 +1766,12 @@ ENDHERE;
 				$extra_fields[] = 'updraft_restore_'.$entity;
 			}
 		}
+		// Now make sure that updraft_restorer_ option fields get passed along to request_filesystem_credentials
+		foreach ($_POST as $key => $value) {
+			if (strpos($key, 'updraft_restorer_') === 0 ) {
+				$extra_fields[] = $key;
+			}
+		}
 
 		$credentials = request_filesystem_credentials("options-general.php?page=updraftplus&action=updraft_restore&backup_timestamp=$timestamp", '', false, false, $extra_fields);
 		WP_Filesystem($credentials);
@@ -1785,7 +1794,7 @@ ENDHERE;
 		$entities_to_restore = array_flip($_POST['updraft_restore']);
 
 		foreach ($_POST as $key => $value) {
-			if (strpos($key, 'updraft_restore_') === 0) {
+			if (strpos($key, 'updraft_restore_') === 0 ) {
 				$nkey = substr($key, 16);
 				if (!isset($entities_to_restore[$nkey])) {
 					$_POST['updraft_restore'][] = $nkey;
@@ -1854,7 +1863,7 @@ ENDHERE;
 				
 				$info = (isset($backupable_entities[$type])) ? $backupable_entities[$type] : array();
 				
-				$val = $restorer->restore_backup($fullpath, $type, $service, $info);
+				$val = $restorer->restore_backup($file, $type, $service, $info);
 
 				if(is_wp_error($val)) {
 					foreach ($val->get_error_messages() as $msg) {

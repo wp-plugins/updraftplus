@@ -130,7 +130,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FIX: Fix serious corruption issue in larger Rackspace Cloud Files backups (fixed a bug in Rackspace's Cloud Files library)
 * FIX: Fix mcrypt call in Dropbox module to be compatible with PHP 5.2 on Windows, and with ancient FreeBSD versions which have no /dev/urandom
 * FIX: Allow top-level "Restore" button even if no backup sets currently known (to allow uploading some)
-* FIX: Fixed issue hindering restoration on web hosting setups with file permissions that invoked WP's remote filesystem methods
+* FIX: Fixed issues hindering restoration on web hosting setups with file permissions that invoked WP's remote filesystem methods
 * TWEAK: Database backup now includes more info about original WP install (e.g. WP/PHP versions)
 * TWEAK: The "More files" add-on now allows the user to choose whether to restore wp-config.php or not (and gives help)
 * TWEAK: Added an approximate expected row count when beginning to dump out a table
