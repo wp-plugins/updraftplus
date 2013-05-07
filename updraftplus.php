@@ -13,9 +13,12 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
-// When you migrate/restore, if there is a .htaccess, warn about it.
+// When you migrate/restore, if there is a .htaccess, warn/give option about it.
 // Add an appeal for translators to email me.
+// Embed changelog in UpdraftPlus.Com - see http://wordpress.org/extend/plugins/wp-readme-parser/
+// Fix generation of excessive transients
 // Deal with gigantic database tables - e.g. those over a million rows on cheap hosting. Also indicate beforehand how many rows there are.
+// Some code assumes that the updraft_dir is inside WP_CONTENT_DIR. We should be using WP_Filesystem::find_folder to remove this assumption
 // When restoring core, need an option to retain database settings / exclude wp-config.php
 // Produce a command-line version of the restorer (so that people with shell access are immune from server-enforced timeouts)
 // More sophisticated pruning options - e.g. "but only keep 1 backup every <x> <days> after <y> <weeks>"
@@ -1485,17 +1488,21 @@ class UpdraftPlus {
 				$this->stow("#\n# $err_msg\n#\n");
 			}
 		
+			// Comment in SQL-file
+			$this->stow("\n\n#\n# " . sprintf('Data contents of table %s',$this->backquote($table)) . "\n");
+
 			$table_status = $wpdb->get_row("SHOW TABLE STATUS WHERE Name='$table'");
 			if (isset($table_status->Rows)) {
 				$rows = $table_status->Rows;
 				$this->log("Table $table: Total expected rows (approximate): ".$rows);
+				$this->stow("# Approximate rows expected in table: $rows\n");
 				if ($rows > 500000) {
 					$this->log("Table $table: $rows is very many rows - we hope your web hosting company gives you enough resources to dump out that table in the backup");
 				}
 			}
 
-			// Comment in SQL-file
-			$this->stow("\n\n#\n# " . sprintf('Data contents of table %s',$this->backquote($table)) . "\n#\n");
+			$this->stow("#\n\n");
+
 		}
 		
 		// In UpdraftPlus, segment is always 'none'
