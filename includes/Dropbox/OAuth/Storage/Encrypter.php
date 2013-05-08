@@ -48,15 +48,20 @@ class Dropbox_Encrypter
      */
     public function encrypt($token)
     {
+        // This now sends all Windows users to MCRYPT_RAND - used to send PHP>5.3 to MCRYPT_DEV_URANDOM
         // Only MCRYPT_RAND is available on Windows prior to PHP 5.3
         if (version_compare(phpversion(), '5.3.0', '<') && strtoupper(substr(php_uname('s'), 0, 3)) === 'WIN') {
             $crypt_source = MCRYPT_RAND;
-        } elseif (strtoupper(substr(php_uname('s'), 0, 3)) === 'WIN' || is_readable("/dev/urandom")) {
+        } elseif (is_readable("/dev/urandom")) {
             $crypt_source = MCRYPT_DEV_URANDOM;
         } else {
             $crypt_source = MCRYPT_RAND;
         }
         $iv = mcrypt_create_iv(self::IV_SIZE, $crypt_source);
+        
+        if ($iv === false && $crypt_source != MCRYPT_RAND) {
+            $iv = mcrypt_create_iv(self::IV_SIZE, MCRYPT_RAND);
+        }
         $cipherText = @mcrypt_encrypt(self::CIPHER, $this->key, $token, self::MODE, $iv);
         return base64_encode($iv . $cipherText);
     }
