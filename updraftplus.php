@@ -15,8 +15,10 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // When you migrate/restore, if there is a .htaccess, warn/give option about it.
 // Add an appeal for translators to email me.
-// Embed changelog in UpdraftPlus.Com - see http://wordpress.org/extend/plugins/wp-readme-parser/
+// Facility to delete backup sets, with confirm (if someone backs up for a year, every 4 hours - huge list! Yuk.)
+// Bulk download of entire set at once (not have to click 7 times).
 // Fix generation of excessive transients
+// Restoration should also clear all common cache locations (or just not back them up)
 // Deal with gigantic database tables - e.g. those over a million rows on cheap hosting. Also indicate beforehand how many rows there are.
 // Some code assumes that the updraft_dir is inside WP_CONTENT_DIR. We should be using WP_Filesystem::find_folder to remove this assumption
 // When restoring core, need an option to retain database settings / exclude wp-config.php

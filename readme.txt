@@ -119,6 +119,9 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
+= Development trunk - 05/08/2013 =
+* TWEAK: More verbose error reporting from PclZip
+
 = 1.6.1 - 05/06/2013 =
 * FEATURE: New "Migrator" add-on for moving sites from one WordPress install to another (http://updraftplus.com/shop/)
 * FEATURE: The "More files" add-on can now back up any files from anywhere on your filesystem (not just parts of WordPress)

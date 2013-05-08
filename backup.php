@@ -111,7 +111,7 @@ class UpdraftPlus_Backup {
 			$zip_object = new PclZip($destination);
 			$zipcode = $zip_object->create($source, PCLZIP_OPT_REMOVE_PATH, WP_CONTENT_DIR);
 			if ($zipcode == 0 ) {
-				$updraftplus->log("PclZip Error: ".$zip_object->errorName());
+				$updraftplus->log("PclZip Error: ".$zip_object->errorInfo(true));
 				return $zip_object->errorCode();
 			} else {
 				return true;
