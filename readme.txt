@@ -121,6 +121,8 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 = Development trunk - 05/08/2013 =
 * TWEAK: More verbose error reporting from PclZip
+* TWEAK: Show PHP + web server versions in the debug information
+* TWEAK: More sophisticated attempts to get a writable backup directory, and more helpful messages if we can't
 
 = 1.6.1 - 05/06/2013 =
 * FEATURE: New "Migrator" add-on for moving sites from one WordPress install to another (http://updraftplus.com/shop/)

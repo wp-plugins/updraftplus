@@ -652,10 +652,16 @@ class UpdraftPlus_Admin {
 		if(isset($_GET['error'])) $this->show_admin_warning(htmlspecialchars($_GET['error']), 'error');
 		if(isset($_GET['message'])) $this->show_admin_warning(htmlspecialchars($_GET['message']));
 
-		if(isset($_GET['action']) && $_GET['action'] == 'updraft_create_backup_dir') {
-			if(!$this->create_backup_dir()) {
-				echo '<p>'.__('Backup directory could not be created','updraftplus').'...</p><br/>';
-			} else {
+		if(isset($_GET['action']) && $_GET['action'] == 'updraft_create_backup_dir' && isset($_GET['nonce']) && wp_verify_nonce($_GET['nonce'], 'create_backup_dir')) {
+			$created = $this->create_backup_dir();
+			if(is_wp_error($created)) {
+				echo '<p>'.__('Backup directory could not be created','updraftplus').'...<br/>';
+				echo '<ul style="list-style: disc inside;">';
+				foreach ($created->get_error_messages() as $key => $msg) {
+					echo '<li>'.htmlspecialchars($msg).'</li>';
+				}
+				echo '</ul></p>';
+			} elseif ($created !== false) {
 				echo '<p>'.__('Backup directory successfully created.','updraftplus').'</p><br/>';
 			}
 			echo '<b>'.__('Actions','updraftplus').':</b> <a href="options-general.php?page=updraftplus">'.__('Return to UpdraftPlus Configuration','updraftplus').'</a>';
@@ -1036,6 +1042,8 @@ class UpdraftPlus_Admin {
 				echo __('Peak memory usage','updraftplus').': '.$peak_memory_usage.' MB<br/>';
 				echo __('Current memory usage','updraftplus').': '.$memory_usage.' MB<br/>';
 				echo __('PHP memory limit','updraftplus').': '.ini_get('memory_limit').' <br/>';
+				echo sprintf(__('%s version:','updraftplus'), 'PHP').' '.phpversion().' <br />';
+				echo sprintf(__('Web server:','updraftplus'), 'PHP').' '.htmlspecialchars($_SERVER["SERVER_SOFTWARE"]).' ('.htmlspecialchars(php_uname()).')<br />';
 				?>
 				</p>
 				<p style="max-width: 600px;"><?php _e('The buttons below will immediately execute a backup run, independently of WordPress\'s scheduler. If these work whilst your scheduled backups and the "Backup Now" button do absolutely nothing (i.e. not even produce a log file), then it means that your scheduler is broken. You should then disable all your other plugins, and try the "Backup Now" button. If that fails, then contact your web hosting company and ask them if they have disabled wp-cron. If it succeeds, then re-activate your other plugins one-by-one, and find the one that is the problem and report a bug to them.','updraftplus');?></p>
@@ -1109,21 +1117,56 @@ class UpdraftPlus_Admin {
 		return $return_code;
 	}
 
+	// The aim is to get a directory that is writable by the webserver, because that's the only way we can create zip files
 	function create_backup_dir() {
+
 		global $wp_filesystem, $updraftplus;
-		$credentials = request_filesystem_credentials("options-general.php?page=updraftplus&action=updraft_create_backup_dir"); 
-		WP_Filesystem($credentials);
-		if ( $wp_filesystem->errors->get_error_code() ) { 
-			foreach ( $wp_filesystem->errors->get_error_messages() as $message ) show_message($message); 
-			exit; 
+
+		if (false === ($credentials = request_filesystem_credentials('options-general.php?page=updraftplus&action=updraft_create_backup_dir&nonce='.wp_create_nonce('create_backup_dir')))) {
+			return false;
+		}
+
+		if ( ! WP_Filesystem($credentials) ) {
+			// our credentials were no good, ask the user for them again
+			request_filesystem_credentials('options-general.php?page=updraftplus&action=updraft_create_backup_dir&nonce='.wp_create_nonce('create_backup_dir'), '', true);
+			return false;
 		}
 
 		$updraft_dir = $updraftplus->backups_dir_location();
 
-		$default_backup_dir = $wp_filesystem->find_folder($updraft_dir);
-		$updraft_dir = ($updraft_dir)?$updraft_dir:$default_backup_dir;
+		$default_backup_dir = $wp_filesystem->find_folder(dirname($updraft_dir)).basename($updraft_dir);
 
-		if (!$wp_filesystem->mkdir($updraft_dir, 0775)) return false;
+		$updraft_dir = ($updraft_dir) ? $wp_filesystem->find_folder(dirname($updraft_dir)).basename($updraft_dir) : $default_backup_dir;
+
+		if (!$wp_filesystem->is_dir($default_backup_dir) && !$wp_filesystem->mkdir($default_backup_dir, 0775)) {
+			$wperr = new WP_Error;
+			if ( $wp_filesystem->errors->get_error_code() ) { 
+				foreach ( $wp_filesystem->errors->get_error_messages() as $message ) {
+					$wperr->add('mkdir_error', $message);
+				}
+				return $wperr; 
+			} else {
+				return new WP_Error('mkdir_error', __('The request to the filesystem to create the directory failed.', 'updraftplus'));
+			}
+		}
+
+		if ($wp_filesystem->is_dir($default_backup_dir)) {
+
+			if (is_writable($updraft_dir)) return true;
+
+			@$wp_filesystem->chmod($default_backup_dir, 0775);
+			if (is_writable($updraft_dir)) return true;
+
+			@$wp_filesystem->chmod($default_backup_dir, 0777);
+
+			if (is_writable($updraft_dir)) {
+				echo '<p>'.__('The folder was created, but we had to change its file permissions to 777 (world-writable) to be able to write to it. You should check with your hosting provider that this will not cause any problems', 'updraftplus').'</p>';
+				return true;
+			} else {
+				@$wp_filesystem->chmod($default_backup_dir, 0775);
+				return new WP_Error('writable_error', __('The folder exists, but your webserver does not have permission to write to it.', 'updraftplus').' '.__('You will need to consult with your web hosting provider to find out to set permissions for a WordPress plugin to write to the directory.', 'updraftplus'));
+			}
+		}
 
 		return true;
 	}
@@ -1496,7 +1539,7 @@ ENDHERE;
 					if(@is_writable($updraft_dir)) {
 						$dir_info = '<span style="color:green">'.__('Backup directory specified is writable, which is good.','updraftplus').'</span>';
 					} else {
-						$dir_info = '<span style="color:red">'.__('Backup directory specified is <b>not</b> writable, or does not exist.','updraftplus').' <span style="font-size:110%;font-weight:bold"><a href="options-general.php?page=updraftplus&action=updraft_create_backup_dir">'.__('Click here to attempt to create the directory and set the permissions','updraftplus').'</a></span>, '.__('or, to reset this option','updraftplus').' <a href="#" onclick="jQuery(\'#updraft_dir\').val(\''.WP_CONTENT_DIR.'/updraft\'); return false;">'.__('click here','updraftplus').'</a>. '.__('If that is unsuccessful check the permissions on your server or change it to another directory that is writable by your web server process.','updraftplus').'</span>';
+						$dir_info = '<span style="color:red">'.__('Backup directory specified is <b>not</b> writable, or does not exist.','updraftplus').' <span style="font-size:110%;font-weight:bold"><a href="options-general.php?page=updraftplus&action=updraft_create_backup_dir&nonce='.wp_create_nonce('create_backup_dir').'">'.__('Click here to attempt to create the directory and set the permissions','updraftplus').'</a></span>, '.__('or, to reset this option','updraftplus').' <a href="#" onclick="jQuery(\'#updraft_dir\').val(\''.WP_CONTENT_DIR.'/updraft\'); return false;">'.__('click here','updraftplus').'</a>. '.__('If that is unsuccessful check the permissions on your server or change it to another directory that is writable by your web server process.','updraftplus').'</span>';
 					}
 
 					echo $dir_info.' '.__("This is where UpdraftPlus will write the zip files it creates initially.  This directory must be writable by your web server. Typically you'll want to have it inside your wp-content folder (this is the default).  <b>Do not</b> place it inside your uploads dir, as that will cause recursion issues (backups of backups of backups of...).",'updraftplus');?></td>
