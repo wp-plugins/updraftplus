@@ -90,7 +90,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		// Once extracted, delete the package if required (non-recursive, is a file)
 		if ( $delete_package )
-			$wp_filesystem->unlink($backup_dir.$package, false, true);
+			$wp_filesystem->delete($backup_dir.$package, false, true);
 
 		return $working_dir;
 
@@ -159,6 +159,11 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		return true;
 
+	}
+
+	function str_replace_once($needle, $replace, $haystack) {
+		$pos = strpos($haystack,$needle);
+		return ($pos !== false) ? substr_replace($haystack,$replace,$pos,strlen($needle)) : $haystack;
 	}
 
 	// $backup_file is just the basename
@@ -256,11 +261,28 @@ class Updraft_Restorer extends WP_Upgrader {
 
 			$start_time = microtime(true);
 
+			// TODO: Print a warning if restoring to a different WP version
+			$old_wpversion = '';
+			$old_siteurl = '';
+			$old_table_prefix = '';
+			global $table_prefix;
+
+			$restoring_table = '';
+
 			while (!gzeof($dbhandle)) {
 				// Up to 1Mb
 				$buffer = rtrim(gzgets($dbhandle, 1048576));
 				// Discard comments
-				if (substr($buffer, 0, 1) == '#' || empty($buffer)) continue;
+				if (empty($buffer) || substr($buffer, 0, 1) == '#') {
+					if ('' == $old_siteurl && preg_match('/^\# Backup of: (http(.*))$/', $buffer, $matches)) {
+						$old_siteurl = $matches[1];
+						echo '<strong>'.__('Backup of:', 'updraftplus').'</strong> '.htmlspecialchars($old_siteurl).'<br>';
+					} elseif ('' == $old_table_prefix && preg_match('/^\# Table prefix: (\S+)$/', $buffer, $matches)) {
+						$old_table_prefix = $matches[1];
+						echo '<strong>'.__('Old table prefix:', 'updraftplus').'</strong> '.htmlspecialchars($old_table_prefix).'<br>';
+					}
+					continue;
+				}
 				
 				$sql_line .= $buffer;
 				
@@ -270,10 +292,33 @@ class Updraft_Restorer extends WP_Upgrader {
 				$line++;
 
 				# The timed overhead of this is negligible
-				if (preg_match('/^\s*create table \`?([^\`]*)`?\s+\(/i', $sql_line, $matches)) {
-					echo '<strong>'.__('Restoring table','updraftplus').":</strong> ".htmlspecialchars($matches[1])."<br>";
+				if (preg_match('/^\s*drop table if exists \`?([^\`]*)\`?\s*;/i', $sql_line, $matches)) {
+					$table_name = $matches[1];
+					// Legacy, less reliable - in case it was not caught before
+					if ($old_table_prefix == '' && preg_match('/^([a-z0-9])_.*$/i', $table_name, $tmatches)) {
+						$old_table_prefix = $tmatches[1];
+						echo '<strong>'.__('Old table prefix:', 'updraftplus').'</strong> '.htmlspecialchars($old_table_prefix).'<br>';
+					}
+					if ('' != $old_table_prefix && $table_prefix != $old_table_prefix) {
+						$sql_line = $this->str_replace_once($old_table_prefix, $table_prefix, $sql_line);
+					}
+					if ($restoring_table) do_action('updraftplus_restored_db_table', $restoring_table);
+					$restoring_table = $new_table_name;
+				} elseif (preg_match('/^\s*create table \`?([^\`\(]*)\`?\s*\(/i', $sql_line, $matches)) {
+					$table_name = $matches[1];
+					echo '<strong>'.__('Restoring table','updraftplus').":</strong> ".htmlspecialchars($table_name);
+					if ('' != $old_table_prefix && $table_prefix != $old_table_prefix) {
+						$new_table_name = $this->str_replace_once($old_table_prefix, $table_prefix, $table_name);
+						echo ' - '.__('will restore as:', 'updraftplus').' '.htmlspecialchars($new_table_name);
+						$sql_line = $this->str_replace_once($old_table_prefix, $table_prefix, $sql_line);
+					} else {
+						$new_table_name = $table_name;
+					}
+					echo '<br>';
+				} elseif ('' != $old_table_prefix && preg_match('/^\s*insert into \`?([^\`]*)\`?\s+values/i', $sql_line, $matches)) {
+					if ($table_prefix != $old_table_prefix) $sql_line = $this->str_replace_once($old_table_prefix, $table_prefix, $sql_line);
 				}
-				
+
 				if ($use_wpdb) {
 					$req = $wpdb->query($sql_line);
 					if (!$req) $last_error = $wpdb->last_error;
@@ -301,6 +346,9 @@ class Updraft_Restorer extends WP_Upgrader {
 				$sql_line = '';
 
 			}
+			
+			if ($restoring_table) do_action('updraftplus_restored_db_table', $restoring_table);
+			
 			$time_taken = microtime(true) - $start_time;
 			echo sprintf(__('Finished: lines processed: %d in %.2f seconds','updraftplus'),$line, $time_taken)."<br>";
 			gzclose($dbhandle);
@@ -342,7 +390,7 @@ class Updraft_Restorer extends WP_Upgrader {
 				@$wp_filesystem->chmod($wp_dir . "wp-content/$dirname", 0775, true);
 			break;
 			case 'db':
-				do_action('updraftplus_restored_db');
+				do_action('updraftplus_restored_db', array('expected_oldsiteurl' => $old_siteurl));
 			break;
 			default:
 				@$wp_filesystem->chmod($wp_dir . "wp-content/$dirname", FS_CHMOD_DIR);

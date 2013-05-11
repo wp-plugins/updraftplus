@@ -261,7 +261,7 @@ class UpdraftPlus_Backup {
 								
 								list($max_time, $timings_string, $run_times_known) = $this->max_time_passed($time_passed, $updraftplus->current_resumption-1);
 								
-								// TODO: We don't yet take any action - we want to see more real-world data firsts
+								// TODO: We don't yet take any action - we want to see more real-world data first
 								if ($run_times_known >= 6 && $max_time < $time_since_began + 20) {
 									$updraftplus->log("We are within 20 seconds of the expected maximum amount of time available; the zip-writing thresholds should be reduced (max_time: $max_time, data points known: $run_times_known)");
 								}

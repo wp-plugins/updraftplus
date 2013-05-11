@@ -3,7 +3,7 @@ Contributors: DavidAnderson
 Tags: backup, restore, database, rackspace, amazon, s3, dropbox, google drive, ftp, webdav, back up, multisite
 Requires at least: 3.1
 Tested up to: 3.5.1
-Stable tag: 1.6.1
+Stable tag: 1.6.2
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -119,10 +119,15 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= Development trunk - 05/08/2013 =
+= Development trunk - not yet released/supported =
 * TWEAK: More verbose error reporting from PclZip
 * TWEAK: Show PHP + web server versions in the debug information
 * TWEAK: More sophisticated attempts to get a writable backup directory, and more helpful messages if we can't
+* TWEAK: Some more logging, allowing data-gathering to improve the chances for people with astonishingly slow hosting
+* FIX: Restoration/migration now copes with a change of table prefix
+
+= 1.6.2 - 05/11/2013 =
+* FIX: Prevent PHP fatal error on some database restores
 
 = 1.6.1 - 05/06/2013 =
 * FEATURE: New "Migrator" add-on for moving sites from one WordPress install to another (http://updraftplus.com/shop/)

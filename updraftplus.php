@@ -25,6 +25,7 @@ TODO - some of these are out of date/done, needs pruning
 // Some code assumes that the updraft_dir is inside WP_CONTENT_DIR. We should be using WP_Filesystem::find_folder to remove this assumption
 // When restoring core, need an option to retain database settings / exclude wp-config.php
 // Produce a command-line version of the restorer (so that people with shell access are immune from server-enforced timeouts)
+// Restorations should be logged also
 // More sophisticated pruning options - e.g. "but only keep 1 backup every <x> <days> after <y> <weeks>"
 // Migrator - search+replace the database, list+download from remote, kick-off backup remotely
 // April 20, 2015: This is the date when the Google Documents API is likely to stop working (https://developers.google.com/google-apps/documents-list/terms)
@@ -1308,12 +1309,13 @@ class UpdraftPlus {
 	function backup_db_header() {
 
 		@include(ABSPATH.'wp-includes/version.php');
-		global $wp_version;
+		global $wp_version, $table_prefix;
 
 		$this->stow("# WordPress MySQL database backup\n");
 		$this->stow("# Created by UpdraftPlus version ".$this->version." (http://updraftplus.com)\n");
 		$this->stow("# WordPress Version: $wp_version, running on PHP ".phpversion()." (".$_SERVER["SERVER_SOFTWARE"].")\n");
 		$this->stow("# Backup of: ".site_url()."\n");
+		$this->stow("# Table prefix: ".$table_prefix."\n");
 
 		$this->stow("#\n");
 		$this->stow("# " . sprintf(__('Generated: %s','wp-db-backup'),date("l j. F Y H:i T")) . "\n");
@@ -1328,6 +1330,15 @@ class UpdraftPlus {
 			$this->stow("/*!40101 SET NAMES " . DB_CHARSET . " */;\n");
 		}
 		$this->stow("/*!40101 SET foreign_key_checks = 0 */;\n");
+	}
+
+	// The purpose of this function is to make sure that the options table is put in the database first
+	function backup_db_sorttables($a, $b) {
+		global $table_prefix;
+		if ($a == $b) return 0;
+		if ($a == $table_prefix.'options') return -1;
+		if ($b ==  $table_prefix.'options') return 1;
+		return strcmp($a, $b);
 	}
 
 	/* This function is resumable, using the following method:
@@ -1359,6 +1370,9 @@ class UpdraftPlus {
 
 		$all_tables = $wpdb->get_results("SHOW TABLES", ARRAY_N);
 		$all_tables = array_map(create_function('$a', 'return $a[0];'), $all_tables);
+
+		// Put the options table first
+		usort($all_tables, array($this, 'backup_db_sorttables'));
 
 		if (!is_writable($updraft_dir)) {
 			$this->log("The backup directory ($updraft_dir) is not writable.");
