@@ -4,6 +4,7 @@ class Updraft_Restorer extends WP_Upgrader {
 	function backup_strings() {
 		$this->strings['not_possible'] = __('UpdraftPlus is not able to directly restore this kind of entity. It must be restored manually.','updraftplus');
 		$this->strings['no_package'] = __('Backup file not available.','updraftplus');
+		$this->strings['copy_failed'] = __('Copying this entity failed.','updraftplus');
 		$this->strings['unpack_package'] = __('Unpacking backup...','updraftplus');
 		$this->strings['decrypt_database'] = __('Decrypting database (can take a while)...','updraftplus');
 		$this->strings['decrypted_database'] = __('Database successfully decrypted.','updraftplus');
@@ -17,16 +18,21 @@ class Updraft_Restorer extends WP_Upgrader {
 		$this->strings['delete_failed'] = __('Failed to delete working directory after restoring.','updraftplus');
 	}
 
+	// This returns a wp_filesystem location (and we musn't change that, as we must retain compatibility with the class parent)
 	function unpack_package($package, $delete_package = true) {
 
+		global $wp_filesystem, $updraftplus;
+
+		$updraft_dir = $updraftplus->backups_dir_location();
+
 		// If not database, then it is a zip - unpack in the usual way
-		if (!preg_match('/db\.gz(\.crypt)?$/i', $package)) return parent::unpack_package($package, $delete_package);
+		if (!preg_match('/db\.gz(\.crypt)?$/i', $package)) return parent::unpack_package($updraft_dir.'/'.$package, $delete_package);
+
+		$backup_dir = $wp_filesystem->find_folder($updraft_dir);
 
 		// Unpack a database. The general shape of the following is copied from class-wp-upgrader.php
 
 		@set_time_limit(1800);
-
-		global $wp_filesystem;
 
 		$this->skin->feedback('unpack_package');
 
@@ -42,6 +48,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		//We need a working directory
 		$working_dir = $upgrade_folder . basename($package, '.crypt');
+		# $working_dir_filesystem = WP_CONTENT_DIR.'/upgrade/'. basename($package, '.crypt');
 
 		// Clean up working directory
 		if ( $wp_filesystem->is_dir($working_dir) )
@@ -61,7 +68,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 			// Get decryption key
 			$rijndael->setKey($encryption);
-			$ciphertext = $rijndael->decrypt($wp_filesystem->get_contents($package));
+			$ciphertext = $rijndael->decrypt($wp_filesystem->get_contents($backup_dir.$package));
 			if ($ciphertext) {
 				$this->skin->feedback('decrypted_database');
 				if (!$wp_filesystem->put_contents($working_dir.'/backup.db.gz', $ciphertext)) {
@@ -71,12 +78,19 @@ class Updraft_Restorer extends WP_Upgrader {
 				return new WP_Error('decryption_failed', __('Decryption failed. The most likely cause is that you used the wrong key.','updraftplus'));
 			}
 		} else {
-			$wp_filesystem->copy($package, $working_dir.'/backup.db.gz');
+
+			if (!$wp_filesystem->copy($backup_dir.$package, $working_dir.'/backup.db.gz')) {
+				if ( $wp_filesystem->errors->get_error_code() ) { 
+					foreach ( $wp_filesystem->errors->get_error_messages() as $message ) show_message($message); 
+				}
+				return new WP_Error('copy_failed', $this->strings['copy_failed']);
+			}
+
 		}
 
-		// Once extracted, delete the package if required.
+		// Once extracted, delete the package if required (non-recursive, is a file)
 		if ( $delete_package )
-			unlink($package);
+			$wp_filesystem->delete($backup_dir.$package, false, true);
 
 		return $working_dir;
 
@@ -147,6 +161,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 	}
 
+	// $backup_file is just the basename
 	function restore_backup($backup_file, $type, $service, $info) {
 
 		if ($type == 'more') {
@@ -165,17 +180,17 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		@set_time_limit(1800);
 
-		$download = $this->download_package($backup_file);
-		if ( is_wp_error($download) ) return $download;
-		
 		$delete = (UpdraftPlus_Options::get_updraft_option('updraft_delete_local')) ? true : false;
 		if ('none' == $service) {
 			if ($delete) _e('Will not delete the archive after unpacking it, because there was no cloud storage for this backup','updraftplus').'<br>';
 			$delete = false;
 		}
 
-		$working_dir = $this->unpack_package($download, $delete);
+		// This returns the wp_filesystem path
+		$working_dir = $this->unpack_package($backup_file, $delete);
+
 		if (is_wp_error($working_dir)) return $working_dir;
+		$working_dir_filesystem = WP_CONTENT_DIR.'/upgrade/'.basename($working_dir);
 
 		@set_time_limit(1800);
 
@@ -194,18 +209,18 @@ class Updraft_Restorer extends WP_Upgrader {
 			// There is a file backup.db.gz inside the working directory
 
 			# The 'off' check is for badly configured setups - http://wordpress.org/support/topic/plugin-wp-super-cache-warning-php-safe-mode-enabled-but-safe-mode-is-off
-			if(@ini_get('safe_mode') && strtolower(@ini_get('safe_mode')) != "off") {
+			if (@ini_get('safe_mode') && strtolower(@ini_get('safe_mode')) != "off") {
 				echo "<p>".__('Warning: PHP safe_mode is active on your server. Timeouts are much more likely. If these happen, then you will need to manually restore the file via phpMyAdmin or another method.', 'updraftplus')."</p><br/>";
 				return false;
 			}
 
-
-			if (!is_readable($working_dir.'/backup.db.gz')) return new WP_Error('gzopen_failed',__('Failed to find database file','updraftplus'));
+			// wp_filesystem has no gzopen method, so we switch to using the local filesystem (which is harmless, since we are performing read-only operations)
+			if (!is_readable($working_dir_filesystem.'/backup.db.gz')) return new WP_Error('gzopen_failed',__('Failed to find database file','updraftplus')." ($working_dir/backup.db.gz)");
 
 			$this->skin->feedback('restore_database');
 
 			// Read-only access: don't need to go through WP_Filesystem
-			$dbhandle = gzopen($working_dir.'/backup.db.gz', 'r');
+			$dbhandle = gzopen($working_dir_filesystem.'/backup.db.gz', 'r');
 			if (!$dbhandle) return new WP_Error('gzopen_failed',__('Failed to open database file','updraftplus'));
 
 			$line = 0;
@@ -289,7 +304,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			$time_taken = microtime(true) - $start_time;
 			echo sprintf(__('Finished: lines processed: %d in %.2f seconds','updraftplus'),$line, $time_taken)."<br>";
 			gzclose($dbhandle);
-			@unlink($working_dir.'/backup.db.gz');
+			$wp_filesystem->delete($working_dir.'/backup.db.gz', false, true);
 
 		} else {
 

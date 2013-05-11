@@ -53,7 +53,7 @@ class UpdraftPlus_BackupModule_googledrive {
 			'response_type' => 'code',
 			'client_id' => UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid'),
 			'redirect_uri' => admin_url('options-general.php?page=updraftplus&action=updraftmethod-googledrive-auth'),
-			'scope' => 'https://www.googleapis.com/auth/drive.file https://docs.google.com/feeds/ https://docs.googleusercontent.com/ https://spreadsheets.google.com/feeds/',
+			'scope' => 'https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/drive.file https://docs.google.com/feeds/ https://docs.googleusercontent.com/ https://spreadsheets.google.com/feeds/',
 			'state' => 'token',
 			'access_type' => 'offline',
 			'approval_prompt' => 'force'

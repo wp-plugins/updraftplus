@@ -3,7 +3,7 @@ Contributors: DavidAnderson
 Tags: backup, restore, database, rackspace, amazon, s3, dropbox, google drive, ftp, webdav, back up, multisite
 Requires at least: 3.1
 Tested up to: 3.5.1
-Stable tag: 1.6.1
+Stable tag: 1.6.2
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -119,6 +119,9 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
+= 1.6.2 - 05/11/2013 =
+* FIX: Prevent PHP fatal error on some database restores
+
 = 1.6.1 - 05/06/2013 =
 * FEATURE: New "Migrator" add-on for moving sites from one WordPress install to another (http://updraftplus.com/shop/)
 * FEATURE: The "More files" add-on can now back up any files from anywhere on your filesystem (not just parts of WordPress)
@@ -126,9 +129,11 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: Dropbox and Google Drive now check available quota before uploading
 * FEATURE: Nederlands / Dutch (nl_NL) translation: thanks to Hans van der Vlist - hansvandervlist@gmail.com
 * FEATURE: The SFTP/FTPS add-on now supports implicit encryption (so now both explicit + implicit are supported)
-* FIX: Fix corruption issue in larger Rackspace Cloud Files backups (fixed a bug in Rackspace's Cloud Files library)
+* FIX: Google Drive now requires additional permissions to download your files - you will need to re-authenticate if you are downloading or restoring.
+* FIX: Fix serious corruption issue in larger Rackspace Cloud Files backups (fixed a bug in Rackspace's Cloud Files library)
 * FIX: Fix mcrypt call in Dropbox module to be compatible with PHP 5.2 on Windows, and with ancient FreeBSD versions which have no /dev/urandom
 * FIX: Allow top-level "Restore" button even if no backup sets currently known (to allow uploading some)
+* FIX: Fixed issues hindering restoration on web hosting setups with file permissions that invoked WP's remote filesystem methods
 * TWEAK: Database backup now includes more info about original WP install (e.g. WP/PHP versions)
 * TWEAK: The "More files" add-on now allows the user to choose whether to restore wp-config.php or not (and gives help)
 * TWEAK: Added an approximate expected row count when beginning to dump out a table
@@ -453,4 +458,4 @@ We recognise and thank the following for code and/or libraries used and/or modif
 Furthermore, reliance upon any non-English translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
 
 == Upgrade Notice ==
-1.6.1: Various new features. Small bug fixes + one larger corruption issue in larger Rackspace Cloud Files backups (a bug in Rackspace's library). Recommended update for all.
+1.6.2: Prevent PHP fatal error on some database restores.
