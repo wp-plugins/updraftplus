@@ -221,11 +221,16 @@ class UpdraftPlus_Backup {
 				# 25Mb - force a write-out and re-open
 				if ($data_added_since_reopen > 26214400 || (time() - $this->zipfiles_lastwritetime) > 2) {
 
+					$something_useful_sizetest = false;
+
 					$before_size = filesize($zipfile);
 					clearstatcache();
 
 					if ($data_added_since_reopen > 26214400) {
 						$updraftplus->log("Adding batch to zip file: over 25Mb added on this batch (".round($data_added_since_reopen/1048576,1)." Mb); re-opening (prior size: ".round($before_size/1024,1).' Kb)');
+
+						$something_useful_sizetest = true;
+
 					} else {
 						$updraftplus->log("Adding batch to zip file: over 2 seconds have passed since the last write (".round($data_added_since_reopen/1048576,1)." Mb); re-opening (prior size: ".round($before_size/1024,1).' Kb)');
 					}
@@ -239,7 +244,20 @@ class UpdraftPlus_Backup {
 					$data_added_since_reopen = 0;
 					$this->zipfiles_lastwritetime = time();
 					// Call here, in case we've got so many big files that we don't complete the whole routine
-					if (filesize($zipfile) > $before_size) $updraftplus->something_useful_happened();
+					if (filesize($zipfile) > $before_size) {
+
+						# TODO: How long since the current run began? If it's taken long (and we're in danger of not making it at all), then we should reduce the amount.
+
+						if ($something_useful_sizetest && !$updraftplus->something_useful_happened) {
+						
+							$time_since_began = microtime(true)-$this->opened_log_time;
+						
+// 							$updraftplus->log();
+						}
+
+
+						$updraftplus->something_useful_happened();
+					}
 					clearstatcache();
 				}
 			}

@@ -52,7 +52,7 @@ class Dropbox_Encrypter
         // Only MCRYPT_RAND is available on Windows prior to PHP 5.3
         if (version_compare(phpversion(), '5.3.0', '<') && strtoupper(substr(php_uname('s'), 0, 3)) === 'WIN') {
             $crypt_source = MCRYPT_RAND;
-        } elseif (is_readable("/dev/urandom")) {
+        } elseif (@is_readable("/dev/urandom")) {
             $crypt_source = MCRYPT_DEV_URANDOM;
         } else {
             $crypt_source = MCRYPT_RAND;

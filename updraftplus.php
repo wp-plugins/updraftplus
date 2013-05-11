@@ -15,6 +15,8 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // When you migrate/restore, if there is a .htaccess, warn/give option about it.
 // Add an appeal for translators to email me.
+// Replace 'Donation' suggestion. Nobody donates. ;-)
+// delete_old_dirs() needs to use WP_Filesystem in a more user-friendly way when errors occur
 // Facility to delete backup sets, with confirm (if someone backs up for a year, every 4 hours - huge list! Yuk.)
 // Bulk download of entire set at once (not have to click 7 times).
 // Fix generation of excessive transients
@@ -119,7 +121,10 @@ if (!isset($updraftplus)) $updraftplus = new UpdraftPlus();
 
 if (!$updraftplus->memory_check(192)) {
 // Experience appears to show that the memory limit is only likely to be hit (unless it is very low) by single files that are larger than available memory (when compressed)
-	@ini_set('memory_limit', WP_MAX_MEMORY_LIMIT); //up the memory limit to the maximum WordPress is allowing for large backup files
+	# Add sanity check - found someone who'd set WP_MAX_MEMORY_LIMIT to 256K !
+	if (!$updraftplus->memory_check($updraftplus->memory_check_current(WP_MAX_MEMORY_LIMIT))) {
+		@ini_set('memory_limit', WP_MAX_MEMORY_LIMIT); //up the memory limit to the maximum WordPress is allowing for large backup files
+	}
 }
 
 if (!class_exists('UpdraftPlus_Options')) require_once(UPDRAFTPLUS_DIR.'/options.php');
@@ -156,6 +161,7 @@ class UpdraftPlus {
 	var $backup_dir;
 
 	var $jobdata;
+	var $something_useful_happened = false;
 
 	// Used to schedule resumption attempts beyond the tenth, if needed
 	var $current_resumption;
@@ -383,6 +389,8 @@ class UpdraftPlus {
 
 	function something_useful_happened() {
 
+		$this->something_useful_happened = true;
+
 		// First, update the record of maximum detected runtime on each run
 		$time_passed = $this->jobdata_get('run_times');
 		if (!is_array($time_passed)) $time_passed = array();
@@ -609,14 +617,15 @@ class UpdraftPlus {
 		}
 
 		if (count($undone_files) == 0) {
+			$this->log("Resume backup ($bnonce, $resumption_no): finish run");
 			$this->log("There were no more files that needed uploading; backup job is complete");
 			// No email, as the user probably already got one if something else completed the run
 			$this->backup_finish($next_resumption, true, false, $resumption_no);
 			return;
+		} else {
+			$this->log("Requesting backup of the files that were not successfully uploaded (".count($undone_files).")");
+			$this->cloud_backup($undone_files);
 		}
-
-		$this->log("Requesting backup of the files that were not successfully uploaded");
-		$this->cloud_backup($undone_files);
 
 		$this->log("Resume backup ($bnonce, $resumption_no): finish run");
 		if (is_array($our_files)) $this->save_last_backup($our_files);
@@ -920,7 +929,11 @@ class UpdraftPlus {
 			$remote_obj->backup($backup_array);
 		} elseif ($service == "none") {
 			$this->prune_retained_backups("none", null, null);
+		} else {
+			$this->log("Unexpected error: no method '$service' was found ($method_include)");
+			$this->error(__("Unexpected error: no method '$service' was found (your UpdraftPlus installation seems broken - try re-installing)",'updraftplus'));
 		}
+
 	}
 
 	function prune_file($service, $dofile, $method_object = null, $object_passback = null ) {
@@ -1779,14 +1792,14 @@ class UpdraftPlus {
 		return  ($input > 0 && $input < 3650) ? $input : 1;
 	}
 
-	function memory_check_current() {
+	function memory_check_current($memory_limit = false) {
 		# Returns in megabytes
-		$memory_limit = ini_get('memory_limit');
+		if ($memory_limit == false) $memory_limit = ini_get('memory_limit');
 		$memory_unit = $memory_limit[strlen($memory_limit)-1];
 		$memory_limit = substr($memory_limit,0,strlen($memory_limit)-1);
 		switch($memory_unit) {
 			case 'K':
-				$memory_limit = $memory_limit/1024;
+				$memory_limit = floor($memory_limit/1024);
 			break;
 			case 'G':
 				$memory_limit = $memory_limit*1024;
@@ -1798,8 +1811,8 @@ class UpdraftPlus {
 		return $memory_limit;
 	}
 
-	function memory_check($memory) {
-		$memory_limit = $this->memory_check_current();
+	function memory_check($memory, $check_using = false) {
+		$memory_limit = $this->memory_check_current($check_using);
 		return ($memory_limit >= $memory)?true:false;
 	}
 
