@@ -250,11 +250,24 @@ class UpdraftPlus_Backup {
 
 						if ($something_useful_sizetest && !$updraftplus->something_useful_happened) {
 						
-							$time_since_began = microtime(true)-$this->opened_log_time;
-						
-// 							$updraftplus->log();
-						}
+							$time_since_began = microtime(true)- $this->zipfiles_lastwritetime;
 
+							$updraftplus->log(sprintf("A useful amount of data was added after this amount of zip processing: %s s", round($time_since_began, 1)));
+							
+							if ($updraftplus->current_resumption >= 8) {
+
+								$time_passed = $updraftplus->jobdata_get('run_times');
+								if (!is_array($time_passed)) $time_passed = array();
+								
+								list($max_time, $timings_string, $run_times_known) = $this->max_time_passed($time_passed, $updraftplus->current_resumption-1);
+								
+								// TODO: We don't yet take any action - we want to see more real-world data firsts
+								if ($run_times_known >= 6 && $max_time < $time_since_began + 20) {
+									$updraftplus->log("We are within 20 seconds of the expected maximum amount of time available; the zip-writing thresholds should be reduced (max_time: $max_time, data points known: $run_times_known)");
+								}
+								
+							}
+						}
 
 						$updraftplus->something_useful_happened();
 					}

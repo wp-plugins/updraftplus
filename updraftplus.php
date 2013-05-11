@@ -394,6 +394,7 @@ class UpdraftPlus {
 		// First, update the record of maximum detected runtime on each run
 		$time_passed = $this->jobdata_get('run_times');
 		if (!is_array($time_passed)) $time_passed = array();
+
 		$time_passed[$this->current_resumption] = microtime(true)-$this->opened_log_time;
 		$this->jobdata_set('run_times', $time_passed);
 
@@ -498,20 +499,8 @@ class UpdraftPlus {
 
 		// We just do this once, as we don't want to be in permanent conflict with the overlap detector
 		if ($resumption_no == 8) {
-			$max_time = 0;
 			// $time_passed is set earlier
-			$timings_string = "";
-			$run_times_known=0;
-			for ($i=0; $i<=7; $i++) {
-				$timings_string .= "$i:";
-				if (isset($time_passed[$i])) {
-					$timings_string .=  round($time_passed[$i], 1).' ';
-					$run_times_known++;
-					if ($time_passed[$i] > $max_time) $max_time = round($time_passed[$i]);
-				} else {
-					$timings_string .=  '? ';
-				}
-			}
+			list($max_time, $timings_string, $run_times_known) = $this->max_time_passed($time_passed, 7);
 			$this->log("Time passed on previous resumptions: $timings_string (known: $run_times_known, max: $max_time)");
 			if ($run_times_known >= 6 && ($max_time + 35 < $resume_interval)) {
 				$resume_interval = round($max_time + 35);
@@ -631,6 +620,23 @@ class UpdraftPlus {
 		if (is_array($our_files)) $this->save_last_backup($our_files);
 		$this->backup_finish($next_resumption, true, true, $resumption_no);
 
+	}
+
+	function max_time_passed($time_passed, $upto) {
+		$max_time = 0;
+		$timings_string = "";
+		$run_times_known=0;
+		for ($i=0; $i<=$upto; $i++) {
+			$timings_string .= "$i:";
+			if (isset($time_passed[$i])) {
+				$timings_string .=  round($time_passed[$i], 1).' ';
+				$run_times_known++;
+				if ($time_passed[$i] > $max_time) $max_time = round($time_passed[$i]);
+			} else {
+				$timings_string .=  '? ';
+			}
+		}
+		return array($max_time, $timings_string, $run_times_known);
 	}
 
 	function backup_all() {
