@@ -90,7 +90,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		// Once extracted, delete the package if required (non-recursive, is a file)
 		if ( $delete_package )
-			$wp_filesystem->unlink($backup_dir.$package, false, true);
+			$wp_filesystem->delete($backup_dir.$package, false, true);
 
 		return $working_dir;
 
