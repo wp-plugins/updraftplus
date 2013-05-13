@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.2
+Version: 1.6.1
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -1309,6 +1309,17 @@ class UpdraftPlus {
 		$this->stow("/*!40101 SET foreign_key_checks = 0 */;\n");
 	}
 
+	// The purpose of this function is to make sure that the options table is put in the database first, then the usermeta table
+	function backup_db_sorttables($a, $b) {
+		global $table_prefix;
+		if ($a == $b) return 0;
+		if ($a == $table_prefix.'options') return -1;
+		if ($b ==  $table_prefix.'options') return 1;
+		if ($a == $table_prefix.'usermeta') return -1;
+		if ($b ==  $table_prefix.'usermeta') return 1;
+		return strcmp($a, $b);
+	}
+
 	/* This function is resumable, using the following method:
 	- Each table is written out to ($final_filename).table.tmp
 	- When the writing finishes, it is renamed to ($final_filename).table
@@ -1346,6 +1357,9 @@ class UpdraftPlus {
 		}
 
 		$stitch_files = array();
+
+		// Put the options table first
+		usort($all_tables, array($this, 'backup_db_sorttables'));
 
 		foreach ($all_tables as $table) {
 			$total_tables++;
