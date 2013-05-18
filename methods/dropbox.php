@@ -50,7 +50,6 @@ class UpdraftPlus_BackupModule_dropbox {
 		} catch (Exception $e) {
 			$updraftplus->log('Dropbox error: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
 			$updraftplus->error('Dropbox ',sprintf(__('error: %s (see log file for more)','updraftplus'), $e->getMessage()));
-
 			return false;
 		}
 

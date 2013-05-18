@@ -27,6 +27,7 @@ class UpdraftPlus_Admin {
 		add_action('wp_ajax_plupload_action2', array($this,'plupload_action2'));
 
 		global $updraftplus, $wp_version, $pagenow;
+		add_filter('updraftplus_dirlist_others', array($updraftplus, 'backup_others_dirlist'));
 
 		// First, the checks that are on all (admin) pages:
 
@@ -106,6 +107,13 @@ class UpdraftPlus_Admin {
 		var updraft_downloader_nonce = '<?php wp_create_nonce("updraftplus_download"); ?>'
 		</script>
 		<style type="text/css">
+		.updraftplus-remove {
+			color: red;
+		}
+		.updraftplus-remove:hover {
+			background-color: red;
+			color: #fff;
+		}
 		.drag-drop #drag-drop-area2 {
 			border: 4px dashed #ddd;
 			height: 200px;
@@ -276,7 +284,7 @@ class UpdraftPlus_Admin {
 			$updraftplus->log('The file was found locally and matched the recorded size from the backup history ('.round($known_size/1024,1).' Kb)');
 		} else {
 			$updraftplus->log('No file size was found recorded in the backup history. We will assume the local one is complete.');
-			$known_size  = filesize($fullpath);
+			$known_size = filesize($fullpath);
 		}
 
 		// The AJAX responder that updates on progress wants to see this
@@ -356,8 +364,38 @@ class UpdraftPlus_Admin {
 			echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', '('.__('Nothing yet logged', 'updraftplus').')'));
 		} elseif ('lastbackup' == $_GET['subaction']) {
 			echo $this->last_backup_html();
-		} elseif ('diskspaceused' == $_GET['subaction']) {
-			echo $this->recursive_directory_size($updraftplus->backups_dir_location());
+		} elseif ('deletejob' == $_GET['subaction'] && isset($_GET['jobid'])) {
+
+			$cron = get_option('cron');
+			$found_it = 0;
+			foreach ($cron as $time => $job) {
+				if (isset($job['updraft_backup_resume'])) {
+					foreach ($job['updraft_backup_resume'] as $hook => $info) {
+						if (isset($info['args'][1]) && $info['args'][1] == $_GET['jobid']) {
+							$found_it = 1;
+							$args = $cron[$time]['updraft_backup_resume'][$hook]['args'];
+							wp_unschedule_event($time, 'updraft_backup_resume', $args);
+							echo 'Y:'.__('Job deleted', 'updraftplus');
+						}
+					}
+				}
+			}
+
+			if (!$found_it) { echo 'X:'.__('Could not find that job - perhaps it has already finished?', 'updraftplus'); }
+
+			
+		} elseif ('diskspaceused' == $_GET['subaction'] && isset($_GET['entity'])) {
+			if ($_GET['entity'] == 'updraft') {
+				echo $this->recursive_directory_size($updraftplus->backups_dir_location());
+			} else {
+				$backupable_entities = $updraftplus->get_backupable_file_entities(true, false);
+				if (!empty($backupable_entities[$_GET['entity']])) {
+					$dirs = apply_filters('updraftplus_dirlist_'.$_GET['entity'], $backupable_entities[$_GET['entity']]);
+					echo $this->recursive_directory_size($dirs);
+				} else {
+					_e('Error','updraftplus');
+				}
+			}
 		} elseif ('historystatus' == $_GET['subaction']) {
 			$rescan = (isset($_GET['rescan']) && $_GET['rescan'] == 1);
 			if ($rescan) $this->rebuild_backup_history();
@@ -816,10 +854,13 @@ class UpdraftPlus_Admin {
 				</tr>
 				<tr>
 					<th><?php echo htmlspecialchars(__('Backups, logs & restoring','updraftplus')); ?>:</th>
-					<td><a id="updraft_showbackups" href="#" title="<?php _e('Press to see available backups','updraftplus');?>" onclick="jQuery('.download-backups').toggle(); updraft_historytimertoggle(0);"><?php echo sprintf(__('%d set(s) available', 'updraftplus'), count($backup_history)); ?></a></td>
+					<td><a id="updraft_showbackups" href="#" title="<?php _e('Press to see available backups','updraftplus');?>" onclick="jQuery('.download-backups').fadeToggle(); updraft_historytimertoggle(0);"><?php echo sprintf(__('%d set(s) available', 'updraftplus'), count($backup_history)); ?></a></td>
 				</tr>
+			</table>
+			<table class="form-table">
 				<tr>
-					<td></td><td class="download-backups" style="display:none; border: 1px dotted;">
+					<td style="">&nbsp;</td><td class="download-backups" style="display:none; border: 2px dashed #aaa;">
+						<h2><?php echo __('Downloading and restoring', 'updraftplus'); ?></h2>
 						<p style="max-width: 740px;"><ul style="list-style: disc inside;">
 						<li><strong><?php _e('Downloading','updraftplus');?>:</strong> <?php _e("Pressing a button for Database/Plugins/Themes/Uploads/Others will make UpdraftPlus try to bring the backup file back from the remote storage (if any - e.g. Amazon S3, Dropbox, Google Drive, FTP) to your webserver. Then you will be allowed to download it to your computer. If the fetch from the remote storage stops progressing (wait 30 seconds to make sure), then press again to resume. Remember that you can also visit the cloud storage vendor's website directly.",'updraftplus');?></li>
 						<li><strong><?php _e('Restoring','updraftplus');?>:</strong> <?php _e("Press the button for the backup you wish to restore. If your site is large and you are using remote storage, then you should first click on each entity in order to retrieve it back to the webserver. This will prevent time-outs from occuring during the restore process itself.",'updraftplus');?> <?php _e('More tasks:','updraftplus');?> <a href="#" onclick="jQuery('#updraft-plupload-modal').slideToggle(); return false;"><?php _e('upload backup files','updraftplus');?></a> | <a href="#" onclick="updraft_updatehistory(1); return false;" title="<?php _e('Press here to look inside your UpdraftPlus directory (in your web hosting space) for any new backup sets that you have uploaded. The location of this directory is set in the expert settings, below.','updraftplus'); ?>"><?php _e('rescan folder for new backup sets','updraftplus');?></a></li>
@@ -849,7 +890,7 @@ class UpdraftPlus_Admin {
 						<script>
 							function updraftplus_diskspace() {
 								jQuery('#updraft_diskspaceused').html('<em><?php _e('calculating...','updraftplus');?></em>');
-								jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'diskspaceused', nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>' }, function(response) {
+								jQuery.get(ajaxurl, { action: 'updraft_ajax', entity: 'updraft', subaction: 'diskspaceused', nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>' }, function(response) {
 									jQuery('#updraft_diskspaceused').html(response);
 								});
 							}
@@ -943,6 +984,21 @@ class UpdraftPlus_Admin {
 				</tr>
 			</table>
 
+<div id="updraft-delete-modal" title="<?php _e('Delete backup set', 'updraftplus');?>">
+<form id="updraft_delete_form" method="post">
+	<p>
+		<?php _e('Are you sure that you wish to delete this backup set?', 'updraftplus'); ?>
+	</p>
+	<fieldset>
+		<input type="hidden" name="action" value="updraft_delete">
+		<input type="hidden" name="backup_timestamp" value="0" id="updraft_delete_timestamp">
+		<input type="hidden" name="backup_nonce" value="0" id="updraft_delete_nonce">
+		<input type="checkbox" name="" id=""> <label for=""><?php _e('Delete from remote storage (if any)', 'updraftplus');?></label><br>
+		<input type="checkbox" name="" id=""> <label for=""><?php _e('Delete from UpdraftPlus\'s memory', 'updraftplus');?></label>
+	</fieldset>
+</form>
+</div>
+
 <div id="updraft-restore-modal" title="UpdraftPlus - <?php _e('Restore backup','updraftplus');?>">
 <p><strong><?php _e('Restore backup from','updraftplus');?>:</strong> <span id="updraft_restore_date"></span></p>
 <p><?php _e("Restoring will replace this site's themes, plugins, uploads, database and/or other content directories (according to what is contained in the backup set, and your selection).",'updraftplus');?> <?php _e('Choose the components to restore','updraftplus');?>:</p>
@@ -1028,44 +1084,122 @@ class UpdraftPlus_Admin {
 				</tr>
 				</table>
 			<?php } ?>
-			<h2><?php _e('Configure Backup Contents And Schedule','updraftplus');?></h2>
+			<h2 style="margin-top: 6px;"><?php _e('Configure Backup Contents And Schedule','updraftplus');?></h2>
 			<?php UpdraftPlus_Options::options_form_begin(); ?>
 				<?php $this->settings_formcontents($last_backup_html); ?>
 			</form>
 			<div style="padding-top: 40px; display:none;" class="expertmode">
 				<hr>
-				<h3><?php _e('Debug Information And Expert Options','updraftplus');?></h3>
+				<h2><?php _e('Debug Information And Expert Options','updraftplus');?></h2>
 				<p>
 				<?php
+				echo sprintf(__('Web server:','updraftplus'), 'PHP').' '.htmlspecialchars($_SERVER["SERVER_SOFTWARE"]).' ('.htmlspecialchars(php_uname()).')<br />';
 				$peak_memory_usage = memory_get_peak_usage(true)/1024/1024;
 				$memory_usage = memory_get_usage(true)/1024/1024;
 				echo __('Peak memory usage','updraftplus').': '.$peak_memory_usage.' MB<br/>';
 				echo __('Current memory usage','updraftplus').': '.$memory_usage.' MB<br/>';
 				echo __('PHP memory limit','updraftplus').': '.ini_get('memory_limit').' <br/>';
 				echo sprintf(__('%s version:','updraftplus'), 'PHP').' '.phpversion().' <br />';
-				echo sprintf(__('Web server:','updraftplus'), 'PHP').' '.htmlspecialchars($_SERVER["SERVER_SOFTWARE"]).' ('.htmlspecialchars(php_uname()).')<br />';
-				?>
-				</p>
-				<p style="max-width: 600px;"><?php _e('The buttons below will immediately execute a backup run, independently of WordPress\'s scheduler. If these work whilst your scheduled backups and the "Backup Now" button do absolutely nothing (i.e. not even produce a log file), then it means that your scheduler is broken. You should then disable all your other plugins, and try the "Backup Now" button. If that fails, then contact your web hosting company and ask them if they have disabled wp-cron. If it succeeds, then re-activate your other plugins one-by-one, and find the one that is the problem and report a bug to them.','updraftplus');?></p>
 
+				if (version_compare(phpversion(), '5.2.0', '>=') && extension_loaded('zip')) {
+					$ziparchive_exists .= __('Yes', 'updraftplus');
+				} else {
+					$ziparchive_exists .= (method_exists('ZipArchive', 'addFile')) ? __('Yes', 'updraftplus') : __('No', 'updraftplus');
+				}
+
+				echo __('PHP has support for ZipArchive::addFile:', 'updraftplus').' '.$ziparchive_exists.'<br>';
+
+				echo __('/usr/bin/zip can be executed:', 'updraftplus').' '.(@is_executable('/usr/bin/zip') ? __('Yes') : __('No')).'<br>';
+
+				echo '<h3>'.__('Total (uncompressed) on-disk data:','updraftplus').'</h3>';
+				echo '<p style="clear: left; max-width: 600px;"><em>'.__('N.B. This count is based upon what was, or was not, excluded the last time you saved the options.', 'updraftplus').'</em></p>';
+
+				foreach ($backupable_entities as $key => $info) {
+
+					$sdescrip = preg_replace('/ \(.*\)$/', '', $info['description']);
+					if (strlen($sdescrip) > 20 && isset($info['shortdescription'])) $sdescrip = $info['shortdescription'];
+
+					echo '<div style="clear: left;float:left; width:150px;">'.ucfirst($sdescrip).':</strong></div><div style="float:left;"><span id="updraft_diskspaceused_'.$key.'"><em></em></span> <a href="#" onclick="updraftplus_diskspace_entity(\''.$key.'\'); return false;">'.__('count','updraftplus').'</a></div>';
+				}
+
+				?>
+
+				</p>
+				<p style="clear: left; padding-top: 20px; max-width: 600px; margin:0;"><?php _e('The buttons below will immediately execute a backup run, independently of WordPress\'s scheduler. If these work whilst your scheduled backups and the "Backup Now" button do absolutely nothing (i.e. not even produce a log file), then it means that your scheduler is broken. You should then disable all your other plugins, and try the "Backup Now" button. If that fails, then contact your web hosting company and ask them if they have disabled wp-cron. If it succeeds, then re-activate your other plugins one-by-one, and find the one that is the problem and report a bug to them.','updraftplus');?></p>
+
+				<table border="0" style="border: none;">
+				<tbody>
+				<tr>
+				<td>
 				<form method="post">
 					<input type="hidden" name="action" value="updraft_backup_debug_all" />
 					<p><input type="submit" class="button-primary" <?php echo $backup_disabled ?> value="<?php _e('Debug Full Backup','updraftplus');?>" onclick="return(confirm('<?php echo htmlspecialchars(__('This will cause an immediate backup. The page will stall loading until it finishes (ie, unscheduled).','updraftplus'));?>'))" /></p>
 				</form>
+				</td><td>
 				<form method="post">
 					<input type="hidden" name="action" value="updraft_backup_debug_db" />
 					<p><input type="submit" class="button-primary" <?php echo $backup_disabled ?> value="<?php _e('Debug Database Backup','updraftplus');?>" onclick="return(confirm('<?php echo htmlspecialchars(__('This will cause an immediate DB backup. The page will stall loading until it finishes (ie, unscheduled). The backup may well run out of time; really this button is only helpful for checking that the backup is able to get through the initial stages, or for small WordPress sites..','updraftplus'));?>'))" /></p>
 				</form>
+				</td>
+				</tr>
+				</tbody>
+				</table>
 				<h3><?php _e('Wipe Settings','updraftplus');?></h3>
 				<p style="max-width: 600px;"><?php _e('This button will delete all UpdraftPlus settings (but not any of your existing backups from your cloud storage). You will then need to enter all your settings again. You can also do this before deactivating/deinstalling UpdraftPlus if you wish.','updraftplus');?></p>
 				<form method="post">
 					<input type="hidden" name="action" value="updraft_wipesettings" />
 					<p><input type="submit" class="button-primary" value="<?php _e('Wipe All Settings','updraftplus'); ?>" onclick="return(confirm('<?php echo htmlspecialchars(__('This will delete all your UpdraftPlus settings - are you sure you want to do this?'));?>'))" /></p>
 				</form>
+				<h3><?php _e('Active jobs', 'updraftplus');?></h3>
+				<p><em><?php _e('Refresh your page in order to update this list.', 'updraftplus');?></em></p>
+				<?php
+					$cron = get_option('cron');
+					$found_jobs = 0;
+					foreach ($cron as $time => $job) {
+						if (isset($job['updraft_backup_resume'])) {
+							foreach ($job['updraft_backup_resume'] as $hook => $info) {
+								if (isset($info['args'][1])) {
+									$found_jobs++;
+									$job_id = $info['args'][1];
+									$jobdata = get_transient("updraft_jobdata_".$job_id);
+									if (!is_array($jobdata)) $jobdata = array();
+									$began_at = (isset($jobdata['backup_time'])) ? get_date_from_gmt(gmdate('Y-m-d H:i:s', $jobdata['backup_time']), 'D, F j, Y H:i') : '?';
+									echo '<div style="clear:left; float:left;" id="updraft-jobid-'.$job_id.'">'.sprintf(__("%s: began at: %s; next resumption: %d (after %ss)", 'updraftplus'), $job_id, $began_at, $info['args'][0], $time-time()).' - <a href="?page=updraftplus&action=downloadlog&updraftplus_backup_nonce='.$job_id.'">'.__('show log', 'updraftplus').'</a> - <a href="javascript:updraft_activejobs_delete(\''.$job_id.'\')">'.__('delete schedule', 'updraftplus').'</a></div>';;
+// 									echo str_replace("\n", "<br>", print_r($job, true));
+								}
+							}
+						}
+					}
+					if (0 == $found_jobs) {
+						echo '<p><em>'.__('(None)', 'updraftplus').'</em></p>';
+					}
+				?>
 			</div>
 
 			<script type="text/javascript">
 			/* <![CDATA[ */
+				
+				function updraft_activejobs_delete(jobid) {
+					jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'deletejob', jobid: jobid, nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>' }, function(response) {
+						if (response.substr(0,2) == 'Y:') {
+							jQuery('#updraft-jobid-'+jobid).html(response.substr(2)).fadeOut('slow', function() {
+								jQuery(this).remove();
+							});
+						} else if (response.substr(0,2) == 'X:') {
+							alert(response.substr(2));
+						} else {
+							alert('<?php _e('Unknown response:', 'updraftplus'); ?> '+response);
+						}
+					});
+				}
+
+				function updraftplus_diskspace_entity(key) {
+					jQuery('#updraft_diskspaceused_'+key).html('<em><?php _e('calculating...','updraftplus');?></em>');
+					jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'diskspaceused', entity: key, nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>' }, function(response) {
+						jQuery('#updraft_diskspaceused_'+key).html(response);
+					});
+				}
+
 				jQuery(document).ready(function() {
 					jQuery('#updraft-service').change(function() {
 						jQuery('.updraftplusmethod').hide();
@@ -1457,6 +1591,16 @@ ENDHERE;
 
 					updraft_check_same_times();
 
+					jQuery( "#updraft-delete-modal" ).dialog({
+						autoOpen: false, height: 260, width: 430, modal: true,
+						buttons: {
+							'<?php _e('Delete','updraftplus');?>': function() {
+								alert("TODO");
+							},
+							'<?php _e('Cancel','updraftplus');?>': function() { jQuery(this).dialog("close"); }
+						}
+					});
+
 					jQuery( "#updraft-restore-modal" ).dialog({
 						autoOpen: false, height: 505, width: 590, modal: true,
 						buttons: {
@@ -1607,7 +1751,28 @@ ENDHERE;
 		}
 	}
 
-	function recursive_directory_size($directory) {
+	function recursive_directory_size($directories) {
+
+		if (is_string($directories)) $directories = array($directories);
+
+		$size = 0;
+
+		foreach ($directories as $dir) $size += $this->recursive_directory_size_raw($dir);
+
+		if ($size > 1073741824) {
+			return round($size / 1073741824, 1).' Gb';
+		} elseif ($size > 1048576) {
+			return round($size / 1048576, 1).' Mb';
+		} elseif ($size > 1024) {
+			return round($size / 1024, 1).' Kb';
+		} else {
+			return round($size, 1).' b';
+		}
+
+	}
+
+	function recursive_directory_size_raw($directory) {
+
 		$size = 0;
 		if(substr($directory,-1) == '/') $directory = substr($directory,0,-1);
 
@@ -1620,22 +1785,16 @@ ENDHERE;
 					if(is_file($path)) {
 						$size += filesize($path);
 					} elseif(is_dir($path)) {
-						$handlesize = $this->recursive_directory_size($path);
-						if($handlesize >= 0) { $size += $handlesize; } else { return -1; }
+						$handlesize = $this->recursive_directory_size_raw($path);
+						if($handlesize >= 0) { $size += $handlesize; }# else { return -1; }
 					}
 				}
 			}
 			closedir($handle);
 		}
-		if ($size > 1073741824) {
-			return round($size / 1073741824, 1).' Gb';
-		} elseif ($size > 1048576) {
-			return round($size / 1048576, 1).' Mb';
-		} elseif ($size > 1024) {
-			return round($size / 1024, 1).' Kb';
-		} else {
-			return round($size, 1).' b';
-		}
+
+		return $size;
+
 	}
 
 	function existing_backup_table($backup_history = false) {
@@ -1659,7 +1818,7 @@ ENDHERE;
 			$entities = '';
 			?>
 		<tr>
-			<td><b><?php echo $pretty_date?></b></td>
+			<td><a href="javascript:updraft_delete('<?php echo $key;?>', '<?php echo $value['nonce']; ?>');" class="updraftplus-remove" style="display: none;border-radius:100%; -moz-border-radius: 100%; -webkit-border-radius: 100%; font-size: 1.5em; width: 1em; height: 1em;text-align:center;text-decoration:none;font-weight:bold;line-height: 1;" title="<?php echo __('Delete this backup set', 'updraftplus');?>">×</a></td><td><b><?php echo $pretty_date?></b></td>
 			<td>
 		<?php if (isset($value['db'])) {
 					$entities .= '/db/';
@@ -1713,6 +1872,11 @@ ENDHERE;
 			</td>
 		</tr>
 		<script>
+		function updraft_delete(key, nonce) {
+			jQuery('#updraft_delete_timestamp').val(key);
+			jQuery('#updraft_delete_nonce').val(nonce);
+			jQuery('#updraft-delete-modal').dialog('open');
+		}
 		function updraft_restore_setoptions(entities) {
 			var howmany = 0;
 			jQuery('input[name="updraft_restore[]"]').each(function(x,y){

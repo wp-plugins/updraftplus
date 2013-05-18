@@ -109,6 +109,7 @@ class UpdraftPlus_Backup {
 		if ($this->zip_preferpcl || (!extension_loaded('zip') && !method_exists('ZipArchive', 'AddFile'))) {
 			if(!class_exists('PclZip')) require_once(ABSPATH.'/wp-admin/includes/class-pclzip.php');
 			$zip_object = new PclZip($destination);
+			// TODO: WP_CONTENT_DIR: may not apply
 			$zipcode = $zip_object->create($source, PCLZIP_OPT_REMOVE_PATH, WP_CONTENT_DIR);
 			if ($zipcode == 0 ) {
 				$updraftplus->log("PclZip Error: ".$zip_object->errorInfo(true));
@@ -118,6 +119,52 @@ class UpdraftPlus_Backup {
 			}
 		}
 
+		// TODO: Inactive code (1==0) - unfinished
+		// TODO: First, test if works (do we have /usr/(local/)?bin/zip? Does it work with the -u switch? As part of that, don't bother trying in safe mode
+		// TODO: Handle stderr
+		if (1==0 && is_executable('/usr/bin/zip')) {
+
+				if (is_string($source)) $source = array($source);
+
+				$all_ok = true;
+
+				foreach ($source as $s) {
+
+					// TODO: Don't add -q in debug mode
+
+					$exec = "cd ".escapeshellarg(dirname($s))."; /usr/bin/zip -q -u -r ".escapeshellarg($destination)." ".escapeshellarg(basename($s))." ";
+
+					$updraftplus->log("Attempting binary zip ($exec)");
+
+					$handle = popen($exec, "r");
+					if ($handle) {
+						while (!feof($handle)) {
+							$w = fgets($handle);
+							if ($w) $updraftplus->log("Output from zip: ".trim($w));
+						}
+						$ret = pclose($handle);
+						if ($ret !=0) {
+							$updraftplus->log("Binary zip: error (code: $ret)");
+							$all_ok = false;
+						}
+					} else {
+						$updraftplus->log("Error: popen failed");
+						$all_ok = false;
+					}
+
+				}
+
+				if ($all_ok) {
+					$updraftplus->log("Binary zip: apparently successful");
+					return true;
+				} else {
+					// TODO: Should we then not use binary zip again???
+					// Is running over again wise? What if the error is harmless, but that the run-over-again times out and breaks the backup?
+					$updraftplus->log("Binary zip: an error occured, so we will run over again with ZipArchive");
+				}
+
+		}
+
 		$this->existing_files = array();
 
 		// If the file exists, then we should grab its index of files inside, and sizes
@@ -125,12 +172,14 @@ class UpdraftPlus_Backup {
 		if (file_exists($destination) && is_readable($destination)) {
 			$zip = new ZipArchive;
 			$zip->open($destination);
-			$updraftplus->log(basename($destination).": Zip file already exists, with ".$zip->numFiles." files");
-			for ($i=0; $i<$zip->numFiles; $i++) {
+
+			for ($i=0; $i < $zip->numFiles; $i++) {
 				$si = $zip->statIndex($i);
 				$name = $si['name'];
 				$this->existing_files[$name] = $si['size'];
 			}
+
+			$updraftplus->log(basename($destination).": Zip file already exists, with ".count($this->existing_files)." files");
 		} elseif (file_exists($destination)) {
 			$updraftplus->log("Zip file already exists, but is not readable; will remove: $destination");
 			@unlink($destination);
@@ -188,6 +237,9 @@ class UpdraftPlus_Backup {
 
 		global $updraftplus;
 
+		$maxzipbatch = $updraftplus->jobdata_get('maxzipbatch', 26214400);
+		if ((int)$maxzipbatch < 1) $maxzipbatch = 26214400;
+
 		// Short-circuit the null case, because we want to detect later if something useful happenned
 		if (count($this->zipfiles_dirbatched) == 0 && count($this->zipfiles_batched) == 0) return true;
 
@@ -195,7 +247,7 @@ class UpdraftPlus_Backup {
 
 		$data_added_since_reopen = 0;
 
-		$zip = new ZipArchive();
+		$zip = new ZipArchive;
 		if (file_exists($zipfile)) {
 			$opencode = $zip->open($zipfile);
 			$original_size = filesize($zipfile);
@@ -210,74 +262,183 @@ class UpdraftPlus_Backup {
 		while ($dir = array_pop($this->zipfiles_dirbatched)) {
 			$zip->addEmptyDir($dir);
 		}
+
 		foreach ($this->zipfiles_batched as $file => $add_as) {
 			$fsize = filesize($file);
+			
+			$sofar = 0;
+			
 			if (!isset($this->existing_files[$add_as]) || $this->existing_files[$add_as] != $fsize) {
 
 				@touch($zipfile);
 				$zip->addFile($file, $add_as);
+				$sofar++;
 
 				$data_added_since_reopen += $fsize;
 				# 25Mb - force a write-out and re-open
-				if ($data_added_since_reopen > 26214400 || (time() - $this->zipfiles_lastwritetime) > 2) {
+				if ($data_added_since_reopen > $maxzipbatch || (time() - $this->zipfiles_lastwritetime) > 1.5) {
 
 					$something_useful_sizetest = false;
 
 					$before_size = filesize($zipfile);
 					clearstatcache();
 
-					if ($data_added_since_reopen > 26214400) {
-						$updraftplus->log("Adding batch to zip file: over 25Mb added on this batch (".round($data_added_since_reopen/1048576,1)." Mb); re-opening (prior size: ".round($before_size/1024,1).' Kb)');
+					if ($data_added_since_reopen > $maxzipbatch) {
 
 						$something_useful_sizetest = true;
 
+						$updraftplus->log("Adding batch to zip file: over ".round($maxzipbatch/1048576,1)." Mb added on this batch (".round($data_added_since_reopen/1048576,1)." Mb, ".count($this->zipfiles_batched)." files batched, $sofar added so far); re-opening (prior size: ".round($before_size/1024,1).' Kb)');
+
 					} else {
-						$updraftplus->log("Adding batch to zip file: over 2 seconds have passed since the last write (".round($data_added_since_reopen/1048576,1)." Mb); re-opening (prior size: ".round($before_size/1024,1).' Kb)');
+						$updraftplus->log("Adding batch to zip file: over 1.5 seconds have passed since the last write (".round($data_added_since_reopen/1048576,1)." Mb); re-opening (prior size: ".round($before_size/1024,1).' Kb)');
 					}
 					if (!$zip->close()) {
-						$updraftplus->log("zip::Close returned an error");
+						$updraftplus->log("ZipArchive::Close returned an error");
 					}
 					unset($zip);
-					$zip = new ZipArchive();
+					$zip = new ZipArchive;
 					$opencode = $zip->open($zipfile);
 					if ($opencode !== true) return array($opencode, 0);
-					$data_added_since_reopen = 0;
-					$this->zipfiles_lastwritetime = time();
 					// Call here, in case we've got so many big files that we don't complete the whole routine
 					if (filesize($zipfile) > $before_size) {
 
-						# TODO: How long since the current run began? If it's taken long (and we're in danger of not making it at all), then we should reduce the amount.
+						# Need to make sure that something_useful_happened() is always called
 
-						if ($something_useful_sizetest && !$updraftplus->something_useful_happened) {
-						
-							$time_since_began = microtime(true)- $this->zipfiles_lastwritetime;
+						# How long since the current run began? If it's taken long (and we're in danger of not making it at all), or if that is forseeable in future because of general slowness, then we should reduce the parameters.
+						if (!$something_useful_sizetest) {
+							$updraftplus->something_useful_happened();
+						} else {
 
-							$updraftplus->log(sprintf("A useful amount of data was added after this amount of zip processing: %s s", round($time_since_began, 1)));
-							
-							if ($updraftplus->current_resumption >= 8) {
+							// Do this as early as possible
+							$updraftplus->something_useful_happened();
 
+							$time_since_began = max(microtime(true)- $this->zipfiles_lastwritetime, 0.000001);
+							$normalised_time_since_began = $time_since_began*($maxzipbatch/$data_added_since_reopen);
+
+							// Don't measure speed until after ZipArchive::close()
+							$rate = round($data_added_since_reopen/$time_since_began, 1);
+
+							$updraftplus->log(sprintf("A useful amount of data was added after this amount of zip processing: %s s (normalised: %s s, rate: %s Kb/s)", round($time_since_began, 1), round($normalised_time_since_began, 1), round($rate/1024, 1)));
+
+							// We want to detect not only that we need to reduce the size of batches, but also the capability to increase them. This is particularly important because of ZipArchive()'s (understandable, given the tendency of PHP processes being terminated without notice) practice of first creating a temporary zip file via copying before acting on that zip file (so the information is atomic). Unfortunately, once the size of the zip file gets over 100Mb, the copy operation beguns to be significant. By the time you've hit 500Mb on many web hosts the copy is the majority of the time taken. So we want to do more in between these copies if possible.
+
+							/* "Could have done more" - detect as:
+							- A batch operation would still leave a "good chunk" of time in a run
+							- "Good chunk" means that the time we took to add the batch is less than 50% of a run time
+							- We can do that on any run after the first (when at least one ceiling on the maximum time is known)
+							- But in the case where a max_execution_time is long (so that resumptions are never needed), and we're always on run 0, we will automatically increase chunk size if the batch took less than 6 seconds.
+							*/
+
+							// At one stage we had a strategy of not allowing check-ins to have more than 20s between them. However, once the zip file got to a certain size, PHP's habit of copying the entire zip file first meant that it *always* went over 18s, and thence a drop in the max size was inevitable - which was bad, because with the copy time being something that only grew, the outcome was less data being copied every time
+
+							// Gather the data. We try not to do this unless necessary (may be time-sensitive)
+							if ($updraftplus->current_resumption >= 1) {
 								$time_passed = $updraftplus->jobdata_get('run_times');
 								if (!is_array($time_passed)) $time_passed = array();
-								
-								list($max_time, $timings_string, $run_times_known) = $this->max_time_passed($time_passed, $updraftplus->current_resumption-1);
-								
-								// TODO: We don't yet take any action - we want to see more real-world data first
-								if ($run_times_known >= 6 && $max_time < $time_since_began + 20) {
-									$updraftplus->log("We are within 20 seconds of the expected maximum amount of time available; the zip-writing thresholds should be reduced (max_time: $max_time, data points known: $run_times_known)");
+								list($max_time, $timings_string, $run_times_known) = $updraftplus->max_time_passed($time_passed, $updraftplus->current_resumption-1);
+							} else {
+								$run_times_known = 0;
+								$max_time = -1;
+							}
+
+							// How many is the most seconds we 
+// 							$max_tolerate_seconds = 
+
+							// We set at 18, to allow approximately unexpected 10% extra in the batch to take it to 20s
+// 							if (($run_times_known <1 && $normalised_time_since_began > 18) || ($run_times_known >=1 && $normalised_time_since_began > $max_time)) {
+							// TODO: This is disabled via 1==0 - remove it properly
+ 							if (1==0 && $normalised_time_since_began > 18) {
+
+								// Don't do more than would have accounted for 18 normalised seconds at the same rate
+								// The line below means, do whichever-is-least-of 10% less, or what would have accounted for 18 normalised seconds - but never go lower than 1Mb.
+								$new_maxzipbatch = max( floor(min($maxzipbatch*(18/$normalised_time_since_began), $maxzipbatch*0.9)), 1048576);
+								if ($new_maxzipbatch < $maxzipbatch) {
+									$updraftplus->jobdata_set("maxzipbatch", $new_maxzipbatch);
+									$updraftplus->log("More than 18 (normalised) seconds passed since the last check-in, so we will adjust the amount of data we attempt in each batch (time_passed=$time_since_began, normalised_time_passed=$normalised_time_since_began, old_max_bytes=$maxzipbatch, new_max_bytes=$new_maxzipbatch)");
+									$maxzipbatch = $new_maxzipbatch;
+								} else {
+									$updraftplus->log("More than 18 (normalised) seconds passed since the last check-in, but the zip-writing threshold is already at its lower limit (1Mb), so will not be further reduced (max_bytes=$maxzipbatch, time_passed=$time_since_began, normalised_time_passed=$normalised_time_since_began)");
 								}
-								
+							} else {
+
+								if ($normalised_time_since_began<6 || ($updraftplus->current_resumption >=1 && $run_times_known >=1 && $time_since_began < 0.6*$max_time )) {
+									
+									// How much can we increase it by?
+									if ($normalised_time_since_began <6) {
+										if ($run_times_known > 0 && $max_time >0) {
+											$new_maxzipbatch = floor(max(
+												$maxzipbatch*6/$normalised_time_since_began, $maxzipbatch*((0.6*$max_time)/$normalised_time_since_began))
+											);
+										} else {
+											# Maximum of 200Mb in a batch
+											$new_maxzipbatch = min( floor($maxzipbatch*6/$normalised_time_since_began),
+											200*1024*1024
+											);
+										}
+									} else {
+										// Use up to 60% of available time
+										$new_maxzipbatch = min(
+										floor($maxzipbatch*((0.6*$max_time)/$normalised_time_since_began)),
+										200*1024*1024
+										);
+									}
+
+									# Throttle increases - don't increase by more than 2x in one go - ???
+									# $new_maxzipbatch = floor(min(2*$maxzipbatch, $new_maxzipbatch));
+									# Also don't allow anything that is going to be more than 18 seconds - actually, that's harmful because of the basically fixed time taken to copy the file
+									# $new_maxzipbatch = floor(min(18*$rate ,$new_maxzipbatch));
+
+									$updraftplus->jobdata_set("maxzipbatch", $new_maxzipbatch);
+									
+									if ($new_maxzipbatch > $maxzipbatch) {
+										$updraftplus->log("Performance is good - will increase the amount of data we attempt to batch (time=$time_since_began, normalised_time=$normalised_time_since_began, max_time=$max_time, data points known=$run_times_known, old_max_bytes=$maxzipbatch, new_max_bytes=$new_maxzipbatch)");
+									} elseif ($new_maxzipbatch < $maxzipbatch) {
+										// Ironically, we thought we were speedy...
+										$updraftplus->log("Adjust: Reducing maximum amount of batched data (time=$time_since_began, normalised_time=$normalised_time_since_began, max_time=$max_time, data points known=$run_times_known, new_max_bytes=$new_maxzipbatch, old_max_bytes=$maxzipbatch)");
+									} else {
+										$updraftplus->log("Performance is good - but we will not increase the amount of data we batch, as we are already at the present limit (time=$time_since_began, normalised_time=$normalised_time_since_began, max_time=$max_time, data points known=$run_times_known, max_bytes=$maxzipbatch)");
+									}
+
+									$maxzipbatch = $new_maxzipbatch;
+								}
+
+								// Detect excessive slowness
+								// Don't do this until we're on at least resumption 7, as we want to allow some time for things to settle down and the maxiumum time to be accurately known (since reducing the batch size unnecessarily can itself cause extra slowness, due to PHP's usage of temporary zip files)
+								 
+								// We use a percentage-based system as much as possible, to avoid the various criteria being in conflict with each other (i.e. a run being both 'slow' and 'fast' at the same time, which is increasingly likely as max_time gets smaller).
+
+								if (!$updraftplus->something_useful_happened && $updraftplus->current_resumption >= 7) {
+
+									$updraftplus->something_useful_happened();
+
+									if ($run_times_known >= 5 && ($time_since_began > 0.8 * $max_time || $time_since_began + 7 > $max_time)) {
+
+										$new_maxzipbatch = max(floor($maxzipbatch*0.8), 20971520);
+										if ($new_maxzipbatch < $maxzipbatch) {
+											$maxzipbatch = $new_maxzipbatch;
+											$updraftplus->jobdata_set("maxzipbatch", $new_maxzipbatch);
+											$updraftplus->log("We are within a small amount of the expected maximum amount of time available; the zip-writing thresholds will be reduced (time_passed=$time_since_began, normalised_time_passed=$normalised_time_since_began, max_time=$max_time, data points known=$run_times_known, old_max_bytes=$maxzipbatch, new_max_bytes=$new_maxzipbatch)");
+										} else {
+											$updraftplus->log("We are within a small amount of the expected maximum amount of time available, but the zip-writing threshold is already at its lower limit (20Mb), so will not be further reduced (max_time=$max_time, data points known=$run_times_known, max_bytes=$maxzipbatch)");
+										}
+									}
+
+								} else {
+									$updraftplus->something_useful_happened();
+								}
 							}
 						}
-
-						$updraftplus->something_useful_happened();
+						$data_added_since_reopen = 0;
 					}
 					clearstatcache();
+					$this->zipfiles_lastwritetime = time();
 				}
 			}
 			$this->zipfiles_added++;
 			// Don't call something_useful_happened() here - nothing necessarily happens until close() is called
 			if ($this->zipfiles_added % 100 == 0) $updraftplus->log("Zip: ".basename($zipfile).": ".$this->zipfiles_added." files added (on-disk size: ".round(filesize($zipfile)/1024,1)." Kb)");
 		}
+
 		// Reset the array
 		$this->zipfiles_batched = array();
 		$ret =  $zip->close();
@@ -336,10 +497,11 @@ class UpdraftPlus_Backup {
 			$kbsize = filesize($full_path)/1024;
 			$rate = round($kbsize/$timetaken, 1);
 			$updraftplus->log("Created $whichone zip - file size is ".round($kbsize,1)." Kb in ".round($timetaken,1)." s ($rate Kb/s)");
+			// We can now remove any left-over temporary files from this job
+			$updraftplus->clean_temporary_files('_'.$updraftplus->nonce."-$whichone");
 		}
 
 		return basename($full_path);
 	}
-
 
 }

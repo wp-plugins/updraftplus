@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.3
+Version: 1.6.10
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -13,9 +13,17 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
+// When a zip is created, we can then reap the temporaries. Done: change FAQ.
+// Delete backup sets
+// Store uploaded hashes as job data, not as transients
+// Add a maximum number of resumptions
+// Add note in FAQs about 'maintenance mode' plugins
 // When you migrate/restore, if there is a .htaccess, warn/give option about it.
 // Add an appeal for translators to email me.
 // Replace 'Donation' suggestion. Nobody donates. ;-)
+// In 'overtime', schedule the resumptions in groups of 2 or 3, not just 1
+// 'Show log' should be done in a nice pop-out, with a button to download the raw
+// What messages appear when Dropbxo files are deleted?
 // delete_old_dirs() needs to use WP_Filesystem in a more user-friendly way when errors occur
 // Facility to delete backup sets, with confirm (if someone backs up for a year, every 4 hours - huge list! Yuk.)
 // Bulk download of entire set at once (not have to click 7 times).
@@ -53,7 +61,7 @@ TODO - some of these are out of date/done, needs pruning
 //Do an automated test periodically for the success of loop-back connections
 //When a manual backup is run, use a timer to update the 'Download backups and logs' section, just like 'Last finished backup run'. Beware of over-writing anything that's in there from a resumable downloader.
 //Change DB encryption to not require whole gzip in memory (twice)
-//Add DreamObjects, Box.Net, SugarSync, Me.Ga support??
+//Add Box.Net, SugarSync, Me.Ga support??
 //Make it easier to find add-ons
 //The restorer has a hard-coded wp-content - fix
 //?? On 'backup now', open up a modal, count down 5 seconds, open page via modal, then start examining the log file (if it can be found)
@@ -102,8 +110,8 @@ define('UPDRAFTPLUS_DIR', dirname(__FILE__));
 define('UPDRAFTPLUS_URL', plugins_url('', __FILE__));
 define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php,backup,backups');
 // This is used in various places, based on our assumption of the maximum time any job should take. May need lengthening in future if we get reports which show enormous sets hitting the limit.
-// Also one section requires at least 1% progress each run, so on a 5-minute schedule, that equals just under 9 hours - then an extra allowance takes it just over
-define('UPDRAFT_TRANSTIME', 3600*9+5);
+// Also one section requires at least 1% progress each run, so on a 5-minute schedule, that equals just under 9 hours - then an extra allowance takes it just over. (However these days, we reduce the scheduling time if possible, so we get more attempts).
+define('UPDRAFT_TRANSTIME', 3600*12);
 
 // Load add-ons
 if (is_file(UPDRAFTPLUS_DIR.'/premium.php')) require_once(UPDRAFTPLUS_DIR.'/premium.php');
@@ -147,6 +155,7 @@ class UpdraftPlus {
 		"ftp" => "FTP",
 		'sftp' => 'SFTP',
 		'webdav' => 'WebDAV',
+		'dreamobjects' => 'DreamObjects',
 		"email" => "Email"
 	);
 
@@ -188,7 +197,7 @@ class UpdraftPlus {
 		add_action('admin_menu', array($this,'admin_init'), 9);
 		add_action('updraft_backup', array($this,'backup_files'));
 		add_action('updraft_backup_database', array($this,'backup_database'));
-		# backup_all is used by the manual "Backup Now" button	
+		# backup_all is used by the manual "Backup Now" button
 		add_action('updraft_backup_all', array($this,'backup_all'));
 		# this is our runs-after-backup event, whose purpose is to see if it succeeded or failed, and resume/mom-up etc.
 		add_action('updraft_backup_resume', array($this,'backup_resume'), 10, 3);
@@ -308,15 +317,20 @@ class UpdraftPlus {
 	}
 
 	// Cleans up temporary files found in the updraft directory
-	function clean_temporary_files() {
+	// If no parameters are specified, then cleans up temporary files over 12 hours old.
+	// With parameters, cleans up just those.
+	function clean_temporary_files($match = '') {
 		$updraft_dir = $this->backups_dir_location();
 		if ($handle = opendir($updraft_dir)) {
 			$now_time=time();
 			while (false !== ($entry = readdir($handle))) {
 				// The latter match is for files created internally by zipArchive::addFile
-				if ((preg_match('/\.tmp(\.gz)?$/i', $entry) || preg_match('/\.zip\.tmp\.([A-Za-z0-9]){6}?$/i', $entry)) && is_file($updraft_dir.'/'.$entry) && $now_time-filemtime($updraft_dir.'/'.$entry)>86400) {
-					$this->log("Deleting old temporary file: $entry");
-					@unlink($updraft_dir.'/'.$entry);
+				if ((preg_match("/$match\.tmp(\.gz)?$/i", $entry) || preg_match("/$match\.zip\.tmp\.([A-Za-z0-9]){6}?$/i", $entry)) && is_file($updraft_dir.'/'.$entry)) {
+					// We delete if a parameter was specified, or if over 12 hours old
+					if ($match || $now_time-filemtime($updraft_dir.'/'.$entry)>43200) {
+						$this->log("Deleting old temporary file: $entry");
+						@unlink($updraft_dir.'/'.$entry);
+					}
 				}
 			}
 			@closedir($handle);
@@ -378,12 +392,13 @@ class UpdraftPlus {
 		$log = ucfirst($service)." chunked upload: $percent % uploaded";
 		if ($extra) $log .= " ($extra)";
 		$this->log($log);
-		// If we are on an 'overtime' resumption run, and we are still meainingfully uploading, then schedule a new resumption
-		// Our definition of meaningful is that we must maintain an overall average of at least 1% per run, after allowing 9 runs for everything else to get going
-		// i.e. Max 109 runs = 545 minutes = 9 hrs 05
-		// If they get 2 minutes on each run, and the file is 1Gb, then that equals 10.2Mb/120s = minimum 87Kb/s upload speed required
+		// If we are on an 'overtime' resumption run, and we are still meaningfully uploading, then schedule a new resumption
+		// Our definition of meaningful is that we must maintain an overall average of at least 0.7% per run, after allowing 9 runs for everything else to get going
+		// i.e. Max 100/.7 + 9 = 150 runs = 760 minutes = 12 hrs 40, if spaced at 5 minute intervals. However, our algorithm now decreases the intervals if it can, so this should not really come into play
+		// If they get 2 minutes on each run, and the file is 1Gb, then that equals 10.2Mb/120s = minimum 59Kb/s upload speed required
 
-		if ($percent > ( $this->current_resumption - 9)) {
+		// What this means in effect is that at least one of the files touched during the run must reach this percentage (so lapping round from 100 is OK)
+		if ($percent > 0.7 * ( $this->current_resumption - 9)) {
 			$this->something_useful_happened();
 		}
 	}
@@ -503,8 +518,9 @@ class UpdraftPlus {
 			// $time_passed is set earlier
 			list($max_time, $timings_string, $run_times_known) = $this->max_time_passed($time_passed, 7);
 			$this->log("Time passed on previous resumptions: $timings_string (known: $run_times_known, max: $max_time)");
-			if ($run_times_known >= 6 && ($max_time + 35 < $resume_interval)) {
-				$resume_interval = round($max_time + 35);
+			// Remember that 30 seconds is used as the 'perhaps something is still running' detection threshold
+			if ($run_times_known >= 6 && ($max_time + 38 < $resume_interval)) {
+				$resume_interval = round($max_time + 38);
 				$this->log("Based on the available data, we are bringing the resumption interval down to: $resume_interval seconds");
 				$this->jobdata_set('resume_interval', $resume_interval);
 			}
@@ -601,7 +617,7 @@ class UpdraftPlus {
 				$this->log("$file: $key: This file has not yet been successfully uploaded: will queue");
 				$undone_files[$key] = $file;
 			} else {
-				$this->log("$file: Note: This file was not marked as successfully uploaded, but does not exist on the local filesystem");
+				$this->log("$file: Note: This file was not marked as successfully uploaded, but does not exist on the local filesystem $fullpath");
 				$this->uploaded_file($file);
 			}
 		}
@@ -678,12 +694,12 @@ class UpdraftPlus {
 			set_transient("updraft_jobdata_".$this->nonce, $this->jobdata, 14400);
 	}
 
-	function jobdata_get($key) {
+	function jobdata_get($key, $default = null) {
 		if (!is_array($this->jobdata)) {
 			$this->jobdata = get_transient("updraft_jobdata_".$this->nonce);
-			if (!is_array($this->jobdata)) return false;
+			if (!is_array($this->jobdata)) return $default;
 		}
-		return (isset($this->jobdata[$key])) ? $this->jobdata[$key] : false;
+		return (isset($this->jobdata[$key])) ? $this->jobdata[$key] : $default;
 	}
 
 	// This uses a transient; its only purpose is to indicate *total* completion; there is no actual danger, just wasted time, in resuming when it was not needed. So the transient just helps save resources.
@@ -756,7 +772,8 @@ class UpdraftPlus {
 			'resume_interval', $resume_interval,
 			'job_type', 'backup',
 			'backup_time', $this->backup_time,
-			'service', UpdraftPlus_Options::get_updraft_option('updraft_service')
+			'service', UpdraftPlus_Options::get_updraft_option('updraft_service'),
+			'maxzipbatch', 26214400, #25Mb
 		);
 
 		// Save what *should* be done, to make it resumable from this point on
@@ -807,7 +824,7 @@ class UpdraftPlus {
 			if ($clear_nonce_transient) {
 				$this->log("There were no errors in the uploads, so the 'resume' event is being unscheduled");
 				wp_clear_scheduled_hook('updraft_backup_resume', array($cancel_event, $this->nonce));
-				// TODO: Delete the job transient (is presently useful for debugging, and only lasts 4 hours)
+				// TODO: Delete the job transient (is presently useful for debugging, and only lasts 9 hours)
 			}
 		} else {
 			$this->log("There were errors in the uploads, so the 'resume' event is remaining scheduled");
@@ -1150,6 +1167,22 @@ class UpdraftPlus {
 
 		$possible_backups = $this->get_backupable_file_entities(false);
 
+		// Was there a check-in last time? If not, then reduce the amount of data attempted
+		if ($this->current_resumption >= 2 && $this->current_resumption<=10) {
+			$maxzipbatch = $this->jobdata_get('maxzipbatch', 26214400);
+			if ((int)$maxzipbatch < 1) $maxzipbatch = 26214400;
+			$time_passed = $this->jobdata_get('run_times');
+			if (!is_array($time_passed)) $time_passed = array();
+			$last_resumption = $this->current_resumption-1;
+			if (!isset($time_passed[$last_resumption])) {
+				$new_maxzipbatch = max(floor($maxzipbatch * 0.8), 20971520);
+				if ($new_maxzipbatch < $maxzipbatch) {
+					$this->log("No check-in was detected on the previous run - as a result, we are reducing the batch amount (old=$maxzipbatch, new=$new_maxzipbatch)");
+					$this->jobdata_set('maxzipbatch', $new_maxzipbatch);
+				}
+			}
+		}
+
 		# Plugins, themes, uploads
 		foreach ($possible_backups as $youwhat => $whichdir) {
 
@@ -1201,14 +1234,7 @@ class UpdraftPlus {
 					A string containing a list of filename or dirname separated by a comma.
 				*/
 
-				# Create an array of directories to be skipped
-				$others_skip = preg_split("/,/",UpdraftPlus_Options::get_updraft_option('updraft_include_others_exclude', UPDRAFT_DEFAULT_OTHERS_EXCLUDE));
-				# Make the values into the keys
-				$others_skip = array_flip($others_skip);
-
-				$possible_backups_dirs = array_flip($possible_backups);
-
-				$other_dirlist = $this->compile_folder_list_for_backup(WP_CONTENT_DIR, $possible_backups_dirs, $others_skip);
+				$other_dirlist = $this->backup_others_dirlist();
 
 				if (count($other_dirlist)>0) {
 					$created = $updraftplus_backup->create_zip($other_dirlist, 'others', $updraft_dir, $backup_file_basename);
@@ -1226,6 +1252,20 @@ class UpdraftPlus {
 			$this->log("No backup of other directories: excluded by user's options");
 		}
 		return $backup_array;
+	}
+
+	function backup_others_dirlist() {
+		# Create an array of directories to be skipped
+		$others_skip = preg_split("/,/",UpdraftPlus_Options::get_updraft_option('updraft_include_others_exclude', UPDRAFT_DEFAULT_OTHERS_EXCLUDE));
+		# Make the values into the keys
+		$others_skip = array_flip($others_skip);
+
+		$possible_backups_dirs = array_flip($this->get_backupable_file_entities(false));
+
+		$other_dirlist = $this->compile_folder_list_for_backup(WP_CONTENT_DIR, $possible_backups_dirs, $others_skip);
+
+		return $other_dirlist;
+
 	}
 
 	// avoid_these_dirs and skip_these_dirs ultimately do the same thing; but avoid_these_dirs takes full paths whereas skip_these_dirs takes basenames; and they are logged differently (avoid is potentially dangerous; skip is just a preference). They are allowed to overlap.
@@ -1332,12 +1372,16 @@ class UpdraftPlus {
 		$this->stow("/*!40101 SET foreign_key_checks = 0 */;\n");
 	}
 
-	// The purpose of this function is to make sure that the options table is put in the database first
+	// The purpose of this function is to make sure that the options table is put in the database first, then the users table, then the usermeta table
 	function backup_db_sorttables($a, $b) {
 		global $table_prefix;
 		if ($a == $b) return 0;
 		if ($a == $table_prefix.'options') return -1;
 		if ($b ==  $table_prefix.'options') return 1;
+		if ($a == $table_prefix.'users') return -1;
+		if ($b ==  $table_prefix.'users') return 1;
+		if ($a == $table_prefix.'usermeta') return -1;
+		if ($b ==  $table_prefix.'usermeta') return 1;
 		return strcmp($a, $b);
 	}
 

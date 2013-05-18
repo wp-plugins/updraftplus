@@ -12,13 +12,14 @@ Easy and complete backups and restoration. Manual or automated backups (Amazon S
 
 == Description ==
 
-<a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3, Dropbox, Google Drive, Rackspace Cloud, FTP, SFTP, WebDAV and email) and restore with a single click. Backups of files and database can have separate schedules.
+<a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3, Dropbox, Google Drive, Rackspace Cloud, DreamObjects, FTP, SFTP, WebDAV and email) and restore with a single click. Backups of files and database can have separate schedules.
 
-* Thousands of users: widely tested and reliable (over 120,000 downloads). Ranks 102 on rankwp.com out of 24,000 plugins (top 0.5%).
+* Thousands of users: widely tested and reliable (over 130,000 downloads). Ranks 102 on rankwp.com out of 24,000 plugins (top 0.5%).
 * Top-quality: ranks 38th out of 24,000 plugins for quality on rankwp.com (top 0.25% - last checked 26th April 2013).
-* Supports backups to Amazon S3, Dropbox, Google Drive, Rackspace Cloud Files, FTP (including SSL), email, SFTP and WebDAV
+* Supports backups to Amazon S3, Dropbox, Google Drive, Rackspace Cloud Files, DreamObjects, FTP (including SSL), email, SFTP and WebDAV
 * Quick restore (both file and database backups)
 * Backup automatically on a repeating schedule
+* Site duplicator/migrator: can copy sites, and (with add-on) move them to new locations
 * Files and databases can have separate schedules
 * Failed uploads are automatically resumed/retried
 * Select which files to backup (plugins, themes, content, other)
@@ -51,9 +52,10 @@ Are you able to translate UpdraftPlus into another language? Are you ready to he
 Many thanks to the existing translators:
 
 * Deutsch / German (de_DE): Marcel Herrguth - mherrguth@mrgeneration.de
-* Magyar / Hungarian (hu_HU): Szépe Viktor - http://www.szepe.net
 * Español / Spanish (es_ES): Fernando Villasmil - villasmil.fernando@gmail.com
+* Magyar / Hungarian (hu_HU): Szépe Viktor - http://www.szepe.net
 * Nederlands / Dutch (nl_NL): Hans van der Vlist - hansvandervlist@gmail.com
+* Polski / Polish (pl_PL): Bartosz Kaczmarek - barth.kaczmarek@gmail.com
 
 = Other support =
 
@@ -103,7 +105,7 @@ You can check the changelog for changes; but the original Updraft, before I fork
 
 = Any known bugs ? =
 
-Not a bug, but one issue to be aware of is that backups of very large sites (lots of uploaded media) are quite complex matters, given the limits of running inside WordPress on a huge variety of different web hosting setups. With large sites, you need to use Amazon S3, which UpdraftPlus supports (since 0.9.20), Google Drive (0.9.21), Dropbox (since 1.2.19), WebDAV (since 1.4.30), or FTP (since 1.5.9) because these support chunked, resumable uploads. Other backup methods have code (since 0.9.0) to retry failed uploads of an archive, but the upload cannot be chunked, so if an archive is enormous (i.e. cannot be completely uploaded in the time that PHP is allowed for running on your web host) it cannot work.
+Not a bug, but one issue to be aware of is that backups of very large sites (lots of uploaded media) are quite complex matters, given the limits of running inside WordPress on a huge variety of different web hosting setups. With large sites, you need to use Amazon S3, which UpdraftPlus supports (since 0.9.20), Google Drive (0.9.21), Dropbox (since 1.2.19), WebDAV (since 1.4.30), Rackspace Cloud Files (since 1.5.21), DreamObjects (since 1.6.6) or FTP (since 1.5.9) because these support chunked, resumable uploads. Other backup methods have code (since 0.9.0) to retry failed uploads of an archive, but the upload cannot be chunked, so if an archive is enormous (i.e. cannot be completely uploaded in the time that PHP is allowed for running on your web host) it cannot work. (Though as far as we're aware, no other cloud backup plugins support chunking, so you're still no worse off than with the alternatives).
 
 = My site was hacked, and I have no backups! I thought UpdraftPlus was working! Can I kill you? =
 
@@ -120,11 +122,19 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 == Changelog ==
 
 = Development trunk - not yet released/supported =
+* FEATURE: Restoration/migration now copes with a change of table prefix, and asks WordPress to recreate your .htaccess/web.config file
+* FEATURE: Add support for DreamHost DreamObjects (http://dreamhost.com/cloud/dreamobjects/)
+* FEATURE: Polski / Polish (pl_PL) translation: thanks to Bartosz Kaczmarek (barth.kaczmarek@gmail.com)
+* FEATURE: Add expert options to count expected uncompressed backup size, and show/delete active jobs
+* FIX: Inform users of Dropbox tokens which stop working
 * TWEAK: More verbose error reporting from PclZip
+* TWEAK: After database restoration, permalinks are flushed (often helps regenerate .htaccess+web.config files)
+* TWEAK: Database backups now put the options table first, to allow earlier changing of site URL upon migration
 * TWEAK: Show PHP + web server versions in the debug information
 * TWEAK: More sophisticated attempts to get a writable backup directory, and more helpful messages if we can't
-* TWEAK: Some more logging, allowing data-gathering to improve the chances for people with astonishingly slow hosting
-* FIX: Restoration/migration now copes with a change of table prefix
+* TWEAK: Some more logging, data-gathering and algorithm-tweaking to especially improve the chances for people with astonishingly slow web hosting, but also tweaks that improve efficiency everywhere, especially for larger backup sets.
+* TWEAK: Migrator plugin now does search+replace after each table (instead of after them all)
+* TWEAK: Clean up temporary files earlier where safe+possible (can lower disk space requirements)
 
 = 1.6.2 - 05/11/2013 =
 * FIX: Prevent PHP fatal error on some database restores

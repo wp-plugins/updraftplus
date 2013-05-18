@@ -48,6 +48,8 @@ abstract class Dropbox_ConsumerAbstract
             try {
                 $this->getAccessToken();
             } catch(Dropbox_Exception $e) {
+                global $updraftplus;
+                $updraftplus->log($e->getMessage().' - need to reauthenticate with Dropbox');
                 $this->getRequestToken();
                 $this->authorise();
             }
@@ -78,11 +80,16 @@ abstract class Dropbox_ConsumerAbstract
     private function authorise()
     {
         // Only redirect if using CLI
-        if (PHP_SAPI !== 'cli') {
+        if (PHP_SAPI !== 'cli' && (!defined('DOING_CRON') || !DOING_CRON)) {
             $url = $this->getAuthoriseUrl();
             header('Location: ' . $url);
             exit;
         }
+        global $updraftplus;
+        $updraftplus->log('Dropbox reauthorisation needed, but running from cron or CLI, so not possible');
+        UpdraftPlus_Options::update_updraft_option("updraft_dropboxtk_request_token",'');
+        $updraftplus->error(sprintf(__('You need to re-authenticate with %s, as your existing credentials are not working.', 'updraftplus'), 'Dropbox'));
+        exit;
     }
     
     /**

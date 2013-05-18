@@ -277,6 +277,7 @@ class Updraft_Restorer extends WP_Upgrader {
 					if ('' == $old_siteurl && preg_match('/^\# Backup of: (http(.*))$/', $buffer, $matches)) {
 						$old_siteurl = $matches[1];
 						echo '<strong>'.__('Backup of:', 'updraftplus').'</strong> '.htmlspecialchars($old_siteurl).'<br>';
+						do_action('updraftplus_restore_db_record_old_siteurl', $old_siteurl);
 					} elseif ('' == $old_table_prefix && preg_match('/^\# Table prefix: (\S+)$/', $buffer, $matches)) {
 						$old_table_prefix = $matches[1];
 						echo '<strong>'.__('Old table prefix:', 'updraftplus').'</strong> '.htmlspecialchars($old_table_prefix).'<br>';
@@ -295,16 +296,31 @@ class Updraft_Restorer extends WP_Upgrader {
 				if (preg_match('/^\s*drop table if exists \`?([^\`]*)\`?\s*;/i', $sql_line, $matches)) {
 					$table_name = $matches[1];
 					// Legacy, less reliable - in case it was not caught before
-					if ($old_table_prefix == '' && preg_match('/^([a-z0-9])_.*$/i', $table_name, $tmatches)) {
-						$old_table_prefix = $tmatches[1];
+					if ($old_table_prefix == '' && preg_match('/^([a-z0-9]+)_.*$/i', $table_name, $tmatches)) {
+						$old_table_prefix = $tmatches[1].'_';
 						echo '<strong>'.__('Old table prefix:', 'updraftplus').'</strong> '.htmlspecialchars($old_table_prefix).'<br>';
 					}
 					if ('' != $old_table_prefix && $table_prefix != $old_table_prefix) {
 						$sql_line = $this->str_replace_once($old_table_prefix, $table_prefix, $sql_line);
 					}
-					if ($restoring_table) do_action('updraftplus_restored_db_table', $restoring_table);
-					$restoring_table = $new_table_name;
 				} elseif (preg_match('/^\s*create table \`?([^\`\(]*)\`?\s*\(/i', $sql_line, $matches)) {
+
+					if ($restoring_table) {
+
+						$this->restored_table($restoring_table, $table_prefix, $old_table_prefix);
+						
+						// After restoring the options table, we can set old_siteurl if on legacy (i.e. not already set)
+						if ($restoring_table == $table_prefix.'options') {
+
+							if ('' == $old_siteurl) {
+								$old_siteurl = $wpdb->get_row("SELECT option_value FROM $wpdb->options WHERE option_name='siteurl'")->option_value;
+							do_action('updraftplus_restore_db_record_old_siteurl', $old_siteurl);
+							}
+
+						}
+
+					}
+
 					$table_name = $matches[1];
 					echo '<strong>'.__('Restoring table','updraftplus').":</strong> ".htmlspecialchars($table_name);
 					if ('' != $old_table_prefix && $table_prefix != $old_table_prefix) {
@@ -314,6 +330,7 @@ class Updraft_Restorer extends WP_Upgrader {
 					} else {
 						$new_table_name = $table_name;
 					}
+					$restoring_table = $new_table_name;
 					echo '<br>';
 				} elseif ('' != $old_table_prefix && preg_match('/^\s*insert into \`?([^\`]*)\`?\s+values/i', $sql_line, $matches)) {
 					if ($table_prefix != $old_table_prefix) $sql_line = $this->str_replace_once($old_table_prefix, $table_prefix, $sql_line);
@@ -347,8 +364,8 @@ class Updraft_Restorer extends WP_Upgrader {
 
 			}
 			
-			if ($restoring_table) do_action('updraftplus_restored_db_table', $restoring_table);
-			
+			if ($restoring_table) $this->restored_table($restoring_table, $table_prefix, $old_table_prefix);
+
 			$time_taken = microtime(true) - $start_time;
 			echo sprintf(__('Finished: lines processed: %d in %.2f seconds','updraftplus'),$line, $time_taken)."<br>";
 			gzclose($dbhandle);
@@ -385,16 +402,127 @@ class Updraft_Restorer extends WP_Upgrader {
 		switch($type) {
 			case 'wpcore':
 				@$wp_filesystem->chmod($wp_dir, FS_CHMOD_DIR);
+				// In case we restored a .htaccess which is incorrect for the local setup
+				$this->flush_rewrite_rules();
 			break;
 			case 'uploads':
 				@$wp_filesystem->chmod($wp_dir . "wp-content/$dirname", 0775, true);
 			break;
 			case 'db':
 				do_action('updraftplus_restored_db', array('expected_oldsiteurl' => $old_siteurl));
+				$this->flush_rewrite_rules();
 			break;
 			default:
 				@$wp_filesystem->chmod($wp_dir . "wp-content/$dirname", FS_CHMOD_DIR);
 		}
+	}
+
+	function option_filter_get($which) {
+		global $wpdb;
+		$row = $wpdb->get_row($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", $which));
+		// Has to be get_row instead of get_var because of funkiness with 0, false, null values
+		if (is_object($row)) {
+			return $row->option_value;
+		}
+		return false;
+	}
+
+	function option_filter_permalink_structure($val) {
+		return $this->option_filter_get('permalink_structure');
+	}
+
+	function option_filter_page_on_front($val) {
+		return $this->option_filter_get('page_on_front');
+	}
+
+	function option_filter_rewrite_rules($val) {
+		return $this->option_filter_get('rewrite_rules');
+	}
+
+// 	function option_filter($which) {
+// 		if (strpos($which, 'pre_option') !== false) { echo "OPT_FILT: $which<br>\n"; }
+// 		return false;
+// 	}
+
+	function flush_rewrite_rules() {
+
+		// We have to deal with the fact that the procedures used call get_option, which could be looking at the wrong table prefix, or have the wrong thing cached
+
+// 		add_filter('all', array($this, 'option_filter'));
+
+		foreach (array('permalink_structure', 'rewrite_rules', 'page_on_front') as $opt) {
+			add_filter('pre_option_'.$opt, array($this, 'option_filter_'.$opt));
+		}
+
+		global $wp_rewrite;
+		$wp_rewrite->init();
+		flush_rewrite_rules(true);
+
+		foreach (array('permalink_structure', 'rewrite_rules', 'page_on_front') as $opt) {
+			add_filter('pre_option_'.$opt, array($this, 'option_filter_'.$opt));
+		}
+
+// 		remove_filter('all', array($this, 'option_filter'));
+
+	}
+
+	function restored_table($table, $table_prefix, $old_table_prefix) {
+
+		global $wpdb;
+
+		// WordPress has an option name predicated upon the table prefix. Yuk.
+		if ($table == $table_prefix.'options' && $table_prefix != $old_table_prefix) {
+			echo sprintf(__('Table prefix has changed: changing %s table field(s) accordingly:', 'updraftplus'),'option').' ';
+			if (false === $wpdb->query("UPDATE $wpdb->options SET option_name='${table_prefix}user_roles' WHERE option_name='${old_table_prefix}user_roles' LIMIT 1")) {
+				echo __('Error','updraftplus');
+			} else {
+				echo __('OK', 'updraftplus');
+			}
+			echo '<br>';
+		} elseif ($table == $table_prefix.'usermeta') {
+
+			echo sprintf(__('Table prefix has changed: changing %s table field(s) accordingly:', 'updraftplus'),'usermeta').' ';
+
+			global $table_prefix;
+
+			$meta_keys = $wpdb->get_results("SELECT umeta_id, meta_key 
+				FROM ${table_prefix}usermeta 
+				WHERE meta_key 
+				LIKE '".str_replace('_', '\_', $old_table_prefix)."%'");
+			
+			$old_prefix_length = strlen($old_table_prefix);
+
+			$errors_occurred = false;
+			foreach ($meta_keys as $meta_key ) {
+				
+				//Create new meta key
+				$new_meta_key = $table_prefix . substr($meta_key->meta_key, $old_prefix_length);
+				
+				$query = "UPDATE " . $table_prefix . "usermeta 
+										SET meta_key='".$new_meta_key."' 
+										WHERE umeta_id=".$meta_key->umeta_id;
+
+				if (false === $wpdb->query($query)) {
+					$errors_occurred = true;
+				}
+			
+			}
+			if ($errors_occurred) {
+				echo __('Error', 'updraftplus');
+			} else {
+				echo __('OK', 'updraftplus');
+			}
+			echo "<br>";
+
+		}
+
+		do_action('updraftplus_restored_db_table', $table);
+
+		// Re-generate permalinks. Do this last - i.e. make sure everything else is fixed up first.
+		if ($table == $table_prefix.'options') {
+			$this->flush_rewrite_rules();
+		}
+
 	}
 
 }
