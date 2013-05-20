@@ -47,7 +47,7 @@ UpdraftPlus is written by professional WordPress developers. If your site needs 
 
 = Are you multi-lingual? Can you translate? =
 
-Are you able to translate UpdraftPlus into another language? Are you ready to help speakers of your language? UpdraftPlus itself is ready and waiting - the only work needed is the translating. The translation process is easy - go here for instructions: <a href="http://updraftplus.com/translate/">http://updraftplus.com/translate/</a>. (Or if you're an expert WordPress translator already, then just pick out the .pot file from the wp-content/plugins/updraftplus/languages/ directory).
+Are you able to translate UpdraftPlus into another language? Are you ready to help speakers of your language? UpdraftPlus itself is ready and waiting - the only work needed is the translating. The translation process is easy, and web-based - go here for instructions: <a href="http://updraftplus.com/translate/">http://updraftplus.com/translate/</a>. (Or if you're an expert WordPress translator already, then just pick out the .pot file from the wp-content/plugins/updraftplus/languages/ directory).
 
 Many thanks to the existing translators:
 
@@ -127,7 +127,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: Polski / Polish (pl_PL) translation: thanks to Bartosz Kaczmarek (barth.kaczmarek@gmail.com)
 * FEATURE: Add expert options to count expected uncompressed backup size, and show/delete active jobs
 * FIX: Inform users of Dropbox tokens which stop working
-* FIX: Use less transients, to work around http://core.trac.wordpress.org/ticket/20316
+* TWEAK: Use only one transient per job, and clean it up upon completion
 * TWEAK: More verbose error reporting from PclZip
 * TWEAK: After database restoration, permalinks are flushed (often helps regenerate .htaccess+web.config files)
 * TWEAK: Database backups now put the options table first, to allow earlier changing of site URL upon migration
@@ -136,6 +136,8 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * TWEAK: Some more logging, data-gathering and algorithm-tweaking to especially improve the chances for people with astonishingly slow web hosting, but also tweaks that improve efficiency everywhere, especially for larger backup sets.
 * TWEAK: Migrator plugin now does search+replace after each table (instead of after them all)
 * TWEAK: Clean up temporary files earlier where safe+possible (can lower disk space requirements)
+* TWEAK: Re-scan of known sets now removes those known to be gone from the list
+* TWEAK: Made a few things use AJAX instead of full page loads
 
 = 1.6.2 - 05/11/2013 =
 * FIX: Prevent PHP fatal error on some database restores

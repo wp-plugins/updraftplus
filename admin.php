@@ -356,15 +356,28 @@ class UpdraftPlus_Admin {
 
 		global $updraftplus;
 
-		// Test the nonce (probably not needed, since we're presumably admin-authed, but there's no harm)
+		// Test the nonce
 		$nonce = (empty($_REQUEST['nonce'])) ? "" : $_REQUEST['nonce'];
 		if (! wp_verify_nonce($nonce, 'updraftplus-credentialtest-nonce') || empty($_REQUEST['subaction'])) die('Security check');
 
 		if ('lastlog' == $_GET['subaction']) {
 			echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', '('.__('Nothing yet logged', 'updraftplus').')'));
+		} elseif ('backupnow' == $_REQUEST['subaction']) {
+			echo '<strong>',__('Schedule backup','updraftplus').':</strong> ';
+			if (wp_schedule_single_event(time()+5, 'updraft_backup_all') === false) {
+				$updraftplus->log("A backup run failed to schedule");
+				echo __("Failed.",'updraftplus')."</div>";
+			} else {
+				// For unknown reasons, the <script> runs twice if put inside the <div>
+				echo htmlspecialchars(__('OK. You should soon see activity in the "Last log message" field below.','updraftplus'))." <a href=\"http://updraftplus.com/faqs/my-scheduled-backups-and-pressing-backup-now-does-nothing-however-pressing-debug-backup-does-produce-a-backup/\">".__('Nothing happening? Follow this link for help.','updraftplus')."</a></div><script>setTimeout(function(){updraft_showlastbackup();}, 7000);</script>";
+				$updraftplus->log("A backup run has been scheduled");
+			}
+
 		} elseif ('lastbackup' == $_GET['subaction']) {
 			echo $this->last_backup_html();
-		} elseif ('deletejob' == $_GET['subaction'] && isset($_GET['jobid'])) {
+		} elseif ('activejobs_list' == $_GET['subaction']) {
+			$this->print_active_jobs();
+		} elseif ('activejobs_delete' == $_GET['subaction'] && isset($_GET['jobid'])) {
 
 			$cron = get_option('cron');
 			$found_it = 0;
@@ -647,6 +660,8 @@ class UpdraftPlus_Admin {
 		if(isset($_REQUEST['action']) && $_REQUEST['action'] == 'updraft_restore' && isset($_REQUEST['backup_timestamp'])) {
 			$backup_success = $this->restore_backup($_REQUEST['backup_timestamp']);
 			if(empty($updraftplus->errors) && $backup_success == true) {
+				// If we restored the database, then that will have out-of-date information which may confuse the user - so automatically re-scan for them.
+				$this->rebuild_backup_history();
 				echo '<p><strong>'.__('Restore successful!','updraftplus').'</strong></p>';
 				echo '<b>'.__('Actions','updraftplus').':</b> <a href="options-general.php?page=updraftplus&updraft_restore_success=true">'.__('Return to UpdraftPlus Configuration','updraftplus').'</a>';
 				return;
@@ -706,17 +721,7 @@ class UpdraftPlus_Admin {
 			return;
 		}
 		
-		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup') {
-			// For unknown reasons, the <script> runs twice if put inside the <div>
-			echo '<div class="updated fade" style="max-width: 800px; font-size:140%; line-height: 140%; padding:14px; clear:left;"><strong>',__('Schedule backup','updraftplus').':</strong> ';
-			if (wp_schedule_single_event(time()+5, 'updraft_backup_all') === false) {
-				$updraftplus->log("A backup run failed to schedule");
-				echo __("Failed.",'updraftplus')."</div>";
-			} else {
-				echo htmlspecialchars(__('OK. Now load any page from your site to make sure the schedule can trigger. You should then see activity in the "Last log message" field below.','updraftplus'))." <a href=\"http://updraftplus.com/faqs/my-scheduled-backups-and-pressing-backup-now-does-nothing-however-pressing-debug-backup-does-produce-a-backup/\">".__('Nothing happening? Follow this link for help.','updraftplus')."</a></div><script>setTimeout(function(){updraft_showlastbackup();}, 7000);</script>";
-				$updraftplus->log("A backup run has been scheduled");
-			}
-		}
+		echo '<div id="updraft_backup_started" class="updated fade" style="display:none; max-width: 800px; font-size:140%; line-height: 140%; padding:14px; clear:left;"></div>';
 
 		// updraft_file_ids is not deleted
 		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_all') { $updraftplus->boot_backup(true,true); }
@@ -738,8 +743,6 @@ class UpdraftPlus_Admin {
 			<br>
 			<?php
 			if(isset($_GET['updraft_restore_success'])) {
-				// If we restored the database, then that will have out-of-date information which may confuse the user - so automatically re-scan for them.
-				$this->rebuild_backup_history();
 				echo "<div class=\"updated fade\" style=\"padding:8px;\"><strong>".__('Your backup has been restored.','updraftplus').'</strong> '.__('Your old (themes, uploads, plugins, whatever) directories have been retained with "-old" appended to their name. Remove them when you are satisfied that the backup worked properly.')."</div>";
 			}
 
@@ -845,7 +848,7 @@ class UpdraftPlus_Admin {
 			</div>
 			<br style="clear:both" />
 			<table class="form-table">
-				<tr>
+				<tr id="updraft_lastlogmessagerow">
 					<th><?php _e('Last log message','updraftplus');?>:</th>
 					<td>
 						<span id="updraft_lastlogcontainer"><?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', __('(Nothing yet logged)','updraftplus'))); ?></span><br>
@@ -918,7 +921,7 @@ class UpdraftPlus_Admin {
 								// Create somewhere for the status to be found
 								var stid = base+nonce+'_'+what;
 								if (!jQuery('#'+stid).length) {
-									jQuery('#ud_downloadstatus').append('<div style="clear:left; border: 1px solid; padding: 8px; margin-top: 4px; max-width:840px;" id="'+stid+'"><button onclick="jQuery(\'#'+stid+'\').fadeOut().remove();" type="button" style="float:right; margin-bottom: 8px;">X</button><strong>Download '+what+' ('+nonce+')</strong>:<div class="raw">Begun looking for this entity</div><div class="file" id="'+stid+'_st"><div class="dlfileprogress" style="width: 0;"></div></div>');
+									jQuery('#ud_downloadstatus').append('<div style="clear:left; border: 1px solid; padding: 8px; margin-top: 4px; max-width:840px;" id="'+stid+'"><button onclick="jQuery(\'#'+stid+'\').fadeOut().remove();" type="button" style="float:right; margin-bottom: 8px;">X</button><strong>Download '+what+' ('+nonce+')</strong>:<div class="raw"><?php _e('Begun looking for this entity','updraftplus');?></div><div class="file" id="'+stid+'_st"><div class="dlfileprogress" style="width: 0;"></div></div>');
 									// <b><span class="dlname">??</span></b> (<span class="dlsofar">?? KB</span>/<span class="dlsize">??</span> KB)
 									setTimeout(function(){updraft_downloader_status(base, nonce, what)}, 300);
 								}
@@ -1062,12 +1065,8 @@ class UpdraftPlus_Admin {
 <p><em><a href="http://updraftplus.com/faqs/what-should-i-understand-before-undertaking-a-restoration/" target="_new"><?php _e('Do read this helpful article of useful things to know before restoring.','updraftplus');?></a></em></p>
 </div>
 
-<div id="updraft-backupnow-modal" title="UpdraftPlus - <?php _e('Perform a backup now','updraftplus'); ?>">
-	<p><?php _e("This will schedule a one-time backup. To proceed, press 'Backup Now', then wait 10 seconds, then visit any page on your site. WordPress should then start the backup running in the background.",'updraftplus');?></p>
-
-	<form id="updraft-backupnow-form" method="post">
-		<input type="hidden" name="action" value="updraft_backup" />
-	</form>
+<div id="updraft-backupnow-modal" title="UpdraftPlus - <?php _e('Perform a one-time backup','updraftplus'); ?>">
+	<p><?php _e("To proceed, press 'Backup Now'. Then, watch the 'Last Log Message' field for activity after about 10 seconds. WordPress should start the backup running in the background.",'updraftplus');?></p>
 
 	<p><?php _e('Does nothing happen when you schedule backups?','updraftplus');?> <a href="http://updraftplus.com/faqs/my-scheduled-backups-and-pressing-backup-now-does-nothing-however-pressing-debug-backup-does-produce-a-backup/"><?php _e('Go here for help.','updraft');?></a></p>
 </div>
@@ -1151,36 +1150,16 @@ class UpdraftPlus_Admin {
 					<p><input type="submit" class="button-primary" value="<?php _e('Wipe All Settings','updraftplus'); ?>" onclick="return(confirm('<?php echo htmlspecialchars(__('This will delete all your UpdraftPlus settings - are you sure you want to do this?'));?>'))" /></p>
 				</form>
 				<h3><?php _e('Active jobs', 'updraftplus');?></h3>
-				<p><em><?php _e('Refresh your page in order to update this list.', 'updraftplus');?></em></p>
-				<?php
-					$cron = get_option('cron');
-					$found_jobs = 0;
-					foreach ($cron as $time => $job) {
-						if (isset($job['updraft_backup_resume'])) {
-							foreach ($job['updraft_backup_resume'] as $hook => $info) {
-								if (isset($info['args'][1])) {
-									$found_jobs++;
-									$job_id = $info['args'][1];
-									$jobdata = get_transient("updraft_jobdata_".$job_id);
-									if (!is_array($jobdata)) $jobdata = array();
-									$began_at = (isset($jobdata['backup_time'])) ? get_date_from_gmt(gmdate('Y-m-d H:i:s', $jobdata['backup_time']), 'D, F j, Y H:i') : '?';
-									echo '<div style="clear:left; float:left;" id="updraft-jobid-'.$job_id.'">'.sprintf(__("%s: began at: %s; next resumption: %d (after %ss)", 'updraftplus'), $job_id, $began_at, $info['args'][0], $time-time()).' - <a href="?page=updraftplus&action=downloadlog&updraftplus_backup_nonce='.$job_id.'">'.__('show log', 'updraftplus').'</a> - <a href="javascript:updraft_activejobs_delete(\''.$job_id.'\')">'.__('delete schedule', 'updraftplus').'</a></div>';;
-// 									echo str_replace("\n", "<br>", print_r($job, true));
-								}
-							}
-						}
-					}
-					if (0 == $found_jobs) {
-						echo '<p><em>'.__('(None)', 'updraftplus').'</em></p>';
-					}
-				?>
+				<div id="updraft_activejobs">
+				<?php $this->print_active_jobs(); ?>
+				</div>
 			</div>
 
 			<script type="text/javascript">
 			/* <![CDATA[ */
 				
 				function updraft_activejobs_delete(jobid) {
-					jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'deletejob', jobid: jobid, nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>' }, function(response) {
+					jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'activejobs_delete', jobid: jobid, nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>' }, function(response) {
 						if (response.substr(0,2) == 'Y:') {
 							jQuery('#updraft-jobid-'+jobid).html(response.substr(2)).fadeOut('slow', function() {
 								jQuery(this).remove();
@@ -1190,6 +1169,12 @@ class UpdraftPlus_Admin {
 						} else {
 							alert('<?php _e('Unknown response:', 'updraftplus'); ?> '+response);
 						}
+					});
+				}
+
+				function updraft_activejobs_update() {
+					jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'activejobs_list', nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>' }, function(response) {
+						jQuery('#updraft_activejobs').html(response);
 					});
 				}
 
@@ -1217,6 +1202,29 @@ class UpdraftPlus_Admin {
 			/* ]]> */
 			</script>
 			<?php
+	}
+
+	function print_active_jobs() {
+		$cron = get_option('cron');
+		$found_jobs = 0;
+		foreach ($cron as $time => $job) {
+			if (isset($job['updraft_backup_resume'])) {
+				foreach ($job['updraft_backup_resume'] as $hook => $info) {
+					if (isset($info['args'][1])) {
+						$found_jobs++;
+						$job_id = $info['args'][1];
+						$jobdata = get_transient("updraft_jobdata_".$job_id);
+						if (!is_array($jobdata)) $jobdata = array();
+						$began_at = (isset($jobdata['backup_time'])) ? get_date_from_gmt(gmdate('Y-m-d H:i:s', $jobdata['backup_time']), 'D, F j, Y H:i') : '?';
+						echo '<div style="clear:left; float:left;" id="updraft-jobid-'.$job_id.'">'.sprintf(__("%s: began at: %s; next resumption: %d (after %ss)", 'updraftplus'), $job_id, $began_at, $info['args'][0], $time-time()).' - <a href="?page=updraftplus&action=downloadlog&updraftplus_backup_nonce='.$job_id.'">'.__('show log', 'updraftplus').'</a> - <a href="javascript:updraft_activejobs_delete(\''.$job_id.'\')">'.__('delete schedule', 'updraftplus').'</a></div>';;
+// 									echo str_replace("\n", "<br>", print_r($job, true));
+					}
+				}
+			}
+		}
+		if (0 == $found_jobs) {
+			echo '<p><em>'.__('(None)', 'updraftplus').'</em></p>';
+		}
 	}
 
 	//deletes the -old directories that are created when a backup is restored.
@@ -1530,11 +1538,11 @@ ENDHERE;
 					subaction: 'lastlog',
 					nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>'
 				};
-				function updraft_showlastlog(){
+				function updraft_showlastlog(repeat){
 					jQuery.get(ajaxurl, lastlog_sdata, function(response) {
 						nexttimer = 1500;
 						if (lastlog_lastmessage == response) { nexttimer = 4500; }
-						setTimeout(function(){updraft_showlastlog()}, nexttimer);
+						if (repeat) { setTimeout(function(){updraft_showlastlog(true)}, nexttimer);}
 						jQuery('#updraft_lastlogcontainer').html(response);
 						lastlog_lastmessage = response;
 					});
@@ -1572,7 +1580,7 @@ ENDHERE;
 				}
 				function updraft_updatehistory(rescan) {
 					if (rescan == 1) {
-						jQuery('#updraft_existing_backups').html('<p style="text-align:center;"><em>Rescanning (looking for backups that you have uploaded manually into the internal backup store)...</em></p>');
+						jQuery('#updraft_existing_backups').html('<p style="text-align:center;"><em><?php _e('Rescanning (looking for backups that you have uploaded manually into the internal backup store)...', 'updraftplus'); ?></em></p>');
 					}
 					jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'historystatus', nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>', rescan: rescan }, function(response) {
 						jQuery('#updraft_existing_backups').html(response);
@@ -1623,10 +1631,26 @@ ENDHERE;
 					});
 
 					jQuery( "#updraft-backupnow-modal" ).dialog({
-						autoOpen: false, height: 265, width: 375, modal: true,
+						autoOpen: false, height: 265, width: 390, modal: true,
 						buttons: {
 							'<?php _e('Backup Now','updraftplus');?>': function() {
-								jQuery('#updraft-backupnow-form').submit();
+								jQuery(this).dialog("close");
+								jQuery('#updraft_backup_started').html('<em><?php _e('Requesting start of backup...', 'updraftplus');?></em>').slideDown('');
+								jQuery.post(ajaxurl, { action: 'updraft_ajax', subaction: 'backupnow', nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>' }, function(response) {
+									jQuery('#updraft_backup_started').html(response);
+									setTimeout(function() {jQuery.get('<?php echo site_url(); ?>');}, 5100);
+									setTimeout(function() {updraft_showlastlog()}, 6000);
+									setTimeout(function() {updraft_activejobs_update()}, 6000);
+									setTimeout(function() {
+										jQuery('#updraft_lastlogmessagerow').fadeOut('slow', function() {
+											jQuery(this).fadeIn('slow');
+										});
+										},
+										3200
+									);
+									setTimeout(function() {jQuery('#updraft_backup_started').fadeOut('slow');}, 60000);
+									// Should be redundant (because of the polling for the last log line), but harmless (invokes page load)
+								});
 							},
 							'<?php _e('Cancel','updraftplus');?>': function() { jQuery(this).dialog("close"); }
 						}
@@ -1634,10 +1658,13 @@ ENDHERE;
 
 					jQuery('#enableexpertmode').click(function() {
 						jQuery('.expertmode').fadeIn();
+						updraft_activejobs_update();
+						setInterval(function() {updraft_activejobs_update()}, 15000);
+						jQuery('#enableexpertmode').off('click'); 
 						return false;
 					});
 					<?php if (!@is_writable($updraft_dir)) echo "jQuery('.backupdirrow').show();\n"; ?>
-					setTimeout(function(){updraft_showlastlog();}, 1200);
+					setTimeout(function(){updraft_showlastlog(true);}, 1200);
 					jQuery('.updraftplusmethod').hide();
 					<?php
 						if ($active_service) echo "jQuery('.${active_service}').show();";
@@ -1660,7 +1687,7 @@ ENDHERE;
 			</tr>
 			<tr>
 				<th><?php _e('Expert settings','updraftplus');?>:</th>
-				<td><a id="enableexpertmode" href="#"><?php _e('Show expert settings','updraftplus');?></a> - <?php _e("click this to show some further options; don't bother with this unless you have a problem or are curious.",'updraftplus');?> <?php do_action('updraftplus_expertsettingsdescription'); ?></td>
+				<td><a id="enableexpertmode" href="#enableexpertmode"><?php _e('Show expert settings','updraftplus');?></a> - <?php _e("click this to show some further options; don't bother with this unless you have a problem or are curious.",'updraftplus');?> <?php do_action('updraftplus_expertsettingsdescription'); ?></td>
 			</tr>
 			<?php
 			$delete_local = UpdraftPlus_Options::get_updraft_option('updraft_delete_local', 1);
@@ -1909,21 +1936,31 @@ ENDHERE;
 		$backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
 		if (!is_array($backup_history)) $backup_history = array();
 
+		$updraft_dir = $updraftplus->backups_dir_location();
+		if (!is_dir($updraft_dir)) return;
+
 		// Accumulate a list of known files
 		foreach ($backup_history as $btime => $bdata) {
+			$found_file = false;
 			foreach ($bdata as $key => $value) {
 				// Record which set this file is found in
 				if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+\.(zip|gz|gz\.crypt)$/i', $value, $matches)) {
 					$nonce = $matches[2];
-					$known_files[$value] = $nonce;
-					$known_nonces[$nonce] = $btime;
+// 					if (empty($bdata['service']) && !is_file($updraft_dir.'/'.$value)) {
+					if (isset($bdata['service']) && $bdata['service'] == 'none' && !is_file($updraft_dir.'/'.$value)) {
+						# File no longer present
+					} else {
+						$found_file = true;
+						$known_files[$value] = $nonce;
+						$known_nonces[$nonce] = $btime;
+					}
 				}
 			}
+			if (!$found_file) {
+				unset($backup_history[$btime]);
+				$changes = true;
+			}
 		}
-		
-		$updraft_dir = $updraftplus->backups_dir_location();
-
-		if (!is_dir($updraft_dir)) return;
 
 		if (!$handle = opendir($updraft_dir)) return;
 	
@@ -1938,7 +1975,8 @@ ENDHERE;
 							$type = $matches[3];
 							// The time from the filename does not include seconds. Need to identify the seconds to get the right time
 							if (isset($known_nonces[$nonce])) $btime = $known_nonces[$nonce];
-							if (!isset($backup_history[$btime])) $backup_history[$btime] = array();
+							// No cloud backup known of this file
+							if (!isset($backup_history[$btime])) $backup_history[$btime] = array( 'service' => 'none' );
 							$backup_history[$btime][$type] = $entry;
 							$backup_history[$btime][$type.'-size'] = filesize($updraft_dir.'/'.$entry);
 							$backup_history[$btime]['nonce'] = $nonce;

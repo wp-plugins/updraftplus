@@ -332,7 +332,7 @@ class UpdraftPlus_BackupModule_s3 {
 		</tr>
 		<tr class="updraftplusmethod <?php echo $key; ?>">
 			<th><?php echo sprintf(__('%s location','updraftplus'), $whoweare_short);?>:</th>
-			<td><?php echo $key; ?>://<input type="text" style="width: 292px" name="updraft_<?php echo $key; ?>_remote_path" id="updraft_<?php echo $key; ?>_path" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_'.$key.'_remote_path')); ?>" /></td>
+			<td><?php echo $key; ?>://<input title="<?php echo htmlspecialchars(__('Enter only a bucket name or a bucket and path. Examples: mybucket, mybucket/mypath', 'updraftplus')); ?>" type="text" style="width: 292px" name="updraft_<?php echo $key; ?>_remote_path" id="updraft_<?php echo $key; ?>_path" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_'.$key.'_remote_path')); ?>" /></td>
 		</tr>
 		<tr class="updraftplusmethod <?php echo $key; ?>">
 		<th></th>

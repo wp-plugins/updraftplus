@@ -13,33 +13,26 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
-// When a zip is created, we can then reap the temporaries. Done: change FAQ.
-// Delete backup sets
-// Add a maximum number of resumptions
+// Option to delete backup sets manually
 // Add note in FAQs about 'maintenance mode' plugins
 // When you migrate/restore, if there is a .htaccess, warn/give option about it.
 // Add an appeal for translators to email me.
-// Replace 'Donation' suggestion. Nobody donates. ;-)
 // In 'overtime', schedule the resumptions in groups of 2 or 3, not just 1
 // 'Show log' should be done in a nice pop-out, with a button to download the raw
-// What messages appear when Dropbxo files are deleted?
 // delete_old_dirs() needs to use WP_Filesystem in a more user-friendly way when errors occur
-// Facility to delete backup sets, with confirm (if someone backs up for a year, every 4 hours - huge list! Yuk.)
 // Bulk download of entire set at once (not have to click 7 times).
-// Fix generation of excessive transients
 // Restoration should also clear all common cache locations (or just not back them up)
-// Deal with gigantic database tables - e.g. those over a million rows on cheap hosting. Also indicate beforehand how many rows there are.
+// Deal with gigantic database tables - e.g. those over a million rows on cheap hosting.
 // Some code assumes that the updraft_dir is inside WP_CONTENT_DIR. We should be using WP_Filesystem::find_folder to remove this assumption
 // When restoring core, need an option to retain database settings / exclude wp-config.php
 // Produce a command-line version of the restorer (so that people with shell access are immune from server-enforced timeouts)
 // Restorations should be logged also
 // More sophisticated pruning options - e.g. "but only keep 1 backup every <x> <days> after <y> <weeks>"
-// Migrator - search+replace the database, list+download from remote, kick-off backup remotely
+// Migrator - list+download from remote, kick-off backup remotely
 // April 20, 2015: This is the date when the Google Documents API is likely to stop working (https://developers.google.com/google-apps/documents-list/terms)
 // Fix-time add-on should also fix the day/date, when relevant
 // Search for other TODO-s in the code
 // Stand-alone installer - take a look at this: http://wordpress.org/extend/plugins/duplicator/screenshots/
-// Migrator should search+replace table by table if possible. Pick the "Backup of: " field out the db dump to get site_url() in advance. Perform an action each table. Remember which ones have been done. Then at the end, pick up those not done.
 // More DB add-on (other non-WP tables; even other databases)
 // Unlimited customers should be auto-emailed each time they add a site (security)
 // Update all-features page at updraftplus.com (not updated after 1.5.5)
@@ -824,14 +817,16 @@ class UpdraftPlus {
 		}
 	}
 
-	function backup_finish($cancel_event, $clear_nonce_transient, $allow_email, $resumption_no) {
+	function backup_finish($cancel_event, $do_cleanup, $allow_email, $resumption_no) {
+
+		// The valid use of $do_cleanup is to indicate if in fact anything exists to clean up (if no job really started, then there may be nothing)
 
 		// In fact, leaving the hook to run (if debug is set) is harmless, as the resume job should only do tasks that were left unfinished, which at this stage is none.
 		if (empty($this->errors)) {
-			if ($clear_nonce_transient) {
+			if ($do_cleanup) {
 				$this->log("There were no errors in the uploads, so the 'resume' event is being unscheduled");
 				wp_clear_scheduled_hook('updraft_backup_resume', array($cancel_event, $this->nonce));
-				// TODO: Delete the job transient (is presently useful for debugging, and only lasts 9 hours)
+				delete_transient("updraft_jobdata_".$this->nonce);
 			}
 		} else {
 			$this->log("There were errors in the uploads, so the 'resume' event is remaining scheduled");
@@ -1468,10 +1463,10 @@ class UpdraftPlus {
 		$backup_final_file_name = $backup_file_base.'-db.gz';
 		$time_now = time();
 		$time_mod = (int)@filemtime($backup_final_file_name);
-		if (file_exists($backup_final_file_name) && $time_mod>100 && ($time_now-$time_mod)<20) {
+		if (file_exists($backup_final_file_name) && $time_mod>100 && ($time_now-$time_mod)<30) {
 			$this->terminate_due_to_activity($backup_final_file_name, $time_now, $time_mod);
 		} elseif (file_exists($backup_final_file_name)) {
-			$this->log("The final database file ($backup_final_file_name) exists, but was apparently not modified within the last 20 seconds (time_mod=$time_mod, time_now=$time_now, diff=".($time_now-$time_mod)."). Thus we assume that another UpdraftPlus terminated; thus we will continue.");
+			$this->log("The final database file ($backup_final_file_name) exists, but was apparently not modified within the last 30 seconds (time_mod=$time_mod, time_now=$time_now, diff=".($time_now-$time_mod)."). Thus we assume that another UpdraftPlus terminated; thus we will continue.");
 		}
 
 		// Finally, stitch the files together
@@ -1516,7 +1511,7 @@ class UpdraftPlus {
 
 	function terminate_due_to_activity($file, $time_now, $time_mod) {
 		$file_size = filesize($file);
-		$this->log("Terminate: the final database file ($file) exists, and was modified within the last 20 seconds (time_mod=$time_mod, time_now=$time_now, diff=".($time_now-$time_mod).", size=$file_size). This likely means that another UpdraftPlus run is at work; so we will exit.");
+		$this->log("Terminate: the final database file ($file) exists, and was modified within the last 30 seconds (time_mod=$time_mod, time_now=$time_now, diff=".($time_now-$time_mod).", size=$file_size). This likely means that another UpdraftPlus run is at work; so we will exit.");
 		$this->increase_resume_and_reschedule(120, true);
 		die;
 	}
@@ -1906,7 +1901,8 @@ class UpdraftPlus {
 			if (defined('WPLANG') && strlen(WPLANG)>0 && !is_file(UPDRAFTPLUS_DIR.'/languages/updraftplus-'.WPLANG.
 '.mo')) return __('Can you translate? Want to improve UpdraftPlus for speakers of your language?','updraftplus').$this->url_start($urls,'updraftplus.com/translate/')."Please go here for instructions - it is easy.".$this->url_end($urls,'updraftplus.com/translate/');
 
-			return __('Find UpdraftPlus useful?','updraftplus').' '.$this->url_start($urls,'david.dw-perspective.org.uk/donate').__("Please make a donation", 'updraftplus').$this->url_end($urls,'david.dw-perspective.org.uk/donate');
+			return __('Like UpdraftPlus and can spare one minute?','updraftplus').$this->url_start($urls,'wordpress.org/support/view/plugin-reviews/updraftplus#postform').' '.__('Please help UpdraftPlus by giving a positive review at wordpress.org','updraftplus').$this->url_end($urls,'wordpress.org/support/view/plugin-reviews/updraftplus#postform');
+			break;
 		case 2:
 			return $this->url_start($urls,'wordshell.net')."Check out WordShell".$this->url_end($urls,'www.wordshell.net')." - manage WordPress from the command line - huge time-saver";
 			break;
