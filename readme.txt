@@ -127,6 +127,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: Polski / Polish (pl_PL) translation: thanks to Bartosz Kaczmarek (barth.kaczmarek@gmail.com)
 * FEATURE: Add expert options to count expected uncompressed backup size, and show/delete active jobs
 * FIX: Inform users of Dropbox tokens which stop working
+* FIX: Use less transients, to work around http://core.trac.wordpress.org/ticket/20316
 * TWEAK: More verbose error reporting from PclZip
 * TWEAK: After database restoration, permalinks are flushed (often helps regenerate .htaccess+web.config files)
 * TWEAK: Database backups now put the options table first, to allow earlier changing of site URL upon migration

@@ -236,7 +236,7 @@ class UpdraftPlus_BackupModule_googledrive {
 		$hash = md5($file);
 		$transkey = 'upd_'.$hash.'_gloc';
 		// This is unset upon completion, so if it is set then we are resuming
-		$possible_location = get_transient($transkey);
+		$possible_location = $updraftplus->jobdata_get($transkey);
 
 		if ( empty( $possible_location ) ) {
 			$updraftplus->log("$file: Attempting to upload file to Google Drive.");
@@ -273,7 +273,7 @@ class UpdraftPlus_BackupModule_googledrive {
 				$counter++; if ($counter >= 20) $counter=0;
 
 				$res = $gdocs_object->upload_chunk();
-				if (is_string($res)) set_transient($transkey, $res, UPDRAFT_TRANSTIME);
+				if (is_string($res)) $updraftplus->jobdata_set($transkey, $res);
 				$p = $gdocs_object->get_upload_percentage();
 				if ( $p - $d >= 1 ) {
 					$b = intval( $p - $d );
@@ -295,7 +295,7 @@ class UpdraftPlus_BackupModule_googledrive {
 
 			$updraftplus->log("The file was successfully uploaded to Google Drive in ".number_format_i18n( $gdocs_object->time_taken(), 3)." seconds at an upload speed of ".size_format( $gdocs_object->get_upload_speed() )."/s.");
 
-			delete_transient($transkey);
+			$updraftplus->jobdata_delete($transkey);
 	// 			unset( $this->options['backup_list'][$id]['location'], $this->options['backup_list'][$id]['attempt'] );
 		}
 

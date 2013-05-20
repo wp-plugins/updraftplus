@@ -117,7 +117,7 @@ class UpdraftPlus_BackupModule_s3 {
 
 				$filepath = $bucket_path.$file;
 
-				// This is extra code for the 1-chunk case, but less overhead (no bothering with transients)
+				// This is extra code for the 1-chunk case, but less overhead (no bothering with transient data)
 				if ($chunks < 2) {
 					if (!$s3->putObjectFile($fullpath, $bucket_name, $filepath)) {
 						$updraftplus->log("$whoweare regular upload: failed ($fullpath)");
@@ -129,7 +129,7 @@ class UpdraftPlus_BackupModule_s3 {
 				} else {
 
 					// Retrieve the upload ID
-					$uploadId = get_transient("upd_${whoweare_keys}_${hash}_uid");
+					$uploadId = $updraftplus->jobdata_get("upd_${whoweare_keys}_${hash}_uid");
 					if (empty($uploadId)) {
 						$s3->setExceptions(true);
 						try {
@@ -146,7 +146,7 @@ class UpdraftPlus_BackupModule_s3 {
 							continue;
 						} else {
 							$updraftplus->log("$whoweare chunked upload: got multipart ID: $uploadId");
-							set_transient("upd_${whoweare_keys}_${hash}_uid", $uploadId, UPDRAFT_TRANSTIME);
+							$updraftplus->jobdata_set("upd_${whoweare_keys}_${hash}_uid", $uploadId);
 						}
 					} else {
 						$updraftplus->log("$whoweare chunked upload: retrieved previously obtained multipart ID: $uploadId");
@@ -156,7 +156,7 @@ class UpdraftPlus_BackupModule_s3 {
 					$etags = array();
 					for ($i = 1 ; $i <= $chunks; $i++) {
 						# Shorted to upd here to avoid hitting the 45-character limit
-						$etag = get_transient("ud_${whoweare_keys}_${hash}_e$i");
+						$etag = $updraftplus->jobdata_get("ud_${whoweare_keys}_${hash}_e$i");
 						if (strlen($etag) > 0) {
 							$updraftplus->log("$whoweare chunk $i: was already completed (etag: $etag)");
 							$successes++;
@@ -171,7 +171,7 @@ class UpdraftPlus_BackupModule_s3 {
 							if ($etag !== false && is_string($etag)) {
 								$updraftplus->record_uploaded_chunk(round(100*$i/$chunks,1), "$i, $etag", $fullpath);
 								array_push($etags, $etag);
-								set_transient("ud_${whoweare_keys}_${hash}_e$i", $etag, UPDRAFT_TRANSTIME);
+								$updraftplus->jobdata_set("ud_${whoweare_keys}_${hash}_e$i", $etag);
 								$successes++;
 							} else {
 								$updraftplus->log("$whoweare chunk $i: upload failed");

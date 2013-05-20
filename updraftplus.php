@@ -15,7 +15,6 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // When a zip is created, we can then reap the temporaries. Done: change FAQ.
 // Delete backup sets
-// Store uploaded hashes as job data, not as transients
 // Add a maximum number of resumptions
 // Add note in FAQs about 'maintenance mode' plugins
 // When you migrate/restore, if there is a .htaccess, warn/give option about it.
@@ -685,13 +684,21 @@ class UpdraftPlus {
 	}
 
 	function jobdata_set($key, $value) {
-			if (is_array($this->jobdata)) {
-				$this->jobdata[$key] = $value;
-			} else {
-				$this->jobdata = get_transient("updraft_jobdata_".$this->nonce);
-				if (!is_array($this->jobdata)) $this->jobdata = array($key => $value);
-			}
-			set_transient("updraft_jobdata_".$this->nonce, $this->jobdata, 14400);
+		if (!is_array($this->jobdata)) {
+			$this->jobdata = get_transient("updraft_jobdata_".$this->nonce);
+			if (!is_array($this->jobdata)) $this->jobdata = array();
+		}
+		$this->jobdata[$key] = $value;
+		set_transient("updraft_jobdata_".$this->nonce, $this->jobdata, UPDRAFT_TRANSTIME);
+	}
+
+	function jobdata_delete($key) {
+		if (!is_array($this->jobdata)) {
+			$this->jobdata = get_transient("updraft_jobdata_".$this->nonce);
+			if (!is_array($this->jobdata)) $this->jobdata = array();
+		}
+		unset($this->jobdata[$key]);
+		set_transient("updraft_jobdata_".$this->nonce, $this->jobdata, UPDRAFT_TRANSTIME);
 	}
 
 	function jobdata_get($key, $default = null) {

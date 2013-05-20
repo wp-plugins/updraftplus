@@ -11,8 +11,8 @@ class UpdraftPlus_BackupModule_dropbox {
 		global $updraftplus;
 
 		// Update upload ID
-		set_transient('updraf_dbid_'.$this->current_file_hash, $uploadid, UPDRAFT_TRANSTIME);
-		set_transient('updraf_dbof_'.$this->current_file_hash, $offset, UPDRAFT_TRANSTIME);
+		$updraftplus->jobdata_set('updraf_dbid_'.$this->current_file_hash, $uploadid);
+		$updraftplus->jobdata_set('updraf_dbof_'.$this->current_file_hash, $offset);
 
 		if ($this->current_file_size > 0) {
 			$percent = round(100*($offset/$this->current_file_size),1);
@@ -105,9 +105,9 @@ class UpdraftPlus_BackupModule_dropbox {
 			$filesize = $filesize/1024;
 			$microtime = microtime(true);
 
-			if ($upload_id = get_transient('updraf_dbid_'.$hash)) {
+			if ($upload_id = $updraftplus->jobdata_get('updraf_dbid_'.$hash)) {
 				# Resume
-				$offset =  get_transient('updraf_dbof_'.$hash);
+				$offset =  $updraftplus->jobdata_get('updraf_dbof_'.$hash);
 				$updraftplus->log("This is a resumption: $offset bytes had already been uploaded");
 			} else {
 				$offset = 0;
@@ -151,8 +151,8 @@ class UpdraftPlus_BackupModule_dropbox {
 				$speedps = $filesize/$microtime_elapsed;
 				$speed = sprintf("%.2d",$filesize)." Kb in ".sprintf("%.2d",$microtime_elapsed)."s (".sprintf("%.2d", $speedps)." Kb/s)";
 				$updraftplus->log("Dropbox: File upload success (".$file."): $speed");
-				delete_transient('updraft_duido_'.$hash);
-				delete_transient('updraft_duidi_'.$hash);
+				$updraftplus->jobdata_delete('updraft_duido_'.$hash);
+				$updraftplus->jobdata_delete('updraft_duidi_'.$hash);
 			}
 
 		}
