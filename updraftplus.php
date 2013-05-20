@@ -651,13 +651,12 @@ class UpdraftPlus {
 	}
 
 	function jobdata_set($key, $value) {
-			if (is_array($this->jobdata)) {
-				$this->jobdata[$key] = $value;
-			} else {
-				$this->jobdata = get_transient("updraft_jobdata_".$this->nonce);
-				if (!is_array($this->jobdata)) $this->jobdata = array($key => $value);
-			}
-			set_transient("updraft_jobdata_".$this->nonce, $this->jobdata, 14400);
+		if (!is_array($this->jobdata)) {
+			$this->jobdata = get_transient("updraft_jobdata_".$this->nonce);
+			if (!is_array($this->jobdata)) $this->jobdata = array();
+		}
+		$this->jobdata[$key] = $value;
+		set_transient("updraft_jobdata_".$this->nonce, $this->jobdata, 14400);
 	}
 
 	function jobdata_get($key) {
@@ -1315,6 +1314,8 @@ class UpdraftPlus {
 		if ($a == $b) return 0;
 		if ($a == $table_prefix.'options') return -1;
 		if ($b ==  $table_prefix.'options') return 1;
+		if ($a == $table_prefix.'users') return -1;
+		if ($b ==  $table_prefix.'users') return 1;
 		if ($a == $table_prefix.'usermeta') return -1;
 		if ($b ==  $table_prefix.'usermeta') return 1;
 		return strcmp($a, $b);
