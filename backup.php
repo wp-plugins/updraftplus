@@ -366,8 +366,9 @@ class UpdraftPlus_Backup {
 									// How much can we increase it by?
 									if ($normalised_time_since_began <6) {
 										if ($run_times_known > 0 && $max_time >0) {
-											$new_maxzipbatch = floor(max(
-												$maxzipbatch*6/$normalised_time_since_began, $maxzipbatch*((0.6*$max_time)/$normalised_time_since_began))
+											$new_maxzipbatch = min(floor(max(
+												$maxzipbatch*6/$normalised_time_since_began, $maxzipbatch*((0.6*$max_time)/$normalised_time_since_began)),
+											200*1024*1024)
 											);
 										} else {
 											# Maximum of 200Mb in a batch

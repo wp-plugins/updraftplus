@@ -41,12 +41,26 @@ class UpdraftPlus_Admin {
 
 		if (UpdraftPlus_Options::user_can_manage() && $this->disk_space_check(1024*1024*35) === false) add_action('admin_notices', array($this, 'show_admin_warning_diskspace'));
 
+		// Next, the actions that only come on settings pages
+		// if ($pagenow != 'options-general.php') return;
+
 		// Next, the actions that only come on the UpdraftPlus page
 		if ($pagenow != 'options-general.php' || !isset($_REQUEST['page']) || 'updraftplus' != $_REQUEST['page']) return;
 
 		if(UpdraftPlus_Options::get_updraft_option('updraft_debug_mode')) {
 			@ini_set('display_errors',1);
 			@error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
+			add_action('admin_notices', array($this, 'show_admin_debug_warning'));
+		}
+
+		// W3 Total Cache's object cache eats transients during cron jobs. Reported to them many times by multiple people.
+		if (defined('W3TC') && W3TC == true) {
+			if (function_exists('w3_instance')) {
+				$modules = w3_instance('W3_ModuleStatus');
+				if ($modules->is_enabled('objectcache')) {
+					add_action('admin_notices', array($this, 'show_admin_warning_w3_total_cache'));
+				}
+			}
 		}
 
 		// LiteSpeed has a generic problem with terminating cron jobs
@@ -188,6 +202,15 @@ class UpdraftPlus_Admin {
 
 	function show_admin_warning_litespeed() {
 		$this->show_admin_warning('<strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__('Your website is hosted using the %s web server.','updraftplus'),'LiteSpeed').' <a href="http://updraftplus.com/faqs/i-am-having-trouble-backing-up-and-my-web-hosting-company-uses-the-litespeed-webserver/">'.__('Please consult this FAQ if you have problems backing up.', 'updraftplus').'</a>');
+	}
+
+	function show_admin_debug_warning() {
+		$this->show_admin_warning('<strong>'.__('Notice','updraftplus').':</strong> '.__('UpdraftPlus\'s debug mode is on. You may see debugging notices on this page not just from UpdraftPlus, but from any other plugin installed. Please try to make sure that the notice you are seeing is from UpdraftPlus before you raise a support request.', 'updraftplus').'</a>');
+	}
+
+	function show_admin_warning_w3_total_cache() {
+		$url = (is_multisite()) ? network_admin_url('admin.php?page=w3tc_general') : admin_url('admin.php?page=w3tc_general');
+		$this->show_admin_warning('<strong>'.__('Warning','updraftplus').':</strong> '.__('W3 Total Cache\'s object cache is active. This is known to have a bug that messes with all scheduled tasks (including backup jobs).','updraftplus').' <a href="'.$url.'#object_cache">'.__('Go here to turn it off.','updraftplus').'</a> '.sprintf(__('<a href="%s">Go here</a> for more information.', 'updraftplus'),'http://updraftplus.com/faqs/whats-the-deal-with-w3-total-caches-object-cache/'));
 	}
 
 	function show_admin_warning_dropbox() {
@@ -874,7 +897,7 @@ class UpdraftPlus_Admin {
 						<li title="<?php _e('This is a count of the contents of your Updraft directory','updraftplus');?>"><strong><?php _e('Web-server disk space in use by UpdraftPlus','updraftplus');?>:</strong> <span id="updraft_diskspaceused"><em>(calculating...)</em></span> <a href="#" onclick="updraftplus_diskspace(); return false;"><?php _e('refresh','updraftplus');?></a></li></ul>
 
 						<div id="updraft-plupload-modal" title="<?php _e('UpdraftPlus - Upload backup files','updraftplus'); ?>" style="width: 75%; margin: 16px; display:none; margin-left: 100px;">
-						<p><em><?php _e("Upload files into UpdraftPlus. Use this to import backups made on a different WordPress installation." ,'updraftplus');?></em></p>
+						<p><em><?php _e("Upload files into UpdraftPlus. Use this to import backups made on a different WordPress installation." ,'updraftplus');?> <?php echo htmlspecialchars(__('Or, you can place them manually into your UpdraftPlus directory (usually wp-content/updraft), e.g. via FTP, and then use the "rescan" link above.', 'updraftplus'));?></em></p>
 							<div id="plupload-upload-ui" style="width: 70%;">
 								<div id="drag-drop-area">
 									<div class="drag-drop-inside">

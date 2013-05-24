@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.11
+Version: 1.6.12
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -14,9 +14,11 @@ Author URI: http://updraftplus.com
 /*
 TODO - some of these are out of date/done, needs pruning
 // Option to delete backup sets manually
+// Import single site into a multisite: http://codex.wordpress.org/Migrating_Multiple_Blogs_into_WordPress_3.0_Multisite, http://wordpress.org/support/topic/single-sites-to-multisite?replies=5, http://wpmu.org/import-export-wordpress-sites-multisite/
 // Add note in FAQs about 'maintenance mode' plugins
 // When you migrate/restore, if there is a .htaccess, warn/give option about it.
 // Add an appeal for translators to email me.
+// Log if non-omnipresent entities (e.g. blogs.dir, mu-plugins) are not present and we were asked to back them up
 // In 'overtime', schedule the resumptions in groups of 2 or 3, not just 1
 // 'Show log' should be done in a nice pop-out, with a button to download the raw
 // delete_old_dirs() needs to use WP_Filesystem in a more user-friendly way when errors occur

@@ -1,6 +1,6 @@
 === UpdraftPlus Backup ===
 Contributors: DavidAnderson
-Tags: backup, restore, database, rackspace, amazon, s3, dropbox, google drive, ftp, webdav, back up, multisite
+Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, webdav, back up, multisite, restoration, sftp, ftps, migrate, duplicate, copy, updraft, schedule, database backup, db backup
 Requires at least: 3.1
 Tested up to: 3.5.1
 Stable tag: 1.6.2
@@ -14,9 +14,9 @@ Easy and complete backups and restoration. Manual or automated backups (Amazon S
 
 <a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3, Dropbox, Google Drive, Rackspace Cloud, DreamObjects, FTP, SFTP, WebDAV and email) and restore with a single click. Backups of files and database can have separate schedules.
 
-* Thousands of users: widely tested and reliable (over 130,000 downloads). Ranks 102 on rankwp.com out of 24,000 plugins (top 0.5%).
-* Top-quality: ranks 38th out of 24,000 plugins for quality on rankwp.com (top 0.25% - last checked 26th April 2013).
-* Supports backups to Amazon S3, Dropbox, Google Drive, Rackspace Cloud Files, DreamObjects, FTP (including SSL), email, SFTP and WebDAV
+* Thousands of users: widely tested and reliable (over 140,000 downloads). Ranks in the top 1% on rankwp.com (228 out of 25,000 plugins).
+* Top-quality: ranks 45th out of 24,000 plugins for quality on rankwp.com (top 0.25% - last checked 23rd May 2013).
+* Supports backups to Amazon S3, Dropbox, Rackspace Cloud Files, Google Drive, DreamHost DreamObjects, FTP and email. Also (via an add-on) FTP over SSL, SFTP and WebDAV. (Note: Microsoft forbid SkyDrive to be used by backup software).  
 * Quick restore (both file and database backups)
 * Backup automatically on a repeating schedule
 * Site duplicator/migrator: can copy sites, and (with add-on) move them to new locations
@@ -138,6 +138,9 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * TWEAK: Clean up temporary files earlier where safe+possible (can lower disk space requirements)
 * TWEAK: Re-scan of known sets now removes those known to be gone from the list
 * TWEAK: Made a few things use AJAX instead of full page loads
+* TWEAK: Replace Rackspace logo with current version
+* TWEAK: Warn users if they have W3 Total Cache's object cache (which has a bug that affects scheduled tasks) active.
+* TWEAK: Add a notice for users who have turned on debugging (some forget to turn it off, then ask for support when they see lots of debugging notices)
 
 = 1.6.2 - 05/11/2013 =
 * FIX: Prevent PHP fatal error on some database restores
