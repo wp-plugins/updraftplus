@@ -262,7 +262,7 @@ class UpdraftPlus_BackupModule_s3 {
 			$bucket_path = $bmatches[2]."/";
 		}
 
-		$region = ($config['key'] == 'dreamobjects') ? $config['whoweare'] : @$s3->getBucketLocation($bucket);
+		$region = ($config['key'] == 'dreamobjects') ? $config['whoweare'] : @$s3->getBucketLocation($bucket_name);
 		if (!empty($region)) {
 			$this->set_endpoint($s3, $region);
 			$fullpath = $updraftplus->backups_dir_location().'/'.$file;
