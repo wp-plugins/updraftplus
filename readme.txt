@@ -105,7 +105,7 @@ You can check the changelog for changes; but the original Updraft, before I fork
 
 = Any known bugs ? =
 
-Not a bug, but one issue to be aware of is that backups of very large sites (lots of uploaded media) are quite complex matters, given the limits of running inside WordPress on a huge variety of different web hosting setups. With large sites, you need to use Amazon S3, which UpdraftPlus supports (since 0.9.20), Google Drive (0.9.21), Dropbox (since 1.2.19), WebDAV (since 1.4.30), Rackspace Cloud Files (since 1.5.21), DreamObjects (since 1.6.6) or FTP (since 1.5.9) because these support chunked, resumable uploads. Other backup methods have code (since 0.9.0) to retry failed uploads of an archive, but the upload cannot be chunked, so if an archive is enormous (i.e. cannot be completely uploaded in the time that PHP is allowed for running on your web host) it cannot work. (Though as far as we're aware, no other cloud backup plugins support chunking, so you're still no worse off than with the alternatives).
+Not a bug, but one issue to be aware of is that backups of very large sites (lots of uploaded media) are quite complex matters, given the limits of running inside WordPress on a huge variety of different web hosting setups. With large sites, you need to use Amazon S3, which UpdraftPlus supports Google Drive, Dropbox, WebDAV (since 1.4.30), Rackspace Cloud Files (since 1.5.21), DreamObjects (since 1.6.6) or FTP (since 1.5.9) because these support chunked, resumable uploads. Other backup methods have code (since 0.9.0) to retry failed uploads of an archive, but the upload cannot be chunked, so if an archive is enormous (i.e. cannot be completely uploaded in the time that PHP is allowed for running on your web host) it cannot work. (Though as far as we're aware, no other cloud backup plugins support chunking, so you're still no worse off than with the alternatives).
 
 = My site was hacked, and I have no backups! I thought UpdraftPlus was working! Can I kill you? =
 
@@ -127,6 +127,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: Polski / Polish (pl_PL) translation: thanks to Bartosz Kaczmarek (barth.kaczmarek@gmail.com)
 * FEATURE: Add expert options to count expected uncompressed backup size, and show/delete active jobs
 * FIX: Inform users of Dropbox tokens which stop working
+* TWEAK: When errors occur, list them in the notification email and attach the log file
 * TWEAK: Use only one transient per job, and clean it up upon completion
 * TWEAK: More verbose error reporting from PclZip
 * TWEAK: After database restoration, permalinks are flushed (often helps regenerate .htaccess+web.config files)

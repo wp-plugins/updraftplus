@@ -92,7 +92,7 @@ class UpdraftPlus_BackupModule_s3 {
 			$bucket_path = $bmatches[2]."/";
 		}
 
-		$region = ($config['key'] == 'dreamobjects') ? $config['whoweare'] : @$s3->getBucketLocation($bucket);
+		$region = ($config['key'] == 'dreamobjects') ? $config['whoweare'] : @$s3->getBucketLocation($bucket_name);
 
 		// See if we can detect the region (which implies the bucket exists and is ours), or if not create it
 		if (!empty($region) || @$s3->putBucket($bucket_name, S3::ACL_PRIVATE)) {
@@ -283,8 +283,10 @@ class UpdraftPlus_BackupModule_s3 {
 
 	public static function config_print_javascript_onready_engine($key) {
 
+		$config = self::get_config();
 		?>
 		jQuery('#updraft-<?php echo $key; ?>-test').click(function(){
+			jQuery('#updraft-<?php echo $key; ?>-test').html('<?php echo sprintf(__('Testing %s Settings...', 'updraftplus'),$config['whoweare']); ?>');
 			var data = {
 				action: 'updraft_ajax',
 				subaction: 'credentials_test',
@@ -298,6 +300,7 @@ class UpdraftPlus_BackupModule_s3 {
 				nossl: (jQuery('#updraft_ssl_nossl').is(':checked')) ? 1 : 0,
 			};
 			jQuery.post(ajaxurl, data, function(response) {
+					jQuery('#updraft-<?php echo $key; ?>-test').html('<?php echo sprintf(__('Test %s Settings', 'updraftplus'),$config['whoweare']); ?>');
 					alert('Settings test result: ' + response);
 			});
 		});

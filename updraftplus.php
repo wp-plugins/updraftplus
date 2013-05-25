@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.12
+Version: 1.6.13
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -902,10 +902,34 @@ class UpdraftPlus {
 
 		$this->log("Sending email ('$backup_contains') report to: ".substr($sendmail_to, 0, 5)."...");
 
-		$append_log = ($debug_mode && $this->logfile_name != "") ? "\r\nLog contents:\r\n".file_get_contents($this->logfile_name) : "" ;
+		$append_log = '';
+		$attachments = array();
+		if (count($this->errors)>0) {
+			$append_log .= __('Errors encountered:', 'updraftplus')."\r\n";
+			if (!empty($this->logfile_name)) $attachments[] = $this->logfile_name;
+			foreach ($this->errors as $err) {
+				if (is_wp_error($err)) {
+					foreach ($err->get_error_messages() as $msg) {
+						$append_log .= "* ".rtrim($msg)."\r\n";
+					}
+				} else {
+					$append_log .= "* ".rtrim($err)."\r\n";
+				}
+			}
+			$append_log.="\n";
+		}
 
-		wp_mail($sendmail_to,__('Backed up', 'updraftplus').': '.get_bloginfo('name').' (UpdraftPlus '.$this->version.') '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus: ".__('WordPress backup is complete','updraftplus').".\r\n".__('Backup contains','updraftplus').': '.$backup_contains."\r\n".__('Latest status', 'updraftplus').": $final_message\r\n\r\n".$this->wordshell_random_advert(0)."\r\n".$append_log);
+		$append_log .= ($debug_mode && $this->logfile_name != "") ? "\r\nLog contents:\r\n".file_get_contents($this->logfile_name) : "" ;
 
+		// We have to use the action in order to set the MIME type on the attachment - by default, WordPress just puts application/octet-stream
+		if (count($attachments)>0) add_action('phpmailer_init', array($this, 'phpmailer_init'));
+		wp_mail($sendmail_to, __('Backed up', 'updraftplus').': '.get_bloginfo('name').' (UpdraftPlus '.$this->version.') '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus: ".__('WordPress backup is complete','updraftplus').".\r\n".__('Backup contains','updraftplus').': '.$backup_contains."\r\n".__('Latest status', 'updraftplus').": $final_message\r\n\r\n".$this->wordshell_random_advert(0)."\r\n".$append_log);
+		if (count($attachments)>0) remove_action('phpmailer_init', array($this, 'phpmailer_init'));
+
+	}
+
+	function phpmailer_init($phpmailer) {
+		$phpmailer->AddAttachment($this->logfile_name, '', 'base64', 'text/plain');
 	}
 
 	function save_last_backup($backup_array) {
@@ -1482,7 +1506,7 @@ class UpdraftPlus {
 			$this->log("{$table_file}.gz: adding to final database dump");
 			if (!$handle = gzopen($updraft_dir.'/'.$table_file.'.gz', "r")) {
 				$this->log("Error: Failed to open database file for reading: ${table_file}.gz");
-				$this->error(" Failed to open database file for reading: ${table_file}.gz");
+				$this->error("Failed to open database file for reading: ${table_file}.gz");
 			} else {
 				while ($line = gzgets($handle, 2048)) { $this->stow($line); }
 				gzclose($handle);
