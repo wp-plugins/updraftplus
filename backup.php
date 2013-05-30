@@ -126,7 +126,7 @@ class UpdraftPlus_Backup {
 			$updraftplus->log('Checking if we have a zip executable available');
 			$binzip = $updraftplus->find_working_bin_zip();
 			if (is_string($binzip)) {
-				$updraftplus->log("Found one (but we won't use it - feature still experimental): $binzip");
+				$updraftplus->log("Found one: $binzip");
 				$this->binzip = $binzip;
 			}
 		}
