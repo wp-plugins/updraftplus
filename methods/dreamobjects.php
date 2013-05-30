@@ -24,7 +24,7 @@ class UpdraftPlus_BackupModule_dreamobjects extends UpdraftPlus_BackupModule_s3 
 	}
 
 	public static function config_print_javascript_onready() {
-		self::config_print_javascript_onready_engine('dreamobjects');
+		self::config_print_javascript_onready_engine('dreamobjects', 'DreamObjects');
 	}
 
 	public static function credentials_test() {

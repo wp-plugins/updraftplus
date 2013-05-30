@@ -358,7 +358,19 @@ class UpdraftPlus_BackupModule_cloudfiles {
 				<p><em><?php printf(__('%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your site is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.','updraftplus'),'Rackspace Cloud Files');?></em></p></td>
 		</tr>
 
-
+		<tr class="updraftplusmethod cloudfiles">
+			<th></th>
+			<td>
+			<?php
+			// Check requirements.
+			global $updraftplus_admin;
+			if (!function_exists('mb_substr')) {
+				$updraftplus_admin->show_double_warning('<strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__('Your web server\'s PHP installation does not included a required module (%s). Please contact your web hosting provider\'s support.', 'updraftplus'), 'mbstring').' '.sprintf(__("UpdraftPlus's %s module <strong>requires</strong> %s. Please do not file any support requests; there is no alternative.",'updraftplus'),'Cloud Files', 'mbstring'), 'cloudfiles');
+			}
+			$updraftplus_admin->curl_check('Rackspace Cloud Files', false, 'cloudfiles');
+			?>
+			</td>
+		</tr>
 
 		<tr class="updraftplusmethod cloudfiles">
 		<th></th>
@@ -389,20 +401,6 @@ class UpdraftPlus_BackupModule_cloudfiles {
 		<tr class="updraftplusmethod cloudfiles">
 			<th><?php echo apply_filters('updraftplus_cloudfiles_location_description',__('Cloud Files container','updraftplus'));?>:</th>
 			<td><input type="text" style="width: 252px" name="updraft_cloudfiles_path" id="updraft_cloudfiles_path" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_path')); ?>" /></td>
-		</tr>
-
-		<tr class="updraftplusmethod cloudfiles">
-			<th></th>
-			<td>
-			<?php
-			// Check requirements.
-			if (!function_exists('mb_substr')) {
-				?><p><strong><?php _e('Warning','updraftplus'); ?>:</strong> <?php echo sprintf(__('Your web server\'s PHP installation does not included a required module (%s). Please contact your web hosting provider\'s support.', 'updraftplus'), 'mbstring'); ?> <?php echo sprintf(__("UpdraftPlus's %s module <strong>requires</strong> %s. Please do not file any support requests; there is no alternative.",'updraftplus'),'Cloud Files', 'mbstring');?></p><?php
-			}
-			global $updraftplus_admin;
-			$updraftplus_admin->curl_check('Rackspace Cloud Files', false);
-			?>
-			</td>
 		</tr>
 
 		<tr class="updraftplusmethod cloudfiles">

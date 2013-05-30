@@ -259,6 +259,23 @@ class UpdraftPlus_BackupModule_dropbox {
 				</td>
 			</tr>
 
+			<tr class="updraftplusmethod dropbox">
+			<th></th>
+			<td>
+			<?php
+			// Check requirements.
+			global $updraftplus_admin;
+			if (!function_exists('mcrypt_encrypt')) {
+				$updraftplus_admin->show_double_warning('<strong>'.__('Warning','updraftplus').':</strong> '. sprintf(__('Your web server\'s PHP installation does not included a required module (%s). Please contact your web hosting provider\'s support and ask for them to enable it.', 'updraftplus'), 'mcrypt'));
+				/*
+				.' '.sprintf(__("UpdraftPlus's %s module <strong>requires</strong> %s. Please do not file any support requests; there is no alternative.",'updraftplus'),'Dropbox', 'mcrypt'), 'dropbox')
+				*/
+			}
+			$updraftplus_admin->curl_check('Dropbox', false, 'dropbox');
+			?>
+			</td>
+			</tr>
+
 			<?php
 
 				$defmsg = '<tr class="updraftplusmethod dropbox"><td></td><td><strong>'.__('Need to use sub-folders?','updraftplus').'</strong> '.__('Backups are saved in','updraftplus').' apps/UpdraftPlus. '.__('If you back up several sites into the same Dropbox and want to organise with sub-folders, then ','updraftplus').'<a href="http://updraftplus.com/shop/">'.__("there's an add-on for that.",'updraftplus').'</a></td></tr>';
@@ -270,20 +287,6 @@ class UpdraftPlus_BackupModule_dropbox {
 				<td><p><?php if (UpdraftPlus_Options::get_updraft_option('updraft_dropboxtk_request_token','xyz') != 'xyz') echo "<strong>(You appear to be already authenticated).</strong>"; ?> <a href="?page=updraftplus&action=updraftmethod-dropbox-auth&updraftplus_dropboxauth=doit"><?php echo __('<strong>After</strong> you have saved your settings (by clicking \'Save Changes\' below), then come back here once and click this link to complete authentication with Dropbox.','updraftplus');?></a>
 				</p>
 				</td>
-			</tr>
-
-			<tr class="updraftplusmethod dropbox">
-			<th></th>
-			<td>
-			<?php
-			// Check requirements.
-			if (!function_exists('mcrypt_encrypt')) {
-				?><p><strong><?php _e('Warning','updraftplus'); ?>:</strong> <?php echo sprintf(__('Your web server\'s PHP installation does not included a required module (%s). Please contact your web hosting provider\'s support.', 'updraftplus'), 'mcrypt'); ?> <?php echo sprintf(__("UpdraftPlus's %s module <strong>requires</strong> %s. Please do not file any support requests; there is no alternative.",'updraftplus'),'Dropbox', 'mcrypt');?></p><?php
-			}
-			global $updraftplus_admin;
-			$updraftplus_admin->curl_check('Dropbox', false);
-			?>
-			</td>
 			</tr>
 
 			<?php

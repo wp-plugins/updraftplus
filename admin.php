@@ -682,13 +682,13 @@ class UpdraftPlus_Admin {
 		*/
 		if(isset($_REQUEST['action']) && $_REQUEST['action'] == 'updraft_restore' && isset($_REQUEST['backup_timestamp'])) {
 			$backup_success = $this->restore_backup($_REQUEST['backup_timestamp']);
-			if(empty($updraftplus->errors) && $backup_success == true) {
+			if(empty($updraftplus->errors) && $backup_success === true) {
 				// If we restored the database, then that will have out-of-date information which may confuse the user - so automatically re-scan for them.
 				$this->rebuild_backup_history();
 				echo '<p><strong>'.__('Restore successful!','updraftplus').'</strong></p>';
 				echo '<b>'.__('Actions','updraftplus').':</b> <a href="options-general.php?page=updraftplus&updraft_restore_success=true">'.__('Return to UpdraftPlus Configuration','updraftplus').'</a>';
 				return;
-			} else {
+			} elseif (is_wp_error($backup_success)) {
 				echo '<p>Restore failed...</p><ul style="list-style: disc inside;">';
 				foreach ($updraftplus->errors as $err) {
 					if (is_wp_error($err)) {
@@ -702,6 +702,9 @@ class UpdraftPlus_Admin {
 					}
 				}
 				echo '</ul><b>Actions:</b> <a href="options-general.php?page=updraftplus">'.__('Return to UpdraftPlus Configuration','updraftplus').'</a>';
+				return;
+			} elseif (false === $backup_success) {
+				# This means, "not yet - but stay on the page because we may be able to do it later, e.g. if the user types in the requested information"
 				return;
 			}
 			//uncomment the below once i figure out how i want the flow of a restoration to work.
@@ -762,7 +765,7 @@ class UpdraftPlus_Admin {
 		<div class="wrap">
 			<h1><?php echo $updraftplus->plugin_title; ?></h1>
 
-			<?php _e('By UpdraftPlus.Com','updraftplus')?> ( <a href="http://updraftplus.com">UpdraftPlus.Com</a> | <a href="http://david.dw-perspective.org.uk"><?php _e("Lead developer's homepage",'updraftplus');?></a> | <?php if (!defined('UPDRAFTPLUS_NOADS')) { ?><a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate"><?php _e('Donate','updraftplus');?></a> | <?php } ?><a href="http://updraftplus.com/support/frequently-asked-questions/">FAQs</a> | <a href="http://profiles.wordpress.org/davidanderson/"><?php _e('Other WordPress plugins','updraftplus');?></a>). <?php _e('Version','updraftplus');?>: <?php echo $updraftplus->version; ?>
+			<?php _e('By UpdraftPlus.Com','updraftplus')?> ( <a href="http://updraftplus.com">UpdraftPlus.Com</a> | <a href="http://updraftplus.com/news/"><?php _e('News','updraftplus');?></a> | <?php if (!defined('UPDRAFTPLUS_NOADS')) { ?><a href="http://updraftplus.com/shop/"><?php _e("Premium",'updraftplus');?></a>  | <?php } ?><a href="http://david.dw-perspective.org.uk"><?php _e("Lead developer's homepage",'updraftplus');?></a> | <?php if (1==0 && !defined('UPDRAFTPLUS_NOADS')) { ?><a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate"><?php _e('Donate','updraftplus');?></a> | <?php } ?><a href="http://updraftplus.com/support/frequently-asked-questions/">FAQs</a> | <a href="http://profiles.wordpress.org/davidanderson/"><?php _e('Other WordPress plugins','updraftplus');?></a>). <?php _e('Version','updraftplus');?>: <?php echo $updraftplus->version; ?>
 			<br>
 			<?php
 			if(isset($_GET['updraft_restore_success'])) {
@@ -857,17 +860,22 @@ class UpdraftPlus_Admin {
 					<td id="updraft_last_backup"><?php echo $last_backup_html ?></td>
 				</tr>
 			</table>
-			<div style="float:left; width:200px; padding-top: 20px;">
-				<p><button type="button" <?php echo $backup_disabled ?> class="button-primary" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px;" onclick="jQuery('#updraft-backupnow-modal').dialog('open');"><?php _e('Backup Now','updraftplus');?></button></p>
-				<div style="position:relative">
-					<div style="position:absolute;top:0;left:0">
-						<?php
+			<div style="float:left; width:200px; margin-top: <?php echo (class_exists('UpdraftPlus_Addons_Migrator')) ? "20" : "0" ?>px;">
+				<div style="margin-bottom: 10px;">
+					<button type="button" <?php echo $backup_disabled ?> class="button-primary" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px; min-width: 170px;" onclick="jQuery('#updraft-backupnow-modal').dialog('open');"><?php _e('Backup Now','updraftplus');?></button>
+				</div>
+				<div style="margin-bottom: 10px;">
+					<?php
 						$backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
 						$backup_history = (is_array($backup_history))?$backup_history:array();
-						?>
-						<input type="button" class="button-primary" value="<?php _e('Restore','updraftplus');?>" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px;" onclick="jQuery('.download-backups').slideDown(); updraft_historytimertoggle(1); jQuery('html,body').animate({scrollTop: jQuery('#updraft_lastlogcontainer').offset().top},'slow');">
-					</div>
+					?>
+					<input type="button" class="button-primary" value="<?php _e('Restore','updraftplus');?>" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px;  min-width: 170px;" onclick="jQuery('.download-backups').slideDown(); updraft_historytimertoggle(1); jQuery('html,body').animate({scrollTop: jQuery('#updraft_lastlogcontainer').offset().top},'slow');">
 				</div>
+				<?php if (class_exists('UpdraftPlus_Addons_Migrator')) { ?>
+				<div>
+					<button type="button" class="button-primary" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px;  min-width: 170px;" onclick="jQuery('#updraft-migrate-modal').dialog('open');"><?php _e('Clone/Migrate','updraftplus');?></button>
+				</div>
+				<?php } ?>
 			</div>
 			<br style="clear:both" />
 			<table class="form-table">
@@ -1088,6 +1096,18 @@ class UpdraftPlus_Admin {
 <p><em><a href="http://updraftplus.com/faqs/what-should-i-understand-before-undertaking-a-restoration/" target="_new"><?php _e('Do read this helpful article of useful things to know before restoring.','updraftplus');?></a></em></p>
 </div>
 
+<div id="updraft-migrate-modal" title="<?php _e('Migrate Site', 'updraftplus'); ?>">
+
+<?php
+	if (class_exists('UpdraftPlus_Addons_Migrator')) {
+		echo '<p>'.str_replace('"', "&quot;", __('Migration of data from another site happens through the "Restore" button. A "migration" is ultimately the same as a restoration - but using backup archives that you import from another site. UpdraftPlus modifies the restoration operation appropriately, to fit the backup data to the new site.', 'updraftplus')).' '.sprintf(__('<a href="%s">Read this article to see step-by-step how it\'s done.</a>', 'updraftplus'),'http://updraftplus.com/faqs/how-do-i-migrate-to-a-new-site-location/');
+	} else {
+		echo '<p>'.__('Do you want to migrate or clone/duplicate a site?', 'updraftplus').'</p><p>'.__('Then, try out our "Migrator" add-on. After using it once, you\'ll have saved the purchase price compared to the time needed to copy a site by hand.', 'updraftplus').'</p><p><a href="http://updraftplus.com/shop/migrator/">'.__('Get it here.', 'updraftplus').'</a>';
+	}
+?>
+</p>
+</div>
+
 <div id="updraft-backupnow-modal" title="UpdraftPlus - <?php _e('Perform a one-time backup','updraftplus'); ?>">
 	<p><?php _e("To proceed, press 'Backup Now'. Then, watch the 'Last Log Message' field for activity after about 10 seconds. WordPress should start the backup running in the background.",'updraftplus');?></p>
 
@@ -1131,7 +1151,9 @@ class UpdraftPlus_Admin {
 
 				echo __('PHP has support for ZipArchive::addFile:', 'updraftplus').' '.$ziparchive_exists.'<br>';
 
-				echo __('/usr/bin/zip can be executed:', 'updraftplus').' '.(@is_executable('/usr/bin/zip') ? __('Yes') : __('No')).'<br>';
+				$binzip = $updraftplus->find_working_bin_zip(false);
+
+				echo __('zip executable found:', 'updraftplus').' '.((is_string($binzip)) ? __('Yes').': '.$binzip : __('No')).'<br>';
 
 				echo '<h3>'.__('Total (uncompressed) on-disk data:','updraftplus').'</h3>';
 				echo '<p style="clear: left; max-width: 600px;"><em>'.__('N.B. This count is based upon what was, or was not, excluded the last time you saved the options.', 'updraftplus').'</em></p>';
@@ -1679,6 +1701,13 @@ ENDHERE;
 						}
 					});
 
+					jQuery( "#updraft-migrate-modal" ).dialog({
+						autoOpen: false, height: 265, width: 390, modal: true,
+						buttons: {
+							'<?php _e('Close','updraftplus');?>': function() { jQuery(this).dialog("close"); }
+						}
+					});
+
 					jQuery('#enableexpertmode').click(function() {
 						jQuery('.expertmode').fadeIn();
 						updraft_activejobs_update();
@@ -1782,10 +1811,22 @@ ENDHERE;
 		<?php
 	}
 
-	function curl_check($service, $has_fallback = false) {
+	function show_double_warning($text, $extraclass = '') {
+
+		?><div class="error updraftplusmethod <?php echo $extraclass; ?>"><p><?php echo $text; ?></p></div>
+
+		<p><?php echo $text; ?></p>
+
+		<?php
+
+	}
+
+	function curl_check($service, $has_fallback = false, $extraclass = '') {
 		// Check requirements
 		if (!function_exists("curl_init")) {
-			?><p><strong><?php _e('Warning','updraftplus'); ?>:</strong> <?php echo sprintf(__('Your web server\'s PHP installation does not included a required module (%s). Please contact your web hosting provider\'s support.', 'updraftplus'), 'Curl'); ?> <?php echo sprintf(__("UpdraftPlus's %s module <strong>requires</strong> Curl. Your only options to get this working are 1) Install/enable curl or 2) Hire us or someone else to code additional support options into UpdraftPlus. 3) Wait, possibly forever, for someone else to do this.",'updraftplus'),$service);?></p><?php
+		
+			$this->show_double_warning('<strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__('Your web server\'s PHP installation does not included a <strong>required</strong> (for %s) module (%s). Please contact your web hosting provider\'s support and ask for them to enable it.', 'updraftplus'), $service, 'Curl').' '.sprintf(__("Your options are 1) Install/enable %s or 2) Change web hosting companies - %s is a standard PHP component, and required by all cloud backup plugins that we know of.",'updraftplus'), 'Curl', 'Curl'), $extraclass);
+
 		} else {
 			$curl_version = curl_version();
 			$curl_ssl_supported= ($curl_version['features'] & CURL_VERSION_SSL);
@@ -1793,7 +1834,7 @@ ENDHERE;
 				if ($has_fallback) {
 					?><p><strong><?php _e('Warning','updraftplus'); ?>:</strong> <?php echo sprintf(__("Your web server's PHP/Curl installation does not support https access. Communications with %s will be unencrypted. ask your web host to install Curl/SSL in order to gain the ability for encryption (via an add-on).",'updraftplus'),$service);?></p><?php
 				} else {
-					?><p><strong><?php _e('Warning','updraftplus'); ?>:</strong> <?php echo sprintf(__("Your web server's PHP/Curl installation does not support https access. We cannot access %s without this support. Please contact your web hosting provider's support. %s <strong>requires</strong> Curl+https. Please do not file any support requests; there is no alternative.",'updraftplus'),$service);?></p><?php
+					$this->show_double_warning('<p><strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__("Your web server's PHP/Curl installation does not support https access. We cannot access %s without this support. Please contact your web hosting provider's support. %s <strong>requires</strong> Curl+https. Please do not file any support requests; there is no alternative.",'updraftplus'),$service).'</p>', $extraclass);
 				}
 			} else {
 				?><p><em><?php echo sprintf(__("Good news: Your site's communications with %s can be encrypted. If you see any errors to do with encryption, then look in the 'Expert Settings' for more help.", 'updraftplus'),$service);?></em></p><?php
@@ -2014,6 +2055,7 @@ ENDHERE;
 
 	}
 
+	// Return values: false = 'not yet' (not necessarily terminal); WP_Error = terminal failure; true = success
 	function restore_backup($timestamp) {
 
 		@set_time_limit(900);
@@ -2022,7 +2064,7 @@ ENDHERE;
 		$backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
 		if(!is_array($backup_history[$timestamp])) {
 			echo '<p>'.__('This backup does not exist in the backup history - restoration aborted. Timestamp:','updraftplus')." $timestamp</p><br/>";
-			return false;
+			return new WP_Error('does_not_exist', 'Backup does not exist in the backup history');
 		}
 
 		// request_filesystem_credentials passes on fields just via hidden name/value pairs.
@@ -2074,7 +2116,7 @@ ENDHERE;
 		if (count($_POST['updraft_restore']) == 0) {
 			echo '<p>'.__('ABORT: Could not find the information on which entities to restore.', 'updraftplus').'</p>';
 			echo '<p>'.__('If making a request for support, please include this information:','updraftplus').' '.count($_POST).' : '.htmlspecialchars(serialize($_POST)).'</p>';
-			return false;
+			return new WP_Error('missing_info', 'Backup information not found');
 		}
 
 		/*
@@ -2084,7 +2126,15 @@ ENDHERE;
 
 		$backupable_entities = $updraftplus->get_backupable_file_entities(true, true);
 
-		foreach($backup_history[$timestamp] as $type => $file) {
+		$backup_set = $backup_history[$timestamp];
+		uksort($backup_set, array($this, 'sort_restoration_entities'));
+
+		// We use a single object for each entity, because we want to store information about the backup set
+		if(!class_exists('WP_Upgrader')) require_once(ABSPATH . 'wp-admin/includes/class-wp-upgrader.php');
+		require_once(UPDRAFTPLUS_DIR.'/includes/updraft-restorer.php');
+		$restorer = new Updraft_Restorer();
+
+		foreach($backup_set as $type => $file) {
 			// All restorable entities must be given explicitly, as we can store other arbitrary data in the history array
 			 
 			if (!isset($backupable_entities[$type]) && 'db' != $type) continue;
@@ -2099,6 +2149,11 @@ ENDHERE;
 
 			if (!isset($entities_to_restore[$type])) {
 				echo "<p>$type: ".__('This component was not selected for restoration - skipping.', 'updraftplus')."</p>";
+				continue;
+			}
+
+			if ($type == 'wpcore' && is_multisite() && 0 === $restorer->ud_backup_is_multisite) {
+				echo "<p>$type: <strong>".__('Skipping restoration of WordPress core when importing a single site into a multisite installation. If you had anything necessary in your WordPress directory then you will need to re-add it manually from the zip file.', 'updraftplus')."</strong></p>";
 				continue;
 			}
 
@@ -2125,18 +2180,17 @@ ENDHERE;
 			# Types: uploads, themes, plugins, others, db
 			if(is_readable($fullpath)) {
 
-				if(!class_exists('WP_Upgrader')) require_once(ABSPATH . 'wp-admin/includes/class-wp-upgrader.php');
-				require_once(UPDRAFTPLUS_DIR.'/includes/updraft-restorer.php');
-				$restorer = new Updraft_Restorer();
-				
 				$info = (isset($backupable_entities[$type])) ? $backupable_entities[$type] : array();
-				
+
 				$val = $restorer->restore_backup($file, $type, $service, $info);
 
 				if(is_wp_error($val)) {
 					foreach ($val->get_error_messages() as $msg) {
 						echo '<strong>'.__('Error message',  'updraftplus').':</strong> '.htmlspecialchars($msg).'<br>';
 					}
+					echo '</div>'; //close the updraft_restore_progress div even if we error
+					return $val;
+				} elseif (false === $val) {
 					echo '</div>'; //close the updraft_restore_progress div even if we error
 					return false;
 				}
@@ -2149,7 +2203,13 @@ ENDHERE;
 		return true;
 	}
 
-
+	function sort_restoration_entities($a, $b) {
+		if ($a == $b) return 0;
+		# Put the database first
+		if ($a == 'db') return -1;
+		if ($b ==  'db') return 1;
+		return strcmp($a, $b);
+	}
 
 }
 

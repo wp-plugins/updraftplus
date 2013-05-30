@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.13
+Version: 1.6.14
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -14,6 +14,8 @@ Author URI: http://updraftplus.com
 /*
 TODO - some of these are out of date/done, needs pruning
 // Option to delete backup sets manually
+// Check with P3 (Plugin Performance Profiler)
+// S3-compatible storage providers: http://www.dragondisk.com/s3-storage-providers.html
 // Import single site into a multisite: http://codex.wordpress.org/Migrating_Multiple_Blogs_into_WordPress_3.0_Multisite, http://wordpress.org/support/topic/single-sites-to-multisite?replies=5, http://wpmu.org/import-export-wordpress-sites-multisite/
 // Add note in FAQs about 'maintenance mode' plugins
 // When you migrate/restore, if there is a .htaccess, warn/give option about it.
@@ -34,6 +36,7 @@ TODO - some of these are out of date/done, needs pruning
 // April 20, 2015: This is the date when the Google Documents API is likely to stop working (https://developers.google.com/google-apps/documents-list/terms)
 // Fix-time add-on should also fix the day/date, when relevant
 // Search for other TODO-s in the code
+// More databases
 // Stand-alone installer - take a look at this: http://wordpress.org/extend/plugins/duplicator/screenshots/
 // More DB add-on (other non-WP tables; even other databases)
 // Unlimited customers should be auto-emailed each time they add a site (security)
@@ -103,6 +106,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 define('UPDRAFTPLUS_DIR', dirname(__FILE__));
 define('UPDRAFTPLUS_URL', plugins_url('', __FILE__));
 define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php,backup,backups');
+
+if (!defined('UPDRAFTPLUS_ZIP_EXECUTABLE')) define('UPDRAFTPLUS_ZIP_EXECUTABLE', "/usr/bin/zip,/bin/zip,/usr/local/bin/zip,/usr/sfw/bin/zip,/usr/xdg4/bin/zip,/opt/bin/zip");
+
 // This is used in various places, based on our assumption of the maximum time any job should take. May need lengthening in future if we get reports which show enormous sets hitting the limit.
 // Also one section requires at least 1% progress each run, so on a 5-minute schedule, that equals just under 9 hours - then an extra allowance takes it just over. (However these days, we reduce the scheduling time if possible, so we get more attempts).
 define('UPDRAFT_TRANSTIME', 3600*12);
@@ -363,14 +369,14 @@ class UpdraftPlus {
 	}
 
 	# Logs the given line, adding (relative) time stamp and newline
-	function log($line) {
+	function log($line, $save_transient = true) {
 		if ($this->logfile_handle) fwrite($this->logfile_handle, sprintf("%08.03f", round(microtime(true)-$this->opened_log_time, 3))." (".$this->current_resumption.") $line\n");
 		if ('download' == $this->jobdata_get('job_type')) {
 			// Download messages are keyed on the job (since they could be running several), and transient
 			// The values of the POST array were checked before
 			set_transient('ud_dlmess_'.$_POST['timestamp'].'_'.$_POST['type'], $line." (".date('M d H:i:s').")", 3600);
 		} else {
-			UpdraftPlus_Options::update_updraft_option('updraft_lastmessage', $line." (".date('M d H:i:s').")");
+			if ($save_transient) UpdraftPlus_Options::update_updraft_option('updraft_lastmessage', $line." (".date('M d H:i:s').")");
 		}
 		if (defined('UPDRAFTPLUS_CONSOLELOG')) print $line."\n";
 	}
@@ -395,6 +401,74 @@ class UpdraftPlus {
 		if ($percent > 0.7 * ( $this->current_resumption - 9)) {
 			$this->something_useful_happened();
 		}
+	}
+
+	function find_working_bin_zip($logit = true) {
+		if ( @ini_get('safe_mode') && strtolower(@ini_get('safe_mode')) != "off") return false;
+		// The hosting provider may have explicitly disabled the popen function
+		if (!function_exists('popen')) return false;
+		$updraft_dir = $this->backups_dir_location();
+		foreach (explode(',', UPDRAFTPLUS_ZIP_EXECUTABLE) as $potzip) {
+			if ($logit) $this->log("Testing: $potzip");
+			if (@is_executable($potzip)) {
+				# Test it, see if it is compatible with Info-ZIP
+				# If you have another kind of zip, then feel free to tell me about it
+				@mkdir($updraft_dir.'/binziptest/subdir1/subdir2', 0777, true);
+				file_put_contents($updraft_dir.'/binziptest/subdir1/subdir2/test.html', '<html></body><a href="http://updraftplus.com">UpdraftPlus is a great backup and restoration plugin for WordPress.</body></html>');
+				@unlink($updraft_dir.'/binziptest/test.zip');
+				if (is_file($updraft_dir.'/binziptest/subdir1/subdir2/test.html')) {
+
+					$exec = "cd ".escapeshellarg($updraft_dir)."; $potzip -v -u -r binziptest/test.zip binziptest/subdir1";
+
+					$all_ok=true;
+					$handle = popen($exec, "r");
+					if ($handle) {
+						while (!feof($handle)) {
+							$w = fgets($handle);
+							if ($w && $logit) $this->log("Output: ".trim($w));
+						}
+						$ret = pclose($handle);
+						if ($ret !=0) {
+							if ($logit) $this->log("Binary zip: error (code: $ret)");
+							$all_ok = false;
+						}
+					} else {
+						if ($logit) $this->log("Error: popen failed");
+						$all_ok = false;
+					}
+
+					// Do we now actually have a working zip? Need to test the created object using PclZip
+					// If it passes, then remove dirs and then return $potzip;
+
+					if ($all_ok && file_exists($updraft_dir.'/binziptest/test.zip')) {
+						if(!class_exists('PclZip')) require_once(ABSPATH.'/wp-admin/includes/class-pclzip.php');
+						$zip = new PclZip($updraft_dir.'/binziptest/test.zip');
+						$foundit = 0;
+						if (($list = $zip->listContent()) != 0) {
+							foreach ($list as $obj) {
+								if ($list['filename'] && $list['stored_filename'] && $list['size']==127) $all_ok=-1;
+							}
+						}
+					}
+					$this->remove_binzip_test_files($updraft_dir);
+					if ($all_ok == -1 ) {
+						if ($logit) $this->log("Working binary zip found: $potzip");
+						return $potzip;
+					}
+
+				}
+				$this->remove_binzip_test_files($updraft_dir);
+			}
+		}
+		return false;
+	}
+
+	function remove_binzip_test_files($updraft_dir) {
+		@unlink($updraft_dir.'/binziptest/subdir1/subdir2/test.html');
+		@rmdir($updraft_dir.'/binziptest/subdir1/subdir2');
+		@rmdir($updraft_dir.'/binziptest/subdir1');
+		@unlink($updraft_dir.'/binziptest/test.zip');
+		@rmdir($updraft_dir.'/binziptest');
 	}
 
 	function something_useful_happened() {
@@ -1384,6 +1458,8 @@ class UpdraftPlus {
 		$this->stow("# WordPress Version: $wp_version, running on PHP ".phpversion()." (".$_SERVER["SERVER_SOFTWARE"].")\n");
 		$this->stow("# Backup of: ".site_url()."\n");
 		$this->stow("# Table prefix: ".$table_prefix."\n");
+		$this->stow("# Site info: multisite=".(is_multisite() ? '1' : '0')."\n");
+		$this->stow("# Site info: end\n");
 
 		$this->stow("#\n");
 		$this->stow("# " . sprintf(__('Generated: %s','wp-db-backup'),date("l j. F Y H:i T")) . "\n");
@@ -1799,6 +1875,7 @@ class UpdraftPlus {
 		return $schedules;
 	}
 
+	// Returns without any trailing slash
 	function backups_dir_location() {
 
 		if (!empty($this->backup_dir)) return $this->backup_dir;
@@ -1946,7 +2023,8 @@ class UpdraftPlus {
 			}
 			break;
 		case 6:
-			return "Need custom WordPress services from experts (including bespoke development)?".$this->url_start($urls,'www.simbahosting.co.uk/s3/products-and-services/wordpress-experts/')." Get them from the creators of UpdraftPlus.".$this->url_end($urls,'www.simbahosting.co.uk/s3/products-and-services/wordpress-experts/');
+// 			return "Need custom WordPress services from experts (including bespoke development)?".$this->url_start($urls,'www.simbahosting.co.uk/s3/products-and-services/wordpress-experts/')." Get them from the creators of UpdraftPlus.".$this->url_end($urls,'www.simbahosting.co.uk/s3/products-and-services/wordpress-experts/');
+			return __("Subscribe to the UpdraftPlus blog to get up-to-date news and offers",'updraftplus')." - ".$this->url_start($urls,'updraftplus.com/news/').__("Blog link",'updraftplus').$this->url_end($urls,'updraftplus.com/news/').' - '.$this->url_start($urls,'feeds.feedburner.com/UpdraftPlus').__("RSS link",'updraftplus').$this->url_end($urls,'feeds.feedburner.com/UpdraftPlus');
 			break;
 		case 7:
 			return $this->url_start($urls,'updraftplus.com').__("Check out UpdraftPlus.Com for help, add-ons and support",'updraftplus').$this->url_end($urls,'updraftplus.com');

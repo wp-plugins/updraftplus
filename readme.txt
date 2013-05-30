@@ -122,13 +122,18 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 == Changelog ==
 
 = Development trunk - not yet released/supported =
+* FEATURE: News blog - http://updraftplus.com/news/ - please subscribe if you want to stay up to date with news of new features, tips, and special offers. RSS link: http://feeds.feedburner.com/UpdraftPlus
 * FEATURE: Restoration/migration now copes with a change of table prefix, and asks WordPress to recreate your .htaccess/web.config file
 * FEATURE: Add support for DreamHost DreamObjects (http://dreamhost.com/cloud/dreamobjects/)
 * FEATURE: Polski / Polish (pl_PL) translation: thanks to Bartosz Kaczmarek (barth.kaczmarek@gmail.com)
 * FEATURE: Add expert options to count expected uncompressed backup size, and show/delete active jobs
 * FIX: Inform users of Dropbox tokens which stop working
+* FIX: Don't flag an error if mu-plugins are selected, but none are found and WordPress agrees that none exist 
+* COMPATIBILITY: WordPress multisite post-3.5 does not store blog uploads separately from main uploads directory
+* COMPATIBILITY: Now marked as compatible with WordPress 3.6
 * TWEAK: When errors occur, list them in the notification email and attach the log file
 * TWEAK: Use only one transient per job, and clean it up upon completion
+* TWEAK: Added a "Clone/Migrate" button to give a visual clue for people wanting to do this
 * TWEAK: More verbose error reporting from PclZip
 * TWEAK: After database restoration, permalinks are flushed (often helps regenerate .htaccess+web.config files)
 * TWEAK: Database backups now put the options table first, to allow earlier changing of site URL upon migration
@@ -140,6 +145,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * TWEAK: Re-scan of known sets now removes those known to be gone from the list
 * TWEAK: Made a few things use AJAX instead of full page loads
 * TWEAK: Replace Rackspace logo with current version
+* TWEAK: Make missing PHP component warnings more prominent
 * TWEAK: Warn users if they have W3 Total Cache's object cache (which has a bug that affects scheduled tasks) active.
 * TWEAK: Add a notice for users who have turned on debugging (some forget to turn it off, then ask for support when they see lots of debugging notices)
 

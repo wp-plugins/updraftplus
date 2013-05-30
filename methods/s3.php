@@ -278,15 +278,13 @@ class UpdraftPlus_BackupModule_s3 {
 	}
 
 	public static function config_print_javascript_onready() {
-		self::config_print_javascript_onready_engine('s3');
+		self::config_print_javascript_onready_engine('s3', 'S3');
 	}
 
-	public static function config_print_javascript_onready_engine($key) {
-
-		$config = self::get_config();
+	public static function config_print_javascript_onready_engine($key, $whoweare) {
 		?>
 		jQuery('#updraft-<?php echo $key; ?>-test').click(function(){
-			jQuery('#updraft-<?php echo $key; ?>-test').html('<?php echo sprintf(__('Testing %s Settings...', 'updraftplus'),$config['whoweare']); ?>');
+			jQuery('#updraft-<?php echo $key; ?>-test').html('<?php echo sprintf(__('Testing %s Settings...', 'updraftplus'),$whoweare); ?>');
 			var data = {
 				action: 'updraft_ajax',
 				subaction: 'credentials_test',
@@ -300,7 +298,7 @@ class UpdraftPlus_BackupModule_s3 {
 				nossl: (jQuery('#updraft_ssl_nossl').is(':checked')) ? 1 : 0,
 			};
 			jQuery.post(ajaxurl, data, function(response) {
-					jQuery('#updraft-<?php echo $key; ?>-test').html('<?php echo sprintf(__('Test %s Settings', 'updraftplus'),$config['whoweare']); ?>');
+					jQuery('#updraft-<?php echo $key; ?>-test').html('<?php echo sprintf(__('Test %s Settings', 'updraftplus'),$whoweare); ?>');
 					alert('Settings test result: ' + response);
 			});
 		});
@@ -319,6 +317,19 @@ class UpdraftPlus_BackupModule_s3 {
 		<tr class="updraftplusmethod <?php echo $key; ?>">
 			<td></td>
 			<td><?php echo $img_html ?><p><em><?php printf(__('%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your site is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.','updraftplus'),$whoweare_long);?></em></p></td>
+		</tr>
+		<tr class="updraftplusmethod <?php echo $key; ?>">
+		<th></th>
+		<td>
+		<?php
+			global $updraftplus_admin;
+			if (!class_exists('SimpleXMLElement')) {
+				$updraftplus_admin->show_double_warning('<strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__('Your web server\'s PHP installation does not included a required module (%s). Please contact your web hosting provider\'s support.', 'updraftplus'), 'SimpleXMLElement').' '.sprintf(__("UpdraftPlus's %s module <strong>requires</strong> %s. Please do not file any support requests; there is no alternative.",'updraftplus'),$whoweare_long, 'SimpleXMLElement'), $key);
+			}
+			$updraftplus_admin->curl_check($whoweare_long, true, $key);
+		?>
+			
+		</td>
 		</tr>
 		<tr class="updraftplusmethod <?php echo $key; ?>">
 		<th></th>
@@ -342,12 +353,6 @@ class UpdraftPlus_BackupModule_s3 {
 		<td><p><button id="updraft-<?php echo $key; ?>-test" type="button" class="button-primary" style="font-size:18px !important"><?php echo sprintf(__('Test %s Settings','updraftplus'),$whoweare_short);?></button></p></td>
 		</tr>
 
-		<tr class="updraftplusmethod <?php echo $key; ?>">
-		<th></th>
-		<td>
-			<?php global $updraftplus_admin; $updraftplus_admin->curl_check($whoweare_long, true); ?>
-		</td>
-		</tr>
 	<?php
 	}
 
@@ -397,13 +402,21 @@ class UpdraftPlus_BackupModule_s3 {
 // 			$bucket_verb = "accessed (".__('Amazon region','updraftplus').": $location)";
 			$bucket_region = $location;
 		} else {
-			$try_to_create_bucket = @$s3->putBucket($bucket, S3::ACL_PRIVATE);
+			$s3->setExceptions(true);
+			try {
+				$try_to_create_bucket = @$s3->putBucket($bucket, S3::ACL_PRIVATE);
+			} catch (S3Exception $e) {
+				$try_to_create_bucket = false;
+				$s3_error = $e->getMessage();
+			}
+			$s3->setExceptions(false);
 			if ($try_to_create_bucket) {
 // 				$bucket_verb = 'created';
  				$bucket_verb = '';
 				$bucket_exists = true;
 			} else {
 				echo sprintf(__("Failure: We could not successfully access or create such a bucket. Please check your access credentials, and if those are correct then try another bucket name (as another %s user may already have taken your name).",'updraftplus'),$whoweare);
+				if (isset($s3_error)) echo "\n\n".sprintf(__('The error reported by %s was:','updraftplus'), $config['key']).' '.$s3_error;
 			}
 		}
 
@@ -425,7 +438,7 @@ class UpdraftPlus_BackupModule_s3 {
 					@$s3->deleteObject($bucket, $path.$try_file);
 				}
 			} catch (Exception $e) {
-				echo __('Failure','updraftplus').": ${bucket_verb}".__('We successfully accessed the bucket, but the attempt to create a file in it failed.','updraftplus').' ('.$e->getMessage().')';
+				echo __('Failure','updraftplus').": ${bucket_verb}".__('We successfully accessed the bucket, but the attempt to create a file in it failed.','updraftplus').' '.__('Please check your access credentials.','updraftplus').' ('.$e->getMessage().')';
 			}
 		}
 

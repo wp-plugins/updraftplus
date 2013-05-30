@@ -117,7 +117,7 @@ class UpdraftPlus_BackupModule_googledrive {
 		}
 	}
 
-	function show_authed_admin_success() {
+	public static function show_authed_admin_success() {
 
 		global $updraftplus_admin;
 
@@ -395,6 +395,20 @@ class UpdraftPlus_BackupModule_googledrive {
 				<p><em><?php printf(__('%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your site is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.','updraftplus'),'Google Drive');?></em></p>
 				</td>
 			</tr>
+
+			<tr class="updraftplusmethod googledrive">
+			<th></th>
+			<td>
+			<?php
+				global $updraftplus_admin;
+				if (!class_exists('SimpleXMLElement')) {
+					$updraftplus_admin->show_double_warning('<strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__('Your web server\'s PHP installation does not included a required module (%s). Please contact your web hosting provider\'s support.', 'updraftplus'), 'SimpleXMLElement').' '.sprintf(__("UpdraftPlus's %s module <strong>requires</strong> %s. Please do not file any support requests; there is no alternative.",'updraftplus'),__('Google Drive', 'updraftplus'), 'SimpleXMLElement'), 'googledrive');
+				}
+			?>
+
+			</td>
+			</tr>
+
 			<tr class="updraftplusmethod googledrive">
 			<th>Google Drive:</th>
 			<td>

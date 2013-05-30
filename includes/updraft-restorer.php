@@ -1,6 +1,8 @@
 <?php
 class Updraft_Restorer extends WP_Upgrader {
 
+	var $ud_backup_is_multisite = -1;
+
 	function backup_strings() {
 		$this->strings['not_possible'] = __('UpdraftPlus is not able to directly restore this kind of entity. It must be restored manually.','updraftplus');
 		$this->strings['no_package'] = __('Backup file not available.','updraftplus');
@@ -16,6 +18,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		$this->strings['old_move_failed'] = __('Could not delete old directory.','updraftplus');
 		$this->strings['new_move_failed'] = __('Could not move new directory into place. Check your wp-content/upgrade folder.','updraftplus');
 		$this->strings['delete_failed'] = __('Failed to delete working directory after restoring.','updraftplus');
+		$this->strings['multisite_error'] = __('You are running on WordPress multisite - but your backup is not of a multisite site.', 'updraftplus');
 	}
 
 	// This returns a wp_filesystem location (and we musn't change that, as we must retain compatibility with the class parent)
@@ -100,7 +103,8 @@ class Updraft_Restorer extends WP_Upgrader {
 	// The only purpose of the $type parameter is 1) to detect 'others' and apply a historical bugfix 2) to detect wpcore, and apply the setting for what to do with wp-config.php
 	// Must use only wp_filesystem
 	// $dest_dir must already have a trailing slash
-	function move_backup_in($working_dir, $dest_dir, $make_backup = true, $do_not_overwrite = array('plugins', 'themes', 'uploads', 'upgrade'), $type = 'not-others') {
+	// $preserve_existing: 0 = overwrite with no backup; 1 = make backup of existing; 2 = do nothing if there is existing
+	function move_backup_in($working_dir, $dest_dir, $preserve_existing = 1, $do_not_overwrite = array('plugins', 'themes', 'uploads', 'upgrade'), $type = 'not-others', $send_actions = false) {
 
 		global $wp_filesystem;
 
@@ -136,11 +140,11 @@ class Updraft_Restorer extends WP_Upgrader {
 				if (!in_array($file, $do_not_overwrite)) {
 					# First, move the existing one, if necessary (may not be present)
 					if ($wp_filesystem->exists($dest_dir.$file)) {
-						if ($make_backup) {
+						if ($preserve_existing == 1) {
 							if ( !$wp_filesystem->move($dest_dir.$file, $dest_dir.$file.'-old', true) ) {
 								return new WP_Error('old_move_failed', $this->strings['old_move_failed']." (wp-content/$file)");
 							}
-						} else {
+						} elseif ($preserve_existing == 0) {
 							if (!$wp_filesystem->delete($dest_dir.$file, true)) {
 								return new WP_Error('old_delete_failed', $this->strings['old_delete_failed']." ($file)");
 							}
@@ -150,8 +154,15 @@ class Updraft_Restorer extends WP_Upgrader {
 						}
 					}
 					# Now, move in the new one
-					if ( !$wp_filesystem->move($working_dir . "/".$file, $dest_dir.$file, true) ) {
-						return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
+					if (2 == $preserve_existing && $wp_filesystem->exists($dest_dir.$file)) {
+						# Remove it - so that we are clean later
+						@$wp_filesystem->delete($working_dir.'/'.$file, true);
+					} else {
+						if ($wp_filesystem->move($working_dir . "/".$file, $dest_dir.$file, true) ) {
+							if ($send_actions) do_action('updraftplus_restored_'.$type.'_one', $file);
+						} else {
+							return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
+						}
 					}
 				}
 			}
@@ -174,7 +185,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			return;
 		}
 
-		global $wp_filesystem;
+		global $wp_filesystem, $updraftplus_addons_migrator;
 		$this->init();
 		$this->backup_strings();
 
@@ -182,6 +193,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		if(!$res) exit;
 
 		$wp_dir = trailingslashit($wp_filesystem->abspath());
+		$wp_content_dir = trailingslashit($wp_filesystem->wp_content_dir());
 
 		@set_time_limit(1800);
 
@@ -197,16 +209,62 @@ class Updraft_Restorer extends WP_Upgrader {
 		if (is_wp_error($working_dir)) return $working_dir;
 		$working_dir_filesystem = WP_CONTENT_DIR.'/upgrade/'.basename($working_dir);
 
+		global $table_prefix;
+		// We copy the variable because we may be importing with a different prefix (e.g. on multisite imports of individual blog data)
+		$import_table_prefix = $table_prefix;
+
 		@set_time_limit(1800);
 
-		if ($type == 'others' ) {
+		if ($type == 'others') {
 
 			$dirname = basename($info['path']);
 
 			// In this special case, the backup contents are not in a folder, so it is not simply a case of moving the folder around, but rather looping over all that we find
 
-			$this->move_backup_in($working_dir, $wp_dir."wp-content/", true, array('plugins', 'themes', 'uploads', 'upgrade'), 'others');
+			$this->move_backup_in($working_dir, $wp_content_dir, true, array('plugins', 'themes', 'uploads', 'upgrade'), 'others');
 
+		} elseif (is_multisite() && $this->ud_backup_is_multisite === 0 && ( ( 'plugins' == $type || 'themes' == $type )  || ( 'uploads' == $type && isset($updraftplus_addons_migrator['new_blogid'])) ) && $wp_filesystem->is_dir($working_dir.'/'.$type)) {
+			# Migrating a single site into a multisite
+			if ('plugins' == $type || 'themes' == $type) {
+				// Only move in entities that are not already there (2)
+				$this->move_backup_in($working_dir.'/'.$type, $wp_content_dir.$type.'/', 2, array(), $type, true);
+				@$wp_filesystem->delete($working_dir.'/'.$type);
+			} else {
+				// Uploads
+
+				show_message($this->strings['moving_old']);
+
+				switch_to_blog($updraftplus_addons_migrator['new_blogid']);
+
+				$ud = wp_upload_dir();
+				$wpud = $ud['basedir'];
+				$fsud = trailingslashit($wp_filesystem->find_folder($wpud));
+				restore_current_blog();
+
+				// TODO: What is below will move the entire uploads directory if blog id is 1. Detect this situation. (Can that happen? We created a new blog, so should not be possible).
+
+				// TODO: the upload dir is not necessarily reachable through wp_filesystem - try ordinary method instead
+				if (is_string($fsud)) {
+					// This is not expected to exist, since we created a new blog
+
+					if ( $wp_filesystem->exists($fsud) && !$wp_filesystem->move($fsud, untrailingslashit($fsud)."-old", true) ) {
+						return new WP_Error('old_move_failed', $this->strings['old_move_failed']);
+					}
+
+					show_message($this->strings['moving_backup']);
+
+					if ( !$wp_filesystem->move($working_dir . "/".$type, $fsud, true) ) {
+						return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
+					}
+/*
+					$this->move_backup_in($working_dir.'/'.$type, $wp_content_dir.$type.'/', 1, array(), $type);
+					@$wp_filesystem->delete($working_dir.'/'.$type);*/
+				} else {
+					return new WP_Error('move_failed', $this->strings['new_move_failed']);
+				}
+
+
+			}
 		} elseif ('db' == $type) {
 
 			do_action('updraftplus_restore_db_pre');
@@ -265,10 +323,11 @@ class Updraft_Restorer extends WP_Upgrader {
 			$old_wpversion = '';
 			$old_siteurl = '';
 			$old_table_prefix = '';
-			global $table_prefix;
+			$old_siteinfo = array();
+			$gathering_siteinfo = true;
 
 			$restoring_table = '';
-
+			
 			while (!gzeof($dbhandle)) {
 				// Up to 1Mb
 				$buffer = rtrim(gzgets($dbhandle, 1048576));
@@ -281,6 +340,29 @@ class Updraft_Restorer extends WP_Upgrader {
 					} elseif ('' == $old_table_prefix && preg_match('/^\# Table prefix: (\S+)$/', $buffer, $matches)) {
 						$old_table_prefix = $matches[1];
 						echo '<strong>'.__('Old table prefix:', 'updraftplus').'</strong> '.htmlspecialchars($old_table_prefix).'<br>';
+					} elseif ($gathering_siteinfo && preg_match('/^\# Site info: (\S+)$/', $buffer, $matches)) {
+						if ('end' == $matches[1]) {
+							$gathering_siteinfo = false;
+							// Sanity checks
+							if (isset($old_siteinfo['multisite']) && !$old_siteinfo['multisite'] && is_multisite()) {
+								// Just need to check that you're crazy
+								if (!defined('UPDRAFTPLUS_EXPERIMENTAL_IMPORTINTOMULTISITE') ||  UPDRAFTPLUS_EXPERIMENTAL_IMPORTINTOMULTISITE != true) {
+									return new WP_Error('multisite_error', $this->strings['multisite_error']);
+								}
+								// Got the needed code?
+								if (!class_exists('UpdraftPlusAddOn_MultiSite') || !class_exists('UpdraftPlus_Addons_Migrator')) {
+									return new WP_Error('missing_addons', __('To import an ordinary WordPress site into a multisite installation requires both the multisite and migrator add-ons.', 'updraftplus'));	
+								}
+							}
+						} elseif (preg_match('/^([^=]+)=(.*)$/', $matches[1], $kvmatches)) {
+							$key = $kvmatches[1];
+							$val = $kvmatches[2];
+							echo '<strong>'.__('Site information:','updraftplus').'</strong>'.' '.htmlspecialchars($key).' = '.htmlspecialchars($val).'<br>';
+							$old_siteinfo[$key]=$val;
+							if ('multisite') {
+								if ($val) { $this->ud_backup_is_multisite=1; } else { $this->ud_backup_is_multisite = 0;}
+							}
+						}
 					}
 					continue;
 				}
@@ -294,27 +376,45 @@ class Updraft_Restorer extends WP_Upgrader {
 
 				# The timed overhead of this is negligible
 				if (preg_match('/^\s*drop table if exists \`?([^\`]*)\`?\s*;/i', $sql_line, $matches)) {
+
+					if (!isset($printed_new_table_prefix)) {
+						$import_table_prefix = $this->pre_sql_actions($import_table_prefix);
+						if (false===$import_table_prefix || is_wp_error($import_table_prefix)) return $import_table_prefix;
+						$printed_new_table_prefix = true;
+					}
+
 					$table_name = $matches[1];
 					// Legacy, less reliable - in case it was not caught before
 					if ($old_table_prefix == '' && preg_match('/^([a-z0-9]+)_.*$/i', $table_name, $tmatches)) {
 						$old_table_prefix = $tmatches[1].'_';
 						echo '<strong>'.__('Old table prefix:', 'updraftplus').'</strong> '.htmlspecialchars($old_table_prefix).'<br>';
 					}
-					if ('' != $old_table_prefix && $table_prefix != $old_table_prefix) {
-						$sql_line = $this->str_replace_once($old_table_prefix, $table_prefix, $sql_line);
+					if ('' != $old_table_prefix && $import_table_prefix != $old_table_prefix) {
+						$sql_line = $this->str_replace_once($old_table_prefix, $import_table_prefix, $sql_line);
 					}
 				} elseif (preg_match('/^\s*create table \`?([^\`\(]*)\`?\s*\(/i', $sql_line, $matches)) {
 
+					if (!isset($printed_new_table_prefix)) {
+						$import_table_prefix = $this->pre_sql_actions($import_table_prefix);
+						if (false===$import_table_prefix || is_wp_error($import_table_prefix)) return $import_table_prefix;
+						$printed_new_table_prefix = true;
+					}
+
 					if ($restoring_table) {
 
-						$this->restored_table($restoring_table, $table_prefix, $old_table_prefix);
+						$this->restored_table($restoring_table, $import_table_prefix, $old_table_prefix);
 						
 						// After restoring the options table, we can set old_siteurl if on legacy (i.e. not already set)
-						if ($restoring_table == $table_prefix.'options') {
+						if ($restoring_table == $import_table_prefix.'options') {
 
 							if ('' == $old_siteurl) {
+								global $updraftplus_addons_migrator;
+								if (isset($updraftplus_addon_migrator['new_blogid'])) switch_to_blog($updraftplus_addon_migrator['new_blogid']);
+
 								$old_siteurl = $wpdb->get_row("SELECT option_value FROM $wpdb->options WHERE option_name='siteurl'")->option_value;
-							do_action('updraftplus_restore_db_record_old_siteurl', $old_siteurl);
+								do_action('updraftplus_restore_db_record_old_siteurl', $old_siteurl);
+								
+								if (isset($updraftplus_addon_migrator['new_blogid'])) restore_current_blog();
 							}
 
 						}
@@ -323,17 +423,17 @@ class Updraft_Restorer extends WP_Upgrader {
 
 					$table_name = $matches[1];
 					echo '<strong>'.__('Restoring table','updraftplus').":</strong> ".htmlspecialchars($table_name);
-					if ('' != $old_table_prefix && $table_prefix != $old_table_prefix) {
-						$new_table_name = $this->str_replace_once($old_table_prefix, $table_prefix, $table_name);
+					if ('' != $old_table_prefix && $import_table_prefix != $old_table_prefix) {
+						$new_table_name = $this->str_replace_once($old_table_prefix, $import_table_prefix, $table_name);
 						echo ' - '.__('will restore as:', 'updraftplus').' '.htmlspecialchars($new_table_name);
-						$sql_line = $this->str_replace_once($old_table_prefix, $table_prefix, $sql_line);
+						$sql_line = $this->str_replace_once($old_table_prefix, $import_table_prefix, $sql_line);
 					} else {
 						$new_table_name = $table_name;
 					}
 					$restoring_table = $new_table_name;
 					echo '<br>';
 				} elseif ('' != $old_table_prefix && preg_match('/^\s*insert into \`?([^\`]*)\`?\s+values/i', $sql_line, $matches)) {
-					if ($table_prefix != $old_table_prefix) $sql_line = $this->str_replace_once($old_table_prefix, $table_prefix, $sql_line);
+					if ($import_table_prefix != $old_table_prefix) $sql_line = $this->str_replace_once($old_table_prefix, $import_table_prefix, $sql_line);
 				}
 
 				if ($use_wpdb) {
@@ -364,7 +464,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 			}
 			
-			if ($restoring_table) $this->restored_table($restoring_table, $table_prefix, $old_table_prefix);
+			if ($restoring_table) $this->restored_table($restoring_table, $import_table_prefix, $old_table_prefix);
 
 			$time_taken = microtime(true) - $start_time;
 			echo sprintf(__('Finished: lines processed: %d in %.2f seconds','updraftplus'),$line, $time_taken)."<br>";
@@ -373,21 +473,23 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		} else {
 
+			// Default action: used for plugins, themes and uploads
+
 			$dirname = basename($info['path']);
 
 			show_message($this->strings['moving_old']);
 
-			$movedin = apply_filters('updraftplus_restore_movein_'.$type, $working_dir, $wp_dir);
+			$movedin = apply_filters('updraftplus_restore_movein_'.$type, $working_dir, $wp_dir, $wp_content_dir);
 			// A filter, to allow add-ons to perform the install of non-standard entities, or to indicate that it's not possible
 			if ($movedin === false) {
 				show_message($this->strings['not_possible']);
 			} elseif ($movedin !== true) {
-				if ( !$wp_filesystem->move($wp_dir . "wp-content/$dirname", $wp_dir . "wp-content/$dirname-old", true) ) {
+				if ( !$wp_filesystem->move($wp_content_dir . $dirname, $wp_content_dir."$dirname-old", true) ) {
 					return new WP_Error('old_move_failed', $this->strings['old_move_failed']);
 				}
 
 				show_message($this->strings['moving_backup']);
-				if ( !$wp_filesystem->move($working_dir . "/$dirname", $wp_dir . "wp-content/$dirname", true) ) {
+				if ( !$wp_filesystem->move($working_dir . "/$dirname", $wp_content_dir.$dirname, true) ) {
 					return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
 				}
 			}
@@ -406,15 +508,37 @@ class Updraft_Restorer extends WP_Upgrader {
 				$this->flush_rewrite_rules();
 			break;
 			case 'uploads':
-				@$wp_filesystem->chmod($wp_dir . "wp-content/$dirname", 0775, true);
+				@$wp_filesystem->chmod($wp_content_dir.$dirname, 0775, true);
 			break;
 			case 'db':
-				do_action('updraftplus_restored_db', array('expected_oldsiteurl' => $old_siteurl));
+				do_action('updraftplus_restored_db', array('expected_oldsiteurl' => $old_siteurl), $import_table_prefix);
 				$this->flush_rewrite_rules();
 			break;
 			default:
-				@$wp_filesystem->chmod($wp_dir . "wp-content/$dirname", FS_CHMOD_DIR);
+				@$wp_filesystem->chmod($wp_content_dir.$dirname, FS_CHMOD_DIR);
 		}
+
+		return true;
+
+	}
+
+	function pre_sql_actions($import_table_prefix) {
+
+		$import_table_prefix = apply_filters('updraftplus_restore_set_table_prefix', $import_table_prefix, $this->ud_backup_is_multisite);
+
+		if (!is_string($import_table_prefix)) {
+			if ($import_table_prefix === false) {
+				echo '<p>'.__('Please supply the requested information, and then continue.', 'updraftplus').'</p>';
+				return false;
+			} else {
+				return new WP_Error('invalid_table_prefix', __('Error:', 'updraftplus').' '.serialize($import_table_prefix));
+			}
+		}
+
+		echo '<strong>'.__('New table prefix:', 'updraftplus').'</strong> '.htmlspecialchars($import_table_prefix).'<br>';
+
+		return $import_table_prefix;
+
 	}
 
 	function option_filter_get($which) {
@@ -450,6 +574,9 @@ class Updraft_Restorer extends WP_Upgrader {
 
 // 		add_filter('all', array($this, 'option_filter'));
 
+		global $updraftplus_addons_migrator;
+		if (isset($updraftplus_addon_migrator['new_blogid'])) switch_to_blog($updraftplus_addon_migrator['new_blogid']);
+
 		foreach (array('permalink_structure', 'rewrite_rules', 'page_on_front') as $opt) {
 			add_filter('pre_option_'.$opt, array($this, 'option_filter_'.$opt));
 		}
@@ -459,34 +586,34 @@ class Updraft_Restorer extends WP_Upgrader {
 		flush_rewrite_rules(true);
 
 		foreach (array('permalink_structure', 'rewrite_rules', 'page_on_front') as $opt) {
-			add_filter('pre_option_'.$opt, array($this, 'option_filter_'.$opt));
+			remove_filter('pre_option_'.$opt, array($this, 'option_filter_'.$opt));
 		}
+
+		if (isset($updraftplus_addon_migrator['new_blogid'])) restore_current_blog();
 
 // 		remove_filter('all', array($this, 'option_filter'));
 
 	}
 
-	function restored_table($table, $table_prefix, $old_table_prefix) {
+	function restored_table($table, $import_table_prefix, $old_table_prefix) {
 
 		global $wpdb;
 
 		// WordPress has an option name predicated upon the table prefix. Yuk.
-		if ($table == $table_prefix.'options' && $table_prefix != $old_table_prefix) {
+		if ($table == $import_table_prefix.'options' && $import_table_prefix != $old_table_prefix) {
 			echo sprintf(__('Table prefix has changed: changing %s table field(s) accordingly:', 'updraftplus'),'option').' ';
-			if (false === $wpdb->query("UPDATE $wpdb->options SET option_name='${table_prefix}user_roles' WHERE option_name='${old_table_prefix}user_roles' LIMIT 1")) {
+			if (false === $wpdb->query("UPDATE $wpdb->options SET option_name='${import_table_prefix}user_roles' WHERE option_name='${old_table_prefix}user_roles' LIMIT 1")) {
 				echo __('Error','updraftplus');
 			} else {
 				echo __('OK', 'updraftplus');
 			}
 			echo '<br>';
-		} elseif ($table == $table_prefix.'usermeta') {
+		} elseif ($table == $import_table_prefix.'usermeta') {
 
 			echo sprintf(__('Table prefix has changed: changing %s table field(s) accordingly:', 'updraftplus'),'usermeta').' ';
 
-			global $table_prefix;
-
 			$meta_keys = $wpdb->get_results("SELECT umeta_id, meta_key 
-				FROM ${table_prefix}usermeta 
+				FROM ${$import_table_prefix}usermeta 
 				WHERE meta_key 
 				LIKE '".str_replace('_', '\_', $old_table_prefix)."%'");
 			
@@ -496,9 +623,9 @@ class Updraft_Restorer extends WP_Upgrader {
 			foreach ($meta_keys as $meta_key ) {
 				
 				//Create new meta key
-				$new_meta_key = $table_prefix . substr($meta_key->meta_key, $old_prefix_length);
+				$new_meta_key = $import_table_prefix . substr($meta_key->meta_key, $old_prefix_length);
 				
-				$query = "UPDATE " . $table_prefix . "usermeta 
+				$query = "UPDATE " . $import_table_prefix . "usermeta 
 										SET meta_key='".$new_meta_key."' 
 										WHERE umeta_id=".$meta_key->umeta_id;
 
@@ -519,7 +646,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		do_action('updraftplus_restored_db_table', $table);
 
 		// Re-generate permalinks. Do this last - i.e. make sure everything else is fixed up first.
-		if ($table == $table_prefix.'options') {
+		if ($table == $import_table_prefix.'options') {
 			$this->flush_rewrite_rules();
 		}
 

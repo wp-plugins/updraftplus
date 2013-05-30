@@ -19,6 +19,8 @@ class UpdraftPlus_Backup {
 
 	var $zip_preferpcl = false;
 
+	var $binzip = false;
+
 	// This function recursively packs the zip, dereferencing symlinks but packing into a single-parent tree for universal unpacking
 	function makezip_recursive_add($zipfile, $fullpath, $use_path_when_storing, $original_fullpath) {
 
@@ -119,49 +121,74 @@ class UpdraftPlus_Backup {
 			}
 		}
 
-		// TODO: Inactive code (1==0) - unfinished
-		// TODO: First, test if works (do we have /usr/(local/)?bin/zip? Does it work with the -u switch? As part of that, don't bother trying in safe mode
-		// TODO: Handle stderr
-		if (1==0 && is_executable('/usr/bin/zip')) {
+		// TODO: Experimental: make live
+		if (defined('UPDRAFTPLUS_EXPERIMENTAL_BINZIP') && UPDRAFTPLUS_EXPERIMENTAL_BINZIP == true && $this->binzip === false) {
+			$updraftplus->log('Checking if we have a zip executable available');
+			$binzip = $updraftplus->find_working_bin_zip();
+			if (is_string($binzip)) {
+				$updraftplus->log("Found one (but we won't use it - feature still experimental): $binzip");
+				$this->binzip = $binzip;
+			}
+		}
 
-				if (is_string($source)) $source = array($source);
+		// TODO: Handle stderr?
+		if (defined('UPDRAFTPLUS_EXPERIMENTAL_BINZIP') && UPDRAFTPLUS_EXPERIMENTAL_BINZIP == true && is_string($this->binzip)) {
 
-				$all_ok = true;
+			if (is_string($source)) $source = array($source);
 
-				foreach ($source as $s) {
+			$all_ok = true;
 
-					// TODO: Don't add -q in debug mode
+			$debug = UpdraftPlus_Options::get_updraft_option('updraft_debug_mode');
 
-					$exec = "cd ".escapeshellarg(dirname($s))."; /usr/bin/zip -q -u -r ".escapeshellarg($destination)." ".escapeshellarg(basename($s))." ";
+			# Don't use -q, as we rely on output to process to detect useful activity
+			# Don't use -v either: the extra logging makes things much slower
+			$zip_params = ($debug) ? '-v' : '';
 
-					$updraftplus->log("Attempting binary zip ($exec)");
+			$orig_size = file_exists($destination) ? filesize($destination) : 0;
+			clearstatcache();
 
-					$handle = popen($exec, "r");
-					if ($handle) {
-						while (!feof($handle)) {
-							$w = fgets($handle);
-							if ($w) $updraftplus->log("Output from zip: ".trim($w));
+			foreach ($source as $s) {
+
+				$exec = "cd ".escapeshellarg(dirname($s))."; /usr/bin/zip $zip_params -u -r ".escapeshellarg($destination)." ".escapeshellarg(basename($s))." ";
+
+				$updraftplus->log("Attempting binary zip ($exec)");
+
+				$handle = popen($exec, "r");
+
+				$something_useful_happened = $updraftplus->something_useful_happened;
+
+				if ($handle) {
+					while (!feof($handle)) {
+						$w = fgets($handle, 1024);
+						if ($w && $debug) $updraftplus->log("Output from zip: ".trim($w), false);
+						if (!$something_useful_happened && file_exists($destination)) {
+							$new_size = filesize($destination);
+							if ($new_size > $orig_size + 20) {
+								$updraftplus->something_useful_happened();
+								$something_useful_happened = true;
+							}
+							clearstatcache();
 						}
-						$ret = pclose($handle);
-						if ($ret !=0) {
-							$updraftplus->log("Binary zip: error (code: $ret)");
-							$all_ok = false;
-						}
-					} else {
-						$updraftplus->log("Error: popen failed");
+					}
+					$ret = pclose($handle);
+					if ($ret != 0) {
+						$updraftplus->log("Binary zip: error (code: $ret)");
+						if ($w && !$debug) $updraftplus->log("Last output from zip: ".trim($w), false);
 						$all_ok = false;
 					}
-
-				}
-
-				if ($all_ok) {
-					$updraftplus->log("Binary zip: apparently successful");
-					return true;
 				} else {
-					// TODO: Should we then not use binary zip again???
-					// Is running over again wise? What if the error is harmless, but that the run-over-again times out and breaks the backup?
-					$updraftplus->log("Binary zip: an error occured, so we will run over again with ZipArchive");
+					$updraftplus->log("Error: popen failed");
+					$all_ok = false;
 				}
+
+			}
+
+			if ($all_ok) {
+				$updraftplus->log("Binary zip: apparently successful");
+				return true;
+			} else {
+				$updraftplus->log("Binary zip: an error occured, so we will run over again with ZipArchive");
+			}
 
 		}
 
@@ -456,6 +483,21 @@ class UpdraftPlus_Backup {
 		global $updraftplus;
 
 		if ($whichone != "others") $updraftplus->log("Beginning creation of dump of $whichone");
+
+		if (is_string($create_from_dir) && !file_exists($create_from_dir)) {
+			$flag_error = true;
+			$updraftplus->log("Does not exist: $create_from_dir");
+			if ('mu-plugins' == $whichone) {
+				if (!function_exists('get_mu_plugins')) require_once(ABSPATH.'wp-admin/includes/plugin.php');
+				$mu_plugins = get_mu_plugins();
+				if (count($mu_plugins) == 0) {
+					$updraftplus->log("There appear to be no mu-plugins to back up. Will not raise an error.");
+					$flag_error = false;
+				}
+			}
+			if ($flag_error) $updraftplus->error(sprintf(__("%s - could not back this entity up; the corresponding directory does not exist (%s)", 'updraftplus'), $whichone, $create_from_dir));
+			return false;
+		}
 
 		$full_path = $create_in_dir.'/'.$backup_file_basename.'-'.$whichone.'.zip';
 		$time_now = time();
