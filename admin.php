@@ -871,11 +871,9 @@ class UpdraftPlus_Admin {
 					?>
 					<input type="button" class="button-primary" value="<?php _e('Restore','updraftplus');?>" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px;  min-width: 170px;" onclick="jQuery('.download-backups').slideDown(); updraft_historytimertoggle(1); jQuery('html,body').animate({scrollTop: jQuery('#updraft_lastlogcontainer').offset().top},'slow');">
 				</div>
-				<?php if (class_exists('UpdraftPlus_Addons_Migrator')) { ?>
 				<div>
 					<button type="button" class="button-primary" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px;  min-width: 170px;" onclick="jQuery('#updraft-migrate-modal').dialog('open');"><?php _e('Clone/Migrate','updraftplus');?></button>
 				</div>
-				<?php } ?>
 			</div>
 			<br style="clear:both" />
 			<table class="form-table">
