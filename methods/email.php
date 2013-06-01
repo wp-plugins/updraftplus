@@ -12,7 +12,9 @@ class UpdraftPlus_BackupModule_email {
 
 		foreach ($backup_array as $type => $file) {
 			$fullpath = $updraft_dir.$file;
-			wp_mail(UpdraftPlus_Options::get_updraft_option('updraft_email'), __("WordPress Backup",'updraftplus')." ".date('Y-m-d H:i',$updraftplus->backup_time), __("Backup is of:",'updraftplus')." ".$type.".  ".__('Be wary; email backups may fail because of file size limitations on mail servers.','updraftplus'), null, array($fullpath));
+			foreach (explode(',', UpdraftPlus_Options::get_updraft_option('updraft_email')) as $sendmail_addr) {
+				wp_mail(trim($sendmail_addr), __("WordPress Backup",'updraftplus')." ".date('Y-m-d H:i',$updraftplus->backup_time), __("Backup is of:",'updraftplus')." ".$type.".  ".__('Be wary; email backups may fail because of file size limitations on mail servers.','updraftplus'), null, array($fullpath));
+			}
 			$updraftplus->uploaded_file($file);
 		}
 		$updraftplus->prune_retained_backups("email", null, null);

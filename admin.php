@@ -890,6 +890,14 @@ class UpdraftPlus_Admin {
 					<th><?php echo htmlspecialchars(__('Backups, logs & restoring','updraftplus')); ?>:</th>
 					<td><a id="updraft_showbackups" href="#" title="<?php _e('Press to see available backups','updraftplus');?>" onclick="jQuery('.download-backups').fadeToggle(); updraft_historytimertoggle(0);"><?php echo sprintf(__('%d set(s) available', 'updraftplus'), count($backup_history)); ?></a></td>
 				</tr>
+				<?php
+					if (defined('UPDRAFTPLUS_EXPERIMENTAL_MISC') && UPDRAFTPLUS_EXPERIMENTAL_MISC == true) {
+				?>
+				<tr>
+					<th><?php echo __('Latest UpdraftPlus.com news:', 'updraftplus'); ?></th>
+					<td>Blah blah blah. Move to right-hand col?</td>
+				</tr>
+				<?php } ?>
 			</table>
 			<table class="form-table">
 				<tr>
@@ -1505,7 +1513,7 @@ ENDHERE;
 			</tr>
 			<tr>
 				<th><?php _e('Email','updraftplus'); ?>:</th>
-				<td><input type="text" style="width:260px" name="updraft_email" value="<?php echo UpdraftPlus_Options::get_updraft_option('updraft_email'); ?>" /> <br><?php _e('Enter an address here to have a report sent (and the whole backup, if you choose) to it.','updraftplus'); ?></td>
+				<td><input type="text" title="<?php _e('To send to more than one address, separate each address with a comma.', 'updraftplus'); ?>" style="width:260px" name="updraft_email" value="<?php echo UpdraftPlus_Options::get_updraft_option('updraft_email'); ?>" /> <br><?php _e('Enter an address here to have a report sent (and the whole backup, if you choose) to it.','updraftplus'); ?></td>
 			</tr>
 
 			<tr>

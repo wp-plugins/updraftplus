@@ -127,6 +127,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: Add support for DreamHost DreamObjects (http://dreamhost.com/cloud/dreamobjects/)
 * FEATURE: Polski / Polish (pl_PL) translation: thanks to Bartosz Kaczmarek (barth.kaczmarek@gmail.com)
 * FEATURE: Add expert options to count expected uncompressed backup size, and show/delete active jobs
+* FEATURE: Send backup reports to multiple addresses (comma-separate the addresses you wish to use)
 * FIX: Inform users of Dropbox tokens which stop working
 * FIX: Don't flag an error if mu-plugins are selected, but none are found and WordPress agrees that none exist 
 * COMPATIBILITY: WordPress multisite post-3.5 does not store blog uploads separately from main uploads directory
