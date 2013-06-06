@@ -121,7 +121,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= Development trunk - 2013/06/06 =
+= 1.6.17 - 2013/06/06 =
 * FEATURE: News blog - http://updraftplus.com/news/ - please subscribe if you want to stay up to date with news of new features, tips, and special offers. RSS link: http://feeds.feedburner.com/UpdraftPlus
 * FEATURE: Restoration/migration now copes with a change of table prefix, and asks WordPress to recreate your .htaccess/web.config file
 * FEATURE: Add support for DreamHost DreamObjects (http://dreamhost.com/cloud/dreamobjects/)
