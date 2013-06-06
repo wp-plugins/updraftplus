@@ -17,7 +17,6 @@ class Dropbox_Encrypter
     const MODE = MCRYPT_MODE_CBC;
     const KEY_SIZE = 32;
     const IV_SIZE = 16;
-    const IV_SOURCE = MCRYPT_DEV_URANDOM;
     
     /**
      * Encryption key
@@ -33,7 +32,7 @@ class Dropbox_Encrypter
     public function __construct($key)
     {
         if (!extension_loaded('mcrypt')) {
-            throw new Dropbox_Exception('The storage encrypter requires the MCrypt extension');
+            throw new Dropbox_Exception('The storage encrypter requires the PHP MCrypt extension to be available. Please check your PHP configuration.');
         } elseif (($length = mb_strlen($key, '8bit')) !== self::KEY_SIZE) {
             throw new Dropbox_Exception('Expecting a ' .  self::KEY_SIZE . ' byte key, got ' . $length);
         } else {
@@ -49,7 +48,22 @@ class Dropbox_Encrypter
      */
     public function encrypt($token)
     {
-        $iv = mcrypt_create_iv(self::IV_SIZE, self::IV_SOURCE);
+        // This now sends all Windows users to MCRYPT_RAND - used to send PHP>5.3 to MCRYPT_DEV_URANDOM, but we came across a user this failed for
+        // Only MCRYPT_RAND is available on Windows prior to PHP 5.3
+        if (version_compare(phpversion(), '5.3.0', '<') && strtoupper(substr(php_uname('s'), 0, 3)) === 'WIN') {
+            $crypt_source = MCRYPT_RAND;
+        } elseif (@is_readable("/dev/urandom")) {
+            // Note that is_readable is not a true test of whether the mcrypt_create_iv call would work, because when open_basedir restrictions exist, is_readable returns false, but mcrypt_create_iv is not subject to that restriction internally, so would actually have succeeded.
+            $crypt_source = MCRYPT_DEV_URANDOM;
+        } else {
+            $crypt_source = MCRYPT_RAND;
+        }
+        $iv = @mcrypt_create_iv(self::IV_SIZE, $crypt_source);
+        
+        if ($iv === false && $crypt_source != MCRYPT_RAND) {
+            $iv = mcrypt_create_iv(self::IV_SIZE, MCRYPT_RAND);
+        }
+
         $cipherText = @mcrypt_encrypt(self::CIPHER, $this->key, $token, self::MODE, $iv);
         return base64_encode($iv . $cipherText);
     }

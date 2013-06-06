@@ -3,11 +3,13 @@
 class UpdraftPlus_BackupModule_googledrive {
 
 	var $gdocs;
-	var $gdocs_access_token;
 
 	public static function action_auth() {
 		if ( isset( $_GET['state'] ) ) {
-			if ( $_GET['state'] == 'token' )
+			if ( $_GET['state'] == 'success') {
+				add_action('admin_notices', array('UpdraftPlus_BackupModule_googledrive', 'show_authed_admin_success') );
+			}
+			elseif ( $_GET['state'] == 'token' )
 				self::gdrive_auth_token();
 			elseif ( $_GET['state'] == 'revoke' )
 				self::gdrive_auth_revoke();
@@ -23,6 +25,7 @@ class UpdraftPlus_BackupModule_googledrive {
 		$updraftplus->log("Google Drive: requesting access token: client_id=$client_id");
 
 		$query_body = array( 'refresh_token' => $token, 'client_id' => $client_id, 'client_secret' => $client_secret, 'grant_type' => 'refresh_token' );
+
 		$result = wp_remote_post('https://accounts.google.com/o/oauth2/token', array('timeout' => '15', 'method' => 'POST', 'body' => $query_body) );
 
 		if (is_wp_error($result)) {
@@ -50,7 +53,7 @@ class UpdraftPlus_BackupModule_googledrive {
 			'response_type' => 'code',
 			'client_id' => UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid'),
 			'redirect_uri' => admin_url('options-general.php?page=updraftplus&action=updraftmethod-googledrive-auth'),
-			'scope' => 'https://www.googleapis.com/auth/drive.file https://docs.google.com/feeds/ https://docs.googleusercontent.com/ https://spreadsheets.google.com/feeds/',
+			'scope' => 'https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/drive.file https://docs.google.com/feeds/ https://docs.googleusercontent.com/ https://spreadsheets.google.com/feeds/',
 			'state' => 'token',
 			'access_type' => 'offline',
 			'approval_prompt' => 'force'
@@ -90,8 +93,18 @@ class UpdraftPlus_BackupModule_googledrive {
 			} else {
 				$json_values = json_decode( $result['body'], true );
 				if ( isset( $json_values['refresh_token'] ) ) {
-					UpdraftPlus_Options::update_updraft_option('updraft_googledrive_token', $json_values['refresh_token']); // Save token
-					header('Location: '.admin_url('options-general.php?page=updraftplus&message='.__('Success','updraftplus').' '.sprintf(__('you have authenticated your %s account','updraftplus'),__('Google Drive','updraftplus'))));
+
+					 // Save token
+					UpdraftPlus_Options::update_updraft_option('updraft_googledrive_token', $json_values['refresh_token']);
+
+					if ( isset($json_values['access_token'])) {
+
+						set_transient('updraftplus_tmp_googledrive_access_token', $json_values['access_token'], 3600);
+
+						// We do this to clear the GET parameters, otherwise WordPress sticks them in the _wp_referer in the form and brings them back, leading to confusion + errors
+						header('Location: '.admin_url('options-general.php?page=updraftplus&action=updraftmethod-googledrive-auth&state=success'));
+
+					}
 
 				}
 				else {
@@ -100,8 +113,37 @@ class UpdraftPlus_BackupModule_googledrive {
 			}
 		}
 		else {
-			header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'Authorization failed', 'updraftplus' ) ) );
+			header('Location: '.admin_url('options-general.php?page=updraftplus&error='. __( 'Authorization failed', 'updraftplus' ) ) );
 		}
+	}
+
+	public static function show_authed_admin_success() {
+
+		global $updraftplus_admin;
+
+		$updraftplus_tmp_access_token = get_transient('updraftplus_tmp_googledrive_access_token');
+		if (empty($updraftplus_tmp_access_token)) return;
+
+		$message = '';
+		try {
+			if( !class_exists('UpdraftPlus_GDocs')) require_once(UPDRAFTPLUS_DIR.'/includes/class-gdocs.php');
+			$x = new UpdraftPlus_BackupModule_googledrive;
+			if ( !is_wp_error( $e = $x->need_gdocs($updraftplus_tmp_access_token) ) ) {
+				$quota_total = max($x->gdocs->get_quota_total(), 1);
+				$quota_used = $x->gdocs->get_quota_used();
+				if (is_numeric($quota_total) && is_numeric($quota_used)) {
+					$available_quota = $quota_total - $quota_used;
+					$used_perc = round($quota_used*100/$quota_total, 1);
+					$message .= sprintf(__('Your %s quota usage: %s %% used, %s available','updraftplus'), 'Google Drive', $used_perc, round($available_quota/1048576, 1).' Mb');
+				}
+			}
+		} catch (Exception $e) {
+		}
+
+		$updraftplus_admin->show_admin_warning(__('Success','updraftplus').': '.sprintf(__('you have authenticated your %s account.','updraftplus'),__('Google Drive','updraftplus')).' '.$message);
+
+		delete_transient('updraftplus_tmp_googledrive_access_token');
+
 	}
 
 	// This function just does the formalities, and off-loads the main work to upload_file
@@ -118,14 +160,38 @@ class UpdraftPlus_BackupModule_googledrive {
 			return new WP_Error( "no_access_token", __("Have not yet obtained an access token from Google (has the user authorised?)",'updraftplus'));
 		}
 
-		$this->gdocs_access_token = $access_token;
-
 		$updraft_dir = $updraftplus->backups_dir_location().'/';
 
+		// Make sure $this->gdocs is a UpdraftPlus_GDocs object, or give an error
+		if ( is_wp_error( $e = $this->need_gdocs($access_token) ) ) return false;
+		$gdocs_object = $this->gdocs;
+
 		foreach ($backup_array as $file) {
+
+			$available_quota = -1;
+
+			try {
+				$quota_total = $gdocs_object->get_quota_total();
+				$quota_used = $gdocs_object->get_quota_used();
+				$available_quota = $quota_total - $quota_used;
+				$message = "Google Drive quota usage: used=".round($quota_used/1048576,1)." Mb, total=".round($quota_total/1048576,1)." Mb, available=".round($available_quota/1048576,1)." Mb";
+				$updraftplus->log($message);
+			} catch (Exception $e) {
+				$updraftplus->log("Google Drive quota usage: failed to obtain this information: ".$e->getMessage());
+			}
+
 			$file_path = $updraft_dir.$file;
 			$file_name = basename($file_path);
 			$updraftplus->log("$file_name: Attempting to upload to Google Drive");
+
+			if ($available_quota != -1) {
+				$filesize = filesize($file_path);
+				if ($filesize > $available_quota) {
+					$updraftplus->log("File upload expected to fail: file ($file_name) size is $filesize b, whereas available quota is only $available_quota b");
+					$updraftplus->error(sprintf(__("Account full: your %s account has only %d bytes left, but the file to be uploaded is %d bytes",'updraftplus'),'Google Drive', $available_quota, $filesize));
+				}
+			}
+
 			$timer_start = microtime(true);
 			if ( $id = $this->upload_file( $file_path, $file_name, UpdraftPlus_Options::get_updraft_option('updraft_googledrive_remotepath')) ) {
 				$updraftplus->log('OK: Archive ' . $file_name . ' uploaded to Google Drive in ' . ( round(microtime( true ) - $timer_start,2) ) . ' seconds (id: '.$id.')' );
@@ -165,14 +231,12 @@ class UpdraftPlus_BackupModule_googledrive {
 
 		global $updraftplus;
 
-		// Make sure $this->gdocs is a UpdraftPlus_GDocs object, or give an error
-		if ( is_wp_error( $e = $this->need_gdocs() ) ) return false;
 		$gdocs_object = $this->gdocs;
 
 		$hash = md5($file);
 		$transkey = 'upd_'.$hash.'_gloc';
 		// This is unset upon completion, so if it is set then we are resuming
-		$possible_location = get_transient($transkey);
+		$possible_location = $updraftplus->jobdata_get($transkey);
 
 		if ( empty( $possible_location ) ) {
 			$updraftplus->log("$file: Attempting to upload file to Google Drive.");
@@ -209,7 +273,7 @@ class UpdraftPlus_BackupModule_googledrive {
 				$counter++; if ($counter >= 20) $counter=0;
 
 				$res = $gdocs_object->upload_chunk();
-				if (is_string($res)) set_transient($transkey, $res, UPDRAFT_TRANSTIME);
+				if (is_string($res)) $updraftplus->jobdata_set($transkey, $res);
 				$p = $gdocs_object->get_upload_percentage();
 				if ( $p - $d >= 1 ) {
 					$b = intval( $p - $d );
@@ -221,8 +285,8 @@ class UpdraftPlus_BackupModule_googledrive {
 	// 			echo '</div>';
 
 			if ( is_wp_error( $res ) || $res !== true) {
-				$updraftplus->log( "An error occurred during GoogleDrive upload (2)" );
-				$updraftplus->error(__("An error occurred during GoogleDrive upload (see log for more details)",'') );
+				$updraftplus->log( "An error occurred during Google Drive upload (2)" );
+				$updraftplus->error(sprintf(__("An error occurred during %s upload (see log for more details)",'updraftplus'), 'Google Drive'));
 				if (is_wp_error( $res )) {
 					foreach ($res->get_error_messages() as $msg) $updraftplus->log($msg);
 				}
@@ -231,7 +295,7 @@ class UpdraftPlus_BackupModule_googledrive {
 
 			$updraftplus->log("The file was successfully uploaded to Google Drive in ".number_format_i18n( $gdocs_object->time_taken(), 3)." seconds at an upload speed of ".size_format( $gdocs_object->get_upload_speed() )."/s.");
 
-			delete_transient($transkey);
+			$updraftplus->jobdata_delete($transkey);
 	// 			unset( $this->options['backup_list'][$id]['location'], $this->options['backup_list'][$id]['attempt'] );
 		}
 
@@ -255,10 +319,8 @@ class UpdraftPlus_BackupModule_googledrive {
 			return false;
 		}
 
-		$this->gdocs_access_token = $access_token;
-
 		// Make sure $this->gdocs is a UpdraftPlus_GDocs object, or give an error
-		if ( is_wp_error( $e = $this->need_gdocs() ) ) return false;
+		if ( is_wp_error( $e = $this->need_gdocs($access_token) ) ) return false;
 		$gdocs_object = $this->gdocs;
 
 		$ids = UpdraftPlus_Options::get_updraft_option('updraft_file_ids', array());
@@ -291,7 +353,7 @@ class UpdraftPlus_BackupModule_googledrive {
 	}
 
 	// This function modified from wordpress.org/extend/plugins/backup, by Sorin Iclanzan, under the GPLv3 or later at your choice
-	function need_gdocs() {
+	function need_gdocs($access_token) {
 
 		global $updraftplus;
 
@@ -301,14 +363,19 @@ class UpdraftPlus_BackupModule_googledrive {
 				return new WP_Error( "not_authorized", __("Account is not authorized.",'updraftplus') );
 			}
 
-			if ( is_wp_error( $this->gdocs_access_token ) ) return $access_token;
+			if ( is_wp_error($access_token) ) return $access_token;
 
-			$this->gdocs = new UpdraftPlus_GDocs( $this->gdocs_access_token );
+			$this->gdocs = new UpdraftPlus_GDocs($access_token);
 			// We need to be able to upload at least one chunk within the timeout (at least, we have seen an error report where the failure to do this seemed to be the cause)
 			// If we assume a user has at least 16kb/s (we saw one user with as low as 22kb/s), and that their provider may allow them only 15s, then we have the following settings
 			$this->gdocs->set_option( 'chunk_size', 0.2 ); # 0.2Mb; change from default of 512Kb
 			$this->gdocs->set_option( 'request_timeout', 15 ); # Change from default of 5s
 			$this->gdocs->set_option( 'max_resume_attempts', 36 ); # Doesn't look like GDocs class actually uses this anyway
+			if (UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify')) {
+				$this->gdocs->set_option('ssl_verify', false);
+			} else {
+				$this->gdocs->set_option('ssl_verify', true);
+			}
 		}
 		return true;
 	}
@@ -325,14 +392,28 @@ class UpdraftPlus_BackupModule_googledrive {
 				<td><?php _e('Google Drive','updraftplus');?>:</td>
 				<td>
 				<img src="https://developers.google.com/drive/images/drive_logo.png" alt="<?php _e('Google Drive','updraftplus');?>">
-				<p><em><?php printf(__('%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your blog is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.','updraftplus'),'Google Drive');?></em></p>
+				<p><em><?php printf(__('%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your site is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.','updraftplus'),'Google Drive');?></em></p>
 				</td>
 			</tr>
+
+			<tr class="updraftplusmethod googledrive">
+			<th></th>
+			<td>
+			<?php
+				global $updraftplus_admin;
+				if (!class_exists('SimpleXMLElement')) {
+					$updraftplus_admin->show_double_warning('<strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__('Your web server\'s PHP installation does not included a required module (%s). Please contact your web hosting provider\'s support.', 'updraftplus'), 'SimpleXMLElement').' '.sprintf(__("UpdraftPlus's %s module <strong>requires</strong> %s. Please do not file any support requests; there is no alternative.",'updraftplus'),__('Google Drive', 'updraftplus'), 'SimpleXMLElement'), 'googledrive');
+				}
+			?>
+
+			</td>
+			</tr>
+
 			<tr class="updraftplusmethod googledrive">
 			<th>Google Drive:</th>
 			<td>
 			<p><a href="http://updraftplus.com/support/configuring-google-drive-api-access-in-updraftplus/"><strong><?php _e('For longer help, including screenshots, follow this link. The description below is sufficient for more expert users.','updraftplus');?></strong></a></p>
-			<p><a href="https://code.google.com/apis/console/"><?php _e('Follow this link to your Google API Console, and there create a Client ID in the API Access section.','updraftplus');?></a> <?php _e("Select 'Web Application' as the application type.",'updraftplus');?></p><p><?php echo htmlspecialchars(__('You must add the following as the authorised redirect URI (under "More Options") when asked','updraftplus'));?>: <kbd><?php echo admin_url('options-general.php?page=updraftplus&action=updraftmethod-googledrive-auth'); ?></kbd> <?php _e('N.B. If you install UpdraftPlus on several WordPress sites, then you cannot re-use your client ID; you must create a new one from your Google API console for each blog.','updraftplus');?>
+			<p><a href="https://code.google.com/apis/console/"><?php _e('Follow this link to your Google API Console, and there create a Client ID in the API Access section.','updraftplus');?></a> <?php _e("Select 'Web Application' as the application type.",'updraftplus');?></p><p><?php echo htmlspecialchars(__('You must add the following as the authorised redirect URI (under "More Options") when asked','updraftplus'));?>: <kbd><?php echo admin_url('options-general.php?page=updraftplus&action=updraftmethod-googledrive-auth'); ?></kbd> <?php _e('N.B. If you install UpdraftPlus on several WordPress sites, then you cannot re-use your client ID; you must create a new one from your Google API console for each site.','updraftplus');?>
 
 			<?php
 				if (!class_exists('SimpleXMLElement')) { echo "<b>",__('Warning','updraftplus').':</b> '.__("You do not have the SimpleXMLElement installed. Google Drive backups will <b>not</b> work until you do.",'updraftplus'); }
@@ -350,7 +431,7 @@ class UpdraftPlus_BackupModule_googledrive {
 				<td><input type="text" style="width:352px" name="updraft_googledrive_secret" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_googledrive_secret')); ?>" /></td>
 			</tr>
 			<tr class="updraftplusmethod googledrive">
-				<th><?php echo __('Google Drive','updraftplus').' '.__('Folder ID','updraftplus'); ?>::</th>
+				<th><?php echo __('Google Drive','updraftplus').' '.__('Folder ID','updraftplus'); ?>:</th>
 				<td><input type="text" style="width:352px" name="updraft_googledrive_remotepath" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_googledrive_remotepath')); ?>" /> <em><?php _e("<strong>This is NOT a folder name</strong>. To get a folder's ID navigate to that folder in Google Drive in your web browser and copy the ID from your browser's address bar. It is the part that comes after <kbd>#folders/.</kbd> Leave empty to use your root folder)",'updraftplus');?></em></td>
 			</tr>
 			<tr class="updraftplusmethod googledrive">

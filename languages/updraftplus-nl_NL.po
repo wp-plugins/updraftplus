@@ -1,0 +1,1936 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: UpdraftPlus\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-03-30 17:26+0100\n"
+"PO-Revision-Date: 2013-04-29 15:36+0100\n"
+"Last-Translator: Hans van der Vlist / SiteCoach <hansvandervlist@gmail.com>\n"
+"Language-Team: SiteCoach <info@sitecoach.nl>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Hans van der Vlist / SiteCoach <hansvandervlist@gmail.com>\n"
+"Language-Team: SiteCoach <hansvandervlist@gmail.com>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: Dutch\n"
+"X-Poedit-KeywordsList: _;gettext;gettext_noop;__;_x;_e\n"
+"X-Poedit-Basepath: /home/david/MissionaryHosting/UpdraftPlus/svn/trunk\n"
+"X-Generator: Poedit 1.5.5\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: options.php:26
+msgid "UpdraftPlus Backups"
+msgstr "UpdraftPlus Backups"
+
+#: updraftplus.php:261
+msgid ""
+"Bad filename format - this does not look like a file created by UpdraftPlus"
+msgstr ""
+"Incorrect formaat bestandsnaam - dit ziet er niet uit als een bestand dat "
+"aangemaakt is door UpdraftPlus"
+
+#: updraftplus.php:295
+msgid "Allowed Files"
+msgstr "Toegestane bestanden"
+
+#: updraftplus.php:372
+msgid "Settings"
+msgstr "Instellingen"
+
+#: updraftplus.php:376
+msgid "Add-Ons / Pro Support"
+msgstr "Toevoegingen / Pro ondersteuning"
+
+#: updraftplus.php:462
+msgid "Plugins"
+msgstr "Plugins"
+
+#: updraftplus.php:463
+msgid "Themes"
+msgstr "Thema's"
+
+#: updraftplus.php:464
+msgid "Uploads"
+msgstr "Uploads"
+
+#: updraftplus.php:478
+msgid "Others"
+msgstr "Anderen"
+
+#: updraftplus.php:710
+msgid ""
+"Could not create files in the backup directory. Backup aborted - check your "
+"UpdraftPlus settings."
+msgstr ""
+"Kan geen bestanden aanmaken in de backup map. Backup afgebroken - controleer "
+"de UpdraftPlus instellingen."
+
+#: updraftplus.php:778
+msgid "Encryption error occurred when encrypting database. Encryption aborted."
+msgstr ""
+"Versleutelingsfout tijdens het versleutelen van de database. Versleuteling "
+"afgebroken."
+
+#: updraftplus.php:812
+msgid "The backup apparently succeeded and is now complete"
+msgstr "De backup is zo te zien geslaagd en is nu klaar."
+
+#: updraftplus.php:815
+msgid "The backup attempt has finished, apparently unsuccessfully"
+msgstr "De backup poging is afgelopen, zo te zien zonder succes."
+
+#: updraftplus.php:818
+msgid "The backup has not finished; a resumption is scheduled within 5 minutes"
+msgstr "De backup is nog niet klaar; een doorstart is gepland over 5 minuten."
+
+#: updraftplus.php:869
+msgid "Backed up"
+msgstr "Backup klaar"
+
+#: updraftplus.php:869
+msgid "WordPress backup is complete"
+msgstr "De WordPress backup is gereed"
+
+#: updraftplus.php:869
+msgid "Backup contains"
+msgstr "De backup bevat"
+
+#: updraftplus.php:869
+msgid "Latest status"
+msgstr "Laatste status"
+
+#: updraftplus.php:1124
+#, php-format
+msgid "Could not create %s zip. Consult the log file for more information."
+msgstr ""
+"Kon de %s zip niet aanmaken. Raadpleeg het logbestand voor meer informatie."
+
+#: updraftplus.php:1158
+#, php-format
+msgid "Backup directory (%s) is not writable, or does not exist."
+msgstr "De backup map (%s) heeft geen schrijfrechten of bestaat niet."
+
+#: updraftplus.php:1248
+msgid "Could not read the content directory"
+msgstr "Kon de inhoud map niet lezen"
+
+#: updraftplus.php:1278
+msgid ""
+"Could not save backup history because we have no backup array. Backup "
+"probably failed."
+msgstr ""
+"Kon de backup geschiedenis niet bewaren omdat er geen backup reeks is. De "
+"backup is waarschijnlijk mislukt"
+
+#: updraftplus.php:1307
+msgid "Could not open the backup file for writing"
+msgstr "Kon het backup bestand niet openen voor schrijven"
+
+#: updraftplus.php:1316
+#, php-format
+msgid "Generated: %s"
+msgstr "Aangemaakt: %s"
+
+#: updraftplus.php:1317
+#, php-format
+msgid "Hostname: %s"
+msgstr "Host naam: %s"
+
+#: updraftplus.php:1318
+#, php-format
+msgid "Database: %s"
+msgstr "Database: %s"
+
+#: updraftplus.php:1362
+msgid "The backup directory is not writable."
+msgstr "De backup map heeft geen schrijfrechten"
+
+#: updraftplus.php:1383
+#, php-format
+msgid "Table: %s"
+msgstr "Tabel: %s"
+
+#: updraftplus.php:1388
+#, php-format
+msgid "Skipping non-WP table: %s"
+msgstr "Niet-WP tabel overslaan: %s"
+
+#: updraftplus.php:1479
+#, php-format
+msgid "Delete any existing table %s"
+msgstr "Verwijder bestaande tabellen %s"
+
+#: updraftplus.php:1488
+#, php-format
+msgid "Table structure of table %s"
+msgstr "Tabel structuur van tabel %s"
+
+#: updraftplus.php:1494
+#, php-format
+msgid "Error with SHOW CREATE TABLE for %s."
+msgstr "Fout met SHOW CREATE TABLE voor %s."
+
+#: updraftplus.php:1501
+#, php-format
+msgid "Error getting table structure of %s"
+msgstr "Fout bij ophalen tabel structuur voor %s"
+
+#: updraftplus.php:1507
+#, php-format
+msgid "Data contents of table %s"
+msgstr "Data inhoud van tabel %s"
+
+#: updraftplus.php:1563
+#, php-format
+msgid "End of data contents of table %s"
+msgstr "Einde van data inhoud  van tabel %s"
+
+#: updraftplus.php:1815
+msgid "Nothing yet logged"
+msgstr "Nog niets gerapporteerd"
+
+#: updraftplus.php:1836
+msgid "File downloading"
+msgstr "Bestand downladen"
+
+#: updraftplus.php:1838
+msgid "No local copy present."
+msgstr "Geen lokale kopie aanwezig/"
+
+#: updraftplus.php:2014
+msgid "File not found"
+msgstr "Bestand niet gevonden"
+
+#: updraftplus.php:2033
+#, php-format
+msgid ""
+"The backup archive for restoring this file could not be found. The remote "
+"storage method in use (%s) does not allow us to retrieve files. To proceed "
+"with this restoration, you need to obtain a copy of this file and place it "
+"inside UpdraftPlus's working folder"
+msgstr ""
+"Het backup archief voor het herstellen van dit bestand is niet gevonden. De "
+"opslagmethode op afstand die gebruikt wordt (%s) laat ons niet toe om "
+"bestanden op te halen. Om door te gaan met het herstel is het nodig dat u "
+"een kopie van dit bestand ophaalt en in de UpDraft Plus werkmap plaatst."
+
+#: updraftplus.php:2043
+msgid ""
+"This backup does not exist in the backup history - restoration aborted. "
+"Timestamp:"
+msgstr ""
+"Deze backup bestaat niet in de backup geschiedenis -  herstel afgebroken. "
+"Tijdstempel:"
+
+#: updraftplus.php:2056
+msgid "UpdraftPlus Restoration: Progress"
+msgstr "UpdraftPlus herstel: Voortgang"
+
+#: updraftplus.php:2063
+msgid "ABORT: Could not find the information on which entities to restore."
+msgstr ""
+"Annuleren: Kon de informatie niet vinden welke entiteiten hersteld moeten "
+"worden."
+
+#: updraftplus.php:2077 updraftplus.php:2820 updraftplus.php:3072
+msgid "Database"
+msgstr "Database"
+
+#: updraftplus.php:2083
+msgid "This component was not selected for restoration - skipping."
+msgstr "Deze component was niet geselecteerd voor herstel - overslaan."
+
+#: updraftplus.php:2091
+msgid ""
+"File is not locally present - needs retrieving from remote storage (for "
+"large files, it is better to do this in advance from the download console)"
+msgstr ""
+"Het bestand is niet lokaal beschikbaar - het moet van de opslag op afstand "
+"teruggehaald worden (voor grote bestanden is het beter om dit vooraf te doen "
+"vanaf het download besturingspaneel)"
+
+#: updraftplus.php:2097
+msgid "Archive is expected to be size:"
+msgstr "De verwachte grootte van het archief is:"
+
+#: updraftplus.php:2102
+msgid "ERROR"
+msgstr "FOUT"
+
+#: updraftplus.php:2105
+msgid ""
+"The backup records do not contain information about the proper size of this "
+"file."
+msgstr ""
+"De backup gegevens bevatten geen informatie over de juiste grootte van dit "
+"bestand."
+
+#: updraftplus.php:2117
+msgid "Error message"
+msgstr "Fout bericht"
+
+#: updraftplus.php:2123 updraftplus.php:2124
+msgid "Could not find one of the files for restoration"
+msgstr "Kon een van de te herstellen bestanden niet vinden"
+
+#: updraftplus.php:2126
+msgid ""
+"Databases are not yet restored through this mechanism - use your web host's "
+"control panel, phpMyAdmin or a similar tool"
+msgstr ""
+"Databases worden nog niet hersteld via dit mechanisme - gebruik het "
+"beheerpaneel van uw web server, phpMyAdmin of een soortgelijk programma"
+
+#: updraftplus.php:2132
+msgid ""
+"Database could not be restored because PHP safe_mode is active on your "
+"server.  You will need to manually restore the file via phpMyAdmin or "
+"another method."
+msgstr ""
+"De database kon niet hersteld worden omdat de PHP safe_mode actief is op uw "
+"server. U zult het bestand handmatig moeten herstellen via phpMyAdmin of een "
+"andere methode."
+
+#: updraftplus.php:2156
+msgid "Delete"
+msgstr "Verwijderen"
+
+#: updraftplus.php:2290
+msgid "Find UpdraftPlus useful?"
+msgstr "Vindt u UpdraftPlus nuttig?"
+
+#: updraftplus.php:2290
+msgid "Please make a donation"
+msgstr "Geef a.u.b. een donatie"
+
+#: updraftplus.php:2295
+msgid "Like UpdraftPlus and can spare one minute?"
+msgstr "Bevalt UpdraftPlus u en heeft u een minuutje over?"
+
+#: updraftplus.php:2295
+msgid "Please help UpdraftPlus by giving a positive review at wordpress.org"
+msgstr ""
+"Steun UpdraftPlus a.u.b. met een positieve beoordeling op Wordprress.org"
+
+#: updraftplus.php:2302
+msgid "Need even more features and support? Check out UpdraftPlus Premium"
+msgstr ""
+"Heeft u nog meer functies en ondersteuning nodig? Kijk eens naar UpdraftPlus "
+"Premium."
+
+#: updraftplus.php:2311
+msgid "Check out UpdraftPlus.Com for help, add-ons and support"
+msgstr "Bezoek UpdraftPlus.com voor hulp, toevoegingen en ondersteuning"
+
+#: updraftplus.php:2314
+msgid "Want to say thank-you for UpdraftPlus?"
+msgstr "Wilt u een bedankje geven voor het gebruik van UpdraftPlus?"
+
+#: updraftplus.php:2314
+msgid "Please buy our very cheap 'no adverts' add-on."
+msgstr "Koop a.u.b. onze heel goedkope 'geen advertenties' uitbreiding."
+
+#: updraftplus.php:2325
+msgid "File backup intervals"
+msgstr "Bestand backup intervallen"
+
+#: updraftplus.php:2328
+msgid "Manual"
+msgstr "Handmatig"
+
+#: updraftplus.php:2328
+msgid "Every 4 hours"
+msgstr "Elke 4 uur"
+
+#: updraftplus.php:2328
+msgid "Every 8 hours"
+msgstr "Elke 8 uur"
+
+#: updraftplus.php:2328
+msgid "Every 12 hours"
+msgstr "Elke 12 uur"
+
+#: updraftplus.php:2328
+msgid "Daily"
+msgstr "Dagelijks"
+
+#: updraftplus.php:2328
+msgid "Weekly"
+msgstr "Wekelijks"
+
+#: updraftplus.php:2328
+msgid "Fortnightly"
+msgstr "Elke 14 dagen"
+
+#: updraftplus.php:2328
+msgid "Monthly"
+msgstr "Maandelijks"
+
+#: updraftplus.php:2337 updraftplus.php:2355
+msgid "and retain this many backups"
+msgstr "en bewaar dit aantal backups"
+
+#: updraftplus.php:2344
+msgid "Database backup intervals"
+msgstr "Database backup intervallen"
+
+#: updraftplus.php:2362
+msgid ""
+"If you would like to automatically schedule backups, choose schedules from "
+"the dropdowns above. Backups will occur at the intervals specified. If the "
+"two schedules are the same, then the two backups will take place together. "
+"If you choose \"manual\" then you must click the \"Backup Now\" button "
+"whenever you wish a backup to occur."
+msgstr ""
+"Als u automatisch backups wil laten uitvoeren, kies dan een planning uit de "
+"uitklap opties hierboven. Backups worden dan op de ingestelde intervallen "
+"uitgevoerd. Als twee planningen samenvallen, dan worden de twee backups "
+"tegelijkertijd uitgevoerd. Als u \"handmatig\" kiest dan moet u de \"Backup "
+"Nu\" knop aanklikken telkens wanneer u een backup wilt maken."
+
+#: updraftplus.php:2363
+msgid "To fix the time at which a backup should take place,"
+msgstr "Om de tijd vast te leggen waarop een backup plaats moet vinden,"
+
+#: updraftplus.php:2363
+msgid "e.g. if your server is busy at day and you want to run overnight"
+msgstr ""
+"bv. als uw server overdag druk is en u wilt de backup 's nachts uitvoeren"
+
+#: updraftplus.php:2363
+msgid "use the \"Fix Time\" add-on"
+msgstr "gebruik de \"Tijd vastleggen\" toevoeging"
+
+#: updraftplus.php:2377
+msgid ""
+"Any other directories found inside wp-content but exclude these directories:"
+msgstr "Alle mappen onder wp-content maar exclusief deze mappen"
+
+#: updraftplus.php:2383
+msgid ""
+"Include all of these, unless you are backing them up outside of UpdraftPlus. "
+"The above directories are usually everything (except for WordPress core "
+"itself which you can download afresh from WordPress.org). But if you have "
+"made customised modifications outside of these directories, you need to back "
+"them up another way."
+msgstr ""
+"Inclusief al deze, tenzij u een backup maakt buiten UpdraftPlus om. De "
+"bovenstaande mappen bevatten alles (afgezien van de WordPress kern zelf die "
+"u vers kan downloaden van WordPress.org). Maar als u aanpassingen gemaakt "
+"heeft buiten deze directories dan dient u hier via een andere manier een "
+"backup te maken."
+
+#: updraftplus.php:2383
+msgid "Use WordShell for automatic backup, version control and patching"
+msgstr ""
+"Gebruik WordShell voor automatische backups, versiebeheer en correcties."
+
+#: updraftplus.php:2387
+msgid "Email"
+msgstr "E-mail"
+
+#: updraftplus.php:2388
+msgid ""
+"Enter an address here to have a report sent (and the whole backup, if you "
+"choose) to it."
+msgstr ""
+"Geef hier een adres in waar de rapporten naar toe gezonden moeten worden (en "
+"de complete backup, als u daarvoor kiest)."
+
+#: updraftplus.php:2392
+msgid "Database encryption phrase"
+msgstr "Database versleuteling tekst"
+
+#: updraftplus.php:2399
+msgid ""
+"If you enter text here, it is used to encrypt backups (Rijndael). <strong>Do "
+"make a separate record of it and do not lose it, or all your backups "
+"<em>will</em> be useless.</strong> Presently, only the database file is "
+"encrypted. This is also the key used to decrypt backups from this admin "
+"interface (so if you change it, then automatic decryption will not work "
+"until you change it back). You can also use the file example-decrypt.php "
+"from inside the UpdraftPlus plugin directory to decrypt manually."
+msgstr ""
+"Als u hier tekst ingeeft dan wordt die gebruikt om backups te versleutelen "
+"(Rijndael). <strong>Leg de tekst apart vast en verlies het niet of al uw "
+"backups <em>zijn waardeloos</em>.</strong> Op het moment worden alleen het "
+"database bestand versleuteld. Dit is ook de sleutel die gebruikt wordt om "
+"backups te ontcijferen vanuit dit beheer scherm (dus als u het verandert zal "
+"de ontcijfering niet werken tot u de oorspronkelijk waarde hersteld). U kunt "
+"ook het bestand  example-decrypt.php gebruiken vanuit de UpdraftPlus plugin "
+"map om handmatig te ontcijferen."
+
+#: updraftplus.php:2403
+msgid "Copying Your Backup To Remote Storage"
+msgstr "Uw backup wordt gekopieerd naar de opslag op afstand"
+
+#: updraftplus.php:2407
+msgid "Choose your remote storage"
+msgstr "Kies uw opslag op afstand"
+
+#: updraftplus.php:2419
+msgid "None"
+msgstr "Geen"
+
+#: updraftplus.php:2500 updraftplus.php:2838 updraftplus.php:3109
+msgid "Restore"
+msgstr "Herstel"
+
+#: updraftplus.php:2514 updraftplus.php:2524
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: updraftplus.php:2521 updraftplus.php:2830
+msgid "Backup Now"
+msgstr "Nu een backup maken"
+
+#: updraftplus.php:2548
+msgid "Advanced / Debugging Settings"
+msgstr "Geavanceerd / Fouten opsporen"
+
+#: updraftplus.php:2551
+msgid "Debug mode"
+msgstr "Fout opsporing modus"
+
+#: updraftplus.php:2552
+msgid ""
+"Check this to receive more information and emails on the backup process - "
+"useful if something is going wrong. You <strong>must</strong> send us this "
+"log if you are filing a bug report."
+msgstr ""
+"Vink dit aan om meer informatie en e-mails te ontvangen over het backup "
+"proces - handig als er iets mis gaat. U <strong>moet</strong> ons dit "
+"logboek sturen als u een foutmelding aan ons doorgeeft."
+
+#: updraftplus.php:2555
+msgid "Expert settings"
+msgstr "Expert instellingen"
+
+#: updraftplus.php:2556
+msgid "Show expert settings"
+msgstr "Toon de expert instellingen"
+
+#: updraftplus.php:2556
+msgid ""
+"click this to show some further options; don't bother with this unless you "
+"have a problem or are curious."
+msgstr ""
+"klik hier om meer opties te tonen; negeer het tenzij u een probleem heeft of "
+"nieuwsgierig bent."
+
+#: updraftplus.php:2563
+msgid "Delete local backup"
+msgstr "Verwijder de lokale backup"
+
+#: updraftplus.php:2564
+msgid ""
+"Uncheck this to prevent deletion of any superfluous backup files from your "
+"server after the backup run finishes (i.e. any files despatched remotely "
+"will also remain locally, and any files being kept locally will not be "
+"subject to the retention limits)."
+msgstr ""
+"Verwijder het vinkje om de verwijdering van overbodige backup bestanden van "
+"uw server te voorkomen nadat de backup gereed is (bv. bestanden die op "
+"afstand opgeslagen worden zullen ook lokaal blijven staan en deze bestanden "
+"vallen niet onder de houdbaarheid limieten)."
+
+#: updraftplus.php:2568
+msgid "Backup directory"
+msgstr "Backup map"
+
+#: updraftplus.php:2576
+msgid "Backup directory specified is writable, which is good."
+msgstr "De aangegeven backup map heeft schrijfrechten, wat goed is."
+
+#: updraftplus.php:2578
+msgid "Backup directory specified is <b>not</b> writable, or does not exist."
+msgstr ""
+"De aangegeven backup map heeft <b>geen</b> scrhijfrechten of bestaat niet."
+
+#: updraftplus.php:2578
+msgid "Click here to attempt to create the directory and set the permissions"
+msgstr "Klik hier om te proberen de map aan te maken en stel de rechten in"
+
+#: updraftplus.php:2578
+msgid "or, to reset this option"
+msgstr "of om deze optie te terug te zetten"
+
+#: updraftplus.php:2578
+msgid "click here"
+msgstr "klik hier"
+
+#: updraftplus.php:2578
+msgid ""
+"If that is unsuccessful check the permissions on your server or change it to "
+"another directory that is writable by your web server process."
+msgstr ""
+"Als dat niet succesvol is, controleer de rechten op uw server of wijzig het "
+"naar een andere map die wel schrijfrechten heeft voor uw web server proces."
+
+#: updraftplus.php:2581
+msgid ""
+"This is where UpdraftPlus will write the zip files it creates initially.  "
+"This directory must be writable by your web server. Typically you'll want to "
+"have it inside your wp-content folder (this is the default).  <b>Do not</b> "
+"place it inside your uploads dir, as that will cause recursion issues "
+"(backups of backups of backups of...)."
+msgstr ""
+"Dit is waar UpdraftPlus de initieel aangemaakte archief (zip) bestanden naar "
+"toe zal schrijven. Deze map moet schrijfrechten hebben. Normaliter wil je "
+"dit binnen je wp-content map hebben (standaard). <b>Plaats het niet</b> "
+"binnen uw upload map omdat dat recursie zal geven (backups van backups van "
+"backups...)."
+
+#: updraftplus.php:2602
+msgid "Save Changes"
+msgstr "Bewaar wijzigingen"
+
+#: updraftplus.php:2626
+msgid "Download log file"
+msgstr "Download logboek"
+
+#: updraftplus.php:2632
+msgid "No backup has been completed."
+msgstr "Geen backup afgerond"
+
+#: updraftplus.php:2652
+msgid "Restore successful!"
+msgstr "Herstel met succes"
+
+#: updraftplus.php:2653 updraftplus.php:2688 updraftplus.php:2704
+msgid "Actions"
+msgstr "Acties"
+
+#: updraftplus.php:2653 updraftplus.php:2668 updraftplus.php:2688
+#: updraftplus.php:2704
+msgid "Return to UpdraftPlus Configuration"
+msgstr "Keer terug naar UpdraftPlus configuratie"
+
+#: updraftplus.php:2677
+msgid "Remove old directories"
+msgstr "Verwijder de oude mappen"
+
+#: updraftplus.php:2683
+msgid "Old directories successfully removed."
+msgstr "Oude mappen met succes verwijderd"
+
+#: updraftplus.php:2686
+msgid ""
+"Old directory removal failed for some reason. You may want to do this "
+"manually."
+msgstr ""
+"Het verwijderen van de oude mappen faalde om de een of andere reden. U kunt "
+"dit ook handmatig doen."
+
+#: updraftplus.php:2701
+msgid "Backup directory could not be created"
+msgstr "De backup map kon niet aangemaakt worden"
+
+#: updraftplus.php:2703
+msgid "Backup directory successfully created."
+msgstr "Backup map met succes aangemaakt."
+
+#: updraftplus.php:2710
+msgid "Schedule backup"
+msgstr "Backup inplannen"
+
+#: updraftplus.php:2713
+msgid "Failed."
+msgstr "Mislukt"
+
+#: updraftplus.php:2715
+msgid ""
+"OK. Now load any page from your site to make sure the schedule can trigger. "
+"You should then see activity in the \"Last log message\" field below."
+msgstr ""
+"OK. Laad nu een pagina van uw site om er zeker van de zijn dat de planning "
+"uitgevoerd wordt. U moet dan activiteit zien in het \"Laatste logboek bericht"
+"\" veld hieronder."
+
+#: updraftplus.php:2715
+msgid "Nothing happening? Follow this link for help."
+msgstr "Gebeurd er niets? Volg deze link voor hulp."
+
+#: updraftplus.php:2728
+msgid "Your settings have been wiped."
+msgstr "Uw instellingen zijn gewist."
+
+#: updraftplus.php:2735
+msgid "By UpdraftPlus.Com"
+msgstr "Door UpdraftPlus.com"
+
+#: updraftplus.php:2735
+msgid "Lead developer's homepage"
+msgstr "Homepage van de hoofd ontwikkelaar"
+
+#: updraftplus.php:2735
+msgid "Donate"
+msgstr "Doneer"
+
+#: updraftplus.php:2735
+msgid "Other WordPress plugins"
+msgstr "Andere WordPress plugins"
+
+#: updraftplus.php:2735
+msgid "Version"
+msgstr "Versie"
+
+#: updraftplus.php:2739
+msgid "Your backup has been restored."
+msgstr "Uw backup is hersteld"
+
+#: updraftplus.php:2739
+msgid ""
+"Your old (themes, uploads, plugins, whatever) directories have been retained "
+"with \"-old\" appended to their name. Remove them when you are satisfied "
+"that the backup worked properly."
+msgstr ""
+"Uw oude (thema's. uploads, plugins, etc.) mappen zijn bewaard met \"-old\" "
+"toegevoegd aan hun naam. Verwijder ze zodra uw er zeker van bent dat de "
+"backup goed werkt."
+
+#: updraftplus.php:2739
+msgid ""
+"At this time UpdraftPlus does not automatically restore your database. You "
+"will need to use an external tool like phpMyAdmin to perform that task."
+msgstr ""
+"Op dit moment hersteld UpdraftPlus niet automatisch uw database. U heeft een "
+"extern programma zoals phpMyAdmin nodig om die taak uit te voeren."
+
+#: updraftplus.php:2745
+msgid "Old directories successfully deleted."
+msgstr "Oude mappen met succes verwijderd."
+
+#: updraftplus.php:2748
+msgid ""
+"Your PHP memory limit is quite low. UpdraftPlus attempted to raise it but "
+"was unsuccessful. This plugin may not work properly with a memory limit of "
+"less than 96 Mb (though on the other hand, it has been used successfully "
+"with a 32Mb limit - your mileage may vary, but don't blame us!)."
+msgstr ""
+"Uw PHP geheugen limiet is vrij laag. UpdraftPlus heeft geprobeerd die te "
+"verhogen maar dat lukte niet. Deze plugin kan mogelijk niet goed "
+"functioneren met een geheugenlimiet van minder dan 96 Mb (hoewel het met "
+"succes gebruikt is met een 32 Mb limiet - uw geheugen gebruik kan vari&euml;"
+"ren maar geef ons niet de schuld!)."
+
+#: updraftplus.php:2748
+msgid "Current limit is:"
+msgstr "De huidige limiet is:"
+
+#: updraftplus.php:2752
+msgid ""
+"Your PHP max_execution_time is less than 60 seconds. This possibly means "
+"you're running in safe_mode. Either disable safe_mode or modify your php.ini "
+"to set max_execution_time to a higher number. If you do not, then longer "
+"will be needed to complete a backup (but that is all). Present limit is:"
+msgstr ""
+"Uw PHP max_execution_time is minder dan 60 seconden. Dit betekend "
+"waarschijnlijk dat u werkt in de veilige modus. Desactiveer de veilige modus "
+"(safe_mode) of pas uw php.ini aan om max_execution_time in te stellen op een "
+"hogere waarde. Als u dat niet doen zal er meer tijd nodig zijn om een backup "
+"uit te voeren (maar dat is alles). De huidige limiet is:"
+
+#: updraftplus.php:2752
+msgid "seconds"
+msgstr "seconden"
+
+#: updraftplus.php:2757
+msgid ""
+"You have old directories from a previous backup (technical information: "
+"these are found in wp-content, and suffixed with -old). Use this button to "
+"delete them (if you have verified that the restoration worked)."
+msgstr ""
+"U heeft nog oude mappen van een eerdere backup (technische informatie: deze "
+"zijn te vinden in wp-content en met  \"-old\" aan het einde van de mapnaam. "
+"Gebruik deze knop om ze te verwijderen (als u gecontroleerd heeft dat het "
+"herstel gewerkt heeft)."
+
+#: updraftplus.php:2761
+msgid "Delete Old Directories"
+msgstr "Verwijder de oude mappen"
+
+#: updraftplus.php:2761
+msgid ""
+"Are you sure you want to delete the old directories? This cannot be undone."
+msgstr ""
+"Weet u zeker dat u de oude mappen wilt verwijderen? Dit kan niet ongedaan "
+"gemaakt worden."
+
+#: updraftplus.php:2774
+msgid "Existing Schedule And Backups"
+msgstr "Bestaande planning en backups"
+
+#: updraftplus.php:2778
+msgid "JavaScript warning"
+msgstr "JavaScript waarschuwing"
+
+#: updraftplus.php:2779
+msgid ""
+"This admin interface uses JavaScript heavily. You either need to activate it "
+"within your browser, or to use a JavaScript-capable browser."
+msgstr ""
+"Dit beheer scherm maakt intensief gebruik van JavaScript. U moet het of "
+"activeren in uw browser of een browser gebruiken die JavaScript kan "
+"uitvoeren."
+
+#: updraftplus.php:2792 updraftplus.php:2805
+msgid "Nothing currently scheduled"
+msgstr "Momenteel niets gepland"
+
+#: updraftplus.php:2797
+msgid "At the same time as the files backup"
+msgstr "Op het zelfde moment als de backup van de bestanden"
+
+#: updraftplus.php:2817
+msgid "Next scheduled backups"
+msgstr "Volgende planning van backups"
+
+#: updraftplus.php:2819
+msgid "Files"
+msgstr "Bestanden"
+
+#: updraftplus.php:2821
+msgid "Time now"
+msgstr "Tijd nu"
+
+#: updraftplus.php:2825
+msgid "Last finished backup run"
+msgstr "Laatste complete backup"
+
+#: updraftplus.php:2845
+msgid "Last log message"
+msgstr "Laatste logboek bericht"
+
+#: updraftplus.php:2846
+msgid "(Nothing yet logged)"
+msgstr "(Nog niets in het logboek)"
+
+#: updraftplus.php:2849
+msgid "Backups, logs & restoring"
+msgstr "Backups, logboeken en herstel"
+
+#: updraftplus.php:2850
+msgid "Press to see available backups"
+msgstr "Indrukken om de beschikbare backups te zien"
+
+#: updraftplus.php:2850
+#, php-format
+msgid "%d set(s) available"
+msgstr "%d set(s) beschikbaar"
+
+#: updraftplus.php:2855
+msgid "Downloading"
+msgstr "Download loopt"
+
+#: updraftplus.php:2855
+msgid ""
+"Pressing a button for Database/Plugins/Themes/Uploads/Others will make "
+"UpdraftPlus try to bring the backup file back from the remote storage (if "
+"any - e.g. Amazon S3, Dropbox, Google Drive, FTP) to your webserver. Then "
+"you will be allowed to download it to your computer. If the fetch from the "
+"remote storage stops progressing (wait 30 seconds to make sure), then press "
+"again to resume. Remember that you can also visit the cloud storage vendor's "
+"website directly."
+msgstr ""
+"Het indrukken van een knop voor Database/Plugins/Thema's/Uploads/Overig laat "
+"UpdraftPlus proberen om het backup bestand op te halen van de opslag op "
+"afstand (indien aanwezig -  bv. Amazon S3, Dropbox, Google Drive, FTP) naar "
+"uw webserver. Daarna kunt u proberen om het te downloaden naar uw computer. "
+"Als het ophalen van de opslag op afstand stopt (wacht 30 seconden om zeker "
+"te zijn) en druk dan nogmaals om door te gaan. Denk er om dat u ook de cloud "
+"opslag website direct kan benaderen."
+
+#: updraftplus.php:2856
+msgid "Restoring"
+msgstr "Herstellen"
+
+#: updraftplus.php:2856
+msgid ""
+"Press the button for the backup you wish to restore. If your site is large "
+"and you are using remote storage, then you should first click on each entity "
+"in order to retrieve it back to the webserver. This will prevent time-outs "
+"from occuring during the restore process itself."
+msgstr ""
+"Druk de knop in voor de backup die u wilt herstellen. Als u een grote site "
+"heeft and u gebruikt opslag op afstand dan moet u eerst op elk van de "
+"entiteiten klikken om ze terug te zetten op de webserver. Dit voorkomt "
+"tijdgebrek (time-out) tijdens het herstel proces zelf."
+
+#: updraftplus.php:2856
+msgid "More tasks:"
+msgstr "Meer taken"
+
+#: updraftplus.php:2856
+msgid "upload backup files"
+msgstr "upload de backup bestanden"
+
+#: updraftplus.php:2856
+msgid ""
+"Press here to look inside your UpdraftPlus directory (in your web hosting "
+"space) for any new backup sets that you have uploaded. The location of this "
+"directory is set in the expert settings, below."
+msgstr ""
+"Druk hier om in uw UpdraftPlus map te kijken (in uw webhosting opslagruimte) "
+"voor nieuwe backup sets die u geupload heeft. De locatie van deze map is "
+"hieronder ingesteld bij de expert instellingen."
+
+#: updraftplus.php:2856
+msgid "rescan folder for new backup sets"
+msgstr "bekijk de map opnieuw voor nieuwe backup sets"
+
+#: updraftplus.php:2857
+msgid "Opera web browser"
+msgstr "Opera web browser"
+
+#: updraftplus.php:2857
+msgid "If you are using this, then turn Turbo/Road mode off."
+msgstr "Als u dit gebruikt, schakel dan de Turbo/Road modus uit."
+
+#: updraftplus.php:2858
+msgid "This is a count of the contents of your Updraft directory"
+msgstr "Dit is een telling van de inhoud van uw Updraft map."
+
+#: updraftplus.php:2858
+msgid "Web-server disk space in use by UpdraftPlus"
+msgstr "Webserver opslagruimte gebruikt door UpdraftPlus"
+
+#: updraftplus.php:2858
+msgid "refresh"
+msgstr "verversen"
+
+#: updraftplus.php:2860
+msgid "UpdraftPlus - Upload backup files"
+msgstr "UpdraftPlus - upload de backup bestanden"
+
+#: updraftplus.php:2861
+msgid ""
+"Upload files into UpdraftPlus. Use this to import backups made on a "
+"different WordPress installation."
+msgstr ""
+"Upload de bestanden naar UpdraftPlus. Gebruik dit om backups te importeren "
+"die gemaakt zijn in een andere WordPress installatie."
+
+#: updraftplus.php:2865
+msgid "Drop backup zips here"
+msgstr "Plaats de backup zip bestanden hier"
+
+#: updraftplus.php:2879
+msgid "calculating..."
+msgstr "berekenen..."
+
+#: updraftplus.php:2948
+msgid "Restore backup"
+msgstr "Herstel backup"
+
+#: updraftplus.php:2949
+msgid "Restore backup from"
+msgstr "Herstel backup van"
+
+#: updraftplus.php:2950
+msgid ""
+"Restoring will replace this site's themes, plugins, uploads and/or other "
+"content directories (according to what is contained in the backup set, and "
+"your selection"
+msgstr ""
+"Herstellen zal de thema's, plugins, uploads and/of andere inhoud mappen "
+"vervangen (afhankelijk van wat aanwezig is in de backup set en uw selectie)"
+
+#: updraftplus.php:2950
+msgid "Choose the components to restore"
+msgstr "Kies de componenten om te herstellen"
+
+#: updraftplus.php:2961
+msgid ""
+"Databases cannot yet be restored from here - you must download the database "
+"file and take it to your web hosting company's control panel."
+msgstr ""
+"Databases kunnen nog niet hersteld worden - u moet de database bestanden "
+"downloaden en overnemen naar het beheerscherm van uw webhosting."
+
+#: updraftplus.php:2966
+msgid "Perform a backup now"
+msgstr "Maak nu een backup"
+
+#: updraftplus.php:2968
+msgid ""
+"This will schedule a one-time backup. To proceed, press 'Backup Now', then "
+"wait 10 seconds, then visit any page on your site. WordPress should then "
+"start the backup running in the background."
+msgstr ""
+"Dit zal een eenmalige backup plannen. Om door te gaan, klik op 'Backup Nu' "
+"en wacht 10 seconden, bezoek dan een willekeurige pagina van uw site. "
+"WordPress moet dan de backup starten in de achtergrond."
+
+#: updraftplus.php:2974
+msgid "Does nothing happen when you schedule backups?"
+msgstr "Gebeurd er niets wanneer u backups in de planning zet?"
+
+#: updraftplus.php:2974
+msgid "Go here for help."
+msgstr "Ga hier naar toe voor hulp."
+
+#: updraftplus.php:2981
+msgid "Multisite"
+msgstr "Multisite"
+
+#: updraftplus.php:2985
+msgid "Do you need WordPress Multisite support?"
+msgstr "Heeft u WordPress Multisite ondersteuning nodig?"
+
+#: updraftplus.php:2985
+msgid ""
+"Please check out UpdraftPlus Premium, or the stand-alone Multisite add-on."
+msgstr ""
+"Kijk naar UpdraftPlus Premium of de alleenstaande Multisite uitbreiding."
+
+#: updraftplus.php:2990
+msgid "Configure Backup Contents And Schedule"
+msgstr "Configureer backup inhoud en planning"
+
+#: updraftplus.php:2996
+msgid "Debug Information And Expert Options"
+msgstr "Informatie voor fouten oplossen en expert opties"
+
+#: updraftplus.php:3001
+msgid "Peak memory usage"
+msgstr "Piek geheugen gebruik"
+
+#: updraftplus.php:3002
+msgid "Current memory usage"
+msgstr "Huidig gebruik van het geheugen"
+
+#: updraftplus.php:3003
+msgid "PHP memory limit"
+msgstr "PHP geheugen limiet"
+
+#: updraftplus.php:3006
+msgid ""
+"The buttons below will immediately execute a backup run, independently of "
+"WordPress's scheduler. If these work whilst your scheduled backups and the "
+"\"Backup Now\" button do absolutely nothing (i.e. not even produce a log "
+"file), then it means that your scheduler is broken. You should then disable "
+"all your other plugins, and try the \"Backup Now\" button. If that fails, "
+"then contact your web hosting company and ask them if they have disabled wp-"
+"cron. If it succeeds, then re-activate your other plugins one-by-one, and "
+"find the one that is the problem and report a bug to them."
+msgstr ""
+"De knoppen hieronder voeren direct een backup uit zonder tussenkomst van de "
+"WordPress planner. Als deze knoppen werken terwijl uw geplande backups en de "
+"\"Backup Nu\" knop absoluut niets doen (b.v. zelfs geen logboek bestand "
+"aanmaken), dan is de WP planner defect. U dient dan alle andere plugins te "
+"desactiveren en de \"Backup NU\" knop te proberen. Als dat niet lukt, neem "
+"dan contact op met uw webhosting bedrijf en vraag ze of ze wp-cron "
+"uitgeschakeld hebben. Als het wel lukt, her-activeer dan uw andere plugins "
+"een voor een om degene die het probleem veroozaakt te vinden en rapporteer "
+"de fout aan de ontwikkelaar ervan."
+
+#: updraftplus.php:3010
+msgid "Debug Full Backup"
+msgstr "Fouten opsporen voor volledige backup"
+
+#: updraftplus.php:3010
+msgid ""
+"This will cause an immediate backup. The page will stall loading until it "
+"finishes (ie, unscheduled)."
+msgstr ""
+"Dit forceert een direct backup. De pagina zal niet laden tot de backup klaar "
+"is (d.w.z. zonder planning)."
+
+#: updraftplus.php:3014
+msgid "Debug Database Backup"
+msgstr "Fouten opsporen voor database backup"
+
+#: updraftplus.php:3014
+msgid ""
+"This will cause an immediate DB backup. The page will stall loading until it "
+"finishes (ie, unscheduled). The backup may well run out of time; really this "
+"button is only helpful for checking that the backup is able to get through "
+"the initial stages, or for small WordPress sites.."
+msgstr ""
+"Dit forceert een directe DB backup. De pagina zal niet laden tot de backup "
+"klaar is (d.w.z. zonder planning). De backup kan heel goed teveel tijd "
+"vergen, en deze knop is eigenlijk alleen zinvol om te controleren dat de "
+"backup in staat is om de eerste stages te doorlopen of voor kleine WordPress "
+"sites."
+
+#: updraftplus.php:3016
+msgid "Wipe Settings"
+msgstr "Instellingen wissen"
+
+#: updraftplus.php:3017
+msgid ""
+"This button will delete all UpdraftPlus settings (but not any of your "
+"existing backups from your cloud storage). You will then need to enter all "
+"your settings again. You can also do this before deactivating/deinstalling "
+"UpdraftPlus if you wish."
+msgstr ""
+"Deze knop zal alle UpdraftPlus instellingen verwijderen (maar geen enkele "
+"van uw bestaande backups van uw cloud opslag). U moet dan al uw instellingen "
+"opnieuw ingeven. U kunt dit ook doen voordat u UpdraftPlus uitschakelt en de-"
+"installeert als u wilt."
+
+#: updraftplus.php:3020
+msgid "Wipe All Settings"
+msgstr "Wis alle instellingen"
+
+#: updraftplus.php:3020
+msgid ""
+"This will delete all your UpdraftPlus settings - are you sure you want to do "
+"this?"
+msgstr ""
+"Dit zal al uw UpdraftPlus instellingen verwijderen - weet u zeker dat u dit "
+"wilt doen?"
+
+#: updraftplus.php:3089
+msgid "Press here to download"
+msgstr "Druk hierop om de download te starten"
+
+#: updraftplus.php:3091
+#, php-format
+msgid "(No %s)"
+msgstr "(Nee %s)"
+
+#: updraftplus.php:3101
+msgid "Backup Log"
+msgstr "Backup logboek"
+
+#: updraftplus.php:3109
+msgid ""
+"After pressing this button, you will be given the option to choose which "
+"components you wish to restore"
+msgstr ""
+"Nadat up deze knop gedrukt heeft krijgt u de optie om te kiezen welke "
+"componenten u wilt herstellen"
+
+#: updraftplus.php:3134 updraftplus.php:3138
+msgid "Warning"
+msgstr "Waarschuwing"
+
+#: updraftplus.php:3134
+#, php-format
+msgid ""
+"You have less than %s of free disk space on the disk which UpdraftPlus is "
+"configured to use to create backups. UpdraftPlus could well run out of "
+"space. Contact your the operator of your server (e.g. your web hosting "
+"company) to resolve this issue."
+msgstr ""
+"U heeft minder dan %s vrije opslag ruimte waarvoor UpdraftPlus ingesteld is "
+"om te gebruiken voor backups. UpdraftPlus zou ruimte tekort kunnen komen. "
+"Neem contact op met de beheerder van uw server (bv. uw webhosting bedrijf) "
+"om dit probleem op te lossen."
+
+#: updraftplus.php:3138
+#, php-format
+msgid ""
+"UpdraftPlus does not officially support versions of WordPress before %s. It "
+"may work for you, but if it does not, then please be aware that no support "
+"is available until you upgrade WordPress."
+msgstr ""
+"UpdraftPlus ondersteunt niet officieel versies van WordPress ouder dan %s. "
+"Het zou kunnen werken maar in dat geval wees u ervan bewust dat er geen "
+"ondersteuning beschikbaar is tot u uw WordPress versie opgewaardeerd hebt."
+
+#: updraftplus.php:3142 updraftplus.php:3146 updraftplus.php:3150
+msgid "UpdraftPlus notice:"
+msgstr "UpdraftPlus mededeling:"
+
+#: updraftplus.php:3142
+msgid "The log file could not be read."
+msgstr "Het logboek bestand kon niet gelezen worden."
+
+#: updraftplus.php:3146 updraftplus.php:3150
+#, php-format
+msgid ""
+"Click here to authenticate your %s account (you will not be able to back up "
+"to %s without it)."
+msgstr ""
+"Klik hier om uw %s account te bevestigen (u kunt geen backup aanmaken op %s "
+"zonder dit)."
+
+#: updraftplus.php:3323
+msgid "Infinite recursion: consult your log for more information"
+msgstr "Oneindige recursie: raadpleeg uw logboek voor meer informatie"
+
+#: includes/updraft-restorer.php:5
+msgid "Backup file not available."
+msgstr "Backup bestand niet beschikbaar."
+
+#: includes/updraft-restorer.php:6
+msgid "Unpacking backup..."
+msgstr "Backup uitpakken..."
+
+#: includes/updraft-restorer.php:7
+msgid "Moving old directory out of the way..."
+msgstr "Oude mappen verplaatsen..."
+
+#: includes/updraft-restorer.php:8
+msgid "Moving unpacked backup in place..."
+msgstr "De uitgepakte backup wordt op z'n plaats gezet..."
+
+#: includes/updraft-restorer.php:9
+msgid "Cleaning up rubbish..."
+msgstr "Rommel opruimen..."
+
+#: includes/updraft-restorer.php:10
+msgid ""
+"Could not move old directory out of the way. Perhaps you already have -old "
+"directories that need deleting first?"
+msgstr ""
+"Kon de oude mappen niet verplaatsen. Misschien heeft u -old mappen die eerst "
+"verwijderd moeten worden?"
+
+#: includes/updraft-restorer.php:11
+msgid ""
+"Could not move new directory into place. Check your wp-content/upgrade "
+"folder."
+msgstr ""
+"Kon de nieuwe mappen niet op hun plaats zetten. Controleer uw wp-content/"
+"upgrade map."
+
+#: includes/updraft-restorer.php:12
+msgid "Failed to delete working directory after restoring."
+msgstr "De werkmap kon niet verwijderd worden na herstel."
+
+#: includes/updraft-restorer.php:34
+msgid ""
+"Will not delete the archive after unpacking it, because there was no cloud "
+"storage for this backup"
+msgstr ""
+"Het archief niet verwijderen na uitpakken omdat er geen opslag op afstand "
+"was voor deze backup."
+
+#: methods/webdav.php:13 methods/webdav.php:34 methods/webdav.php:50
+#: methods/sftp.php:13 methods/sftp.php:34 methods/sftp.php:50
+#, php-format
+msgid "You do not have the UpdraftPlus %s add-on installed - get it from %s"
+msgstr ""
+"U heeft de UpdraftPlus %s uitbreiding niet ge&iuml;nstalleerd - haal hem op "
+"van %s"
+
+#: methods/webdav.php:63 methods/sftp.php:63
+#, php-format
+msgid "%s support is available as an add-on"
+msgstr "%s ondersteuning is beschikbaar als uitbreiding"
+
+#: methods/webdav.php:63 methods/sftp.php:63
+msgid "follow this link to get it"
+msgstr "volg deze link om het op te halen"
+
+#: methods/googledrive.php:94 methods/s3.php:326 methods/dropbox.php:293
+#: addons/webdav.php:292
+msgid "Success"
+msgstr "Succes"
+
+#: methods/googledrive.php:94 methods/dropbox.php:293
+#, php-format
+msgid "you have authenticated your %s account"
+msgstr "u heeft uw %s account bevestigd"
+
+#: methods/googledrive.php:94 methods/googledrive.php:325
+#: methods/googledrive.php:327 methods/googledrive.php:345
+#: methods/googledrive.php:349 methods/googledrive.php:353
+msgid "Google Drive"
+msgstr "Google Drive"
+
+#: methods/googledrive.php:98
+msgid ""
+"No refresh token was received from Google. This often means that you entered "
+"your client secret wrongly, or that you have not yet re-authenticated "
+"(below) since correcting it. Re-check it, then follow the link to "
+"authenticate again. Finally, if that does not work, then use expert mode to "
+"wipe all your settings, create a new Google client ID/secret, and start "
+"again."
+msgstr ""
+"Geen teken voor verversing ontvangen van Google. Dit betekend meestal een "
+"verkeerde geheime toegang of dat u nog niet het-bevestigd heeft (hieronder) "
+"na correctie. Controleer het nogmaals en klik dan op de link voor "
+"bevestiging. Als dat niet werkt, gebruik dan de expert modus om al uw "
+"instellingen te wissen en een nieuwe Google clientID/secret aan te maken en "
+"opnieuw te starten."
+
+#: methods/googledrive.php:103
+msgid "Authorization failed"
+msgstr "Autorisatie niet gelukt"
+
+#: methods/googledrive.php:117
+msgid ""
+"Have not yet obtained an access token from Google - you need to authorise or "
+"re-authorise your connection to Google Drive."
+msgstr ""
+"Nog geen toegangsteken van Google ontvangen - u moet (opnieuw) autoriseren "
+"om verbinding te maken met Google Drive."
+
+#: methods/googledrive.php:118 methods/googledrive.php:254
+msgid ""
+"Have not yet obtained an access token from Google (has the user authorised?)"
+msgstr ""
+"Nog geen toegangsteken van Google ontvangen (heeft de gebruiker "
+"geautoriseerd?)"
+
+#: methods/googledrive.php:135 addons/webdav.php:57
+#, php-format
+msgid "Failed to upload to %s"
+msgstr "Mislukte upload naar %s"
+
+#: methods/googledrive.php:189 addons/webdav.php:57
+msgid "Error"
+msgstr "Fout"
+
+#: methods/googledrive.php:225
+msgid "An error occurred during GoogleDrive upload (see log for more details)"
+msgstr ""
+"Er is een fout opgetreden tijdens de upload naar Google Drive (zie het "
+"logboek voor meer details)"
+
+#: methods/googledrive.php:266
+#, php-format
+msgid ""
+"Google Drive error: %d: could not download: could not find a record of the "
+"Google Drive file ID for this file"
+msgstr ""
+"Google Drive fout: %d: kon niet downloaden: kon geen gegevens vinden van het "
+"Google Drive bestand ID voor dit bestand"
+
+#: methods/googledrive.php:271
+#, php-format
+msgid "Could not find %s in order to download it"
+msgstr "Kon geen %s vinden om het te downloaden"
+
+#: methods/googledrive.php:283
+msgid "Google Drive "
+msgstr "Google Drive"
+
+#: methods/googledrive.php:283
+msgid "error: zero-size file was downloaded"
+msgstr "fout: download van een bestand met grootte nul "
+
+#: methods/googledrive.php:301
+msgid "Account is not authorized."
+msgstr "Account is niet geautoriseerd"
+
+#: methods/googledrive.php:328 methods/s3.php:246 methods/dropbox.php:217
+#: methods/ftp.php:109 addons/webdav.php:231
+#, php-format
+msgid ""
+"%s is a great choice, because UpdraftPlus supports chunked uploads - no "
+"matter how big your blog is, UpdraftPlus can upload it a little at a time, "
+"and not get thwarted by timeouts."
+msgstr ""
+"%s is een goede keus omdat UpdraftPlus uploads in stukken ondersteund - het "
+"maakt niet uit hoe groot uw website is, UpdraftPlus kan het in stukken "
+"uploaden zonder last te hebben van tijd limieten."
+
+#: methods/googledrive.php:334
+msgid ""
+"For longer help, including screenshots, follow this link. The description "
+"below is sufficient for more expert users."
+msgstr ""
+"Voor meer hulp, inclusief schermafbeeldingen, volg deze link. De "
+"omschrijving hieronder is voldoende voor meer ervaren gebruikers."
+
+#: methods/googledrive.php:335
+msgid ""
+"Follow this link to your Google API Console, and there create a Client ID in "
+"the API Access section."
+msgstr ""
+"Volg deze link naar uw Google API beheerscherm en maak daar een Client ID "
+"aan in de API toegang sectie."
+
+#: methods/googledrive.php:335
+msgid "Select 'Web Application' as the application type."
+msgstr "Selecteer 'Web applicatie' als het type toepassing."
+
+#: methods/googledrive.php:335
+msgid ""
+"You must add the following as the authorised redirect URI (under \"More "
+"Options\") when asked"
+msgstr ""
+"U moet het volgende toevoegen als de geautoriseerde URI (onder \"Meer opties"
+"\") als daarom gevraagd wordt."
+
+#: methods/googledrive.php:335
+msgid ""
+"N.B. If you install UpdraftPlus on several WordPress sites, then you cannot "
+"re-use your client ID; you must create a new one from your Google API "
+"console for each blog."
+msgstr ""
+"NB: Als u UpdraftPlus installeert op meerdere WordPress sites dan kunt u uw "
+"client ID niet hergebruiken; u moet een nieuwe aanmaken vanaf uw Google API "
+"beheerscherm voor elke website."
+
+#: methods/googledrive.php:338
+msgid ""
+"You do not have the SimpleXMLElement installed. Google Drive backups will "
+"<b>not</b> work until you do."
+msgstr ""
+"U heeft het SimpleXMLElement niet ge&iuml;installeerd. Google Drive backups "
+"werken <b>niet</b> totdat u dat doet."
+
+#: methods/googledrive.php:345
+msgid "Client ID"
+msgstr "Client ID"
+
+#: methods/googledrive.php:346
+msgid ""
+"If Google later shows you the message \"invalid_client\", then you did not "
+"enter a valid client ID here."
+msgstr ""
+"Als Google u later het bericht laat zien \"invalid_client\" dan heeft u hier "
+"geen geldig client ID ingegeven."
+
+#: methods/googledrive.php:349
+msgid "Client Secret"
+msgstr "Client Secret"
+
+#: methods/googledrive.php:353
+msgid "Folder ID"
+msgstr "Folder ID"
+
+#: methods/googledrive.php:354
+msgid ""
+"<strong>This is NOT a folder name</strong>. To get a folder's ID navigate to "
+"that folder in Google Drive in your web browser and copy the ID from your "
+"browser's address bar. It is the part that comes after <kbd>#folders/.</kbd> "
+"Leave empty to use your root folder)"
+msgstr ""
+"<strong>Dit is GEEN folder naam</strong>. Om he ID van een folder ID te "
+"bemachtigen, navigeer naar die folder in Google Drive in uw web browser en "
+"kopieer het ID uit de adres regel van uw browser. Het is het deel dat volgt "
+"op <kbd>#folders/.</kbd> Laat het leeg om uw hoofdfolder te gebruiken."
+
+#: methods/googledrive.php:357
+msgid "Authenticate with Google"
+msgstr "Bevestigen met Google"
+
+#: methods/googledrive.php:358
+msgid ""
+"<strong>After</strong> you have saved your settings (by clicking 'Save "
+"Changes' below), then come back here once and click this link to complete "
+"authentication with Google."
+msgstr ""
+"<strong>Nadat</strong> u de instelling opgeslagen hebt (door hieronder op "
+"'Bewaar wijzigingen' te klikken), kom hier nogmaals terug en klik op deze "
+"link om de bevestiging met Google af te ronden."
+
+#: methods/email.php:15
+msgid "WordPress Backup"
+msgstr "WordPress backup"
+
+#: methods/email.php:15
+msgid "Backup is of:"
+msgstr "Back up is van:"
+
+#: methods/email.php:15
+msgid ""
+"Be wary; email backups may fail because of file size limitations on mail "
+"servers."
+msgstr ""
+"Pas op; email backups kunnen falen door de restrictie op de grootte van "
+"bestanden op mail servers."
+
+#: methods/email.php:24
+msgid "Note:"
+msgstr "Opmerking:"
+
+#: methods/email.php:25
+msgid ""
+"The email address entered above will be used. If choosing \"E-Mail\", then "
+"<strong>be aware</strong> that mail servers tend to have size limits; "
+"typically around 10-20Mb; backups larger than any limits will not arrive. If "
+"you really need a large backup via email, then you could fund a new feature "
+"(to break the backup set into configurable-size pieces) - but the demand has "
+"not yet existed for such a feature."
+msgstr ""
+"Het e-mail adres hierboven ingegeven zal gebruikt worden. Indien gekozen is "
+"voor \"E-mail\" <strong>let dan op</strong> dat mail servers restricties "
+"kunnen hebben, meestal rond de 10-20Mb; backups groter dan deze limiet komen "
+"niet aan. Als u echt een grote backup via email nodig hebt, dan zou u een "
+"nieuwe functie kunnen sponsoren (om de backup op te breken in instelbare "
+"delen) - maar de vraag naar een dergelijke functie bestaat nog niet."
+
+#: methods/s3.php:77
+#, php-format
+msgid "%s Error: Failed to upload"
+msgstr "%s fout: upload mislukt"
+
+#: methods/s3.php:98
+msgid ""
+"S3 upload: getting uploadID for multipart upload failed - see log file for "
+"more details"
+msgstr ""
+"S3 upload: ophalen van het uploadID voor een upload in meerdere delen is "
+"mislukt - zie het logboek voor meer details."
+
+#: methods/s3.php:130
+#, php-format
+msgid "S3 chunk %s: upload failed"
+msgstr "S3 deel %s: upload mislukt"
+
+#: methods/s3.php:144
+#, php-format
+msgid "S3 upload (%s): re-assembly failed (see log for more details)"
+msgstr ""
+"S3 upload (%s): samenstellen van de delen mislukt (zie het logboek voor meer "
+"detals)"
+
+#: methods/s3.php:148
+#, php-format
+msgid "S3 re-assembly error (%s): (see log file for more)"
+msgstr ""
+"S3 fout voor het samenstellen van de delen (%s); (zie het logboek voor meer "
+"informatie)"
+
+#: methods/s3.php:160
+#, php-format
+msgid ""
+"S3 Error: Failed to create bucket %s. Check your permissions and credentials."
+msgstr ""
+"S3 fout: aanmaken emmer %s mislukt. Controleer uw rechten en autorisatie "
+"gegevens."
+
+#: methods/s3.php:213
+#, php-format
+msgid ""
+"S3 Error: Failed to download %s. Check your permissions and credentials."
+msgstr ""
+"S3 fout: download %s mislukt.. Controleer uw rechten en autorisatie gegevens."
+
+#: methods/s3.php:217
+#, php-format
+msgid ""
+"S3 Error: Failed to access bucket %s. Check your permissions and credentials."
+msgstr ""
+"S3 fout: toegang tot emmer %s mislukt. Controleer uw rechten en autorisatie "
+"gegevens."
+
+#: methods/s3.php:251
+msgid ""
+"Get your access key and secret key <a href=\"http://aws.amazon.com/console/"
+"\">from your AWS console</a>, then pick a (globally unique - all Amazon S3 "
+"users) bucket name (letters and numbers) (and optionally a path) to use for "
+"storage. This bucket will be created for you if it does not already exist."
+msgstr ""
+"Haal uw toegangssleutel en geheime sleutel <a href=\"http://aws.amazon.com/"
+"console/\">van uw  AWS beheerscherm</a>, kies vervolgens een (wereldwijd "
+"unieke - alle Amazon S3 gebruikers) emmer naam (letters en cijfers) (en "
+"optioneel een pad) om te gebruiken voor opslag. Deze emmer (bucket) zal "
+"aangemaakt worden voor u als hij niet al bestaat."
+
+#: methods/s3.php:254
+msgid "S3 access key"
+msgstr "S3 toegangsleutel"
+
+#: methods/s3.php:258
+msgid "S3 secret key"
+msgstr "S3 geheime sleutel"
+
+#: methods/s3.php:262
+msgid "S3 location"
+msgstr "S3 locatie"
+
+#: methods/s3.php:267 methods/ftp.php:135 addons/webdav.php:244
+#, php-format
+msgid "Test %s Settings"
+msgstr "Test %s instellingen"
+
+#: methods/s3.php:275 methods/s3.php:279 methods/ftp.php:152
+#: methods/ftp.php:156 addons/webdav.php:272
+#, php-format
+msgid "Failure: No %s was given."
+msgstr "Mislukt: Geen %s opgegeven."
+
+#: methods/s3.php:275
+msgid "API key"
+msgstr "API sleutel"
+
+#: methods/s3.php:279
+msgid "API secret"
+msgstr "API geheim"
+
+#: methods/s3.php:296
+msgid "Failure: No bucket details were given."
+msgstr "Mislukt: Geen emmer details opgegeven."
+
+#: methods/s3.php:306
+msgid "Amazon region"
+msgstr "Amazon regio"
+
+#: methods/s3.php:316
+msgid ""
+"Failure: We could not successfully access or create such a bucket. Please "
+"check your access credentials, and if those are correct then try another "
+"bucket name (as another S3 user may already have taken your name)."
+msgstr ""
+"Mislukt: We konden niet met succes de emmer benaderen of aanmaken. "
+"Controleer a.u.b. uw toegang autorisatie en als die klopt, probeer een "
+"andere emmer naam (omdat een andere S3 gebruiker die naam mogelijk al "
+"gebruikt)."
+
+#: methods/s3.php:324
+msgid "Failure"
+msgstr "Mislukt"
+
+#: methods/s3.php:324
+msgid ""
+"We successfully accessed the bucket, but the attempt to create a file in it "
+"failed."
+msgstr ""
+"We hebben de emmer met succes benaderd maar de poging om een bestand aan te "
+"maken is mislukt."
+
+#: methods/s3.php:326
+msgid "We accessed the bucket, and were able to create files within it."
+msgstr ""
+"We hebben de emmer benaderd en slaagden er in op bestanden aan te maken."
+
+#: methods/dropbox.php:35 methods/dropbox.php:167
+msgid "You do not appear to be authenticated with Dropbox"
+msgstr "U bent kennelijk niet geregistreerd bij Dropbox"
+
+#: methods/dropbox.php:46
+#, php-format
+msgid "error: %s (see log file for more)"
+msgstr "fout: %s (zie het logboek voor meer info)"
+
+#: methods/dropbox.php:98 methods/dropbox.php:103
+#, php-format
+msgid "error: failed to upload file to %s (see log file for more)"
+msgstr ""
+"fout: mislukt om bestand te uploaden naar %s (zie het logboek voor meer info)"
+
+#: methods/dropbox.php:223
+msgid "Need to use sub-folders?"
+msgstr "Wilt u sub-folders gebruiken?"
+
+#: methods/dropbox.php:223
+msgid "Backups are saved in"
+msgstr "Backups zijn opgeslagen in"
+
+#: methods/dropbox.php:223
+msgid ""
+"If you back up several sites into the same Dropbox and want to organise with "
+"sub-folders, then "
+msgstr ""
+"Als u meerdere sites in dezelfde Dropbox op wilt slaan en deze wilt indelen "
+"in sub-folders, dan"
+
+#: methods/dropbox.php:223
+msgid "there's an add-on for that."
+msgstr "is daar een uitbreiding voor."
+
+#: methods/dropbox.php:228
+msgid "Authenticate with Dropbox"
+msgstr "Bevestigen met Dropbox"
+
+#: methods/dropbox.php:229
+msgid ""
+"<strong>After</strong> you have saved your settings (by clicking 'Save "
+"Changes' below), then come back here once and click this link to complete "
+"authentication with Dropbox."
+msgstr ""
+"<strong>Nadat</strong> u uw instellingen heeft opgeslagen (door te klikken "
+"op 'Wijzigingen opslaan' hieronder), keer hier terug en klik op deze link "
+"voor uw bevestiging bij Dropbox."
+
+#: methods/dropbox.php:240
+msgid ""
+"Your web server's PHP installation does not included a required module "
+"(MCrypt). Please contact your web hosting provider's support. UpdraftPlus's "
+"Dropbox module <strong>requires</strong> MCrypt. Please do not file any "
+"support requests; there is no alternative."
+msgstr ""
+"De PHP installatie op uw webserver mist een vereist module (MCrypt). Neem a."
+"u.b. contact op met de afdeling ondersteuning van uw webhosting provider. "
+"Het Dropbox module van UpdraftPlus <strong>vereist</strong> MCrypt. Dien bij "
+"ons a.u.b. geen verzoeken tot ondersteuning in, er is geen alternatief."
+
+#: methods/dropbox.php:243
+msgid ""
+"Your web server's PHP installation does not included a required module "
+"(Curl). Please contact your web hosting provider's support. UpdraftPlus's "
+"Dropbox module <strong>requires</strong> Curl. Your only options to get this "
+"working are 1) Install/enable curl or 2) Hire us or someone else to code "
+"additional support options into UpdraftPlus. 3) Wait, possibly forever, for "
+"someone else to do this."
+msgstr ""
+"De PHP installatie van uw webserver beschikt niet over een vereist module "
+"(Curl). Neem a.u.b. contact op met de support afdeling van uw webhosting "
+"bedijf. Het Dropbox module van UpdraftPlus <strong>vereist</strong> Curl. Uw "
+"enige optie om dit werkend te krijgen zijn 1) installeer en activeer Curl of "
+"2) huur ons of iemand anders in om aanvullende opties in UpdraftPlus aan te "
+"brengen. 3) Wacht, mogelijk voor altijd, tot iemand anders dit doet."
+
+#: methods/dropbox.php:296
+msgid ""
+"though part of the returned information was not as expected - your mileage "
+"may vary"
+msgstr ""
+"hoewel een deel van de terugkomende informatie niet als verwacht was - uw "
+"ervaring kan anders zijn"
+
+#: methods/dropbox.php:299
+#, php-format
+msgid "Your %s account name"
+msgstr "Uw %s account naam"
+
+#: methods/ftp.php:19 methods/ftp.php:66
+msgid "FTP login failure"
+msgstr "Mislukte FTP inlog"
+
+#: methods/ftp.php:38
+msgid "FTP upload failed"
+msgstr "FTP upload mislukt"
+
+#: methods/ftp.php:98
+msgid "Settings test result"
+msgstr "Resultaat van test instellingen"
+
+#: methods/ftp.php:114
+msgid "Only non-encrypted FTP is supported by regular UpdraftPlus."
+msgstr ""
+"Alleen niet-versleutelde FTP wordt ondersteund door de standaard versie van "
+"UpdraftPlus"
+
+#: methods/ftp.php:114
+msgid ""
+"If you want encryption (e.g. you are storing sensitive business data), then "
+"an add-on is available."
+msgstr ""
+"Als u versleuteling toe wilt voegen (bv. als u gevoelige zakelijke "
+"informatie opslaat), dan is daar een uitbreiding voor beschikbaar."
+
+#: methods/ftp.php:118
+msgid "FTP Server"
+msgstr "FTP server"
+
+#: methods/ftp.php:122
+msgid "FTP Login"
+msgstr "FTP inlog"
+
+#: methods/ftp.php:126
+msgid "FTP Password"
+msgstr "FTP wachtwoord"
+
+#: methods/ftp.php:130
+msgid "Remote Path"
+msgstr "Pad op de server"
+
+#: methods/ftp.php:131
+msgid "Needs to already exist"
+msgstr "Moet al bestaan"
+
+#: methods/ftp.php:148
+msgid "Failure: No server details were given."
+msgstr "Mislukt: geen server details beschikbaar."
+
+#: methods/ftp.php:167
+msgid "Failure: we did not successfully log in with those credentials."
+msgstr "Mislukt: we konden niet inloggen met die gegevens."
+
+#: methods/ftp.php:175
+msgid ""
+"Failure: an unexpected internal UpdraftPlus error occurred when testing the "
+"credentials - please contact the developer"
+msgstr ""
+"Mislukt: een onverwachte interne UpdraftPlus fout trad op bij het testen van "
+"de aanmelding - neem a.u.b. contact op met de ontwikkelaar"
+
+#: methods/ftp.php:179
+msgid ""
+"Success: we successfully logged in, and confirmed our ability to create a "
+"file in the given directory (login type:"
+msgstr ""
+"Gelukt: we hebben met succes ingelogd en bevestigden de mogelijkheid om een "
+"bestand aan te maken in de aangegeven map (login type:"
+
+#: methods/ftp.php:182
+msgid ""
+"Failure: we successfully logged in, but were not able to create a file in "
+"the given directory."
+msgstr ""
+"Mislukt: we hebben met succes ingelogd maar konden geen bestand aanmaken in "
+"de aangegeven map."
+
+#: addons/webdav.php:40 addons/webdav.php:170
+#, php-format
+msgid "No %s settings were found"
+msgstr "Geen %s instellingen gevonden"
+
+#: addons/webdav.php:116 addons/webdav.php:120
+#, php-format
+msgid "Chunk %s: A %s error occurred"
+msgstr "Block %s: Er is een %s fout opgetreden"
+
+#: addons/webdav.php:182 addons/webdav.php:188 addons/webdav.php:200
+msgid "WebDAV Error"
+msgstr "WebDAV fout"
+
+#: addons/webdav.php:182
+msgid "Error opening local file: Failed to download"
+msgstr "Fout met het openen van een lokaal bestand: download mislukt"
+
+#: addons/webdav.php:188
+msgid "Error opening remote file: Failed to download"
+msgstr "Fout met het openen van het bestand op de server: download mislukt"
+
+#: addons/webdav.php:200
+msgid "Local write failed: Failed to download"
+msgstr "Lokaal schrijven mislukt: download mislukt"
+
+#: addons/webdav.php:234
+msgid "WebDAV URL"
+msgstr "WebDAV URL"
+
+#: addons/webdav.php:238
+#, php-format
+msgid ""
+"Enter a complete URL, beginning with webdav:// or webdavs:// and including "
+"path, username, password and port as required - e.g.%s"
+msgstr ""
+"Geen een complete URL in die begint met webdav:// or webdavs:// en inclusief "
+"het pad, gebruikersnaam, wachtwoord en vereiste poort - bv. %s"
+
+#: addons/webdav.php:281
+msgid "Failed"
+msgstr "Mislukt"
+
+#: addons/webdav.php:295
+msgid ""
+"Failed: We were not able to place a file in that directory - please check "
+"your credentials."
+msgstr ""
+"Mislukt: we konden geen bestand in die map plaatsen - controleer a.u.b. uw "
+"registratie gegevens"
+
+#: addons/sftp.php:23
+msgid ""
+"Encrypted FTP is available, and will be automatically tried first (before "
+"falling back to non-encrypted if it is not successful). The 'Test FTP Login' "
+"button will tell you what type of connection is in use."
+msgstr ""
+"Versleutelde FTP is beschikbaar en zal automatisch als eerste geprobeerd "
+"worden (voordat teruggevallen wordt op niet-versleuteld als de eerste niet "
+"lukt). De 'Test FTP login' knop geeft u aan welk type verbinding gebruikt "
+"wordt."
+
+#: addons/sftp.php:30 addons/sftp.php:31 addons/sftp.php:32
+#, php-format
+msgid "No %s found"
+msgstr "Geen %s gevonden"
+
+#: addons/sftp.php:30
+msgid "SFTP host setting"
+msgstr "SFTP host instellingen"
+
+#: addons/sftp.php:31
+msgid "SFTP user setting"
+msgstr "SFTP gebruikers instellingen"
+
+#: addons/sftp.php:32
+msgid "SFTP passwrd"
+msgstr "SFTP wachtwoord"
+
+#: addons/sftp.php:50 addons/sftp.php:293
+msgid "Check your file permissions: Could not successfully create and enter:"
+msgstr ""
+"Controleer uw bestandsrechten. Kon niet met succes aanmaken en invoeren:"
+
+#: addons/sftp.php:128
+#, php-format
+msgid "%s Error: Failed to download"
+msgstr "%s fout: download mislukt"
+
+#: addons/sftp.php:172
+msgid ""
+"Resuming partial uploads is not supported, so you will need to ensure that "
+"your webserver allows PHP processes to run long enough to upload your "
+"largest backup file."
+msgstr ""
+"Hervatten van gedeeltelijke uploads wordt niet ondersteund, u moet er voor "
+"zorgen dat uw webserver toelaat dat PHP processen lang genoeg kunnen draaien "
+"om uw grootste backup bestand te uploaden."
+
+#: addons/sftp.php:177
+msgid "Host"
+msgstr "Host"
+
+#: addons/sftp.php:184
+msgid "Port"
+msgstr "Poort"
+
+#: addons/sftp.php:191
+msgid "Username"
+msgstr "Gebruikersnaam"
+
+#: addons/sftp.php:198
+msgid "Password"
+msgstr "Wachtwoord"
+
+#: addons/sftp.php:214
+msgid "Directory path"
+msgstr "Pad naar de map"
+
+#: addons/sftp.php:216
+msgid ""
+"Where to change directory to after logging in - often this is relative to "
+"your home directory."
+msgstr ""
+"Naar welke map gaan na inloggen - meestal is dit relatief t.o.v. uw hoofdmap."
+
+#: addons/sftp.php:254
+msgid "host name"
+msgstr "Host naam"
+
+#: addons/sftp.php:258
+msgid "username"
+msgstr "gebruikersnaam"
+
+#: addons/sftp.php:262
+msgid "password"
+msgstr "wachtwoord"
+
+#: addons/sftp.php:267
+msgid "Failure: Port must be an integer."
+msgstr "Mislukt: poort moet een heel getal zijn."
+
+#: addons/sftp.php:307
+msgid ""
+"Failed: We were able to log in and move to the indicated directory, but "
+"failed to successfully created a file in that location."
+msgstr ""
+"Mislukt: we waren in staat om in te loggen en naar de aangegeven map te gaan "
+"maar konden geen bestand aanmaken op die locatie."
+
+#: addons/fixtime.php:77 addons/fixtime.php:87
+msgid "starting from next time it is"
+msgstr "met ingang van de volgende keer is het"
+
+#: addons/fixtime.php:77 addons/fixtime.php:87
+msgid "Enter in format HH:MM (e.g. 14:22)"
+msgstr "Geef de tijd in het formaat HH:MM (bv. 14:22)"
+
+#: addons/multisite.php:103
+msgid "Multisite Install"
+msgstr "Multisite installatie"
+
+#: addons/multisite.php:109
+msgid "You do not have sufficient permissions to access this page."
+msgstr "U heeft onvoldoende rechten om deze pagina te openen."
+
+#: addons/multisite.php:128
+msgid "You do not have permission to access this page."
+msgstr "U heeft geen rechten om deze pagina te openen."
+
+#: addons/multisite.php:180
+msgid "Must-use plugins"
+msgstr "Verplichte plugins"
+
+#: addons/multisite.php:181
+msgid "Blog uploads"
+msgstr "Site uploads"
+
+#: addons/dropbox-folders.php:21
+msgid "Store at"
+msgstr "Opslaan in"
