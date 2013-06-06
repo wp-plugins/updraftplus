@@ -15,6 +15,9 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // Option to delete backup sets manually
 // Check with P3 (Plugin Performance Profiler)
+// Implement error levels - need to have a 'warning' level which is not treated as an error, but is passed more visibly to the user (e.g. ginormous database tables)
+// Testing framework - automated testing of all file upload / download / deletion methods
+// Ginormous tables - need to make sure we "touch" the being-written-out-file (and double-check that we check for that) every 15 seconds - https://friendpaste.com/697eKEcWib01o6zT1foFIn
 // S3-compatible storage providers: http://www.dragondisk.com/s3-storage-providers.html
 // Import single site into a multisite: http://codex.wordpress.org/Migrating_Multiple_Blogs_into_WordPress_3.0_Multisite, http://wordpress.org/support/topic/single-sites-to-multisite?replies=5, http://wpmu.org/import-export-wordpress-sites-multisite/
 // Add note in FAQs about 'maintenance mode' plugins
@@ -353,8 +356,8 @@ class UpdraftPlus {
 		$this->logfile_handle = fopen($this->logfile_name, 'a');
 		$this->opened_log_time = microtime(true);
 		$this->log('Opened log file at time: '.date('r'));
-		@include(ABSPATH.'wp-includes/version.php');
 		global $wp_version;
+		@include(ABSPATH.'wp-includes/version.php');
 		$logline = "UpdraftPlus: ".$this->version." WP: ".$wp_version." PHP: ".phpversion()." (".php_uname().") Server: ".$_SERVER["SERVER_SOFTWARE"]." max_execution_time: ".@ini_get("max_execution_time")." memory_limit: ".ini_get('memory_limit')." ZipArchive::addFile : ";
 
 		// method_exists causes some faulty PHP installations to segfault, leading to support requests

@@ -385,6 +385,8 @@ class UpdraftPlus_Admin {
 
 		if ('lastlog' == $_GET['subaction']) {
 			echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', '('.__('Nothing yet logged', 'updraftplus').')'));
+		} elseif ('phpinfo' == $_REQUEST['subaction']) {
+			phpinfo(INFO_ALL ^ (INFO_CREDITS | INFO_LICENSE));
 		} elseif ('backupnow' == $_REQUEST['subaction']) {
 			echo '<strong>',__('Schedule backup','updraftplus').':</strong> ';
 			if (wp_schedule_single_event(time()+5, 'updraft_backup_all') === false) {
@@ -1114,6 +1116,11 @@ class UpdraftPlus_Admin {
 </p>
 </div>
 
+<div id="updraft-iframe-modal">
+	<div id="updraft-iframe-modal-innards">
+	</div>
+</div>
+
 <div id="updraft-backupnow-modal" title="UpdraftPlus - <?php _e('Perform a one-time backup','updraftplus'); ?>">
 	<p><?php _e("To proceed, press 'Backup Now'. Then, watch the 'Last Log Message' field for activity after about 10 seconds. WordPress should start the backup running in the background.",'updraftplus');?></p>
 
@@ -1147,7 +1154,8 @@ class UpdraftPlus_Admin {
 				echo __('Peak memory usage','updraftplus').': '.$peak_memory_usage.' MB<br/>';
 				echo __('Current memory usage','updraftplus').': '.$memory_usage.' MB<br/>';
 				echo __('PHP memory limit','updraftplus').': '.ini_get('memory_limit').' <br/>';
-				echo sprintf(__('%s version:','updraftplus'), 'PHP').' '.phpversion().' <br />';
+				echo sprintf(__('%s version:','updraftplus'), 'PHP').' '.phpversion().' - ';
+				echo '<a href="admin-ajax.php?page=updraftplus&action=updraft_ajax&subaction=phpinfo&nonce='.wp_create_nonce('updraftplus-credentialtest-nonce').'" id="updraftplus-phpinfo">'.__('show PHP information (phpinfo)', 'updraftplus').'</a><br/>';
 
 				if (version_compare(phpversion(), '5.2.0', '>=') && extension_loaded('zip')) {
 					$ziparchive_exists .= __('Yes', 'updraftplus');
@@ -1236,12 +1244,24 @@ class UpdraftPlus_Admin {
 					});
 				}
 
+				function updraft_iframe_modal(getwhat, title) {
+					jQuery('#updraft-iframe-modal-innards').html('<iframe width="100%" height="440px" src="'+ajaxurl+'?action=updraft_ajax&subaction='+getwhat+'&nonce=<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>"></iframe>');
+					jQuery('#updraft-iframe-modal').dialog('option', 'title', title).dialog('open');
+				}
+
 				jQuery(document).ready(function() {
+
 					jQuery('#updraft-service').change(function() {
 						jQuery('.updraftplusmethod').hide();
 						var active_class = jQuery(this).val();
 						jQuery('.'+active_class).show();
 					});
+
+				jQuery('#updraftplus-phpinfo').click(function(e) {
+					e.preventDefault();
+					updraft_iframe_modal('phpinfo', '<?php _e('PHP information', 'updraftplus'); ?>');
+				});
+
 				})
 				jQuery(window).load(function() {
 					//this is for hiding the restore progress at the top after it is done
@@ -1681,7 +1701,12 @@ ENDHERE;
 						}
 					});
 
-					jQuery( "#updraft-backupnow-modal" ).dialog({
+					jQuery("#updraft-iframe-modal" ).dialog({
+						autoOpen: false, height: 500, width: 780, modal: true
+					});
+
+
+					jQuery("#updraft-backupnow-modal" ).dialog({
 						autoOpen: false, height: 265, width: 390, modal: true,
 						buttons: {
 							'<?php _e('Backup Now','updraftplus');?>': function() {

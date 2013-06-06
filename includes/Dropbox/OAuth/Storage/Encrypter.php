@@ -32,7 +32,7 @@ class Dropbox_Encrypter
     public function __construct($key)
     {
         if (!extension_loaded('mcrypt')) {
-            throw new Dropbox_Exception('The storage encrypter requires the MCrypt extension');
+            throw new Dropbox_Exception('The storage encrypter requires the PHP MCrypt extension to be available. Please check your PHP configuration.');
         } elseif (($length = mb_strlen($key, '8bit')) !== self::KEY_SIZE) {
             throw new Dropbox_Exception('Expecting a ' .  self::KEY_SIZE . ' byte key, got ' . $length);
         } else {
