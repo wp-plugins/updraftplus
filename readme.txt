@@ -2,7 +2,7 @@
 Contributors: DavidAnderson
 Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, webdav, back up, multisite, restoration, sftp, ftps, migrate, duplicate, copy, updraft, schedule, database backup, db backup
 Requires at least: 3.1
-Tested up to: 3.5.1
+Tested up to: 3.6
 Stable tag: 1.6.2
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
@@ -121,7 +121,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= Development trunk - not yet released/supported =
+= Development trunk - 2013/06/06 =
 * FEATURE: News blog - http://updraftplus.com/news/ - please subscribe if you want to stay up to date with news of new features, tips, and special offers. RSS link: http://feeds.feedburner.com/UpdraftPlus
 * FEATURE: Restoration/migration now copes with a change of table prefix, and asks WordPress to recreate your .htaccess/web.config file
 * FEATURE: Add support for DreamHost DreamObjects (http://dreamhost.com/cloud/dreamobjects/)
@@ -489,4 +489,4 @@ We recognise and thank the following for code and/or libraries used and/or modif
 Furthermore, reliance upon any non-English translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
 
 == Upgrade Notice ==
-1.6.1: Various new features. Small bug fixes + one larger corruption issue in larger Rackspace Cloud Files backups (a bug in Rackspace's library). Recommended update for all. Google Drive users should re-authenticate in order to download or restore (due to a change made by Google).
+1.6.16: WP 3.6 support. Dreamhost Dreamobjects support. Polish translation. More expert options. Restoration to sites with different table prefixes. Lots of usability + portability tweaks.
