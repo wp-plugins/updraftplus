@@ -23,6 +23,7 @@ TODO - some of these are out of date/done, needs pruning
 // Add note in FAQs about 'maintenance mode' plugins
 // When you migrate/restore, if there is a .htaccess, warn/give option about it.
 // Add an appeal for translators to email me.
+// Wipe settings appears to not wipe S3 settings
 // Log if non-omnipresent entities (e.g. blogs.dir, mu-plugins) are not present and we were asked to back them up
 // In 'overtime', schedule the resumptions in groups of 2 or 3, not just 1
 // 'Show log' should be done in a nice pop-out, with a button to download the raw

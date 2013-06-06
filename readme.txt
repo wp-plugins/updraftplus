@@ -3,7 +3,7 @@ Contributors: DavidAnderson
 Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, webdav, back up, multisite, restoration, sftp, ftps, migrate, duplicate, copy, updraft, schedule, database backup, db backup
 Requires at least: 3.1
 Tested up to: 3.6
-Stable tag: 1.6.2
+Stable tag: 1.6.17
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -15,7 +15,7 @@ Easy and complete backups and restoration. Manual or automated backups (Amazon S
 <a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3, Dropbox, Google Drive, Rackspace Cloud, DreamObjects, FTP, SFTP, WebDAV and email) and restore with a single click. Backups of files and database can have separate schedules.
 
 * Thousands of users: widely tested and reliable (over 140,000 downloads). Ranks in the top 1% on rankwp.com (228 out of 25,000 plugins).
-* Top-quality: ranks 45th out of 24,000 plugins for quality on rankwp.com (top 0.25% - last checked 23rd May 2013).
+* Top-quality: ranks 45th out of 25,000 plugins for quality on rankwp.com (top 0.25% - last checked 23rd May 2013).
 * Supports backups to Amazon S3, Dropbox, Rackspace Cloud Files, Google Drive, DreamHost DreamObjects, FTP and email. Also (via an add-on) FTP over SSL, SFTP and WebDAV. (Note: Microsoft forbid SkyDrive to be used by backup software).  
 * Quick restore (both file and database backups)
 * Backup automatically on a repeating schedule
@@ -489,4 +489,4 @@ We recognise and thank the following for code and/or libraries used and/or modif
 Furthermore, reliance upon any non-English translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
 
 == Upgrade Notice ==
-1.6.16: WP 3.6 support. Dreamhost Dreamobjects support. Polish translation. More expert options. Restoration to sites with different table prefixes. Lots of usability + portability tweaks.
+1.6.17: WP 3.6 support. Dreamhost Dreamobjects support. Polish translation. More expert options. Restoration to sites with different table prefixes. Lots of usability + portability tweaks.
