@@ -190,9 +190,26 @@ class UpdraftPlus_BackupModule_cloudfiles {
 
 		global $updraftplus;
 
-		$cont_obj = $cloudfilesarr['cloudfiles_object'];
-		$container = $cloudfilesarr['cloudfiles_container'];
-		$path = $cloudfilesarr['cloudfiles_orig_path'];
+		if ($cloudfilesarr) {
+			$cont_obj = $cloudfilesarr['cloudfiles_object'];
+			$container = $cloudfilesarr['cloudfiles_container'];
+			$path = $cloudfilesarr['cloudfiles_orig_path'];
+		} else {
+			try {
+				$user = UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_user');
+				$apikey = UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_apikey');
+				$path = untrailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_path'));
+				$container = $path;
+				$authurl = UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_authurl', 'https://auth.api.rackspacecloud.com');
+				$conn = $this->getCF($user, $apikey, $authurl, UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'));
+				$cont_obj = $conn->create_container($container);
+			} catch(Exception $e) {
+				$updraftplus->log('Cloud Files authentication failed ('.$e->getMessage().')');
+				$updraftplus->error(__('Cloud Files authentication failed','updraftplus').' ('.$e->getMessage().')');
+				return false;
+			}
+		}
+
 // 		$fpath = ($path == '') ? $file : "$path/$file";
  		$fpath = $file;
 

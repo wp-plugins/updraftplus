@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.17
+Version: 1.6.18
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -16,6 +16,7 @@ TODO - some of these are out of date/done, needs pruning
 // Option to delete backup sets manually
 // Check with P3 (Plugin Performance Profiler)
 // Implement error levels - need to have a 'warning' level which is not treated as an error, but is passed more visibly to the user (e.g. ginormous database tables)
+// If there is no DROP permission, then restore should instead check for same WP version, and then clean out the table instead (see email from Warren G).
 // Testing framework - automated testing of all file upload / download / deletion methods
 // Ginormous tables - need to make sure we "touch" the being-written-out-file (and double-check that we check for that) every 15 seconds - https://friendpaste.com/697eKEcWib01o6zT1foFIn
 // S3-compatible storage providers: http://www.dragondisk.com/s3-storage-providers.html
@@ -1048,7 +1049,7 @@ class UpdraftPlus {
 		if (file_exists($method_include)) require_once($method_include);
 		remove_action('http_api_curl', array($this, 'add_curl_capath'));
 
-		if ($service == "none") {
+		if ($service == "none" || $service == "") {
 			$this->log("No remote despatch: user chose no remote backup service");
 		} else {
 			$this->log("Beginning dispatch of backup to remote");
@@ -1059,7 +1060,7 @@ class UpdraftPlus {
 			// New style - external, allowing more plugability
 			$remote_obj = new $objname;
 			$remote_obj->backup($backup_array);
-		} elseif ($service == "none") {
+		} elseif ($service == "none" || $service == "") {
 			$this->prune_retained_backups("none", null, null);
 		} else {
 			$this->log("Unexpected error: no method '$service' was found ($method_include)");

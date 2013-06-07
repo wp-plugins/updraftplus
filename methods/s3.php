@@ -209,15 +209,41 @@ class UpdraftPlus_BackupModule_s3 {
 		}
 	}
 
-	function delete($file, $s3arr) {
+	function delete($file, $s3arr = false) {
 
 		global $updraftplus;
 
 		$config = $this->get_config();
 		$whoweare = $config['whoweare'];
 
-		$s3 = $s3arr['s3_object'];
-		$orig_bucket_name = $s3arr['s3_orig_bucket_name'];
+		if ($s3arr) {
+			$s3 = $s3arr['s3_object'];
+			$orig_bucket_name = $s3arr['s3_orig_bucket_name'];
+		} else {
+
+			$s3 = $this->getS3(
+				$config['login'],
+				$config['pass'],
+				UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify'),
+				UpdraftPlus_Options::get_updraft_option('updraft_ssl_nossl')
+			);
+			$bucket_name = untrailingslashit($config['remote_path']);
+			$orig_bucket_name = $bucket_name;
+
+			if (preg_match("#^([^/]+)/(.*)$#",$bucket_name,$bmatches)) {
+				$bucket_name = $bmatches[1];
+				$bucket_path = $bmatches[2]."/";
+			}
+
+			$region = ($config['key'] == 'dreamobjects') ? $config['whoweare'] : @$s3->getBucketLocation($bucket_name);
+			if (!empty($region)) {
+				$this->set_endpoint($s3, $region);
+			} else {
+				$updraftplus->log("$whoweare Error: Failed to access bucket $bucket_name. Check your permissions and credentials.");
+				$updraftplus->error(sprintf(__('%s Error: Failed to access bucket %s. Check your permissions and credentials.','updraftplus'),$whoweare, $bucket_name));
+				return false;
+			}
+		}
 
 		if (preg_match("#^([^/]+)/(.*)$#", $orig_bucket_name, $bmatches)) {
 			$s3_bucket=$bmatches[1];

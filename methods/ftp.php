@@ -67,10 +67,28 @@ class UpdraftPlus_BackupModule_ftp {
 		$updraftplus->prune_retained_backups("ftp", $this, array('ftp_object' => $ftp, 'ftp_remote_path' => $ftp_remote_path));
 	}
 
-	function delete($file, $ftparr) {
+	function delete($file, $ftparr = array()) {
+
 		global $updraftplus;
-		$ftp = $ftparr['ftp_object'];
-		$ftp_remote_path = $ftparr['ftp_remote_path'];
+
+		if (isset($ftparr['ftp_object'])) {
+			$ftp = $ftparr['ftp_object'];
+		} else {
+
+			$server = UpdraftPlus_Options::get_updraft_option('updraft_server_address');
+			$user = UpdraftPlus_Options::get_updraft_option('updraft_ftp_login');
+
+			$ftp = $this->getFTP(
+				$server,
+				$user,
+				UpdraftPlus_Options::get_updraft_option('updraft_ftp_pass'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_nossl'),
+				UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify'),
+				UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts')
+			);
+		}
+
+		$ftp_remote_path = isset($ftparr['ftp_remote_path']) ? $ftparr['ftp_remote_path'] : trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_ftp_remote_path'));
+
 		if (@$ftp->delete($ftp_remote_path.$file)) {
 			$updraftplus->log("FTP delete: succeeded (${ftp_remote_path}${file})");
 		} else {

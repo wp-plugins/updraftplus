@@ -14,7 +14,7 @@ Easy and complete backups and restoration. Manual or automated backups (Amazon S
 
 <a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3, Dropbox, Google Drive, Rackspace Cloud, DreamObjects, FTP, SFTP, WebDAV and email) and restore with a single click. Backups of files and database can have separate schedules.
 
-* Thousands of users: widely tested and reliable (over 140,000 downloads). Ranks in the top 1% on rankwp.com (228 out of 25,000 plugins).
+* Thousands of users: widely tested and reliable (over 150,000 downloads). Ranks in the top 1% on rankwp.com (228 out of 25,000 plugins).
 * Top-quality: ranks 45th out of 25,000 plugins for quality on rankwp.com (top 0.25% - last checked 23rd May 2013).
 * Supports backups to Amazon S3, Dropbox, Rackspace Cloud Files, Google Drive, DreamHost DreamObjects, FTP and email. Also (via an add-on) FTP over SSL, SFTP and WebDAV. (Note: Microsoft forbid SkyDrive to be used by backup software).  
 * Quick restore (both file and database backups)
@@ -120,6 +120,9 @@ Yes; especially before you submit any support requests.
 Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ . I am also available for hire for bespoke work.
 
 == Changelog ==
+
+= Development branch (not yet released/supported) =
+* FEATURE: Delete existing backup sets manually (deletes both local + cloud copies)
 
 = 1.6.17 - 2013/06/06 =
 * FEATURE: News blog - http://updraftplus.com/news/ - please subscribe if you want to stay up to date with news of new features, tips, and special offers. RSS link: http://feeds.feedburner.com/UpdraftPlus

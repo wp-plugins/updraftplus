@@ -121,11 +121,13 @@ class UpdraftPlus_Admin {
 		var updraft_downloader_nonce = '<?php wp_create_nonce("updraftplus_download"); ?>'
 		</script>
 		<style type="text/css">
-		.updraftplus-remove {
+		.updraftplus-remove a {
 			color: red;
 		}
 		.updraftplus-remove:hover {
 			background-color: red;
+		}
+		.updraftplus-remove a:hover {
 			color: #fff;
 		}
 		.drag-drop #drag-drop-area2 {
@@ -385,6 +387,91 @@ class UpdraftPlus_Admin {
 
 		if ('lastlog' == $_GET['subaction']) {
 			echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', '('.__('Nothing yet logged', 'updraftplus').')'));
+		} elseif (isset($_POST['backup_timestamp']) && 'deleteset' == $_REQUEST['subaction']) {
+			$backups = $updraftplus->get_backup_history();
+			$timestamp = $_POST['backup_timestamp'];
+			if (!isset($backups[$timestamp])) {
+				echo json_encode(array('result' => 'error', 'message' => __('Backup set not found', 'updraftplus')));
+				die;
+			}
+
+			// You need a nonce before you can set job data. And we certainly don't yet have one.
+			$updraftplus->backup_time_nonce();
+			// Set the job type before logging, as there can be different logging destinations
+			$updraftplus->jobdata_set('job_type', 'delete');
+
+			if (UpdraftPlus_Options::get_updraft_option('updraft_debug_mode')) $updraftplus->logfile_open($updraftplus->nonce);
+
+			$updraft_dir = $updraftplus->backups_dir_location();
+			$backupable_entities = $updraftplus->get_backupable_file_entities(true, true);
+
+			$nonce = isset($backups[$timestamp]['nonce']) ? $backups[$timestamp]['nonce'] : '';
+
+			$delete_from_service = array();
+
+			if (isset($_POST['delete_remote']) && 1==$_POST['delete_remote']) {
+				// Locate backup set
+				if (isset($backups[$timestamp]['service'])) {
+					$services = is_string($backups[$timestamp]['service']) ? array($backups[$timestamp]['service']) : $backups[$timestamp]['service'];
+					if (is_array($services)) {
+						foreach ($services as $service) {
+							if ($service != 'none') {
+								$delete_from_service[] = $backups[$timestamp]['service'];
+							}
+						}
+					}
+				}
+			}
+
+			$files_to_delete = array();
+			foreach ($backupable_entities as $key => $ent) {
+				if (isset($backups[$timestamp][$key])) $files_to_delete[$key] = $backups[$timestamp][$key];
+			}
+			// Delete DB
+			if (isset($backups[$timestamp]['db'])) $files_to_delete['db'] = $backups[$timestamp]['db'];
+
+			// Also delete the log
+			if ($nonce && !UpdraftPlus_Options::get_updraft_option('updraft_debug_mode')) {
+				$files_to_delete['log'] = "log.$nonce.txt";
+			}
+
+			unset($backups[$timestamp]);
+			UpdraftPlus_Options::update_updraft_option('updraft_backup_history', $backups);
+
+			$message = '';
+
+			$local_deleted = 0;
+			$remote_deleted = 0;
+			foreach ($files_to_delete as $key => $file) {
+				if (is_file($updraft_dir.'/'.$file)) {
+					if (@unlink($updraft_dir.'/'.$file)) $local_deleted++;
+				}
+				if ('log' != $key && count($delete_from_service) > 0) {
+					foreach ($delete_from_service as $service) {
+						if ('email' == $service) continue;
+						if (file_exists(UPDRAFTPLUS_DIR."/methods/$service.php")) require_once(UPDRAFTPLUS_DIR."/methods/$service.php");
+						$objname = "UpdraftPlus_BackupModule_${service}";
+						$deleted = -1;
+						if (method_exists($objname, "backup")) {
+							# TODO: Re-use the object (i.e. prevent repeated connection setup/teardown)
+							$remote_obj = new $objname;
+							$deleted = $remote_obj->delete($file);
+						}
+						if ($deleted == -1) {
+							//echo __('Did not know how to delete from this cloud service.', 'updraftplus');
+						} elseif ($deleted) {
+							$remote_deleted++;
+						} else {
+							// Do nothing
+						}
+					}
+				}
+			}
+			$message .= sprintf(__('Local files deleted: %d', 'updraftplus'),$local_deleted)."\n";
+			$message .= sprintf(__('Remote files deleted: %d', 'updraftplus'),$local_deleted)."\n";
+
+			print json_encode(array('result' => 'success', 'message' => $message));
+
 		} elseif ('phpinfo' == $_REQUEST['subaction']) {
 			phpinfo(INFO_ALL ^ (INFO_CREDITS | INFO_LICENSE));
 		} elseif ('backupnow' == $_REQUEST['subaction']) {
@@ -1028,15 +1115,18 @@ class UpdraftPlus_Admin {
 
 <div id="updraft-delete-modal" title="<?php _e('Delete backup set', 'updraftplus');?>">
 <form id="updraft_delete_form" method="post">
-	<p>
+	<p style="margin-top:3px; padding-top:0">
 		<?php _e('Are you sure that you wish to delete this backup set?', 'updraftplus'); ?>
 	</p>
 	<fieldset>
-		<input type="hidden" name="action" value="updraft_delete">
+		<input type="hidden" name="nonce" value="<?php echo wp_create_nonce('updraftplus-credentialtest-nonce');?>">
+		<input type="hidden" name="action" value="updraft_ajax">
+		<input type="hidden" name="subaction" value="deleteset">
 		<input type="hidden" name="backup_timestamp" value="0" id="updraft_delete_timestamp">
 		<input type="hidden" name="backup_nonce" value="0" id="updraft_delete_nonce">
-		<input type="checkbox" name="" id=""> <label for=""><?php _e('Delete from remote storage (if any)', 'updraftplus');?></label><br>
-		<input type="checkbox" name="" id=""> <label for=""><?php _e('Delete from UpdraftPlus\'s memory', 'updraftplus');?></label>
+		<div id="updraft-delete-remote-section"><input checked="checked" type="checkbox" name="delete_remote" id="updraft_delete_remote" value="1"> <label for="updraft_delete_remote"><?php _e('Also delete from remote storage', 'updraftplus');?></label><br>
+		<p id="updraft-delete-waitwarning" style="display:none;"><em><?php _e('Deleting... please allow time for the communications with the remote storage to complete.', 'updraftplus');?></em></p>
+		</div>
 	</fieldset>
 </form>
 </div>
@@ -1671,10 +1761,29 @@ ENDHERE;
 					updraft_check_same_times();
 
 					jQuery( "#updraft-delete-modal" ).dialog({
-						autoOpen: false, height: 260, width: 430, modal: true,
+						autoOpen: false, height: 230, width: 430, modal: true,
 						buttons: {
 							'<?php _e('Delete','updraftplus');?>': function() {
-								alert("TODO");
+								jQuery('#updraft-delete-waitwarning').slideDown();
+								timestamp = jQuery('#updraft_delete_timestamp').val();
+								jQuery.post(ajaxurl, jQuery('#updraft_delete_form').serialize(), function(response) {
+									jQuery('#updraft-delete-waitwarning').slideUp();
+									var resp;
+									try {
+										resp = jQuery.parseJSON(response);
+									} catch(err) {
+										alert('<?php _e("Unexpected response:",'updraftplus');?> '+response);
+									}
+									if (resp.result != null) {
+										if (resp.result == 'error') {
+											alert('<?php _e('Error:','updraftplus');?> '+resp.message);
+										} else if (resp.result == 'success') {
+											jQuery('#updraft_existing_backups_row_'+timestamp).slideUp().remove();
+											jQuery("#updraft-delete-modal").dialog('close');
+											alert(resp.message);
+										}
+									}
+								});
 							},
 							'<?php _e('Cancel','updraftplus');?>': function() { jQuery(this).dialog("close"); }
 						}
@@ -1939,8 +2048,8 @@ ENDHERE;
 			$pretty_date = date('Y-m-d G:i',$key);
 			$entities = '';
 			?>
-		<tr>
-			<td><a href="javascript:updraft_delete('<?php echo $key;?>', '<?php echo $value['nonce']; ?>');" class="updraftplus-remove" style="display: none;border-radius:100%; -moz-border-radius: 100%; -webkit-border-radius: 100%; font-size: 1.5em; width: 1em; height: 1em;text-align:center;text-decoration:none;font-weight:bold;line-height: 1;" title="<?php echo __('Delete this backup set', 'updraftplus');?>">×</a></td><td><b><?php echo $pretty_date?></b></td>
+		<tr id="updraft_existing_backups_row_<?php echo $key; ?>">
+			<td><div class="updraftplus-remove" style="width: 20px; height: 20px; padding-top:0px; font-size: 18px; text-align:center;font-weight:bold; border-radius: 7px;"><a style="text-decoration:none;" href="javascript:updraft_delete('<?php echo $key;?>', '<?php echo $value['nonce']; ?>', <?php echo ((isset($value['service']) && $value['service'] != 'email' && $value['service'] != 'none')) ? '1' : '0'; ?>);" title="<?php echo __('Delete this backup set', 'updraftplus');?>">×</a></div></td><td><b><?php echo $pretty_date?></b></td>
 			<td>
 		<?php if (isset($value['db'])) {
 					$entities .= '/db/';
@@ -1994,9 +2103,14 @@ ENDHERE;
 			</td>
 		</tr>
 		<script>
-		function updraft_delete(key, nonce) {
+		function updraft_delete(key, nonce, showremote) {
 			jQuery('#updraft_delete_timestamp').val(key);
 			jQuery('#updraft_delete_nonce').val(nonce);
+			if (showremote) {
+				jQuery('#updraft-delete-remote-section, #updraft_delete_remote').removeAttr('disabled').show();
+			} else {
+				jQuery('#updraft-delete-remote-section, #updraft_delete_remote').hide().attr('disabled','disabled');
+			}
 			jQuery('#updraft-delete-modal').dialog('open');
 		}
 		function updraft_restore_setoptions(entities) {
