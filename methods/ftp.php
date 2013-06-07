@@ -93,6 +93,7 @@ class UpdraftPlus_BackupModule_ftp {
 			$updraftplus->log("FTP delete: succeeded (${ftp_remote_path}${file})");
 		} else {
 			$updraftplus->log("FTP delete: failed (${ftp_remote_path}${file})");
+			return false;
 		}
 	}
 

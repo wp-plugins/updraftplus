@@ -261,6 +261,8 @@ class UpdraftPlus_BackupModule_s3 {
 			}
 		} catch  (Exception $e) {
 			$updraftplus->log("$whoweare delete failed: ".$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
+			$s3->setExceptions(false);
+			return false;
 		}
 		$s3->setExceptions(false);
 

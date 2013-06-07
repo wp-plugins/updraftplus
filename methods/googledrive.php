@@ -209,18 +209,34 @@ class UpdraftPlus_BackupModule_googledrive {
 		$ids = UpdraftPlus_Options::get_updraft_option('updraft_file_ids', array());
 		if (!isset($ids[$file])) {
 			$updraftplus->log("Could not delete: could not find a record of the Google Drive file ID for this file");
-			return;
+			return false;
 		} else {
+
+			if ( ! $this->is_gdocs($this->gdocs) ) {
+
+				// Do we have an access token?
+				if ( !$access_token = $this->access_token( UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token'), UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid'), UpdraftPlus_Options::get_updraft_option('updraft_googledrive_secret') )) {
+					$updraftplus->log('ERROR: Have not yet obtained an access token from Google (has the user authorised?)');
+					$updraftplus->error(__('Have not yet obtained an access token from Google - you need to authorise or re-authorise your connection to Google Drive.','updraftplus'));
+					return false;
+				}
+
+				// Make sure $this->gdocs is a UpdraftPlus_GDocs object, or give an error
+				if ( is_wp_error( $e = $this->need_gdocs($access_token) ) ) return false;
+
+			}
+
 			$del == $this->gdocs->delete_resource($ids[$file]);
 			if (is_wp_error($del)) {
 				foreach ($del->get_error_messages() as $msg) $updraftplus->log("Deletion failed: $msg");
+				return false;
 			} else {
 				$updraftplus->log("Deletion successful");
 				unset($ids[$file]);
 				UpdraftPlus_Options::update_updraft_option('updraft_file_ids', $ids);
 			}
 		}
-		return;
+		return true;
 	}
 
 	// Returns:
@@ -365,6 +381,7 @@ class UpdraftPlus_BackupModule_googledrive {
 
 			if ( is_wp_error($access_token) ) return $access_token;
 
+			if( !class_exists('UpdraftPlus_GDocs')) require_once(UPDRAFTPLUS_DIR.'/includes/class-gdocs.php');
 			$this->gdocs = new UpdraftPlus_GDocs($access_token);
 			// We need to be able to upload at least one chunk within the timeout (at least, we have seen an error report where the failure to do this seemed to be the cause)
 			// If we assume a user has at least 16kb/s (we saw one user with as low as 22kb/s), and that their provider may allow them only 15s, then we have the following settings

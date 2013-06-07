@@ -235,6 +235,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 			$updraftplus->log('Cloud Files: Deleted: '.$fpath);
 		} catch (Exception $e) {
 			$updraftplus->log('Cloud Files delete failed: '.$e->getMessage());
+			return false;
 		}
 
 	}

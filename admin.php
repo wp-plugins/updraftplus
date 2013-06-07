@@ -461,7 +461,7 @@ class UpdraftPlus_Admin {
 						}
 						if ($deleted == -1) {
 							//echo __('Did not know how to delete from this cloud service.', 'updraftplus');
-						} elseif ($deleted) {
+						} elseif ($deleted !== false) {
 							$remote_deleted++;
 						} else {
 							// Do nothing

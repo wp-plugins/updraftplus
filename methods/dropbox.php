@@ -196,6 +196,8 @@ class UpdraftPlus_BackupModule_dropbox {
 
 		if (isset($file_success)) {
 			$updraftplus->log('Dropbox: delete succeeded');
+		} else {
+			return false;
 		}
 
 	}
