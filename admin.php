@@ -471,7 +471,7 @@ class UpdraftPlus_Admin {
 			}
 			$message .= __('The backup set has been removed.', 'updraftplus')."\n";
 			$message .= sprintf(__('Local files deleted: %d', 'updraftplus'),$local_deleted)."\n";
-			$message .= sprintf(__('Remote files deleted: %d', 'updraftplus'),$local_deleted)."\n";
+			$message .= sprintf(__('Remote files deleted: %d', 'updraftplus'),$remote_deleted)."\n";
 
 			print json_encode(array('result' => 'success', 'message' => $message));
 
