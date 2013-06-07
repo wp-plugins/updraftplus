@@ -1,5 +1,7 @@
 <?php
 
+// TODO: Deletions not working, WebDAV... how about SFTP?
+
 if (!defined ('ABSPATH')) die ('No direct access allowed');
 
 // For the purposes of improving site performance (don't load in 10s of Kilobytes of un-needed code on every page load), admin-area code is being progressively moved here.
@@ -467,6 +469,7 @@ class UpdraftPlus_Admin {
 					}
 				}
 			}
+			$message .= __('The backup set has been removed.', 'updraftplus')."\n";
 			$message .= sprintf(__('Local files deleted: %d', 'updraftplus'),$local_deleted)."\n";
 			$message .= sprintf(__('Remote files deleted: %d', 'updraftplus'),$local_deleted)."\n";
 
@@ -2049,7 +2052,7 @@ ENDHERE;
 			$entities = '';
 			?>
 		<tr id="updraft_existing_backups_row_<?php echo $key; ?>">
-			<td><div class="updraftplus-remove" style="width: 20px; height: 20px; padding-top:0px; font-size: 18px; text-align:center;font-weight:bold; border-radius: 7px;"><a style="text-decoration:none;" href="javascript:updraft_delete('<?php echo $key;?>', '<?php echo $value['nonce']; ?>', <?php echo ((isset($value['service']) && $value['service'] != 'email' && $value['service'] != 'none')) ? '1' : '0'; ?>);" title="<?php echo __('Delete this backup set', 'updraftplus');?>">×</a></div></td><td><b><?php echo $pretty_date?></b></td>
+			<td><div class="updraftplus-remove" style="width: 19px; height: 19px; padding-top:0px; font-size: 18px; text-align:center;font-weight:bold; border-radius: 7px;"><a style="text-decoration:none;" href="javascript:updraft_delete('<?php echo $key;?>', '<?php echo $value['nonce']; ?>', <?php echo ((isset($value['service']) && $value['service'] != 'email' && $value['service'] != 'none')) ? '1' : '0'; ?>);" title="<?php echo __('Delete this backup set', 'updraftplus');?>">×</a></div></td><td><b><?php echo $pretty_date?></b></td>
 			<td>
 		<?php if (isset($value['db'])) {
 					$entities .= '/db/';

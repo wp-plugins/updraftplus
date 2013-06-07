@@ -186,7 +186,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 
 	}
 
-	function delete($file, $cloudfilesarr) {
+	function delete($file, $cloudfilesarr = false) {
 
 		global $updraftplus;
 
