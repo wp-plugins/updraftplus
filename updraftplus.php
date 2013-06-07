@@ -1048,7 +1048,7 @@ class UpdraftPlus {
 		if (file_exists($method_include)) require_once($method_include);
 		remove_action('http_api_curl', array($this, 'add_curl_capath'));
 
-		if ($service == "none") {
+		if ('' == $service || $service == "none") {
 			$this->log("No remote despatch: user chose no remote backup service");
 		} else {
 			$this->log("Beginning dispatch of backup to remote");
@@ -1059,7 +1059,7 @@ class UpdraftPlus {
 			// New style - external, allowing more plugability
 			$remote_obj = new $objname;
 			$remote_obj->backup($backup_array);
-		} elseif ($service == "none") {
+		} elseif ('' == $service || $service == "none") {
 			$this->prune_retained_backups("none", null, null);
 		} else {
 			$this->log("Unexpected error: no method '$service' was found ($method_include)");
