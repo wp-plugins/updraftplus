@@ -1,6 +1,6 @@
 <?php
 
-// TODO: Deletions not working, WebDAV... how about SFTP?
+// TODO: Deletions not working: WebDAV... how about SFTP?
 
 if (!defined ('ABSPATH')) die ('No direct access allowed');
 
@@ -14,9 +14,7 @@ if (empty($updraftplus_admin)) $updraftplus_admin = new UpdraftPlus_Admin();
 class UpdraftPlus_Admin {
 
 	function __construct() {
-
 		$this->admin_init();
-
 	}
 
 	function admin_init() {
@@ -470,8 +468,8 @@ class UpdraftPlus_Admin {
 				}
 			}
 			$message .= __('The backup set has been removed.', 'updraftplus')."\n";
-			$message .= sprintf(__('Local files deleted: %d', 'updraftplus'),$local_deleted)."\n";
-			$message .= sprintf(__('Remote files deleted: %d', 'updraftplus'),$remote_deleted)."\n";
+			$message .= sprintf(__('Local archives deleted: %d', 'updraftplus'),$local_deleted)."\n";
+			$message .= sprintf(__('Remote archives deleted: %d', 'updraftplus'),$remote_deleted)."\n";
 
 			print json_encode(array('result' => 'success', 'message' => $message));
 
