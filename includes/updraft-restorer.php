@@ -608,7 +608,7 @@ class Updraft_Restorer extends WP_Upgrader {
 				echo __('OK', 'updraftplus');
 			}
 			echo '<br>';
-		} elseif ($table == $import_table_prefix.'usermeta') {
+		} elseif ($table == $import_table_prefix.'usermeta' && $import_table_prefix != $old_table_prefix) {
 
 			echo sprintf(__('Table prefix has changed: changing %s table field(s) accordingly:', 'updraftplus'),'usermeta').' ';
 
