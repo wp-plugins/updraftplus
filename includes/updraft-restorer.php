@@ -288,7 +288,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 			$line = 0;
 
-			global $wpdb;
+			global $wpdb, $updraftplus;
 
 			// Line up a wpdb-like object to use
 			// mysql_query will throw E_DEPRECATED from PHP 5.5, so we expect WordPress to have switched to something else by then
@@ -316,6 +316,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			$errors = 0;
 
 			$sql_line = "";
+			$sql_type = -1;
 
 			$start_time = microtime(true);
 
@@ -325,6 +326,45 @@ class Updraft_Restorer extends WP_Upgrader {
 			$old_table_prefix = '';
 			$old_siteinfo = array();
 			$gathering_siteinfo = true;
+
+			$create_forbidden = false;
+			$drop_forbidden = false;
+			$last_error = '';
+			$random_table_name = 'updraft_tmp_'.rand(0,9999999).md5(microtime(true));
+			if ($use_wpdb) {
+				$req = $wpdb->query("CREATE TABLE $random_table_name");
+				if (!$req) $last_error = $wpdb->last_error;
+				$last_error_no = false;
+			} else {
+				$req = mysql_unbuffered_query("CREATE TABLE $random_table_name", $mysql_dbh );
+				if (!$req) {
+					$last_error = mysql_error($mysql_dbh);
+					$last_error_no = mysql_errno($mysql_dbh);
+				}
+			}
+
+			if (!$req && ($use_wpdb || $last_error_no === 1142)) {
+				$create_forbidden = true;
+				# If we can't create, then there's no point dropping
+				$drop_forbidden = true;
+				echo '<strong>'.__('Warning:','updraftplus').'</strong> '.__('Your database user does not have permission to create tables. We will attempt to restore by simply emptying the tables; this should work as long as a) you are restoring from a WordPress version with the same database structure, and b) Your imported database does not contain any tables which are not already present on the importing site.', 'updraftplus').' ('.$last_error.')'."<br>";
+			} else {
+				if ($use_wpdb) {
+					$req = $wpdb->query("DROP TABLE $random_table_name");
+					if (!$req) $last_error = $wpdb->last_error;
+					$last_error_no = false;
+				} else {
+					$req = mysql_unbuffered_query("DROP TABLE $random_table_name", $mysql_dbh );
+					if (!$req) {
+						$last_error = mysql_error($mysql_dbh);
+						$last_error_no = mysql_errno($mysql_dbh);
+					}
+				}
+				if (!$req && ($use_wpdb || $last_error_no === 1142)) {
+					$drop_forbidden = true;
+					echo '<strong>'.__('Warning:','updraftplus').'</strong> '.__('Your database user does not have permission to drop tables. We will attempt to restore by simply emptying the tables; this should work as long as you are restoring from a WordPress version with the same database structure','updraftplus').' ('.$last_error.')'."<br>";
+				}
+			}
 
 			$restoring_table = '';
 			
@@ -377,6 +417,8 @@ class Updraft_Restorer extends WP_Upgrader {
 				# The timed overhead of this is negligible
 				if (preg_match('/^\s*drop table if exists \`?([^\`]*)\`?\s*;/i', $sql_line, $matches)) {
 
+					$sql_type = 1;
+
 					if (!isset($printed_new_table_prefix)) {
 						$import_table_prefix = $this->pre_sql_actions($import_table_prefix);
 						if (false===$import_table_prefix || is_wp_error($import_table_prefix)) return $import_table_prefix;
@@ -393,6 +435,8 @@ class Updraft_Restorer extends WP_Upgrader {
 						$sql_line = $this->str_replace_once($old_table_prefix, $import_table_prefix, $sql_line);
 					}
 				} elseif (preg_match('/^\s*create table \`?([^\`\(]*)\`?\s*\(/i', $sql_line, $matches)) {
+
+					$sql_type = 2;
 
 					if (!isset($printed_new_table_prefix)) {
 						$import_table_prefix = $this->pre_sql_actions($import_table_prefix);
@@ -433,17 +477,27 @@ class Updraft_Restorer extends WP_Upgrader {
 					$restoring_table = $new_table_name;
 					echo '<br>';
 				} elseif ('' != $old_table_prefix && preg_match('/^\s*insert into \`?([^\`]*)\`?\s+values/i', $sql_line, $matches)) {
+					$sql_type = 3;
 					if ($import_table_prefix != $old_table_prefix) $sql_line = $this->str_replace_once($old_table_prefix, $import_table_prefix, $sql_line);
 				}
 
-				if ($use_wpdb) {
-					$req = $wpdb->query($sql_line);
-					if (!$req) $last_error = $wpdb->last_error;
+				if ($sql_type == 2 && $create_forbidden) {
+					echo sprintf(__('Cannot create new tables, so skipping this command (%s)', 'updraftplus'),htmlspecialchars("CREATE TABLE $table_name"))."<br>";
+					$req = true;
 				} else {
-					$req = mysql_unbuffered_query( $sql_line, $mysql_dbh );
-					if (!$req) $last_error = mysql_error($mysql_dbh);
+					if ($sql_type == 1 && $drop_forbidden) {
+						$sql_line = "DELETE FROM ".$updraftplus->backquote($table_name);
+						echo sprintf(__('Cannot drop tables, so deleting instead (%s)', 'updraftplus'), $sql_line)."<br>";
+					}
+					if ($use_wpdb) {
+						$req = $wpdb->query($sql_line);
+						if (!$req) $last_error = $wpdb->last_error;
+					} else {
+						$req = mysql_unbuffered_query( $sql_line, $mysql_dbh );
+						if (!$req) $last_error = mysql_error($mysql_dbh);
+					}
 				}
-				
+
 				if (!$req) {
 					echo sprintf(_x('An error (%s) occured:', 'The user is being told the number of times an error has happened, e.g. An error (27) occurred', 'updraftplus'), $errors)." - ".htmlspecialchars($last_error)." - ".__('the database query being run was:','updraftplus').' '.htmlspecialchars($sql_line).'<br>';
 					$errors++;
@@ -461,6 +515,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 				# Reset
 				$sql_line = '';
+				$sql_type = -1;
 
 			}
 			
@@ -608,7 +663,7 @@ class Updraft_Restorer extends WP_Upgrader {
 				echo __('OK', 'updraftplus');
 			}
 			echo '<br>';
-		} elseif ($table == $import_table_prefix.'usermeta') {
+		} elseif ($table == $import_table_prefix.'usermeta' && $import_table_prefix != $old_table_prefix) {
 
 			echo sprintf(__('Table prefix has changed: changing %s table field(s) accordingly:', 'updraftplus'),'usermeta').' ';
 

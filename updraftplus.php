@@ -13,7 +13,6 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
-// Option to delete backup sets manually
 // Check with P3 (Plugin Performance Profiler)
 // Implement error levels - need to have a 'warning' level which is not treated as an error, but is passed more visibly to the user (e.g. ginormous database tables)
 // If there is no DROP permission, then restore should instead check for same WP version, and then clean out the table instead (see email from Warren G).
@@ -23,9 +22,6 @@ TODO - some of these are out of date/done, needs pruning
 // Import single site into a multisite: http://codex.wordpress.org/Migrating_Multiple_Blogs_into_WordPress_3.0_Multisite, http://wordpress.org/support/topic/single-sites-to-multisite?replies=5, http://wpmu.org/import-export-wordpress-sites-multisite/
 // Add note in FAQs about 'maintenance mode' plugins
 // When you migrate/restore, if there is a .htaccess, warn/give option about it.
-// Add an appeal for translators to email me.
-// Wipe settings appears to not wipe S3 settings
-// Log if non-omnipresent entities (e.g. blogs.dir, mu-plugins) are not present and we were asked to back them up
 // In 'overtime', schedule the resumptions in groups of 2 or 3, not just 1
 // 'Show log' should be done in a nice pop-out, with a button to download the raw
 // delete_old_dirs() needs to use WP_Filesystem in a more user-friendly way when errors occur
@@ -50,7 +46,6 @@ TODO - some of these are out of date/done, needs pruning
 // Add in downloading in the 'Restore' modal, and remove the advice to do so manually.
 // Save database encryption key inside backup history on per-db basis, so that if it changes we can still decrypt
 // Switch to Google Drive SDK. Google folders. https://developers.google.com/drive/folder
-// GlotPress
 // Affiliate links? (I have no need...)
 // Convert S3.php to use WP's native HTTP functions
 // Ability to re-scan existing cloud storage
@@ -1062,7 +1057,7 @@ class UpdraftPlus {
 			$remote_obj->backup($backup_array);
 		} elseif ($service == "none" || $service == "") {
 			$this->prune_retained_backups("none", null, null);
-		} else {
+		} elseif ($service != '') {
 			$this->log("Unexpected error: no method '$service' was found ($method_include)");
 			$this->error(__("Unexpected error: no method '$service' was found (your UpdraftPlus installation seems broken - try re-installing)",'updraftplus'));
 		}
