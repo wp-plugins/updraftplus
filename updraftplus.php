@@ -1061,7 +1061,7 @@ class UpdraftPlus {
 			$remote_obj->backup($backup_array);
 		} elseif ('' == $service || $service == "none") {
 			$this->prune_retained_backups("none", null, null);
-		} else {
+		} elseif ('' != $service) {
 			$this->log("Unexpected error: no method '$service' was found ($method_include)");
 			$this->error(__("Unexpected error: no method '$service' was found (your UpdraftPlus installation seems broken - try re-installing)",'updraftplus'));
 		}

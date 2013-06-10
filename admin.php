@@ -1393,7 +1393,7 @@ class UpdraftPlus_Admin {
 	function scan_old_dirs() {
 		$dirArr = scandir(WP_CONTENT_DIR);
 		foreach($dirArr as $dir) {
-			if(strpos($dir,'-old') !== false) return true;
+			if (preg_match('/-old$/', $dir)) return true;
 		}
 		return false;
 	}
