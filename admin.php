@@ -1623,7 +1623,7 @@ ENDHERE;
 					subaction: 'lastbackup',
 					nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>'
 				};
-				var lastbackup_laststatus = '<?php echo $last_backup_html?>'
+				var lastbackup_laststatus = '<?php echo esc_html($last_backup_html);?>';
 				function updraft_showlastbackup(){
 					jQuery.get(ajaxurl, lastbackup_sdata, function(response) {
 						if (lastbackup_laststatus == response) {
