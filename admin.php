@@ -1048,7 +1048,7 @@ class UpdraftPlus_Admin {
 								if (!jQuery('#'+stid).length) {
 									jQuery('#ud_downloadstatus').append('<div style="clear:left; border: 1px solid; padding: 8px; margin-top: 4px; max-width:840px;" id="'+stid+'"><button onclick="jQuery(\'#'+stid+'\').fadeOut().remove();" type="button" style="float:right; margin-bottom: 8px;">X</button><strong>Download '+what+' ('+nonce+')</strong>:<div class="raw"><?php _e('Begun looking for this entity','updraftplus');?></div><div class="file" id="'+stid+'_st"><div class="dlfileprogress" style="width: 0;"></div></div>');
 									// <b><span class="dlname">??</span></b> (<span class="dlsofar">?? KB</span>/<span class="dlsize">??</span> KB)
-									setTimeout(function(){updraft_downloader_status(base, nonce, what)}, 300);
+									setTimeout(function(){updraft_downloader_status(base, nonce, what);}, 300);
 								}
 								// Now send the actual request to kick it all off
 								jQuery.post(ajaxurl, jQuery('#uddownloadform_'+what+'_'+nonce).serialize());
@@ -1354,7 +1354,7 @@ class UpdraftPlus_Admin {
 				})
 				jQuery(window).load(function() {
 					//this is for hiding the restore progress at the top after it is done
-					setTimeout('jQuery("#updraft-restore-progress").toggle(1000)',3000)
+					setTimeout('jQuery("#updraft-restore-progress").toggle(1000);',3000)
 					jQuery('#updraft-restore-progress-toggle').click(function() {
 						jQuery('#updraft-restore-progress').toggle(500)
 					})
@@ -1702,7 +1702,7 @@ ENDHERE;
 					jQuery.get(ajaxurl, lastlog_sdata, function(response) {
 						nexttimer = 1500;
 						if (lastlog_lastmessage == response) { nexttimer = 4500; }
-						if (repeat) { setTimeout(function(){updraft_showlastlog(true)}, nexttimer);}
+						if (repeat) { setTimeout(function(){updraft_showlastlog(true);}, nexttimer);}
 						jQuery('#updraft_lastlogcontainer').html(response);
 						lastlog_lastmessage = response;
 					});
@@ -1716,7 +1716,7 @@ ENDHERE;
 				function updraft_showlastbackup(){
 					jQuery.get(ajaxurl, lastbackup_sdata, function(response) {
 						if (lastbackup_laststatus == response) {
-							setTimeout(function(){updraft_showlastbackup()}, 7000);
+							setTimeout(function(){updraft_showlastbackup();}, 7000);
 						} else {
 							jQuery('#updraft_last_backup').html(response);
 						}
@@ -1823,8 +1823,8 @@ ENDHERE;
 								jQuery.post(ajaxurl, { action: 'updraft_ajax', subaction: 'backupnow', nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>' }, function(response) {
 									jQuery('#updraft_backup_started').html(response);
 									setTimeout(function() {jQuery.get('<?php echo site_url(); ?>');}, 5100);
-									setTimeout(function() {updraft_showlastlog()}, 6000);
-									setTimeout(function() {updraft_activejobs_update()}, 6000);
+									setTimeout(function() {updraft_showlastlog();}, 6000);
+									setTimeout(function() {updraft_activejobs_update();}, 6000);
 									setTimeout(function() {
 										jQuery('#updraft_lastlogmessagerow').fadeOut('slow', function() {
 											jQuery(this).fadeIn('slow');
