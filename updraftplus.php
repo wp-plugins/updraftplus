@@ -16,6 +16,8 @@ TODO - some of these are out of date/done, needs pruning
 // Check with P3 (Plugin Performance Profiler)
 // Implement error levels - need to have a 'warning' level which is not treated as an error, but is passed more visibly to the user (e.g. ginormous database tables)
 // Backup notes
+// Notify user only if backup fails
+// Give clearer message when Dropbox auth fails during run
 // Option for additive restores - i.e. add content (themes, plugins,...) instead of replacing
 // Testing framework - automated testing of all file upload / download / deletion methods
 // Though Google Drive code users WP's native HTTP functions, it seems to not work if WP natively uses something other than curl

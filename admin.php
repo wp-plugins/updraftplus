@@ -1728,7 +1728,7 @@ ENDHERE;
 				function updraft_historytimertoggle(forceon) {
 					if (!updraft_historytimer || forceon == 1) {
 						updraft_updatehistory(0);
-						updraft_historytimer = setInterval(function(){updraft_updatehistory(0)}, 30000);
+						updraft_historytimer = setInterval(function(){updraft_updatehistory(0);}, 30000);
 						if (!calculated_diskspace) {
 							updraftplus_diskspace();
 							calculated_diskspace=1;
@@ -1850,7 +1850,7 @@ ENDHERE;
 					jQuery('#enableexpertmode').click(function() {
 						jQuery('.expertmode').fadeIn();
 						updraft_activejobs_update();
-						setInterval(function() {updraft_activejobs_update()}, 15000);
+						setInterval(function() {updraft_activejobs_update();}, 15000);
 						jQuery('#enableexpertmode').off('click'); 
 						return false;
 					});
