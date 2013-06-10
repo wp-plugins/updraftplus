@@ -15,12 +15,15 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // Check with P3 (Plugin Performance Profiler)
 // Implement error levels - need to have a 'warning' level which is not treated as an error, but is passed more visibly to the user (e.g. ginormous database tables)
-// If there is no DROP permission, then restore should instead check for same WP version, and then clean out the table instead (see email from Warren G).
+// Backup notes
+// Option for additive restores - i.e. add content (themes, plugins,...) instead of replacing
 // Testing framework - automated testing of all file upload / download / deletion methods
+// Though Google Drive code users WP's native HTTP functions, it seems to not work if WP natively uses something other than curl
 // Ginormous tables - need to make sure we "touch" the being-written-out-file (and double-check that we check for that) every 15 seconds - https://friendpaste.com/697eKEcWib01o6zT1foFIn
 // S3-compatible storage providers: http://www.dragondisk.com/s3-storage-providers.html
 // Import single site into a multisite: http://codex.wordpress.org/Migrating_Multiple_Blogs_into_WordPress_3.0_Multisite, http://wordpress.org/support/topic/single-sites-to-multisite?replies=5, http://wpmu.org/import-export-wordpress-sites-multisite/
 // Add note in FAQs about 'maintenance mode' plugins
+// After restoring the themes, should check to see if the currently-active one still exists or not
 // When you migrate/restore, if there is a .htaccess, warn/give option about it.
 // In 'overtime', schedule the resumptions in groups of 2 or 3, not just 1
 // 'Show log' should be done in a nice pop-out, with a button to download the raw
