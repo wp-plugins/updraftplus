@@ -16,6 +16,7 @@ TODO - some of these are out of date/done, needs pruning
 // Check with P3 (Plugin Performance Profiler)
 // Implement error levels - need to have a 'warning' level which is not treated as an error, but is passed more visibly to the user (e.g. ginormous database tables)
 // Backup notes
+// 'Delete from your webserver' should trigger a rescan if the backup was local-only
 // Notify user only if backup fails
 // Give clearer message when Dropbox auth fails during run
 // Option for additive restores - i.e. add content (themes, plugins,...) instead of replacing
@@ -1047,7 +1048,6 @@ class UpdraftPlus {
 		$method_include = UPDRAFTPLUS_DIR.'/methods/'.$service.'.php';
 		add_action('http_api_curl', array($this, 'add_curl_capath'));
 		if (file_exists($method_include)) require_once($method_include);
-		remove_action('http_api_curl', array($this, 'add_curl_capath'));
 
 		if ($service == "none" || $service == "") {
 			$this->log("No remote despatch: user chose no remote backup service");
@@ -1066,6 +1066,8 @@ class UpdraftPlus {
 			$this->log("Unexpected error: no method '$service' was found ($method_include)");
 			$this->error(__("Unexpected error: no method '$service' was found (your UpdraftPlus installation seems broken - try re-installing)",'updraftplus'));
 		}
+
+		remove_action('http_api_curl', array($this, 'add_curl_capath'));
 
 	}
 
