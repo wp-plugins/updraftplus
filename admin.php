@@ -1813,7 +1813,6 @@ ENDHERE;
 						autoOpen: false, height: 500, width: 780, modal: true
 					});
 
-
 					jQuery("#updraft-backupnow-modal" ).dialog({
 						autoOpen: false, height: 265, width: 390, modal: true,
 						buttons: {

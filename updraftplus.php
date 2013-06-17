@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.20
+Version: 1.6.21
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -16,8 +16,11 @@ TODO - some of these are out of date/done, needs pruning
 // Check with P3 (Plugin Performance Profiler)
 // Implement error levels - need to have a 'warning' level which is not treated as an error, but is passed more visibly to the user (e.g. ginormous database tables)
 // Backup notes
+// Log file SHA1 after finishing creation
+// Warn on giganticus files, so that there's a clue for the user if PHP times out or disk space runs out on it
 // 'Delete from your webserver' should trigger a rescan if the backup was local-only
 // Notify user only if backup fails
+// Encrypt archives - http://www.frostjedi.com/phpbb3/viewtopic.php?f=46&t=168508&p=391881&e=391881
 // Give clearer message when Dropbox auth fails during run
 // Option for additive restores - i.e. add content (themes, plugins,...) instead of replacing
 // Testing framework - automated testing of all file upload / download / deletion methods
