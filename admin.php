@@ -1003,7 +1003,7 @@ class UpdraftPlus_Admin {
 							<div id="plupload-upload-ui" style="width: 70%;">
 								<div id="drag-drop-area">
 									<div class="drag-drop-inside">
-									<p class="drag-drop-info"><?php _e('Drop backup zips here'); ?></p>
+									<p class="drag-drop-info"><?php _e('Drop backup zips here', 'updraftplus'); ?></p>
 									<p><?php _ex('or', 'Uploader: Drop zip files here - or - Select Files'); ?></p>
 									<p class="drag-drop-buttons"><input id="plupload-browse-button" type="button" value="<?php esc_attr_e('Select Files'); ?>" class="button" /></p>
 									</div>

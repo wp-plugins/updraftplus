@@ -56,6 +56,7 @@ Many thanks to the existing translators:
 * Magyar / Hungarian (hu_HU): Szépe Viktor - http://www.szepe.net
 * Nederlands / Dutch (nl_NL): Hans van der Vlist - hansvandervlist@gmail.com
 * Polski / Polish (pl_PL): Bartosz Kaczmarek - barth.kaczmarek@gmail.com
+* Italiano / Italian (it_IT): Francesco Carpana - f.carpana@gmail.com
 
 = Other support =
 
@@ -124,9 +125,11 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 = Development branch (not yet released/supported) =
 * FEATURE: Delete existing backup sets manually (deletes both local + cloud copies)
 * FEATURE: Restorations + migrations can now be attempted even if the user lacks CREATE TABLE or DROP TABLE permissions
+* FEATURE: Italiano/Italian translation by Francesco Carpana (f.carpana@gmail.com)
 * FIX: "Wipe settings" wipes S3 + DreamObjects settings (they were retained previously)
 * FIX: Suppress spurious "Table prefix has changed" message
 * FIX: Escape output of logging lines (prevents on-page JavaScript breakage if error from cloud service contained unescaped quotes)
+* TWEAK: Provide the error message sent by Google upon initial Drive authentication errors.
 
 = 1.6.17 - 2013/06/06 =
 * FEATURE: News blog - http://updraftplus.com/news/ - please subscribe if you want to stay up to date with news of new features, tips, and special offers. RSS link: http://feeds.feedburner.com/UpdraftPlus

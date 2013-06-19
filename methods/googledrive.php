@@ -106,9 +106,13 @@ class UpdraftPlus_BackupModule_googledrive {
 
 					}
 
-				}
-				else {
-					header('Location: '.admin_url('options-general.php?page=updraftplus&error=' . __( 'No refresh token was received from Google. This often means that you entered your client secret wrongly, or that you have not yet re-authenticated (below) since correcting it. Re-check it, then follow the link to authenticate again. Finally, if that does not work, then use expert mode to wipe all your settings, create a new Google client ID/secret, and start again.', 'updraftplus' ) ) );
+				} else {
+
+					$msg = __( 'No refresh token was received from Google. This often means that you entered your client secret wrongly, or that you have not yet re-authenticated (below) since correcting it. Re-check it, then follow the link to authenticate again. Finally, if that does not work, then use expert mode to wipe all your settings, create a new Google client ID/secret, and start again.', 'updraftplus' );
+
+					if (isset($json_values['error'])) $msg .= ' '.sprintf(__('Error: %s', 'updraftplus'), $json_values['error']);
+
+					header('Location: '.admin_url('options-general.php?page=updraftplus&error='. $msg ) );
 				}
 			}
 		}
@@ -441,15 +445,15 @@ class UpdraftPlus_BackupModule_googledrive {
 
 			<tr class="updraftplusmethod googledrive">
 				<th><?php echo __('Google Drive','updraftplus').' '.__('Client ID','updraftplus'); ?>:</th>
-				<td><input type="text" autocomplete="off" style="width:352px" name="updraft_googledrive_clientid" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid')) ?>" /><br><em><?php _e('If Google later shows you the message "invalid_client", then you did not enter a valid client ID here.','updraftplus');?></em></td>
+				<td><input type="text" autocomplete="off" style="width:392px" name="updraft_googledrive_clientid" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid')) ?>" /><br><em><?php _e('If Google later shows you the message "invalid_client", then you did not enter a valid client ID here.','updraftplus');?></em></td>
 			</tr>
 			<tr class="updraftplusmethod googledrive">
 				<th><?php echo __('Google Drive','updraftplus').' '.__('Client Secret','updraftplus'); ?>:</th>
-				<td><input type="text" style="width:352px" name="updraft_googledrive_secret" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_googledrive_secret')); ?>" /></td>
+				<td><input type="text" style="width:392px" name="updraft_googledrive_secret" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_googledrive_secret')); ?>" /></td>
 			</tr>
 			<tr class="updraftplusmethod googledrive">
 				<th><?php echo __('Google Drive','updraftplus').' '.__('Folder ID','updraftplus'); ?>:</th>
-				<td><input type="text" style="width:352px" name="updraft_googledrive_remotepath" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_googledrive_remotepath')); ?>" /> <em><?php _e("<strong>This is NOT a folder name</strong>. To get a folder's ID navigate to that folder in Google Drive in your web browser and copy the ID from your browser's address bar. It is the part that comes after <kbd>#folders/.</kbd> Leave empty to use your root folder)",'updraftplus');?></em></td>
+				<td><input type="text" style="width:392px" name="updraft_googledrive_remotepath" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_googledrive_remotepath')); ?>" /> <em><?php _e("<strong>This is NOT a folder name</strong>. To get a folder's ID navigate to that folder in Google Drive in your web browser and copy the ID from your browser's address bar. It is the part that comes after <kbd>#folders/.</kbd> Leave empty to use your root folder)",'updraftplus');?></em></td>
 			</tr>
 			<tr class="updraftplusmethod googledrive">
 				<th><?php _e('Authenticate with Google');?>:</th>

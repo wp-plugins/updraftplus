@@ -16,6 +16,8 @@ TODO - some of these are out of date/done, needs pruning
 // Check with P3 (Plugin Performance Profiler)
 // Implement error levels - need to have a 'warning' level which is not treated as an error, but is passed more visibly to the user (e.g. ginormous database tables)
 // Backup notes
+// Add note post-DB backup: you will need to log in using details from newly-imported DB
+// Do is_readable() test on each file,  and provide a clear message and link to FAQ if fails - must work on PclZip/ZipArchive/binzip
 // Log file SHA1 after finishing creation
 // Warn on giganticus files, so that there's a clue for the user if PHP times out or disk space runs out on it
 // 'Delete from your webserver' should trigger a rescan if the backup was local-only
