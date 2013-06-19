@@ -56,6 +56,7 @@ Many thanks to the existing translators:
 * Magyar / Hungarian (hu_HU): Szépe Viktor - http://www.szepe.net
 * Nederlands / Dutch (nl_NL): Hans van der Vlist - hansvandervlist@gmail.com
 * Polski / Polish (pl_PL): Bartosz Kaczmarek - barth.kaczmarek@gmail.com
+* Italiano / Italian (it_IT): Francesco Carpana - f.carpana@gmail.com
 
 = Other support =
 
