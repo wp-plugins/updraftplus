@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.21
+Version: 1.6.23
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -14,7 +14,6 @@ Author URI: http://updraftplus.com
 /*
 TODO - some of these are out of date/done, needs pruning
 // Check with P3 (Plugin Performance Profiler)
-// Implement error levels - need to have a 'warning' level which is not treated as an error, but is passed more visibly to the user (e.g. ginormous database tables)
 // Backup notes
 // Add note post-DB backup: you will need to log in using details from newly-imported DB
 // Do is_readable() test on each file,  and provide a clear message and link to FAQ if fails - must work on PclZip/ZipArchive/binzip
@@ -28,6 +27,8 @@ TODO - some of these are out of date/done, needs pruning
 // Testing framework - automated testing of all file upload / download / deletion methods
 // Though Google Drive code users WP's native HTTP functions, it seems to not work if WP natively uses something other than curl
 // Ginormous tables - need to make sure we "touch" the being-written-out-file (and double-check that we check for that) every 15 seconds - https://friendpaste.com/697eKEcWib01o6zT1foFIn
+// With ginormous tables, log how many times they've been attempted: after 3rd attempt, log a warning and move on. But first, batch ginormous tables (resumable)
+// Put up a FAQ page on how to re-install from developer version
 // S3-compatible storage providers: http://www.dragondisk.com/s3-storage-providers.html
 // Import single site into a multisite: http://codex.wordpress.org/Migrating_Multiple_Blogs_into_WordPress_3.0_Multisite, http://wordpress.org/support/topic/single-sites-to-multisite?replies=5, http://wpmu.org/import-export-wordpress-sites-multisite/
 // Add note in FAQs about 'maintenance mode' plugins
@@ -118,7 +119,11 @@ define('UPDRAFTPLUS_DIR', dirname(__FILE__));
 define('UPDRAFTPLUS_URL', plugins_url('', __FILE__));
 define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php,backup,backups');
 
+# The following can go in your wp-config.php
 if (!defined('UPDRAFTPLUS_ZIP_EXECUTABLE')) define('UPDRAFTPLUS_ZIP_EXECUTABLE', "/usr/bin/zip,/bin/zip,/usr/local/bin/zip,/usr/sfw/bin/zip,/usr/xdg4/bin/zip,/opt/bin/zip");
+# If any individual file size is greater than this, then a warning is given
+if (!defined('UPDRAFTPLUS_WARN_FILE_SIZE')) define('UPDRAFTPLUS_WARN_FILE_SIZE', 1024*1024*250);
+if (!defined('UPDRAFTPLUS_WARN_DB_ROWS')) define('UPDRAFTPLUS_WARN_DB_ROWS', 300000);
 
 // This is used in various places, based on our assumption of the maximum time any job should take. May need lengthening in future if we get reports which show enormous sets hitting the limit.
 // Also one section requires at least 1% progress each run, so on a 5-minute schedule, that equals just under 9 hours - then an extra allowance takes it just over. (However these days, we reduce the scheduling time if possible, so we get more attempts).
@@ -377,17 +382,42 @@ class UpdraftPlus {
 		$this->log($logline);
 		$disk_free_space = @disk_free_space($updraft_dir);
 		$this->log("Free space on disk containing Updraft's temporary directory: ".round($disk_free_space/1048576,1)." Mb");
+		if ($disk_free_space < 50*1048576) $this->log(sprintf(__('Your free disk space is very low - only %s Mb remain', 'updraftplus'), round($disk_free_space/1048576, 1)), 'warning');
 	}
 
-	# Logs the given line, adding (relative) time stamp and newline
-	function log($line, $save_transient = true) {
-		if ($this->logfile_handle) fwrite($this->logfile_handle, sprintf("%08.03f", round(microtime(true)-$this->opened_log_time, 3))." (".$this->current_resumption.") $line\n");
+	/* Logs the given line, adding (relative) time stamp and newline
+	Note these subtleties of log handling:
+	- Messages at level 'error' are not logged to file - it is assumed that a separate call to log() at another level will take place. This is because at level 'error', messages are translated; whereas the log file is for developers who may not know the translated language. Messages at level 'error' are for the user.
+	- Messages at level 'error' do not persist through the job (they are only saved with save_backup_history(), and never restored from there - so only the final save_backup_history() errors persist); we presume that either a) they will be cleared on the next attempt, or b) they will occur again on the final attempt (at which point they will go to the user). But...
+	- ... messages at level 'warning' persist. These are conditions that are unlikely to be cleared, not-fatal, but the user should be informed about. The $uniq_id field (which should not be numeric) can then be used for warnings that should only be logged once
+	*/
+	function log($line, $level = 'notice', $uniq_id = false) {
+
+		if ('error' == $level || 'warning' == $level) {
+			if ('error' == $level && $this->error_count() == 0) $this->log("An error condition has occurred for the first time during this job (follows)");
+			$this->errors[] = array('level' => $level, 'message' => $line);
+			# Errors are logged separately
+			if ('error' == $level) return;
+			# It's a warning
+			$warnings = $this->jobdata_get('warnings');
+			if (!is_array($warnings)) $warnings=array();
+			if ($uniq_id) {
+				$warnings[$uniq_id] = $line;
+			} else {
+				$warnings[] = $line;
+			}
+			$this->jobdata_set('warnings', $warnings);
+		}
+
+		if ($this->logfile_handle) {
+			fwrite($this->logfile_handle, sprintf("%08.03f", round(microtime(true)-$this->opened_log_time, 3))." (".$this->current_resumption.") $line\n");
+		}
 		if ('download' == $this->jobdata_get('job_type')) {
 			// Download messages are keyed on the job (since they could be running several), and transient
 			// The values of the POST array were checked before
 			set_transient('ud_dlmess_'.$_POST['timestamp'].'_'.$_POST['type'], $line." (".date('M d H:i:s').")", 3600);
 		} else {
-			if ($save_transient) UpdraftPlus_Options::update_updraft_option('updraft_lastmessage', $line." (".date('M d H:i:s').")");
+			if ($level != 'debug') UpdraftPlus_Options::update_updraft_option('updraft_lastmessage', $line." (".date('M d H:i:s').")");
 		}
 		if (defined('UPDRAFTPLUS_CONSOLELOG')) print $line."\n";
 	}
@@ -573,7 +603,14 @@ class UpdraftPlus {
 
 			$prev_resumption = $resumption_no - 1;
 			if (isset($time_passed[$prev_resumption])) $resumption_extralog = ", previous check-in=".round($time_passed[$prev_resumption], 1)."s";
+		}
 
+		// Import existing warnings. The purpose of this is so that when save_backup_history() is called, it has a complete set - because job data expires quickly, whilst the warnings of the last backup run need to persist
+		$warnings = $this->jobdata_get('warnings');
+		if (is_array($warnings)) {
+			foreach ($warnings as $warning) {
+				$this->errors[] = array('level' => 'warning', 'message' => $warning);
+			}
 		}
 
 		$btime = $this->backup_time;
@@ -654,7 +691,6 @@ class UpdraftPlus {
 			}
 
 			$db_backup = $this->backup_db($backup_database);
-
 			if(is_array($our_files) && is_string($db_backup)) {
 				$our_files['db'] = $db_backup;
 			}
@@ -708,7 +744,7 @@ class UpdraftPlus {
 			$this->backup_finish($next_resumption, true, false, $resumption_no);
 			return;
 		} else {
-			$this->log("Requesting backup of the files that were not successfully uploaded (".count($undone_files).")");
+			$this->log("Requesting upload of the files that have not yet been successfully uploaded (".count($undone_files).")");
 			$this->cloud_backup($undone_files);
 		}
 
@@ -826,7 +862,7 @@ class UpdraftPlus {
 
 		if (!is_file($this->logfile_name)) {
 			$this->log('Failed to open log file ('.$this->logfile_name.') - you need to check your UpdraftPlus settings (your chosen directory for creating files in is not writable, or you ran out of disk space). Backup aborted.');
-			$this->error(__('Could not create files in the backup directory. Backup aborted - check your UpdraftPlus settings.','updraftplus'));
+			$this->log(__('Could not create files in the backup directory. Backup aborted - check your UpdraftPlus settings.','updraftplus'), 'error');
 			return false;
 		}
 
@@ -896,7 +932,7 @@ class UpdraftPlus {
 				return basename($file.'.crypt');
 			} else {
 				$this->log("Encryption error occurred when encrypting database. Encryption aborted.");
-				$this->error(__("Encryption error occurred when encrypting database. Encryption aborted.",'updraftplus'));
+				$this->log(__("Encryption error occurred when encrypting database. Encryption aborted.",'updraftplus'), 'error');
 				return basename($file);
 			}
 		} else {
@@ -909,7 +945,7 @@ class UpdraftPlus {
 		// The valid use of $do_cleanup is to indicate if in fact anything exists to clean up (if no job really started, then there may be nothing)
 
 		// In fact, leaving the hook to run (if debug is set) is harmless, as the resume job should only do tasks that were left unfinished, which at this stage is none.
-		if (empty($this->errors)) {
+		if ($this->error_count() == 0) {
 			if ($do_cleanup) {
 				$this->log("There were no errors in the uploads, so the 'resume' event is being unscheduled");
 				wp_clear_scheduled_hook('updraft_backup_resume', array($cancel_event, $this->nonce));
@@ -930,9 +966,13 @@ class UpdraftPlus {
 		$send_an_email = false;
 
 		// Make sure that the final status is shown
-		if (empty($this->errors)) {
+		if ($this->error_count() == 0) {
 			$send_an_email = true;
-			$final_message = __("The backup apparently succeeded and is now complete",'updraftplus');
+			if ($this->error_count('warning') == 0) {
+				$final_message = __("The backup apparently succeeded and is now complete",'updraftplus');
+			} else {
+				$final_message = __("The backup apparently succeeded (with warnings) and is now complete",'updraftplus');
+			}
 		} elseif ($this->newresumption_scheduled == false) {
 			$send_an_email = true;
 			$final_message = __("The backup attempt has finished, apparently unsuccessfully",'updraftplus');
@@ -989,17 +1029,28 @@ class UpdraftPlus {
 
 		$append_log = '';
 		$attachments = array();
-		if (count($this->errors)>0) {
+		if ($this->error_count() > 0) {
 			$append_log .= __('Errors encountered:', 'updraftplus')."\r\n";
-			if (!empty($this->logfile_name)) $attachments[] = $this->logfile_name;
+			$attachments[0] = $this->logfile_name;
 			foreach ($this->errors as $err) {
 				if (is_wp_error($err)) {
 					foreach ($err->get_error_messages() as $msg) {
 						$append_log .= "* ".rtrim($msg)."\r\n";
 					}
-				} else {
+				} elseif (is_array($err) && 'error' == $err['level']) {
+					$append_log .= "* ".rtrim($err['message'])."\r\n";
+				} elseif (is_string($err)) {
 					$append_log .= "* ".rtrim($err)."\r\n";
 				}
+			}
+			$append_log.="\n";
+		}
+		$warnings = $this->jobdata_get('warnings');
+		if (is_array($warnings) && count($warnings) >0) {
+			$append_log .= __('Warnings encountered:', 'updraftplus')."\r\n";
+			$attachments[0] = $this->logfile_name;
+			foreach ($warnings as $err) {
+				$append_log .= "* ".rtrim($err)."\r\n";
 			}
 			$append_log.="\n";
 		}
@@ -1019,8 +1070,16 @@ class UpdraftPlus {
 		$phpmailer->AddAttachment($this->logfile_name, '', 'base64', 'text/plain');
 	}
 
+	function error_count($level = 'error') {
+		$count = 0;
+		foreach ($this->errors as $err) {
+			if (('error' == $level && (is_string($err) || is_wp_error($err))) || (is_array($err) && $level == $err['level']) ) { $count++; }
+		}
+		return $count;
+	}
+
 	function save_last_backup($backup_array) {
-		$success = (empty($this->errors)) ? 1 : 0;
+		$success = ($this->error_count() == 0) ? 1 : 0;
 
 		$last_backup = array('backup_time'=>$this->backup_time, 'backup_array'=>$backup_array, 'success'=>$success, 'errors'=>$this->errors, 'backup_nonce' => $this->nonce);
 
@@ -1069,7 +1128,7 @@ class UpdraftPlus {
 			$this->prune_retained_backups("none", null, null);
 		} elseif ($service != '') {
 			$this->log("Unexpected error: no method '$service' was found ($method_include)");
-			$this->error(__("Unexpected error: no method '$service' was found (your UpdraftPlus installation seems broken - try re-installing)",'updraftplus'));
+			$this->log(__("Unexpected error: no method '$service' was found (your UpdraftPlus installation seems broken - try re-installing)",'updraftplus'), 'error');
 		}
 
 		remove_action('http_api_curl', array($this, 'add_curl_capath'));
@@ -1208,13 +1267,13 @@ class UpdraftPlus {
 		if (empty($this->newresumption_scheduled)) return;
 		$time_now = time();
 		$time_away = $this->newresumption_scheduled - $time_now;
-		// 30 is chosen because it is also used to detect recent activity on files (file mod times)
-		if ($time_away >1 && $time_away <= 30) {
-			$this->log('The scheduled resumption is within 30 seconds - will reschedule');
-			// Push 30 seconds into the future
+		// 45 is chosen because it is 15 seconds more than what is used to detect recent activity on files (file mod times). (If we use exactly the same, then it's more possible to slightly miss each other)
+		if ($time_away >1 && $time_away <= 45) {
+			$this->log('The scheduled resumption is within 45 seconds - will reschedule');
+			// Push 45 seconds into the future
  			// $this->reschedule(60);
-			// Increase interval generally by 30 seconds, on the assumption that our prior estimates were innaccurate (i.e. not just 30 seconds *this* time)
-			$this->increase_resume_and_reschedule(30);
+			// Increase interval generally by 45 seconds, on the assumption that our prior estimates were innaccurate (i.e. not just 45 seconds *this* time)
+			$this->increase_resume_and_reschedule(45);
 		}
 	}
 
@@ -1256,15 +1315,28 @@ class UpdraftPlus {
 		}
 	}
 
+	function really_is_writable($dir) {
+		// Suppress warnings, since if the user is dumping warnings to screen, then invalid JavaScript results and the screen breaks.
+		if (!@is_writable($dir)) return false;
+		// Found a case - GoDaddy server, Windows, PHP 5.2.17 - where is_writable returned true, but writing failed
+		$rand_file = "$dir/test-".md5(rand().time()).".txt";
+		while (file_exists($rand_file)) {
+			$rand_file = "$dir/test-".md5(rand().time()).".txt";
+		}
+		$ret = @file_put_contents($rand_file, 'testing...');
+		@unlink($rand_file);
+		return ($ret > 0);
+	}
+
 	// This function is resumable
 	function backup_dirs($transient_status) {
 
 		if(!$this->backup_time) $this->backup_time_nonce();
 
 		$updraft_dir = $this->backups_dir_location();
-		if(!is_writable($updraft_dir)) {
+		if(!$this->really_is_writable($updraft_dir)) {
 			$this->log("Backup directory ($updraft_dir) is not writable, or does not exist");
-			$this->error(sprintf(__("Backup directory (%s) is not writable, or does not exist.", 'updraftplus'), $updraft_dir));
+			$this->log(sprintf(__("Backup directory (%s) is not writable, or does not exist.", 'updraftplus'), $updraft_dir), 'error');
 			return array();
 		}
 
@@ -1412,7 +1484,7 @@ class UpdraftPlus {
 			@closedir($handle);
 		} else {
 			$this->log('ERROR: Could not read the directory: '.$backup_from_inside_dir);
-			$this->error(__('Could not read the directory', 'updraftplus').': '.$backup_from_inside_dir);
+			$this->log(__('Could not read the directory', 'updraftplus').': '.$backup_from_inside_dir, 'error');
 		}
 
 		return $dirlist;
@@ -1429,7 +1501,7 @@ class UpdraftPlus {
 			UpdraftPlus_Options::update_updraft_option('updraft_backup_history', $backup_history);
 		} else {
 			$this->log('Could not save backup history because we have no backup array. Backup probably failed.');
-			$this->error(__('Could not save backup history because we have no backup array. Backup probably failed.','updraftplus'));
+			$this->log(__('Could not save backup history because we have no backup array. Backup probably failed.','updraftplus'), 'error');
 		}
 	}
 	
@@ -1458,7 +1530,7 @@ class UpdraftPlus {
 		}
 		if(!$this->dbhandle) {
 			$this->log("ERROR: $file: Could not open the backup file for writing");
-			$this->error("$file: ".__("Could not open the backup file for writing",'updraftplus'));
+			$this->log("$file: ".__("Could not open the backup file for writing",'updraftplus'), 'error');
 		}
 	}
 
@@ -1510,6 +1582,8 @@ class UpdraftPlus {
 	*/
 	function backup_db($already_done = "begun") {
 
+		$errors = 0;
+
 		// Get the file prefix
 		$updraft_dir = $this->backups_dir_location();
 
@@ -1536,9 +1610,9 @@ class UpdraftPlus {
 		// Put the options table first
 		usort($all_tables, array($this, 'backup_db_sorttables'));
 
-		if (!is_writable($updraft_dir)) {
+		if (!$this->really_is_writable($updraft_dir)) {
 			$this->log("The backup directory ($updraft_dir) is not writable.");
-			$this->error("$updraft_dir: ".__('The backup directory is not writable.','updraftplus'));
+			$this->log("$updraft_dir: ".__('The backup directory is not writable.','updraftplus'), 'error');
 			return false;
 		}
 
@@ -1596,7 +1670,8 @@ class UpdraftPlus {
 			$this->log("{$table_file}.gz: adding to final database dump");
 			if (!$handle = gzopen($updraft_dir.'/'.$table_file.'.gz', "r")) {
 				$this->log("Error: Failed to open database file for reading: ${table_file}.gz");
-				$this->error("Failed to open database file for reading: ${table_file}.gz");
+				$this->log("Failed to open database file for reading: ${table_file}.gz", 'error');
+				$errors++;
 			} else {
 				while ($line = gzgets($handle, 2048)) { $this->stow($line); }
 				gzclose($handle);
@@ -1611,11 +1686,15 @@ class UpdraftPlus {
 		}
 
 		$this->log($file_base.'-db.gz: finished writing out complete database file ('.round(filesize($backup_final_file_name)/1024,1).' Kb)');
-		$this->close($this->dbhandle);
+		if (!$this->close($this->dbhandle)) {
+			$this->log('An error occurred whilst closing the final database file');
+			$this->log(__('An error occurred whilst closing the final database file', 'updraftplus'), 'error');
+			$errors++;
+		}
 
 		foreach ($unlink_files as $unlink_file) @unlink($unlink_file);
 
-		if (count($this->errors)) {
+		if ($errors > 0) {
 			return false;
 		} else {
 			# We no longer encrypt here - because the operation can take long, we made it resumable and moved it to the upload loop
@@ -1651,7 +1730,7 @@ class UpdraftPlus {
 
 		$table_structure = $wpdb->get_results("DESCRIBE $table");
 		if (! $table_structure) {
-			//$this->error(__('Error getting table details','wp-db-backup') . ": $table");
+			//$this->log(__('Error getting table details','wp-db-backup') . ": $table", 'error');
 			return false;
 		}
 	
@@ -1675,7 +1754,7 @@ class UpdraftPlus {
 			$create_table = $wpdb->get_results("SHOW CREATE TABLE `$table`", ARRAY_N);
 			if (false === $create_table) {
 				$err_msg = sprintf(__('Error with SHOW CREATE TABLE for %s.','wp-db-backup'), $table);
-				//$this->error($err_msg);
+				//$this->log($err_msg, 'error');
 				$this->stow("#\n# $err_msg\n#\n");
 			}
 			$this->stow($create_table[0][1] . ' ;');
@@ -1693,8 +1772,8 @@ class UpdraftPlus {
 				$rows = $table_status->Rows;
 				$this->log("Table $table: Total expected rows (approximate): ".$rows);
 				$this->stow("# Approximate rows expected in table: $rows\n");
-				if ($rows > 500000) {
-					$this->log("Table $table: $rows is very many rows - we hope your web hosting company gives you enough resources to dump out that table in the backup");
+				if ($rows > UPDRAFTPLUS_WARN_DB_ROWS) {
+					$this->log(sprintf(__("Table %s has very many rows (%s) - we hope your web hosting company gives you enough resources to dump out that table in the backup", 'updraftplus'), $table, $rows), 'warning');
 				}
 			}
 
@@ -1776,27 +1855,21 @@ class UpdraftPlus {
 	function stow($query_line) {
 		if ($this->dbhandle_isgz) {
 			if(! @gzwrite($this->dbhandle, $query_line)) {
-				//$this->error(__('There was an error writing a line to the backup script:','wp-db-backup') . '  ' . $query_line . '  ' . $php_errormsg);
+				//$this->log(__('There was an error writing a line to the backup script:','wp-db-backup') . '  ' . $query_line . '  ' . $php_errormsg, 'error');
 			}
 		} else {
 			if(false === @fwrite($this->dbhandle, $query_line)) {
-				//$this->error(__('There was an error writing a line to the backup script:','wp-db-backup') . '  ' . $query_line . '  ' . $php_errormsg);
+				//$this->log(__('There was an error writing a line to the backup script:','wp-db-backup') . '  ' . $query_line . '  ' . $php_errormsg, 'error');
 			}
 		}
 	}
 
 	function close($handle) {
 		if ($this->dbhandle_isgz) {
-			gzclose($handle);
+			return gzclose($handle);
 		} else {
-			fclose($handle);
+			return fclose($handle);
 		}
-	}
-
-	function error($error) {
-		if (count($this->errors) == 0) $this->log("An error condition has occurred for the first time during this job");
-		$this->errors[] = $error;
-		return true;
 	}
 
 	/**
@@ -1939,7 +2012,7 @@ class UpdraftPlus {
 				if ($encryption == "") {
 					header('Content-type: text/plain');
 					_e("Decryption failed. The database file is encrypted, but you have no encryption key entered.",'updraftplus');
-					$this->error('Decryption of database failed: the database file is encrypted, but you have no encryption key entered.');
+					$this->log('Decryption of database failed: the database file is encrypted, but you have no encryption key entered.', 'error');
 				} else {
 					require_once(UPDRAFTPLUS_DIR.'/includes/phpseclib/Crypt/Rijndael.php');
 					$rijndael = new Crypt_Rijndael();

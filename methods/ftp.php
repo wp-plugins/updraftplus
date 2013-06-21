@@ -41,7 +41,7 @@ class UpdraftPlus_BackupModule_ftp {
 
 		if (!$ftp->connect()) {
 			$updraftplus->log("FTP Failure: we did not successfully log in with those credentials.");
-			$updraftplus->error(__("FTP login failure",'updraftplus'));
+			$updraftplus->log(sprintf(__("%s login failure",'updraftplus'), 'FTP'), 'error');
 			return false;
 		}
 
@@ -60,7 +60,7 @@ class UpdraftPlus_BackupModule_ftp {
 				$updraftplus->uploaded_file($file);
 			} else {
 				$updraftplus->log("ERROR: FTP upload failed" );
-				$updraftplus->error(__("FTP upload failed",'updraftplus'));
+				$updraftplus->log(sprintf(__("%s upload failed",'updraftplus'), 'FTP'), 'error');
 			}
 		}
 
@@ -112,7 +112,7 @@ class UpdraftPlus_BackupModule_ftp {
 
 		if (!$ftp->connect()) {
 			$updraftplus->log("FTP Failure: we did not successfully log in with those credentials.");
-			$updraftplus->error(__("FTP login failure",'updraftplus'));
+			$updraftplus->log(sprintf(__("%s login failure",'updraftplus'), 'FTP'), 'error');
 			return false;
 		}
 

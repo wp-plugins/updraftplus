@@ -50,15 +50,15 @@ class UpdraftPlus_BackupModule_cloudfiles {
 			$cont_obj = $conn->create_container($container);
 		} catch(AuthenticationException $e) {
 			$updraftplus->log('Cloud Files authentication failed ('.$e->getMessage().')');
-			$updraftplus->error(__('Cloud Files authentication failed','updraftplus').' ('.$e->getMessage().')');
+			$updraftplus->log(sprintf(__('%s authentication failed','updraftplus'),'Cloud Files').' ('.$e->getMessage().')', 'error');
 			return false;
 		} catch(NoSuchAccountException $s) {
 			$updraftplus->log('Cloud Files authentication failed ('.$e->getMessage().')');
-			$updraftplus->error(__('Cloud Files authentication failed','updraftplus').' ('.$e->getMessage().')');
+			$updraftplus->log(sprintf(__('%s authentication failed','updraftplus'),'Cloud Files').' ('.$e->getMessage().')', 'error');
 			return false;
 		} catch (Exception $e) {
 			$updraftplus->log('Cloud Files error - failed to create and access the container ('.$e->getMessage().')');
-			$updraftplus->error(__('Cloud Files error - failed to create and access the container', 'updraftplus').' ('.$e->getMessage().')');
+			$updraftplus->log(__('Cloud Files error - failed to create and access the container', 'updraftplus').' ('.$e->getMessage().')', 'error');
 			return;
 		}
 
@@ -85,7 +85,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 					$fp = @fopen($fullpath, "rb");
 					if (!$fp) {
 						$updraftplus->log("Cloud Files: failed to open file: $fullpath");
-						$updraftplus->error("$file: ".sprintf(__('%s Error: Failed to open local file','updraftplus'),'Cloud Files'));
+						$updraftplus->log("$file: ".sprintf(__('%s Error: Failed to open local file','updraftplus'),'Cloud Files'), 'error');
 						return false;
 					}
 
@@ -102,7 +102,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 							$updraftplus->uploaded_file($file);
 						} catch (Exception $e) {
 							$updraftplus->log("Cloud Files regular upload: failed ($file) (".$e->getMessage().")");
-							$updraftplus->error("$file: ".sprintf(__('%s Error: Failed to upload','updraftplus'),'Cloud Files'));
+							$updraftplus->log("$file: ".sprintf(__('%s Error: Failed to upload','updraftplus'),'Cloud Files'), 'error');
 						}
 					} else {
 						$errors_so_far = 0;
@@ -144,7 +144,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 
 									} else {
 
-										$updraftplus->error("$file: ".sprintf(__('%s Error: Failed to upload','updraftplus'),'Cloud Files'));
+										$updraftplus->log("$file: ".sprintf(__('%s Error: Failed to upload','updraftplus'),'Cloud Files'), 'error');
 										$errors_so_far++;
 										if ($errors_so_far >=3 ) return false;
 
@@ -166,7 +166,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 // 						} catch (InvalidResponseException $e) {
 						} catch (Exception $e) {
 							$updraftplus->log('Cloud Files error - failed to re-assemble chunks ('.$e->getMessage().')');
-							$updraftplus->error(__('Cloud Files error - failed to re-assemble chunks', 'updraftplus').' ('.$e->getMessage().')');
+							$updraftplus->log(sprintf(__('%s error - failed to re-assemble chunks', 'updraftplus'),'Cloud Files').' ('.$e->getMessage().')', 'error');
 							return false;
 						}
 					}
@@ -176,7 +176,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 
 			} catch (Exception $e) {
 				$updraftplus->log(__('Cloud Files error - failed to upload file', 'updraftplus').' ('.$e->getMessage().')');
-				$updraftplus->error(__('Cloud Files error - failed to upload file', 'updraftplus').' ('.$e->getMessage().')');
+				$updraftplus->log(sprintf(__('%s error - failed to upload file', 'updraftplus'),'Cloud Files').' ('.$e->getMessage().')', 'error');
 				return false;
 			}
 
@@ -205,7 +205,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 				$cont_obj = $conn->create_container($container);
 			} catch(Exception $e) {
 				$updraftplus->log('Cloud Files authentication failed ('.$e->getMessage().')');
-				$updraftplus->error(__('Cloud Files authentication failed','updraftplus').' ('.$e->getMessage().')');
+				$updraftplus->log(sprintf(__('%s authentication failed','updraftplus'), 'Cloud Files').' ('.$e->getMessage().')', 'error');
 				return false;
 			}
 		}
@@ -253,15 +253,15 @@ class UpdraftPlus_BackupModule_cloudfiles {
 			$conn = $this->getCF($user, $apikey, $authurl, UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'));
 		} catch(AuthenticationException $e) {
 			$updraftplus->log('Cloud Files authentication failed ('.$e->getMessage().')');
-			$updraftplus->error(__('Cloud Files authentication failed','updraftplus').' ('.$e->getMessage().')');
+			$updraftplus->log(sprintf(__('%s authentication failed','updraftplus'), 'Cloud Files').' ('.$e->getMessage().')', 'error');
 			return false;
 		} catch(NoSuchAccountException $s) {
 			$updraftplus->log('Cloud Files authentication failed ('.$e->getMessage().')');
-			$updraftplus->error(__('Cloud Files authentication failed','updraftplus').' ('.$e->getMessage().')');
+			$updraftplus->log(sprintf(__('%s authentication failed','updraftplus'), 'Cloud Files').' ('.$e->getMessage().')', 'error');
 			return false;
 		} catch (Exception $e) {
 			$updraftplus->log('Cloud Files error - failed to create and access the container ('.$e->getMessage().')');
-			$updraftplus->error(__('Cloud Files error - failed to create and access the container', 'updraftplus').' ('.$e->getMessage().')');
+			$updraftplus->log(__('Cloud Files error - failed to create and access the container', 'updraftplus').' ('.$e->getMessage().')', 'error');
 			return;
 		}
 
@@ -279,7 +279,9 @@ class UpdraftPlus_BackupModule_cloudfiles {
 		try {
 			$cont_obj = $conn->create_container($container);
 		} catch(Exception $e) {
-			$updraftplus->error(__('Cloud Files error - failed to create and access the container','updraftplus').' ('.$e->getMessage().')');
+			$updraftplus->log('Cloud Files error - failed to create and access the container ('.$e->getMessage().')');
+			$updraftplus->log(__('Cloud Files error - failed to create and access the container','updraftplus').' ('.$e->getMessage().')', 'error');
+			return false;
 		}
 
 // 		$path = ($path == '') ? $file : "$path/$file";
@@ -307,7 +309,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 			// Some more remains to download - so let's do it
 			if (!$fh = fopen($fullpath, 'a')) {
 				$updraftplus->log("Cloud Files: Error opening local file: $fullpath");
-				$updraftplus->error("$file: ".__("Cloud Files Error",'updraftplus').": ".__('Error opening local file: Failed to download','updraftplus'));
+				$updraftplus->log(sprintf("$file: ".__("%s Error",'updraftplus'),'Cloud Files').": ".__('Error opening local file: Failed to download','updraftplus'), 'error');
 				return false;
 			}
 
@@ -324,7 +326,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 				$object->stream($fh, $headers);
 			} catch (Exception $e) {
 				$updraftplus->log("Cloud Files: Failed to download: $file (".$e->getMessage().")");
-				$updraftplus->error("$file: ".__("Cloud Files Error",'updraftplus').": ".__('Error downloading remote file: Failed to download'.' ('.$e->getMessage().")",'updraftplus'));
+				$updraftplus->log("$file: ".sprintf(__("%s Error",'updraftplus'), 'Cloud Files').": ".__('Error downloading remote file: Failed to download'.' ('.$e->getMessage().")",'updraftplus'), 'error');
 				return false;
 			}
 			
@@ -333,11 +335,11 @@ class UpdraftPlus_BackupModule_cloudfiles {
 
 		} catch (NoSuchObjectException $e) {
 			$updraftplus->log('Cloud Files error - no such file exists at Cloud Files ('.$e->getMessage().')');
-			$updraftplus->error(__('Cloud Files error - no such file exists at Cloud Files','updraftplus').' ('.$e->getMessage().')');
+			$updraftplus->log(sprintf(__('Error - no such file exists at %s','updraftplus'),'Cloud Files').' ('.$e->getMessage().')', 'error');
 			return false;
 		} catch(Exception $e) {
 			$updraftplus->log('Cloud Files error - failed to download the file ('.$e->getMessage().')');
-			$updraftplus->error(__('Cloud Files error - failed to download the file','updraftplus').' ('.$e->getMessage().')');
+			$updraftplus->log(sprintf(__('Error - failed to download the file from %s','updraftplus'),'Cloud Files').' ('.$e->getMessage().')' ,'error');
 			return false;
 		}
 

@@ -32,7 +32,7 @@ class UpdraftPlus_Backup {
 		// Is the place we've ended up above the original base? That leads to infinite recursion
 		if (($fullpath !== $original_fullpath && strpos($original_fullpath, $fullpath) === 0) || ($original_fullpath == $fullpath && strpos($use_path_when_storing, '/') !== false) ) {
 			$updraftplus->log("Infinite recursion: symlink lead us to $fullpath, which is within $original_fullpath");
-			$updraftplus->error(__("Infinite recursion: consult your log for more information",'updraftplus'));
+			$updraftplus->log(__("Infinite recursion: consult your log for more information",'updraftplus'), 'error');
 			return false;
 		}
 
@@ -43,13 +43,13 @@ class UpdraftPlus_Backup {
 				@touch($zipfile);
 			} else {
 				$updraftplus->log("$fullpath: unreadable file");
-				$updraftplus->error("$fullpath: unreadable file");
+				$updraftplus->log(sprintf(__("%s: unreadable file - could not be backed up", 'updraftplus'), $fullpath), 'warning');
 			}
 		} elseif (is_dir($fullpath)) {
 			if (!isset($this->existing_files[$use_path_when_storing])) $this->zipfiles_dirbatched[] = $use_path_when_storing;
 			if (!$dir_handle = @opendir($fullpath)) {
 				$updraftplus->log("Failed to open directory: $fullpath");
-				$updraftplus->error("Failed to open directory: $fullpath");
+				$updraftplus->log(sprintf(__("Failed to open directory: %s",'updraftplus'), $fullpath), 'error');
 				return;
 			}
 			while ($e = readdir($dir_handle)) {
@@ -62,7 +62,7 @@ class UpdraftPlus_Backup {
 								@touch($zipfile);
 							} else {
 								$updraftplus->log("$deref: unreadable file");
-								$updraftplus->error("$deref: unreadable file");
+								$updraftplus->log(sprintf(__("%s: unreadable file - could not be backed up"), $deref), 'warning');
 							}
 						} elseif (is_dir($deref)) {
 							$this->makezip_recursive_add($zipfile, $deref, $use_path_when_storing.'/'.$e, $original_fullpath);
@@ -73,7 +73,7 @@ class UpdraftPlus_Backup {
 							@touch($zipfile);
 						} else {
 							$updraftplus->log("$fullpath/$e: unreadable file");
-							$updraftplus->error("$fullpath/$e: unreadable file");
+							$updraftplus->log(sprintf(__("%s: unreadable file - could not be backed up", 'updraftplus')), 'warning');
 						}
 					} elseif (is_dir($fullpath.'/'.$e)) {
 						// no need to addEmptyDir here, as it gets done when we recurse
@@ -114,7 +114,7 @@ class UpdraftPlus_Backup {
 			// TODO: WP_CONTENT_DIR: may not apply
 			$zipcode = $zip_object->create($source, PCLZIP_OPT_REMOVE_PATH, WP_CONTENT_DIR);
 			if ($zipcode == 0 ) {
-				$updraftplus->log("PclZip Error: ".$zip_object->errorInfo(true));
+				$updraftplus->log("PclZip Error: ".$zip_object->errorInfo(true), 'warning');
 				return $zip_object->errorCode();
 			} else {
 				return true;
@@ -161,7 +161,7 @@ class UpdraftPlus_Backup {
 				if ($handle) {
 					while (!feof($handle)) {
 						$w = fgets($handle, 1024);
-						if ($w && $debug) $updraftplus->log("Output from zip: ".trim($w), false);
+						if ($w && $debug) $updraftplus->log("Output from zip: ".trim($w), 'debug');
 						if (!$something_useful_happened && file_exists($destination)) {
 							$new_size = filesize($destination);
 							if ($new_size > $orig_size + 20) {
@@ -174,7 +174,7 @@ class UpdraftPlus_Backup {
 					$ret = pclose($handle);
 					if ($ret != 0) {
 						$updraftplus->log("Binary zip: error (code: $ret)");
-						if ($w && !$debug) $updraftplus->log("Last output from zip: ".trim($w), false);
+						if ($w && !$debug) $updraftplus->log("Last output from zip: ".trim($w), 'debug');
 						$all_ok = false;
 					}
 				} else {
@@ -294,6 +294,11 @@ class UpdraftPlus_Backup {
 		foreach ($this->zipfiles_batched as $file => $add_as) {
 			$fsize = filesize($file);
 			
+			if ($fsize > UPDRAFTPLUS_WARN_FILE_SIZE) {
+				$updraftplus->log(sprintf(__('A very large file was encountered: %s (size: %s Mb)', 'updraftplus'), $add_as, round($fsize/1048576, 1)), 'warning');
+				if (rand(0,2) == 1) { $updraftplus->log('BOGUS STOP!', 'error'); $updraftplus->log('BOGUS STOP!'); exit; }
+			}
+
 			$sofar = 0;
 			
 			if (!isset($this->existing_files[$add_as]) || $this->existing_files[$add_as] != $fsize) {
@@ -390,13 +395,13 @@ class UpdraftPlus_Backup {
 							} else {
 
 								if ($normalised_time_since_began<6 || ($updraftplus->current_resumption >=1 && $run_times_known >=1 && $time_since_began < 0.6*$max_time )) {
-									
+
 									// How much can we increase it by?
 									if ($normalised_time_since_began <6) {
 										if ($run_times_known > 0 && $max_time >0) {
 											$new_maxzipbatch = min(floor(max(
-												$maxzipbatch*6/$normalised_time_since_began, $maxzipbatch*((0.6*$max_time)/$normalised_time_since_began)),
-											200*1024*1024)
+												$maxzipbatch*6/$normalised_time_since_began, $maxzipbatch*((0.6*$max_time)/$normalised_time_since_began))),
+											200*1024*1024
 											);
 										} else {
 											# Maximum of 200Mb in a batch
@@ -417,9 +422,12 @@ class UpdraftPlus_Backup {
 									# Also don't allow anything that is going to be more than 18 seconds - actually, that's harmful because of the basically fixed time taken to copy the file
 									# $new_maxzipbatch = floor(min(18*$rate ,$new_maxzipbatch));
 
-									$updraftplus->jobdata_set("maxzipbatch", $new_maxzipbatch);
+									// Final sanity check
+									if ($new_maxzipbatch > 1024*1024) $updraftplus->jobdata_set("maxzipbatch", $new_maxzipbatch);
 									
-									if ($new_maxzipbatch > $maxzipbatch) {
+									if ($new_maxzipbatch <= 1024*1024) {
+										$updraftplus->log("Unexpected new_maxzipbatch value obtained (time=$time_since_began, normalised_time=$normalised_time_since_began, max_time=$max_time, data points known=$run_times_known, old_max_bytes=$maxzipbatch, new_max_bytes=$new_maxzipbatch)");
+									} elseif ($new_maxzipbatch > $maxzipbatch) {
 										$updraftplus->log("Performance is good - will increase the amount of data we attempt to batch (time=$time_since_began, normalised_time=$normalised_time_since_began, max_time=$max_time, data points known=$run_times_known, old_max_bytes=$maxzipbatch, new_max_bytes=$new_maxzipbatch)");
 									} elseif ($new_maxzipbatch < $maxzipbatch) {
 										// Ironically, we thought we were speedy...
@@ -428,7 +436,7 @@ class UpdraftPlus_Backup {
 										$updraftplus->log("Performance is good - but we will not increase the amount of data we batch, as we are already at the present limit (time=$time_since_began, normalised_time=$normalised_time_since_began, max_time=$max_time, data points known=$run_times_known, max_bytes=$maxzipbatch)");
 									}
 
-									$maxzipbatch = $new_maxzipbatch;
+									if ($new_maxzipbatch > 1024*1024) $maxzipbatch = $new_maxzipbatch;
 								}
 
 								// Detect excessive slowness
@@ -496,7 +504,7 @@ class UpdraftPlus_Backup {
 					$flag_error = false;
 				}
 			}
-			if ($flag_error) $updraftplus->error(sprintf(__("%s - could not back this entity up; the corresponding directory does not exist (%s)", 'updraftplus'), $whichone, $create_from_dir));
+			if ($flag_error) $updraftplus->log(sprintf(__("%s - could not back this entity up; the corresponding directory does not exist (%s)", 'updraftplus'), $whichone, $create_from_dir), 'error');
 			return false;
 		}
 
@@ -533,7 +541,7 @@ class UpdraftPlus_Backup {
 		$zipcode = $this->make_zipfile($create_from_dir, $zip_name);
 		if ($zipcode !== true) {
 			$updraftplus->log("ERROR: Zip failure: Could not create $whichone zip: code=$zipcode");
-			$updraftplus->error(sprintf(__("Could not create %s zip. Consult the log file for more information.",'updraftplus'),$whichone));
+			$updraftplus->log(sprintf(__("Could not create %s zip. Consult the log file for more information.",'updraftplus'),$whichone), 'error');
 			return false;
 		} else {
 			rename($full_path.'.tmp', $full_path);

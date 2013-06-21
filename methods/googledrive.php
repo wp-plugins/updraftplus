@@ -160,7 +160,7 @@ class UpdraftPlus_BackupModule_googledrive {
 		// Do we have an access token?
 		if ( !$access_token = $this->access_token( UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token'), UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid'), UpdraftPlus_Options::get_updraft_option('updraft_googledrive_secret') )) {
 			$updraftplus->log('ERROR: Have not yet obtained an access token from Google (has the user authorised?)');
-			$updraftplus->error(__('Have not yet obtained an access token from Google - you need to authorise or re-authorise your connection to Google Drive.','updraftplus'));
+			$updraftplus->log(__('Have not yet obtained an access token from Google - you need to authorise or re-authorise your connection to Google Drive.','updraftplus'), 'error');
 			return new WP_Error( "no_access_token", __("Have not yet obtained an access token from Google (has the user authorised?)",'updraftplus'));
 		}
 
@@ -192,7 +192,7 @@ class UpdraftPlus_BackupModule_googledrive {
 				$filesize = filesize($file_path);
 				if ($filesize > $available_quota) {
 					$updraftplus->log("File upload expected to fail: file ($file_name) size is $filesize b, whereas available quota is only $available_quota b");
-					$updraftplus->error(sprintf(__("Account full: your %s account has only %d bytes left, but the file to be uploaded is %d bytes",'updraftplus'),'Google Drive', $available_quota, $filesize));
+					$updraftplus->log(sprintf(__("Account full: your %s account has only %d bytes left, but the file to be uploaded is %d bytes",'updraftplus'),__('Google Drive', 'updraftplus'), $available_quota, $filesize), 'error');
 				}
 			}
 
@@ -202,7 +202,7 @@ class UpdraftPlus_BackupModule_googledrive {
 				$updraftplus->uploaded_file($file, $id);
 			} else {
 				$updraftplus->log("ERROR: $file_name: Failed to upload to Google Drive" );
-				$updraftplus->error("$file_name: ".sprintf(__('Failed to upload to %s','updraftplus'),'Google Drive'));
+				$updraftplus->log("$file_name: ".sprintf(__('Failed to upload to %s','updraftplus'),__('Google Drive','updraftplus')), 'error');
 			}
 		}
 		$updraftplus->prune_retained_backups("googledrive", $this, null);
@@ -221,7 +221,7 @@ class UpdraftPlus_BackupModule_googledrive {
 				// Do we have an access token?
 				if ( !$access_token = $this->access_token( UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token'), UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid'), UpdraftPlus_Options::get_updraft_option('updraft_googledrive_secret') )) {
 					$updraftplus->log('ERROR: Have not yet obtained an access token from Google (has the user authorised?)');
-					$updraftplus->error(__('Have not yet obtained an access token from Google - you need to authorise or re-authorise your connection to Google Drive.','updraftplus'));
+					$updraftplus->log(__('Have not yet obtained an access token from Google - you need to authorise or re-authorise your connection to Google Drive.','updraftplus'), 'error');
 					return false;
 				}
 
@@ -270,7 +270,7 @@ class UpdraftPlus_BackupModule_googledrive {
 			$updraftplus->log("GoogleDrive upload: an error occurred");
 			foreach ($location->get_error_messages() as $msg) {
 				$updraftplus->log("Error details: ".$msg);
-				$updraftplus->error(__('Error','updraftplus').': '.$msg);
+				$updraftplus->log(sprintf(__('Error: %s','updraftplus'), $msg), 'error');
 			}
 			return false;
 		}
@@ -306,7 +306,7 @@ class UpdraftPlus_BackupModule_googledrive {
 
 			if ( is_wp_error( $res ) || $res !== true) {
 				$updraftplus->log( "An error occurred during Google Drive upload (2)" );
-				$updraftplus->error(sprintf(__("An error occurred during %s upload (see log for more details)",'updraftplus'), 'Google Drive'));
+				$updraftplus->log(sprintf(__("An error occurred during %s upload (see log for more details)",'updraftplus'), 'Google Drive'), 'error');
 				if (is_wp_error( $res )) {
 					foreach ($res->get_error_messages() as $msg) $updraftplus->log($msg);
 				}
@@ -335,7 +335,7 @@ class UpdraftPlus_BackupModule_googledrive {
 
 		// Do we have an access token?
 		if ( !$access_token = $this->access_token( UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token'), UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid'), UpdraftPlus_Options::get_updraft_option('updraft_googledrive_secret') )) {
-			$updraftplus->error(__('Have not yet obtained an access token from Google (has the user authorised?)', 'updraftplus'));
+			$updraftplus->log(__('Have not yet obtained an access token from Google (has the user authorised?)', 'updraftplus'), 'error');
 			return false;
 		}
 
@@ -345,13 +345,13 @@ class UpdraftPlus_BackupModule_googledrive {
 
 		$ids = UpdraftPlus_Options::get_updraft_option('updraft_file_ids', array());
 		if (!isset($ids[$file])) {
-			$updraftplus->error(sprintf(__("Google Drive error: %d: could not download: could not find a record of the Google Drive file ID for this file",'updraftplus'),$file));
+			$updraftplus->log(sprintf(__("Google Drive error: %d: could not download: could not find a record of the Google Drive file ID for this file",'updraftplus'),$file), 'error');
 			return;
 		} else {
 			$content_link = $gdocs_object->get_content_link( $ids[$file], $file );
 			if (is_wp_error($content_link)) {
-				$updraftplus->error(sprintf(__("Could not find %s in order to download it", 'updraftplus'),$file)." (id: ".$ids[$file].")");
-				foreach ($content_link->get_error_messages() as $msg) $updraftplus->error($msg);
+				$updraftplus->log(sprintf(__("Could not find %s in order to download it", 'updraftplus'),$file)." (id: ".$ids[$file].")", 'error');
+				foreach ($content_link->get_error_messages() as $msg) $updraftplus->log($msg, 'error');
 				return false;
 			}
 			// Actually download the thing
@@ -362,7 +362,8 @@ class UpdraftPlus_BackupModule_googledrive {
 			if (filesize($download_to) > 0) {
 				return true;
 			} else {
-				$updraftplus->error(__("Google Drive ",'updraftplus').__('error: zero-size file was downloaded','updraftplus'));
+				$updraftplus->log('Google Drive error: zero-size file was downloaded');
+				$updraftplus->log(sprintf(__('%s error: zero-size file was downloaded','updraftplus'), __("Google Drive ",'updraftplus'),__("Google Drive ",'updraftplus')), 'error');
 				return false;
 			}
 

@@ -369,7 +369,7 @@ class UpdraftPlus_Admin {
 			$remote_obj->download($file);
 		} else {
 			$updraftplus->log("Automatic backup restoration is not available with the method: $service.");
-			$updraftplus->error("$file: ".sprintf(__("The backup archive for restoring this file could not be found. The remote storage method in use (%s) does not allow us to retrieve files. To proceed with this restoration, you need to obtain a copy of this file and place it inside UpdraftPlus's working folder", 'updraftplus'), $service)." (".$this->prune_updraft_dir_prefix($updraftplus->backups_dir_location()).")");
+			$updraftplus->log("$file: ".sprintf(__("The backup archive for restoring this file could not be found. The remote storage method in use (%s) does not allow us to retrieve files. To proceed with this restoration, you need to obtain a copy of this file and place it inside UpdraftPlus's working folder", 'updraftplus'), $service)." (".$this->prune_updraft_dir_prefix($updraftplus->backups_dir_location()).")", 'error');
 		}
 
 	}
@@ -929,7 +929,7 @@ class UpdraftPlus_Admin {
 					}
 					$current_time = get_date_from_gmt(gmdate('Y-m-d H:i:s'), 'D, F j, Y H:i');
 
-					$backup_disabled = (is_writable($updraft_dir)) ? '' : 'disabled="disabled"';
+					$backup_disabled = ($updraftplus->really_is_writable($updraft_dir)) ? '' : 'disabled="disabled"';
 
 					$last_backup_html = $this->last_backup_html();
 
@@ -944,7 +944,7 @@ class UpdraftPlus_Admin {
 					</td>
 				</tr>
 				<tr>
-					<th><?php _e('Last finished backup run','updraftplus');?>:</th>
+					<th><?php _e('Last backup job run:','updraftplus');?></th>
 					<td id="updraft_last_backup"><?php echo $last_backup_html ?></td>
 				</tr>
 			</table>
@@ -1454,14 +1454,14 @@ class UpdraftPlus_Admin {
 
 		if ($wp_filesystem->is_dir($default_backup_dir)) {
 
-			if (is_writable($updraft_dir)) return true;
+			if ($updraftplus->really_is_writable($updraft_dir)) return true;
 
 			@$wp_filesystem->chmod($default_backup_dir, 0775);
-			if (is_writable($updraft_dir)) return true;
+			if ($updraftplus->really_is_writable($updraft_dir)) return true;
 
 			@$wp_filesystem->chmod($default_backup_dir, 0777);
 
-			if (is_writable($updraft_dir)) {
+			if ($updraftplus->really_is_writable($updraft_dir)) {
 				echo '<p>'.__('The folder was created, but we had to change its file permissions to 777 (world-writable) to be able to write to it. You should check with your hosting provider that this will not cause any problems', 'updraftplus').'</p>';
 				return true;
 			} else {
@@ -1493,30 +1493,39 @@ class UpdraftPlus_Admin {
 
 		$updraft_last_backup = UpdraftPlus_Options::get_updraft_option('updraft_last_backup');
 
-		$updraft_dir = $updraftplus->backups_dir_location();
-
 		if($updraft_last_backup) {
 
-			if ($updraft_last_backup['success']) {
-				// Convert to GMT, then to blog time
-				$last_backup_text = get_date_from_gmt(gmdate('Y-m-d H:i:s', $updraft_last_backup['backup_time']), 'D, F j, Y H:i');
-			} else {
-				$last_backup_text = implode("<br>",$updraft_last_backup['errors']);
+			// Convert to GMT, then to blog time
+			$last_backup_text = "<span style=\"color:".(($updraft_last_backup['success']) ? 'green' : 'black').";\">".get_date_from_gmt(gmdate('Y-m-d H:i:s', $updraft_last_backup['backup_time']), 'D, F j, Y H:i').'</span><br>';
+
+			if (is_array($updraft_last_backup['errors'])) {
+				foreach ($updraft_last_backup['errors'] as $err) {
+					$level = (is_array($err)) ? $err['level'] : 'error';
+					$message = (is_array($err)) ? $err['message'] : $err;
+			
+					$last_backup_text .= ('warning' == $level) ? "<span style=\"color:orange;\">" : "<span style=\"color:red;\">";
+					
+					if ('warning' == $level) $message = sprintf(__("Warning: %s", 'updraftplus'), $message);
+
+					$last_backup_text .= htmlspecialchars($message);
+					
+					$last_backup_text .= '</span><br>';
+				}
 			}
 
 			if (!empty($updraft_last_backup['backup_nonce'])) {
+				$updraft_dir = $updraftplus->backups_dir_location();
+
 				$potential_log_file = $updraft_dir."/log.".$updraft_last_backup['backup_nonce'].".txt";
-				if (is_readable($potential_log_file)) $last_backup_text .= "<br><a href=\"?page=updraftplus&action=downloadlog&updraftplus_backup_nonce=".$updraft_last_backup['backup_nonce']."\">".__('Download log file','updraftplus')."</a>";
+
+				if (is_readable($potential_log_file)) $last_backup_text .= "<a href=\"?page=updraftplus&action=downloadlog&updraftplus_backup_nonce=".$updraft_last_backup['backup_nonce']."\">".__('Download log file','updraftplus')."</a>";
 			}
 
-			$last_backup_color = ($updraft_last_backup['success']) ? 'green' : 'red';
-
 		} else {
-			$last_backup_text = __('No backup has been completed.','updraftplus');
-			$last_backup_color = 'blue';
+			$last_backup_text =  "<span style=\"color:blue;\">".__('No backup has been completed.','updraftplus')."</span>";
 		}
 
-		return "<span style=\"color:${last_backup_color}\">${last_backup_text}</span>";
+		return $last_backup_text;
 
 	}
 
@@ -1853,7 +1862,10 @@ ENDHERE;
 						jQuery('#enableexpertmode').off('click'); 
 						return false;
 					});
-					<?php if (!@is_writable($updraft_dir)) echo "jQuery('.backupdirrow').show();\n"; ?>
+					<?php
+						$really_is_writable = $updraftplus->really_is_writable($updraft_dir);
+						if (!$really_is_writable) echo "jQuery('.backupdirrow').show();\n";
+					?>
 					setTimeout(function(){updraft_showlastlog(true);}, 1200);
 					jQuery('.updraftplusmethod').hide();
 					<?php
@@ -1896,11 +1908,16 @@ ENDHERE;
 			<tr class="expertmode backupdirrow" style="display:none;">
 				<td></td><td><?php
 
-					// Suppress warnings, since if the user is dumping warnings to screen, then invalid JavaScript results and the screen breaks.
-					if(@is_writable($updraft_dir)) {
+					if($really_is_writable) {
 						$dir_info = '<span style="color:green">'.__('Backup directory specified is writable, which is good.','updraftplus').'</span>';
 					} else {
-						$dir_info = '<span style="color:red">'.__('Backup directory specified is <b>not</b> writable, or does not exist.','updraftplus').' <span style="font-size:110%;font-weight:bold"><a href="options-general.php?page=updraftplus&action=updraft_create_backup_dir&nonce='.wp_create_nonce('create_backup_dir').'">'.__('Click here to attempt to create the directory and set the permissions','updraftplus').'</a></span>, '.__('or, to reset this option','updraftplus').' <a href="#" onclick="jQuery(\'#updraft_dir\').val(\''.WP_CONTENT_DIR.'/updraft\'); return false;">'.__('click here','updraftplus').'</a>. '.__('If that is unsuccessful check the permissions on your server or change it to another directory that is writable by your web server process.','updraftplus').'</span>';
+						$dir_info = '<span style="color:red">';
+						if (!is_dir($updraft_dir)) {
+							$dir_info .= __('Backup directory specified does <b>not</b> exist.','updraftplus');
+						} else {
+							$dir_info .= __('Backup directory specified exists, but is <b>not</b> writable.','updraftplus');
+						}
+						$dir_info .= ' <span style="font-size:110%;font-weight:bold"><a href="options-general.php?page=updraftplus&action=updraft_create_backup_dir&nonce='.wp_create_nonce('create_backup_dir').'">'.__('Click here to attempt to create the directory and set the permissions','updraftplus').'</a></span>, '.__('or, to reset this option','updraftplus').' <a href="#" onclick="jQuery(\'#updraft_dir\').val(\''.WP_CONTENT_DIR.'/updraft\'); return false;">'.__('click here','updraftplus').'</a>. '.__('If that is unsuccessful check the permissions on your server or change it to another directory that is writable by your web server process.','updraftplus').'</span>';
 					}
 
 					echo $dir_info.' '.__("This is where UpdraftPlus will write the zip files it creates initially.  This directory must be writable by your web server. Typically you'll want to have it inside your wp-content folder (this is the default).  <b>Do not</b> place it inside your uploads dir, as that will cause recursion issues (backups of backups of backups of...).",'updraftplus');?></td>
@@ -2338,8 +2355,8 @@ ENDHERE;
 					return false;
 				}
 			} else {
-				$updraftplus->error("$file: ".__('Could not find one of the files for restoration', 'updraftplus'));
 				echo __('Could not find one of the files for restoration', 'updraftplus').": ($file)";
+				$updraftplus->log("$file: ".__('Could not find one of the files for restoration', 'updraftplus'), 'error');
 			}
 		}
 		echo '</div>'; //close the updraft_restore_progress div

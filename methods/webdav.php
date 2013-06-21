@@ -10,7 +10,7 @@ class UpdraftPlus_BackupModule_webdav {
 		$addon_exists = apply_filters('updraft_webdav_exists', 'no');
 		if ($addon_exists !== 'yes') {
 			$updraftplus->log('You do not have the UpdraftPlus WebDAV add-on installed - get it from http://updraftplus.com/shop/');
-			$updraftplus->error(sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'),'WebDAV','http://updraftplus.com/shop/'));
+			$updraftplus->log(sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'),'WebDAV','http://updraftplus.com/shop/'), 'error');
 			return false;
 		}
 
@@ -31,7 +31,7 @@ class UpdraftPlus_BackupModule_webdav {
 		$addon_exists = apply_filters('updraft_webdav_exists', 'no');
 		if ($addon_exists !== 'yes') {
 			$updraftplus->log('You do not have the UpdraftPlus WebDAV add-on installed - get it from http://updraftplus.com/shop/');
-			$updraftplus->error(sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'),'WebDAV','http://updraftplus.com/shop/'));
+			$updraftplus->log(sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'),'WebDAV','http://updraftplus.com/shop/'), 'error');
 			return false;
 		}
 
@@ -47,7 +47,7 @@ class UpdraftPlus_BackupModule_webdav {
 		$addon_exists = apply_filters('updraft_webdav_exists', 'no');
 		if ($addon_exists !== 'yes') {
 			$updraftplus->log('You do not have the UpdraftPlus WebDAV add-on installed - get it from http://updraftplus.com/shop/');
-			$updraftplus->error(sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'),'WebDAV','http://updraftplus.com/shop/'));
+			$updraftplus->log(sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'),'WebDAV','http://updraftplus.com/shop/'), 'error');
 			return false;
 		}
 

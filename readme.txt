@@ -126,10 +126,13 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: Delete existing backup sets manually (deletes both local + cloud copies)
 * FEATURE: Restorations + migrations can now be attempted even if the user lacks CREATE TABLE or DROP TABLE permissions
 * FEATURE: Italiano/Italian translation by Francesco Carpana (f.carpana@gmail.com)
+* FEATURE: Re-worked error handling internally, leading to users now being notified prominently of warning-level conditions (non-fatal conditions, but things the user should be advised of)
 * FIX: "Wipe settings" wipes S3 + DreamObjects settings (they were retained previously)
 * FIX: Suppress spurious "Table prefix has changed" message
 * FIX: Escape output of logging lines (prevents on-page JavaScript breakage if error from cloud service contained unescaped quotes)
+* FIX: Fix syntax error in rarely-triggered part of scheduling calculation algorithm that could cause a dramatic slow-down
 * TWEAK: Provide the error message sent by Google upon initial Drive authentication errors.
+* TWEAK: Found a case where PHP's is_writable() erroneously returns true - actually test a write
 
 = 1.6.17 - 2013/06/06 =
 * FEATURE: News blog - http://updraftplus.com/news/ - please subscribe if you want to stay up to date with news of new features, tips, and special offers. RSS link: http://feeds.feedburner.com/UpdraftPlus

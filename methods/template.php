@@ -43,7 +43,7 @@ class UpdraftPlus_BackupModule_template {
 	}
 
 	// download method: takes a file name (base name), and brings it back from the cloud storage into Updraft's directory
-	// $updraftplus->logging is not available here, but you can register errors with $updraftplus->error("my error message")
+	// You can register errors with $updraftplus->log("my error message", 'error')
 	function download($file) {
 
 		global $updraftplus;

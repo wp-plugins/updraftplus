@@ -121,7 +121,7 @@ class UpdraftPlus_BackupModule_s3 {
 				if ($chunks < 2) {
 					if (!$s3->putObjectFile($fullpath, $bucket_name, $filepath)) {
 						$updraftplus->log("$whoweare regular upload: failed ($fullpath)");
-						$updraftplus->error("$file: ".sprintf(__('%s Error: Failed to upload','updraftplus'),$whoweare));
+						$updraftplus->log("$file: ".sprintf(__('%s Error: Failed to upload','updraftplus'),$whoweare), 'error');
 					} else {
 						$updraftplus->log("$whoweare regular upload: success");
 						$updraftplus->uploaded_file($file);
@@ -142,7 +142,7 @@ class UpdraftPlus_BackupModule_s3 {
 
 						if (empty($uploadId)) {
 							$updraftplus->log("$whoweare upload: failed: could not get uploadId for multipart upload ($filepath)");
-							$updraftplus->error(sprintf(__("%s upload: getting uploadID for multipart upload failed - see log file for more details",'updraftplus'),$whoweare));
+							$updraftplus->log(sprintf(__("%s upload: getting uploadID for multipart upload failed - see log file for more details",'updraftplus'),$whoweare), 'error');
 							continue;
 						} else {
 							$updraftplus->log("$whoweare chunked upload: got multipart ID: $uploadId");
@@ -165,7 +165,7 @@ class UpdraftPlus_BackupModule_s3 {
 							// Sanity check: we've seen a case where an overlap was truncating the file from underneath us
 							if (filesize($fullpath) < $orig_file_size) {
 								$updraftplus->log("$whoweare error: $key: chunk $i: file was truncated underneath us (orig_size=$orig_file_size, now_size=".filesize($fullpath).")");
-								$updraftplus->error(sprintf(__('%s error: file %s was shortened unexpectedly', 'updraftplus'), $whoweare, $fullpath));
+								$updraftplus->log(sprintf(__('%s error: file %s was shortened unexpectedly', 'updraftplus'), $whoweare, $fullpath), 'error');
 							}
 							$etag = $s3->uploadPart($bucket_name, $filepath, $uploadId, $fullpath, $i);
 							if ($etag !== false && is_string($etag)) {
@@ -175,7 +175,7 @@ class UpdraftPlus_BackupModule_s3 {
 								$successes++;
 							} else {
 								$updraftplus->log("$whoweare chunk $i: upload failed");
-								$updraftplus->error(sprintf(__("%s chunk %s: upload failed",'updraftplus'),$whoweare, $i));
+								$updraftplus->log(sprintf(__("%s chunk %s: upload failed",'updraftplus'),$whoweare, $i), 'error');
 							}
 						}
 					}
@@ -189,11 +189,11 @@ class UpdraftPlus_BackupModule_s3 {
 								$updraftplus->uploaded_file($file);
 							} else {
 								$updraftplus->log("$whoweare upload ($key): re-assembly failed ($file)");
-								$updraftplus->error(sprintf(__('%s upload (%s): re-assembly failed (see log for more details)','updraftplus'),$whoweare, $key));
+								$updraftplus->log(sprintf(__('%s upload (%s): re-assembly failed (see log for more details)','updraftplus'),$whoweare, $key), 'error');
 							}
 						} catch (Exception $e) {
 							$updraftplus->log("$whoweare re-assembly error ($key): ".$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
-							$updraftplus->error($e->getMessage().": ".sprint(__('%s re-assembly error (%s): (see log file for more)','updraftplus'),$whoweare, $e->getMessage()));
+							$updraftplus->log($e->getMessage().": ".sprint(__('%s re-assembly error (%s): (see log file for more)','updraftplus'),$whoweare, $e->getMessage()), 'error');
 						}
 						// Remember to unset, as the deletion code later reuses the object
 						$s3->setExceptions(false);
@@ -205,7 +205,7 @@ class UpdraftPlus_BackupModule_s3 {
 			$updraftplus->prune_retained_backups($config['key'], $this, array('s3_object' => $s3, 's3_orig_bucket_name' => $orig_bucket_name));
 		} else {
 			$updraftplus->log("$whoweare Error: Failed to create bucket $bucket_name.");
-			$updraftplus->error(sprintf(__('%s Error: Failed to create bucket %s. Check your permissions and credentials.','updraftplus'),$whoweare, $bucket_name));
+			$updraftplus->log(sprintf(__('%s Error: Failed to create bucket %s. Check your permissions and credentials.','updraftplus'),$whoweare, $bucket_name), 'error');
 		}
 	}
 
@@ -240,7 +240,7 @@ class UpdraftPlus_BackupModule_s3 {
 				$this->set_endpoint($s3, $region);
 			} else {
 				$updraftplus->log("$whoweare Error: Failed to access bucket $bucket_name. Check your permissions and credentials.");
-				$updraftplus->error(sprintf(__('%s Error: Failed to access bucket %s. Check your permissions and credentials.','updraftplus'),$whoweare, $bucket_name));
+				$updraftplus->log(sprintf(__('%s Error: Failed to access bucket %s. Check your permissions and credentials.','updraftplus'),$whoweare, $bucket_name), 'error');
 				return false;
 			}
 		}
@@ -296,11 +296,11 @@ class UpdraftPlus_BackupModule_s3 {
 			$fullpath = $updraftplus->backups_dir_location().'/'.$file;
 			if (!$s3->getObject($bucket_name, $bucket_path.$file, $fullpath, true)) {
 				$updraftplus->log("$whoweare Error: Failed to download $file. Check your permissions and credentials.");
-				$updraftplus->error(sprintf(__('%s Error: Failed to download %s. Check your permissions and credentials.','updraftplus'),$whoweare, $file));
+				$updraftplus->log(sprintf(__('%s Error: Failed to download %s. Check your permissions and credentials.','updraftplus'),$whoweare, $file), 'error');
 			}
 		} else {
 			$updraftplus->log("$whoweare Error: Failed to access bucket $bucket_name. Check your permissions and credentials.");
-			$updraftplus->error(sprintf(__('%s Error: Failed to access bucket %s. Check your permissions and credentials.','updraftplus'),$whoweare, $bucket_name));
+			$updraftplus->log(sprintf(__('%s Error: Failed to access bucket %s. Check your permissions and credentials.','updraftplus'),$whoweare, $bucket_name), 'error');
 		}
 
 	}

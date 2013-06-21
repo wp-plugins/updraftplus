@@ -86,9 +86,9 @@ abstract class Dropbox_ConsumerAbstract
             exit;
         }
         global $updraftplus;
-        $updraftplus->log('Dropbox reauthorisation needed, but running from cron or CLI, so not possible');
+        $updraftplus->log('Dropbox reauthorisation needed; but we are running from cron or the CLI, so this is not possible');
         UpdraftPlus_Options::update_updraft_option("updraft_dropboxtk_request_token",'');
-        $updraftplus->error(sprintf(__('You need to re-authenticate with %s, as your existing credentials are not working.', 'updraftplus'), 'Dropbox'));
+        $updraftplus->log(sprintf(__('You need to re-authenticate with %s, as your existing credentials are not working.', 'updraftplus'), 'Dropbox'), 'error');
         exit;
     }
     
