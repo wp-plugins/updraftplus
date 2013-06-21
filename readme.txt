@@ -131,6 +131,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FIX: Suppress spurious "Table prefix has changed" message
 * FIX: Escape output of logging lines (prevents on-page JavaScript breakage if error from cloud service contained unescaped quotes)
 * FIX: Fix syntax error in rarely-triggered part of scheduling calculation algorithm that could cause a dramatic slow-down
+* TWEAK: Batch database rows by the 1000 instead of 100 - proved to be 3x faster on massive MyISAM tables
 * TWEAK: Provide the error message sent by Google upon initial Drive authentication errors.
 * TWEAK: Found a case where PHP's is_writable() erroneously returns true - actually test a write
 
