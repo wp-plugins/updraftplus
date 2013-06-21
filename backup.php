@@ -394,8 +394,8 @@ class UpdraftPlus_Backup {
 									if ($normalised_time_since_began <6) {
 										if ($run_times_known > 0 && $max_time >0) {
 											$new_maxzipbatch = min(floor(max(
-												$maxzipbatch*6/$normalised_time_since_began, $maxzipbatch*((0.6*$max_time)/$normalised_time_since_began)),
-											200*1024*1024)
+												$maxzipbatch*6/$normalised_time_since_began, $maxzipbatch*((0.6*$max_time)/$normalised_time_since_began))),
+											200*1024*1024
 											);
 										} else {
 											# Maximum of 200Mb in a batch
@@ -416,9 +416,12 @@ class UpdraftPlus_Backup {
 									# Also don't allow anything that is going to be more than 18 seconds - actually, that's harmful because of the basically fixed time taken to copy the file
 									# $new_maxzipbatch = floor(min(18*$rate ,$new_maxzipbatch));
 
-									$updraftplus->jobdata_set("maxzipbatch", $new_maxzipbatch);
+									// Final sanity check
+									if ($new_maxzipbatch > 1024*1024) $updraftplus->jobdata_set("maxzipbatch", $new_maxzipbatch);
 									
-									if ($new_maxzipbatch > $maxzipbatch) {
+									if ($new_maxzipbatch <= 1024*1024) {
+										$updraftplus->log("Unexpected new_maxzipbatch value obtained (time=$time_since_began, normalised_time=$normalised_time_since_began, max_time=$max_time, data points known=$run_times_known, old_max_bytes=$maxzipbatch, new_max_bytes=$new_maxzipbatch)");
+									} elseif ($new_maxzipbatch > $maxzipbatch) {
 										$updraftplus->log("Performance is good - will increase the amount of data we attempt to batch (time=$time_since_began, normalised_time=$normalised_time_since_began, max_time=$max_time, data points known=$run_times_known, old_max_bytes=$maxzipbatch, new_max_bytes=$new_maxzipbatch)");
 									} elseif ($new_maxzipbatch < $maxzipbatch) {
 										// Ironically, we thought we were speedy...
@@ -427,7 +430,7 @@ class UpdraftPlus_Backup {
 										$updraftplus->log("Performance is good - but we will not increase the amount of data we batch, as we are already at the present limit (time=$time_since_began, normalised_time=$normalised_time_since_began, max_time=$max_time, data points known=$run_times_known, max_bytes=$maxzipbatch)");
 									}
 
-									$maxzipbatch = $new_maxzipbatch;
+									if ($new_maxzipbatch > 1024*1024) $maxzipbatch = $new_maxzipbatch;
 								}
 
 								// Detect excessive slowness

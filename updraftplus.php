@@ -1200,13 +1200,13 @@ class UpdraftPlus {
 		if (empty($this->newresumption_scheduled)) return;
 		$time_now = time();
 		$time_away = $this->newresumption_scheduled - $time_now;
-		// 30 is chosen because it is also used to detect recent activity on files (file mod times)
-		if ($time_away >1 && $time_away <= 30) {
-			$this->log('The scheduled resumption is within 30 seconds - will reschedule');
+		// 45 is chosen because it is slightly more than the 30 used to detect recent activity on files (file mod times)
+		if ($time_away >1 && $time_away <= 45) {
+			$this->log('The scheduled resumption is within 45 seconds - will reschedule');
 			// Push 30 seconds into the future
  			// $this->reschedule(60);
-			// Increase interval generally by 30 seconds, on the assumption that our prior estimates were innaccurate (i.e. not just 30 seconds *this* time)
-			$this->increase_resume_and_reschedule(30);
+			// Increase interval generally by 45 seconds, on the assumption that our prior estimates were innaccurate (i.e. not just 45 seconds *this* time)
+			$this->increase_resume_and_reschedule(45);
 		}
 	}
 

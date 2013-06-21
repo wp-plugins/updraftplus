@@ -458,10 +458,11 @@ class UpdraftPlus_BackupModule_cloudfiles {
 			die;
 		}
 
-		$try_file = md5(rand());
+		$try_file = md5(rand()).'.txt';
 
 		try {
 			$object = $cont_obj->create_object($try_file);
+			$object->content_type = "text/plain";
 			$object->write('UpdraftPlus test file');
 		} catch (Exception $e) {
 			echo __('Cloud Files error - we accessed the container, but failed to create a file within it', 'updraftplus').' ('.$e->getMessage().')';
