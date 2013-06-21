@@ -1709,10 +1709,10 @@ class UpdraftPlus {
 			
 			if($segment == 'none') {
 				$row_start = 0;
-				$row_inc = 100;
+				$row_inc = 1000;
 			} else {
-				$row_start = $segment * 100;
-				$row_inc = 100;
+				$row_start = $segment * 1000;
+				$row_inc = 1000;
 			}
 
 			do {
