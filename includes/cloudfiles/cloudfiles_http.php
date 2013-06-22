@@ -765,7 +765,7 @@ class UpdraftPlus_CF_Http
     #
     function get_object_to_string(&$obj, $hdrs=array())
     {
-        if (!is_object($obj) || get_class($obj) != "CF_Object") {
+        if (!is_object($obj) || get_class($obj) != "UpdraftPlus_CF_Object") {
             throw new SyntaxException(
                 "Method argument is not a valid CF_Object.");
         }
@@ -796,7 +796,7 @@ class UpdraftPlus_CF_Http
     #
     function get_object_to_stream(&$obj, &$resource=NULL, $hdrs=array())
     {
-        if (!is_object($obj) || get_class($obj) != "CF_Object") {
+        if (!is_object($obj) || get_class($obj) != "UpdraftPlus_CF_Object") {
             throw new SyntaxException(
                 "Method argument is not a valid CF_Object.");
         }
@@ -832,7 +832,7 @@ class UpdraftPlus_CF_Http
     #
     function put_object(&$obj, &$fp)
     {
-        if (!is_object($obj) || get_class($obj) != "CF_Object") {
+        if (!is_object($obj) || get_class($obj) != "UpdraftPlus_CF_Object") {
             throw new SyntaxException(
                 "Method argument is not a valid CF_Object.");
         }
@@ -891,7 +891,7 @@ class UpdraftPlus_CF_Http
     }
     function post_account(&$conn)
     {
-        if (!is_object($conn) || get_class($conn) != "CF_Connection") {
+        if (!is_object($conn) || get_class($conn) != "UpdraftPlus_CF_Connection") {
             throw new SyntaxException(
                 "Method argument is not a valid CF_Connection object.");
         }
@@ -918,7 +918,7 @@ class UpdraftPlus_CF_Http
     }
     function post_container(&$cont)
     {
-        if (!is_object($cont) || get_class($cont) != "CF_Container") {
+        if (!is_object($cont) || get_class($cont) != "UpdraftPlus_CF_Container") {
             throw new SyntaxException(
                 "Method argument is not a valid CF_Container object.");
         }
@@ -948,7 +948,7 @@ class UpdraftPlus_CF_Http
     #
     function update_object(&$obj)
     {
-        if (!is_object($obj) || get_class($obj) != "CF_Object") {
+        if (!is_object($obj) || get_class($obj) != "UpdraftPlus_CF_Object") {
             throw new SyntaxException(
                 "Method argument is not a valid CF_Object.");
         }
@@ -984,7 +984,7 @@ class UpdraftPlus_CF_Http
     #
     function head_object(&$obj)
     {
-        if (!is_object($obj) || get_class($obj) != "CF_Object") {
+        if (!is_object($obj) || get_class($obj) != "UpdraftPlus_CF_Object") {
             throw new SyntaxException(
                 "Method argument is not a valid CF_Object.");
         }

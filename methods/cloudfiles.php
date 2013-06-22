@@ -7,17 +7,17 @@ class UpdraftPlus_BackupModule_cloudfiles {
 		
 		global $updraftplus;
 
-		if(!class_exists('CF_Authentication')) require_once(UPDRAFTPLUS_DIR.'/includes/cloudfiles/cloudfiles.php');
+		if (!class_exists('UpdraftPlus_CF_Authentication')) require_once(UPDRAFTPLUS_DIR.'/includes/cloudfiles/cloudfiles.php');
 
 		if (!defined('UPDRAFTPLUS_SSL_DISABLEVERIFY')) define('UPDRAFTPLUS_SSL_DISABLEVERIFY', UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify'));
 
-		$auth = new CF_Authentication($user, $apikey, NULL, $authurl);
+		$auth = new UpdraftPlus_CF_Authentication($user, $apikey, NULL, $authurl);
 
 		$updraftplus->log("Cloud Files authentication URL: $authurl");
 
 		$auth->authenticate();
 
-		$conn = new CF_Connection($auth);
+		$conn = new UpdraftPlus_CF_Connection($auth);
 
 		if (!$useservercerts) $conn->ssl_use_cabundle(UPDRAFTPLUS_DIR.'/includes/cacert.pem');
 
@@ -75,7 +75,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 			$chunk_path = "chunk-do-not-delete-$file";
 
 			try {
-				$object = new CF_Object($cont_obj, $cfpath);
+				$object = new UpdraftPlus_CF_Object($cont_obj, $cfpath);
 				$object->content_type = "application/zip";
 
 				$uploaded_size = (isset($object->content_length)) ? $object->content_length : 0;
@@ -113,7 +113,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 							$upload_remotepath = $chunk_path."_$i";
 							// Don't forget the +1; otherwise the last byte is omitted
 							$upload_size = $upload_end - $upload_start + 1;
-							$chunk_object = new CF_Object($cont_obj, $upload_remotepath);
+							$chunk_object = new UpdraftPlus_CF_Object($cont_obj, $upload_remotepath);
 							$chunk_object->content_type = "application/zip";
 							// Without this, some versions of Curl add Expect: 100-continue, which results in Curl then giving this back: curl error: 55) select/poll returned error
 							// Didn't make the difference - instead we just check below for actual success even when Curl reports an error
@@ -134,7 +134,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 									$updraftplus->log("Cloud Files chunk upload: error: ($file / $i) (".$e->getMessage().")");
 									// Experience shows that Curl sometimes returns a select/poll error (curl error 55) even when everything succeeded. Google seems to indicate that this is a known bug.
 									
-									$chunk_object = new CF_Object($cont_obj, $upload_remotepath);
+									$chunk_object = new UpdraftPlus_CF_Object($cont_obj, $upload_remotepath);
 									$chunk_object->content_type = "application/zip";
 									$remote_size = (isset($chunk_object->content_length)) ? $chunk_object->content_length : 0;
 									
@@ -291,7 +291,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 
 		try {
 			// The third parameter causes an exception to be thrown if the object does not exist remotely
-			$object = new CF_Object($cont_obj, $path, true);
+			$object = new UpdraftPlus_CF_Object($cont_obj, $path, true);
 			
 			$fullpath = $updraft_dir.'/'.$file;
 

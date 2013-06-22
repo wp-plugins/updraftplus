@@ -15,19 +15,57 @@
  * Custom Exceptions for the CloudFiles API
  * @package php-cloudfiles-exceptions
  */
+if (!class_exists('SyntaxException')) {
 class SyntaxException extends Exception { }
+}
+
+if (!class_exists('AuthenticationException')) {
 class AuthenticationException extends Exception { }
+}
+
+if (!class_exists('InvalidResponseException')) {
 class InvalidResponseException extends Exception { }
+}
+
+if (!class_exists('NonEmptyContainerException')) {
 class NonEmptyContainerException extends Exception { }
+}
+
+if (!class_exists('NoSuchObjectException')) {
 class NoSuchObjectException extends Exception { }
+}
+
+if (!class_exists('NoSuchContainerException')) {
 class NoSuchContainerException extends Exception { }
+}
+
+if (!class_exists('NoSuchAccountException')) {
 class NoSuchAccountException extends Exception { }
+}
+
+if (!class_exists('MisMatchedChecksumException')) {
 class MisMatchedChecksumException extends Exception { }
+}
+
+if (!class_exists('IOException')) {
 class IOException extends Exception { }
+}
+
+if (!class_exists('CDNNotEnabledException')) {
 class CDNNotEnabledException extends Exception { }
+}
+
+if (!class_exists('BadContentTypeException')) {
 class BadContentTypeException extends Exception { }
+}
+
+if (!class_exists('InvalidUTF8Exception')) {
 class InvalidUTF8Exception extends Exception { }
+}
+
+if (!class_exists('ConnectionNotOpenException')) {
 class ConnectionNotOpenException extends Exception { }
+}
 
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
