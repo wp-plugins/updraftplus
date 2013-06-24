@@ -208,6 +208,7 @@ class UpdraftPlus_Backup {
 			}
 
 			$updraftplus->log(basename($destination).": Zip file already exists, with ".count($this->existing_files)." files");
+
 		} elseif (file_exists($destination)) {
 			$updraftplus->log("Zip file already exists, but is not readable; will remove: $destination");
 			@unlink($destination);

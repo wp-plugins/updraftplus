@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.24
+Version: 1.6.25
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -20,6 +20,7 @@ TODO - some of these are out of date/done, needs pruning
 // Do is_readable() test on each file,  and provide a clear message and link to FAQ if fails - must work on PclZip/ZipArchive/binzip
 // Check why this one wasn't caught by the automatic-user-entered-wrong-thing-in-folder-ID field: https://drive.google.com/?pli=1&authuser=0#folders/0B3ad2KUS8hxPbVp4UGJlVW5ObjQ (http://pastebin.com/fpEEWV7U)
 // Log file SHA1 after finishing creation
+// Get link - http://www.rackspace.com/knowledge_center/article/how-to-use-updraftplus-to-back-up-cloud-sites-to-cloud-files
 // Warn on giganticus files, so that there's a clue for the user if PHP times out or disk space runs out on it
 // 'Delete from your webserver' should trigger a rescan if the backup was local-only
 // Notify user only if backup fails

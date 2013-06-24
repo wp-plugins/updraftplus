@@ -416,7 +416,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 		</tr>
 		<tr class="updraftplusmethod cloudfiles">
 			<th><?php _e('Cloud Files API key','updraftplus');?>:</th>
-			<td><input type="text" autocomplete="off" style="width: 252px" id="updraft_cloudfiles_apikey" name="updraft_cloudfiles_apikey" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_apikey')); ?>" /></td>
+			<td><input type="<?php echo apply_filters('updraftplus_admin_secret_field_type', 'text'); ?>" autocomplete="off" style="width: 252px" id="updraft_cloudfiles_apikey" name="updraft_cloudfiles_apikey" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_apikey')); ?>" /></td>
 		</tr>
 		<tr class="updraftplusmethod cloudfiles">
 			<th><?php echo apply_filters('updraftplus_cloudfiles_location_description',__('Cloud Files container','updraftplus'));?>:</th>

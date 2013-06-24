@@ -370,7 +370,7 @@ class UpdraftPlus_BackupModule_s3 {
 		</tr>
 		<tr class="updraftplusmethod <?php echo $key; ?>">
 			<th><?php echo sprintf(__('%s secret key','updraftplus'), $whoweare_short);?>:</th>
-			<td><input type="text" autocomplete="off" style="width: 292px" id="updraft_<?php echo $key; ?>_apisecret" name="updraft_<?php echo $key; ?>_pass" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_'.$key.'_pass')); ?>" /></td>
+			<td><input type="<?php echo apply_filters('updraftplus_admin_secret_field_type', 'text'); ?>" autocomplete="off" style="width: 292px" id="updraft_<?php echo $key; ?>_apisecret" name="updraft_<?php echo $key; ?>_pass" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_'.$key.'_pass')); ?>" /></td>
 		</tr>
 		<tr class="updraftplusmethod <?php echo $key; ?>">
 			<th><?php echo sprintf(__('%s location','updraftplus'), $whoweare_short);?>:</th>

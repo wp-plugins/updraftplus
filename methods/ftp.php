@@ -176,7 +176,7 @@ class UpdraftPlus_BackupModule_ftp {
 		</tr>
 		<tr class="updraftplusmethod ftp">
 			<th><?php _e('FTP Password','updraftplus');?>:</th>
-			<td><input type="text" size="40" id="updraft_ftp_pass" name="updraft_ftp_pass" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_ftp_pass')); ?>" /></td>
+			<td><input type="<?php echo apply_filters('updraftplus_admin_secret_field_type', 'text'); ?>" size="40" id="updraft_ftp_pass" name="updraft_ftp_pass" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_ftp_pass')); ?>" /></td>
 		</tr>
 		<tr class="updraftplusmethod ftp">
 			<th><?php _e('Remote Path','updraftplus');?>:</th>
