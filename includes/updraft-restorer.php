@@ -314,6 +314,8 @@ class Updraft_Restorer extends WP_Upgrader {
 			}
 
 			$errors = 0;
+			$statements_run = 0;
+			$tables_created = 0;
 
 			$sql_line = "";
 			$sql_type = -1;
@@ -496,16 +498,22 @@ class Updraft_Restorer extends WP_Upgrader {
 						$req = mysql_unbuffered_query( $sql_line, $mysql_dbh );
 						if (!$req) $last_error = mysql_error($mysql_dbh);
 					}
+					$statements_run++;
 				}
 
 				if (!$req) {
-					echo sprintf(_x('An error (%s) occured:', 'The user is being told the number of times an error has happened, e.g. An error (27) occurred', 'updraftplus'), $errors)." - ".htmlspecialchars($last_error)." - ".__('the database query being run was:','updraftplus').' '.htmlspecialchars($sql_line).'<br>';
 					$errors++;
+					echo sprintf(_x('An error (%s) occured:', 'The user is being told the number of times an error has happened, e.g. An error (27) occurred', 'updraftplus'), $errors)." - ".htmlspecialchars($last_error)." - ".__('the database query being run was:','updraftplus').' '.htmlspecialchars($sql_line).'<br>';
+					// First command is expected to be DROP TABLE
+					if (1 == $errors && 2 == $sql_type && 0 == $tables_created) {
+						return new WP_Error('initial_db_error', __('An error occured on the first CREATE TABLE command - aborting run','updraftplus'));
+					}
 					if ($errors>49) {
 						return new WP_Error('too_many_db_errors', __('Too many database errors have occurred - aborting restoration (you will need to restore manually)','updraftplus'));
 					}
+				} elseif ($sql_type == 2) {
+					$tables_created++;
 				}
-
 				if ($line%50 == 0) {
 					if ($line%250 == 0 || $line<250) {
 						$time_taken = microtime(true) - $start_time;

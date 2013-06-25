@@ -247,7 +247,7 @@ class UpdraftPlus_Backup {
 			// ZipArchive::addFile sometimes fails
 			if (filesize($destination) < 100) {
 				// Retry with PclZip
-				$updraftplus->log("Zip::addFile apparently failed - retrying with PclZip");
+				$updraftplus->log("Zip::addFile apparently failed ($last_error, ".filesize($destination).") - retrying with PclZip");
 				$this->zip_preferpcl = true;
 				return $this->make_zipfile($source, $destination);
 			}

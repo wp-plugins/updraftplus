@@ -1,5 +1,7 @@
 <?php
 
+// TODO: New downloader needs to: a) work out that all files are now downloaded, and b) signal back-end to obtain new HTML - new options for the restore form c) disable 'Restore' button whilst all that is going on
+
 if (!defined ('ABSPATH')) die ('No direct access allowed');
 
 // For the purposes of improving site performance (don't load in 10s of Kilobytes of un-needed code on every page load), admin-area code is being progressively moved here.
@@ -139,22 +141,22 @@ class UpdraftPlus_Admin {
 		#filelist, #filelist2  {
 			width: 100%;
 		}
-		#filelist .file, #filelist2 .file, #ud_downloadstatus .file {
+		#filelist .file, #filelist2 .file, #ud_downloadstatus .file, #ud_downloadstatus2 .file {
 			padding: 5px;
 			background: #ececec;
 			border: solid 1px #ccc;
 			margin: 4px 0;
 		}
-		#filelist .fileprogress, #filelist2 .fileprogress, #ud_downloadstatus .dlfileprogress {
+		#filelist .fileprogress, #filelist2 .fileprogress, #ud_downloadstatus .dlfileprogress, #ud_downloadstatus2 .dlfileprogress {
 			width: 0%;
 			background: #f6a828;
 			height: 5px;
 		}
-		#ud_downloadstatus .raw {
+		#ud_downloadstatus .raw, #ud_downloadstatus2 .raw {
 			margin-top: 8px;
 			clear:left;
 		}
-		#ud_downloadstatus .file {
+		#ud_downloadstatus .file, #ud_downloadstatus2 .file {
 			margin-top: 8px;
 		}
 		</style>
@@ -1042,11 +1044,11 @@ class UpdraftPlus_Admin {
 							function updraftplus_downloadstage2(timestamp, type) {
 								location.href=ajaxurl+'?_wpnonce=<?php echo wp_create_nonce("updraftplus_download"); ?>&timestamp='+timestamp+'&type='+type+'&stage=2&action=updraft_download_backup';
 							}
-							function updraft_downloader(base, nonce, what) {
+							function updraft_downloader(base, nonce, what, whicharea) {
 								// Create somewhere for the status to be found
 								var stid = base+nonce+'_'+what;
 								if (!jQuery('#'+stid).length) {
-									jQuery('#ud_downloadstatus').append('<div style="clear:left; border: 1px solid; padding: 8px; margin-top: 4px; max-width:840px;" id="'+stid+'"><button onclick="jQuery(\'#'+stid+'\').fadeOut().remove();" type="button" style="float:right; margin-bottom: 8px;">X</button><strong>Download '+what+' ('+nonce+')</strong>:<div class="raw"><?php _e('Begun looking for this entity','updraftplus');?></div><div class="file" id="'+stid+'_st"><div class="dlfileprogress" style="width: 0;"></div></div>');
+									jQuery(whicharea).append('<div style="clear:left; border: 1px solid; padding: 8px; margin-top: 4px; max-width:840px;" id="'+stid+'"><button onclick="jQuery(\'#'+stid+'\').fadeOut().remove();" type="button" style="float:right; margin-bottom: 8px;">X</button><strong>Download '+what+' ('+nonce+')</strong>:<div class="raw"><?php _e('Begun looking for this entity','updraftplus');?></div><div class="file" id="'+stid+'_st"><div class="dlfileprogress" style="width: 0;"></div></div>');
 									// <b><span class="dlname">??</span></b> (<span class="dlsofar">?? KB</span>/<span class="dlsize">??</span> KB)
 									setTimeout(function(){updraft_downloader_status(base, nonce, what);}, 300);
 								}
@@ -1082,7 +1084,10 @@ class UpdraftPlus_Admin {
 												//jQuery('#'+stid+'_st .dlsofar').html(Math.round(resp.s/1024));
 												//jQuery('#'+stid+'_st .dlsize').html(Math.round(resp.t/1024));
 												if (resp.m != null) {
-													if (resp.p < 100 || base != 'uddlstatus_') {
+													if (resp.p >=100 && base == 'udrestoredlstatus_') {
+														jQuery('#'+stid+' .raw').html(resp.m);
+														jQuery('#'+stid).fadeOut('slow', function() { jQuery(this).remove();});
+													} else if (resp.p < 100 || base != 'uddlstatus_') {
 														jQuery('#'+stid+' .raw').html(resp.m);
 													} else {
 														jQuery('#'+stid+' .raw').html('<?php _e('File ready.','updraftplus'); ?> <?php _e('You should:','updraftplus'); ?> <button type="button" onclick="updraftplus_downloadstage2(\''+nonce+'\', \''+what+'\')\">Download to your computer</button> and then, if you wish, <button id="uddownloaddelete_'+nonce+'_'+what+'" type="button" onclick="updraftplus_deletefromserver(\''+nonce+'\', \''+what+'\')\">Delete from your web server</button>');
@@ -1131,7 +1136,16 @@ class UpdraftPlus_Admin {
 </div>
 
 <div id="updraft-restore-modal" title="UpdraftPlus - <?php _e('Restore backup','updraftplus');?>">
-<p><strong><?php _e('Restore backup from','updraftplus');?>:</strong> <span id="updraft_restore_date"></span></p>
+<p><strong><?php _e('Restore backup from','updraftplus');?>:</strong> <span class="updraft_restore_date"></span></p>
+
+<div id="updraft-restore-modal-stage2">
+
+	<p><strong><?php _e('Downloading files (click Restore again when done)...', 'updraftplus');?></strong></p>
+	<div id="ud_downloadstatus2"></div>
+
+</div>
+
+<div id="updraft-restore-modal-stage1">
 <p><?php _e("Restoring will replace this site's themes, plugins, uploads, database and/or other content directories (according to what is contained in the backup set, and your selection).",'updraftplus');?> <?php _e('Choose the components to restore','updraftplus');?>:</p>
 <form id="updraft_restore_form" method="post">
 	<fieldset>
@@ -1193,6 +1207,8 @@ class UpdraftPlus_Admin {
 <p><em><a href="http://updraftplus.com/faqs/what-should-i-understand-before-undertaking-a-restoration/" target="_new"><?php _e('Do read this helpful article of useful things to know before restoring.','updraftplus');?></a></em></p>
 </div>
 
+</div>
+
 <div id="updraft-migrate-modal" title="<?php _e('Migrate Site', 'updraftplus'); ?>">
 
 <?php
@@ -1245,6 +1261,7 @@ class UpdraftPlus_Admin {
 				echo __('PHP memory limit','updraftplus').': '.ini_get('memory_limit').' <br/>';
 				echo sprintf(__('%s version:','updraftplus'), 'PHP').' '.phpversion().' - ';
 				echo '<a href="admin-ajax.php?page=updraftplus&action=updraft_ajax&subaction=phpinfo&nonce='.wp_create_nonce('updraftplus-credentialtest-nonce').'" id="updraftplus-phpinfo">'.__('show PHP information (phpinfo)', 'updraftplus').'</a><br/>';
+				echo sprintf(__('%s version:','updraftplus'), 'MySQL').' '.((function_exists('mysql_get_server_info')) ? mysql_get_server_info() : '?').'<br>';
 
 				if (version_compare(phpversion(), '5.2.0', '>=') && extension_loaded('zip')) {
 					$ziparchive_exists .= __('Yes', 'updraftplus');
@@ -1309,9 +1326,7 @@ class UpdraftPlus_Admin {
 				function updraft_activejobs_delete(jobid) {
 					jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'activejobs_delete', jobid: jobid, nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>' }, function(response) {
 						if (response.substr(0,2) == 'Y:') {
-							jQuery('#updraft-jobid-'+jobid).html(response.substr(2)).fadeOut('slow', function() {
-								jQuery(this).remove();
-							});
+							jQuery('#updraft-jobid-'+jobid).html(response.substr(2)).fadeOut('slow').remove();
 						} else if (response.substr(0,2) == 'X:') {
 							alert(response.substr(2));
 						} else {
@@ -1504,7 +1519,7 @@ class UpdraftPlus_Admin {
 					$message = (is_array($err)) ? $err['message'] : $err;
 			
 					$last_backup_text .= ('warning' == $level) ? "<span style=\"color:orange;\">" : "<span style=\"color:red;\">";
-					
+
 					if ('warning' == $level) $message = sprintf(__("Warning: %s", 'updraftplus'), $message);
 
 					$last_backup_text .= htmlspecialchars($message);
@@ -1701,6 +1716,7 @@ ENDHERE;
 			</table>
 			<script type="text/javascript">
 			/* <![CDATA[ */
+				var updraft_restore_stage = 1;
 				var lastlog_lastmessage = "";
 				var lastlog_sdata = {
 					action: 'updraft_ajax',
@@ -1802,14 +1818,27 @@ ENDHERE;
 						buttons: {
 							'<?php _e('Restore','updraftplus');?>': function() {
 								var anyselected = 0;
+								var whichselected = [];
 								jQuery('input[name="updraft_restore[]"]').each(function(x,y){
 									if (jQuery(y).is(':checked')) {
 										anyselected = 1;
+										whichselected.push(jQuery(y).val());
 										//alert(jQuery(y).val());
 									}
 								});
 								if (anyselected == 1) {
-									jQuery('#updraft_restore_form').submit();
+									if (updraft_restore_stage == 1) {
+										jQuery('#updraft-restore-modal-stage1').slideUp('slow');
+										jQuery('#updraft-restore-modal-stage2').show();
+										updraft_restore_stage = 2;
+										// Create the downloader active widgets
+										for (var i=0; i<whichselected.length; i++) {
+											updraft_downloader('udrestoredlstatus_', jQuery('#updraft_restore_timestamp').val(), whichselected[i], '#ud_downloadstatus2');
+										}
+										// Make sure all are downloaded
+									} else if (updraft_restore_stage == 2) {
+										jQuery('#updraft_restore_form').submit();
+									}
 								} else {
 									alert('You did not select any components to restore. Please select at least one, and then try again.');
 								}
@@ -2070,14 +2099,14 @@ ENDHERE;
 					$entities .= '/db/';
 					$sdescrip = preg_replace('/ \(.*\)$/', '', __('Database','updraftplus'));
 		?>
-				<form id="uddownloadform_db_<?php echo $key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader('uddlstatus_', <?php echo $key;?>, 'db')" method="post">
+				<form id="uddownloadform_db_<?php echo $key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader('uddlstatus_', <?php echo $key;?>, 'db', '#ud_downloadstatus')" method="post">
 					<?php wp_nonce_field('updraftplus_download'); ?>
 					<input type="hidden" name="action" value="updraft_download_backup" />
 					<input type="hidden" name="type" value="db" />
 					<input type="hidden" name="timestamp" value="<?php echo $key?>" />
 					<input type="submit" value="<?php _e('Database','updraftplus');?>" />
 				</form>
-		<?php } else { echo "(No&nbsp;database)"; } ?>
+		<?php } else { printf(_x('(No %s)','Message shown when no such object is available','updraftplus'), __('database', 'updraftplus')); } ?>
 			</td>
 
 		<?php
@@ -2088,7 +2117,7 @@ ENDHERE;
 				if (isset($value[$type])) {
 					$entities .= '/'.$type.'/';
 				?>
-				<form id="uddownloadform_<?php echo $type.'_'.$key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader('uddlstatus_', '<?php echo $key."', '".$type;?>')" method="post">
+				<form id="uddownloadform_<?php echo $type.'_'.$key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader('uddlstatus_', '<?php echo $key."', '".$type;?>', '#ud_downloadstatus')" method="post">
 					<?php wp_nonce_field('updraftplus_download'); ?>
 					<input type="hidden" name="action" value="updraft_download_backup" />
 					<input type="hidden" name="type" value="<?php echo $type; ?>" />
@@ -2113,7 +2142,7 @@ ENDHERE;
 				<form method="post" action="">
 					<input type="hidden" name="backup_timestamp" value="<?php echo $key;?>">
 					<input type="hidden" name="action" value="updraft_restore" />
-					<?php if ($entities) { ?><button title="<?php _e('After pressing this button, you will be given the option to choose which components you wish to restore','updraftplus');?>" type="button" class="button-primary" style="padding-top:2px;padding-bottom:2px;font-size:16px !important; min-height:26px;" onclick="updraft_restore_setoptions('<?php echo $entities;?>'); jQuery('#updraft_restore_timestamp').val('<?php echo $key;?>'); jQuery('#updraft_restore_date').html('<?php echo $pretty_date;?>'); jQuery('#updraft-restore-modal').dialog('open');"><?php _e('Restore','updraftplus');?></button><?php } ?>
+					<?php if ($entities) { ?><button title="<?php _e('After pressing this button, you will be given the option to choose which components you wish to restore','updraftplus');?>" type="button" class="button-primary" style="padding-top:2px;padding-bottom:2px;font-size:16px !important; min-height:26px;" onclick="updraft_restore_setoptions('<?php echo $entities;?>'); jQuery('#updraft_restore_timestamp').val('<?php echo $key;?>'); jQuery('.updraft_restore_date').html('<?php echo $pretty_date;?>'); updraft_restore_stage = 1; jQuery('#updraft-restore-modal').dialog('open'); jQuery('#updraft-restore-modal-stage1').show();jQuery('#updraft-restore-modal-stage2').hide();"><?php _e('Restore','updraftplus');?></button><?php } ?>
 				</form>
 			</td>
 		</tr>

@@ -15,6 +15,7 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // Check with P3 (Plugin Performance Profiler)
 // Backup notes
+// Auto-fix-up of TYPE=MyISAM(|...) -> ENGINE=...
 // Enhance Google Drive support to not require registration, and to allow offline auth
 // Add note post-DB backup: you will need to log in using details from newly-imported DB
 // Do is_readable() test on each file,  and provide a clear message and link to FAQ if fails - must work on PclZip/ZipArchive/binzip
@@ -1543,9 +1544,12 @@ class UpdraftPlus {
 		@include(ABSPATH.'wp-includes/version.php');
 		global $wp_version, $table_prefix;
 
+		// Will need updating when WP stops being just plain MySQL
+		$mysql_version = (function_exists('mysql_get_server_info')) ? mysql_get_server_info() : '?';
+
 		$this->stow("# WordPress MySQL database backup\n");
 		$this->stow("# Created by UpdraftPlus version ".$this->version." (http://updraftplus.com)\n");
-		$this->stow("# WordPress Version: $wp_version, running on PHP ".phpversion()." (".$_SERVER["SERVER_SOFTWARE"].")\n");
+		$this->stow("# WordPress Version: $wp_version, running on PHP ".phpversion()." (".$_SERVER["SERVER_SOFTWARE"]."), MySQL $mysql_version\n");
 		$this->stow("# Backup of: ".site_url()."\n");
 		$this->stow("# Table prefix: ".$table_prefix."\n");
 		$this->stow("# Site info: multisite=".(is_multisite() ? '1' : '0')."\n");
