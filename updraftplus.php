@@ -1374,7 +1374,7 @@ class UpdraftPlus {
 			$last_resumption = $this->current_resumption-1;
 			# NOTYET: Possible amendment to original algorithm; not just no check-in, but if the check in was very early (can happen if we get a very early checkin for some trivial operation, then attempt something too big)
 			if (!isset($time_passed[$last_resumption])) {
-				$new_maxzipbatch = max(floor($maxzipbatch * 0.8), 20971520);
+				$new_maxzipbatch = max(floor($maxzipbatch * 0.75), 20971520);
 				if ($new_maxzipbatch < $maxzipbatch) {
 					$this->log("No check-in was detected on the previous run - as a result, we are reducing the batch amount (old=$maxzipbatch, new=$new_maxzipbatch)");
 					$this->jobdata_set('maxzipbatch', $new_maxzipbatch);
