@@ -433,6 +433,13 @@ class UpdraftPlus_Backup {
 									# Also don't allow anything that is going to be more than 18 seconds - actually, that's harmful because of the basically fixed time taken to copy the file
 									# $new_maxzipbatch = floor(min(18*$rate ,$new_maxzipbatch));
 
+									# Don't raise it above a level that failed on a previous run
+									$maxzipbatch_ceiling = $updraftplus->jobdata_get('maxzipbatch_ceiling');
+									if (is_numeric($maxzipbatch_ceiling) && $maxzipbatch_ceiling > 20*1024*1024 && $new_maxzipbatch > $maxzipbatch_ceiling) {
+										$updraftplus->log("Was going to raise maxzipbytes to $new_maxzipbatch, but this is too high: a previous failure led to the ceiling being set at $maxzipbatch_ceiling, which we will use instead");
+										$new_maxzipbatch = $maxzipbatch_ceiling;
+									}
+
 									// Final sanity check
 									if ($new_maxzipbatch > 1024*1024) $updraftplus->jobdata_set("maxzipbatch", $new_maxzipbatch);
 									

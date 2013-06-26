@@ -138,6 +138,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * TWEAK: Provide the error message sent by Google upon initial Drive authentication errors.
 * TWEAK: Found a case where PHP's is_writable() erroneously returns true - actually test a write
 * TWEAK: Use pseudo-namespacing on the CloudFiles library to prevent clashes with other plugins (pre-emptive - no known conflicts exist)
+* TWEAK: Use higher priority on cron backup schedules call to prevent other plugins which call WP wrongly from over-writing new cron schedules (e.g. BackupBuddy)
 
 = 1.6.17 - 2013/06/06 =
 * FEATURE: News blog - http://updraftplus.com/news/ - please subscribe if you want to stay up to date with news of new features, tips, and special offers. RSS link: http://feeds.feedburner.com/UpdraftPlus

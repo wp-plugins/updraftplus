@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.29
+Version: 1.6.30
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -54,6 +54,7 @@ TODO - some of these are out of date/done, needs pruning
 // Fix-time add-on should also fix the day/date, when relevant
 // Search for other TODO-s in the code
 // More databases
+// Opt-in non-personal stats + link to aggregated results
 // Stand-alone installer - take a look at this: http://wordpress.org/extend/plugins/duplicator/screenshots/
 // More DB add-on (other non-WP tables; even other databases)
 // Unlimited customers should be auto-emailed each time they add a site (security)
@@ -1377,6 +1378,7 @@ class UpdraftPlus {
 				if ($new_maxzipbatch < $maxzipbatch) {
 					$this->log("No check-in was detected on the previous run - as a result, we are reducing the batch amount (old=$maxzipbatch, new=$new_maxzipbatch)");
 					$this->jobdata_set('maxzipbatch', $new_maxzipbatch);
+					$this->jobdata_set('maxzipbatch_ceiling', $new_maxzipbatch);
 				}
 			}
 		}
