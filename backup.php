@@ -124,7 +124,7 @@ class UpdraftPlus_Backup {
 
 		// TODO: Experimental: make live
 // 		if (defined('UPDRAFTPLUS_EXPERIMENTAL_BINZIP') && UPDRAFTPLUS_EXPERIMENTAL_BINZIP == true && $this->binzip === false) {
-		if ($this->binzip === false) {
+		if ($this->binzip === false && (!defined('UPDRAFTPLUS_NO_BINZIP') || !UPDRAFTPLUS_NO_BINZIP) ) {
 			$updraftplus->log('Checking if we have a zip executable available');
 			$binzip = $updraftplus->find_working_bin_zip();
 			if (is_string($binzip)) {

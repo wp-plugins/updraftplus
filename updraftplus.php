@@ -265,7 +265,7 @@ class UpdraftPlus {
 					add_action('admin_notices', array($this,'show_admin_warning_unreadablelog') );
 				}
 			} else {
-					add_action('admin_notices', array($this,'show_admin_warning_nolog') );
+				add_action('admin_notices', array($this,'show_admin_warning_nolog') );
 			}
 		}
 
