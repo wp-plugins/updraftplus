@@ -222,8 +222,8 @@ class UpdraftPlus {
 		add_action('updraft_backup_all', array($this,'backup_all'));
 		# this is our runs-after-backup event, whose purpose is to see if it succeeded or failed, and resume/mom-up etc.
 		add_action('updraft_backup_resume', array($this,'backup_resume'), 10, 3);
-		# http://codex.wordpress.org/Plugin_API/Filter_Reference/cron_schedules
-		add_filter('cron_schedules', array($this,'modify_cron_schedules'));
+		# http://codex.wordpress.org/Plugin_API/Filter_Reference/cron_schedules. Raised priority because some plugins wrongly over-write all prior schedule changes (including BackupBuddy!)
+		add_filter('cron_schedules', array($this,'modify_cron_schedules'), 30);
 		add_action('plugins_loaded', array($this, 'load_translations'));
 
 		register_deactivation_hook(__FILE__, array($this, 'deactivation'));
