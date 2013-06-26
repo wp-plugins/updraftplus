@@ -20,6 +20,7 @@ class UpdraftPlus_Backup {
 	var $zip_preferpcl = false;
 
 	var $binzip = false;
+	var $sofar_thisrun = 0;
 
 	// This function recursively packs the zip, dereferencing symlinks but packing into a single-parent tree for universal unpacking
 	function makezip_recursive_add($zipfile, $fullpath, $use_path_when_storing, $original_fullpath) {
@@ -302,7 +303,6 @@ class UpdraftPlus_Backup {
 			}
 
 			$sofar = 0;
-			$sofar_thisrun = 0;
 
 			// Skips files that are already added
 			if (!isset($this->existing_files[$add_as]) || $this->existing_files[$add_as] != $fsize) {
@@ -310,6 +310,7 @@ class UpdraftPlus_Backup {
 				@touch($zipfile);
 				$zip->addFile($file, $add_as);
 				$sofar++;
+				$this->sofar_thisrun++;
 
 				$data_added_since_reopen += $fsize;
 				/* Conditions for forcing a write-out and re-open:
@@ -318,8 +319,6 @@ class UpdraftPlus_Backup {
 				- NOT YET: POSSIBLE: NEEDS FINE-TUNING: more files are batched than the lesser of (1000, + whats already in the zip file, and that is more than 200
 				*/
 				if ($data_added_since_reopen > $maxzipbatch || (time() - $this->zipfiles_lastwritetime) > 1.5) {
-
-					$sofar_thisrun++;
 
 					$something_useful_sizetest = false;
 
@@ -330,10 +329,10 @@ class UpdraftPlus_Backup {
 
 						$something_useful_sizetest = true;
 
-						$updraftplus->log("Adding batch to zip file: over ".round($maxzipbatch/1048576,1)." Mb added on this batch (".round($data_added_since_reopen/1048576,1)." Mb, ".count($this->zipfiles_batched)." files batched, $sofar ($sofar_thisrun) added so far); re-opening (prior size: ".round($before_size/1024,1).' Kb)');
+						$updraftplus->log("Adding batch to zip file: over ".round($maxzipbatch/1048576,1)." Mb added on this batch (".round($data_added_since_reopen/1048576,1)." Mb, ".count($this->zipfiles_batched)." files batched, $sofar (".$this->sofar_thisrun.") added so far); re-opening (prior size: ".round($before_size/1024,1).' Kb)');
 
 					} else {
-						$updraftplus->log("Adding batch to zip file: over 1.5 seconds have passed since the last write (".round($data_added_since_reopen/1048576,1)." Mb, $sofar ($sofar_thisrun) files added so far); re-opening (prior size: ".round($before_size/1024,1).' Kb)');
+						$updraftplus->log("Adding batch to zip file: over 1.5 seconds have passed since the last write (".round($data_added_since_reopen/1048576,1)." Mb, $sofar (".$this->sofar_thisrun.") files added so far); re-opening (prior size: ".round($before_size/1024,1).' Kb)');
 					}
 					if (!$zip->close()) {
 						$updraftplus->log("ZipArchive::Close returned an error");
@@ -480,7 +479,7 @@ class UpdraftPlus_Backup {
 					clearstatcache();
 					$this->zipfiles_lastwritetime = time();
 				}
-			} elseif (0 == $sofar_thisrun) {
+			} elseif (0 == $this->sofar_thisrun) {
 				// Update lastwritetime, because otherwise the 1.5-second-activity detection can fire prematurely (e.g. if it takes >1.5 seconds to process the previously-written files, then the detector fires after 1 file. This then can have the knock-on effect of having something_useful_happened() called, but then a subsequent attempt to write out a lot of meaningful data fails, and the maximum batch is not then reduced.
 				// Testing shows that calling time() 1000 times takes negligible time
 				$this->zipfiles_lastwritetime=time();
