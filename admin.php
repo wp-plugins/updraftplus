@@ -1,6 +1,7 @@
 <?php
 
-// TODO: New downloader needs to: a) work out that all files are now downloaded, and b) signal back-end to obtain new HTML - new options for the restore form c) disable 'Restore' button whilst all that is going on
+// TODO: Test analysis of encrypted DB file
+// TODO: Indicate errors to front-end on analysis of archives
 
 if (!defined ('ABSPATH')) die ('No direct access allowed');
 
@@ -387,6 +388,21 @@ class UpdraftPlus_Admin {
 
 		if ('lastlog' == $_GET['subaction']) {
 			echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', '('.__('Nothing yet logged', 'updraftplus').')'));
+		} elseif ('restore_alldownloaded' == $_GET['subaction'] && isset($_GET['timestamp'])) {
+			echo '<p>'.__('The backup archive files have been processed - if all is well, then now press Restore again to proceed. Otherwise, cancel and correct any problems first.', 'updraftplus').'</p>';
+			parse_str($_GET['restoreopts'], $res);
+
+			if (!isset($res['updraft_restore'])) break;
+			
+			$elements = array_flip($res['updraft_restore']);
+			
+			if (!isset($elements['db'])) break;
+			// Analyse the header of the database file + display results
+
+			echo '<p>';
+			$this->analyse_db_file($_GET['timestamp'], $res);
+			echo '</p>';
+
 		} elseif (isset($_POST['backup_timestamp']) && 'deleteset' == $_REQUEST['subaction']) {
 			$backups = $updraftplus->get_backup_history();
 			$timestamp = $_POST['backup_timestamp'];
@@ -579,6 +595,110 @@ class UpdraftPlus_Admin {
 		}
 
 		die;
+
+	}
+
+	function analyse_db_file($timestamp, $res) {
+		global $updraftplus;
+		$backup = $updraftplus->get_backup_history($timestamp);
+		if (!isset($backup['nonce']) || !isset($backup['db'])) return;
+
+		$updraft_dir = $updraftplus->backups_dir_location();
+
+		$db_file = $updraft_dir.'/'.$backup['db'];
+
+		if (!is_readable($db_file)) return;
+
+		// Encrypted - decrypt it
+		if ($updraftplus->is_db_encrypted($db_file)) {
+
+			$encryption = UpdraftPlus_Options::get_updraft_option('updraft_encryptionphrase');
+
+			if (!$encryption) {
+				echo sprintf(__('Error: %s', 'updraftplus'), __('Decryption failed. The database file is encrypted, but you have no encryption key entered.', 'updraftplus'));
+				return;
+			}
+
+			require_once(UPDRAFTPLUS_DIR.'/includes/phpseclib/Crypt/Rijndael.php');
+			$rijndael = new Crypt_Rijndael();
+
+			// Get decryption key
+			$rijndael->setKey($encryption);
+			$ciphertext = $rijndael->decrypt(file_get_contents($db_file));
+			if ($ciphertext) {
+				$new_db_file = $updraft_dir.'/'.basename($db_file, '.crypt');
+				if (file_put_contents($new_db_file, $ciphertext)) {
+					echo sprintf(__('Error: %s', 'updraftplus'), __('Failed to write out the decrypted database to the filesystem','updraftplus'));
+					return false;
+					$db_file = $new_db_file;
+				}
+			} else {
+				echo sprintf(__('Error: %s', 'updraftplus'), __('Decryption failed. The most likely cause is that you used the wrong key.','updraftplus'));
+				return false;
+			}
+		}
+
+		$dbhandle = gzopen($db_file, 'r');
+		if (!$dbhandle) {
+			echo sprintf(__('Error: %s', 'updraftplus'), __('Failed to open database file','updraftplus'));
+			return false;
+		}
+
+		# Analyse the file, print the results.
+
+		$line = 0;
+		$old_siteurl = '';
+		$old_table_prefix = '';
+		$old_siteinfo = array();
+		$gathering_siteinfo = true;
+		while (!gzeof($dbhandle) && $line < 100) {
+			$line++;
+			// Up to 1Mb
+			$buffer = rtrim(gzgets($dbhandle, 1048576));
+			// Comments are what we are interested in
+			if (substr($buffer, 0, 1) == '#') {
+
+				// TODO: More information - e.g. WordPress version. Warn if importing new into old.
+				if ('' == $old_siteurl && preg_match('/^\# Backup of: (http(.*))$/', $buffer, $matches)) {
+					$old_siteurl = $matches[1];
+					echo __('Backup of:', 'updraftplus').' '.htmlspecialchars($old_siteurl).'<br>';
+					// Check for should-be migration
+					if ($old_siteurl != site_url()) {
+						echo apply_filters('updraftplus_dbscan_urlchange', sprintf(__('Error: %s', 'updraftplus'), '<a href="http://updraftplus.com/shop/migrator/">'.__('This backup set is from a different site - this is not a restoration, but a migration. You need the Migrator add-on in order to make this work.', 'updraftplus').'</a>'), $old_siteurl, $res);
+					}
+				} elseif ('' == $old_table_prefix && preg_match('/^\# Table prefix: (\S+)$/', $buffer, $matches)) {
+					$old_table_prefix = $matches[1];
+// 					echo '<strong>'.__('Old table prefix:', 'updraftplus').'</strong> '.htmlspecialchars($old_table_prefix).'<br>';
+				} elseif ($gathering_siteinfo && preg_match('/^\# Site info: (\S+)$/', $buffer, $matches)) {
+					if ('end' == $matches[1]) {
+						$gathering_siteinfo = false;
+						// Sanity checks
+						if (isset($old_siteinfo['multisite']) && !$old_siteinfo['multisite'] && is_multisite()) {
+							// Just need to check that you're crazy
+							if (!defined('UPDRAFTPLUS_EXPERIMENTAL_IMPORTINTOMULTISITE') ||  UPDRAFTPLUS_EXPERIMENTAL_IMPORTINTOMULTISITE != true) {
+								echo sprintf(__('Error: %s', 'updraftplus'), __('You are running on WordPress multisite - but your backup is not of a multisite site.', 'updraftplus'));
+								return false;
+							}
+							// Got the needed code?
+							if (!class_exists('UpdraftPlusAddOn_MultiSite') || !class_exists('UpdraftPlus_Addons_Migrator')) {
+								 echo sprintf(__('Error: %s', 'updraftplus'), __('To import an ordinary WordPress site into a multisite installation requires both the multisite and migrator add-ons.', 'updraftplus'));
+								return false;
+							}
+						}
+					} elseif (preg_match('/^([^=]+)=(.*)$/', $matches[1], $kvmatches)) {
+						$key = $kvmatches[1];
+						$val = $kvmatches[2];
+						if ('multisite' == $key && $val) {
+							echo '<strong>'.__('Site information:','updraftplus').'</strong>'.' is a WordPress Network<br>';
+						}
+						$old_siteinfo[$key]=$val;
+					}
+				}
+
+			}
+		}
+
+		@gzclose($dbhandle);
 
 	}
 
@@ -1057,6 +1177,26 @@ class UpdraftPlus_Admin {
 								// We don't want the form to submit as that replaces the document
 								return false;
 							}
+							function updraft_restorer_checkstage2(doalert) {
+								// How many left?
+								var stilldownloading = jQuery('#ud_downloadstatus2 .file').length;
+								if (stilldownloading > 0) {
+									if (doalert) { alert('<?php _e('Some files are still downloading or being processed - please wait.', 'updraftplus'); ?>'); }
+									return;
+								}
+								// Allow pressing 'Restore' to proceed
+								jQuery('#updraft-restore-modal-stage2a').html('<?php _e('Processing files - pleasee wait...', 'updraftplus'); ?>');
+								jQuery.get(ajaxurl, {
+									action: 'updraft_ajax',
+									subaction: 'restore_alldownloaded', 
+									nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>',
+									timestamp: jQuery('#updraft_restore_timestamp').val(),
+									restoreopts: jQuery('#updraft_restore_form').serialize()
+								}, function(data) {
+									updraft_restore_stage = 3;
+									jQuery('#updraft-restore-modal-stage2a').html(data);
+								});
+							}
 							var dlstatus_sdata = {
 								action: 'updraft_ajax',
 								subaction: 'downloadstatus',
@@ -1086,7 +1226,7 @@ class UpdraftPlus_Admin {
 												if (resp.m != null) {
 													if (resp.p >=100 && base == 'udrestoredlstatus_') {
 														jQuery('#'+stid+' .raw').html(resp.m);
-														jQuery('#'+stid).fadeOut('slow', function() { jQuery(this).remove();});
+														jQuery('#'+stid).fadeOut('slow', function() { jQuery(this).remove(); updraft_restorer_checkstage2(0);});
 													} else if (resp.p < 100 || base != 'uddlstatus_') {
 														jQuery('#'+stid+' .raw').html(resp.m);
 													} else {
@@ -1140,8 +1280,10 @@ class UpdraftPlus_Admin {
 
 <div id="updraft-restore-modal-stage2">
 
-	<p><strong><?php _e('Downloading files (click Restore again when done)...', 'updraftplus');?></strong></p>
+	<p><strong><?php _e('Downloading / preparing backup files...', 'updraftplus');?></strong></p>
 	<div id="ud_downloadstatus2"></div>
+
+	<div id="updraft-restore-modal-stage2a"></div>
 
 </div>
 
@@ -1837,6 +1979,8 @@ ENDHERE;
 										}
 										// Make sure all are downloaded
 									} else if (updraft_restore_stage == 2) {
+										updraft_restorer_checkstage2(1);
+									} else if (updraft_restore_stage == 3) {
 										jQuery('#updraft_restore_form').submit();
 									}
 								} else {
@@ -2142,7 +2286,7 @@ ENDHERE;
 				<form method="post" action="">
 					<input type="hidden" name="backup_timestamp" value="<?php echo $key;?>">
 					<input type="hidden" name="action" value="updraft_restore" />
-					<?php if ($entities) { ?><button title="<?php _e('After pressing this button, you will be given the option to choose which components you wish to restore','updraftplus');?>" type="button" class="button-primary" style="padding-top:2px;padding-bottom:2px;font-size:16px !important; min-height:26px;" onclick="updraft_restore_setoptions('<?php echo $entities;?>'); jQuery('#updraft_restore_timestamp').val('<?php echo $key;?>'); jQuery('.updraft_restore_date').html('<?php echo $pretty_date;?>'); updraft_restore_stage = 1; jQuery('#updraft-restore-modal').dialog('open'); jQuery('#updraft-restore-modal-stage1').show();jQuery('#updraft-restore-modal-stage2').hide();"><?php _e('Restore','updraftplus');?></button><?php } ?>
+					<?php if ($entities) { ?><button title="<?php _e('After pressing this button, you will be given the option to choose which components you wish to restore','updraftplus');?>" type="button" class="button-primary" style="padding-top:2px;padding-bottom:2px;font-size:16px !important; min-height:26px;" onclick="updraft_restore_setoptions('<?php echo $entities;?>'); jQuery('#updraft_restore_timestamp').val('<?php echo $key;?>'); jQuery('.updraft_restore_date').html('<?php echo $pretty_date;?>'); updraft_restore_stage = 1; jQuery('#updraft-restore-modal').dialog('open'); jQuery('#updraft-restore-modal-stage1').show();jQuery('#updraft-restore-modal-stage2').hide(); jQuery('#updraft-restore-modal-stage2a').html('');"><?php _e('Restore','updraftplus');?></button><?php } ?>
 				</form>
 			</td>
 		</tr>

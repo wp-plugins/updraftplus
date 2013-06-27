@@ -546,6 +546,9 @@ class UpdraftPlus_Backup {
 
 		// Temporary file, to be able to detect actual completion (upon which, it is renamed)
 
+		// New (Jun-13) - be more aggressive in removing temporary files from earlier attempts - anything >=600 seconds old of this kind
+		$updraftplus->clean_temporary_files('_'.$updraftplus->nonce."-$whichone", 600);
+
 		// Firstly, make sure that the temporary file is not already being written to - which can happen if a resumption takes place whilst an old run is still active
 		$zip_name = $full_path.'.tmp';
 		$time_mod = (int)@filemtime($zip_name);
@@ -572,7 +575,7 @@ class UpdraftPlus_Backup {
 			$rate = round($kbsize/$timetaken, 1);
 			$updraftplus->log("Created $whichone zip - file size is ".round($kbsize,1)." Kb in ".round($timetaken,1)." s ($rate Kb/s)");
 			// We can now remove any left-over temporary files from this job
-			$updraftplus->clean_temporary_files('_'.$updraftplus->nonce."-$whichone");
+			$updraftplus->clean_temporary_files('_'.$updraftplus->nonce."-$whichone", 0);
 		}
 
 		return basename($full_path);

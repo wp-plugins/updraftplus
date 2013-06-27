@@ -60,7 +60,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		if (!$wp_filesystem->mkdir($working_dir, 0775)) return new WP_Error('mkdir_failed', __('Failed to create a temporary directory','updraftplus').' ('.$working_dir.')');
 
 		// Unpack package to working directory
-		if (preg_match('/\.crypt$/i', $package)) {
+		if ($updraftplus->is_db_encrypted($package)) {
 			$this->skin->feedback('decrypt_database');
 			$encryption = UpdraftPlus_Options::get_updraft_option('updraft_encryptionphrase');
 			if (!$encryption) return new WP_Error('no_encryption_key', __('Decryption failed. The database file is encrypted, but you have no encryption key entered.', 'updraftplus'));
@@ -401,7 +401,7 @@ class Updraft_Restorer extends WP_Upgrader {
 							$val = $kvmatches[2];
 							echo '<strong>'.__('Site information:','updraftplus').'</strong>'.' '.htmlspecialchars($key).' = '.htmlspecialchars($val).'<br>';
 							$old_siteinfo[$key]=$val;
-							if ('multisite') {
+							if ('multisite' == $key) {
 								if ($val) { $this->ud_backup_is_multisite=1; } else { $this->ud_backup_is_multisite = 0;}
 							}
 						}
@@ -675,16 +675,19 @@ class Updraft_Restorer extends WP_Upgrader {
 
 			echo sprintf(__('Table prefix has changed: changing %s table field(s) accordingly:', 'updraftplus'),'usermeta').' ';
 
-			$meta_keys = $wpdb->get_results("SELECT umeta_id, meta_key 
-				FROM ${$import_table_prefix}usermeta 
+			$um_sql = "SELECT umeta_id, meta_key 
+				FROM ${import_table_prefix}usermeta 
 				WHERE meta_key 
-				LIKE '".str_replace('_', '\_', $old_table_prefix)."%'");
+				LIKE '".str_replace('_', '\_', $old_table_prefix)."%'";
+
+			$meta_keys = $wpdb->get_results($um_sql);
 			
 			$old_prefix_length = strlen($old_table_prefix);
 
 			$errors_occurred = false;
 			foreach ($meta_keys as $meta_key ) {
 				
+
 				//Create new meta key
 				$new_meta_key = $import_table_prefix . substr($meta_key->meta_key, $old_prefix_length);
 				

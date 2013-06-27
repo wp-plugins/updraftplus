@@ -15,6 +15,8 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // Check with P3 (Plugin Performance Profiler)
 // Backup notes
+// Test out migrations with table prefix changes again
+// Force user to confirm 'restores' which should be migrations
 // Auto-fix-up of TYPE=MyISAM(|...) -> ENGINE=...
 // Enhance Google Drive support to not require registration, and to allow offline auth
 // Add note post-DB backup: you will need to log in using details from newly-imported DB
@@ -339,17 +341,18 @@ class UpdraftPlus {
 	}
 
 	// Cleans up temporary files found in the updraft directory
-	// If no parameters are specified, then cleans up temporary files over 12 hours old.
-	// With parameters, cleans up just those.
-	function clean_temporary_files($match = '') {
+	// Always cleans up temporary files over 12 hours old.
+	// With parameters, also cleans up those.
+	function clean_temporary_files($match = '', $older_than = 43200) {
 		$updraft_dir = $this->backups_dir_location();
 		if ($handle = opendir($updraft_dir)) {
 			$now_time=time();
 			while (false !== ($entry = readdir($handle))) {
 				// The latter match is for files created internally by zipArchive::addFile
-				if ((preg_match("/$match\.tmp(\.gz)?$/i", $entry) || preg_match("/$match\.zip\.tmp\.([A-Za-z0-9]){6}?$/i", $entry)) && is_file($updraft_dir.'/'.$entry)) {
-					// We delete if a parameter was specified, or if over 12 hours old
-					if ($match || $now_time-filemtime($updraft_dir.'/'.$entry)>43200) {
+				$ziparchive_match = preg_match("/$match\.zip\.tmp\.([A-Za-z0-9]){6}?$/i", $entry);
+				if ((preg_match("/$match\.tmp(\.gz)?$/i", $entry) || $ziparchive_match) && is_file($updraft_dir.'/'.$entry)) {
+					// We delete if a parameter was specified (and either it is a ZipArchive match or an order to delete of whatever age), or if over 12 hours old
+					if (($match && ($ziparchive_match || 0 == $older_than) && $now_time-filemtime($updraft_dir.'/'.$entry) >= $older_than) || $now_time-filemtime($updraft_dir.'/'.$entry)>43200) {
 						$this->log("Deleting old temporary file: $entry");
 						@unlink($updraft_dir.'/'.$entry);
 					}
@@ -624,7 +627,6 @@ class UpdraftPlus {
 		}
 
 		$btime = $this->backup_time;
-
 		$job_type = $this->jobdata_get('job_type');
 
 		$updraft_dir = $this->backups_dir_location();
@@ -1517,7 +1519,11 @@ class UpdraftPlus {
 		}
 	}
 	
-	function get_backup_history() {
+	function is_db_encrypted($file) {
+		return preg_match('/\.crypt$/i', $file);
+	}
+
+	function get_backup_history($timestamp = false) {
 		$backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
 		// In fact, it looks like the line below actually *introduces* a race condition
 		//by doing a raw DB query to get the most up-to-date data from this option we slightly narrow the window for the multiple-cron race condition
@@ -1528,7 +1534,8 @@ class UpdraftPlus {
 		} else {
 			$backup_history = array();
 		}
-		return $backup_history;
+		if (!$timestamp) return $backup_history;
+		return (isset($backup_history[$timestamp])) ? $backup_history[$timestamp] : array();
 	}
 
 	// Open a file, store its filehandle

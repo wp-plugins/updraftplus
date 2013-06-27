@@ -128,6 +128,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: Italiano/Italian translation by Francesco Carpana (f.carpana@gmail.com)
 * FEATURE: Re-worked error handling internally, leading to users now being notified prominently of warning-level conditions (non-fatal conditions, but things the user should be advised of)
 * FEATURE: Allow some hiding of secrets in the admin area (see: http://updraftplus.com/faqs/in-the-administration-section-it-shows-my-amazon-ftp-etc-passwords-without-using-stars-is-this-safe/)
+* FEATURE: Restorer now obtains files at an earlier stage, allowing analysis + more intelligent presentation of options and applicable warnings pre-restore. Now warns if you are migrating without having chosen search/replace of DB.
 * FIX: "Wipe settings" wipes S3 + DreamObjects settings (they were retained previously)
 * FIX: Suppress spurious "Table prefix has changed" message
 * FIX: Escape output of logging lines (prevents on-page JavaScript breakage if error from cloud service contained unescaped quotes)
@@ -135,6 +136,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FIX: Tweak the no-activity-for-a-while-when-writing-zip detector to not fire prematurely (found an extreme corner-case where this caused a problem)
 * TWEAK: Batch database rows by the 1000 instead of 100 - proved to be 3x faster on massive MyISAM tables
 * TWEAK: Abort a restoration if the first CREATE TABLE command produces an error (rather than continue and likely have many more)
+* TWEAK: More aggressively clean up temporary files (can lower temporary disk space requirements)
 * TWEAK: Provide the error message sent by Google upon initial Drive authentication errors.
 * TWEAK: Found a case where PHP's is_writable() erroneously returns true - actually test a write
 * TWEAK: Use pseudo-namespacing on the CloudFiles library to prevent clashes with other plugins (pre-emptive - no known conflicts exist)
