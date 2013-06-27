@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.30
+Version: 1.6.31
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -15,8 +15,6 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // Check with P3 (Plugin Performance Profiler)
 // Backup notes
-// Test out migrations with table prefix changes again
-// Force user to confirm 'restores' which should be migrations
 // Auto-fix-up of TYPE=MyISAM(|...) -> ENGINE=...
 // Enhance Google Drive support to not require registration, and to allow offline auth
 // Add note post-DB backup: you will need to log in using details from newly-imported DB
@@ -34,7 +32,6 @@ TODO - some of these are out of date/done, needs pruning
 // Though Google Drive code users WP's native HTTP functions, it seems to not work if WP natively uses something other than curl
 // Ginormous tables - need to make sure we "touch" the being-written-out-file (and double-check that we check for that) every 15 seconds - https://friendpaste.com/697eKEcWib01o6zT1foFIn
 // With ginormous tables, log how many times they've been attempted: after 3rd attempt, log a warning and move on. But first, batch ginormous tables (resumable)
-// Put up a FAQ page on how to re-install from developer version
 // S3-compatible storage providers: http://www.dragondisk.com/s3-storage-providers.html
 // Import single site into a multisite: http://codex.wordpress.org/Migrating_Multiple_Blogs_into_WordPress_3.0_Multisite, http://wordpress.org/support/topic/single-sites-to-multisite?replies=5, http://wpmu.org/import-export-wordpress-sites-multisite/
 // Add note in FAQs about 'maintenance mode' plugins
@@ -67,6 +64,7 @@ TODO - some of these are out of date/done, needs pruning
 // Switch to Google Drive SDK. Google folders. https://developers.google.com/drive/folder
 // Affiliate links? (I have no need...)
 // Convert S3.php to use WP's native HTTP functions
+// AJAX-ify restoration
 // Ability to re-scan existing cloud storage
 // Dropbox uses one mcrypt function - port to phpseclib for more portability
 // Store meta-data on which version of UD the backup was made with (will help if we ever introduce quirks that need ironing)
@@ -384,7 +382,9 @@ class UpdraftPlus {
 		// Will need updating when WP stops being just plain MySQL
 		$mysql_version = (function_exists('mysql_get_server_info')) ? mysql_get_server_info() : '?';
 
-		$logline = "UpdraftPlus: ".$this->version." WP: ".$wp_version." PHP: ".phpversion()." (".php_uname().") MySQL: $mysql_version Server: ".$_SERVER["SERVER_SOFTWARE"]." max_execution_time: ".@ini_get("max_execution_time")." memory_limit: ".ini_get('memory_limit')." ZipArchive::addFile : ";
+		$safe_mode = $this->detect_safe_mode();
+
+		$logline = "UpdraftPlus: ".$this->version." WP: ".$wp_version." PHP: ".phpversion()." (".php_uname().") MySQL: $mysql_version Server: ".$_SERVER["SERVER_SOFTWARE"]." safe_mode: $safe_mode max_execution_time: ".@ini_get("max_execution_time")." memory_limit: ".ini_get('memory_limit')." ZipArchive::addFile : ";
 
 		// method_exists causes some faulty PHP installations to segfault, leading to support requests
 		if (version_compare(phpversion(), '5.2.0', '>=') && extension_loaded('zip')) {
@@ -457,8 +457,12 @@ class UpdraftPlus {
 		}
 	}
 
+	function detect_safe_mode() {
+		return (@ini_get('safe_mode') && strtolower(@ini_get('safe_mode')) != "off") ? 1 : 0;
+	}
+
 	function find_working_bin_zip($logit = true) {
-		if ( @ini_get('safe_mode') && strtolower(@ini_get('safe_mode')) != "off") return false;
+		if ($this->detect_safe_mode()) return false;
 		// The hosting provider may have explicitly disabled the popen function
 		if (!function_exists('popen')) return false;
 		$updraft_dir = $this->backups_dir_location();
@@ -657,12 +661,23 @@ class UpdraftPlus {
 		// A different argument than before is needed otherwise the event is ignored
 		$next_resumption = $resumption_no+1;
 		if ($next_resumption < 10) {
+			$schedule_resumption = true;
+		} else {
+			// We're in over-time - we only reschedule if something useful happened last time (used to be that we waited for it to happen this time - but that meant that transient errors, e.g. Google 400s on uploads, scuppered it all - we'd do better to have another chance
+			$time_passed = $this->jobdata_get('run_times');
+			if (!is_array($time_passed)) $time_passed = array();
+			$last_resumption = $resumption_no-1;
+			if (!isset($time_passed[$last_resumption])) {
+				$this->log(sprintf('The current run is resumption number %d, and there was no check-in on the last run - will not schedule a further attempt until we see something useful happening this time', $resumption_no));
+			} else {
+				$schedule_resumption = true;
+			}
+		}
+		if (isset($schedule_resumption)) {
 			$schedule_for = time()+$resume_interval;
 			$this->log("Scheduling a resumption ($next_resumption) after $resume_interval seconds ($schedule_for) in case this run gets aborted");
 			wp_schedule_single_event($schedule_for, 'updraft_backup_resume', array($next_resumption, $bnonce));
 			$this->newresumption_scheduled = $schedule_for;
-		} else {
-			$this->log(sprintf('The current run is resumption number %d - will not schedule a further attempt until we see something useful happening', $resumption_no));
 		}
 
 		// Sanity check
@@ -1643,7 +1658,7 @@ class UpdraftPlus {
 		foreach ($all_tables as $table) {
 			$total_tables++;
 			// Increase script execution time-limit to 15 min for every table.
-			if ( !@ini_get('safe_mode') || strtolower(@ini_get('safe_mode')) == "off") @set_time_limit(15*60);
+			if (!$this->detect_safe_mode()) @set_time_limit(15*60);
 			// The table file may already exist if we have produced it on a previous run
 			$table_file_prefix = $file_base.'-db-table-'.$table.'.table';
 			if (file_exists($updraft_dir.'/'.$table_file_prefix.'.gz')) {
@@ -1826,7 +1841,7 @@ class UpdraftPlus {
 			}
 
 			do {
-				if ( !@ini_get('safe_mode') || strtolower(@ini_get('safe_mode')) == "off") @set_time_limit(15*60);
+				if (!$this->detect_safe_mode()) @set_time_limit(15*60);
 
 				$table_data = $wpdb->get_results("SELECT * FROM $table LIMIT {$row_start}, {$row_inc}", ARRAY_A);
 				$entries = 'INSERT INTO ' . $this->backquote($table) . ' VALUES ';

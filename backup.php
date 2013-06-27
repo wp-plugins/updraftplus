@@ -302,7 +302,6 @@ class UpdraftPlus_Backup {
 			
 			if ($fsize > UPDRAFTPLUS_WARN_FILE_SIZE) {
 				$updraftplus->log(sprintf(__('A very large file was encountered: %s (size: %s Mb)', 'updraftplus'), $add_as, round($fsize/1048576, 1)), 'warning');
-				if (rand(0,2) == 1) { $updraftplus->log('BOGUS STOP!', 'error'); $updraftplus->log('BOGUS STOP!'); exit; }
 			}
 
 

@@ -14,7 +14,7 @@ Easy and complete backups and restoration. Manual or automated backups (Amazon S
 
 <a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3, Dropbox, Google Drive, Rackspace Cloud, DreamObjects, FTP, SFTP, WebDAV and email) and restore with a single click. Backups of files and database can have separate schedules.
 
-* Thousands of users: widely tested and reliable (over 150,000 downloads). Ranks in the top 1% on rankwp.com (228 out of 25,000 plugins).
+* Thousands of users: widely tested and reliable (over 170,000 downloads). Ranks in the top 1% on rankwp.com (228 out of 25,000 plugins).
 * Top-quality: ranks 45th out of 25,000 plugins for quality on rankwp.com (top 0.25% - last checked 23rd May 2013).
 * Supports backups to Amazon S3, Dropbox, Rackspace Cloud Files, Google Drive, DreamHost DreamObjects, FTP and email. Also (via an add-on) FTP over SSL, SFTP and WebDAV. (Note: Microsoft forbid SkyDrive to be used by backup software).  
 * Quick restore (both file and database backups)
@@ -136,6 +136,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FIX: Tweak the no-activity-for-a-while-when-writing-zip detector to not fire prematurely (found an extreme corner-case where this caused a problem)
 * TWEAK: Batch database rows by the 1000 instead of 100 - proved to be 3x faster on massive MyISAM tables
 * TWEAK: Abort a restoration if the first CREATE TABLE command produces an error (rather than continue and likely have many more)
+* TWEAK: Allow an extra attempt if in "over-time" - allows recovery from transient errors (e.g. cloud service temporary outage) in over-time.
 * TWEAK: More aggressively clean up temporary files (can lower temporary disk space requirements)
 * TWEAK: Provide the error message sent by Google upon initial Drive authentication errors.
 * TWEAK: Found a case where PHP's is_writable() erroneously returns true - actually test a write
