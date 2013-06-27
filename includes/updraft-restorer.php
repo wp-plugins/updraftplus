@@ -613,7 +613,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			echo sprintf(__('Table prefix has changed: changing %s table field(s) accordingly:', 'updraftplus'),'usermeta').' ';
 
 			$meta_keys = $wpdb->get_results("SELECT umeta_id, meta_key 
-				FROM ${$import_table_prefix}usermeta 
+				FROM ${import_table_prefix}usermeta 
 				WHERE meta_key 
 				LIKE '".str_replace('_', '\_', $old_table_prefix)."%'");
 			
