@@ -422,7 +422,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 			return;
 		}
 
-		$key = $_POST['apikey'];
+		$key = stripslashes($_POST['apikey']);
 		$user = $_POST['user'];
 		$path = $_POST['path'];
 		$authurl = $_POST['authurl'];

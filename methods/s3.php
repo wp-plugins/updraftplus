@@ -372,7 +372,7 @@ class UpdraftPlus_BackupModule_s3 {
 		}
 
 		$key = $_POST['apikey'];
-		$secret = $_POST['apisecret'];
+		$secret = stripslashes($_POST['apisecret']);
 		$path = $_POST['path'];
 		$useservercerts = (isset($_POST['useservercerts'])) ? absint($_POST['useservercerts']) : 0;
 		$disableverify = (isset($_POST['disableverify'])) ? absint($_POST['disableverify']) : 0;
