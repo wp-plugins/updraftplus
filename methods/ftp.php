@@ -192,8 +192,8 @@ class UpdraftPlus_BackupModule_ftp {
 	public static function credentials_test() {
 
 		$server = $_POST['server'];
-		$login = $_POST['login'];
-		$pass = $_POST['pass'];
+		$login = stripslashes($_POST['login']);
+		$pass = stripslashes($_POST['pass']);
 		$path = $_POST['path'];
 		$nossl = $_POST['nossl'];
 
