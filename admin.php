@@ -1,7 +1,8 @@
 <?php
 
-// TODO: Test analysis of encrypted DB file
-// TODO: Indicate errors to front-end on analysis of archives
+// TODO: Test AJAX-pre-restore analysis of *encrypted* DB file
+// TODO: Indicate warnings + errors to front-end on analysis of archives
+// TODO: Multi-archive sets - downloaders + deleter needs to handle these
 
 if (!defined ('ABSPATH')) die ('No direct access allowed');
 
@@ -392,16 +393,17 @@ class UpdraftPlus_Admin {
 			echo '<p>'.__('The backup archive files have been processed - if all is well, then now press Restore again to proceed. Otherwise, cancel and correct any problems first.', 'updraftplus').'</p>';
 			parse_str($_GET['restoreopts'], $res);
 
-			if (!isset($res['updraft_restore'])) break;
-			
 			$elements = array_flip($res['updraft_restore']);
-			
-			if (!isset($elements['db'])) break;
-			// Analyse the header of the database file + display results
 
-			echo '<p>';
-			$this->analyse_db_file($_GET['timestamp'], $res);
-			echo '</p>';
+			if (isset($res['updraft_restore']) && isset($elements['db'])) {
+
+				// Analyse the header of the database file + display results
+
+				echo '<p>';
+				$this->analyse_db_file($_GET['timestamp'], $res);
+				echo '</p>';
+
+			}
 
 		} elseif (isset($_POST['backup_timestamp']) && 'deleteset' == $_REQUEST['subaction']) {
 			$backups = $updraftplus->get_backup_history();
@@ -441,7 +443,9 @@ class UpdraftPlus_Admin {
 
 			$files_to_delete = array();
 			foreach ($backupable_entities as $key => $ent) {
-				if (isset($backups[$timestamp][$key])) $files_to_delete[$key] = $backups[$timestamp][$key];
+				if (isset($backups[$timestamp][$key])) {
+					$files_to_delete[$key] = $backups[$timestamp][$key];
+				}
 			}
 			// Delete DB
 			if (isset($backups[$timestamp]['db'])) $files_to_delete['db'] = $backups[$timestamp]['db'];
@@ -458,9 +462,13 @@ class UpdraftPlus_Admin {
 
 			$local_deleted = 0;
 			$remote_deleted = 0;
-			foreach ($files_to_delete as $key => $file) {
-				if (is_file($updraft_dir.'/'.$file)) {
-					if (@unlink($updraft_dir.'/'.$file)) $local_deleted++;
+			foreach ($files_to_delete as $key => $files) {
+				# Local deletion
+				if (is_string($files)) $files=array($files);
+				foreach ($files as $file) {
+					if (is_file($updraft_dir.'/'.$file)) {
+						if (@unlink($updraft_dir.'/'.$file)) $local_deleted++;
+					}
 				}
 				if ('log' != $key && count($delete_from_service) > 0) {
 					foreach ($delete_from_service as $service) {
@@ -471,7 +479,7 @@ class UpdraftPlus_Admin {
 						if (method_exists($objname, "backup")) {
 							# TODO: Re-use the object (i.e. prevent repeated connection setup/teardown)
 							$remote_obj = new $objname;
-							$deleted = $remote_obj->delete($file);
+							$deleted = $remote_obj->delete($files);
 						}
 						if ($deleted == -1) {
 							//echo __('Did not know how to delete from this cloud service.', 'updraftplus');
@@ -2240,8 +2248,8 @@ ENDHERE;
 			<td><div class="updraftplus-remove" style="width: 19px; height: 19px; padding-top:0px; font-size: 18px; text-align:center;font-weight:bold; border-radius: 7px;"><a style="text-decoration:none;" href="javascript:updraft_delete('<?php echo $key;?>', '<?php echo $value['nonce']; ?>', <?php echo ((isset($value['service']) && $value['service'] != 'email' && $value['service'] != 'none')) ? '1' : '0'; ?>);" title="<?php echo __('Delete this backup set', 'updraftplus');?>">×</a></div></td><td><b><?php echo $pretty_date?></b></td>
 			<td>
 		<?php if (isset($value['db'])) {
-					$entities .= '/db/';
-					$sdescrip = preg_replace('/ \(.*\)$/', '', __('Database','updraftplus'));
+				$entities .= '/db/';
+				$sdescrip = preg_replace('/ \(.*\)$/', '', __('Database','updraftplus'));
 		?>
 				<form id="uddownloadform_db_<?php echo $key;?>" action="admin-ajax.php" onsubmit="return updraft_downloader('uddlstatus_', <?php echo $key;?>, 'db', '#ud_downloadstatus')" method="post">
 					<?php wp_nonce_field('updraftplus_download'); ?>
@@ -2363,17 +2371,19 @@ ENDHERE;
 	
 		while (false !== ($entry = readdir($handle))) {
 			if ($entry != "." && $entry != "..") {
-				if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)\.(zip|gz|gz\.crypt)$/i', $entry, $matches)) {
+				if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)(\d+)?\.(zip|gz|gz\.crypt)$/i', $entry, $matches)) {
 					$btime = strtotime($matches[1]);
 					if ($btime > 100) {
 						if (!isset($known_files[$entry])) {
 							$changes = true;
 							$nonce = $matches[2];
 							$type = $matches[3];
+							$index = (empty($matches[4])) ? '1' : $matches[4];
+							// TODO: Store using the index (first need to tweak reading side to cope with it)
 							// The time from the filename does not include seconds. Need to identify the seconds to get the right time
 							if (isset($known_nonces[$nonce])) $btime = $known_nonces[$nonce];
 							// No cloud backup known of this file
-							if (!isset($backup_history[$btime])) $backup_history[$btime] = array( 'service' => 'none' );
+							if (!isset($backup_history[$btime])) $backup_history[$btime] = array('service' => 'none' );
 							$backup_history[$btime][$type] = $entry;
 							$backup_history[$btime][$type.'-size'] = filesize($updraft_dir.'/'.$entry);
 							$backup_history[$btime]['nonce'] = $nonce;
@@ -2382,7 +2392,6 @@ ENDHERE;
 				}
 			}
 		}
-
 
 		if ($changes) UpdraftPlus_Options::update_updraft_option('updraft_backup_history', $backup_history);
 
@@ -2467,7 +2476,7 @@ ENDHERE;
 		require_once(UPDRAFTPLUS_DIR.'/includes/updraft-restorer.php');
 		$restorer = new Updraft_Restorer();
 
-		foreach($backup_set as $type => $file) {
+		foreach($backup_set as $type => $files) {
 			// All restorable entities must be given explicitly, as we can store other arbitrary data in the history array
 			 
 			if (!isset($backupable_entities[$type]) && 'db' != $type) continue;
@@ -2490,32 +2499,46 @@ ENDHERE;
 				continue;
 			}
 
-			$fullpath = $updraft_dir.$file;
+			if (is_string($files)) $files=array($files);
+			$is_readable = true;
 
-			echo "Looking for $type archive: file name: ".htmlspecialchars($file)."<br>";
-			if(!is_readable($fullpath)) {
-				echo __("File is not locally present - needs retrieving from remote storage (for large files, it is better to do this in advance from the download console)",'updraftplus')."<br>";
-				$this->download_file($file, $service);
-			}
-			// If a file size is stored in the backup data, then verify correctness of the local file
-			if (isset($backup_history[$timestamp][$type.'-size'])) {
-				$fs = $backup_history[$timestamp][$type.'-size'];
-				echo __("Archive is expected to be size:",'updraftplus')." ".round($fs/1024)." Kb: ";
-				$as = @filesize($fullpath);
-				if ($as == $fs) {
-					echo "OK<br>";
-				} else {
-					echo "<strong>".__('ERROR','updraftplus').":</strong> is size: ".round($as/1024)." ($fs, $as)<br>";
+			# First loop: make sure files are present + correct size
+			foreach ($files as $ind => $file) {
+
+				$fullpath = $updraft_dir.$file;
+
+				echo "Looking for $type archive: file name: ".htmlspecialchars($file)."<br>";
+				if(!is_readable($fullpath)) {
+					echo __("File is not locally present - needs retrieving from remote storage (for large files, it is better to do this in advance from the download console)",'updraftplus')."<br>";
+					$this->download_file($file, $service);
 				}
-			} else {
-				echo __("The backup records do not contain information about the proper size of this file.",'updraftplus')."<br>";
+				$index = ($ind == 0) ? '' : $ind;
+				// If a file size is stored in the backup data, then verify correctness of the local file
+				if (isset($backup_history[$timestamp][$type.$index.'-size'])) {
+					$fs = $backup_history[$timestamp][$type.$index.'-size'];
+					echo __("Archive is expected to be size:",'updraftplus')." ".round($fs/1024)." Kb: ";
+					$as = @filesize($fullpath);
+					if ($as == $fs) {
+						echo "OK<br>";
+					} else {
+						echo "<strong>".__('Error:','updraftplus')."</strong> ".__('file is size:', 'updraftplus')." ".round($as/1024)." ($fs, $as)<br>";
+					}
+				} else {
+					echo __("The backup records do not contain information about the proper size of this file.",'updraftplus')."<br>";
+				}
+				if (!is_readable($fullpath)) {
+					$is_readable = false;
+					echo __('Could not find one of the files for restoration', 'updraftplus')." ($file)<br>";
+					$updraftplus->log("$file: ".__('Could not find one of the files for restoration', 'updraftplus'), 'error');
+				}
+
 			}
 			# Types: uploads, themes, plugins, others, db
-			if(is_readable($fullpath)) {
+			if($is_readable) {
 
 				$info = (isset($backupable_entities[$type])) ? $backupable_entities[$type] : array();
 
-				$val = $restorer->restore_backup($file, $type, $service, $info);
+				$val = $restorer->restore_backup($files, $type, $service, $info);
 
 				if(is_wp_error($val)) {
 					foreach ($val->get_error_messages() as $msg) {
@@ -2527,10 +2550,8 @@ ENDHERE;
 					echo '</div>'; //close the updraft_restore_progress div even if we error
 					return false;
 				}
-			} else {
-				echo __('Could not find one of the files for restoration', 'updraftplus').": ($file)";
-				$updraftplus->log("$file: ".__('Could not find one of the files for restoration', 'updraftplus'), 'error');
 			}
+			
 		}
 		echo '</div>'; //close the updraft_restore_progress div
 		return true;

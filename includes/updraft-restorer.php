@@ -177,8 +177,14 @@ class Updraft_Restorer extends WP_Upgrader {
 		return ($pos !== false) ? substr_replace($haystack,$replace,$pos,strlen($needle)) : $haystack;
 	}
 
+	// TODO: This does not yet cope with multiple files (i.e. array) - it needs to then add on subsequent archives, not replace (only first should replace)
 	// $backup_file is just the basename
-	function restore_backup($backup_file, $type, $service, $info) {
+	function restore_backup($backup_files, $type, $service, $info) {
+
+		if (is_string($backup_files)) $backup_files=array($backup_files);
+
+		// TODO
+		$backup_file = $backup_files[0];
 
 		if ($type == 'more') {
 			show_message($this->strings['not_possible']);

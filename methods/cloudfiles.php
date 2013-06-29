@@ -186,9 +186,10 @@ class UpdraftPlus_BackupModule_cloudfiles {
 
 	}
 
-	function delete($file, $cloudfilesarr = false) {
+	function delete($files, $cloudfilesarr = false) {
 
 		global $updraftplus;
+		if (is_string($files)) $files=array($files);
 
 		if ($cloudfilesarr) {
 			$cont_obj = $cloudfilesarr['cloudfiles_object'];
@@ -211,33 +212,38 @@ class UpdraftPlus_BackupModule_cloudfiles {
 		}
 
 // 		$fpath = ($path == '') ? $file : "$path/$file";
- 		$fpath = $file;
 
-		$updraftplus->log("Cloud Files: Delete remote: container=$container, path=$fpath");
+		$ret = true;
+		foreach ($files as $file) {
 
-		// We need to search for chunks
-		//$chunk_path = ($path == '') ? "chunk-do-not-delete-$file_" : "$path/chunk-do-not-delete-$file_";
-		$chunk_path = "chunk-do-not-delete-$file";
+			$fpath = $file;
 
-		try {
-			$objects = $cont_obj->list_objects(0, NULL, $chunk_path.'_');
-			foreach ($objects as $chunk) {
-				$updraftplus->log('Cloud Files: Chunk to delete: '.$chunk);
-				$cont_obj->delete_object($chunk);
-				$updraftplus->log('Cloud Files: Chunk deleted: '.$chunk);
+			$updraftplus->log("Cloud Files: Delete remote: container=$container, path=$fpath");
+
+			// We need to search for chunks
+			//$chunk_path = ($path == '') ? "chunk-do-not-delete-$file_" : "$path/chunk-do-not-delete-$file_";
+			$chunk_path = "chunk-do-not-delete-$file";
+
+			try {
+				$objects = $cont_obj->list_objects(0, NULL, $chunk_path.'_');
+				foreach ($objects as $chunk) {
+					$updraftplus->log('Cloud Files: Chunk to delete: '.$chunk);
+					$cont_obj->delete_object($chunk);
+					$updraftplus->log('Cloud Files: Chunk deleted: '.$chunk);
+				}
+			} catch (Exception $e) {
+				$updraftplus->log('Cloud Files chunk delete failed: '.$e->getMessage());
 			}
-		} catch (Exception $e) {
-			$updraftplus->log('Cloud Files chunk delete failed: '.$e->getMessage());
-		}
 
-		try {
-			$cont_obj->delete_object($fpath);
-			$updraftplus->log('Cloud Files: Deleted: '.$fpath);
-		} catch (Exception $e) {
-			$updraftplus->log('Cloud Files delete failed: '.$e->getMessage());
-			return false;
+			try {
+				$cont_obj->delete_object($fpath);
+				$updraftplus->log('Cloud Files: Deleted: '.$fpath);
+			} catch (Exception $e) {
+				$updraftplus->log('Cloud Files delete failed: '.$e->getMessage());
+				$ret = false;
+			}
 		}
-
+		return $ret;
 	}
 
 	function download($file) {

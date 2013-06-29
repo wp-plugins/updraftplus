@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.31
+Version: 1.6.32
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -15,6 +15,7 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // Check with P3 (Plugin Performance Profiler)
 // Backup notes
+// Multi-archive sets (need to be handled on creation, uploading, downloading, (?done?)deletion)
 // Auto-fix-up of TYPE=MyISAM(|...) -> ENGINE=...
 // Enhance Google Drive support to not require registration, and to allow offline auth
 // Add note post-DB backup: you will need to log in using details from newly-imported DB
@@ -1406,14 +1407,33 @@ class UpdraftPlus {
 			// TODO: Should store what is wanted in the job description
 			if (UpdraftPlus_Options::get_updraft_option("updraft_include_$youwhat", apply_filters("updraftplus_defaultoption_include_$youwhat", true))) {
 
+				// Move onto whichever zip file we are on, and set index
+				$index = 0;
 				$zip_file = $updraft_dir.'/'.$backup_file_basename.'-'.$youwhat.'.zip';
+				while (file_exists($zip_file)) {
+					$this->check_recent_modification($zip_file);
+					$index++;
+					$zip_file = $updraft_dir.'/'.$backup_file_basename.'-'.$youwhat.$index.'.zip';
+				}
+				$index--;
+				$indextext = (0 == $index) ? '' : $index;
+				$zip_file = $updraft_dir.'/'.$backup_file_basename.'-'.$youwhat.$indextext.'.zip';
 
-				$this->check_recent_modification($zip_file);
-
+				// TODO: Need to populate the prior parts of the array (before current one) regardless of current state
 				if ($transient_status == 'finished') {
-					$backup_array[$youwhat] = $backup_file_basename.'-'.$youwhat.'.zip';
-					if (file_exists($zip_file)) $backup_array[$youwhat.'-size'] = filesize($zip_file);
+					if ($index >0) {
+						for ($i=0; $i++; $i<=$index) {
+							$itext = (0 == $i) ? '' : $index;
+							$backup_array[$youwhat][$i] = $backup_file_basename.'-'.$youwhat.$itext.'.zip';
+							$z = $updraft_dir.'/'.$backup_file_basename.'-'.$youwhat.$itext.'.zip';
+							if (file_exists($z)) $backup_array[$youwhat.$itext.'-size'] = filesize($z);
+						}
+					} else {
+						$backup_array[$youwhat] = $backup_file_basename.'-'.$youwhat.'.zip';
+						if (file_exists($zip_file)) $backup_array[$youwhat.'-size'] = filesize($zip_file);
+					}
 				} else {
+					# TODO: Need to advise (and handle on other end) which index to start on
 					# Apply a filter to allow add-ons to provide their own method for creating a zip of the entity
 					$created = apply_filters('updraftplus_backup_makezip_'.$youwhat, $whichdir, $backup_file_basename);
 					# If the filter did not lead to something being created, then use the default method
@@ -1431,6 +1451,7 @@ class UpdraftPlus {
 		}
 
 		# Others - needs special/separate handling, since its purpose is to mop up everything else
+		# TODO: Don't yet have indexing here
 		if (UpdraftPlus_Options::get_updraft_option('updraft_include_others', true)) {
 
 				$zip_file = $updraft_dir.'/'.$backup_file_basename.'-others.zip';

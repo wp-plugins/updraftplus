@@ -208,39 +208,52 @@ class UpdraftPlus_BackupModule_googledrive {
 		$updraftplus->prune_retained_backups("googledrive", $this, null);
 	}
 
-	function delete($file) {
+	function delete($files) {
 		global $updraftplus;
+		if (is_string($files)) $files=array($files);
+
+		if ( !$this->is_gdocs($this->gdocs) ) {
+
+			// Do we have an access token?
+			if ( !$access_token = $this->access_token( UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token'), UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid'), UpdraftPlus_Options::get_updraft_option('updraft_googledrive_secret') )) {
+				$updraftplus->log('ERROR: Have not yet obtained an access token from Google (has the user authorised?)');
+				$updraftplus->log(__('Have not yet obtained an access token from Google - you need to authorise or re-authorise your connection to Google Drive.','updraftplus'), 'error');
+				return false;
+			}
+
+			// Make sure $this->gdocs is a UpdraftPlus_GDocs object, or give an error
+			if ( is_wp_error( $e = $this->need_gdocs($access_token) ) ) return false;
+
+		}
+
 		$ids = UpdraftPlus_Options::get_updraft_option('updraft_file_ids', array());
-		if (!isset($ids[$file])) {
-			$updraftplus->log("Could not delete: could not find a record of the Google Drive file ID for this file");
-			return false;
-		} else {
 
-			if ( ! $this->is_gdocs($this->gdocs) ) {
+		$ret = true;
 
-				// Do we have an access token?
-				if ( !$access_token = $this->access_token( UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token'), UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid'), UpdraftPlus_Options::get_updraft_option('updraft_googledrive_secret') )) {
-					$updraftplus->log('ERROR: Have not yet obtained an access token from Google (has the user authorised?)');
-					$updraftplus->log(__('Have not yet obtained an access token from Google - you need to authorise or re-authorise your connection to Google Drive.','updraftplus'), 'error');
-					return false;
-				}
+		foreach ($files as $file) {
 
-				// Make sure $this->gdocs is a UpdraftPlus_GDocs object, or give an error
-				if ( is_wp_error( $e = $this->need_gdocs($access_token) ) ) return false;
-
+			if (!isset($ids[$file])) {
+				$updraftplus->log("$file: Could not delete: could not find a record of the Google Drive file ID for this file");
+				$ret = false;
+				continue;
 			}
 
 			$del == $this->gdocs->delete_resource($ids[$file]);
 			if (is_wp_error($del)) {
-				foreach ($del->get_error_messages() as $msg) $updraftplus->log("Deletion failed: $msg");
-				return false;
+				foreach ($del->get_error_messages() as $msg) $updraftplus->log("$file: Deletion failed: $msg");
+				$ret = false;
+				continue;
 			} else {
-				$updraftplus->log("Deletion successful");
+				$updraftplus->log("$file: Deletion successful");
 				unset($ids[$file]);
 				UpdraftPlus_Options::update_updraft_option('updraft_file_ids', $ids);
 			}
+
 		}
-		return true;
+
+		return $ret;
+
+
 	}
 
 	// Returns:

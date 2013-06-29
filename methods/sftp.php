@@ -23,8 +23,8 @@ class UpdraftPlus_BackupModule_sftp {
 
 	}
 
-	// delete method: takes a file name (base name), and removes it from the cloud storage
-	function delete($file, $method_obj = false) {
+	// delete method: takes a file name (base name) (or array thereof), and removes it from the cloud storage
+	function delete($files, $method_obj = false) {
 
 		global $updraftplus;
 
@@ -35,7 +35,7 @@ class UpdraftPlus_BackupModule_sftp {
 			return false;
 		}
 
-		do_action('updraft_sftp_delete_file', $file, $method_obj);
+		do_action('updraft_sftp_delete_files', $files, $method_obj);
 
 	}
 

@@ -35,10 +35,12 @@ class UpdraftPlus_BackupModule_template {
 
 	}
 
-	// delete method: takes a file name (base name), and removes it from the cloud storage
-	function delete($file) {
+	// delete method: takes an array of file names (base name) or a single string, and removes them from the cloud storage
+	function delete($files) {
 
 		global $updraftplus;
+
+		if (is_string($files)) $files = array($files);
 
 	}
 

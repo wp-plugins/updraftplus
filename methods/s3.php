@@ -209,9 +209,10 @@ class UpdraftPlus_BackupModule_s3 {
 		}
 	}
 
-	function delete($file, $s3arr = false) {
+	function delete($files, $s3arr = false) {
 
 		global $updraftplus;
+		if (is_string($files)) $files=array($files);
 
 		$config = $this->get_config();
 		$whoweare = $config['whoweare'];
@@ -245,26 +246,34 @@ class UpdraftPlus_BackupModule_s3 {
 			}
 		}
 
-		if (preg_match("#^([^/]+)/(.*)$#", $orig_bucket_name, $bmatches)) {
-			$s3_bucket=$bmatches[1];
-			$s3_uri = $bmatches[2]."/".$file;
-		} else {
-			$s3_bucket = $orig_bucket_name;
-			$s3_uri = $file;
-		}
-		$updraftplus->log("$whoweare: Delete remote: bucket=$s3_bucket, URI=$s3_uri");
+		$ret = true;
 
-		$s3->setExceptions(true);
-		try {
-			if (!$s3->deleteObject($s3_bucket, $s3_uri)) {
-				$updraftplus->log("$whoweare: Delete failed");
+		foreach ($files as $file) {
+
+			if (preg_match("#^([^/]+)/(.*)$#", $orig_bucket_name, $bmatches)) {
+				$s3_bucket=$bmatches[1];
+				$s3_uri = $bmatches[2]."/".$file;
+			} else {
+				$s3_bucket = $orig_bucket_name;
+				$s3_uri = $file;
 			}
-		} catch  (Exception $e) {
-			$updraftplus->log("$whoweare delete failed: ".$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
+			$updraftplus->log("$whoweare: Delete remote: bucket=$s3_bucket, URI=$s3_uri");
+
+			$s3->setExceptions(true);
+			try {
+				if (!$s3->deleteObject($s3_bucket, $s3_uri)) {
+					$updraftplus->log("$whoweare: Delete failed");
+				}
+			} catch (Exception $e) {
+				$updraftplus->log("$whoweare delete failed: ".$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
+				$s3->setExceptions(false);
+				$ret = false;
+			}
 			$s3->setExceptions(false);
-			return false;
+
 		}
-		$s3->setExceptions(false);
+
+		return $ret;
 
 	}
 

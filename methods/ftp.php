@@ -67,9 +67,10 @@ class UpdraftPlus_BackupModule_ftp {
 		$updraftplus->prune_retained_backups("ftp", $this, array('ftp_object' => $ftp, 'ftp_remote_path' => $ftp_remote_path));
 	}
 
-	function delete($file, $ftparr = array()) {
+	function delete($files, $ftparr = array()) {
 
 		global $updraftplus;
+		if (is_string($files)) $files=array($files);
 
 		if (isset($ftparr['ftp_object'])) {
 			$ftp = $ftparr['ftp_object'];
@@ -89,12 +90,17 @@ class UpdraftPlus_BackupModule_ftp {
 
 		$ftp_remote_path = isset($ftparr['ftp_remote_path']) ? $ftparr['ftp_remote_path'] : trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_ftp_remote_path'));
 
-		if (@$ftp->delete($ftp_remote_path.$file)) {
-			$updraftplus->log("FTP delete: succeeded (${ftp_remote_path}${file})");
-		} else {
-			$updraftplus->log("FTP delete: failed (${ftp_remote_path}${file})");
-			return false;
+		$ret = true;
+		foreach ($files as $file) {
+			if (@$ftp->delete($ftp_remote_path.$file)) {
+				$updraftplus->log("FTP delete: succeeded (${ftp_remote_path}${file})");
+			} else {
+				$updraftplus->log("FTP delete: failed (${ftp_remote_path}${file})");
+				$ret = false;
+			}
 		}
+		return $ret;
+
 	}
 
 	function download($file) {

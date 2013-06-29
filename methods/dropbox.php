@@ -164,9 +164,10 @@ class UpdraftPlus_BackupModule_dropbox {
 		return array('Z3Q3ZmkwbnplNHA0Zzlx', 'bTY0bm9iNmY4eWhjODRt');
 	}
 
-	function delete($file) {
+	function delete($files) {
 
 		global $updraftplus;
+		if (is_string($files)) $files=array($files);
 
 		if (UpdraftPlus_Options::get_updraft_option('updraft_dropboxtk_request_token', 'xyz') == 'xyz') {
 			$updraftplus->log('You do not appear to be authenticated with Dropbox');
@@ -182,21 +183,22 @@ class UpdraftPlus_BackupModule_dropbox {
 			return false;
 		}
 
-		$ufile = apply_filters('updraftplus_dropbox_modpath', $file);
+		foreach ($files as $file) {
+			$ufile = apply_filters('updraftplus_dropbox_modpath', $file);
+			$updraftplus->log("Dropbox: request deletion: $ufile");
 
-		$updraftplus->log("Dropbox: request deletion: $ufile");
+			try {
+				$dropbox->delete($ufile);
+				$file_success = 1;
+			} catch (Exception $e) {
+				$updraftplus->log('Dropbox error: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
+			}
 
-		try {
-			$dropbox->delete($ufile);
-			$file_success = 1;
-		} catch (Exception $e) {
-			$updraftplus->log('Dropbox error: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
-		}
-
-		if (isset($file_success)) {
-			$updraftplus->log('Dropbox: delete succeeded');
-		} else {
-			return false;
+			if (isset($file_success)) {
+				$updraftplus->log('Dropbox: delete succeeded');
+			} else {
+				return false;
+			}
 		}
 
 	}
