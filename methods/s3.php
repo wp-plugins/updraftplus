@@ -66,7 +66,6 @@ class UpdraftPlus_BackupModule_s3 {
 		}
 	}
 
-
 	function backup($backup_array) {
 
 		global $updraftplus;

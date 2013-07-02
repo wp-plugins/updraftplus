@@ -137,7 +137,9 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FIX: The "Test (cloud method) settings" button would fail if credentials contained a backslash (\), due to WP's automatic doubling of backslashes
 * TWEAK: Batch database rows by the 1000 instead of 100 - proved to be 3x faster on massive MyISAM tables
 * TWEAK: Abort a restoration if the first CREATE TABLE command produces an error (rather than continue and likely have many more)
+* TWEAK: Replace one use of method_exists() to prevent triggering segfault in some faulty PHP installs
 * TWEAK: Allow an extra attempt if in "over-time" - allows recovery from transient errors (e.g. cloud service temporary outage) in over-time.
+* TWEAK: Add detection of jQuery errors in the admin page, and direct users with such errors to a help page
 * TWEAK: More aggressively clean up temporary files (can lower temporary disk space requirements)
 * TWEAK: Provide the error message sent by Google upon initial Drive authentication errors.
 * TWEAK: Found a case where PHP's is_writable() erroneously returns true - actually test a write

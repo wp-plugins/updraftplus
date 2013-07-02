@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.32
+Version: 1.6.33
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -15,6 +15,8 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // Check with P3 (Plugin Performance Profiler)
 // Backup notes
+// Generic S3 provider (e.g. Google Storage). List some.
+// S3-compatible storage providers: http://www.dragondisk.com/s3-storage-providers.html
 // Multi-archive sets (need to be handled on creation, uploading, downloading, (?done?)deletion)
 // Auto-fix-up of TYPE=MyISAM(|...) -> ENGINE=...
 // Enhance Google Drive support to not require registration, and to allow offline auth
@@ -33,7 +35,6 @@ TODO - some of these are out of date/done, needs pruning
 // Though Google Drive code users WP's native HTTP functions, it seems to not work if WP natively uses something other than curl
 // Ginormous tables - need to make sure we "touch" the being-written-out-file (and double-check that we check for that) every 15 seconds - https://friendpaste.com/697eKEcWib01o6zT1foFIn
 // With ginormous tables, log how many times they've been attempted: after 3rd attempt, log a warning and move on. But first, batch ginormous tables (resumable)
-// S3-compatible storage providers: http://www.dragondisk.com/s3-storage-providers.html
 // Import single site into a multisite: http://codex.wordpress.org/Migrating_Multiple_Blogs_into_WordPress_3.0_Multisite, http://wordpress.org/support/topic/single-sites-to-multisite?replies=5, http://wpmu.org/import-export-wordpress-sites-multisite/
 // Add note in FAQs about 'maintenance mode' plugins
 // After restoring the themes, should check to see if the currently-active one still exists or not
@@ -752,6 +753,7 @@ class UpdraftPlus {
 			// Only continue if the stored info was about a dump
 			if (!isset($backupable_entities[$key]) && $key != 'db') continue;
 
+			// TODO: Not yet multi-file compatible
 			$hash = md5($file);
 			$fullpath = $this->backups_dir_location().'/'.$file;
 			if ($this->jobdata_get("uploaded_$hash") === "yes") {
@@ -1143,20 +1145,18 @@ class UpdraftPlus {
 
 		if ($service == "none" || $service == "") {
 			$this->log("No remote despatch: user chose no remote backup service");
+			$this->prune_retained_backups("none", null, null);
 		} else {
 			$this->log("Beginning dispatch of backup to remote");
-		}
-
-		$objname = "UpdraftPlus_BackupModule_${service}";
-		if (method_exists($objname, "backup")) {
-			// New style - external, allowing more plugability
-			$remote_obj = new $objname;
-			$remote_obj->backup($backup_array);
-		} elseif ($service == "none" || $service == "") {
-			$this->prune_retained_backups("none", null, null);
-		} elseif ($service != '') {
-			$this->log("Unexpected error: no method '$service' was found ($method_include)");
-			$this->log(__("Unexpected error: no method '$service' was found (your UpdraftPlus installation seems broken - try re-installing)",'updraftplus'), 'error');
+			$objname = "UpdraftPlus_BackupModule_${service}";
+			if (class_exists($objname)) {
+				// New style - external, allowing more plugability
+				$remote_obj = new $objname;
+				$remote_obj->backup($backup_array);
+			} else {
+				$this->log("Unexpected error: no class '$objname' was found ($method_include)");
+				$this->log(__("Unexpected error: no class '$objname' was found (your UpdraftPlus installation seems broken - try re-installing)",'updraftplus'), 'error');
+			}
 		}
 
 		remove_action('http_api_curl', array($this, 'add_curl_capath'));

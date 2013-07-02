@@ -1283,6 +1283,16 @@ class UpdraftPlus_Admin {
 </form>
 </div>
 
+<div id="updraft-hidethis">
+<p><strong><?php _e('Warning:', 'updraftplus'); ?> <?php _e("If you can still read these words after the page finishes loading, then there is a JavaScript or jQuery problem in your web browser.", 'updraftplus'); ?> <a href="http://updraftplus.com/do-you-have-a-javascript-or-jquery-error/"><?php _e('Go here for more information.', 'updraftplus'); ?></a></strong></p>
+</p>
+</div>
+<script>
+jQuery(document).ready(function() {
+	jQuery('#updraft-hidethis').remove();
+});
+</script>
+
 <div id="updraft-restore-modal" title="UpdraftPlus - <?php _e('Restore backup','updraftplus');?>">
 <p><strong><?php _e('Restore backup from','updraftplus');?>:</strong> <span class="updraft_restore_date"></span></p>
 
