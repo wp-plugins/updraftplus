@@ -45,7 +45,6 @@ uploader.bind('FilesAdded', function(up, files){
 });
 	
 uploader.bind('UploadProgress', function(up, file) {
-	
 	$('#' + file.id + " .fileprogress").width(file.percent + "%");
 	$('#' + file.id + " span").html(plupload.formatSize(parseInt(file.size * file.percent / 100)));
 });
@@ -76,12 +75,6 @@ uploader.bind('FileUploaded', function(up, file, response) {
 });
 			
 });
-
-
-
-
-
-
 
 // Next: the encrypted database pluploader
 

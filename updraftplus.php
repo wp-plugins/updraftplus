@@ -13,7 +13,6 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
-// Check with P3 (Plugin Performance Profiler)
 // Backup notes
 // Generic S3 provider (e.g. Google Storage). List some.
 // S3-compatible storage providers: http://www.dragondisk.com/s3-storage-providers.html
@@ -308,7 +307,7 @@ class UpdraftPlus {
 				}
 			} elseif ($_GET['action'] == 'downloadfile' && isset($_GET['updraftplus_file']) && preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+\.(gz\.crypt)$/i', $_GET['updraftplus_file'])) {
 				$updraft_dir = $this->backups_dir_location();
-				$spool_file = $updraft_dir.'/'.$_GET['updraftplus_file'];
+				$spool_file = $updraft_dir.'/'.basename($_GET['updraftplus_file']);
 				if (is_readable($spool_file)) {
 					$dkey = (isset($_GET['decrypt_key'])) ? $_GET['decrypt_key'] : "";
 					$this->spool_file('db', $spool_file, $dkey);
@@ -1326,10 +1325,17 @@ class UpdraftPlus {
 			$this->log("A new resumption will be scheduled to prevent the job ending");
 		}
 
-		if (!empty($this->newresumption_scheduled) || $force_schedule) $this->reschedule($resume_interval+$howmuch);
-		$this->jobdata_set('resume_interval', $resume_interval+$howmuch);
+		$new_resume = $resume_interval + $howmuch;
+		# It may be that we're increasing for the second (or more) time during a run, and that we already know that the new value will be insufficient, and can be increased
+		if ($this->opened_log_time > 100 && microtime(true)-$this->opened_log_time > $new_resume) {
+			$new_resume = ceil(microtime(true)-$this->opened_log_time)+45;
+			$howmuch = $new_resume-$resume_interval;
+		}
 
-		$this->log("To decrease the likelihood of overlaps, increasing resumption interval to: $resume_interval + $howmuch = ".($resume_interval+$howmuch));
+		if (!empty($this->newresumption_scheduled) || $force_schedule) $this->reschedule($new_resume);
+		$this->jobdata_set('resume_interval', $new_resume);
+
+		$this->log("To decrease the likelihood of overlaps, increasing resumption interval to: $resume_interval + $howmuch = $new_resume");
 	}
 
 	// For detecting another run, and aborting if one was found

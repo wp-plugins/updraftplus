@@ -1822,8 +1822,8 @@ ENDHERE;
 					<div id="plupload-upload-ui2" style="width: 80%;">
 						<div id="drag-drop-area2">
 							<div class="drag-drop-inside">
-								<p class="drag-drop-info"><?php _e('Drop encrypted database files (db.crypt.gz files) here to upload them for decryption'); ?></p>
-								<p><?php _ex('or', 'Uploader: Drop .crypt.db.gz files here to upload them for decryption - or - Select Files'); ?></p>
+								<p class="drag-drop-info"><?php _e('Drop encrypted database files (db.gz.crypt files) here to upload them for decryption'); ?></p>
+								<p><?php _ex('or', 'Uploader: Drop db.gz.crypt files here to upload them for decryption - or - Select Files'); ?></p>
 								<p class="drag-drop-buttons"><input id="plupload-browse-button2" type="button" value="<?php esc_attr_e('Select Files'); ?>" class="button" /></p>
 								<p style="margin-top: 18px;"><?php _e('Use decryption key','updraftplus')?>: <input id="updraftplus_db_decrypt" type="text" size="12"></input></p>
 							</div>
