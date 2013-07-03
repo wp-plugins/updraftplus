@@ -277,6 +277,8 @@ class UpdraftPlus_Backup {
 		// 05-Mar-2013 - added a new check on the total data added; it appears that things fall over if too much data is contained in the cumulative total of files that were addFile'd without a close-open cycle; presumably data is being stored in memory. In the case in question, it was a batch of MP3 files of around 100Mb each - 25 of those equals 2.5Gb!
 
 		$data_added_since_reopen = 0;
+		# The following array is used only for error reporting if ZipArchive::close fails (since that method itself reports no error messages - we have to track manually what we were attempting to add)
+		$files_zipadded_since_open = array();
 
 		$zip = new ZipArchive;
 		if (file_exists($zipfile)) {
@@ -312,6 +314,7 @@ class UpdraftPlus_Backup {
 				$zip->addFile($file, $add_as);
 				$zipfiles_added_thisbatch++;
 				$this->zipfiles_added_thisrun++;
+				$files_zipadded_since_open[] = $add_as;
 
 				$data_added_since_reopen += $fsize;
 				/* Conditions for forcing a write-out and re-open:
@@ -336,9 +339,13 @@ class UpdraftPlus_Backup {
 						$updraftplus->log("Adding batch to zip file: over 1.5 seconds have passed since the last write (".round($data_added_since_reopen/1048576,1)." Mb, $zipfiles_added_thisbatch (".$this->zipfiles_added_thisrun.") files added so far); re-opening (prior size: ".round($before_size/1024,1).' Kb)');
 					}
 					if (!$zip->close()) {
-						$updraftplus->log("ZipArchive::Close returned an error");
+						$updraftplus->log("ZipArchive::Close returned an error. List of files we were trying to add follows (check their permissions).");
+						foreach ($files_zipadded_since_open as $file) {
+							$updraftplus->log("File: $file");
+						}
 					}
 					unset($zip);
+					$files_zipadded_since_open = array();
 					$zip = new ZipArchive;
 					$opencode = $zip->open($zipfile);
 					if ($opencode !== true) return array($opencode, 0);
@@ -503,6 +510,13 @@ class UpdraftPlus_Backup {
 		// Reset the array
 		$this->zipfiles_batched = array();
 		$ret =  $zip->close();
+		if (!$ret) {
+			$updraftplus->log("ZipArchive::Close returned an error. List of files we were trying to add follows (check their permissions).");
+			foreach ($files_zipadded_since_open as $file) {
+				$updraftplus->log("File: $file");
+			}
+		}
+
 		$this->zipfiles_lastwritetime = time();
 		if (filesize($zipfile) > $original_size) $updraftplus->something_useful_happened();
 		clearstatcache();

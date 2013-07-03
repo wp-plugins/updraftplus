@@ -141,6 +141,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * TWEAK: Abort a restoration if the first CREATE TABLE command produces an error (rather than continue and likely have many more)
 * TWEAK: Replace one use of method_exists() to prevent triggering segfault in some faulty PHP installs
 * TWEAK: Allow an extra attempt if in "over-time" - allows recovery from transient errors (e.g. cloud service temporary outage) in over-time.
+* TWEAK: If ZipArchive::close() fails, then log the list of files we were trying to add at the time
 * TWEAK: Detect generous amounts of time allowed for running better, and schedule appropriately
 * TWEAK: Add detection of jQuery errors in the admin page, and direct users with such errors to a help page
 * TWEAK: More aggressively clean up temporary files (can lower temporary disk space requirements)
