@@ -483,6 +483,9 @@ class UpdraftPlus_Backup {
 							}
 						}
 						$data_added_since_reopen = 0;
+					} else {
+						# ZipArchive::close() can take a very long time, which we want to know about
+						$updraftplus->record_still_alive();
 					}
 					clearstatcache();
 					$this->zipfiles_lastwritetime = time();

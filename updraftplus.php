@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.33
+Version: 1.6.34
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -530,16 +530,30 @@ class UpdraftPlus {
 		@rmdir($updraft_dir.'/binziptest');
 	}
 
-	function something_useful_happened() {
-
-		$this->something_useful_happened = true;
-
-		// First, update the record of maximum detected runtime on each run
+	// This function is purely for timing - we just want to know the maximum run-time; not whether we have achieved anything during it
+	function record_still_alive() {
+		// Update the record of maximum detected runtime on each run
 		$time_passed = $this->jobdata_get('run_times');
 		if (!is_array($time_passed)) $time_passed = array();
 
-		$time_passed[$this->current_resumption] = microtime(true)-$this->opened_log_time;
+		$time_this_run = microtime(true)-$this->opened_log_time;
+		$time_passed[$this->current_resumption] = $time_this_run;
 		$this->jobdata_set('run_times', $time_passed);
+
+		$resume_interval = $this->jobdata_get('resume_interval');
+		if ($time_this_run + 30 > $resume_interval) {
+			$new_interval = ceil($time_this_run + 30);
+			$this->log("The time we have beeb running (".round($time_this_run,1).") is approaching the resumption interval ($resume_interval) - increasing resumption interval to $new_interval");
+			$this->jobdata_set('resume_interval', $new_interval);
+		}
+
+	}
+
+	function something_useful_happened() {
+
+		$this->record_still_alive();
+
+		$this->something_useful_happened = true;
 
 		if ($this->current_resumption >= 9 && $this->newresumption_scheduled == false) {
 			$this->log("This is resumption ".$this->current_resumption.", but meaningful activity is still taking place; so a new one will be scheduled");
