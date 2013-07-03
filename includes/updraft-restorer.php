@@ -269,7 +269,6 @@ class Updraft_Restorer extends WP_Upgrader {
 					return new WP_Error('move_failed', $this->strings['new_move_failed']);
 				}
 
-
 			}
 		} elseif ('db' == $type) {
 
@@ -318,6 +317,9 @@ class Updraft_Restorer extends WP_Upgrader {
 			} else {
 				@mysql_query( 'SET SESSION query_cache_type = OFF;', $mysql_dbh );
 			}
+
+			// Find the supported engines - in case the dump had something else (case seen: saved from MariaDB with engine Aria; imported into plain MySQL without)
+			$supported_engines = $wpdb->get_results("SHOW ENGINES", OBJECT_K);
 
 			$errors = 0;
 			$statements_run = 0;
@@ -446,12 +448,16 @@ class Updraft_Restorer extends WP_Upgrader {
 
 					$sql_type = 2;
 
+					// MySQL 4.1 outputs TYPE=, but accepts ENGINE=; 5.1 onwards accept *only* ENGINE=
+					$sql_line = $updraftplus->str_lreplace('TYPE=', 'ENGINE=', $sql_line);
+
 					if (!isset($printed_new_table_prefix)) {
 						$import_table_prefix = $this->pre_sql_actions($import_table_prefix);
 						if (false===$import_table_prefix || is_wp_error($import_table_prefix)) return $import_table_prefix;
 						$printed_new_table_prefix = true;
 					}
 
+					// This CREATE TABLE command may be the de-facto mark for the end of processing a previous table (which is so if this is not the first table in the SQL dump)
 					if ($restoring_table) {
 
 						$this->restored_table($restoring_table, $import_table_prefix, $old_table_prefix);
@@ -473,8 +479,24 @@ class Updraft_Restorer extends WP_Upgrader {
 
 					}
 
+					$engine = "(?)"; $engine_change_message = '';
+					if (preg_match('/ENGINE=([^\s;]+)/', $sql_line, $eng_match)) {
+						$engine = $eng_match[1];
+						if (isset($supported_engines[$engine])) {
+							#echo sprintf(__('Requested table engine (%s) is present.', 'updraftplus'), $engine);
+						} else {
+							$engine_change_message = sprintf(__('Requested table engine (%s) is not present - changing to MyISAM.', 'updraftplus'), $engine)."<br>";
+							$sql_line = $updraftplus->str_lreplace("ENGINE=$eng_match", "ENGINE=MyISAM", $sql_line);
+							// Remove (M)aria options
+							if ('maria' == strtolower($engine) || 'aria' == strtolower($engine)) {
+								$sql_line = preg_replace('/PAGE_CHECKSUM=\d\s?/', '', $sql_line, 1);
+								$sql_line = preg_replace('/TRANSACTIONAL=\d\s?/', '', $sql_line, 1);
+							}
+						}
+					}
+
 					$table_name = $matches[1];
-					echo '<strong>'.__('Restoring table','updraftplus').":</strong> ".htmlspecialchars($table_name);
+					echo '<strong>'.sprintf(__('Restoring table (%s)','updraftplus'), $engine).":</strong> ".htmlspecialchars($table_name);
 					if ('' != $old_table_prefix && $import_table_prefix != $old_table_prefix) {
 						$new_table_name = $this->str_replace_once($old_table_prefix, $import_table_prefix, $table_name);
 						echo ' - '.__('will restore as:', 'updraftplus').' '.htmlspecialchars($new_table_name);
@@ -484,6 +506,8 @@ class Updraft_Restorer extends WP_Upgrader {
 					}
 					$restoring_table = $new_table_name;
 					echo '<br>';
+					if ($engine_change_message) echo $engine_change_message;
+
 				} elseif ('' != $old_table_prefix && preg_match('/^\s*insert into \`?([^\`]*)\`?\s+values/i', $sql_line, $matches)) {
 					$sql_type = 3;
 					if ($import_table_prefix != $old_table_prefix) $sql_line = $this->str_replace_once($old_table_prefix, $import_table_prefix, $sql_line);

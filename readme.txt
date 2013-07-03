@@ -135,6 +135,8 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FIX: Fix syntax error in rarely-triggered part of scheduling calculation algorithm that could cause a dramatic slow-down
 * FIX: Tweak the no-activity-for-a-while-when-writing-zip detector to not fire prematurely (found an extreme corner-case where this caused a problem)
 * FIX: The "Test (cloud method) settings" button would fail if credentials contained a backslash (\), due to WP's automatic doubling of backslashes
+* TWEAK: When running on (old) MySQL 4.1, replace TYPE= with ENGINE= for compatibility with later MySQL versions
+* TWEAK: Detect which MySQL engines are available on the restoring side, and switch if the requested engine is not available - and remove PAGE_CHECKSUM and TRANSACTIONAL options if engine was (M)aria.
 * TWEAK: Batch database rows by the 1000 instead of 100 - proved to be 3x faster on massive MyISAM tables
 * TWEAK: Abort a restoration if the first CREATE TABLE command produces an error (rather than continue and likely have many more)
 * TWEAK: Replace one use of method_exists() to prevent triggering segfault in some faulty PHP installs

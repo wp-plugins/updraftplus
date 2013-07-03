@@ -1193,7 +1193,7 @@ class UpdraftPlus_Admin {
 									return;
 								}
 								// Allow pressing 'Restore' to proceed
-								jQuery('#updraft-restore-modal-stage2a').html('<?php _e('Processing files - pleasee wait...', 'updraftplus'); ?>');
+								jQuery('#updraft-restore-modal-stage2a').html('<?php _e('Processing files - please wait...', 'updraftplus'); ?>');
 								jQuery.get(ajaxurl, {
 									action: 'updraft_ajax',
 									subaction: 'restore_alldownloaded', 

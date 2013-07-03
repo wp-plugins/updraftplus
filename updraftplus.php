@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.34
+Version: 1.6.35
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -1789,6 +1789,12 @@ class UpdraftPlus {
 		die;
 	}
 
+	function str_lreplace($search, $replace, $subject) {
+		$pos = strrpos($subject, $search);
+		if($pos !== false) $subject = substr_replace($subject, $replace, $pos, strlen($search));
+		return $subject;
+	}
+
 	/**
 	 * Taken partially from phpMyAdmin and partially from
 	 * Alain Wolf, Zurich - Switzerland
@@ -1835,7 +1841,8 @@ class UpdraftPlus {
 				//$this->log($err_msg, 'error');
 				$this->stow("#\n# $err_msg\n#\n");
 			}
-			$this->stow($create_table[0][1] . ' ;');
+			$create_line = $this->str_lreplace('TYPE=', 'ENGINE=', $create_table[0][1]);
+			$this->stow($create_line . ' ;');
 			
 			if (false === $table_structure) {
 				$err_msg = sprintf('Error getting table structure of %s', $table);
