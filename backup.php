@@ -74,7 +74,7 @@ class UpdraftPlus_Backup {
 							@touch($zipfile);
 						} else {
 							$updraftplus->log("$fullpath/$e: unreadable file");
-							$updraftplus->log(sprintf(__("%s: unreadable file - could not be backed up", 'updraftplus')), 'warning');
+							$updraftplus->log(sprintf(__("%s: unreadable file - could not be backed up", 'updraftplus'), $use_path_when_storing.'/'.$e), 'warning');
 						}
 					} elseif (is_dir($fullpath.'/'.$e)) {
 						// no need to addEmptyDir here, as it gets done when we recurse
@@ -301,11 +301,10 @@ class UpdraftPlus_Backup {
 		// Go through all those batched files
 		foreach ($this->zipfiles_batched as $file => $add_as) {
 			$fsize = filesize($file);
-			
+
 			if ($fsize > UPDRAFTPLUS_WARN_FILE_SIZE) {
 				$updraftplus->log(sprintf(__('A very large file was encountered: %s (size: %s Mb)', 'updraftplus'), $add_as, round($fsize/1048576, 1)), 'warning');
 			}
-
 
 			// Skips files that are already added
 			if (!isset($this->existing_files[$add_as]) || $this->existing_files[$add_as] != $fsize) {
@@ -314,7 +313,7 @@ class UpdraftPlus_Backup {
 				$zip->addFile($file, $add_as);
 				$zipfiles_added_thisbatch++;
 				$this->zipfiles_added_thisrun++;
-				$files_zipadded_since_open[] = $add_as;
+				$files_zipadded_since_open[] = array('file' => $file, 'addas' => $add_as);
 
 				$data_added_since_reopen += $fsize;
 				/* Conditions for forcing a write-out and re-open:
@@ -339,9 +338,10 @@ class UpdraftPlus_Backup {
 						$updraftplus->log("Adding batch to zip file: over 1.5 seconds have passed since the last write (".round($data_added_since_reopen/1048576,1)." Mb, $zipfiles_added_thisbatch (".$this->zipfiles_added_thisrun.") files added so far); re-opening (prior size: ".round($before_size/1024,1).' Kb)');
 					}
 					if (!$zip->close()) {
+						$updraftplus->log(__('A zip error occurred - check your log for more details.', 'updraftplus'), 'warning', 'zipcloseerror');
 						$updraftplus->log("ZipArchive::Close returned an error. List of files we were trying to add follows (check their permissions).");
 						foreach ($files_zipadded_since_open as $file) {
-							$updraftplus->log("File: $file");
+							$updraftplus->log("File: ".$file['addas']." (exists: ".(int)@file_exists($file['file']).", size: ".@filesize($file['file']).')');
 						}
 					}
 					unset($zip);
@@ -511,9 +511,10 @@ class UpdraftPlus_Backup {
 		$this->zipfiles_batched = array();
 		$ret =  $zip->close();
 		if (!$ret) {
+			$updraftplus->log(__('A zip error occurred - check your log for more details.', 'updraftplus'), 'warning', 'zipcloseerror');
 			$updraftplus->log("ZipArchive::Close returned an error. List of files we were trying to add follows (check their permissions).");
 			foreach ($files_zipadded_since_open as $file) {
-				$updraftplus->log("File: $file");
+				$updraftplus->log("File: ".$file['addas']." (exists: ".(int)@file_exists($file['file']).", size: ".@filesize($file['file']).')');
 			}
 		}
 

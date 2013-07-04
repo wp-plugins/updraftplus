@@ -1163,7 +1163,6 @@ class UpdraftPlus {
 			$this->log("Beginning dispatch of backup to remote");
 			$objname = "UpdraftPlus_BackupModule_${service}";
 			if (class_exists($objname)) {
-				// New style - external, allowing more plugability
 				$remote_obj = new $objname;
 				$remote_obj->backup($backup_array);
 			} else {
