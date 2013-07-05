@@ -557,6 +557,9 @@ class UpdraftPlus {
 
 		$this->something_useful_happened = true;
 
+		$useful_checkin = $this->jobdata_get('useful_checkin');
+		if (empty($useful_checkin) || $this->current_resumption > $useful_checkin) $this->jobdata_set('useful_checkin', $this->current_resumption);
+
 		if ($this->current_resumption >= 9 && $this->newresumption_scheduled == false) {
 			$this->log("This is resumption ".$this->current_resumption.", but meaningful activity is still taking place; so a new one will be scheduled");
 			// We just use max here to make sure we get a number at all
@@ -681,11 +684,11 @@ class UpdraftPlus {
 			$schedule_resumption = true;
 		} else {
 			// We're in over-time - we only reschedule if something useful happened last time (used to be that we waited for it to happen this time - but that meant that transient errors, e.g. Google 400s on uploads, scuppered it all - we'd do better to have another chance
-			$time_passed = $this->jobdata_get('run_times');
-			if (!is_array($time_passed)) $time_passed = array();
+			$useful_checkin = $this->jobdata_get('useful_checkin');
 			$last_resumption = $resumption_no-1;
-			if (!isset($time_passed[$last_resumption])) {
-				$this->log(sprintf('The current run is resumption number %d, and there was no check-in on the last run - will not schedule a further attempt until we see something useful happening this time', $resumption_no));
+
+			if (empty($useful_checkin) || $useful_checkin < $last_resumption) {
+				$this->log(sprintf('The current run is resumption number %d, and there was nothing useful done on the last run (last useful run: %s) - will not schedule a further attempt until we see something useful happening this time', $resumption_no, $useful_checkin));
 			} else {
 				$schedule_resumption = true;
 			}
