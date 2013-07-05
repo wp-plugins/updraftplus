@@ -1727,6 +1727,7 @@ class UpdraftPlus {
 				$this->close($this->dbhandle);
 				$this->log("Table $table: finishing file (${table_file_prefix}.gz)");
 				rename($updraft_dir.'/'.$table_file_prefix.'.tmp.gz', $updraft_dir.'/'.$table_file_prefix.'.gz');
+				$this->something_useful_happened();
 			}
 			$stitch_files[] = $table_file_prefix;
 		}
