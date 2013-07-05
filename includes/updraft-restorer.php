@@ -484,6 +484,9 @@ class Updraft_Restorer extends WP_Upgrader {
 						$engine = $eng_match[1];
 						if (isset($supported_engines[$engine])) {
 							#echo sprintf(__('Requested table engine (%s) is present.', 'updraftplus'), $engine);
+							if ('myisam' == strtolower($engine)) {
+								$sql_line = preg_replace('/PAGE_CHECKSUM=\d\s?/', '', $sql_line, 1);
+							}
 						} else {
 							$engine_change_message = sprintf(__('Requested table engine (%s) is not present - changing to MyISAM.', 'updraftplus'), $engine)."<br>";
 							$sql_line = $updraftplus->str_lreplace("ENGINE=$eng_match", "ENGINE=MyISAM", $sql_line);
@@ -591,7 +594,20 @@ class Updraft_Restorer extends WP_Upgrader {
 		// Non-recursive, so the directory needs to be empty
 		show_message($this->strings['cleaning_up']);
 		if (!$wp_filesystem->delete($working_dir) ) {
-			return new WP_Error('delete_failed', $this->strings['delete_failed'].' ('.$working_dir.')');
+			echo sprintf(__('Error: %s', 'updraftplus'), $this->strings['delete_failed'].' ('.$working_dir.')')."<br>";
+			# List contents
+			// No need to make this a restoration-aborting error condition - it's not
+			#return new WP_Error('delete_failed', $this->strings['delete_failed'].' ('.$working_dir.')');
+			$dirlist = $wp_filesystem->dirlist($working_dir, true, true);
+			if (is_array($dirlist)) {
+				echo __('Files found:', 'updraftplus').'<br><ul style="list-style: disc inside;">';
+				foreach ($dirlist as $name => $struc) {
+					echo "<li>".htmlspecialchars($name)."</li>";
+				}
+				echo '</ul>';
+			} else {
+				echo __('Unable to enumerate files in that directory.', 'updraftplus').'<br>';
+			}
 		}
 
 		switch($type) {

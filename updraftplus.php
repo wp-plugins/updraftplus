@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.36
+Version: 1.6.39
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -178,9 +178,11 @@ class UpdraftPlus {
 		"ftp" => "FTP",
 		'sftp' => 'SFTP',
 		'webdav' => 'WebDAV',
+		's3generic' => 'S3-Compatible (Generic)',
 		'dreamobjects' => 'DreamObjects',
 		"email" => "Email"
 	);
+	# TODO: svn diff; Test; then test the other compatible ones (S3, Dreamobjects); then document+make known
 
 	var $dbhandle;
 	var $dbhandle_isgz;
@@ -541,9 +543,9 @@ class UpdraftPlus {
 		$this->jobdata_set('run_times', $time_passed);
 
 		$resume_interval = $this->jobdata_get('resume_interval');
-		if ($time_this_run + 30 > $resume_interval) {
+		if ($time_this_run + 25 > $resume_interval) {
 			$new_interval = ceil($time_this_run + 30);
-			$this->log("The time we have beeb running (".round($time_this_run,1).") is approaching the resumption interval ($resume_interval) - increasing resumption interval to $new_interval");
+			$this->log("The time we have been running (".round($time_this_run,1).") is approaching the resumption interval ($resume_interval) - increasing resumption interval to $new_interval");
 			$this->jobdata_set('resume_interval', $new_interval);
 		}
 
@@ -990,7 +992,7 @@ class UpdraftPlus {
 		// In fact, leaving the hook to run (if debug is set) is harmless, as the resume job should only do tasks that were left unfinished, which at this stage is none.
 		if ($this->error_count() == 0) {
 			if ($do_cleanup) {
-				$this->log("There were no errors in the uploads, so the 'resume' event is being unscheduled");
+				$this->log("There were no errors in the uploads, so the 'resume' event ($cancel_event) is being unscheduled");
 				wp_clear_scheduled_hook('updraft_backup_resume', array($cancel_event, $this->nonce));
 				delete_transient("updraft_jobdata_".$this->nonce);
 			}
@@ -1841,7 +1843,16 @@ class UpdraftPlus {
 				$this->stow("#\n# $err_msg\n#\n");
 			}
 			$create_line = $this->str_lreplace('TYPE=', 'ENGINE=', $create_table[0][1]);
-			$this->stow($create_line . ' ;');
+
+			# Remove PAGE_CHECKSUM parameter from MyISAM - was internal, undocumented, later removed (so causes errors on import)
+			if (preg_match('/ENGINE=([^\s;]+)/', $create_line, $eng_match)) {
+				$engine = $eng_match[1];
+				if ('myisam' == strtolower($engine)) {
+					$create_line = preg_replace('/PAGE_CHECKSUM=\d\s?/', '', $create_line, 1);
+				}
+			}
+
+			$this->stow($create_line.' ;');
 			
 			if (false === $table_structure) {
 				$err_msg = sprintf('Error getting table structure of %s', $table);

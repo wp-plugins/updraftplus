@@ -5,7 +5,10 @@ require_once(UPDRAFTPLUS_DIR.'/methods/s3.php');
 class UpdraftPlus_BackupModule_dreamobjects extends UpdraftPlus_BackupModule_s3 {
 
 	function set_endpoint($obj, $region) {
-		$obj->setEndpoint('objects.dreamhost.com');
+		$config = self::get_config();
+		global $updraftplus;
+		$updraftplus->log("Set endpoint: ".$config['endpoint']);
+		$obj->setEndpoint($config['endpoint']);
 	}
 
 	function get_config() {
@@ -15,7 +18,8 @@ class UpdraftPlus_BackupModule_dreamobjects extends UpdraftPlus_BackupModule_s3 
 			'remote_path' => UpdraftPlus_Options::get_updraft_option('updraft_dreamobjects_remote_path'),
 			'whoweare' => 'DreamObjects',
 			'whoweare_long' => 'DreamObjects',
-			'key' => 'dreamobjects'
+			'key' => 'dreamobjects',
+			'endpoint' => 'objects.dreamhost.com'
 		);
 	}
 
