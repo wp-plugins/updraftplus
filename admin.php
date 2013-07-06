@@ -1003,9 +1003,8 @@ class UpdraftPlus_Admin {
 				<div style="color:orange"><?php _e("Your PHP max_execution_time is less than 60 seconds. This possibly means you're running in safe_mode. Either disable safe_mode or modify your php.ini to set max_execution_time to a higher number. If you do not, then longer will be needed to complete a backup (but that is all). Present limit is:",'updraftplus');?> <?php echo ini_get('max_execution_time').' '.__('seconds','updraftplus')?>.</div>
 			<?php
 			}
-
 			if($this->scan_old_dirs()) {?>
-				<div class="updated fade" style="padding:8px;"><?php _e('You have old directories from a previous backup (technical information: these are found in wp-content, and suffixed with -old). Use this button to delete them (if you have verified that the restoration worked).','updraftplus');?>
+				<div class="updated fade" style="padding:8px;"><?php _e('You have old directories from a previous backup (technical information: these are suffixed with -old). Use this button to delete them (if you have verified that the restoration worked).','updraftplus');?>
 				<form method="post" action="<?php echo remove_query_arg(array('updraft_restore_success','action')) ?>">
 					<?php wp_nonce_field('updraft_delete_old_dirs'); ?>
 					<input type="hidden" name="action" value="updraft_delete_old_dirs" />
@@ -1572,26 +1571,46 @@ jQuery(document).ready(function() {
 				show_message($message); 
 			exit; 
 		}
-		
-		$content_dir = $wp_filesystem->wp_content_dir();
-		$list = $wp_filesystem->dirlist($content_dir);
+		// From WP_CONTENT_DIR - which contains 'themes'
+		$ret = $this->delete_old_dirs_dir($wp_filesystem->wp_content_dir());
+// 		$ret2 = $this->delete_old_dirs_dir($wp_filesystem->abspath());
+		$plugs = untrailingslashit($wp_filesystem->wp_plugins_dir());
+		if ($wp_filesystem->is_dir($plugs.'-old')) {
+			print "<strong>".__('Delete','updraftplus').": </strong>plugins-old: ";
+			if(!$wp_filesystem->delete($plugs.'-old', true)) {
+				$ret3 = false;
+				print "<strong>".__('Failed', 'updraftplus')."</strong><br>";
+			} else {
+				$ret3 = true;
+				print "<strong>".__('OK', 'updraftplus')."</strong><br>";
+			}
+		} else {
+			$ret3 = true;
+		}
 
-		$return_code = true;
+		return ($ret && $ret3) ? true : false;
+	}
 
+	function delete_old_dirs_dir($dir) {
+
+		global $wp_filesystem;
+		$list = $wp_filesystem->dirlist($dir);
+		if (!is_array($list)) return false;
+
+		$ret = true;
 		foreach ($list as $item) {
 			if (substr($item['name'], -4, 4) == "-old") {
 				//recursively delete
 				print "<strong>".__('Delete','updraftplus').": </strong>".htmlspecialchars($item['name']).": ";
-				if(!$wp_filesystem->delete($content_dir.$item['name'], true)) {
-					$return_code = false;
-					print "<strong>Failed</strong><br>";
+				if(!$wp_filesystem->delete($dir.$item['name'], true)) {
+					$ret = false;
+					print "<strong>".__('Failed', 'updraftplus')."</strong><br>";
 				} else {
-					print "<strong>OK</strong><br>";
+					print "<strong>".__('OK', 'updraftplus')."</strong><br>";
 				}
 			}
 		}
-
-		return $return_code;
+		return $ret;
 	}
 
 	// The aim is to get a directory that is writable by the webserver, because that's the only way we can create zip files
@@ -1655,10 +1674,13 @@ jQuery(document).ready(function() {
 
 	//scans the content dir to see if any -old dirs are present
 	function scan_old_dirs() {
-		$dirArr = scandir(WP_CONTENT_DIR);
+		$dirArr = scandir(untrailingslashit(WP_CONTENT_DIR));
 		foreach($dirArr as $dir) {
 			if (preg_match('/-old$/', $dir)) return true;
 		}
+		# No need to scan ABSPATH - we don't backup there
+		$plugdir = untrailingslashit(WP_PLUGIN_DIR);
+		if (is_dir($plugdir.'-old')) return true;
 		return false;
 	}
 
@@ -1794,7 +1816,7 @@ jQuery(document).ready(function() {
 ENDHERE;
 
 					} else {
-						echo "<input id=\"updraft_include_$key\" type=\"checkbox\" name=\"updraft_include_$key\" value=\"1\" $included /><label for=\"updraft_include_$key\"> ".$info['description']."</label><br>";
+						echo "<input id=\"updraft_include_$key\" type=\"checkbox\" name=\"updraft_include_$key\" value=\"1\" $included /><label for=\"updraft_include_$key\"".((isset($info['htmltitle'])) ? ' title="'.htmlspecialchars($info['htmltitle']).'"' : '')."> ".$info['description']."</label><br>";
 						do_action("updraftplus_config_option_include_$key");
 					}
 				}
@@ -2088,7 +2110,7 @@ ENDHERE;
 
 			<tr class="deletelocal expertmode" style="display:none;">
 				<th><?php _e('Delete local backup','updraftplus');?>:</th>
-				<td><input type="checkbox" id="updraft_delete_local" name="updraft_delete_local" value="1" <?php if ($delete_local) echo 'checked="checked"'; ?>> <br><label for="updraft_delete_local"><?php _e('Uncheck this to prevent deletion of any superfluous backup files from your server after the backup run finishes (i.e. any files despatched remotely will also remain locally, and any files being kept locally will not be subject to the retention limits).','updraftplus');?></label></td>
+				<td><input type="checkbox" id="updraft_delete_local" name="updraft_delete_local" value="1" <?php if ($delete_local) echo 'checked="checked"'; ?>> <br><label for="updraft_delete_local"><?php _e('Check this to delete any superfluous backup files from your server after the backup run finishes (i.e. if you uncheck, then any files despatched remotely will also remain locally, and any files being kept locally will not be subject to the retention limits).','updraftplus');?></label></td>
 			</tr>
 
 

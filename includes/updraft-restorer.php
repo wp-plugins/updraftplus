@@ -191,12 +191,34 @@ class Updraft_Restorer extends WP_Upgrader {
 			return;
 		}
 
-		global $wp_filesystem, $updraftplus_addons_migrator;
+		global $wp_filesystem, $updraftplus_addons_migrator, $updraftplus;
 		$this->init();
 		$this->backup_strings();
 
-		$res = $this->fs_connect(array(ABSPATH, WP_CONTENT_DIR) );
-		if(!$res) exit;
+		// Ensure access to the indicated directory - and to WP_CONTENT_DIR (in which we use upgrade/)
+		$res = $this->fs_connect(array($info['path'], WP_CONTENT_DIR) );
+		if(false === $res || is_wp_error($res)) return false;
+
+		// Get the wp_filesystem location for the folder on the local install
+		switch ( $info['path'] ) {
+			case ABSPATH:
+				$wp_filesystem_dir = $wp_filesystem->abspath();
+				break;
+			case WP_CONTENT_DIR:
+				$wp_filesystem_dir = $wp_filesystem->wp_content_dir();
+				break;
+			case WP_PLUGIN_DIR:
+				$wp_filesystem_dir = $wp_filesystem->wp_plugins_dir();
+				break;
+			case WP_CONTENT_DIR . '/themes':
+				$wp_filesystem_dir = $wp_filesystem->wp_themes_dir();
+				break;
+			default:
+				$wp_filesystem_dir = $wp_filesystem->find_folder($info['path']);
+				break;
+		}
+		if ( ! $wp_filesystem_dir ) return false;
+		$wp_filesystem_dir = untrailingslashit($wp_filesystem_dir);
 
 		$wp_dir = trailingslashit($wp_filesystem->abspath());
 		$wp_content_dir = trailingslashit($wp_filesystem->wp_content_dir());
@@ -227,13 +249,13 @@ class Updraft_Restorer extends WP_Upgrader {
 
 			// In this special case, the backup contents are not in a folder, so it is not simply a case of moving the folder around, but rather looping over all that we find
 
-			$this->move_backup_in($working_dir, $wp_content_dir, true, array('plugins', 'themes', 'uploads', 'upgrade'), 'others');
+			$this->move_backup_in($working_dir, trailingslashit($wp_filesystem_dir), true, array('plugins', 'themes', 'uploads', 'upgrade'), 'others');
 
 		} elseif (is_multisite() && $this->ud_backup_is_multisite === 0 && ( ( 'plugins' == $type || 'themes' == $type )  || ( 'uploads' == $type && isset($updraftplus_addons_migrator['new_blogid'])) ) && $wp_filesystem->is_dir($working_dir.'/'.$type)) {
 			# Migrating a single site into a multisite
 			if ('plugins' == $type || 'themes' == $type) {
 				// Only move in entities that are not already there (2)
-				$this->move_backup_in($working_dir.'/'.$type, $wp_content_dir.$type.'/', 2, array(), $type, true);
+				$this->move_backup_in($working_dir.'/'.$type, trailingslashit($wp_filesystem_dir), 2, array(), $type, true);
 				@$wp_filesystem->delete($working_dir.'/'.$type);
 			} else {
 				// Uploads
@@ -293,7 +315,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 			$line = 0;
 
-			global $wpdb, $updraftplus;
+			global $wpdb;
 
 			// Line up a wpdb-like object to use
 			// mysql_query will throw E_DEPRECATED from PHP 5.5, so we expect WordPress to have switched to something else by then
@@ -569,23 +591,45 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		} else {
 
-			// Default action: used for plugins, themes and uploads
+			// Default action: used for plugins, themes and uploads (and wpcore, via a filter)
 
 			$dirname = basename($info['path']);
 
 			show_message($this->strings['moving_old']);
 
-			$movedin = apply_filters('updraftplus_restore_movein_'.$type, $working_dir, $wp_dir, $wp_content_dir);
+			$movedin = apply_filters('updraftplus_restore_movein_'.$type, $working_dir, $wp_dir, $wp_filesystem_dir);
 			// A filter, to allow add-ons to perform the install of non-standard entities, or to indicate that it's not possible
-			if ($movedin === false) {
+			if (false === $movedin) {
 				show_message($this->strings['not_possible']);
 			} elseif ($movedin !== true) {
-				if ( !$wp_filesystem->move($wp_content_dir . $dirname, $wp_content_dir."$dirname-old", true) ) {
+				if ( !$wp_filesystem->move($wp_filesystem_dir, $wp_filesystem_dir."-old", true) ) {
 					return new WP_Error('old_move_failed', $this->strings['old_move_failed']);
 				}
 
+				// The backup may not actually have /$dirname, since that is info from the present site
+				$dirlist = $wp_filesystem->dirlist($working_dir, true, true);
+				if (is_array($dirlist)) {
+					$move_from = false;
+					foreach ($dirlist as $name => $struc) {
+						if (false === $move_from) {
+							if ($name == $dirname) {
+								$move_from = $working_dir . "/$dirname";
+							} elseif (preg_match('/^([^\.].*)$/', $name, $fmatch)) {
+								$first_entry = $working_dir."/".$fmatch[1];
+							}
+						}
+					}
+					if ($move_from === false && isset($first_entry)) {
+						echo sprintf(__('Using directory from backup: %s', 'updraftplus'), basename($first_entry)).'<br>';
+						$move_from = $first_entry;
+					}
+				} else {
+					# That shouldn't happen. Fall back to default
+					$move_from = $working_dir . "/$dirname";
+				}
+
 				show_message($this->strings['moving_backup']);
-				if ( !$wp_filesystem->move($working_dir . "/$dirname", $wp_content_dir.$dirname, true) ) {
+				if ((isset($move_from) && false === $move_from) || !$wp_filesystem->move($move_from, $wp_filesystem_dir, true) ) {
 					return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
 				}
 			}
@@ -612,19 +656,19 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		switch($type) {
 			case 'wpcore':
-				@$wp_filesystem->chmod($wp_dir, FS_CHMOD_DIR);
+				@$wp_filesystem->chmod($wp_filesystem_dir, FS_CHMOD_DIR);
 				// In case we restored a .htaccess which is incorrect for the local setup
 				$this->flush_rewrite_rules();
 			break;
 			case 'uploads':
-				@$wp_filesystem->chmod($wp_content_dir.$dirname, 0775, true);
+				@$wp_filesystem->chmod($wp_filesystem_dir, 0775, true);
 			break;
 			case 'db':
 				do_action('updraftplus_restored_db', array('expected_oldsiteurl' => $old_siteurl), $import_table_prefix);
 				$this->flush_rewrite_rules();
 			break;
 			default:
-				@$wp_filesystem->chmod($wp_content_dir.$dirname, FS_CHMOD_DIR);
+				@$wp_filesystem->chmod($wp_filesystem_dir, FS_CHMOD_DIR);
 		}
 
 		return true;

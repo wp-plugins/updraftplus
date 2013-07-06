@@ -132,6 +132,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: Restorer now obtains files at an earlier stage, allowing analysis + more intelligent presentation of options and applicable warnings pre-restore. Now warns if you are migrating without having chosen search/replace of DB.
 * FIX: "Wipe settings" wipes S3 + DreamObjects settings (they were retained previously)
 * FIX: Suppress spurious "Table prefix has changed" message
+* FIX: Now copes on restores/migrations if you've moved around your WP_CONTENT_DIR/WP_PLUGIN_DIR/WP folder
 * FIX: Escape output of logging lines (prevents on-page JavaScript breakage if error from cloud service contained unescaped quotes)
 * FIX: Fix syntax error in rarely-triggered part of scheduling calculation algorithm that could cause a dramatic slow-down
 * FIX: Tweak the no-activity-for-a-while-when-writing-zip detector to not fire prematurely (found an extreme corner-case where this caused a problem)
@@ -143,6 +144,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * TWEAK: Abort a restoration if the first CREATE TABLE command produces an error (rather than continue and likely have many more)
 * TWEAK: Replace one use of method_exists() to prevent triggering segfault in some faulty PHP installs
 * TWEAK: Allow an extra attempt if in "over-time" - allows recovery from transient errors (e.g. cloud service temporary outage) in over-time.
+* TWEAK: Work-around WP installs with broken cacheing setups where cache deletion is not working
 * TWEAK: If ZipArchive::close() fails, then log the list of files we were trying to add at the time
 * TWEAK: Detect generous amounts of time allowed for running better, and schedule appropriately
 * TWEAK: Add detection of jQuery errors in the admin page, and direct users with such errors to a help page
