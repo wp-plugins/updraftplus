@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.41
+Version: 1.6.42
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -13,9 +13,9 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
+// Multi-archive sets (need to be handled on creation, uploading, downloading, (?done?)deletion). Test.
 // Backup notes
 // Generic S3 provider: add page to site. S3-compatible storage providers: http://www.dragondisk.com/s3-storage-providers.html
-// Multi-archive sets (need to be handled on creation, uploading, downloading, (?done?)deletion)
 // Auto-fix-up of TYPE=MyISAM(|...) -> ENGINE=...
 // Importer - import from another WP site
 // Option to create new user for self post-restore
@@ -46,8 +46,9 @@ TODO - some of these are out of date/done, needs pruning
 // Bulk download of entire set at once (not have to click 7 times).
 // Restoration should also clear all common cache locations (or just not back them up)
 // Deal with gigantic database tables - e.g. those over a million rows on cheap hosting.
-// Some code assumes that the updraft_dir is inside WP_CONTENT_DIR. We should be using WP_Filesystem::find_folder to remove this assumption
+// Think this was fixed a while ago: Some code assumes that the updraft_dir is inside WP_CONTENT_DIR. We should be using WP_Filesystem::find_folder to remove this assumption
 // When restoring core, need an option to retain database settings / exclude wp-config.php
+// If migrating, warn about consequences of over-writing wp-config.php
 // Produce a command-line version of the restorer (so that people with shell access are immune from server-enforced timeouts)
 // Restorations should be logged also
 // More sophisticated pruning options - e.g. "but only keep 1 backup every <x> <days> after <y> <weeks>"
@@ -1931,7 +1932,11 @@ class UpdraftPlus {
 								$value = ( null === $value || '' === $value) ? $defs[strtolower($key)] : $value;
 								$values[] = ( '' === $value ) ? "''" : $value;
 							} else {
-								$values[] = "'" . str_replace($search, $replace, str_replace('\'', '\\\'', str_replace('\\', '\\\\', $value))) . "'";
+								if (null === $value) {
+									$values[] = 'NULL';
+								} else {
+									$values[] = "'" . str_replace($search, $replace, str_replace('\'', '\\\'', str_replace('\\', '\\\\', $value))) . "'";
+								}
 							}
 						}
 						if ($thisentry) $thisentry .= ",\n ";

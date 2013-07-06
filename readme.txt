@@ -138,6 +138,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FIX: Tweak the no-activity-for-a-while-when-writing-zip detector to not fire prematurely (found an extreme corner-case where this caused a problem)
 * FIX: The "Test (cloud method) settings" button would fail if credentials contained a backslash (\), due to WP's automatic doubling of backslashes
 * FIX: When restoring, don't make failure to remove a temporary directory an abortion condition
+* FIX: Database dump now retains NULL values for string fields (instead of making them empty strings)
 * TWEAK: When running on (old) MySQL 4.1, replace TYPE= with ENGINE= for compatibility with later MySQL versions
 * TWEAK: Detect which MySQL engines are available on the restoring side, and switch if the requested engine is not available; remove PAGE_CHECKSUM and TRANSACTIONAL options if engine was (M)aria. Always remove (removed from upstream) PAGE_CHECKSUM from MyISAM.
 * TWEAK: Batch database rows by the 1000 instead of 100 - proved to be 3x faster on massive MyISAM tables
