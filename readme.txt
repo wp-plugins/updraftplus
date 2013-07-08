@@ -51,12 +51,12 @@ Are you able to translate UpdraftPlus into another language? Are you ready to he
 
 Many thanks to the existing translators:
 
-* Deutsch / German (de_DE): Marcel Herrguth - mherrguth@mrgeneration.de
-* Español / Spanish (es_ES): Fernando Villasmil - villasmil.fernando@gmail.com
+* Deutsch / German (de_DE): Marcel Herrguth - mherrguth at mrgeneration.de
+* Español / Spanish (es_ES): Fernando Villasmil - villasmil.fernando at gmail.com
 * Magyar / Hungarian (hu_HU): Szépe Viktor - http://www.szepe.net
-* Nederlands / Dutch (nl_NL): Hans van der Vlist - hansvandervlist@gmail.com
-* Polski / Polish (pl_PL): Bartosz Kaczmarek - barth.kaczmarek@gmail.com
-* Italiano / Italian (it_IT): Francesco Carpana - f.carpana@gmail.com
+* Nederlands / Dutch (nl_NL): Hans van der Vlist - hansvandervlist at gmail.com
+* Polski / Polish (pl_PL): Bartosz Kaczmarek - barth.kaczmarek at gmail.com
+* Italiano / Italian (it_IT): Francesco Carpana - f.carpana at gmail.com
 
 = Other support =
 
@@ -126,7 +126,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: New storage back-end for any S3-compatible provider (e.g. Google Cloud Storage, Eucalyptus, Cloudian, many more - tested with Dreamobjects and original S3)
 * FEATURE: Delete existing backup sets manually (deletes both local + cloud copies)
 * FEATURE: Restorations + migrations can now be attempted even if the user lacks CREATE TABLE or DROP TABLE permissions
-* FEATURE: Italiano/Italian translation by Francesco Carpana (f.carpana@gmail.com)
+* FEATURE: Italiano/Italian translation by Francesco Carpana (f.carpana at gmail.com)
 * FEATURE: Re-worked error handling internally, leading to users now being notified prominently of warning-level conditions (non-fatal conditions, but things the user should be advised of)
 * FEATURE: Allow some hiding of secrets in the admin area (see: http://updraftplus.com/faqs/in-the-administration-section-it-shows-my-amazon-ftp-etc-passwords-without-using-stars-is-this-safe/)
 * FEATURE: Restorer now obtains files at an earlier stage, allowing analysis + more intelligent presentation of options and applicable warnings pre-restore. Now warns if you are migrating without having chosen search/replace of DB.
@@ -159,7 +159,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: News blog - http://updraftplus.com/news/ - please subscribe if you want to stay up to date with news of new features, tips, and special offers. RSS link: http://feeds.feedburner.com/UpdraftPlus
 * FEATURE: Restoration/migration now copes with a change of table prefix, and asks WordPress to recreate your .htaccess/web.config file
 * FEATURE: Add support for DreamHost DreamObjects (http://dreamhost.com/cloud/dreamobjects/)
-* FEATURE: Polski / Polish (pl_PL) translation: thanks to Bartosz Kaczmarek (barth.kaczmarek@gmail.com)
+* FEATURE: Polski / Polish (pl_PL) translation: thanks to Bartosz Kaczmarek (barth.kaczmarek at gmail.com)
 * FEATURE: Add expert options to count expected uncompressed backup size, show/delete active jobs, and PHP info
 * FEATURE: Send backup reports to multiple addresses (comma-separate the addresses you wish to use)
 * FIX: Inform users of Dropbox tokens which stop working
@@ -192,7 +192,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: The "More files" add-on can now back up any files from anywhere on your filesystem (not just parts of WordPress)
 * FEATURE: The "More files" add-on can now exclude specified directories from the backup of WordPress core
 * FEATURE: Dropbox and Google Drive now check available quota before uploading
-* FEATURE: Nederlands / Dutch (nl_NL) translation: thanks to Hans van der Vlist - hansvandervlist@gmail.com
+* FEATURE: Nederlands / Dutch (nl_NL) translation: thanks to Hans van der Vlist - hansvandervlist at gmail.com
 * FEATURE: The SFTP/FTPS add-on now supports implicit encryption (so now both explicit + implicit are supported)
 * FIX: Google Drive now requires additional permissions to download your files - you will need to re-authenticate if you are downloading or restoring.
 * FIX: Fix serious corruption issue in larger Rackspace Cloud Files backups (fixed a bug in Rackspace's Cloud Files library)
@@ -213,9 +213,9 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: Built-in multi-uploader, allowing easier restoration of old backup sets
 * FEATURE: Allow instant downloading of the most recently modified log file
 * FEATURE: Built in drag-and-drop database decrypter for manual decryption
-* FEATURE: Deutsch / German translation: thanks to Marcel Herrguth - mherrguth@mrgeneration.de
+* FEATURE: Deutsch / German translation: thanks to Marcel Herrguth - mherrguth at mrgeneration.de
 * FEATURE: Magyar / Hungarian translation: thanks to Szépe Viktor - http://www.szepe.net
-* FEATURE: Spanish / Español translation: thanks to Fernando Villasmil - villasmil.fernando@gmail.com                                                                                                                                                                                                                                    
+* FEATURE: Spanish / Español translation: thanks to Fernando Villasmil - villasmil.fernando at gmail.com                                                                                                                                                                                                                                    
 * FEATURE: Added encryption (used by default) to Amazon S3 communications
 * FEATURE: New "more files" add-on, allowing backup of WordPress core and non-WordPress files
 * RELIABILITY: Various algorithm tweaks to help larger sites on lower resources. Largest site a known user has: 1.5Gb
