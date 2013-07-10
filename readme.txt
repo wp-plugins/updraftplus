@@ -118,13 +118,13 @@ Yes; especially before you submit any support requests.
 
 = Have you written any other free plugins? =
 
-Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ . I am also available for hire for bespoke work.
+Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ .
 
 == Changelog ==
 
 = Development branch (not yet released/supported) =
 * FEATURE: New storage back-end for any S3-compatible provider (e.g. Google Cloud Storage, Eucalyptus, Cloudian, many more - tested with Dreamobjects and original S3)
-* FEATURE: Delete existing backup sets manually (deletes both local + cloud copies)
+* FEATURE: Delete existing backup sets manually (deletes both local + cloud copies). Also show backup set debugging info in expert options; and counter now dynamically updates without refresh.
 * FEATURE: Restorations + migrations can now be attempted even if the user lacks CREATE TABLE or DROP TABLE permissions
 * FEATURE: Italiano/Italian translation by Francesco Carpana (f.carpana at gmail.com)
 * FEATURE: Re-worked error handling internally, leading to users now being notified prominently of warning-level conditions (non-fatal conditions, but things the user should be advised of)
