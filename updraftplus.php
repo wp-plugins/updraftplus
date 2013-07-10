@@ -1408,9 +1408,9 @@ class UpdraftPlus {
 		global $updraftplus_backup;
 
 		//get the blog name and rip out all non-alphanumeric chars other than _
-		$blog_name = str_replace(' ','_',substr(get_bloginfo(), 0, 96));
-		$blog_name = preg_replace('/[^A-Za-z0-9_]/','', $blog_name);
-		if(!$blog_name) $blog_name = 'non_alpha_name';
+		$blog_name = preg_replace('/[^A-Za-z0-9_]/','', str_replace(' ','_', substr(get_bloginfo(), 0, 96)));
+		if (!$blog_name) $blog_name = 'non_alpha_name';
+		$blog_name = apply_filters('updraftplus_blog_name', $blog_name);
 
 		$backup_file_basename = 'backup_'.get_date_from_gmt(gmdate('Y-m-d H:i:s', $this->backup_time), 'Y-m-d-Hi').'_'.$blog_name.'_'.$this->nonce;
 
@@ -1686,6 +1686,7 @@ class UpdraftPlus {
 		// Get the blog name and rip out all non-alphanumeric chars other than _
 		$blog_name = preg_replace('/[^A-Za-z0-9_]/','', str_replace(' ','_', substr(get_bloginfo(), 0, 96)));
 		if (!$blog_name) $blog_name = 'non_alpha_name';
+		$blog_name = apply_filters('updraftplus_blog_name', $blog_name);
 
 		$file_base = 'backup_'.get_date_from_gmt(gmdate('Y-m-d H:i:s', $this->backup_time), 'Y-m-d-Hi').'_'.$blog_name.'_'.$this->nonce;
 		$backup_file_base = $updraft_dir.'/'.$file_base;

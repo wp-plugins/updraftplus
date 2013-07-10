@@ -523,6 +523,9 @@ class UpdraftPlus_Admin {
 			$backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
 			$backup_history = (is_array($backup_history))?$backup_history:array();
 			echo sprintf(__('%d set(s) available', 'updraftplus'), count($backup_history));
+		} elseif ('ping' == $_REQUEST['subaction']) {
+			// The purpose of this is to detect brokenness caused by extra line feeds in plugins/themes - before it breaks other AJAX operations and leads to support requests
+			echo 'pong';
 		} elseif ('phpinfo' == $_REQUEST['subaction']) {
 			phpinfo(INFO_ALL ^ (INFO_CREDITS | INFO_LICENSE));
 		} elseif ('backupnow' == $_REQUEST['subaction']) {
@@ -1146,6 +1149,9 @@ class UpdraftPlus_Admin {
 				<tr>
 					<td style="">&nbsp;</td><td class="download-backups" style="display:none; border: 2px dashed #aaa;">
 						<h2><?php echo __('Downloading and restoring', 'updraftplus'); ?></h2>
+						<p style="display:none; background-color:pink; padding:8px; margin:4px;border: 1px dotted;" id="ud-whitespace-warning">
+						 <?php echo '<strong>'.__('Warning','updraftplus').':</strong> '.__('Your WordPress installation has a problem with outputting extra whitespace. This can corrupt backups that you download from here.','updraftplus').' <a href="http://updraftplus.com/problems-with-extra-white-space/">'.__('Please consult this FAQ for help on what to do about it.', 'updraftplus').'</a>';?>
+						</p>
 						<p style="max-width: 740px;"><ul style="list-style: disc inside;">
 						<li><strong><?php _e('Downloading','updraftplus');?>:</strong> <?php _e("Pressing a button for Database/Plugins/Themes/Uploads/Others will make UpdraftPlus try to bring the backup file back from the remote storage (if any - e.g. Amazon S3, Dropbox, Google Drive, FTP) to your webserver. Then you will be allowed to download it to your computer. If the fetch from the remote storage stops progressing (wait 30 seconds to make sure), then press again to resume. Remember that you can also visit the cloud storage vendor's website directly.",'updraftplus');?></li>
 						<li><strong><?php _e('Restoring','updraftplus');?>:</strong> <?php _e("Press the button for the backup you wish to restore. If your site is large and you are using remote storage, then you should first click on each entity in order to retrieve it back to the webserver. This will prevent time-outs from occuring during the restore process itself.",'updraftplus');?> <?php _e('More tasks:','updraftplus');?> <a href="#" onclick="jQuery('#updraft-plupload-modal').slideToggle(); return false;"><?php _e('upload backup files','updraftplus');?></a> | <a href="#" onclick="updraft_updatehistory(1); return false;" title="<?php _e('Press here to look inside your UpdraftPlus directory (in your web hosting space) for any new backup sets that you have uploaded. The location of this directory is set in the expert settings, below.','updraftplus'); ?>"><?php _e('rescan folder for new backup sets','updraftplus');?></a></li>
@@ -1316,6 +1322,11 @@ class UpdraftPlus_Admin {
 </div>
 <script>
 jQuery(document).ready(function() {
+	jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'ping', nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>' }, function(data, response) {
+		if ('success' == response && data != 'pong' && data.indexOf('pong')>=0) {
+			jQuery('#ud-whitespace-warning').show();
+		}
+	});
 	jQuery('#updraft-hidethis').remove();
 });
 </script>
