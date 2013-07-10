@@ -129,7 +129,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: Italiano/Italian translation by Francesco Carpana (f.carpana at gmail.com)
 * FEATURE: Re-worked error handling internally, leading to users now being notified prominently of warning-level conditions (non-fatal conditions, but things the user should be advised of)
 * FEATURE: Allow some hiding of secrets in the admin area (see: http://updraftplus.com/faqs/in-the-administration-section-it-shows-my-amazon-ftp-etc-passwords-without-using-stars-is-this-safe/)
-* FEATURE: Restorer now obtains files at an earlier stage, allowing analysis + more intelligent presentation of options and applicable warnings pre-restore. Now warns if you are migrating without having chosen search/replace of DB.
+* FEATURE: Restorer now obtains files at an earlier stage, allowing analysis + more intelligent presentation of options and applicable warnings pre-restore. Now warns if you are migrating without having chosen search/replace of DB. Also pre-decrypts the database, which lessens the risk of timeouts.
 * FIX: "Wipe settings" wipes S3 + DreamObjects settings (they were retained previously)
 * FIX: Suppress spurious "Table prefix has changed" message
 * FIX: Now copes on restores/migrations if you've moved around your WP_CONTENT_DIR/WP_PLUGIN_DIR/WP folder

@@ -102,6 +102,7 @@ class UpdraftPlus_Backup {
 	function make_zipfile($source, $destination, $whichone = '') {
 
 		global $updraftplus;
+		$destination_base = basename($destination);
 		// Legacy/redundant
 		if (empty($whichone) && is_string($whichone)) $whichone = basename($source);
 
@@ -152,7 +153,8 @@ class UpdraftPlus_Backup {
 		}
 
 		// TODO: Handle stderr?
-		if (is_string($this->binzip)) {
+		// We only use binzip up to resumption 8, in case there is some undetected problem. We can make this more sophisticated if a need arises.
+		if (is_string($this->binzip) && $updraftplus->current_resumption <9) {
 
 			if (is_string($source)) $source = array($source);
 
@@ -160,11 +162,11 @@ class UpdraftPlus_Backup {
 
 			$debug = UpdraftPlus_Options::get_updraft_option('updraft_debug_mode');
 
-			# Don't use -q, as we rely on output to process to detect useful activity
-			# Don't use -v either: the extra logging makes things much slower
-			$zip_params = ($debug) ? '-v' : '';
+			# Don't use -q and do use -v, as we rely on output to process to detect useful activity
+			$zip_params = '-v';
 
 			$orig_size = file_exists($destination) ? filesize($destination) : 0;
+			$last_size = $orig_size;
 			clearstatcache();
 
 			foreach ($source as $s) {
@@ -180,18 +182,25 @@ class UpdraftPlus_Backup {
 				if ($handle) {
 					while (!feof($handle)) {
 						$w = fgets($handle, 1024);
+						// Logging all this really slows things down
 						if ($w && $debug) $updraftplus->log("Output from zip: ".trim($w), 'debug');
-						if (!$something_useful_happened && file_exists($destination)) {
+						if (file_exists($destination)) {
 							$new_size = filesize($destination);
-							if ($new_size > $orig_size + 20) {
+							if (!$something_useful_happened && $new_size > $orig_size + 20) {
 								$updraftplus->something_useful_happened();
 								$something_useful_happened = true;
 							}
 							clearstatcache();
+							# Log when 20% bigger or at least every 50Mb
+							if ($new_size > $last_size*1.2 || $new_size > $last_size + 52428800) {
+								$updraftplus->log(sprintf("$destination_base: size is now: %.2f Mb", round($new_size/1048576,1)));
+								$last_size = $new_size;
+							}
 						}
 					}
 					$ret = pclose($handle);
-					if ($ret != 0) {
+					// Code 12 = nothing to do
+					if ($ret != 0 && $ret != 12) {
 						$updraftplus->log("Binary zip: error (code: $ret)");
 						if ($w && !$debug) $updraftplus->log("Last output from zip: ".trim($w), 'debug');
 						$all_ok = false;

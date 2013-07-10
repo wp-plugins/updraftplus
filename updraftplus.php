@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.44
+Version: 1.6.45
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -15,10 +15,10 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // Multi-archive sets (need to be handled on creation, uploading, downloading, (?done?)deletion). Test.
 // Backup notes
+// Alert user if warnings are interfering with header() - and thus breaking OAuth for Dropbox/Google Drive first-time setup.
 // Auto-alert if disk usage passes user-defined threshold / or an automatically computed one. Auto-alert if more backups are known than should be (usually a sign of incompleteness)
 // Generic S3 provider: add page to site. S3-compatible storage providers: http://www.dragondisk.com/s3-storage-providers.html
-// Auto-fix-up of TYPE=MyISAM(|...) -> ENGINE=...
-// Importer - import from another WP site
+// Importer - import backup sets from another WP site
 // Option to create new user for self post-restore
 // Auto-disable certain cacheing/minifying plugins post-restore
 // Enhance Google Drive support to not require registration, and to allow offline auth
@@ -351,11 +351,13 @@ class UpdraftPlus {
 		if ($handle = opendir($updraft_dir)) {
 			$now_time=time();
 			while (false !== ($entry = readdir($handle))) {
-				// The latter match is for files created internally by zipArchive::addFile
+				// This match is for files created internally by zipArchive::addFile
 				$ziparchive_match = preg_match("/$match\.zip\.tmp\.([A-Za-z0-9]){6}?$/i", $entry);
-				if ((preg_match("/$match\.tmp(\.gz)?$/i", $entry) || $ziparchive_match) && is_file($updraft_dir.'/'.$entry)) {
+				// zi followed by 6 characters is the pattern used by /usr/bin/zip on Linux systems. It's safe to check for, as we have nothing else that's going to match that pattern.
+				$binzip_match = preg_match("/^zi([A-Za-z0-9]){6}$/", $entry);
+				if ((preg_match("/$match\.tmp(\.gz)?$/i", $entry) || $ziparchive_match || $binzip_match) && is_file($updraft_dir.'/'.$entry)) {
 					// We delete if a parameter was specified (and either it is a ZipArchive match or an order to delete of whatever age), or if over 12 hours old
-					if (($match && ($ziparchive_match || 0 == $older_than) && $now_time-filemtime($updraft_dir.'/'.$entry) >= $older_than) || $now_time-filemtime($updraft_dir.'/'.$entry)>43200) {
+					if (($match && ($ziparchive_match || $binzip_match || 0 == $older_than) && $now_time-filemtime($updraft_dir.'/'.$entry) >= $older_than) || $now_time-filemtime($updraft_dir.'/'.$entry)>43200) {
 						$this->log("Deleting old temporary file: $entry");
 						@unlink($updraft_dir.'/'.$entry);
 					}

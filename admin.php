@@ -1,6 +1,5 @@
 <?php
 
-// TODO: Test AJAX-pre-restore analysis of *encrypted* DB file
 // TODO: Indicate warnings + errors to front-end on analysis of archives
 // TODO: Multi-archive sets - downloaders + deleter needs to handle these
 
@@ -666,11 +665,11 @@ class UpdraftPlus_Admin {
 			$ciphertext = $rijndael->decrypt(file_get_contents($db_file));
 			if ($ciphertext) {
 				$new_db_file = $updraft_dir.'/'.basename($db_file, '.crypt');
-				if (file_put_contents($new_db_file, $ciphertext)) {
-					echo sprintf(__('Error: %s', 'updraftplus'), __('Failed to write out the decrypted database to the filesystem','updraftplus'));
+				if (!file_put_contents($new_db_file, $ciphertext)) {
+					echo sprintf(__('Error: %s', 'updraftplus'), __('Failed to write out the decrypted database to the filesystem.','updraftplus'));
 					return false;
-					$db_file = $new_db_file;
 				}
+				$db_file = $new_db_file;
 			} else {
 				echo sprintf(__('Error: %s', 'updraftplus'), __('Decryption failed. The most likely cause is that you used the wrong key.','updraftplus'));
 				return false;
@@ -679,7 +678,7 @@ class UpdraftPlus_Admin {
 
 		$dbhandle = gzopen($db_file, 'r');
 		if (!$dbhandle) {
-			echo sprintf(__('Error: %s', 'updraftplus'), __('Failed to open database file','updraftplus'));
+			echo sprintf(__('Error: %s', 'updraftplus'), __('Failed to open database file.','updraftplus'));
 			return false;
 		}
 
