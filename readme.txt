@@ -122,7 +122,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= Development branch (not yet released/supported) =
+= 1.6.46 - 2013/07/11 =
 * FEATURE: New storage back-end for any S3-compatible provider (e.g. Google Cloud Storage, Eucalyptus, Cloudian, many more - tested with Dreamobjects and original S3)
 * FEATURE: Delete existing backup sets manually (deletes both local + cloud copies). Also show backup set debugging info in expert options; and counter now dynamically updates without refresh.
 * FEATURE: Restorations + migrations can now be attempted even if the user lacks CREATE TABLE or DROP TABLE permissions
