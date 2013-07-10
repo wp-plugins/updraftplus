@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.39
+Version: 1.6.46
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -13,14 +13,16 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
+// Multi-archive sets (need to be handled on creation, uploading, downloading, (?done?)deletion). Test.
 // Backup notes
-// Generic S3 provider (e.g. Google Storage). List some.
-// S3-compatible storage providers: http://www.dragondisk.com/s3-storage-providers.html
-// Multi-archive sets (need to be handled on creation, uploading, downloading, (?done?)deletion)
-// Auto-fix-up of TYPE=MyISAM(|...) -> ENGINE=...
+// Alert user if warnings are interfering with header() - and thus breaking OAuth for Dropbox/Google Drive first-time setup.
+// Auto-alert if disk usage passes user-defined threshold / or an automatically computed one. Auto-alert if more backups are known than should be (usually a sign of incompleteness)
+// Generic S3 provider: add page to site. S3-compatible storage providers: http://www.dragondisk.com/s3-storage-providers.html
+// Importer - import backup sets from another WP site
+// Option to create new user for self post-restore
+// Auto-disable certain cacheing/minifying plugins post-restore
 // Enhance Google Drive support to not require registration, and to allow offline auth
 // Add note post-DB backup: you will need to log in using details from newly-imported DB
-// Do is_readable() test on each file,  and provide a clear message and link to FAQ if fails - must work on PclZip/ZipArchive/binzip
 // Check why this one wasn't caught by the automatic-user-entered-wrong-thing-in-folder-ID field: https://drive.google.com/?pli=1&authuser=0#folders/0B3ad2KUS8hxPbVp4UGJlVW5ObjQ (http://pastebin.com/fpEEWV7U)
 // Log file SHA1 after finishing creation
 // Get link - http://www.rackspace.com/knowledge_center/article/how-to-use-updraftplus-to-back-up-cloud-sites-to-cloud-files
@@ -36,16 +38,18 @@ TODO - some of these are out of date/done, needs pruning
 // With ginormous tables, log how many times they've been attempted: after 3rd attempt, log a warning and move on. But first, batch ginormous tables (resumable)
 // Import single site into a multisite: http://codex.wordpress.org/Migrating_Multiple_Blogs_into_WordPress_3.0_Multisite, http://wordpress.org/support/topic/single-sites-to-multisite?replies=5, http://wpmu.org/import-export-wordpress-sites-multisite/
 // Add note in FAQs about 'maintenance mode' plugins
+// Selective restores - some resources
+// Automatically de-activate cacheing/minifying plugins upon restore (and inform user) to prevent unexpected clashes
 // After restoring the themes, should check to see if the currently-active one still exists or not
 // When you migrate/restore, if there is a .htaccess, warn/give option about it.
-// In 'overtime', schedule the resumptions in groups of 2 or 3, not just 1
 // 'Show log' should be done in a nice pop-out, with a button to download the raw
 // delete_old_dirs() needs to use WP_Filesystem in a more user-friendly way when errors occur
 // Bulk download of entire set at once (not have to click 7 times).
 // Restoration should also clear all common cache locations (or just not back them up)
 // Deal with gigantic database tables - e.g. those over a million rows on cheap hosting.
-// Some code assumes that the updraft_dir is inside WP_CONTENT_DIR. We should be using WP_Filesystem::find_folder to remove this assumption
+// Think this was fixed a while ago: Some code assumes that the updraft_dir is inside WP_CONTENT_DIR. We should be using WP_Filesystem::find_folder to remove this assumption
 // When restoring core, need an option to retain database settings / exclude wp-config.php
+// If migrating, warn about consequences of over-writing wp-config.php
 // Produce a command-line version of the restorer (so that people with shell access are immune from server-enforced timeouts)
 // Restorations should be logged also
 // More sophisticated pruning options - e.g. "but only keep 1 backup every <x> <days> after <y> <weeks>"
@@ -71,7 +75,6 @@ TODO - some of these are out of date/done, needs pruning
 // Store meta-data on which version of UD the backup was made with (will help if we ever introduce quirks that need ironing)
 // Test restoration when uploads dir is /assets/ (e.g. with Shoestrap theme)
 // Send the user an email upon their first backup with tips on what to do (e.g. support/improve) (include legacy check to not bug existing users)
-//Allow use of /usr/bin/zip - since this can escape from PHP's memory limit. Can still batch as we do so, in order to monitor/measure progress
 // GoogleDrive +Rackspace folders
 //Do an automated test periodically for the success of loop-back connections
 //When a manual backup is run, use a timer to update the 'Download backups and logs' section, just like 'Last finished backup run'. Beware of over-writing anything that's in there from a resumable downloader.
@@ -79,8 +82,6 @@ TODO - some of these are out of date/done, needs pruning
 //Add Box.Net, SugarSync, Me.Ga support??
 //Make it easier to find add-ons
 //The restorer has a hard-coded wp-content - fix
-//?? On 'backup now', open up a modal, count down 5 seconds, open page via modal, then start examining the log file (if it can be found)
-//Should make clear in dashboard what is a non-fatal error (i.e. can be retried) - leads to unnecessary bug reports
 // Move the inclusion, cloud and retention data into the backup job (i.e. don't read current config, make it an attribute of each job). In fact, everything should be. So audit all code for where get_option is called inside a backup run: it shouldn't happen.
 // Should we resume if the only errors were upon deletion (i.e. the backup itself was fine?) Presently we do, but it displays errors for the user to confuse them. Perhaps better to make pruning a separate scheuled task??
 // Warn the user if their zip-file creation is slooowww...
@@ -102,8 +103,9 @@ Encrypt filesystem, if memory allows (and have option for abort if not); split u
 // New sub-module to verify that the backups are there, independently of backup thread
 */
 
-/*  Portions copyright 2010 Paul Kehrer
+/*
 Portions copyright 2011-13 David Anderson
+Portions copyright 2010 Paul Kehrer
 Other portions copyright as indicated authors in the relevant files
 
 This program is free software; you can redistribute it and/or modify
@@ -349,11 +351,13 @@ class UpdraftPlus {
 		if ($handle = opendir($updraft_dir)) {
 			$now_time=time();
 			while (false !== ($entry = readdir($handle))) {
-				// The latter match is for files created internally by zipArchive::addFile
+				// This match is for files created internally by zipArchive::addFile
 				$ziparchive_match = preg_match("/$match\.zip\.tmp\.([A-Za-z0-9]){6}?$/i", $entry);
-				if ((preg_match("/$match\.tmp(\.gz)?$/i", $entry) || $ziparchive_match) && is_file($updraft_dir.'/'.$entry)) {
+				// zi followed by 6 characters is the pattern used by /usr/bin/zip on Linux systems. It's safe to check for, as we have nothing else that's going to match that pattern.
+				$binzip_match = preg_match("/^zi([A-Za-z0-9]){6}$/", $entry);
+				if ((preg_match("/$match\.tmp(\.gz)?$/i", $entry) || $ziparchive_match || $binzip_match) && is_file($updraft_dir.'/'.$entry)) {
 					// We delete if a parameter was specified (and either it is a ZipArchive match or an order to delete of whatever age), or if over 12 hours old
-					if (($match && ($ziparchive_match || 0 == $older_than) && $now_time-filemtime($updraft_dir.'/'.$entry) >= $older_than) || $now_time-filemtime($updraft_dir.'/'.$entry)>43200) {
+					if (($match && ($ziparchive_match || $binzip_match || 0 == $older_than) && $now_time-filemtime($updraft_dir.'/'.$entry) >= $older_than) || $now_time-filemtime($updraft_dir.'/'.$entry)>43200) {
 						$this->log("Deleting old temporary file: $entry");
 						@unlink($updraft_dir.'/'.$entry);
 					}
@@ -557,6 +561,9 @@ class UpdraftPlus {
 
 		$this->something_useful_happened = true;
 
+		$useful_checkin = $this->jobdata_get('useful_checkin');
+		if (empty($useful_checkin) || $this->current_resumption > $useful_checkin) $this->jobdata_set('useful_checkin', $this->current_resumption);
+
 		if ($this->current_resumption >= 9 && $this->newresumption_scheduled == false) {
 			$this->log("This is resumption ".$this->current_resumption.", but meaningful activity is still taking place; so a new one will be scheduled");
 			// We just use max here to make sure we get a number at all
@@ -637,6 +644,7 @@ class UpdraftPlus {
 
 			$prev_resumption = $resumption_no - 1;
 			if (isset($time_passed[$prev_resumption])) $resumption_extralog = ", previous check-in=".round($time_passed[$prev_resumption], 1)."s";
+
 		}
 
 		// Import existing warnings. The purpose of this is so that when save_backup_history() is called, it has a complete set - because job data expires quickly, whilst the warnings of the last backup run need to persist
@@ -656,6 +664,12 @@ class UpdraftPlus {
 
 		$this->current_resumption = $resumption_no;
 		$this->log("Backup run: resumption=$resumption_no, nonce=$bnonce, begun at=$btime (${time_ago}s ago), job type=$job_type".$resumption_extralog);
+
+		// This works round a bizarre bug seen in one WP install, where delete_transient and wp_clear_scheduled_hook both took no effect, and upon 'resumption' the entire backup would repeat.
+		if ($resumption_no >= 1 && 'finished' == $this->jobdata_get('jobstatus')) {
+			$this->log("Terminate: This backup job is already finished.");
+			die;
+		}
 
 		// Schedule again, to run in 5 minutes again, in case we again fail
 		// The actual interval can be increased (for future resumptions) by other code, if it detects apparent overlapping
@@ -681,11 +695,11 @@ class UpdraftPlus {
 			$schedule_resumption = true;
 		} else {
 			// We're in over-time - we only reschedule if something useful happened last time (used to be that we waited for it to happen this time - but that meant that transient errors, e.g. Google 400s on uploads, scuppered it all - we'd do better to have another chance
-			$time_passed = $this->jobdata_get('run_times');
-			if (!is_array($time_passed)) $time_passed = array();
+			$useful_checkin = $this->jobdata_get('useful_checkin');
 			$last_resumption = $resumption_no-1;
-			if (!isset($time_passed[$last_resumption])) {
-				$this->log(sprintf('The current run is resumption number %d, and there was no check-in on the last run - will not schedule a further attempt until we see something useful happening this time', $resumption_no));
+
+			if (empty($useful_checkin) || $useful_checkin < $last_resumption) {
+				$this->log(sprintf('The current run is resumption number %d, and there was nothing useful done on the last run (last useful run: %s) - will not schedule a further attempt until we see something useful happening this time', $resumption_no, $useful_checkin));
 			} else {
 				$schedule_resumption = true;
 			}
@@ -993,6 +1007,8 @@ class UpdraftPlus {
 		if ($this->error_count() == 0) {
 			if ($do_cleanup) {
 				$this->log("There were no errors in the uploads, so the 'resume' event ($cancel_event) is being unscheduled");
+				# This apparently-worthless setting of metadata before deleting it is for the benefit of a WP install seen where wp_clear_scheduled_hook() and delete_transient() apparently did nothing (probably a faulty cache)
+				$this->jobdata_set('jobstatus', 'finished');
 				wp_clear_scheduled_hook('updraft_backup_resume', array($cancel_event, $this->nonce));
 				delete_transient("updraft_jobdata_".$this->nonce);
 			}
@@ -1394,9 +1410,9 @@ class UpdraftPlus {
 		global $updraftplus_backup;
 
 		//get the blog name and rip out all non-alphanumeric chars other than _
-		$blog_name = str_replace(' ','_',substr(get_bloginfo(), 0, 96));
-		$blog_name = preg_replace('/[^A-Za-z0-9_]/','', $blog_name);
-		if(!$blog_name) $blog_name = 'non_alpha_name';
+		$blog_name = preg_replace('/[^A-Za-z0-9_]/','', str_replace(' ','_', substr(get_bloginfo(), 0, 96)));
+		if (!$blog_name) $blog_name = 'non_alpha_name';
+		$blog_name = apply_filters('updraftplus_blog_name', $blog_name);
 
 		$backup_file_basename = 'backup_'.get_date_from_gmt(gmdate('Y-m-d H:i:s', $this->backup_time), 'Y-m-d-Hi').'_'.$blog_name.'_'.$this->nonce;
 
@@ -1672,6 +1688,7 @@ class UpdraftPlus {
 		// Get the blog name and rip out all non-alphanumeric chars other than _
 		$blog_name = preg_replace('/[^A-Za-z0-9_]/','', str_replace(' ','_', substr(get_bloginfo(), 0, 96)));
 		if (!$blog_name) $blog_name = 'non_alpha_name';
+		$blog_name = apply_filters('updraftplus_blog_name', $blog_name);
 
 		$file_base = 'backup_'.get_date_from_gmt(gmdate('Y-m-d H:i:s', $this->backup_time), 'Y-m-d-Hi').'_'.$blog_name.'_'.$this->nonce;
 		$backup_file_base = $updraft_dir.'/'.$file_base;
@@ -1724,6 +1741,7 @@ class UpdraftPlus {
 				$this->close($this->dbhandle);
 				$this->log("Table $table: finishing file (${table_file_prefix}.gz)");
 				rename($updraft_dir.'/'.$table_file_prefix.'.tmp.gz', $updraft_dir.'/'.$table_file_prefix.'.gz');
+				$this->something_useful_happened();
 			}
 			$stitch_files[] = $table_file_prefix;
 		}
@@ -1918,7 +1936,11 @@ class UpdraftPlus {
 								$value = ( null === $value || '' === $value) ? $defs[strtolower($key)] : $value;
 								$values[] = ( '' === $value ) ? "''" : $value;
 							} else {
-								$values[] = "'" . str_replace($search, $replace, str_replace('\'', '\\\'', str_replace('\\', '\\\\', $value))) . "'";
+								if (null === $value) {
+									$values[] = 'NULL';
+								} else {
+									$values[] = "'" . str_replace($search, $replace, str_replace('\'', '\\\'', str_replace('\\', '\\\\', $value))) . "'";
+								}
 							}
 						}
 						if ($thisentry) $thisentry .= ",\n ";

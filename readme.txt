@@ -51,12 +51,12 @@ Are you able to translate UpdraftPlus into another language? Are you ready to he
 
 Many thanks to the existing translators:
 
-* Deutsch / German (de_DE): Marcel Herrguth - mherrguth@mrgeneration.de
-* Español / Spanish (es_ES): Fernando Villasmil - villasmil.fernando@gmail.com
+* Deutsch / German (de_DE): Marcel Herrguth - mherrguth at mrgeneration.de
+* Español / Spanish (es_ES): Fernando Villasmil - villasmil.fernando at gmail.com
 * Magyar / Hungarian (hu_HU): Szépe Viktor - http://www.szepe.net
-* Nederlands / Dutch (nl_NL): Hans van der Vlist - hansvandervlist@gmail.com
-* Polski / Polish (pl_PL): Bartosz Kaczmarek - barth.kaczmarek@gmail.com
-* Italiano / Italian (it_IT): Francesco Carpana - f.carpana@gmail.com
+* Nederlands / Dutch (nl_NL): Hans van der Vlist - hansvandervlist at gmail.com
+* Polski / Polish (pl_PL): Bartosz Kaczmarek - barth.kaczmarek at gmail.com
+* Italiano / Italian (it_IT): Francesco Carpana - f.carpana at gmail.com
 
 = Other support =
 
@@ -118,31 +118,35 @@ Yes; especially before you submit any support requests.
 
 = Have you written any other free plugins? =
 
-Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ . I am also available for hire for bespoke work.
+Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ .
 
 == Changelog ==
 
 = Development branch (not yet released/supported) =
 * FEATURE: New storage back-end for any S3-compatible provider (e.g. Google Cloud Storage, Eucalyptus, Cloudian, many more - tested with Dreamobjects and original S3)
-* FEATURE: Delete existing backup sets manually (deletes both local + cloud copies)
+* FEATURE: Delete existing backup sets manually (deletes both local + cloud copies). Also show backup set debugging info in expert options; and counter now dynamically updates without refresh.
 * FEATURE: Restorations + migrations can now be attempted even if the user lacks CREATE TABLE or DROP TABLE permissions
-* FEATURE: Italiano/Italian translation by Francesco Carpana (f.carpana@gmail.com)
+* FEATURE: Italiano/Italian translation by Francesco Carpana (f.carpana at gmail.com)
 * FEATURE: Re-worked error handling internally, leading to users now being notified prominently of warning-level conditions (non-fatal conditions, but things the user should be advised of)
 * FEATURE: Allow some hiding of secrets in the admin area (see: http://updraftplus.com/faqs/in-the-administration-section-it-shows-my-amazon-ftp-etc-passwords-without-using-stars-is-this-safe/)
-* FEATURE: Restorer now obtains files at an earlier stage, allowing analysis + more intelligent presentation of options and applicable warnings pre-restore. Now warns if you are migrating without having chosen search/replace of DB.
+* FEATURE: Restorer now obtains files at an earlier stage, allowing analysis + more intelligent presentation of options and applicable warnings pre-restore. Now warns if you are migrating without having chosen search/replace of DB. Also pre-decrypts the database, which lessens the risk of timeouts.
 * FIX: "Wipe settings" wipes S3 + DreamObjects settings (they were retained previously)
 * FIX: Suppress spurious "Table prefix has changed" message
+* FIX: Now copes on restores/migrations if you've moved around your WP_CONTENT_DIR/WP_PLUGIN_DIR/WP folder
 * FIX: Escape output of logging lines (prevents on-page JavaScript breakage if error from cloud service contained unescaped quotes)
 * FIX: Fix syntax error in rarely-triggered part of scheduling calculation algorithm that could cause a dramatic slow-down
 * FIX: Tweak the no-activity-for-a-while-when-writing-zip detector to not fire prematurely (found an extreme corner-case where this caused a problem)
 * FIX: The "Test (cloud method) settings" button would fail if credentials contained a backslash (\), due to WP's automatic doubling of backslashes
 * FIX: When restoring, don't make failure to remove a temporary directory an abortion condition
+* FIX: Database dump now retains NULL values for string fields (instead of making them empty strings)
+* TWEAK: Detect WP installs with broken plugins that add extra white-space (thus breaking AJAX output)
 * TWEAK: When running on (old) MySQL 4.1, replace TYPE= with ENGINE= for compatibility with later MySQL versions
 * TWEAK: Detect which MySQL engines are available on the restoring side, and switch if the requested engine is not available; remove PAGE_CHECKSUM and TRANSACTIONAL options if engine was (M)aria. Always remove (removed from upstream) PAGE_CHECKSUM from MyISAM.
 * TWEAK: Batch database rows by the 1000 instead of 100 - proved to be 3x faster on massive MyISAM tables
 * TWEAK: Abort a restoration if the first CREATE TABLE command produces an error (rather than continue and likely have many more)
 * TWEAK: Replace one use of method_exists() to prevent triggering segfault in some faulty PHP installs
 * TWEAK: Allow an extra attempt if in "over-time" - allows recovery from transient errors (e.g. cloud service temporary outage) in over-time.
+* TWEAK: Work-around WP installs with broken cacheing setups where cache deletion is not working
 * TWEAK: If ZipArchive::close() fails, then log the list of files we were trying to add at the time
 * TWEAK: Detect generous amounts of time allowed for running better, and schedule appropriately
 * TWEAK: Add detection of jQuery errors in the admin page, and direct users with such errors to a help page
@@ -156,7 +160,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: News blog - http://updraftplus.com/news/ - please subscribe if you want to stay up to date with news of new features, tips, and special offers. RSS link: http://feeds.feedburner.com/UpdraftPlus
 * FEATURE: Restoration/migration now copes with a change of table prefix, and asks WordPress to recreate your .htaccess/web.config file
 * FEATURE: Add support for DreamHost DreamObjects (http://dreamhost.com/cloud/dreamobjects/)
-* FEATURE: Polski / Polish (pl_PL) translation: thanks to Bartosz Kaczmarek (barth.kaczmarek@gmail.com)
+* FEATURE: Polski / Polish (pl_PL) translation: thanks to Bartosz Kaczmarek (barth.kaczmarek at gmail.com)
 * FEATURE: Add expert options to count expected uncompressed backup size, show/delete active jobs, and PHP info
 * FEATURE: Send backup reports to multiple addresses (comma-separate the addresses you wish to use)
 * FIX: Inform users of Dropbox tokens which stop working
@@ -189,7 +193,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: The "More files" add-on can now back up any files from anywhere on your filesystem (not just parts of WordPress)
 * FEATURE: The "More files" add-on can now exclude specified directories from the backup of WordPress core
 * FEATURE: Dropbox and Google Drive now check available quota before uploading
-* FEATURE: Nederlands / Dutch (nl_NL) translation: thanks to Hans van der Vlist - hansvandervlist@gmail.com
+* FEATURE: Nederlands / Dutch (nl_NL) translation: thanks to Hans van der Vlist - hansvandervlist at gmail.com
 * FEATURE: The SFTP/FTPS add-on now supports implicit encryption (so now both explicit + implicit are supported)
 * FIX: Google Drive now requires additional permissions to download your files - you will need to re-authenticate if you are downloading or restoring.
 * FIX: Fix serious corruption issue in larger Rackspace Cloud Files backups (fixed a bug in Rackspace's Cloud Files library)
@@ -210,9 +214,9 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: Built-in multi-uploader, allowing easier restoration of old backup sets
 * FEATURE: Allow instant downloading of the most recently modified log file
 * FEATURE: Built in drag-and-drop database decrypter for manual decryption
-* FEATURE: Deutsch / German translation: thanks to Marcel Herrguth - mherrguth@mrgeneration.de
+* FEATURE: Deutsch / German translation: thanks to Marcel Herrguth - mherrguth at mrgeneration.de
 * FEATURE: Magyar / Hungarian translation: thanks to Szépe Viktor - http://www.szepe.net
-* FEATURE: Spanish / Español translation: thanks to Fernando Villasmil - villasmil.fernando@gmail.com                                                                                                                                                                                                                                    
+* FEATURE: Spanish / Español translation: thanks to Fernando Villasmil - villasmil.fernando at gmail.com                                                                                                                                                                                                                                    
 * FEATURE: Added encryption (used by default) to Amazon S3 communications
 * FEATURE: New "more files" add-on, allowing backup of WordPress core and non-WordPress files
 * RELIABILITY: Various algorithm tweaks to help larger sites on lower resources. Largest site a known user has: 1.5Gb

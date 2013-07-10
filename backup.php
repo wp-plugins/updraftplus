@@ -99,21 +99,42 @@ class UpdraftPlus_Backup {
 	}
 
 	// Caution: $source is allowed to be an array, not just a filename
-	function make_zipfile($source, $destination) {
+	function make_zipfile($source, $destination, $whichone = '') {
 
 		global $updraftplus;
+		$destination_base = basename($destination);
+		// Legacy/redundant
+		if (empty($whichone) && is_string($whichone)) $whichone = basename($source);
 
 		// When to prefer PCL:
 		// - We were asked to
 		// - No zip extension present and no relevant method present
 		// The zip extension check is not redundant, because method_exists segfaults some PHP installs, leading to support requests
 
+		// We need meta-info about $whichone
+		$backupable_entities = $updraftplus->get_backupable_file_entities(true, false);
+
 		// Fallback to PclZip - which my tests show is 25% slower (and we can't resume)
 		if ($this->zip_preferpcl || (!extension_loaded('zip') && !method_exists('ZipArchive', 'AddFile'))) {
 			if(!class_exists('PclZip')) require_once(ABSPATH.'/wp-admin/includes/class-pclzip.php');
 			$zip_object = new PclZip($destination);
-			// TODO: WP_CONTENT_DIR: may not apply
-			$zipcode = $zip_object->create($source, PCLZIP_OPT_REMOVE_PATH, WP_CONTENT_DIR);
+			$remove_path = WP_CONTENT_DIR;
+			$add_path = false;
+			// Remove prefixes
+			if (isset($backupable_entities[$whichone])) {
+				if ('plugins' == $whichone || 'themes' == $whichone || 'uploads' == $whichone) {
+					$remove_path = dirname($backupable_entities[$whichone]);
+					# To normalise instead of removing (which binzip doesn't support, so we don't do it), you'd remove the dirname() in the above line, and uncomment the below one.
+					#$add_path = $whichone;
+				} else {
+					$remove_path = $backupable_entities[$whichone];
+				}
+			}
+			if ($add_path) {
+				$zipcode = $zip_object->create($source, PCLZIP_OPT_REMOVE_PATH, $remove_path, PCLZIP_OPT_ADD_PATH, $add_path);
+			} else {
+				$zipcode = $zip_object->create($source, PCLZIP_OPT_REMOVE_PATH, $remove_path);
+			}
 			if ($zipcode == 0 ) {
 				$updraftplus->log("PclZip Error: ".$zip_object->errorInfo(true), 'warning');
 				return $zip_object->errorCode();
@@ -122,8 +143,6 @@ class UpdraftPlus_Backup {
 			}
 		}
 
-		// TODO: Experimental: make live
-// 		if (defined('UPDRAFTPLUS_EXPERIMENTAL_BINZIP') && UPDRAFTPLUS_EXPERIMENTAL_BINZIP == true && $this->binzip === false) {
 		if ($this->binzip === false && (!defined('UPDRAFTPLUS_NO_BINZIP') || !UPDRAFTPLUS_NO_BINZIP) ) {
 			$updraftplus->log('Checking if we have a zip executable available');
 			$binzip = $updraftplus->find_working_bin_zip();
@@ -134,7 +153,8 @@ class UpdraftPlus_Backup {
 		}
 
 		// TODO: Handle stderr?
-		if (is_string($this->binzip)) {
+		// We only use binzip up to resumption 8, in case there is some undetected problem. We can make this more sophisticated if a need arises.
+		if (is_string($this->binzip) && $updraftplus->current_resumption <9) {
 
 			if (is_string($source)) $source = array($source);
 
@@ -142,16 +162,16 @@ class UpdraftPlus_Backup {
 
 			$debug = UpdraftPlus_Options::get_updraft_option('updraft_debug_mode');
 
-			# Don't use -q, as we rely on output to process to detect useful activity
-			# Don't use -v either: the extra logging makes things much slower
-			$zip_params = ($debug) ? '-v' : '';
+			# Don't use -q and do use -v, as we rely on output to process to detect useful activity
+			$zip_params = '-v';
 
 			$orig_size = file_exists($destination) ? filesize($destination) : 0;
+			$last_size = $orig_size;
 			clearstatcache();
 
 			foreach ($source as $s) {
 
-				$exec = "cd ".escapeshellarg(dirname($s))."; /usr/bin/zip $zip_params -u -r ".escapeshellarg($destination)." ".escapeshellarg(basename($s))." ";
+				$exec = "cd ".escapeshellarg(dirname($s))."; ".$this->binzip." $zip_params -u -r ".escapeshellarg($destination)." ".escapeshellarg(basename($s))." ";
 
 				$updraftplus->log("Attempting binary zip ($exec)");
 
@@ -162,18 +182,25 @@ class UpdraftPlus_Backup {
 				if ($handle) {
 					while (!feof($handle)) {
 						$w = fgets($handle, 1024);
+						// Logging all this really slows things down
 						if ($w && $debug) $updraftplus->log("Output from zip: ".trim($w), 'debug');
-						if (!$something_useful_happened && file_exists($destination)) {
+						if (file_exists($destination)) {
 							$new_size = filesize($destination);
-							if ($new_size > $orig_size + 20) {
+							if (!$something_useful_happened && $new_size > $orig_size + 20) {
 								$updraftplus->something_useful_happened();
 								$something_useful_happened = true;
 							}
 							clearstatcache();
+							# Log when 20% bigger or at least every 50Mb
+							if ($new_size > $last_size*1.2 || $new_size > $last_size + 52428800) {
+								$updraftplus->log(sprintf("$destination_base: size is now: %.2f Mb", round($new_size/1048576,1)));
+								$last_size = $new_size;
+							}
 						}
 					}
 					$ret = pclose($handle);
-					if ($ret != 0) {
+					// Code 12 = nothing to do
+					if ($ret != 0 && $ret != 12) {
 						$updraftplus->log("Binary zip: error (code: $ret)");
 						if ($w && !$debug) $updraftplus->log("Last output from zip: ".trim($w), 'debug');
 						$all_ok = false;
@@ -251,7 +278,7 @@ class UpdraftPlus_Backup {
 				// Retry with PclZip
 				$updraftplus->log("Zip::addFile apparently failed ($last_error, ".filesize($destination).") - retrying with PclZip");
 				$this->zip_preferpcl = true;
-				return $this->make_zipfile($source, $destination);
+				return $this->make_zipfile($source, $destination, $whichone);
 			}
 			return true;
 		} else {
@@ -580,7 +607,7 @@ class UpdraftPlus_Backup {
 
 		$microtime_start = microtime(true);
 		# The paths in the zip should then begin with '$whichone', having removed WP_CONTENT_DIR from the front
-		$zipcode = $this->make_zipfile($create_from_dir, $zip_name);
+		$zipcode = $this->make_zipfile($create_from_dir, $zip_name, $whichone);
 		if ($zipcode !== true) {
 			$updraftplus->log("ERROR: Zip failure: Could not create $whichone zip: code=$zipcode");
 			$updraftplus->log(sprintf(__("Could not create %s zip. Consult the log file for more information.",'updraftplus'),$whichone), 'error');

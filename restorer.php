@@ -3,6 +3,12 @@ class Updraft_Restorer extends WP_Upgrader {
 
 	var $ud_backup_is_multisite = -1;
 
+	function __construct() {
+		parent::__construct();
+		$this->init();
+		$this->backup_strings();
+	}
+
 	function backup_strings() {
 		$this->strings['not_possible'] = __('UpdraftPlus is not able to directly restore this kind of entity. It must be restored manually.','updraftplus');
 		$this->strings['no_package'] = __('Backup file not available.','updraftplus');
@@ -177,6 +183,57 @@ class Updraft_Restorer extends WP_Upgrader {
 		return ($pos !== false) ? substr_replace($haystack,$replace,$pos,strlen($needle)) : $haystack;
 	}
 
+	// Pre-flight check: chance to complain and abort before anything at all is done
+	function pre_restore_backup($backup_files, $type, $info) {
+		if (is_string($backup_files)) $backup_files=array($backup_files);
+
+		if ($type == 'more') {
+			show_message($this->strings['not_possible']);
+			return;
+		}
+
+		// Ensure access to the indicated directory - and to WP_CONTENT_DIR (in which we use upgrade/)
+		$res = $this->fs_connect(array($info['path'], WP_CONTENT_DIR) );
+		if (false === $res || is_wp_error($res)) return $res;
+
+		$wp_filesystem_dir = $this->get_wp_filesystem_dir($info['path']);
+		if ($wp_filesystem_dir === false) return false;
+
+
+		global $updraftplus_addons_migrator, $wp_filesystem;
+		if ('plugins' == $type || 'uploads' == $type || 'themes' == $type && (!is_multisite() || $this->ud_backup_is_multisite !== 0 || ('uploads' != $type || !isset($updraftplus_addons_migrator['new_blogid'] )))) {
+			if ($wp_filesystem->exists($wp_filesystem_dir.'-old')) {
+				return new WP_Error('already_exists', sprintf(__('An existing unremoved backup from a previous restore exists: %s', 'updraftplus'), $wp_filesystem_dir.'-old'));
+			}
+		}
+
+		return true;
+	}
+
+	function get_wp_filesystem_dir($path) {
+		global $wp_filesystem;
+		// Get the wp_filesystem location for the folder on the local install
+		switch ( $path ) {
+			case ABSPATH:
+				$wp_filesystem_dir = $wp_filesystem->abspath();
+				break;
+			case WP_CONTENT_DIR:
+				$wp_filesystem_dir = $wp_filesystem->wp_content_dir();
+				break;
+			case WP_PLUGIN_DIR:
+				$wp_filesystem_dir = $wp_filesystem->wp_plugins_dir();
+				break;
+			case WP_CONTENT_DIR . '/themes':
+				$wp_filesystem_dir = $wp_filesystem->wp_themes_dir();
+				break;
+			default:
+				$wp_filesystem_dir = $wp_filesystem->find_folder($path);
+				break;
+		}
+		if ( ! $wp_filesystem_dir ) return false;
+		return untrailingslashit($wp_filesystem_dir);
+	}
+
 	// TODO: This does not yet cope with multiple files (i.e. array) - it needs to then add on subsequent archives, not replace (only first should replace)
 	// $backup_file is just the basename
 	function restore_backup($backup_files, $type, $service, $info) {
@@ -191,12 +248,10 @@ class Updraft_Restorer extends WP_Upgrader {
 			return;
 		}
 
-		global $wp_filesystem, $updraftplus_addons_migrator;
-		$this->init();
-		$this->backup_strings();
+		global $wp_filesystem, $updraftplus_addons_migrator, $updraftplus;
 
-		$res = $this->fs_connect(array(ABSPATH, WP_CONTENT_DIR) );
-		if(!$res) exit;
+		$wp_filesystem_dir = $this->get_wp_filesystem_dir($info['path']);
+		if ($wp_filesystem_dir === false) return false;
 
 		$wp_dir = trailingslashit($wp_filesystem->abspath());
 		$wp_content_dir = trailingslashit($wp_filesystem->wp_content_dir());
@@ -227,13 +282,13 @@ class Updraft_Restorer extends WP_Upgrader {
 
 			// In this special case, the backup contents are not in a folder, so it is not simply a case of moving the folder around, but rather looping over all that we find
 
-			$this->move_backup_in($working_dir, $wp_content_dir, true, array('plugins', 'themes', 'uploads', 'upgrade'), 'others');
+			$this->move_backup_in($working_dir, trailingslashit($wp_filesystem_dir), true, array('plugins', 'themes', 'uploads', 'upgrade'), 'others');
 
 		} elseif (is_multisite() && $this->ud_backup_is_multisite === 0 && ( ( 'plugins' == $type || 'themes' == $type )  || ( 'uploads' == $type && isset($updraftplus_addons_migrator['new_blogid'])) ) && $wp_filesystem->is_dir($working_dir.'/'.$type)) {
 			# Migrating a single site into a multisite
 			if ('plugins' == $type || 'themes' == $type) {
 				// Only move in entities that are not already there (2)
-				$this->move_backup_in($working_dir.'/'.$type, $wp_content_dir.$type.'/', 2, array(), $type, true);
+				$this->move_backup_in($working_dir.'/'.$type, trailingslashit($wp_filesystem_dir), 2, array(), $type, true);
 				@$wp_filesystem->delete($working_dir.'/'.$type);
 			} else {
 				// Uploads
@@ -293,7 +348,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 			$line = 0;
 
-			global $wpdb, $updraftplus;
+			global $wpdb;
 
 			// Line up a wpdb-like object to use
 			// mysql_query will throw E_DEPRECATED from PHP 5.5, so we expect WordPress to have switched to something else by then
@@ -303,7 +358,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 			if (false == $use_wpdb) {
 				// We have our own extension which drops lots of the overhead on the query
-				$wpdb_obj = new UpdraftPlus_WPDB( DB_USER, DB_PASSWORD, DB_NAME, DB_HOST );
+				$wpdb_obj = new UpdraftPlus_WPDB(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST);
 				// Was that successful?
 				if (!$wpdb_obj->is_mysql || !$wpdb_obj->ready) {
 					$use_wpdb = true;
@@ -315,7 +370,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			if (true == $use_wpdb) {
 				_e('Database access: Direct MySQL access is not available, so we are falling back to wpdb (this will be considerably slower)','updraftplus');
 			} else {
-				@mysql_query( 'SET SESSION query_cache_type = OFF;', $mysql_dbh );
+				@mysql_query('SET SESSION query_cache_type = OFF;', $mysql_dbh );
 			}
 
 			// Find the supported engines - in case the dump had something else (case seen: saved from MariaDB with engine Aria; imported into plain MySQL without)
@@ -467,12 +522,12 @@ class Updraft_Restorer extends WP_Upgrader {
 
 							if ('' == $old_siteurl) {
 								global $updraftplus_addons_migrator;
-								if (isset($updraftplus_addon_migrator['new_blogid'])) switch_to_blog($updraftplus_addon_migrator['new_blogid']);
+								if (isset($updraftplus_addons_migrator['new_blogid'])) switch_to_blog($updraftplus_addons_migrator['new_blogid']);
 
 								$old_siteurl = $wpdb->get_row("SELECT option_value FROM $wpdb->options WHERE option_name='siteurl'")->option_value;
 								do_action('updraftplus_restore_db_record_old_siteurl', $old_siteurl);
 								
-								if (isset($updraftplus_addon_migrator['new_blogid'])) restore_current_blog();
+								if (isset($updraftplus_addons_migrator['new_blogid'])) restore_current_blog();
 							}
 
 						}
@@ -569,23 +624,45 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		} else {
 
-			// Default action: used for plugins, themes and uploads
+			// Default action: used for plugins, themes and uploads (and wpcore, via a filter)
 
 			$dirname = basename($info['path']);
 
 			show_message($this->strings['moving_old']);
 
-			$movedin = apply_filters('updraftplus_restore_movein_'.$type, $working_dir, $wp_dir, $wp_content_dir);
+			$movedin = apply_filters('updraftplus_restore_movein_'.$type, $working_dir, $wp_dir, $wp_filesystem_dir);
 			// A filter, to allow add-ons to perform the install of non-standard entities, or to indicate that it's not possible
-			if ($movedin === false) {
+			if (false === $movedin) {
 				show_message($this->strings['not_possible']);
 			} elseif ($movedin !== true) {
-				if ( !$wp_filesystem->move($wp_content_dir . $dirname, $wp_content_dir."$dirname-old", true) ) {
+				if ( !$wp_filesystem->move($wp_filesystem_dir, $wp_filesystem_dir."-old", true) ) {
 					return new WP_Error('old_move_failed', $this->strings['old_move_failed']);
 				}
 
+				// The backup may not actually have /$dirname, since that is info from the present site
+				$dirlist = $wp_filesystem->dirlist($working_dir, true, true);
+				if (is_array($dirlist)) {
+					$move_from = false;
+					foreach ($dirlist as $name => $struc) {
+						if (false === $move_from) {
+							if ($name == $dirname) {
+								$move_from = $working_dir . "/$dirname";
+							} elseif (preg_match('/^([^\.].*)$/', $name, $fmatch)) {
+								$first_entry = $working_dir."/".$fmatch[1];
+							}
+						}
+					}
+					if ($move_from === false && isset($first_entry)) {
+						echo sprintf(__('Using directory from backup: %s', 'updraftplus'), basename($first_entry)).'<br>';
+						$move_from = $first_entry;
+					}
+				} else {
+					# That shouldn't happen. Fall back to default
+					$move_from = $working_dir . "/$dirname";
+				}
+
 				show_message($this->strings['moving_backup']);
-				if ( !$wp_filesystem->move($working_dir . "/$dirname", $wp_content_dir.$dirname, true) ) {
+				if ((isset($move_from) && false === $move_from) || !$wp_filesystem->move($move_from, $wp_filesystem_dir, true) ) {
 					return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
 				}
 			}
@@ -612,19 +689,19 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		switch($type) {
 			case 'wpcore':
-				@$wp_filesystem->chmod($wp_dir, FS_CHMOD_DIR);
+				@$wp_filesystem->chmod($wp_filesystem_dir, FS_CHMOD_DIR);
 				// In case we restored a .htaccess which is incorrect for the local setup
 				$this->flush_rewrite_rules();
 			break;
 			case 'uploads':
-				@$wp_filesystem->chmod($wp_content_dir.$dirname, 0775, true);
+				@$wp_filesystem->chmod($wp_filesystem_dir, 0775, true);
 			break;
 			case 'db':
 				do_action('updraftplus_restored_db', array('expected_oldsiteurl' => $old_siteurl), $import_table_prefix);
 				$this->flush_rewrite_rules();
 			break;
 			default:
-				@$wp_filesystem->chmod($wp_content_dir.$dirname, FS_CHMOD_DIR);
+				@$wp_filesystem->chmod($wp_filesystem_dir, FS_CHMOD_DIR);
 		}
 
 		return true;
@@ -684,7 +761,7 @@ class Updraft_Restorer extends WP_Upgrader {
 // 		add_filter('all', array($this, 'option_filter'));
 
 		global $updraftplus_addons_migrator;
-		if (isset($updraftplus_addon_migrator['new_blogid'])) switch_to_blog($updraftplus_addon_migrator['new_blogid']);
+		if (isset($updraftplus_addons_migrator['new_blogid'])) switch_to_blog($updraftplus_addons_migrator['new_blogid']);
 
 		foreach (array('permalink_structure', 'rewrite_rules', 'page_on_front') as $opt) {
 			add_filter('pre_option_'.$opt, array($this, 'option_filter_'.$opt));
@@ -698,7 +775,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			remove_filter('pre_option_'.$opt, array($this, 'option_filter_'.$opt));
 		}
 
-		if (isset($updraftplus_addon_migrator['new_blogid'])) restore_current_blog();
+		if (isset($updraftplus_addons_migrator['new_blogid'])) restore_current_blog();
 
 // 		remove_filter('all', array($this, 'option_filter'));
 
