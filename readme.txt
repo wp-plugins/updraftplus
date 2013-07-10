@@ -3,7 +3,7 @@ Contributors: DavidAnderson
 Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, s3 compatible, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp, ftps, migrate, duplicate, copy, updraft, schedule, database backup, db backup
 Requires at least: 3.1
 Tested up to: 3.6
-Stable tag: 1.6.17
+Stable tag: 1.6.46
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -122,7 +122,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= Development branch (not yet released/supported) =
+= 1.6.46 - 2013/07/11 =
 * FEATURE: New storage back-end for any S3-compatible provider (e.g. Google Cloud Storage, Eucalyptus, Cloudian, many more - tested with Dreamobjects and original S3)
 * FEATURE: Delete existing backup sets manually (deletes both local + cloud copies). Also show backup set debugging info in expert options; and counter now dynamically updates without refresh.
 * FEATURE: Restorations + migrations can now be attempted even if the user lacks CREATE TABLE or DROP TABLE permissions
