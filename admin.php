@@ -397,7 +397,6 @@ class UpdraftPlus_Admin {
 			if (isset($res['updraft_restore']) && isset($elements['db'])) {
 
 				// Analyse the header of the database file + display results
-
 				echo '<p>';
 				$this->analyse_db_file($_GET['timestamp'], $res);
 				echo '</p>';
@@ -480,7 +479,7 @@ class UpdraftPlus_Admin {
 							$remote_obj = new $objname;
 							$deleted = $remote_obj->delete($files);
 						}
-						if ($deleted == -1) {
+						if ($deleted === -1) {
 							//echo __('Did not know how to delete from this cloud service.', 'updraftplus');
 						} elseif ($deleted !== false) {
 							$remote_deleted++;
@@ -758,7 +757,7 @@ class UpdraftPlus_Admin {
 	}
 
 	function plupload_action() {
-		// check ajax noonce
+		// check ajax nonce
 
 		global $updraftplus;
 		@set_time_limit(900);
@@ -2354,22 +2353,22 @@ ENDHERE;
 		} else {
 			$ret .= sprintf(_x('(No %s)','Message shown when no such object is available','updraftplus'), __('database', 'updraftplus'));
 		}
-			$ret .="</td>";
+		$ret .="</td>";
 
-			foreach ($backupable_entities as $type => $info) {
-				$ret .= '<td>';
-				$sdescrip = preg_replace('/ \(.*\)$/', '', $info['description']);
-				if (strlen($sdescrip) > 20 && isset($info['shortdescription'])) $sdescrip = $info['shortdescription'];
-				if (isset($value[$type])) {
-					$entities .= '/'.$type.'/';
-					$ide = __('Press here to download','updraftplus').' '.strtolower($info['description']);
-					$nf = wp_nonce_field('updraftplus_download',  '_wpnonce', true, false);
-					$ret .= <<<ENDHERE
-				<form id="uddownloadform_$type_$key" action="admin-ajax.php" onsubmit="return updraft_downloader('uddlstatus_', '$key', '$type', '#ud_downloadstatus')" method="post">
+		foreach ($backupable_entities as $type => $info) {
+			$ret .= '<td>';
+			$sdescrip = preg_replace('/ \(.*\)$/', '', $info['description']);
+			if (strlen($sdescrip) > 20 && isset($info['shortdescription'])) $sdescrip = $info['shortdescription'];
+			if (isset($value[$type])) {
+				$entities .= '/'.$type.'/';
+				$ide = __('Press here to download','updraftplus').' '.strtolower($info['description']);
+				$nf = wp_nonce_field('updraftplus_download',  '_wpnonce', true, false);
+				$ret .= <<<ENDHERE
+				<form id="uddownloadform_${type}_${key}" action="admin-ajax.php" onsubmit="return updraft_downloader('uddlstatus_', '$key', '$type', '#ud_downloadstatus')" method="post">
 					$nf
 					<input type="hidden" name="action" value="updraft_download_backup" />
 					<input type="hidden" name="type" value="$type" />
-					<input type="hidden" name="timestamp" value="$key?>" />
+					<input type="hidden" name="timestamp" value="$key" />
 					<input type="submit" title="$ide" value="$sdescrip" />
 				</form>
 ENDHERE;

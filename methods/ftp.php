@@ -86,6 +86,12 @@ class UpdraftPlus_BackupModule_ftp {
 				UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify'),
 				UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts')
 			);
+
+			if (!$ftp->connect()) {
+				$updraftplus->log("FTP Failure: we did not successfully log in with those credentials.");
+				return false;
+			}
+
 		}
 
 		$ftp_remote_path = isset($ftparr['ftp_remote_path']) ? $ftparr['ftp_remote_path'] : trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_ftp_remote_path'));
