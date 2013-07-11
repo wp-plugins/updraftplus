@@ -15,6 +15,8 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // Multi-archive sets (need to be handled on creation, uploading, downloading, (?done?)deletion). Test.
 // Backup notes
+// On restore, don't remove directories like wp-content/plugin and replace them; instead empty + fill (in case there are corner-cases - not found any yet, but is better)
+// Add warning to backup run at beginning if -old dirs exist
 // Alert user if warnings are interfering with header() - and thus breaking OAuth for Dropbox/Google Drive first-time setup.
 // Auto-alert if disk usage passes user-defined threshold / or an automatically computed one. Auto-alert if more backups are known than should be (usually a sign of incompleteness)
 // Generic S3 provider: add page to site. S3-compatible storage providers: http://www.dragondisk.com/s3-storage-providers.html
