@@ -484,7 +484,13 @@ class Updraft_Restorer extends WP_Upgrader {
 			if ($movedin === false) {
 				show_message($this->strings['not_possible']);
 			} elseif ($movedin !== true) {
-				if ( !$wp_filesystem->move($wp_content_dir . $dirname, $wp_content_dir."$dirname-old", true) ) {
+				if ($wp_filesystem->exists($wp_content_dir.$dirname."-old")) {
+					// Is better to warn and delete the backup than abort mid-restore and leave inconsistent site
+					echo $wp_content_dir.$dirname."-old: ".__('This directory already exists, and will be replaced', 'updraftplus').'<br>';
+					# In theory, supply true as the 3rd parameter of true achieves this; in practice, not always so (leads to support requests)
+					$wp_filesystem->delete($wp_content_dir.$dirname."-old", true);
+				}
+				if ( !$wp_filesystem->move($wp_content_dir . $dirname, $wp_content_dir."$dirname-old", false) ) {
 					return new WP_Error('old_move_failed', $this->strings['old_move_failed']);
 				}
 
