@@ -8,13 +8,13 @@ Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
-Easy and complete backups and restoration. Manual or automated backups (Amazon S3, Dropbox, Google Drive, Rackspace, FTP, SFTP, WebDAV, email + others).
+Easy and complete backups + restoration. Manual or automated backups (Amazon S3, Dropbox, Google Drive, Rackspace, FTP, SFTP, WebDAV, email + others).
 
 == Description ==
 
 <a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3 (or compatible), Dropbox, Google Drive, Rackspace Cloud, DreamObjects, FTP, SFTP, WebDAV and email) and restore with a single click. Backups of files and database can have separate schedules.
 
-* Thousands of users: widely tested and reliable (over 170,000 downloads). Ranks in the top 1% on rankwp.com (228 out of 25,000 plugins).
+* Thousands of users: widely tested and reliable (over 180,000 downloads). Ranks in the top 1% on rankwp.com (228 out of 25,000 plugins).
 * Top-quality: ranks 45th out of 25,000 plugins for quality on rankwp.com (top 0.25% - last checked 23rd May 2013).
 * Supports backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP and email. Also (via an add-on) FTP over SSL, SFTP and WebDAV. (Note: Microsoft forbid SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
 * Quick restore (both file and database backups)
