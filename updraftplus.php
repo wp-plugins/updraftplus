@@ -15,6 +15,10 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // Multi-archive sets (need to be handled on creation, uploading, downloading, (?done?)deletion). Test.
 // Backup notes
+// Save ~0.5s: cache (within job) results of binzip test
+// On restore, don't remove directories like wp-content/plugin and replace them; instead empty + fill (in case there are corner-cases - not found any yet, but is better)
+// Add option to add, not just replace entities on restore/migrate
+// Add warning to backup run at beginning if -old dirs exist
 // Alert user if warnings are interfering with header() - and thus breaking OAuth for Dropbox/Google Drive first-time setup.
 // Auto-alert if disk usage passes user-defined threshold / or an automatically computed one. Auto-alert if more backups are known than should be (usually a sign of incompleteness)
 // Generic S3 provider: add page to site. S3-compatible storage providers: http://www.dragondisk.com/s3-storage-providers.html
@@ -25,6 +29,7 @@ TODO - some of these are out of date/done, needs pruning
 // Add note post-DB backup: you will need to log in using details from newly-imported DB
 // Check why this one wasn't caught by the automatic-user-entered-wrong-thing-in-folder-ID field: https://drive.google.com/?pli=1&authuser=0#folders/0B3ad2KUS8hxPbVp4UGJlVW5ObjQ (http://pastebin.com/fpEEWV7U)
 // Log file SHA1 after finishing creation
+// Make search+replace two-pass to deal with moving between exotic non-default moved-directory setups
 // Get link - http://www.rackspace.com/knowledge_center/article/how-to-use-updraftplus-to-back-up-cloud-sites-to-cloud-files
 // Warn on giganticus files, so that there's a clue for the user if PHP times out or disk space runs out on it
 // 'Delete from your webserver' should trigger a rescan if the backup was local-only
@@ -125,7 +130,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 define('UPDRAFTPLUS_DIR', dirname(__FILE__));
 define('UPDRAFTPLUS_URL', plugins_url('', __FILE__));
-define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php,backup,backups');
+define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,backup*');
 
 # The following can go in your wp-config.php
 if (!defined('UPDRAFTPLUS_ZIP_EXECUTABLE')) define('UPDRAFTPLUS_ZIP_EXECUTABLE', "/usr/bin/zip,/bin/zip,/usr/local/bin/zip,/usr/sfw/bin/zip,/usr/xdg4/bin/zip,/opt/bin/zip");
@@ -1009,8 +1014,8 @@ class UpdraftPlus {
 				$this->log("There were no errors in the uploads, so the 'resume' event ($cancel_event) is being unscheduled");
 				# This apparently-worthless setting of metadata before deleting it is for the benefit of a WP install seen where wp_clear_scheduled_hook() and delete_transient() apparently did nothing (probably a faulty cache)
 				$this->jobdata_set('jobstatus', 'finished');
-				wp_clear_scheduled_hook('updraft_backup_resume', array($cancel_event, $this->nonce));
 				delete_transient("updraft_jobdata_".$this->nonce);
+				wp_clear_scheduled_hook('updraft_backup_resume', array($cancel_event, $this->nonce));
 			}
 		} else {
 			$this->log("There were errors in the uploads, so the 'resume' event is remaining scheduled");
@@ -1543,8 +1548,10 @@ class UpdraftPlus {
 
 	}
 
-	// avoid_these_dirs and skip_these_dirs ultimately do the same thing; but avoid_these_dirs takes full paths whereas skip_these_dirs takes basenames; and they are logged differently (avoid is potentially dangerous; skip is just a preference). They are allowed to overlap.
+	// avoid_these_dirs and skip_these_dirs ultimately do the same thing; but avoid_these_dirs takes full paths whereas skip_these_dirs takes basenames; and they are logged differently (dirs in avoid are potentially dangerous to include; skip is just a user-level preference). They are allowed to overlap.
 	function compile_folder_list_for_backup($backup_from_inside_dir, $avoid_these_dirs, $skip_these_dirs) {
+
+		// Entries in $skip_these_dirs are allowed to end in *, which means "and anything else as a suffix". It's not a full shell glob, but it covers what is needed to-date.
 
 		$dirlist = array(); 
 
@@ -1554,6 +1561,7 @@ class UpdraftPlus {
 		if ($handle = opendir($backup_from_inside_dir)) {
 		
 			while (false !== ($entry = readdir($handle))) {
+				// $candidate: full path; $entry = one-level
 				$candidate = $backup_from_inside_dir.'/'.$entry;
 				if ($entry != "." && $entry != "..") {
 					if (isset($avoid_these_dirs[$candidate])) {
@@ -1563,8 +1571,20 @@ class UpdraftPlus {
 					} elseif (isset($skip_these_dirs[$entry])) {
 						$this->log("finding files: $entry: skipping: excluded by options");
 					} else {
-						$this->log("finding files: $entry: adding to list");
-						array_push($dirlist, $candidate);
+						$add_to_list = true;
+						// Now deal with entries in $skip_these_dirs ending in *
+						foreach ($skip_these_dirs as $skip => $sind) {
+							if ('*' == substr($skip, -1, 1)) {
+								if (substr($entry, 0, strlen($skip)-1) == substr($skip, 0, strlen($skip)-1)) {
+									$this->log("finding files: $entry: skipping: excluded by options (glob)");
+									$add_to_list = false;
+								}
+							}
+						}
+						if ($add_to_list) {
+							$this->log("finding files: $entry: adding to list");
+							array_push($dirlist, $candidate);
+						}
 					}
 				}
 			}
