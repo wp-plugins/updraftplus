@@ -15,6 +15,7 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // Multi-archive sets (need to be handled on creation, uploading, downloading, (?done?)deletion). Test.
 // Backup notes
+// Save ~0.5s: cache (within job) results of binzip test
 // On restore, don't remove directories like wp-content/plugin and replace them; instead empty + fill (in case there are corner-cases - not found any yet, but is better)
 // Add option to add, not just replace entities on restore/migrate
 // Add warning to backup run at beginning if -old dirs exist
@@ -129,7 +130,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 define('UPDRAFTPLUS_DIR', dirname(__FILE__));
 define('UPDRAFTPLUS_URL', plugins_url('', __FILE__));
-define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,index.php,backup,backups');
+define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,backup*');
 
 # The following can go in your wp-config.php
 if (!defined('UPDRAFTPLUS_ZIP_EXECUTABLE')) define('UPDRAFTPLUS_ZIP_EXECUTABLE', "/usr/bin/zip,/bin/zip,/usr/local/bin/zip,/usr/sfw/bin/zip,/usr/xdg4/bin/zip,/opt/bin/zip");
@@ -1547,8 +1548,10 @@ class UpdraftPlus {
 
 	}
 
-	// avoid_these_dirs and skip_these_dirs ultimately do the same thing; but avoid_these_dirs takes full paths whereas skip_these_dirs takes basenames; and they are logged differently (avoid is potentially dangerous; skip is just a preference). They are allowed to overlap.
+	// avoid_these_dirs and skip_these_dirs ultimately do the same thing; but avoid_these_dirs takes full paths whereas skip_these_dirs takes basenames; and they are logged differently (dirs in avoid are potentially dangerous to include; skip is just a user-level preference). They are allowed to overlap.
 	function compile_folder_list_for_backup($backup_from_inside_dir, $avoid_these_dirs, $skip_these_dirs) {
+
+		// Entries in $skip_these_dirs are allowed to end in *, which means "and anything else as a suffix". It's not a full shell glob, but it covers what is needed to-date.
 
 		$dirlist = array(); 
 
@@ -1558,6 +1561,7 @@ class UpdraftPlus {
 		if ($handle = opendir($backup_from_inside_dir)) {
 		
 			while (false !== ($entry = readdir($handle))) {
+				// $candidate: full path; $entry = one-level
 				$candidate = $backup_from_inside_dir.'/'.$entry;
 				if ($entry != "." && $entry != "..") {
 					if (isset($avoid_these_dirs[$candidate])) {
@@ -1567,8 +1571,20 @@ class UpdraftPlus {
 					} elseif (isset($skip_these_dirs[$entry])) {
 						$this->log("finding files: $entry: skipping: excluded by options");
 					} else {
-						$this->log("finding files: $entry: adding to list");
-						array_push($dirlist, $candidate);
+						$add_to_list = true;
+						// Now deal with entries in $skip_these_dirs ending in *
+						foreach ($skip_these_dirs as $skip => $sind) {
+							if ('*' == substr($skip, -1, 1)) {
+								if (substr($entry, 0, strlen($skip)-1) == substr($skip, 0, strlen($skip)-1)) {
+									$this->log("finding files: $entry: skipping: excluded by options (glob)");
+									$add_to_list = false;
+								}
+							}
+						}
+						if ($add_to_list) {
+							$this->log("finding files: $entry: adding to list");
+							array_push($dirlist, $candidate);
+						}
 					}
 				}
 			}

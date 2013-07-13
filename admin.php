@@ -1840,7 +1840,7 @@ jQuery(document).ready(function() {
 
 							echo '<label for="updraft_include_others_exclude">'.__('Exclude these:', 'updraftplus').'</label>';
 
-							echo '<input title="'.__('If entering multiple files/directories, then separate them with commas', 'updraftplus').'" type="text" id="updraft_include_others_exclude" name="updraft_include_others_exclude" size="54" value="'.htmlspecialchars($include_others_exclude).'" />';
+							echo '<input title="'.__('If entering multiple files/directories, then separate them with commas. You can use a * at the end of any entry as a wildcard.', 'updraftplus').'" type="text" id="updraft_include_others_exclude" name="updraft_include_others_exclude" size="54" value="'.htmlspecialchars($include_others_exclude).'" />';
 
 							echo '<br>';
 

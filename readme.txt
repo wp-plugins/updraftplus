@@ -118,6 +118,8 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
+= Development trunk - not yet released/supported =
+
 = 1.6.46 - 2013/07/11 =
 * FEATURE: New storage back-end for any S3-compatible provider (e.g. Google Cloud Storage, Eucalyptus, Cloudian, many more - tested with Dreamobjects and original S3)
 * FEATURE: Delete existing backup sets manually (deletes both local + cloud copies). Also show backup set debugging info in expert options; and counter now dynamically updates without refresh.
@@ -126,6 +128,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: Re-worked error handling internally, leading to users now being notified prominently of warning-level conditions (non-fatal conditions, but things the user should be advised of)
 * FEATURE: Allow some hiding of secrets in the admin area (see: http://updraftplus.com/faqs/in-the-administration-section-it-shows-my-amazon-ftp-etc-passwords-without-using-stars-is-this-safe/)
 * FEATURE: Restorer now obtains files at an earlier stage, allowing analysis + more intelligent presentation of options and applicable warnings pre-restore. Now warns if you are migrating without having chosen search/replace of DB. Also pre-decrypts the database, which lessens the risk of timeouts.
+* FEATURE: Allow entries in the list of files to exclude from backup to end in a wildcard (*). Change default exclusion for content dir to include backup* to catch other backup plugins' archives.
 * FIX: "Wipe settings" wipes S3 + DreamObjects settings (they were retained previously)
 * FIX: Suppress spurious "Table prefix has changed" message
 * FIX: Now copes on restores/migrations if you've moved around your WP_CONTENT_DIR/WP_PLUGIN_DIR/WP folder
