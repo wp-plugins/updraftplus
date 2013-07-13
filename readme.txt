@@ -70,7 +70,7 @@ We hang out in the support forum for this plugin - http://wordpress.org/support/
 
 <a href="http://updraftplus.com/support/frequently-asked-questions/"><strong>Please go here for the full FAQs.</strong></a> Below are just a handful which apply to the free wordpress.org version, or which bear repeating.
 
-= Can UpdraftPlus do <something>? =
+= Can UpdraftPlus do (something)? =
 
 Check out <a href="http://updraftplus.com/updraftplus-full-feature-list/">our full list of features</a>, and our <a href="http://updraftplus.com/shop/">add-ons shop</a>.
 
@@ -99,10 +99,6 @@ UpdraftPlus supports resuming backup runs right from the beginning, so that it d
 = Will you support Windows Live SkyDrive? =
 
 No. Microsoft forbid the use of SkyDrive by backup utilities - see http://msdn.microsoft.com/en-us/library/live/hh826521.aspx ("Here are some examples of nonconforming apps: Apps that automatically back up files or folders to SkyDrive.").
-
-= How is this better than the original Updraft? =
-
-You can check the changelog for changes; but the original Updraft, before I forked it, had three major problems. Firstly, it only backed up WP core tables from the database; if any of your plugins stored data in extra tables, then they were not backed up. Secondly, it only backed up your plugins/themes/uploads and not any further directories inside wp-content that other plugins might have created. Thirdly, the database backup did not include charset information, which meant that you needed to know some SQL wizardry to actually be able to use the backup. I made UpdraftPlus out of my experience of trying to back up several sites with Updraft. Then, I added encryption for the database file for extra peace of mind, and future-proofed by getting rid of some deprecated aspects. Since then, many new features have been added, e.g. resuming of failed uploads, and Dropbox support.
 
 = Any known bugs ? =
 
