@@ -57,6 +57,8 @@ Many thanks to the existing translators:
 * Nederlands / Dutch (nl_NL): Hans van der Vlist - hansvandervlist at gmail.com
 * Polski / Polish (pl_PL): Bartosz Kaczmarek - barth.kaczmarek at gmail.com
 * Italiano / Italian (it_IT): Francesco Carpana - f.carpana at gmail.com
+* Chinese (zh_CN) translation: K L Wang (http://klwang.info)
+
 
 = Other support =
 
@@ -127,6 +129,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: Delete existing backup sets manually (deletes both local + cloud copies). Also show backup set debugging info in expert options; and counter now dynamically updates without refresh.
 * FEATURE: Restorations + migrations can now be attempted even if the user lacks CREATE TABLE or DROP TABLE permissions
 * FEATURE: Italiano/Italian translation by Francesco Carpana (f.carpana at gmail.com)
+* FEATURE: Chinese (zh_CN) translation by K L Wang (http://klwang.info)
 * FEATURE: Re-worked error handling internally, leading to users now being notified prominently of warning-level conditions (non-fatal conditions, but things the user should be advised of)
 * FEATURE: Allow some hiding of secrets in the admin area (see: http://updraftplus.com/faqs/in-the-administration-section-it-shows-my-amazon-ftp-etc-passwords-without-using-stars-is-this-safe/)
 * FEATURE: Restorer now obtains files at an earlier stage, allowing analysis + more intelligent presentation of options and applicable warnings pre-restore. Now warns if you are migrating without having chosen search/replace of DB. Also pre-decrypts the database, which lessens the risk of timeouts.
