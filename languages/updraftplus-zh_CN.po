@@ -1,227 +1,485 @@
+# Translation of UpdraftPlus in Chinese (China)
+# This file is distributed under the same license as the UpdraftPlus package.
 msgid ""
 msgstr ""
-"Project-Id-Version: UpdraftPlus\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-07-10 23:16+0100\n"
-"PO-Revision-Date: 2013-07-14 18:01+0800\n"
-"Last-Translator: klwang <klwang@139.com>\n"
-"Language-Team: klwang <klwang.info>\n"
-"Language: Chinese\n"
+"PO-Revision-Date: 2013-07-15 09:31:39+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-KeywordsList: _;gettext;gettext_noop;_x;__;_e;_ex\n"
-"X-Poedit-Basepath: /home/david/MissionaryHosting/UpdraftPlus/svn/trunk\n"
-"X-Poedit-Language: Chinese\n"
-"X-Poedit-Country: CHINA\n"
-"X-Poedit-SourceCharset: utf-8\n"
-"X-Poedit-SearchPath-0: .\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: GlotPress/0.1\n"
+"Project-Id-Version: UpdraftPlus\n"
 
-#: options.php:26
-msgid "UpdraftPlus Backups"
-msgstr "UpdraftPlus  归档"
+#: addons/morefiles.php:71
+msgid "WordPress root directory server path: %s"
+msgstr "WordPress跟目录的服务器路径：%s"
 
-#: updraftplus.php:328
-#: updraftplus.php:333
-#: updraftplus.php:338
-#: admin.php:220
-#: admin.php:224
-msgid "UpdraftPlus notice:"
-msgstr "UpdraftPlus 注意事项："
+#: methods/s3.php:369
+msgid "Examples of S3-compatible storage providers: "
+msgstr "兼容 S3 的存储示例："
 
-#: updraftplus.php:328
-msgid "The log file could not be read."
-msgstr "无法读取日志文件"
+#: methods/s3.php:377
+msgid "... and many more!"
+msgstr "。。。更多"
 
-#: updraftplus.php:333
-msgid "No log files were found."
-msgstr "无法找到日志文件"
+#: methods/s3.php:402
+msgid "%s end-point"
+msgstr "%s end-point"
 
-#: updraftplus.php:338
-msgid "The given file could not be read."
-msgstr "无法读取给定的文件"
+#: admin.php:2612
+msgid "File is not locally present - needs retrieving from remote storage"
+msgstr "文件在本地不存在 - 需要从远程存储获取"
 
-#: updraftplus.php:405
-#, php-format
-msgid "Your free disk space is very low - only %s Mb remain"
-msgstr "您的剩余空间很少了 - 只有 %s Mb 剩余"
+#: methods/s3generic.php:21 methods/s3generic.php:30
+msgid "S3 (Compatible)"
+msgstr "S3 (兼容模式)"
 
-#: updraftplus.php:597
-msgid "Plugins"
-msgstr "插件"
+#: admin.php:2591
+msgid "Final checks"
+msgstr "最后检测"
 
-#: updraftplus.php:598
-msgid "Themes"
-msgstr "主题"
+#: admin.php:2610
+msgid "Looking for %s archive: file name: %s"
+msgstr "查找归档 %s：文件名：%s"
 
-#: updraftplus.php:599
-msgid "Uploads"
-msgstr "上传"
+#: admin.php:2165
+msgid "Check this to delete any superfluous backup files from your server after the backup run finishes (i.e. if you uncheck, then any files despatched remotely will also remain locally, and any files being kept locally will not be subject to the retention limits)."
+msgstr "在完成前点击此按钮来删除服务器上存在的多余备份（如果不处理，您发送到远程的文件将依然在本地存在，本地文件将会无限的保留）"
 
-#: updraftplus.php:614
-msgid "Others"
-msgstr "其他"
+#: admin.php:1892
+msgid "Drop encrypted database files (db.gz.crypt files) here to upload them for decryption"
+msgstr "删除加密的数据库文件（db.gz.crypt 文件）前上传并解密他们"
 
-#: updraftplus.php:924
-msgid "Could not create files in the backup directory. Backup aborted - check your UpdraftPlus settings."
-msgstr "无法在备份目录创建文件，退出备份 - 请检查您的UpdraftPlus设置"
+#: admin.php:1835
+msgid "Your wp-content directory server path: %s"
+msgstr "您的wp-content目录在服务器上的路径：%s"
 
-#: updraftplus.php:994
-msgid "Encryption error occurred when encrypting database. Encryption aborted."
-msgstr "数据库加密出错 - 退出加密"
+#: admin.php:1570
+msgid "Raw backup history"
+msgstr "原始备份信息"
 
-#: updraftplus.php:1033
-msgid "The backup apparently succeeded and is now complete"
-msgstr "备份成功完成"
+#: admin.php:1474
+msgid "Show raw backup and file list"
+msgstr "察看原始备份和文件列表"
 
-#: updraftplus.php:1035
-msgid "The backup apparently succeeded (with warnings) and is now complete"
-msgstr "备份完成（存在警告信息）"
+#: admin.php:1227
+msgid "Processing files - please wait..."
+msgstr "处理文件中 - 请等等"
 
-#: updraftplus.php:1039
-msgid "The backup attempt has finished, apparently unsuccessfully"
-msgstr "备份完成，但是貌似不成功"
+#: admin.php:1151
+msgid "Your WordPress installation has a problem with outputting extra whitespace. This can corrupt backups that you download from here."
+msgstr "您安装的WordPress版本输出额外的空格存在问题。将会导致下载备份错误"
 
-#: updraftplus.php:1042
-msgid "The backup has not finished; a resumption is scheduled within 5 minutes"
-msgstr "备份失败，5分钟后重新开始"
+#: admin.php:1151
+msgid "Please consult this FAQ for help on what to do about it."
+msgstr "请察看此FAQ获取帮助"
 
-#: updraftplus.php:1094
-msgid "Errors encountered:"
-msgstr "错误："
+#: admin.php:1036
+msgid "You have old directories from a previous backup (technical information: these are suffixed with -old). Use this button to delete them (if you have verified that the restoration worked)."
+msgstr "存在之前的备份文件目录（技术信息：后缀为 - old）。使用此按钮来删除他们（请首先验证还原工作良好）"
 
-#: updraftplus.php:1111
-msgid "Warnings encountered:"
-msgstr "警告:"
+#: admin.php:680
+msgid "Failed to open database file."
+msgstr "无法打开数据库文件"
 
-#: updraftplus.php:1124
-msgid "Backed up"
-msgstr "备份"
+#: admin.php:668
+msgid "Failed to write out the decrypted database to the filesystem."
+msgstr "无法将加密后的数据库保存到文件系统"
 
-#: updraftplus.php:1124
-msgid "WordPress backup is complete"
-msgstr "Wordpress 备份完成"
+#: admin.php:499
+msgid "Known backups (raw)"
+msgstr "已知备份（原始文件）"
 
-#: updraftplus.php:1124
-msgid "Backup contains"
-msgstr "备份包含"
+#: restorer.php:656
+msgid "Using directory from backup: %s"
+msgstr "使用备份的目录：%s"
 
-#: updraftplus.php:1124
-msgid "Latest status"
-msgstr "最新状态"
+#: restorer.php:680
+msgid "Files found:"
+msgstr "找到文件："
 
-#: updraftplus.php:1404
-#, php-format
-msgid "Backup directory (%s) is not writable, or does not exist."
-msgstr "备份目录(%s)没有写权限，或者不存在该目录"
+#: restorer.php:686
+msgid "Unable to enumerate files in that directory."
+msgstr "无法列举目录中的文件"
 
-#: updraftplus.php:1574
-msgid "Could not read the directory"
-msgstr "无法读取目录"
+#: restorer.php:546
+msgid "Requested table engine (%s) is not present - changing to MyISAM."
+msgstr "需要的存储引擎（%s）不存在 - 使用MyISAM。"
 
-#: updraftplus.php:1591
-msgid "Could not save backup history because we have no backup array. Backup probably failed."
-msgstr "由于没有备份数组，所以无法保存备份历史信息。备份失败"
+#: restorer.php:557
+msgid "Restoring table (%s)"
+msgstr "还原表（%s）"
 
-#: updraftplus.php:1625
-msgid "Could not open the backup file for writing"
-msgstr "无法写入备份文件"
+#: restorer.php:206
+msgid "An existing unremoved backup from a previous restore exists: %s"
+msgstr "之前还原时遗留了一个无法删除的备份：%s"
 
-#: updraftplus.php:1646
-#, php-format
-msgid "Generated: %s"
-msgstr "发起者： %s"
+#: backup.php:368 backup.php:541
+msgid "A zip error occurred - check your log for more details."
+msgstr "压缩出错 - 看看您的日志，以获取相信信息"
 
-#: updraftplus.php:1647
-#, php-format
-msgid "Hostname: %s"
-msgstr "主机名：%s"
+#: addons/migrator.php:40
+msgid "This looks like a migration (the backup is from a site with a different address/URL), but you did not check the option to search-and-replace the database. That is usually a mistake."
+msgstr "现在貌似是在迁移（备份文件中的URL地址来自不同的站点），但是您没有选中“查找/替换数据库”选项，这将会是一个错误。"
 
-#: updraftplus.php:1648
-#, php-format
-msgid "Database: %s"
-msgstr "数据库：%s"
+#: restorer.php:597
+msgid "An error occured on the first CREATE TABLE command - aborting run"
+msgstr "第一个 CREATE TABLE 时出现错误 - 退出执行"
 
-#: updraftplus.php:1711
-msgid "The backup directory is not writable."
-msgstr "无法写备份目录"
+#: admin.php:2624
+msgid "file is size:"
+msgstr "文件尺寸："
 
-#: updraftplus.php:1732
-#, php-format
-msgid "Table: %s"
-msgstr "表：%s"
+#: admin.php:2354
+msgid "database"
+msgstr "数据库"
 
-#: updraftplus.php:1737
-#, php-format
-msgid "Skipping non-WP table: %s"
-msgstr "跳过不是 WP 开跳的表： %s"
+#: admin.php:1318
+msgid "If you can still read these words after the page finishes loading, then there is a JavaScript or jQuery problem in your web browser."
+msgstr "如果您在页面导入完成后还可以看到这些文字，说明您的浏览器可能存在JavaScript 或者 jQuery问题"
+
+#: admin.php:1318
+msgid "Go here for more information."
+msgstr "去帮助里获取更多信息"
+
+#: admin.php:1337
+msgid "Downloading / preparing backup files..."
+msgstr "下载/准备 备份文件"
+
+#: admin.php:1223
+msgid "Some files are still downloading or being processed - please wait."
+msgstr "还有文件正在下载或者处理 - 稍微再等等。"
+
+#: admin.php:704
+msgid "This backup set is from a different site - this is not a restoration, but a migration. You need the Migrator add-on in order to make this work."
+msgstr "备份来自其他站点 - 这不是还原，而是一此迁移。您需要迁移插件来完成此次任务"
+
+#: admin.php:392
+msgid "The backup archive files have been processed - if all is well, then now press Restore again to proceed. Otherwise, cancel and correct any problems first."
+msgstr "备份的归档文件都已经被处理 - 如果一切正常，再次点击 Restore 来开始新的备份；或者，点击cancel并且修正存在的错误"
+
+#: methods/ftp.php:44 methods/ftp.php:127
+msgid "%s login failure"
+msgstr "%s 登陆失败"
+
+#: methods/ftp.php:63
+msgid "%s upload failed"
+msgstr "%s 上传失败"
+
+#: addons/fixtime.php:77 addons/fixtime.php:87
+msgid "Enter in format HH:MM (e.g. 14:22)."
+msgstr "输入格式 HH:MM （如：14:22）"
+
+#: addons/fixtime.php:77 addons/fixtime.php:87
+msgid "The time zone used is that from your WordPress settings, in Settings -> General."
+msgstr "使用的时区信息来自WordPress设置，在 Settings -> General 中"
+
+#: methods/dropbox.php:52
+msgid "Dropbox error: %s (see log file for more)"
+msgstr "Dropbox错误：%s（察看日志获取更多信息）"
+
+#: methods/dropbox.php:174
+msgid "You do not appear to be authenticated with %s (whilst deleting)"
+msgstr "您似乎没有验证%s（在删除时）"
+
+#: methods/dropbox.php:182
+msgid "Failed to access %s when deleting (see log file for more)"
+msgstr "删除时接触%s失败（察看日志获取相信信息）"
+
+#: methods/dropbox.php:212
+msgid "You do not appear to be authenticated with %s"
+msgstr "您似乎没有验证%s"
+
+#: methods/cloudfiles.php:344
+msgid "Error - no such file exists at %s"
+msgstr "错误 - %s 不存在这样的文件"
+
+#: methods/cloudfiles.php:348
+msgid "Error - failed to download the file from %s"
+msgstr "错误 - 从%s下载文件失败"
+
+#: methods/cloudfiles.php:179
+msgid "%s error - failed to upload file"
+msgstr "%s 错误 - 上传文件失败"
+
+#: methods/cloudfiles.php:318 methods/cloudfiles.php:335
+msgid "%s Error"
+msgstr "%s 错误"
+
+#: methods/cloudfiles.php:53 methods/cloudfiles.php:57
+#: methods/cloudfiles.php:209 methods/cloudfiles.php:262
+#: methods/cloudfiles.php:266
+msgid "%s authentication failed"
+msgstr "%s 验证失败"
+
+#: methods/cloudfiles.php:169
+msgid "%s error - failed to re-assemble chunks"
+msgstr "%s 错误 - 重组分片失败"
+
+#: methods/googledrive.php:379
+msgid "%s error: zero-size file was downloaded"
+msgstr "%s 错误：下载了0字节文件"
+
+#: restorer.php:674 admin.php:655 admin.php:668 admin.php:673 admin.php:680
+#: admin.php:704 admin.php:716 admin.php:721
+msgid "Error: %s"
+msgstr "错误：%s"
+
+#: admin.php:2183
+msgid "Backup directory specified exists, but is <b>not</b> writable."
+msgstr "指定的备份目录存在，但是<b>无法</b>写入。 "
+
+#: admin.php:2181
+msgid "Backup directory specified does <b>not</b> exist."
+msgstr "指定的备份目录<b>不</b> 存在"
+
+#: admin.php:1750
+msgid "Warning: %s"
+msgstr "警告：%s"
+
+#: admin.php:1105
+msgid "Last backup job run:"
+msgstr "上次备份任务运行："
+
+#: backup.php:47 backup.php:66 backup.php:77
+msgid "%s: unreadable file - could not be backed up"
+msgstr "%s：无法读取文件 - 无法备份"
+
+#: backup.php:53
+msgid "Failed to open directory: %s"
+msgstr "打开目录失败：%s"
+
+#: backup.php:333
+msgid "A very large file was encountered: %s (size: %s Mb)"
+msgstr "遇到了一个非常大的文件：%s（尺寸：%s Mb）"
+
+#: updraftplus.php:1889
+msgid "Table %s has very many rows (%s) - we hope your web hosting company gives you enough resources to dump out that table in the backup"
+msgstr "表 %s 有很多数据(%s) - 我们希望您的主机提供商能够提供足够的资源来dump这张表"
 
 #: updraftplus.php:1788
 msgid "An error occurred whilst closing the final database file"
 msgstr "关闭数据库文件时出现错误"
 
-#: updraftplus.php:1844
-#, php-format
-msgid "Delete any existing table %s"
-msgstr "删除已经存在的表 %s"
+#: updraftplus.php:1111
+msgid "Warnings encountered:"
+msgstr "警告:"
 
-#: updraftplus.php:1853
-#, php-format
-msgid "Table structure of table %s"
-msgstr "表 %s 的结构"
+#: updraftplus.php:1035
+msgid "The backup apparently succeeded (with warnings) and is now complete"
+msgstr "备份完成（存在警告信息）"
 
-#: updraftplus.php:1859
-#, php-format
-msgid "Error with SHOW CREATE TABLE for %s."
-msgstr "表 %s 的 SHOW CREATE TABLE 出错"
+#: updraftplus.php:405
+msgid "Your free disk space is very low - only %s Mb remain"
+msgstr "您的剩余空间很少了 - 只有 %s Mb 剩余"
 
-#: updraftplus.php:1889
-#, php-format
-msgid "Table %s has very many rows (%s) - we hope your web hosting company gives you enough resources to dump out that table in the backup"
-msgstr "表 %s 有很多数据(%s) - 我们希望您的主机提供商能够提供足够的资源来dump这张表"
+#: addons/migrator.php:453
+msgid "<strong>Search and replacing table:</strong> %s"
+msgstr "<strong>查找并替换表：</strong> %s"
 
-#: updraftplus.php:1965
-#, php-format
-msgid "End of data contents of table %s"
-msgstr "表 %s 的内容完毕"
+#: addons/migrator.php:99
+msgid "Site Name:"
+msgstr "站点名字："
 
-#: updraftplus.php:2132
-#: restorer.php:72
-#: admin.php:655
-msgid "Decryption failed. The database file is encrypted, but you have no encryption key entered."
-msgstr "解密失败。数据库文件已加密，但是您没有输入密码"
+#: addons/migrator.php:101
+msgid "Site Domain:"
+msgstr "站点域名"
 
-#: updraftplus.php:2145
-#: restorer.php:87
-#: admin.php:673
-msgid "Decryption failed. The most likely cause is that you used the wrong key."
-msgstr "解密失败。很可能是因为您输入的密码错误"
+#: addons/migrator.php:118
+msgid "Migrated site (from UpdraftPlus)"
+msgstr "迁移站点（从UpdraftPlus）"
 
-#: updraftplus.php:2145
-msgid "The decryption key used:"
-msgstr "使用密码："
+#: addons/migrator.php:147
+msgid "<strong>ERROR</strong>: Site URL already taken."
+msgstr "<strong>错误</strong>：站点 RUL 已经获取。"
 
-#: updraftplus.php:2160
-msgid "File not found"
-msgstr "没有找到文件"
+#: addons/migrator.php:154
+msgid "New site:"
+msgstr "新站点："
 
-#: updraftplus.php:2210
-msgid "Can you translate? Want to improve UpdraftPlus for speakers of your language?"
-msgstr "您可以翻译吗？想为和您说一样语言的人在使用 UpdraftPlus 的时候造福吗"
+#: addons/migrator.php:86
+msgid "Information needed to continue:"
+msgstr "如果要继续，需要的信息："
 
-#: updraftplus.php:2212
-#: updraftplus.php:2218
-msgid "Like UpdraftPlus and can spare one minute?"
-msgstr "喜欢UpdraftPlus， 并且可以抽出1分钟时间？"
+#: addons/migrator.php:87
+msgid "Please supply the following information:"
+msgstr "请补充以下信息："
 
-#: updraftplus.php:2212
-#: updraftplus.php:2218
-msgid "Please help UpdraftPlus by giving a positive review at wordpress.org"
-msgstr "为了帮助UpdraftPlus，请在 wordpress.org给出一个正面的评价"
+#: addons/migrator.php:90
+msgid "Enter details for where this new site is to live within your multisite install:"
+msgstr "使用多站点安装方式时，请在这里填入关于此站点位置的详细信息："
 
-#: updraftplus.php:2225
-msgid "Need even more features and support? Check out UpdraftPlus Premium"
-msgstr "需要更多的功能或是支持吗？请购买UpdraftPlus商业版"
+#: addons/migrator.php:44
+msgid "Processed plugin:"
+msgstr "处理过的插件："
+
+#: addons/migrator.php:52
+msgid "Network activating theme:"
+msgstr "网络活跃主题："
+
+#: addons/sftp.php:23
+msgid "Some servers advertise encrypted FTP as available, but then time-out (after a long time) when you attempt to use it. If you find this happenning, then go into the \"Expert Options\" (below) and turn off SSL there."
+msgstr "一些FTP服务号称支持加密的方式，但是使用时会出现超时（长时间后）。如果发生此类事情，请进入\"高级选项\"（下面），关闭SSL。 "
+
+#: addons/sftp.php:50
+msgid "Check your file permissions: Could not successfully create and enter directory:"
+msgstr "检查您的文件权限信息：无法创建并且进入目录："
+
+#: methods/dropbox.php:274
+msgid "Your web server's PHP installation does not included a required module (%s). Please contact your web hosting provider's support and ask for them to enable it."
+msgstr "您web服务器的PHP没有包含一个必须的模块（%s），请联系您的主机提供商获取帮助，使其开启改模块。"
+
+#: methods/s3.php:519
+msgid "Please check your access credentials."
+msgstr "请检查您的证书。"
+
+#: methods/s3.php:494
+msgid "The error reported by %s was:"
+msgstr "从%s获取的错误信息是："
+
+#: restorer.php:717
+msgid "Please supply the requested information, and then continue."
+msgstr "请提供需要的信息后再继续"
+
+#: restorer.php:724
+msgid "New table prefix:"
+msgstr "新表前缀："
+
+#: restorer.php:580
+msgid "Cannot drop tables, so deleting instead (%s)"
+msgstr "无法删除表，所以删除已经插入的内容（%s）"
+
+#: restorer.php:459 admin.php:721
+msgid "To import an ordinary WordPress site into a multisite installation requires both the multisite and migrator add-ons."
+msgstr "想要将一个普通的WordPress站点导入多站点的版本，您需要多站点和迁移插件"
+
+#: restorer.php:465 admin.php:729
+msgid "Site information:"
+msgstr "站点信息："
+
+#: restorer.php:575
+msgid "Cannot create new tables, so skipping this command (%s)"
+msgstr "无法创建新表。所以跳过改命令（%s）"
+
+#: restorer.php:415 restorer.php:430 admin.php:1318
+msgid "Warning:"
+msgstr "警告:"
+
+#: restorer.php:415
+msgid "Your database user does not have permission to create tables. We will attempt to restore by simply emptying the tables; this should work as long as a) you are restoring from a WordPress version with the same database structure, and b) Your imported database does not contain any tables which are not already present on the importing site."
+msgstr "您的数据库用户没有建表的权限，我们将要尝试清空表的方式。这种方式只兼容以下两个条件 a)您正尝试还原相同表结构的WordPress版本；b)您将要导入的数据库不包括其他不是您现在站点的数据"
+
+#: restorer.php:430
+msgid "Your database user does not have permission to drop tables. We will attempt to restore by simply emptying the tables; this should work as long as you are restoring from a WordPress version with the same database structure"
+msgstr "您的数据库用户没有删表的权限，我们将要尝试清空表的方式。这种方式只在您正尝试还原相同表结构的WordPress版本时可用"
+
+#: restorer.php:27 admin.php:716
+msgid "You are running on WordPress multisite - but your backup is not of a multisite site."
+msgstr "您运行在WordPress的多站点模式 - 但是您的备份不是多站点模式"
+
+#: admin.php:2602
+msgid "Skipping restoration of WordPress core when importing a single site into a multisite installation. If you had anything necessary in your WordPress directory then you will need to re-add it manually from the zip file."
+msgstr "在将单站点导入多站点时跳过WordPress的核心文件。如果您的WordPress目录中存在其他必要的文件，您需要手动将它们添加到zip文件中。"
+
+#: admin.php:2248
+msgid "Your web server's PHP installation does not included a <strong>required</strong> (for %s) module (%s). Please contact your web hosting provider's support and ask for them to enable it."
+msgstr "为了使用（%s），您web服务器上安装的PHP没有包含 <strong>必须的</strong>模块（%s），请联系您的主机提供商，让他们开启这些模块。"
+
+#: admin.php:2248
+msgid "Your options are 1) Install/enable %s or 2) Change web hosting companies - %s is a standard PHP component, and required by all cloud backup plugins that we know of."
+msgstr "您的选择是1）安装/开启 %s 或者 2)更换主机提供商 - %s 是一个很常用的PHP模块，我们所知道的所有云存储都需要这个模块"
+
+#: admin.php:2119
+msgid "Close"
+msgstr "关闭"
+
+#: admin.php:2003 admin.php:2032
+msgid "Unexpected response:"
+msgstr "未知响应："
+
+#: admin.php:1874
+msgid "To send to more than one address, separate each address with a comma."
+msgstr "向多个地址发送，请使用逗号分割。"
+
+#: admin.php:1565
+msgid "PHP information"
+msgstr "PHP信息"
+
+#: admin.php:1459
+msgid "show PHP information (phpinfo)"
+msgstr "察看PHP信息（phpinfo）"
+
+#: admin.php:1472
+msgid "zip executable found:"
+msgstr "发现了可执行的zip"
+
+#: admin.php:1408
+msgid "Migrate Site"
+msgstr "迁移站点"
+
+#: admin.php:1412
+msgid "Migration of data from another site happens through the \"Restore\" button. A \"migration\" is ultimately the same as a restoration - but using backup archives that you import from another site. UpdraftPlus modifies the restoration operation appropriately, to fit the backup data to the new site."
+msgstr "点击 \"恢复\" 按钮开始从其他站点迁移数据，\"迁移\" 和还原基本上差不多 - 只不过使用从其他站点导入的备份文件而已。UpdraftPlus会适当的修改备份文件来适应新的站点"
+
+#: admin.php:1412
+msgid "<a href=\"%s\">Read this article to see step-by-step how it's done.</a>"
+msgstr "<a href=\"%s\">察看此文档来获知如何进行step-by-step。</a>"
+
+#: admin.php:1414
+msgid "Do you want to migrate or clone/duplicate a site?"
+msgstr "您想迁移或者克隆/复制站点吗？"
+
+#: admin.php:1414
+msgid "Then, try out our \"Migrator\" add-on. After using it once, you'll have saved the purchase price compared to the time needed to copy a site by hand."
+msgstr "然后，尝试我们的 \"迁移\"插件。使用一次后，您可以比较一下花费的价格和手动拷贝花费的时间"
+
+#: admin.php:1414
+msgid "Get it here."
+msgstr "从这里获取。"
+
+#: admin.php:1311
+msgid "Deleting... please allow time for the communications with the remote storage to complete."
+msgstr "删除。。。请等待直到和远程存储的通信完成"
+
+#: admin.php:1310
+msgid "Also delete from remote storage"
+msgstr "顺带从远程存储删除"
+
+#: admin.php:1141
+msgid "Latest UpdraftPlus.com news:"
+msgstr "最近的 UpdraftPlus.com 新闻"
+
+#: admin.php:1121
+msgid "Clone/Migrate"
+msgstr "克隆/迁移"
+
+#: admin.php:1015
+msgid "News"
+msgstr "新闻"
+
+#: admin.php:1015
+msgid "Premium"
+msgstr "价格"
+
+#: admin.php:493
+msgid "Local archives deleted: %d"
+msgstr "删除本地归档：%d"
+
+#: admin.php:494
+msgid "Remote archives deleted: %d"
+msgstr "删除远程归档：%d"
+
+#: backup.php:573
+msgid "%s - could not back this entity up; the corresponding directory does not exist (%s)"
+msgstr "%s - 无法备份；相关目录不存在（%s）"
+
+#: admin.php:410
+msgid "Backup set not found"
+msgstr "没有找到备份集"
+
+#: admin.php:492
+msgid "The backup set has been removed."
+msgstr "备份已经被移除了"
 
 #: updraftplus.php:2232
 msgid "Subscribe to the UpdraftPlus blog to get up-to-date news and offers"
@@ -235,53 +493,852 @@ msgstr "博客链接地址"
 msgid "RSS link"
 msgstr "RSS 链接地址"
 
-#: updraftplus.php:2235
-msgid "Check out UpdraftPlus.Com for help, add-ons and support"
-msgstr "关注UpdraftPlus.Com来获得帮助、附加功能和支持"
+#: methods/s3.php:333
+msgid "Testing %s Settings..."
+msgstr "测试 %s 设置"
 
-#: updraftplus.php:2238
-msgid "Want to say thank-you for UpdraftPlus?"
-msgstr "想对UpdraftPlus说谢谢？"
+#: admin.php:1163
+msgid "Or, you can place them manually into your UpdraftPlus directory (usually wp-content/updraft), e.g. via FTP, and then use the \"rescan\" link above."
+msgstr "或者，您可以手动将他们放入您的UpdraftPlus目录（通常在wp-content/updraft），如，通过FTP。完成后，使用下面的\"rescan\"链接"
 
-#: updraftplus.php:2238
-msgid "Please buy our very cheap 'no adverts' add-on."
-msgstr "请购买我们非常便宜的“无广告版”插件"
+#: admin.php:211
+msgid "Notice"
+msgstr "注意："
 
-#: backup.php:36
-msgid "Infinite recursion: consult your log for more information"
-msgstr "无限递归：请察看您的日志，以获取更多信息"
+#: admin.php:211
+msgid "UpdraftPlus's debug mode is on. You may see debugging notices on this page not just from UpdraftPlus, but from any other plugin installed. Please try to make sure that the notice you are seeing is from UpdraftPlus before you raise a support request."
+msgstr "已经开启了UpdraftPlus的debug模式，您将同时看到UpdraftPlus和其他插件的debug信息。请确保在提交支持请求之前获得了UpdraftPlus的debug信息"
 
-#: backup.php:47
-#: backup.php:66
-#: backup.php:77
-#, php-format
-msgid "%s: unreadable file - could not be backed up"
-msgstr "%s：无法读取文件 - 无法备份"
+#: admin.php:216
+msgid "W3 Total Cache's object cache is active. This is known to have a bug that messes with all scheduled tasks (including backup jobs)."
+msgstr "W3 总缓存的对象缓存开启，这是一个众所周知的能导致计划任务混乱的bug（包括备份任务）。"
 
-#: backup.php:53
-#, php-format
-msgid "Failed to open directory: %s"
-msgstr "打开目录失败：%s"
+#: admin.php:216
+msgid "Go here to turn it off."
+msgstr "在这里关闭它。"
 
-#: backup.php:333
-#, php-format
-msgid "A very large file was encountered: %s (size: %s Mb)"
-msgstr "遇到了一个非常大的文件：%s（尺寸：%s Mb）"
+#: admin.php:216
+msgid "<a href=\"%s\">Go here</a> for more information."
+msgstr "<a href=\"%s\">这里</a> 获得详细信息"
 
-#: backup.php:368
-#: backup.php:541
-msgid "A zip error occurred - check your log for more details."
-msgstr "压缩出错 - 看看您的日志，以获取相信信息"
+#: updraftplus.php:1094
+msgid "Errors encountered:"
+msgstr "错误："
 
-#: backup.php:573
-#, php-format
-msgid "%s - could not back this entity up; the corresponding directory does not exist (%s)"
-msgstr "%s - 无法备份；相关目录不存在（%s）"
+#: admin.php:1995
+msgid "Rescanning (looking for backups that you have uploaded manually into the internal backup store)..."
+msgstr "重新扫描（查找您手动上传到内部备份库的备份文件）"
 
-#: backup.php:613
-#, php-format
-msgid "Could not create %s zip. Consult the log file for more information."
-msgstr "无法创建 %s zip压缩文件。察看日志文件，以获取详细信息"
+#: admin.php:1210
+msgid "Begun looking for this entity"
+msgstr "开始查找此条目"
+
+#: addons/migrator.php:393
+msgid "SQL update commands run:"
+msgstr "SQL更新命令执行："
+
+#: addons/migrator.php:394
+msgid "Errors:"
+msgstr "错误："
+
+#: addons/migrator.php:395
+msgid "Time taken (seconds):"
+msgstr "花费时间（秒）："
+
+#: addons/migrator.php:482
+msgid "rows: %d"
+msgstr "行：%d"
+
+#: addons/migrator.php:547
+msgid "\"%s\" has no primary key, manual change needed on row %s."
+msgstr "\"%s\" 木有主键，需要在row %s上手动修改。"
+
+#: addons/dropbox-folders.php:21
+msgid "Store at"
+msgstr "保存在"
+
+#: addons/migrator.php:308
+msgid "Nothing to do: the site URL is already: %s"
+msgstr "无事可干：站点URL已经存在：%s"
+
+#: addons/migrator.php:313
+msgid "Warning: the database's site URL (%s) is different to what we expected (%s)"
+msgstr "警告：站点URL（%s）和我们预期的不相符（%s）"
+
+#: addons/migrator.php:320
+msgid "Database search and replace: replace %s in backup dump with %s"
+msgstr "数据库查找和替换：在备份文件中将%s替换成%s"
+
+#: addons/migrator.php:338
+msgid "Could not get list of tables"
+msgstr "无法获取表的清单"
+
+#: addons/migrator.php:349
+msgid "<strong>Search and replacing table:</strong> %s: already done"
+msgstr "<strong>查找并替换表：</strong> %s：已经完成"
+
+#: addons/migrator.php:390
+msgid "Tables examined:"
+msgstr "检查多的表："
+
+#: addons/migrator.php:391
+msgid "Rows examined:"
+msgstr "检查多的行："
+
+#: addons/migrator.php:392
+msgid "Changes made:"
+msgstr "做出的修改："
+
+#: addons/sftp.php:141
+msgid "%s Error: Failed to download"
+msgstr "%s 错误：下载失败"
+
+#: addons/sftp.php:185
+msgid "Resuming partial uploads is not supported, so you will need to ensure that your webserver allows PHP processes to run long enough to upload your largest backup file."
+msgstr "不支持断点续传功能。所以您必须确认您的web服务器允许PHP处理足够长时间的事务来上传您最大的文件。"
+
+#: addons/sftp.php:190
+msgid "Host"
+msgstr "主机"
+
+#: addons/sftp.php:197
+msgid "Port"
+msgstr "端口"
+
+#: addons/sftp.php:211
+msgid "Password"
+msgstr "密码"
+
+#: addons/sftp.php:227
+msgid "Directory path"
+msgstr "路径"
+
+#: addons/sftp.php:229
+msgid "Where to change directory to after logging in - often this is relative to your home directory."
+msgstr "登陆后将转换到的目录 - 通常和您的家目录相关。"
+
+#: addons/sftp.php:265
+msgid "host name"
+msgstr "主机名"
+
+#: addons/sftp.php:269
+msgid "username"
+msgstr "账户"
+
+#: addons/sftp.php:273
+msgid "password"
+msgstr "密码"
+
+#: addons/sftp.php:278
+msgid "Failure: Port must be an integer."
+msgstr "错误：端口必须是数字。"
+
+#: addons/sftp.php:318
+msgid "Failed: We were able to log in and move to the indicated directory, but failed to successfully created a file in that location."
+msgstr "失败：我们可以登陆、转移至制定目录，但是无法在那里创建文件。"
+
+#: addons/fixtime.php:77 addons/fixtime.php:87
+msgid "starting from next time it is"
+msgstr "从下一次开始"
+
+#: addons/multisite.php:126
+msgid "Multisite Install"
+msgstr "安装多站点"
+
+#: addons/multisite.php:132
+msgid "You do not have sufficient permissions to access this page."
+msgstr "您没有察看此页面的适当权限。"
+
+#: addons/multisite.php:151
+msgid "You do not have permission to access this page."
+msgstr "您没有权限察看此页面。"
+
+#: addons/multisite.php:213
+msgid "Must-use plugins"
+msgstr "必须使用 插件"
+
+#: addons/multisite.php:220
+msgid "Blog uploads"
+msgstr "博客上传"
+
+#: addons/migrator.php:170
+msgid "All references to the site location in the database will be replaced with your current site URL, which is: %s"
+msgstr "数据库中参考的所有站点位置信息将会使用您目前的URL替换：%s"
+
+#: addons/migrator.php:170
+msgid "Search and replace site location in the database (migrate)"
+msgstr "察看并且在数据库中替换站点位置（迁移）"
+
+#: addons/migrator.php:170
+msgid "(learn more)"
+msgstr "（学习更多）"
+
+#: addons/migrator.php:257 addons/migrator.php:371
+msgid "Failed: the %s operation was not able to start."
+msgstr "失败：无法开始%s操作"
+
+#: addons/migrator.php:259 addons/migrator.php:373
+msgid "Failed: we did not understand the result returned by the %s operation."
+msgstr "失败：我们无法识别 %s 操作返回的结果信息。"
+
+#: addons/migrator.php:280
+msgid "Database: search and replace site URL"
+msgstr "数据库：查找并替换站点URL"
+
+#: addons/migrator.php:283
+msgid "This option was not selected."
+msgstr "此选项没有被选择。"
+
+#: addons/migrator.php:298 addons/migrator.php:303
+msgid "Error: unexpected empty parameter (%s, %s)"
+msgstr "错误：未知的空参数（%s,%s）"
+
+#: addons/morefiles.php:63
+msgid "The above files comprise everything in a WordPress installation."
+msgstr "上面的文件包括WordPress安装后的全部文件。"
+
+#: addons/morefiles.php:70
+msgid "WordPress core (including any additions to your WordPress root directory)"
+msgstr "WordPress 核心文件（包括WordPress根目录附加的任何文件）"
+
+#: addons/morefiles.php:83
+msgid "Any other directory on your server that you wish to back up"
+msgstr "其他您想要备份的目录"
+
+#: addons/morefiles.php:84
+msgid "More Files"
+msgstr "更多文件"
+
+#: addons/morefiles.php:99
+msgid "Enter the directory:"
+msgstr "进入目录："
+
+#: addons/morefiles.php:103
+msgid "If you are not sure what this option is for, then you will not want it, and should turn it off."
+msgstr "如果您不确定这个选项是干什么的，那么您很可能不需要它，请关闭。"
+
+#: addons/morefiles.php:103
+msgid "If using it, enter an absolute path (it is not relative to your WordPress install)."
+msgstr "如果使用，请输入绝对路径（不是相对于WordPress的相对路径）"
+
+#: addons/morefiles.php:105
+msgid "Be careful what you enter - if you enter / then it really will try to create a zip containing your entire webserver."
+msgstr "小心您的输入 - 如果您输入 / ，那么生成的zip文件会包含您的整个站点"
+
+#: addons/morefiles.php:135
+msgid "If entering multiple files/directories, then separate them with commas."
+msgstr "如果输入多个文件/目录，请使用逗号进行分割。"
+
+#: addons/morefiles.php:177 addons/morefiles.php:254
+msgid "No backup of %s directories: there was nothing found to back up"
+msgstr "没有备份的%s目录：没有发现任何要备份的东西"
+
+#: addons/morefiles.php:177
+msgid "more"
+msgstr "更多"
+
+#: addons/sftp.php:23
+msgid "Encrypted FTP is available, and will be automatically tried first (before falling back to non-encrypted if it is not successful), unless you disable it using the expert options. The 'Test FTP Login' button will tell you what type of connection is in use."
+msgstr "加密的FTP可用，将会首先尝试（如果失败，将会使用未加密的方式）。如果不需要此功能，请在高级选项中禁用。“测试FTP登陆”按钮将会告诉你正在使用的连接方式。"
+
+#: addons/sftp.php:23
+msgid "Explicit encryption is used by default. To force implicit encryption (port 990), add :990 to your FTP server below."
+msgstr "默认使用显式加密。需要强制使用隐式加密（端口990），在下面的FTP服务器后添加 :990"
+
+#: addons/sftp.php:30 addons/sftp.php:31 addons/sftp.php:32
+msgid "No %s found"
+msgstr "没有找到%s"
+
+#: addons/sftp.php:30
+msgid "SFTP host setting"
+msgstr "SFTP 主机设置"
+
+#: addons/sftp.php:31
+msgid "SFTP user setting"
+msgstr "SFTP 用户设置"
+
+#: addons/sftp.php:32
+msgid "SFTP password"
+msgstr "SFTP 密码"
+
+#: addons/sftp.php:304
+msgid "Check your file permissions: Could not successfully create and enter:"
+msgstr "检查您的文件权限：无法创建并且进入："
+
+#: methods/ftp.php:182
+msgid "FTP Server"
+msgstr "FTP 服务器"
+
+#: methods/ftp.php:186
+msgid "FTP Login"
+msgstr "FTP 帐号"
+
+#: methods/ftp.php:190
+msgid "FTP Password"
+msgstr "FTP 密码"
+
+#: methods/ftp.php:194
+msgid "Remote Path"
+msgstr "远程路径"
+
+#: methods/ftp.php:195
+msgid "Needs to already exist"
+msgstr "已经存在"
+
+#: methods/ftp.php:216
+msgid "Failure: No server details were given."
+msgstr "失败：没有提供详细的服务器信息。"
+
+#: methods/ftp.php:231
+msgid "Failure: we did not successfully log in with those credentials."
+msgstr "失败：我们无法使用那些证书登陆。"
+
+#: methods/ftp.php:239
+msgid "Failure: an unexpected internal UpdraftPlus error occurred when testing the credentials - please contact the developer"
+msgstr "失败：测试证书时出现非预期的UpdraftPlus内部错误 - 请联系开发人员"
+
+#: methods/ftp.php:243
+msgid "Success: we successfully logged in, and confirmed our ability to create a file in the given directory (login type:"
+msgstr "成功：我们成功登陆，并且确认了在给定目录创建文件的能力（登陆方式："
+
+#: methods/ftp.php:246
+msgid "Failure: we successfully logged in, but were not able to create a file in the given directory."
+msgstr "失败：我们成功登陆，但是无法在指定目录创建文件。"
+
+#: addons/webdav.php:40 addons/webdav.php:150 addons/webdav.php:185
+#: addons/sftp.php:28
+msgid "No %s settings were found"
+msgstr "没有发现%s的设置"
+
+#: addons/webdav.php:116 addons/webdav.php:120
+msgid "Chunk %s: A %s error occurred"
+msgstr "分片 %s：发生了一个 %s 错误"
+
+#: addons/webdav.php:201 addons/webdav.php:208 addons/webdav.php:221
+msgid "WebDAV Error"
+msgstr "WebDAV 错误"
+
+#: addons/webdav.php:208
+msgid "Error opening remote file: Failed to download"
+msgstr "打开远程文件失败：下载失败"
+
+#: addons/webdav.php:221
+msgid "Local write failed: Failed to download"
+msgstr "本地写入失败：下载失败"
+
+#: addons/webdav.php:257
+msgid "WebDAV URL"
+msgstr "WebDAV URL"
+
+#: addons/webdav.php:261
+msgid "Enter a complete URL, beginning with webdav:// or webdavs:// and including path, username, password and port as required - e.g.%s"
+msgstr "输入完成的URL，使用webdav:// 或者 webdavs:// 开头，并且包含路径、用户名、密码、端口等 - 如：%s"
+
+#: admin.php:1627 admin.php:1652
+msgid "Failed"
+msgstr "失败"
+
+#: addons/webdav.php:317
+msgid "Failed: We were not able to place a file in that directory - please check your credentials."
+msgstr "失败：我们无法在相关目录放置文件 - 请检查您的证书"
+
+#: addons/morefiles.php:40 addons/morefiles.php:254
+msgid "WordPress Core"
+msgstr "WordPress 核心"
+
+#: addons/morefiles.php:44
+msgid "Over-write wp-config.php"
+msgstr "覆盖  wp-config.php"
+
+#: addons/morefiles.php:44
+msgid "(learn more about this important option)"
+msgstr "（学习更多关于这个重要的选项）"
+
+#: methods/dropbox.php:291
+msgid "Authenticate with Dropbox"
+msgstr "验证Dropbox"
+
+#: methods/dropbox.php:292
+msgid "<strong>After</strong> you have saved your settings (by clicking 'Save Changes' below), then come back here once and click this link to complete authentication with Dropbox."
+msgstr "当您保存好设置之后（点击下面的“保存修改”），请再一次返回这里，点击此连接来完成和Dropbox的验证。"
+
+#: methods/dropbox.php:335
+msgid "you have authenticated your %s account"
+msgstr "您已经验证了你的%s帐号"
+
+#: methods/dropbox.php:338
+msgid "though part of the returned information was not as expected - your mileage may vary"
+msgstr "尽管部分返回的信息非预期 - 您还是可以选择其他"
+
+#: methods/dropbox.php:341
+msgid "Your %s account name: %s"
+msgstr "您的%s帐号名：%s"
+
+#: methods/ftp.php:162
+msgid "Settings test result"
+msgstr "设置测试结果"
+
+#: methods/ftp.php:178
+msgid "Only non-encrypted FTP is supported by regular UpdraftPlus."
+msgstr "通常的UpdraftPlus只支持无加密的FTP。"
+
+#: methods/ftp.php:178
+msgid "If you want encryption (e.g. you are storing sensitive business data), then an add-on is available."
+msgstr "如果您需要加密（比如您保存了私密的商业信息），可以使用此插件。"
+
+#: methods/s3.php:317
+msgid "%s Error: Failed to download %s. Check your permissions and credentials."
+msgstr "%s 错误：下载 %s 失败，检查您的权限和证书。"
+
+#: methods/s3.php:253 methods/s3.php:321
+msgid "%s Error: Failed to access bucket %s. Check your permissions and credentials."
+msgstr "%s 错误：进入bucket %s失。检查您的权限和证书。"
+
+#: methods/s3.php:398
+msgid "Get your access key and secret key <a href=\"%s\">from your %s console</a>, then pick a (globally unique - all %s users) bucket name (letters and numbers) (and optionally a path) to use for storage. This bucket will be created for you if it does not already exist."
+msgstr "<a href=\"%s\">从您的 %s 控制台</a>获得access key 和 secret key，然后，挑选一个（所有 %s 用户都不相同的）bucket名称（字母和数字）（可以使用路径名）作为存储使用。如果不存在，将会为您创建此bucket。"
+
+#: methods/s3.php:398
+msgid "If you see errors about SSL certificates, then please go here for help."
+msgstr "如果您看到了SSL证书错误，请到这里寻求帮助。"
+
+#: methods/s3.php:409
+msgid "%s access key"
+msgstr "%s access key"
+
+#: methods/s3.php:413
+msgid "%s secret key"
+msgstr "%s secret key"
+
+#: methods/s3.php:417
+msgid "%s location"
+msgstr "%s 位置"
+
+#: methods/s3.php:418
+msgid "Enter only a bucket name or a bucket and path. Examples: mybucket, mybucket/mypath"
+msgstr "只需要输入bucket名称或者bucket和路径，如：mybucket, mybucket/mypath"
+
+#: methods/s3.php:439
+msgid "API secret"
+msgstr "API secret"
+
+#: methods/s3.php:460
+msgid "Failure: No bucket details were given."
+msgstr "失败：没有提供详细的bucket信息"
+
+#: methods/s3.php:475
+msgid "Region"
+msgstr "区域"
+
+#: methods/s3.php:493
+msgid "Failure: We could not successfully access or create such a bucket. Please check your access credentials, and if those are correct then try another bucket name (as another %s user may already have taken your name)."
+msgstr "失败：我们无法进入或者创建此bucket。请检查您的证书，如果证书正确，请尝试其它的bucket名称（可能其他的 %s 用户已经使用了您选择的bucket名称）"
+
+#: methods/s3.php:507 methods/s3.php:519
+msgid "Failure"
+msgstr "错误"
+
+#: methods/s3.php:507 methods/s3.php:519
+msgid "We successfully accessed the bucket, but the attempt to create a file in it failed."
+msgstr "我们成功进入bucket，但是在里边创建文件失败。"
+
+#: methods/s3.php:509
+msgid "We accessed the bucket, and were able to create files within it."
+msgstr "我们进入了bucket，并且可以在里边建立文件。"
+
+#: methods/s3.php:512
+msgid "The communication with %s was encrypted."
+msgstr "和%s的通信被加密。"
+
+#: methods/s3.php:514
+msgid "The communication with %s was not encrypted."
+msgstr "与%s的通信没有加密。"
+
+#: methods/dropbox.php:35
+msgid "The %s PHP module is not installed"
+msgstr "%s PHP模块没有安装"
+
+#: methods/dropbox.php:41
+msgid "You do not appear to be authenticated with Dropbox"
+msgstr "您似乎没有验证Dropbox"
+
+#: methods/dropbox.php:138 methods/dropbox.php:143
+msgid "error: failed to upload file to %s (see log file for more)"
+msgstr "错误：上传文件至%s失败（察看日志获取详细信息）"
+
+#: methods/dropbox.php:286
+msgid "Need to use sub-folders?"
+msgstr "需要使用子目录？"
+
+#: methods/dropbox.php:286
+msgid "Backups are saved in"
+msgstr "备份并保存"
+
+#: methods/dropbox.php:286
+msgid "If you back up several sites into the same Dropbox and want to organise with sub-folders, then "
+msgstr "如果您使用同一个Dropbox帐号备份多个站点，并且各个站点使用子目录。然后"
+
+#: methods/dropbox.php:286
+msgid "there's an add-on for that."
+msgstr "点击这里获取相关插件"
+
+#: methods/cloudfiles.php:408
+msgid "US or UK Cloud"
+msgstr "US 或者 UK 云"
+
+#: methods/cloudfiles.php:414
+msgid "US (default)"
+msgstr "US (默认)"
+
+#: methods/cloudfiles.php:415
+msgid "UK"
+msgstr "UK"
+
+#: methods/cloudfiles.php:420
+msgid "Cloud Files username"
+msgstr "云文件帐号"
+
+#: methods/cloudfiles.php:424
+msgid "Cloud Files API key"
+msgstr "云文件 API key"
+
+#: methods/cloudfiles.php:428
+msgid "Cloud Files container"
+msgstr "云文件容器"
+
+#: methods/googledrive.php:440
+msgid "UpdraftPlus's %s module <strong>requires</strong> %s. Please do not file any support requests; there is no alternative."
+msgstr "UpdraftPlus 的 %s 模块<strong>依赖</strong>  %s。不要发送任何支持请求，没有其他选择。"
+
+#: methods/cloudfiles.php:442 methods/cloudfiles.php:447 methods/s3.php:435
+#: methods/s3.php:439 methods/ftp.php:220 methods/ftp.php:224
+#: addons/webdav.php:294 addons/sftp.php:265 addons/sftp.php:269
+#: addons/sftp.php:273
+msgid "Failure: No %s was given."
+msgstr "错误：没有设置%s"
+
+#: methods/cloudfiles.php:442 methods/s3.php:435
+msgid "API key"
+msgstr "API key"
+
+#: methods/cloudfiles.php:447 addons/sftp.php:204
+msgid "Username"
+msgstr "用户名"
+
+#: methods/cloudfiles.php:467
+msgid "Failure: No container details were given."
+msgstr "失败：没有提供容器的详细信息。"
+
+#: methods/cloudfiles.php:494
+msgid "Cloud Files error - we accessed the container, but failed to create a file within it"
+msgstr "云文件错误 - 我们可以进入容器，但是无法在其中创建文件"
+
+#: methods/cloudfiles.php:498
+msgid "We accessed the container, and were able to create files within it."
+msgstr "可是使用容器，并且可以在里边创建文件。"
+
+#: methods/email.php:16
+msgid "WordPress Backup"
+msgstr "WordPress备份"
+
+#: methods/email.php:16
+msgid "Backup is of:"
+msgstr "备份："
+
+#: methods/email.php:16
+msgid "Be wary; email backups may fail because of file size limitations on mail servers."
+msgstr "注意：由于邮件服务器的文件大小限制，可能会导致邮件备份失败。"
+
+#: methods/email.php:26
+msgid "Note:"
+msgstr "注意："
+
+#: methods/email.php:27
+msgid "The email address entered above will be used. If choosing \"E-Mail\", then <strong>be aware</strong> that mail servers tend to have size limits; typically around 10-20Mb; backups larger than any limits will not arrive. If you really need a large backup via email, then you could fund a new feature (to break the backup set into configurable-size pieces) - but the demand has not yet existed for such a feature."
+msgstr "将会使用上面填写的邮件地址。如果选择 \"邮件\"，<strong>请注意</strong>邮件服务器会有文件尺寸限制，通常情况下是 10 - 20Mb；大于限制尺寸的备份文件将无法发送。如果您确实需要使用邮件传送大备份文件，可能存在一种新的特性（将文件分割成配置好的小尺寸）- 但是，现在目前不存在该类需求。"
+
+#: methods/s3.php:154
+msgid "%s upload: getting uploadID for multipart upload failed - see log file for more details"
+msgstr "%s 上传：获取多模块上传ID失败 - 察看日志获取详细信息"
+
+#: methods/s3.php:177
+msgid "%s error: file %s was shortened unexpectedly"
+msgstr "%s 错误：文件%s被未知的缩短"
+
+#: methods/s3.php:187
+msgid "%s chunk %s: upload failed"
+msgstr "%s 分片 %s：上传失败"
+
+#: methods/s3.php:201
+msgid "%s upload (%s): re-assembly failed (see log for more details)"
+msgstr "%s 上传 （%s）：重组失败（察看日志获取详细信息）"
+
+#: methods/s3.php:205
+msgid "%s re-assembly error (%s): (see log file for more)"
+msgstr "%s 重组失败（%s）：（察看日志获取详细信息）"
+
+#: methods/s3.php:217
+msgid "%s Error: Failed to create bucket %s. Check your permissions and credentials."
+msgstr "%s 错误：创建bucket %s 失败。检查您的权限和授权。"
+
+#: methods/googledrive.php:450
+msgid "For longer help, including screenshots, follow this link. The description below is sufficient for more expert users."
+msgstr "对于长期支持用户，包括截图等。请点击此链接，这里有针对专家用户的足够描述"
+
+#: methods/googledrive.php:451
+msgid "Follow this link to your Google API Console, and there create a Client ID in the API Access section."
+msgstr "点击此链接进入您的Google API控制台，会在那里生成一个客户ID"
+
+#: methods/googledrive.php:451
+msgid "Select 'Web Application' as the application type."
+msgstr "选择”网页应用“作为应用类型"
+
+#: methods/googledrive.php:451
+msgid "You must add the following as the authorised redirect URI (under \"More Options\") when asked"
+msgstr "如果需要，您必须添加下面的链接作为重定向RUI（在 \"更多选择\"下面）"
+
+#: methods/googledrive.php:451
+msgid "N.B. If you install UpdraftPlus on several WordPress sites, then you cannot re-use your client ID; you must create a new one from your Google API console for each site."
+msgstr "N.B. 如果您在多个WordPress站点安装了UpdraftPlus，您不能重复的使用客户ID；您必须在Google API 终端中为每一个站点建立一个客户ID。"
+
+#: methods/googledrive.php:454
+msgid "You do not have the SimpleXMLElement installed. Google Drive backups will <b>not</b> work until you do."
+msgstr "您没有安装SimpleXMLElement，除非您安装，不然Google Drive将无法工作。"
+
+#: methods/googledrive.php:461
+msgid "Client ID"
+msgstr "客户ID"
+
+#: methods/googledrive.php:462
+msgid "If Google later shows you the message \"invalid_client\", then you did not enter a valid client ID here."
+msgstr "如果Google向您显示了 \"invalid_client\"的信息；很可能是您没有输入可用的客户ID。"
+
+#: methods/googledrive.php:465
+msgid "Client Secret"
+msgstr "客户密钥"
+
+#: methods/googledrive.php:469
+msgid "Folder ID"
+msgstr "文件夹ID"
+
+#: methods/googledrive.php:470
+msgid "<strong>This is NOT a folder name</strong>. To get a folder's ID navigate to that folder in Google Drive in your web browser and copy the ID from your browser's address bar. It is the part that comes after <kbd>#folders/.</kbd> Leave empty to use your root folder)"
+msgstr "<strong>这不是目录一个名</strong>。要获取目录ID，请去您的Google Drive，点击进入目录，然后从地址栏复制<kbd>#folders/.</kbd>后面的值。如果是根目录，请留空。 "
+
+#: methods/googledrive.php:473
+msgid "Authenticate with Google"
+msgstr "与Google验证"
+
+#: methods/googledrive.php:474
+msgid "<strong>After</strong> you have saved your settings (by clicking 'Save Changes' below), then come back here once and click this link to complete authentication with Google."
+msgstr "在保存您的设置之后（点击”保存修改“），请再一次回到这里，点击这个链接来完成Google验证。"
+
+#: methods/cloudfiles.php:477 methods/cloudfiles.php:480
+#: methods/cloudfiles.php:483
+msgid "Cloud Files authentication failed"
+msgstr "云文件验证失败"
+
+#: methods/cloudfiles.php:61 methods/cloudfiles.php:270
+#: methods/cloudfiles.php:289
+msgid "Cloud Files error - failed to create and access the container"
+msgstr "云文件错误 - 无法创建、访问容器"
+
+#: methods/cloudfiles.php:88
+msgid "%s Error: Failed to open local file"
+msgstr "%s错误：无法打开本地文件"
+
+#: methods/cloudfiles.php:105 methods/cloudfiles.php:147 methods/s3.php:128
+#: methods/s3.php:134 methods/s3.php:135 addons/sftp.php:86
+msgid "%s Error: Failed to upload"
+msgstr "%s 错误：上传失败"
+
+#: methods/cloudfiles.php:178
+msgid "Cloud Files error - failed to upload file"
+msgstr "云文件错误 - 上传文件失败"
+
+#: methods/cloudfiles.php:318 addons/webdav.php:201
+msgid "Error opening local file: Failed to download"
+msgstr "打开本地文件失败：无法下载"
+
+#: methods/cloudfiles.php:335
+msgid "Error downloading remote file: Failed to download ("
+msgstr "下载远程文件错误：下载失败（"
+
+#: methods/cloudfiles.php:357
+msgid "Testing - Please Wait..."
+msgstr "测试中 - 稍微等一下。。。"
+
+#: methods/cloudfiles.php:371 methods/cloudfiles.php:434 methods/s3.php:348
+#: methods/s3.php:422 methods/ftp.php:199 addons/webdav.php:267
+#: addons/sftp.php:235
+msgid "Test %s Settings"
+msgstr "测试%s设置"
+
+#: methods/cloudfiles.php:404
+msgid "Get your API key <a href=\"https://mycloud.rackspace.com/\">from your Rackspace Cloud console</a> (read instructions <a href=\"http://www.rackspace.com/knowledge_center/article/rackspace-cloud-essentials-1-generating-your-api-key\">here</a>), then pick a container name to use for storage. This container will be created for you if it does not already exist."
+msgstr "从 <a href=\"https://mycloud.rackspace.com/\">您的 Rackspace 云控制台</a>获取API key，(<a href=\"http://www.rackspace.com/knowledge_center/article/rackspace-cloud-essentials-1-generating-your-api-key\">操作指南</a>),然后挑选一个容器名称作为存储使用。如果不存在，将会为您创建此容器。"
+
+#: methods/cloudfiles.php:404
+msgid "Also, you should read this important FAQ."
+msgstr "您需要阅读这个很重要的FAQ文档。"
+
+#: methods/googledrive.php:195
+msgid "Account full: your %s account has only %d bytes left, but the file to be uploaded is %d bytes"
+msgstr "全部账户：您的 %s 账户只剩下了%d字节的空间，但是将要上传的文件为%d字节"
+
+#: methods/googledrive.php:205
+msgid "Failed to upload to %s"
+msgstr "向%s上传失败"
+
+#: methods/googledrive.php:322
+msgid "An error occurred during %s upload (see log for more details)"
+msgstr "上传%s时出现错误（从日志中获取详细信息）"
+
+#: methods/googledrive.php:361
+msgid "Google Drive error: %d: could not download: could not find a record of the Google Drive file ID for this file"
+msgstr "Google Drive 出错：%d：无法下载：无法找到此文件的Google Drive文件ID"
+
+#: methods/googledrive.php:366
+msgid "Could not find %s in order to download it"
+msgstr "无法找到%s，无法下载"
+
+#: methods/googledrive.php:379
+msgid "Google Drive "
+msgstr "Google Drive "
+
+#: methods/googledrive.php:397
+msgid "Account is not authorized."
+msgstr "帐号未验证。"
+
+#: methods/googledrive.php:430
+msgid "%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your site is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts."
+msgstr "%s是一个很好的选择，UpdraftPlus支持分片上传 - 无论您的站点有多大，UpdraftPlus可以分批次上传，避开超时限制。"
+
+#: restorer.php:560
+msgid "will restore as:"
+msgstr "将要还原为："
+
+#: restorer.php:594
+msgid "An error (%s) occured:"
+msgstr "出现错误（%s）："
+
+#: restorer.php:594
+msgid "the database query being run was:"
+msgstr "执行的数据库查询是："
+
+#: restorer.php:600
+msgid "Too many database errors have occurred - aborting restoration (you will need to restore manually)"
+msgstr "数据库错误出现的太多啦 - 退出还原（您需要手动还原）"
+
+#: restorer.php:608
+msgid "Database lines processed: %d in %.2f seconds"
+msgstr "数据库已处理的行：%d行 / %.2f 秒"
+
+#: restorer.php:621
+msgid "Finished: lines processed: %d in %.2f seconds"
+msgstr "完成：处理的行数：%d 行 / %.2f 秒"
+
+#: restorer.php:790 restorer.php:799
+msgid "Table prefix has changed: changing %s table field(s) accordingly:"
+msgstr "表前缀已经改变：关联修改%s表字段"
+
+#: restorer.php:794 restorer.php:829 admin.php:1630 admin.php:1654
+#: admin.php:2622
+msgid "OK"
+msgstr "OK"
+
+#: includes/Dropbox/OAuth/Consumer/ConsumerAbstract.php:91
+msgid "You need to re-authenticate with %s, as your existing credentials are not working."
+msgstr "您需要重新验证 %s，因为目前存在的证书无法使用。"
+
+#: methods/webdav.php:13 methods/webdav.php:34 methods/webdav.php:50
+#: methods/sftp.php:13 methods/sftp.php:34 methods/sftp.php:50
+msgid "You do not have the UpdraftPlus %s add-on installed - get it from %s"
+msgstr "您还没有安装UpdraftPlus的%s插件 - 从 %s 获取"
+
+#: methods/webdav.php:63 methods/sftp.php:63
+msgid "%s support is available as an add-on"
+msgstr "%s 支持以插件的方式可用"
+
+#: methods/webdav.php:63 methods/sftp.php:63
+msgid "follow this link to get it"
+msgstr "点此链接来获取"
+
+#: methods/googledrive.php:111
+msgid "No refresh token was received from Google. This often means that you entered your client secret wrongly, or that you have not yet re-authenticated (below) since correcting it. Re-check it, then follow the link to authenticate again. Finally, if that does not work, then use expert mode to wipe all your settings, create a new Google client ID/secret, and start again."
+msgstr "没有从Google获取到token。这意味着您可能输错了密码，或者您修改密码后没有进行重新验证。请认真检查，然后根据链接进行验证。最后，如果还是无法工作，请使用高级模式擦除所有设置，建立新的Google客户端帐号/密码，重新开始"
+
+#: methods/googledrive.php:120
+msgid "Authorization failed"
+msgstr "验证失败"
+
+#: methods/googledrive.php:141
+msgid "Your %s quota usage: %s %% used, %s available"
+msgstr "您的 %s 配额使用：已使用 %s %%， 剩余 %s"
+
+#: methods/googledrive.php:147
+msgid "Success"
+msgstr "成功"
+
+#: methods/googledrive.php:147
+msgid "you have authenticated your %s account."
+msgstr "您已经验证了您的%s帐号"
+
+#: methods/googledrive.php:163 methods/googledrive.php:220
+msgid "Have not yet obtained an access token from Google - you need to authorise or re-authorise your connection to Google Drive."
+msgstr "还没有从Google获得token - 您需要验证或者重新验证您的Google Drive链接"
+
+#: methods/googledrive.php:164 methods/googledrive.php:351
+msgid "Have not yet obtained an access token from Google (has the user authorised?)"
+msgstr "还没有从Google获得token （您的用户验证过了吗）"
+
+#: restorer.php:140
+msgid "wp-config.php from backup: restoring (as per user's request)"
+msgstr "备份中的wp-config.php；按照每个用户的要求还原"
+
+#: restorer.php:263
+msgid "Will not delete the archive after unpacking it, because there was no cloud storage for this backup"
+msgstr "解压后将不会删除归档，因为此次备份没有云存储"
+
+#: restorer.php:336
+msgid "Warning: PHP safe_mode is active on your server. Timeouts are much more likely. If these happen, then you will need to manually restore the file via phpMyAdmin or another method."
+msgstr "警告：开启了PHP安全模式，很可能出现超时；如果出现超时，你需要使用其他方式手动恢复数据库，比如phpMyAdmin等"
+
+#: restorer.php:341
+msgid "Failed to find database file"
+msgstr "无法找到数据库备份文件"
+
+#: restorer.php:347
+msgid "Failed to open database file"
+msgstr "无法打开数据库文件"
+
+#: restorer.php:371
+msgid "Database access: Direct MySQL access is not available, so we are falling back to wpdb (this will be considerably slower)"
+msgstr "数据库获取：不允许直接的MySQL连接，我们将会尝试wpdb（这种方式可能会比较慢）"
+
+#: restorer.php:443 admin.php:701
+msgid "Backup of:"
+msgstr "备份："
+
+#: restorer.php:447 restorer.php:497
+msgid "Old table prefix:"
+msgstr "旧的表前缀："
+
+#: admin.php:2619
+msgid "Archive is expected to be size:"
+msgstr "归档预期尺寸："
+
+#: admin.php:2627
+msgid "The backup records do not contain information about the proper size of this file."
+msgstr "备份记录中没有包含此文件的尺寸信息。"
+
+#: admin.php:2641 admin.php:2665
+msgid "Error message"
+msgstr "错误信息"
+
+#: admin.php:2630 admin.php:2631
+msgid "Could not find one of the files for restoration"
+msgstr "无法找到需要恢复的文件"
 
 #: restorer.php:13
 msgid "UpdraftPlus is not able to directly restore this kind of entity. It must be restored manually."
@@ -339,11 +1396,6 @@ msgstr "无法将新目录移动到适当的地方，请检查您的wp-content/u
 msgid "Failed to delete working directory after restoring."
 msgstr "还原后无法删除工作目录。"
 
-#: restorer.php:27
-#: admin.php:716
-msgid "You are running on WordPress multisite - but your backup is not of a multisite site."
-msgstr "您运行在WordPress的多站点模式 - 但是您的备份不是多站点模式"
-
 #: restorer.php:66
 msgid "Failed to create a temporary directory"
 msgstr "无法创建临时目录"
@@ -356,527 +1408,549 @@ msgstr "无法将加密后的数据库保存到文件系统"
 msgid "wp-config.php from backup: will restore as wp-config-backup.php"
 msgstr "备份中的 wp-config.php 将要还原为 wp-config-backup.php"
 
-#: restorer.php:140
-msgid "wp-config.php from backup: restoring (as per user's request)"
-msgstr "备份中的wp-config.php；按照每个用户的要求还原"
+#: admin.php:2203
+msgid "Choosing this option lowers your security by stopping UpdraftPlus from using SSL for authentication and encrypted transport at all, where possible. Note that some cloud storage providers do not allow this (e.g. Dropbox), so with those providers this setting will have no effect."
+msgstr "使用此选项降低您的安全策略，如果可能，UpdraftPlus不会使用SSL验证和加密传输。注意，一些云存储不允许此设置（比如，Dropbox），因此，该选项可能不会起作用"
 
-#: restorer.php:206
-#, php-format
-msgid "An existing unremoved backup from a previous restore exists: %s"
-msgstr "之前还原时遗留了一个无法删除的备份：%s"
+#: admin.php:2227
+msgid "Save Changes"
+msgstr "保存修改"
 
-#: restorer.php:263
-msgid "Will not delete the archive after unpacking it, because there was no cloud storage for this backup"
-msgstr "解压后将不会删除归档，因为此次备份没有云存储"
+#: methods/googledrive.php:440
+msgid "Your web server's PHP installation does not included a required module (%s). Please contact your web hosting provider's support."
+msgstr "您web服务器的PHP没有需要的模块（%s）。请联系您的主机提供商进行处理"
 
-#: restorer.php:336
-msgid "Warning: PHP safe_mode is active on your server. Timeouts are much more likely. If these happen, then you will need to manually restore the file via phpMyAdmin or another method."
-msgstr "警告：开启了PHP安全模式，很可能出现超时；如果出现超时，你需要使用其他方式手动恢复数据库，比如phpMyAdmin等"
+#: admin.php:2255
+msgid "Your web server's PHP/Curl installation does not support https access. Communications with %s will be unencrypted. ask your web host to install Curl/SSL in order to gain the ability for encryption (via an add-on)."
+msgstr "您web服务器的 PHP/Curl 不支持https，使用%s的通信将不会加密。请您的主机提供商安装 Curl/SSL ，用来支持加密的能力（通过插件）。"
 
-#: restorer.php:341
-msgid "Failed to find database file"
-msgstr "无法找到数据库备份文件"
+#: admin.php:2257
+msgid "Your web server's PHP/Curl installation does not support https access. We cannot access %s without this support. Please contact your web hosting provider's support. %s <strong>requires</strong> Curl+https. Please do not file any support requests; there is no alternative."
+msgstr "您web服务器的 PHP/Curl 不支持https。没有此支持，我们无法使用 %s，请联系您的主机提供商提供支持，%s <strong>需要</strong> Curl+https。请不要向我们发送任何支持请求，没有其他的方式越过此需求"
 
-#: restorer.php:347
-msgid "Failed to open database file"
-msgstr "无法打开数据库文件"
+#: admin.php:2260
+msgid "Good news: Your site's communications with %s can be encrypted. If you see any errors to do with encryption, then look in the 'Expert Settings' for more help."
+msgstr "好消息：您站点与 %s 的通信可以加密。如果在加密的过程中出现任何错误，请察看”高级设置“部分获取帮助"
 
-#: restorer.php:371
-msgid "Database access: Direct MySQL access is not available, so we are falling back to wpdb (this will be considerably slower)"
-msgstr "数据库获取：不允许直接的MySQL连接，我们将会尝试wpdb（这种方式可能会比较慢）"
+#: admin.php:2332
+msgid "Delete this backup set"
+msgstr "删除此备份集"
 
-#: restorer.php:415
-#: restorer.php:430
-#: admin.php:1318
-msgid "Warning:"
-msgstr "警告:"
+#: admin.php:2364
+msgid "Press here to download"
+msgstr "点击这里下载"
 
-#: restorer.php:415
-msgid "Your database user does not have permission to create tables. We will attempt to restore by simply emptying the tables; this should work as long as a) you are restoring from a WordPress version with the same database structure, and b) Your imported database does not contain any tables which are not already present on the importing site."
-msgstr "您的数据库用户没有建表的权限，我们将要尝试清空表的方式。这种方式只兼容以下两个条件 a)您正尝试还原相同表结构的WordPress版本；b)您将要导入的数据库不包括其他不是您现在站点的数据"
+#: admin.php:2354 admin.php:2376
+msgid "(No %s)"
+msgstr "(No %s)"
 
-#: restorer.php:430
-msgid "Your database user does not have permission to drop tables. We will attempt to restore by simply emptying the tables; this should work as long as you are restoring from a WordPress version with the same database structure"
-msgstr "您的数据库用户没有删表的权限，我们将要尝试清空表的方式。这种方式只在您正尝试还原相同表结构的WordPress版本时可用"
+#: admin.php:2383
+msgid "Backup Log"
+msgstr "备份日志"
 
-#: restorer.php:443
-#: admin.php:701
-msgid "Backup of:"
-msgstr "备份："
+#: admin.php:2403
+msgid "After pressing this button, you will be given the option to choose which components you wish to restore"
+msgstr "点击这个按钮后，您将会获得恢复哪些部分的选项"
 
-#: restorer.php:447
-#: restorer.php:497
-msgid "Old table prefix:"
-msgstr "旧的表前缀："
+#: admin.php:2518
+msgid "This backup does not exist in the backup history - restoration aborted. Timestamp:"
+msgstr "备份历史中不存在此备份 - 退出恢复。时间点："
 
-#: restorer.php:459
-#: admin.php:721
-msgid "To import an ordinary WordPress site into a multisite installation requires both the multisite and migrator add-ons."
-msgstr "想要将一个普通的WordPress站点导入多站点的版本，您需要多站点和迁移插件"
+#: admin.php:2547
+msgid "UpdraftPlus Restoration: Progress"
+msgstr "UpdraftPlus 恢复：处理"
 
-#: restorer.php:465
-#: admin.php:729
-msgid "Site information:"
-msgstr "站点信息："
+#: admin.php:2569
+msgid "ABORT: Could not find the information on which entities to restore."
+msgstr "ABORT：无法找到恢复条目的信息"
 
-#: restorer.php:546
-#, php-format
-msgid "Requested table engine (%s) is not present - changing to MyISAM."
-msgstr "需要的存储引擎（%s）不存在 - 使用MyISAM。"
+#: admin.php:2570
+msgid "If making a request for support, please include this information:"
+msgstr "如果需要支持，请包含这些信息："
 
-#: restorer.php:557
-#, php-format
-msgid "Restoring table (%s)"
-msgstr "还原表（%s）"
+#: admin.php:2197
+msgid "Do not verify SSL certificates"
+msgstr "不要检测SSL证书"
 
-#: restorer.php:560
-msgid "will restore as:"
-msgstr "将要还原为："
+#: admin.php:2198
+msgid "Choosing this option lowers your security by stopping UpdraftPlus from verifying the identity of encrypted sites that it connects to (e.g. Dropbox, Google Drive). It means that UpdraftPlus will be using SSL only for encryption of traffic, and not for authentication."
+msgstr "使用此选项降低您的安全策略，UpdraftPlus不会验证将要链接的远程存储（Dropbox, Google Drive等）。意味着UpdraftPlus只使用SSL来加密通信，而不进行验证。"
 
-#: restorer.php:575
-#, php-format
-msgid "Cannot create new tables, so skipping this command (%s)"
-msgstr "无法创建新表。所以跳过改命令（%s）"
+#: admin.php:2198
+msgid "Note that not all cloud backup methods are necessarily using SSL authentication."
+msgstr "注意，不是所有的云存储都需要SSL验证"
 
-#: restorer.php:580
-#, php-format
-msgid "Cannot drop tables, so deleting instead (%s)"
-msgstr "无法删除表，所以删除已经插入的内容（%s）"
+#: admin.php:2202
+msgid "Disable SSL entirely where possible"
+msgstr "如果可能，彻底禁用SSL"
 
-#: restorer.php:594
-#, php-format
-msgid "An error (%s) occured:"
-msgstr "出现错误（%s）："
+#: admin.php:2156
+msgid "Expert settings"
+msgstr "高级设置"
 
-#: restorer.php:594
-msgid "the database query being run was:"
-msgstr "执行的数据库查询是："
+#: admin.php:2157
+msgid "Show expert settings"
+msgstr "察看高级设置"
 
-#: restorer.php:597
-msgid "An error occured on the first CREATE TABLE command - aborting run"
-msgstr "第一个 CREATE TABLE 时出现错误 - 退出执行"
+#: admin.php:2157
+msgid "click this to show some further options; don't bother with this unless you have a problem or are curious."
+msgstr "点击这里察看一些更牛逼的设置；您还是不要使用这些为好，除非好奇或者发生当错误时。"
 
-#: restorer.php:600
-msgid "Too many database errors have occurred - aborting restoration (you will need to restore manually)"
-msgstr "数据库错误出现的太多啦 - 退出还原（您需要手动还原）"
+#: admin.php:2164
+msgid "Delete local backup"
+msgstr "删除本地备份"
 
-#: restorer.php:608
-#, php-format
-msgid "Database lines processed: %d in %.2f seconds"
-msgstr "数据库已处理的行：%d行 / %.2f 秒"
+#: admin.php:2170
+msgid "Backup directory"
+msgstr "备份目录"
 
-#: restorer.php:621
-#, php-format
-msgid "Finished: lines processed: %d in %.2f seconds"
-msgstr "完成：处理的行数：%d 行 / %.2f 秒"
+#: admin.php:2177
+msgid "Backup directory specified is writable, which is good."
+msgstr "指定的备份目录可以写入，非常好。"
 
-#: restorer.php:656
-#, php-format
-msgid "Using directory from backup: %s"
-msgstr "使用备份的目录：%s"
+#: admin.php:2185
+msgid "Click here to attempt to create the directory and set the permissions"
+msgstr "点击这里尝试创建目录并且设置权限"
 
-#: restorer.php:674
-#: admin.php:655
-#: admin.php:668
-#: admin.php:673
-#: admin.php:680
-#: admin.php:704
-#: admin.php:716
-#: admin.php:721
-#, php-format
-msgid "Error: %s"
-msgstr "错误：%s"
+#: admin.php:2185
+msgid "or, to reset this option"
+msgstr "或者，将选项复位"
 
-#: restorer.php:680
-msgid "Files found:"
-msgstr "找到文件："
+#: admin.php:2185
+msgid "click here"
+msgstr "点击这里"
 
-#: restorer.php:686
-msgid "Unable to enumerate files in that directory."
-msgstr "无法列举目录中的文件"
+#: admin.php:2185
+msgid "If that is unsuccessful check the permissions on your server or change it to another directory that is writable by your web server process."
+msgstr "如果失败，请检查您服务器的权限或者使用其他您web服务器可以写入的目录"
 
-#: restorer.php:717
-msgid "Please supply the requested information, and then continue."
-msgstr "请提供需要的信息后再继续"
+#: admin.php:2188
+msgid "This is where UpdraftPlus will write the zip files it creates initially.  This directory must be writable by your web server. Typically you'll want to have it inside your wp-content folder (this is the default).  <b>Do not</b> place it inside your uploads dir, as that will cause recursion issues (backups of backups of backups of...)."
+msgstr "这是UpdraftPlus创建zip文件的地方，此目录必须是您的web服务器可写的。通常，您希望将此目录包含在wp-content中（默认选项）。 <b>不要</b>放在 上传 目录中，这将会引起递归的问题（无限备份。。。）"
 
-#: restorer.php:720
-#: admin.php:1259
-#: admin.php:1284
-#: admin.php:2036
-#: admin.php:2624
+#: admin.php:2192
+msgid "Use the server's SSL certificates"
+msgstr "使用服务器的SSL证书"
+
+#: admin.php:2193
+msgid "By default UpdraftPlus uses its own store of SSL certificates to verify the identity of remote sites (i.e. to make sure it is talking to the real Dropbox, Amazon S3, etc., and not an attacker). We keep these up to date. However, if you get an SSL error, then choosing this option (which causes UpdraftPlus to use your web server's collection instead) may help."
+msgstr "默认情况下，UpdraftPlus使用它自己保存的SSL证书验证远程站点（确认它是否真的和Dropbox, Amazon S3通信）。我们会保持证书更新。然而，如果你遇到了SSL错误，请选择此选项（让UpdraftPlus使用您服务器收集的证书）"
+
+#: admin.php:1869
+msgid "Use WordShell for automatic backup, version control and patching"
+msgstr "使用WordShell进行自动备份，版本控制和补丁"
+
+#: admin.php:1873
+msgid "Email"
+msgstr "邮件"
+
+#: admin.php:1874
+msgid "Enter an address here to have a report sent (and the whole backup, if you choose) to it."
+msgstr "填写邮件地址来发送日志文件（如果您喜欢，可以发送整个备份）"
+
+#: admin.php:1878
+msgid "Database encryption phrase"
+msgstr "数据库加密文本"
+
+#: admin.php:1885
+msgid "If you enter text here, it is used to encrypt backups (Rijndael). <strong>Do make a separate record of it and do not lose it, or all your backups <em>will</em> be useless.</strong> Presently, only the database file is encrypted. This is also the key used to decrypt backups from this admin interface (so if you change it, then automatic decryption will not work until you change it back)."
+msgstr "如果在这里输入文本，它将会用来加密备份(Rijndael)。<strong>请使用独立的记录并且确保不要丢失，不然您的备份<em>将会</em>立刻变成废物。</strong>。只有数据库文件会加密。这里的文本也是将来解密的文本（如果您修改了此文本，自动解密将无法使用，直到您又改回来为止）"
+
+#: admin.php:1885
+msgid "You can also decrypt a database manually here."
+msgstr "您可以在这里手动解密数据库"
+
+#: admin.php:1888
+msgid "Manually decrypt a database backup file"
+msgstr "手动解密数据库备份文件"
+
+#: admin.php:1895
+msgid "Use decryption key"
+msgstr "使用解密密钥"
+
+#: admin.php:1909
+msgid "Copying Your Backup To Remote Storage"
+msgstr "将您的备份发送到远程存储"
+
+#: admin.php:1913
+msgid "Choose your remote storage"
+msgstr "选择您的远程存储"
+
+#: admin.php:1925
+msgid "None"
+msgstr "None"
+
+#: admin.php:2046 admin.php:2082 admin.php:2112
+msgid "Cancel"
+msgstr "退出"
+
+#: admin.php:2095
+msgid "Requesting start of backup..."
+msgstr "请求开始备份："
+
+#: admin.php:2149
+msgid "Advanced / Debugging Settings"
+msgstr "高级/调试设置"
+
+#: admin.php:2152
+msgid "Debug mode"
+msgstr "调试模式"
+
+#: admin.php:2153
+msgid "Check this to receive more information and emails on the backup process - useful if something is going wrong. You <strong>must</strong> send us this log if you are filing a bug report."
+msgstr "从这里获取更多信息 - 当发生错误时将会非常有用。在报告bug时，您<strong>必须</strong>向我们提供此信息。"
+
+#: admin.php:1869
+msgid "The above directories are everything, except for WordPress core itself which you can download afresh from WordPress.org."
+msgstr "上面的目录是所有的东西，除了WordPress的核心文件（可以从 WordPress.org 上下载）"
+
+#: admin.php:1869
+msgid "Or, get the \"More Files\" add-on from our shop."
+msgstr "或者，从我们的商店中获取 \"更多文件\" 插件"
+
+#: admin.php:1786
+msgid "Daily"
+msgstr "每天一次"
+
+#: admin.php:1786
+msgid "Weekly"
+msgstr "每周一次"
+
+#: admin.php:1786
+msgid "Fortnightly"
+msgstr "两周一次"
+
+#: admin.php:1786
+msgid "Monthly"
+msgstr "每月一次"
+
+#: admin.php:1795 admin.php:1813
+msgid "and retain this many backups"
+msgstr "保留这么多的备份"
+
+#: admin.php:1802
+msgid "Database backup intervals"
+msgstr "数据库备份间隔"
+
+#: admin.php:1820
+msgid "If you would like to automatically schedule backups, choose schedules from the dropdowns above. Backups will occur at the intervals specified. If the two schedules are the same, then the two backups will take place together. If you choose \"manual\" then you must click the \"Backup Now\" button whenever you wish a backup to occur."
+msgstr "如果您希望自动备份，请在上面选择。备份将会按照间隔进行。如果存在两个相同的备份，两次备份将会同时发生。如果您选择\"手动\"，当您要备份的时候，您必须点击\"现在备份\"按钮"
+
+#: admin.php:1821
+msgid "To fix the time at which a backup should take place,"
+msgstr "调整备份开始时间"
+
+#: admin.php:1821
+msgid "e.g. if your server is busy at day and you want to run overnight"
+msgstr "如：您的服务器白天负载很重，您需要在夜晚进行"
+
+#: admin.php:1821
+msgid "use the \"Fix Time\" add-on"
+msgstr "使用  \"调整时间\" 插件"
+
+#: admin.php:1825
+msgid "Include in files backup"
+msgstr "在文件备份中包含"
+
+#: admin.php:1835
+msgid "Any other directories found inside wp-content"
+msgstr "wp-content目录中找到的其他子目录"
+
+#: admin.php:1841
+msgid "Exclude these:"
+msgstr "排除这些："
+
+#: admin.php:1843
+msgid "If entering multiple files/directories, then separate them with commas"
+msgstr "如果输入多个 文件/目录，请使用逗号分割"
+
+#: admin.php:1504
+msgid "Debug Database Backup"
+msgstr "数据库备份Debug"
+
+#: admin.php:1504
+msgid "This will cause an immediate DB backup. The page will stall loading until it finishes (ie, unscheduled). The backup may well run out of time; really this button is only helpful for checking that the backup is able to get through the initial stages, or for small WordPress sites.."
+msgstr "这将会引起立即的数据库备份，本页面一直尝试加载直到完成（如，非调度的）。此备份可能运行到超时；这个按钮对检查备份可以通过初始阶段很有帮助，或者其他小的站点"
+
+#: admin.php:1510
+msgid "Wipe Settings"
+msgstr "清除设置"
+
+#: admin.php:1511
+msgid "This button will delete all UpdraftPlus settings (but not any of your existing backups from your cloud storage). You will then need to enter all your settings again. You can also do this before deactivating/deinstalling UpdraftPlus if you wish."
+msgstr "此按钮将会删除所有的UpdraftPlus设置（除过您在远程存储中已经保存的备份文件）。您需要再次输入您的设置。您可以在取消激活/卸载UpdraftPlus前进行此操作"
+
+#: admin.php:1514
+msgid "Wipe All Settings"
+msgstr "擦除所有设置"
+
+#: admin.php:1514
+msgid "This will delete all your UpdraftPlus settings - are you sure you want to do this?"
+msgstr "将会擦除您UpdraftPlus所有的设置 - 确认？"
+
+#: admin.php:1516
+msgid "Active jobs"
+msgstr "活动的任务"
+
+#: admin.php:1598
+msgid "%s: began at: %s; next resumption: %d (after %ss)"
+msgstr "%s：开始：%s；下次开始：%d（%s 秒后）"
+
+#: admin.php:1598
+msgid "show log"
+msgstr "察看日志"
+
+#: admin.php:1598
+msgid "delete schedule"
+msgstr "删除任务"
+
+#: admin.php:1605
+msgid "(None)"
+msgstr "(None)"
+
+#: admin.php:1532
+msgid "Unknown response:"
+msgstr "未知响应："
+
+#: admin.php:1624 admin.php:1649 admin.php:2023
+msgid "Delete"
+msgstr "删除"
+
+#: admin.php:1690
+msgid "The request to the filesystem to create the directory failed."
+msgstr "向文件系统发送创建目录的请求失败"
+
+#: admin.php:1704
+msgid "The folder was created, but we had to change its file permissions to 777 (world-writable) to be able to write to it. You should check with your hosting provider that this will not cause any problems"
+msgstr "目录已经创建，但是我们需要将它的权限改为777（谁都可以访问）。您需要和您的主机提供商一起检查，确保此操作不会引起其他问题"
+
+#: admin.php:1708
+msgid "The folder exists, but your webserver does not have permission to write to it."
+msgstr "目录已经存在，但是您的web服务器没有写如权限"
+
+#: admin.php:1708
+msgid "You will need to consult with your web hosting provider to find out to set permissions for a WordPress plugin to write to the directory."
+msgstr "您需要联系您的主机提供商来获取WordPress插件向该目录写入的权限"
+
+#: admin.php:1763
+msgid "Download log file"
+msgstr "下载日志文件"
+
+#: admin.php:1767
+msgid "No backup has been completed."
+msgstr "没有完成的备份"
+
+#: admin.php:1783
+msgid "File backup intervals"
+msgstr "文件备份间隔"
+
+#: admin.php:1786
+msgid "Manual"
+msgstr "手动"
+
+#: admin.php:1786
+msgid "Every 4 hours"
+msgstr "每4小时"
+
+#: admin.php:1786
+msgid "Every 8 hours"
+msgstr "每8小时"
+
+#: admin.php:1786
+msgid "Every 12 hours"
+msgstr "每12小时"
+
+#: admin.php:1426
+msgid "To proceed, press 'Backup Now'. Then, watch the 'Last Log Message' field for activity after about 10 seconds. WordPress should start the backup running in the background."
+msgstr "点击”现在备份“开始处理。然后，10秒后察看”Last Log Message“区域获知正在进行的动作，WordPress应该在后台运行备份"
+
+#: admin.php:1428
+msgid "Does nothing happen when you schedule backups?"
+msgstr "当您开始备份是是不是没有反应？"
+
+#: admin.php:1428
+msgid "Go here for help."
+msgstr "获取帮助。"
+
+#: admin.php:1434
+msgid "Multisite"
+msgstr "多站点"
+
+#: admin.php:1438
+msgid "Do you need WordPress Multisite support?"
+msgstr "您时候需要WordPress的多站点支持？"
+
+#: admin.php:1438
+msgid "Please check out UpdraftPlus Premium, or the stand-alone Multisite add-on."
+msgstr "请获取UpdraftPlus的付费版本，或者单机版的多站点插件"
+
+#: admin.php:1443
+msgid "Configure Backup Contents And Schedule"
+msgstr "配置备份内容和任务"
+
+#: admin.php:1449
+msgid "Debug Information And Expert Options"
+msgstr "Debug信息和高级选项"
+
+#: admin.php:1452
+msgid "Web server:"
+msgstr "Web服务器："
+
+#: admin.php:1455
+msgid "Peak memory usage"
+msgstr "内存峰值"
+
+#: admin.php:1456
+msgid "Current memory usage"
+msgstr "目前的内存使用量"
+
+#: admin.php:1457
+msgid "PHP memory limit"
+msgstr "PHP的内存限制"
+
+#: admin.php:1458 admin.php:1460
+msgid "%s version:"
+msgstr "%s 版本："
+
+#: admin.php:1463 admin.php:1465 admin.php:1472
+msgid "Yes"
+msgstr "Yes"
+
+#: admin.php:1465 admin.php:1472
+msgid "No"
+msgstr "No"
+
+#: admin.php:1468
+msgid "PHP has support for ZipArchive::addFile:"
+msgstr "PHP有ZipArchive::addFile支持："
+
+#: admin.php:1477
+msgid "Total (uncompressed) on-disk data:"
+msgstr "磁盘数据总量（未压缩的）"
+
+#: admin.php:1478
+msgid "N.B. This count is based upon what was, or was not, excluded the last time you saved the options."
+msgstr "N.B. 基于是或者不是，排除上次您保存的选项"
+
+#: admin.php:1485
+msgid "count"
+msgstr "数量"
+
+#: admin.php:1491
+msgid "The buttons below will immediately execute a backup run, independently of WordPress's scheduler. If these work whilst your scheduled backups and the \"Backup Now\" button do absolutely nothing (i.e. not even produce a log file), then it means that your scheduler is broken. You should then disable all your other plugins, and try the \"Backup Now\" button. If that fails, then contact your web hosting company and ask them if they have disabled wp-cron. If it succeeds, then re-activate your other plugins one-by-one, and find the one that is the problem and report a bug to them."
+msgstr "下面的按钮会立刻开始一次备份，具体和WordPress任务有关。如果这个按钮可以工作并且\"现在备份\" 按钮没有反应（比如，连日志都没有），意味着您的任务系统出错了，您需要禁用所有的插件，然后尝试\"现在备份\"按钮。如果还是失败，请联系您的主机供应商，询问他们是否关闭了 wp-cron； 如果成功了，您可以逐个开启您的插件，查找出是具体哪个插件导致的出错，然后向他们报告一个bug"
+
+#: admin.php:1499
+msgid "Debug Full Backup"
+msgstr "全备份Debug"
+
+#: admin.php:1499
+msgid "This will cause an immediate backup. The page will stall loading until it finishes (ie, unscheduled)."
+msgstr "这将会引起立即备份，本页面一直尝试加载直到完成（如，非调度的）"
+
+#: admin.php:1162
+msgid "UpdraftPlus - Upload backup files"
+msgstr "UpdraftPlus - 上传备份文件"
+
+#: admin.php:1163
+msgid "Upload files into UpdraftPlus. Use this to import backups made on a different WordPress installation."
+msgstr "将文件上传入UpdraftPlus。使用本插件导入不同版本的WordPress备份"
+
+#: admin.php:1167
+msgid "Drop backup zips here"
+msgstr "删除这里的zip备份"
+
+#: admin.php:1168 admin.php:1893
+msgid "or"
+msgstr "或者"
+
+#: admin.php:1181 admin.php:1544
+msgid "calculating..."
+msgstr "计算"
+
+#: restorer.php:720 admin.php:1259 admin.php:1284 admin.php:2036 admin.php:2624
 msgid "Error:"
 msgstr "错误："
 
-#: restorer.php:724
-msgid "New table prefix:"
-msgstr "新表前缀："
-
-#: restorer.php:790
-#: restorer.php:799
-#, php-format
-msgid "Table prefix has changed: changing %s table field(s) accordingly:"
-msgstr "表前缀已经改变：关联修改%s表字段"
-
-#: restorer.php:792
-#: restorer.php:827
-#: admin.php:573
-msgid "Error"
-msgstr "错误"
-
-#: restorer.php:794
-#: restorer.php:829
-#: admin.php:1630
-#: admin.php:1654
-#: admin.php:2622
-msgid "OK"
-msgstr "OK"
-
-#: admin.php:103
-#: admin.php:120
-msgid "Allowed Files"
-msgstr "允许文件"
-
-#: admin.php:183
-msgid "Settings"
-msgstr "设置"
-
-#: admin.php:187
-msgid "Add-Ons / Pro Support"
-msgstr "插件/Pro 支持"
-
-#: admin.php:199
-#: admin.php:203
-#: admin.php:207
-#: admin.php:216
-#: admin.php:1151
-#: admin.php:2248
-#: admin.php:2255
-#: admin.php:2257
-msgid "Warning"
-msgstr "警告"
-
-#: admin.php:199
-#, php-format
-msgid "You have less than %s of free disk space on the disk which UpdraftPlus is configured to use to create backups. UpdraftPlus could well run out of space. Contact your the operator of your server (e.g. your web hosting company) to resolve this issue."
-msgstr "您分配给UpdraftPlus使用的备份磁盘剩余空间少于%s，UpdraftPlus无法正常运行。请联系您的主机管理员来解决这个问题"
-
-#: admin.php:203
-#, php-format
-msgid "UpdraftPlus does not officially support versions of WordPress before %s. It may work for you, but if it does not, then please be aware that no support is available until you upgrade WordPress."
-msgstr "UpdraftPlus目前不支持%s之前的WordPress，可能会工作；但是如果无法工作，请您只好升级WordPress了"
-
-#: admin.php:207
-#, php-format
-msgid "Your website is hosted using the %s web server."
-msgstr "您的网站放在%s站点服务器上"
-
-#: admin.php:207
-msgid "Please consult this FAQ if you have problems backing up."
-msgstr "如果您有备份方面的问题，请察看此FAQ"
-
-#: admin.php:211
-msgid "Notice"
-msgstr "注意："
-
-#: admin.php:211
-msgid "UpdraftPlus's debug mode is on. You may see debugging notices on this page not just from UpdraftPlus, but from any other plugin installed. Please try to make sure that the notice you are seeing is from UpdraftPlus before you raise a support request."
-msgstr "已经开启了UpdraftPlus的debug模式，您将同时看到UpdraftPlus和其他插件的debug信息。请确保在提交支持请求之前获得了UpdraftPlus的debug信息"
-
-#: admin.php:216
-msgid "W3 Total Cache's object cache is active. This is known to have a bug that messes with all scheduled tasks (including backup jobs)."
-msgstr "W3 总缓存的对象缓存开启，这是一个众所周知的能导致计划任务混乱的bug（包括备份任务）。"
-
-#: admin.php:216
-msgid "Go here to turn it off."
-msgstr "在这里关闭它。"
-
-#: admin.php:216
-#, php-format
-msgid "<a href=\"%s\">Go here</a> for more information."
-msgstr "<a href=\"%s\">这里</a> 获得详细信息"
-
-#: admin.php:220
-#: admin.php:224
-#, php-format
-msgid "Click here to authenticate your %s account (you will not be able to back up to %s without it)."
-msgstr "点击这里验证您的%s帐号（如果不验证将无法使用%s备份）"
-
-#: admin.php:375
-#, php-format
-msgid "The backup archive for restoring this file could not be found. The remote storage method in use (%s) does not allow us to retrieve files. To proceed with this restoration, you need to obtain a copy of this file and place it inside UpdraftPlus's working folder"
-msgstr "无法找到还原此文件的备份归档。正在使用的远程存储方式(%s)不允许我们获取文件。您需要手动获取一个备份文件放在UpdraftPlus的工作目录来继续本次还原"
-
-#: admin.php:390
-msgid "Nothing yet logged"
-msgstr "还有日志被记录"
-
-#: admin.php:392
-msgid "The backup archive files have been processed - if all is well, then now press Restore again to proceed. Otherwise, cancel and correct any problems first."
-msgstr "备份的归档文件都已经被处理 - 如果一切正常，再次点击 Restore 来开始新的备份；或者，点击cancel并且修正存在的错误"
-
-#: admin.php:410
-msgid "Backup set not found"
-msgstr "没有找到备份集"
-
-#: admin.php:492
-msgid "The backup set has been removed."
-msgstr "备份已经被移除了"
-
-#: admin.php:493
-#, php-format
-msgid "Local archives deleted: %d"
-msgstr "删除本地归档：%d"
-
-#: admin.php:494
-#, php-format
-msgid "Remote archives deleted: %d"
-msgstr "删除远程归档：%d"
-
-#: admin.php:499
-msgid "Known backups (raw)"
-msgstr "已知备份（原始文件）"
-
-#: admin.php:523
-#: admin.php:581
-#: admin.php:1135
-#, php-format
-msgid "%d set(s) available"
-msgstr "%d 可用"
-
-#: admin.php:530
-msgid "Schedule backup"
-msgstr "计划备份"
-
-#: admin.php:533
-msgid "Failed."
-msgstr "失败"
-
-#: admin.php:536
-msgid "OK. You should soon see activity in the \"Last log message\" field below."
-msgstr "OK，你应该赶快察看下面的 \"Last log message\""
-
-#: admin.php:536
-msgid "Nothing happening? Follow this link for help."
-msgstr "没有反应？点击这个链接获得帮助"
-
-#: admin.php:555
-msgid "Job deleted"
-msgstr "删除任务"
-
-#: admin.php:561
-msgid "Could not find that job - perhaps it has already finished?"
-msgstr "无法找到任务 - 或许已经完成了？"
-
-#: admin.php:590
-msgid "Download failed"
-msgstr "下载失败"
-
-#: admin.php:604
 #: admin.php:1272
-msgid "File ready."
-msgstr "文件准备好了。"
+msgid "You should:"
+msgstr "您应该："
 
-#: admin.php:612
-msgid "Download in progress"
-msgstr "正在下载"
+#: admin.php:1279
+msgid "Download error: the server sent us a response (JSON) which we did not understand"
+msgstr "下载失败：服务器向我们发送了我们不能识别的反馈（JSON）"
 
-#: admin.php:615
-msgid "No local copy present."
-msgstr "没有本地备份"
+#: admin.php:1284
+msgid "Download error: the server sent us a response which we did not understand."
+msgstr "下载失败：服务器向我们发送了我们不能识别的反馈"
 
-#: admin.php:668
-msgid "Failed to write out the decrypted database to the filesystem."
-msgstr "无法将加密后的数据库保存到文件系统"
+#: admin.php:1299
+msgid "Delete backup set"
+msgstr "删除备份集"
 
-#: admin.php:680
-msgid "Failed to open database file."
-msgstr "无法打开数据库文件"
+#: admin.php:1302
+msgid "Are you sure that you wish to delete this backup set?"
+msgstr "确认您要删除此备份集"
 
-#: admin.php:704
-msgid "This backup set is from a different site - this is not a restoration, but a migration. You need the Migrator add-on in order to make this work."
-msgstr "备份来自其他站点 - 这不是还原，而是一此迁移。您需要迁移插件来完成此次任务"
+#: admin.php:1332
+msgid "Restore backup"
+msgstr "恢复备份"
 
-#: admin.php:827
-msgid "Bad filename format - this does not look like a file created by UpdraftPlus"
-msgstr "文件名格式错误 - 貌似不是UpdraftPlus创建的文件"
+#: admin.php:1333
+msgid "Restore backup from"
+msgstr "备份恢复，来自"
 
-#: admin.php:906
-msgid "Bad filename format - this does not look like an encrypted database file created by UpdraftPlus"
-msgstr "文件名格式错误 -貌似不是UpdraftPlus创建的加密数据库文件"
+#: admin.php:1345
+msgid "Restoring will replace this site's themes, plugins, uploads, database and/or other content directories (according to what is contained in the backup set, and your selection)."
+msgstr "恢复将会覆盖本站点的主题，插件，上传，数据库，和/或者其他内容（根据您在备份集中的选择）"
 
-#: admin.php:935
-msgid "Restore successful!"
-msgstr "还原成功！"
+#: admin.php:1345
+msgid "Choose the components to restore"
+msgstr "选择将要还原的模块"
 
-#: admin.php:936
-#: admin.php:974
-#: admin.php:993
-msgid "Actions"
-msgstr "动作"
+#: admin.php:1354
+msgid "Your web server has PHP's so-called safe_mode active."
+msgstr "您的web服务器开启了PHP的safe_mode"
 
-#: admin.php:936
-#: admin.php:951
-#: admin.php:974
-#: admin.php:993
-msgid "Return to UpdraftPlus Configuration"
-msgstr "退出到UpdraftPlus设置"
+#: admin.php:1354
+msgid "This makes time-outs much more likely. You are recommended to turn safe_mode off, or to restore only one entity at a time, <a href=\"http://updraftplus.com/faqs/i-want-to-restore-but-have-either-cannot-or-have-failed-to-do-so-from-the-wp-admin-console/\">or to restore manually</a>."
+msgstr "这个动作很可能造成超时，强烈建议您关闭 safe_mode ，或者每次恢复一个条目，<a href=\"http://updraftplus.com/faqs/i-want-to-restore-but-have-either-cannot-or-have-failed-to-do-so-from-the-wp-admin-console/\">或者手动恢复</a>。"
 
-#: admin.php:963
-msgid "Remove old directories"
-msgstr "移除旧的目录"
+#: admin.php:1367
+msgid "The following entity cannot be restored automatically: \"%s\"."
+msgstr "以下的条目不能自动恢复：\"%s\"。"
 
-#: admin.php:969
-msgid "Old directories successfully removed."
-msgstr "旧目录移除成功"
+#: admin.php:1367
+msgid "You will need to restore it manually."
+msgstr "您需要手动恢复"
 
-#: admin.php:972
-msgid "Old directory removal failed for some reason. You may want to do this manually."
-msgstr "移除旧目录失败，您可能需要手动进行操作"
-
-#: admin.php:984
-msgid "Backup directory could not be created"
-msgstr "无法创建备份目录"
-
-#: admin.php:991
-msgid "Backup directory successfully created."
-msgstr "备份目录创建成功"
-
-#: admin.php:1008
-msgid "Your settings have been wiped."
-msgstr "您的设置已经被擦除了"
-
-#: admin.php:1015
-msgid "By UpdraftPlus.Com"
-msgstr "来自UpdraftPlus.Com"
-
-#: admin.php:1015
-msgid "News"
-msgstr "新闻"
-
-#: admin.php:1015
-msgid "Premium"
-msgstr "价格"
-
-#: admin.php:1015
-msgid "Lead developer's homepage"
-msgstr "主要开发者的个人主页"
-
-#: admin.php:1015
-msgid "Donate"
-msgstr "捐助"
-
-#: admin.php:1015
-msgid "Other WordPress plugins"
-msgstr "其他的WordPress插件"
-
-#: admin.php:1015
-msgid "Version"
-msgstr "版本"
-
-#: admin.php:1019
-msgid "Your backup has been restored."
-msgstr "您的备份已经被存储"
-
-#: admin.php:1019
-msgid "Your old (themes, uploads, plugins, whatever) directories have been retained with \"-old\" appended to their name. Remove them when you are satisfied that the backup worked properly."
-msgstr "您的旧目录名被加上 -old 后缀（主题，上传，插件，其他），如果对此次备份满意，可以安全的移除它们"
-
-#: admin.php:1025
-msgid "Old directories successfully deleted."
-msgstr "旧目录删除成功"
-
-#: admin.php:1028
-msgid "Your PHP memory limit (set by your web hosting company) is quite low. UpdraftPlus attempted to raise it but was unsuccessful. This plugin may struggle with a memory limit of less than 64 Mb  - especially if you have very large files uploaded (though on the other hand, many sites will bhe  successful with a 32Mb limit - your experience may vary)."
-msgstr "您的PHP内存限制（因为您的主机提供商）很低，UpdraftPlus尝试去提高但是失败了。如过限制小于64Mb，UpdraftPlus的工作将会很艰难，特别是当您存在大的上传文件时（尽管其他的站点在32Mb的限制下工作良好 - 您的环境可能不一样）"
-
-#: admin.php:1028
-msgid "Current limit is:"
-msgstr "目前的限制为："
-
-#: admin.php:1032
-msgid "Your PHP max_execution_time is less than 60 seconds. This possibly means you're running in safe_mode. Either disable safe_mode or modify your php.ini to set max_execution_time to a higher number. If you do not, then longer will be needed to complete a backup (but that is all). Present limit is:"
-msgstr "您PHP的max_execution_time设置小于60秒，很可能您正运行在safe_mode。或者关闭safe_mode，或者修改您的php.ini文件，将max_execution_time改的大一些。如果不这么做，备份将会花费很长时间，目前的设置为："
-
-#: admin.php:1032
-msgid "seconds"
-msgstr "秒"
-
-#: admin.php:1036
-msgid "You have old directories from a previous backup (technical information: these are suffixed with -old). Use this button to delete them (if you have verified that the restoration worked)."
-msgstr "存在之前的备份文件目录（技术信息：后缀为 - old）。使用此按钮来删除他们（请首先验证还原工作良好）"
-
-#: admin.php:1040
-msgid "Delete Old Directories"
-msgstr "删除旧目录"
-
-#: admin.php:1040
-msgid "Are you sure you want to delete the old directories? This cannot be undone."
-msgstr "确认删除旧目录？此步骤无法回退"
-
-#: admin.php:1054
-msgid "Existing Schedule And Backups"
-msgstr "存在的任务和备份"
-
-#: admin.php:1058
-msgid "JavaScript warning"
-msgstr "JavaScript 警告"
-
-#: admin.php:1059
-msgid "This admin interface uses JavaScript heavily. You either need to activate it within your browser, or to use a JavaScript-capable browser."
-msgstr "此管理界面严重依赖JavaScript。或者激活您的浏览器JavaScript功能，或者还一个支持JavaScript的浏览器"
-
-#: admin.php:1072
-#: admin.php:1085
-msgid "Nothing currently scheduled"
-msgstr "目前木有任何任务"
-
-#: admin.php:1077
-msgid "At the same time as the files backup"
-msgstr "和文件一起备份"
-
-#: admin.php:1097
-msgid "All the times shown in this section are using WordPress's configured time zone, which you can set in Settings -> General"
-msgstr "此区域中的时间使用 WordPress 的时区，您可以在 Settings -> General 中修改"
-
-#: admin.php:1097
-msgid "Next scheduled backups"
-msgstr "下一个备份任务"
-
-#: admin.php:1099
-msgid "Files"
-msgstr "文件"
-
-#: admin.php:1100
-#: admin.php:1371
 #: admin.php:1374
-#: admin.php:2341
-#: admin.php:2343
-#: admin.php:2659
-msgid "Database"
-msgstr "数据库"
+msgid "%s restoration options:"
+msgstr "%s 恢复选项："
+
+#: admin.php:1382
+msgid "You can search and replace your database (for migrating a website to a new location/URL) with the Migrator add-on - follow this link for more information"
+msgstr "您可以使用迁移插件查找/替换您的数据库（当迁移站点到新的目的地/URL时），使用此链接获取详细信息"
+
+#: admin.php:1403
+msgid "Do read this helpful article of useful things to know before restoring."
+msgstr "还原前，请先阅读该文档获取相关信息"
+
+#: admin.php:1425
+msgid "Perform a one-time backup"
+msgstr "开始一次性的备份"
 
 #: admin.php:1101
 msgid "Time now"
 msgstr "现在时间"
 
-#: admin.php:1105
-msgid "Last backup job run:"
-msgstr "上次备份任务运行："
-
-#: admin.php:1111
-#: admin.php:2093
+#: admin.php:1111 admin.php:2093
 msgid "Backup Now"
 msgstr "现在备份"
 
-#: admin.php:1118
-#: admin.php:2053
-#: admin.php:2403
+#: admin.php:1118 admin.php:2053 admin.php:2403
 msgid "Restore"
 msgstr "还原"
-
-#: admin.php:1121
-msgid "Clone/Migrate"
-msgstr "克隆/迁移"
 
 #: admin.php:1127
 msgid "Last log message"
@@ -898,21 +1972,13 @@ msgstr "备份，日志和还原"
 msgid "Press to see available backups"
 msgstr "点击察看可用的备份"
 
-#: admin.php:1141
-msgid "Latest UpdraftPlus.com news:"
-msgstr "最近的 UpdraftPlus.com 新闻"
+#: admin.php:523 admin.php:581 admin.php:1135
+msgid "%d set(s) available"
+msgstr "%d 可用"
 
 #: admin.php:1149
 msgid "Downloading and restoring"
 msgstr "下载并且还原"
-
-#: admin.php:1151
-msgid "Your WordPress installation has a problem with outputting extra whitespace. This can corrupt backups that you download from here."
-msgstr "您安装的WordPress版本输出额外的空格存在问题。将会导致下载备份错误"
-
-#: admin.php:1151
-msgid "Please consult this FAQ for help on what to do about it."
-msgstr "请察看此FAQ获取帮助"
 
 #: admin.php:1154
 msgid "Downloading"
@@ -974,1731 +2040,409 @@ msgstr "UpdraftPlus使用的Web服务器空间"
 msgid "refresh"
 msgstr "刷新"
 
-#: admin.php:1162
-msgid "UpdraftPlus - Upload backup files"
-msgstr "UpdraftPlus - 上传备份文件"
-
-#: admin.php:1163
-msgid "Upload files into UpdraftPlus. Use this to import backups made on a different WordPress installation."
-msgstr "将文件上传入UpdraftPlus。使用本插件导入不同版本的WordPress备份"
-
-#: admin.php:1163
-msgid "Or, you can place them manually into your UpdraftPlus directory (usually wp-content/updraft), e.g. via FTP, and then use the \"rescan\" link above."
-msgstr "或者，您可以手动将他们放入您的UpdraftPlus目录（通常在wp-content/updraft），如，通过FTP。完成后，使用下面的\"rescan\"链接"
-
-#: admin.php:1167
-msgid "Drop backup zips here"
-msgstr "删除这里的zip备份"
-
-#: admin.php:1168
-#: admin.php:1893
-msgid "or"
-msgstr "或者"
-
-#: admin.php:1181
-#: admin.php:1544
-msgid "calculating..."
-msgstr "计算"
-
-#: admin.php:1210
-msgid "Begun looking for this entity"
-msgstr "开始查找此条目"
-
-#: admin.php:1223
-msgid "Some files are still downloading or being processed - please wait."
-msgstr "还有文件正在下载或者处理 - 稍微再等等。"
-
-#: admin.php:1227
-msgid "Processing files - please wait..."
-msgstr "处理文件中 - 请等等"
-
-#: admin.php:1272
-msgid "You should:"
-msgstr "您应该："
-
-#: admin.php:1279
-msgid "Download error: the server sent us a response (JSON) which we did not understand"
-msgstr "下载失败：服务器向我们发送了我们不能识别的反馈（JSON）"
-
-#: admin.php:1284
-msgid "Download error: the server sent us a response which we did not understand."
-msgstr "下载失败：服务器向我们发送了我们不能识别的反馈"
-
-#: admin.php:1299
-msgid "Delete backup set"
-msgstr "删除备份集"
-
-#: admin.php:1302
-msgid "Are you sure that you wish to delete this backup set?"
-msgstr "确认您要删除此备份集"
-
-#: admin.php:1310
-msgid "Also delete from remote storage"
-msgstr "顺带从远程存储删除"
-
-#: admin.php:1311
-msgid "Deleting... please allow time for the communications with the remote storage to complete."
-msgstr "删除。。。请等待直到和远程存储的通信完成"
-
-#: admin.php:1318
-msgid "If you can still read these words after the page finishes loading, then there is a JavaScript or jQuery problem in your web browser."
-msgstr "如果您在页面导入完成后还可以看到这些文字，说明您的浏览器可能存在JavaScript 或者 jQuery问题"
-
-#: admin.php:1318
-msgid "Go here for more information."
-msgstr "去帮助里获取更多信息"
-
-#: admin.php:1332
-msgid "Restore backup"
-msgstr "恢复备份"
-
-#: admin.php:1333
-msgid "Restore backup from"
-msgstr "备份恢复，来自"
-
-#: admin.php:1337
-msgid "Downloading / preparing backup files..."
-msgstr "下载/准备 备份文件"
-
-#: admin.php:1345
-msgid "Restoring will replace this site's themes, plugins, uploads, database and/or other content directories (according to what is contained in the backup set, and your selection)."
-msgstr "恢复将会覆盖本站点的主题，插件，上传，数据库，和/或者其他内容（根据您在备份集中的选择）"
-
-#: admin.php:1345
-msgid "Choose the components to restore"
-msgstr "选择将要还原的模块"
-
-#: admin.php:1354
-msgid "Your web server has PHP's so-called safe_mode active."
-msgstr "您的web服务器开启了PHP的safe_mode"
-
-#: admin.php:1354
-msgid "This makes time-outs much more likely. You are recommended to turn safe_mode off, or to restore only one entity at a time, <a href=\"http://updraftplus.com/faqs/i-want-to-restore-but-have-either-cannot-or-have-failed-to-do-so-from-the-wp-admin-console/\">or to restore manually</a>."
-msgstr "这个动作很可能造成超时，强烈建议您关闭 safe_mode ，或者每次恢复一个条目，<a href=\"http://updraftplus.com/faqs/i-want-to-restore-but-have-either-cannot-or-have-failed-to-do-so-from-the-wp-admin-console/\">或者手动恢复</a>。"
-
-#: admin.php:1367
-#, php-format
-msgid "The following entity cannot be restored automatically: \"%s\"."
-msgstr "以下的条目不能自动恢复：\"%s\"。"
-
-#: admin.php:1367
-msgid "You will need to restore it manually."
-msgstr "您需要手动恢复"
-
-#: admin.php:1374
-#, php-format
-msgid "%s restoration options:"
-msgstr "%s 恢复选项："
-
-#: admin.php:1382
-msgid "You can search and replace your database (for migrating a website to a new location/URL) with the Migrator add-on - follow this link for more information"
-msgstr "您可以使用迁移插件查找/替换您的数据库（当迁移站点到新的目的地/URL时），使用此链接获取详细信息"
-
-#: admin.php:1403
-msgid "Do read this helpful article of useful things to know before restoring."
-msgstr "还原前，请先阅读该文档获取相关信息"
-
-#: admin.php:1408
-msgid "Migrate Site"
-msgstr "迁移站点"
-
-#: admin.php:1412
-msgid "Migration of data from another site happens through the \"Restore\" button. A \"migration\" is ultimately the same as a restoration - but using backup archives that you import from another site. UpdraftPlus modifies the restoration operation appropriately, to fit the backup data to the new site."
-msgstr "点击 \"恢复\" 按钮开始从其他站点迁移数据，\"迁移\" 和还原基本上差不多 - 只不过使用从其他站点导入的备份文件而已。UpdraftPlus会适当的修改备份文件来适应新的站点"
-
-#: admin.php:1412
-#, php-format
-msgid "<a href=\"%s\">Read this article to see step-by-step how it's done.</a>"
-msgstr "<a href=\"%s\">察看此文档来获知如何进行step-by-step。</a>"
-
-#: admin.php:1414
-msgid "Do you want to migrate or clone/duplicate a site?"
-msgstr "您想迁移或者克隆/复制站点吗？"
-
-#: admin.php:1414
-msgid "Then, try out our \"Migrator\" add-on. After using it once, you'll have saved the purchase price compared to the time needed to copy a site by hand."
-msgstr "然后，尝试我们的 \"迁移\"插件。使用一次后，您可以比较一下花费的价格和手动拷贝花费的时间"
-
-#: admin.php:1414
-msgid "Get it here."
-msgstr "从这里获取。"
-
-#: admin.php:1425
-msgid "Perform a one-time backup"
-msgstr "开始一次性的备份"
-
-#: admin.php:1426
-msgid "To proceed, press 'Backup Now'. Then, watch the 'Last Log Message' field for activity after about 10 seconds. WordPress should start the backup running in the background."
-msgstr "点击”现在备份“开始处理。然后，10秒后察看”Last Log Message“区域获知正在进行的动作，WordPress应该在后台运行备份"
-
-#: admin.php:1428
-msgid "Does nothing happen when you schedule backups?"
-msgstr "当您开始备份是是不是没有反应？"
-
-#: admin.php:1428
-msgid "Go here for help."
-msgstr "获取帮助。"
-
-#: admin.php:1434
-msgid "Multisite"
-msgstr "多站点"
-
-#: admin.php:1438
-msgid "Do you need WordPress Multisite support?"
-msgstr "您时候需要WordPress的多站点支持？"
-
-#: admin.php:1438
-msgid "Please check out UpdraftPlus Premium, or the stand-alone Multisite add-on."
-msgstr "请获取UpdraftPlus的付费版本，或者单机版的多站点插件"
-
-#: admin.php:1443
-msgid "Configure Backup Contents And Schedule"
-msgstr "配置备份内容和任务"
-
-#: admin.php:1449
-msgid "Debug Information And Expert Options"
-msgstr "Debug信息和高级选项"
-
-#: admin.php:1452
-msgid "Web server:"
-msgstr "Web服务器："
-
-#: admin.php:1455
-msgid "Peak memory usage"
-msgstr "内存峰值"
-
-#: admin.php:1456
-msgid "Current memory usage"
-msgstr "目前的内存使用量"
-
-#: admin.php:1457
-msgid "PHP memory limit"
-msgstr "PHP的内存限制"
-
-#: admin.php:1458
-#: admin.php:1460
-#, php-format
-msgid "%s version:"
-msgstr "%s 版本："
-
-#: admin.php:1459
-msgid "show PHP information (phpinfo)"
-msgstr "察看PHP信息（phpinfo）"
-
-#: admin.php:1463
-#: admin.php:1465
-#: admin.php:1472
-msgid "Yes"
-msgstr "Yes"
-
-#: admin.php:1465
-#: admin.php:1472
-msgid "No"
-msgstr "No"
-
-#: admin.php:1468
-msgid "PHP has support for ZipArchive::addFile:"
-msgstr "PHP有ZipArchive::addFile支持："
-
-#: admin.php:1472
-msgid "zip executable found:"
-msgstr "发现了可执行的zip"
-
-#: admin.php:1474
-msgid "Show raw backup and file list"
-msgstr "察看原始备份和文件列表"
-
-#: admin.php:1477
-msgid "Total (uncompressed) on-disk data:"
-msgstr "磁盘数据总量（未压缩的）"
-
-#: admin.php:1478
-msgid "N.B. This count is based upon what was, or was not, excluded the last time you saved the options."
-msgstr "N.B. 基于是或者不是，排除上次您保存的选项"
-
-#: admin.php:1485
-msgid "count"
-msgstr "数量"
-
-#: admin.php:1491
-msgid "The buttons below will immediately execute a backup run, independently of WordPress's scheduler. If these work whilst your scheduled backups and the \"Backup Now\" button do absolutely nothing (i.e. not even produce a log file), then it means that your scheduler is broken. You should then disable all your other plugins, and try the \"Backup Now\" button. If that fails, then contact your web hosting company and ask them if they have disabled wp-cron. If it succeeds, then re-activate your other plugins one-by-one, and find the one that is the problem and report a bug to them."
-msgstr "下面的按钮会立刻开始一次备份，具体和WordPress任务有关。如果这个按钮可以工作并且\"现在备份\" 按钮没有反应（比如，连日志都没有），意味着您的任务系统出错了，您需要禁用所有的插件，然后尝试\"现在备份\"按钮。如果还是失败，请联系您的主机供应商，询问他们是否关闭了 wp-cron； 如果成功了，您可以逐个开启您的插件，查找出是具体哪个插件导致的出错，然后向他们报告一个bug"
-
-#: admin.php:1499
-msgid "Debug Full Backup"
-msgstr "全备份Debug"
-
-#: admin.php:1499
-msgid "This will cause an immediate backup. The page will stall loading until it finishes (ie, unscheduled)."
-msgstr "这将会引起立即备份，本页面一直尝试加载直到完成（如，非调度的）"
-
-#: admin.php:1504
-msgid "Debug Database Backup"
-msgstr "数据库备份Debug"
-
-#: admin.php:1504
-msgid "This will cause an immediate DB backup. The page will stall loading until it finishes (ie, unscheduled). The backup may well run out of time; really this button is only helpful for checking that the backup is able to get through the initial stages, or for small WordPress sites.."
-msgstr "这将会引起立即的数据库备份，本页面一直尝试加载直到完成（如，非调度的）。此备份可能运行到超时；这个按钮对检查备份可以通过初始阶段很有帮助，或者其他小的站点"
-
-#: admin.php:1510
-msgid "Wipe Settings"
-msgstr "清除设置"
-
-#: admin.php:1511
-msgid "This button will delete all UpdraftPlus settings (but not any of your existing backups from your cloud storage). You will then need to enter all your settings again. You can also do this before deactivating/deinstalling UpdraftPlus if you wish."
-msgstr "此按钮将会删除所有的UpdraftPlus设置（除过您在远程存储中已经保存的备份文件）。您需要再次输入您的设置。您可以在取消激活/卸载UpdraftPlus前进行此操作"
-
-#: admin.php:1514
-msgid "Wipe All Settings"
-msgstr "擦除所有设置"
-
-#: admin.php:1514
-msgid "This will delete all your UpdraftPlus settings - are you sure you want to do this?"
-msgstr "将会擦除您UpdraftPlus所有的设置 - 确认？"
-
-#: admin.php:1516
-msgid "Active jobs"
-msgstr "活动的任务"
-
-#: admin.php:1532
-msgid "Unknown response:"
-msgstr "未知响应："
-
-#: admin.php:1565
-msgid "PHP information"
-msgstr "PHP信息"
-
-#: admin.php:1570
-msgid "Raw backup history"
-msgstr "原始备份信息"
-
-#: admin.php:1598
-#, php-format
-msgid "%s: began at: %s; next resumption: %d (after %ss)"
-msgstr "%s：开始：%s；下次开始：%d（%s 秒后）"
-
-#: admin.php:1598
-msgid "show log"
-msgstr "察看日志"
-
-#: admin.php:1598
-msgid "delete schedule"
-msgstr "删除任务"
-
-#: admin.php:1605
-msgid "(None)"
-msgstr "(None)"
-
-#: admin.php:1624
-#: admin.php:1649
-#: admin.php:2023
-msgid "Delete"
-msgstr "删除"
-
-#: admin.php:1627
-#: admin.php:1652
-msgid "Failed"
-msgstr "失败"
-
-#: admin.php:1690
-msgid "The request to the filesystem to create the directory failed."
-msgstr "向文件系统发送创建目录的请求失败"
-
-#: admin.php:1704
-msgid "The folder was created, but we had to change its file permissions to 777 (world-writable) to be able to write to it. You should check with your hosting provider that this will not cause any problems"
-msgstr "目录已经创建，但是我们需要将它的权限改为777（谁都可以访问）。您需要和您的主机提供商一起检查，确保此操作不会引起其他问题"
-
-#: admin.php:1708
-msgid "The folder exists, but your webserver does not have permission to write to it."
-msgstr "目录已经存在，但是您的web服务器没有写如权限"
-
-#: admin.php:1708
-msgid "You will need to consult with your web hosting provider to find out to set permissions for a WordPress plugin to write to the directory."
-msgstr "您需要联系您的主机提供商来获取WordPress插件向该目录写入的权限"
-
-#: admin.php:1750
-#, php-format
-msgid "Warning: %s"
-msgstr "警告：%s"
-
-#: admin.php:1763
-msgid "Download log file"
-msgstr "下载日志文件"
-
-#: admin.php:1767
-msgid "No backup has been completed."
-msgstr "没有完成的备份"
-
-#: admin.php:1783
-msgid "File backup intervals"
-msgstr "文件备份间隔"
-
-#: admin.php:1786
-msgid "Manual"
-msgstr "手动"
-
-#: admin.php:1786
-msgid "Every 4 hours"
-msgstr "每4小时"
-
-#: admin.php:1786
-msgid "Every 8 hours"
-msgstr "每8小时"
-
-#: admin.php:1786
-msgid "Every 12 hours"
-msgstr "每12小时"
-
-#: admin.php:1786
-msgid "Daily"
-msgstr "每天一次"
-
-#: admin.php:1786
-msgid "Weekly"
-msgstr "每周一次"
-
-#: admin.php:1786
-msgid "Fortnightly"
-msgstr "两周一次"
-
-#: admin.php:1786
-msgid "Monthly"
-msgstr "每月一次"
-
-#: admin.php:1795
-#: admin.php:1813
-msgid "and retain this many backups"
-msgstr "保留这么多的备份"
-
-#: admin.php:1802
-msgid "Database backup intervals"
-msgstr "数据库备份间隔"
-
-#: admin.php:1820
-msgid "If you would like to automatically schedule backups, choose schedules from the dropdowns above. Backups will occur at the intervals specified. If the two schedules are the same, then the two backups will take place together. If you choose \"manual\" then you must click the \"Backup Now\" button whenever you wish a backup to occur."
-msgstr "如果您希望自动备份，请在上面选择。备份将会按照间隔进行。如果存在两个相同的备份，两次备份将会同时发生。如果您选择\"手动\"，当您要备份的时候，您必须点击\"现在备份\"按钮"
-
-#: admin.php:1821
-msgid "To fix the time at which a backup should take place,"
-msgstr "调整备份开始时间"
-
-#: admin.php:1821
-msgid "e.g. if your server is busy at day and you want to run overnight"
-msgstr "如：您的服务器白天负载很重，您需要在夜晚进行"
-
-#: admin.php:1821
-msgid "use the \"Fix Time\" add-on"
-msgstr "使用  \"调整时间\" 插件"
-
-#: admin.php:1825
-msgid "Include in files backup"
-msgstr "在文件备份中包含"
-
-#: admin.php:1835
-#, php-format
-msgid "Your wp-content directory server path: %s"
-msgstr "您的wp-content目录在服务器上的路径：%s"
-
-#: admin.php:1835
-msgid "Any other directories found inside wp-content"
-msgstr "wp-content目录中找到的其他子目录"
-
-#: admin.php:1841
-msgid "Exclude these:"
-msgstr "排除这些："
-
-#: admin.php:1843
-msgid "If entering multiple files/directories, then separate them with commas"
-msgstr "如果输入多个 文件/目录，请使用逗号分割"
-
-#: admin.php:1869
-msgid "The above directories are everything, except for WordPress core itself which you can download afresh from WordPress.org."
-msgstr "上面的目录是所有的东西，除了WordPress的核心文件（可以从 WordPress.org 上下载）"
-
-#: admin.php:1869
-msgid "Or, get the \"More Files\" add-on from our shop."
-msgstr "或者，从我们的商店中获取 \"更多文件\" 插件"
-
-#: admin.php:1869
-msgid "Use WordShell for automatic backup, version control and patching"
-msgstr "使用WordShell进行自动备份，版本控制和补丁"
-
-#: admin.php:1873
-msgid "Email"
-msgstr "邮件"
-
-#: admin.php:1874
-msgid "To send to more than one address, separate each address with a comma."
-msgstr "向多个地址发送，请使用逗号分割。"
-
-#: admin.php:1874
-msgid "Enter an address here to have a report sent (and the whole backup, if you choose) to it."
-msgstr "填写邮件地址来发送日志文件（如果您喜欢，可以发送整个备份）"
-
-#: admin.php:1878
-msgid "Database encryption phrase"
-msgstr "数据库加密文本"
-
-#: admin.php:1885
-msgid "If you enter text here, it is used to encrypt backups (Rijndael). <strong>Do make a separate record of it and do not lose it, or all your backups <em>will</em> be useless.</strong> Presently, only the database file is encrypted. This is also the key used to decrypt backups from this admin interface (so if you change it, then automatic decryption will not work until you change it back)."
-msgstr "如果在这里输入文本，它将会用来加密备份(Rijndael)。<strong>请使用独立的记录并且确保不要丢失，不然您的备份<em>将会</em>立刻变成废物。</strong>。只有数据库文件会加密。这里的文本也是将来解密的文本（如果您修改了此文本，自动解密将无法使用，直到您又改回来为止）"
-
-#: admin.php:1885
-msgid "You can also decrypt a database manually here."
-msgstr "您可以在这里手动解密数据库"
-
-#: admin.php:1888
-msgid "Manually decrypt a database backup file"
-msgstr "手动解密数据库备份文件"
-
-#: admin.php:1892
-msgid "Drop encrypted database files (db.gz.crypt files) here to upload them for decryption"
-msgstr "删除加密的数据库文件（db.gz.crypt 文件）前上传并解密他们"
-
-#: admin.php:1895
-msgid "Use decryption key"
-msgstr "使用解密密钥"
-
-#: admin.php:1909
-msgid "Copying Your Backup To Remote Storage"
-msgstr "将您的备份发送到远程存储"
-
-#: admin.php:1913
-msgid "Choose your remote storage"
-msgstr "选择您的远程存储"
-
-#: admin.php:1925
-msgid "None"
-msgstr "None"
-
-#: admin.php:1995
-msgid "Rescanning (looking for backups that you have uploaded manually into the internal backup store)..."
-msgstr "重新扫描（查找您手动上传到内部备份库的备份文件）"
-
-#: admin.php:2003
-#: admin.php:2032
-msgid "Unexpected response:"
-msgstr "未知响应："
-
-#: admin.php:2046
-#: admin.php:2082
-#: admin.php:2112
-msgid "Cancel"
-msgstr "退出"
-
-#: admin.php:2095
-msgid "Requesting start of backup..."
-msgstr "请求开始备份："
-
-#: admin.php:2119
-msgid "Close"
-msgstr "关闭"
-
-#: admin.php:2149
-msgid "Advanced / Debugging Settings"
-msgstr "高级/调试设置"
-
-#: admin.php:2152
-msgid "Debug mode"
-msgstr "调试模式"
-
-#: admin.php:2153
-msgid "Check this to receive more information and emails on the backup process - useful if something is going wrong. You <strong>must</strong> send us this log if you are filing a bug report."
-msgstr "从这里获取更多信息 - 当发生错误时将会非常有用。在报告bug时，您<strong>必须</strong>向我们提供此信息。"
-
-#: admin.php:2156
-msgid "Expert settings"
-msgstr "高级设置"
-
-#: admin.php:2157
-msgid "Show expert settings"
-msgstr "察看高级设置"
-
-#: admin.php:2157
-msgid "click this to show some further options; don't bother with this unless you have a problem or are curious."
-msgstr "点击这里察看一些更牛逼的设置；您还是不要使用这些为好，除非好奇或者发生当错误时。"
-
-#: admin.php:2164
-msgid "Delete local backup"
-msgstr "删除本地备份"
-
-#: admin.php:2165
-msgid "Check this to delete any superfluous backup files from your server after the backup run finishes (i.e. if you uncheck, then any files despatched remotely will also remain locally, and any files being kept locally will not be subject to the retention limits)."
-msgstr "在完成前点击此按钮来删除服务器上存在的多余备份（如果不处理，您发送到远程的文件将依然在本地存在，本地文件将会无限的保留）"
-
-#: admin.php:2170
-msgid "Backup directory"
-msgstr "备份目录"
-
-#: admin.php:2177
-msgid "Backup directory specified is writable, which is good."
-msgstr "指定的备份目录可以写入，非常好。"
-
-#: admin.php:2181
-msgid "Backup directory specified does <b>not</b> exist."
-msgstr "指定的备份目录<b>不</b> 存在"
-
-#: admin.php:2183
-msgid "Backup directory specified exists, but is <b>not</b> writable."
-msgstr "指定的备份目录存在，但是<b>无法</b>写入。 "
-
-#: admin.php:2185
-msgid "Click here to attempt to create the directory and set the permissions"
-msgstr "点击这里尝试创建目录并且设置权限"
-
-#: admin.php:2185
-msgid "or, to reset this option"
-msgstr "或者，将选项复位"
-
-#: admin.php:2185
-msgid "click here"
-msgstr "点击这里"
-
-#: admin.php:2185
-msgid "If that is unsuccessful check the permissions on your server or change it to another directory that is writable by your web server process."
-msgstr "如果失败，请检查您服务器的权限或者使用其他您web服务器可以写入的目录"
-
-#: admin.php:2188
-msgid "This is where UpdraftPlus will write the zip files it creates initially.  This directory must be writable by your web server. Typically you'll want to have it inside your wp-content folder (this is the default).  <b>Do not</b> place it inside your uploads dir, as that will cause recursion issues (backups of backups of backups of...)."
-msgstr "这是UpdraftPlus创建zip文件的地方，此目录必须是您的web服务器可写的。通常，您希望将此目录包含在wp-content中（默认选项）。 <b>不要</b>放在 上传 目录中，这将会引起递归的问题（无限备份。。。）"
-
-#: admin.php:2192
-msgid "Use the server's SSL certificates"
-msgstr "使用服务器的SSL证书"
-
-#: admin.php:2193
-msgid "By default UpdraftPlus uses its own store of SSL certificates to verify the identity of remote sites (i.e. to make sure it is talking to the real Dropbox, Amazon S3, etc., and not an attacker). We keep these up to date. However, if you get an SSL error, then choosing this option (which causes UpdraftPlus to use your web server's collection instead) may help."
-msgstr "默认情况下，UpdraftPlus使用它自己保存的SSL证书验证远程站点（确认它是否真的和Dropbox, Amazon S3通信）。我们会保持证书更新。然而，如果你遇到了SSL错误，请选择此选项（让UpdraftPlus使用您服务器收集的证书）"
-
-#: admin.php:2197
-msgid "Do not verify SSL certificates"
-msgstr "不要检测SSL证书"
-
-#: admin.php:2198
-msgid "Choosing this option lowers your security by stopping UpdraftPlus from verifying the identity of encrypted sites that it connects to (e.g. Dropbox, Google Drive). It means that UpdraftPlus will be using SSL only for encryption of traffic, and not for authentication."
-msgstr "使用此选项降低您的安全策略，UpdraftPlus不会验证将要链接的远程存储（Dropbox, Google Drive等）。意味着UpdraftPlus只使用SSL来加密通信，而不进行验证。"
-
-#: admin.php:2198
-msgid "Note that not all cloud backup methods are necessarily using SSL authentication."
-msgstr "注意，不是所有的云存储都需要SSL验证"
-
-#: admin.php:2202
-msgid "Disable SSL entirely where possible"
-msgstr "如果可能，彻底禁用SSL"
-
-#: admin.php:2203
-msgid "Choosing this option lowers your security by stopping UpdraftPlus from using SSL for authentication and encrypted transport at all, where possible. Note that some cloud storage providers do not allow this (e.g. Dropbox), so with those providers this setting will have no effect."
-msgstr "使用此选项降低您的安全策略，如果可能，UpdraftPlus不会使用SSL验证和加密传输。注意，一些云存储不允许此设置（比如，Dropbox），因此，该选项可能不会起作用"
-
-#: admin.php:2227
-msgid "Save Changes"
-msgstr "保存修改"
-
-#: admin.php:2248
-#, php-format
-msgid "Your web server's PHP installation does not included a <strong>required</strong> (for %s) module (%s). Please contact your web hosting provider's support and ask for them to enable it."
-msgstr "为了使用（%s），您web服务器上安装的PHP没有包含 <strong>必须的</strong>模块（%s），请联系您的主机提供商，让他们开启这些模块。"
-
-#: admin.php:2248
-#, php-format
-msgid "Your options are 1) Install/enable %s or 2) Change web hosting companies - %s is a standard PHP component, and required by all cloud backup plugins that we know of."
-msgstr "您的选择是1）安装/开启 %s 或者 2)更换主机提供商 - %s 是一个很常用的PHP模块，我们所知道的所有云存储都需要这个模块"
-
-#: admin.php:2255
-#, php-format
-msgid "Your web server's PHP/Curl installation does not support https access. Communications with %s will be unencrypted. ask your web host to install Curl/SSL in order to gain the ability for encryption (via an add-on)."
-msgstr "您web服务器的 PHP/Curl 不支持https，使用%s的通信将不会加密。请您的主机提供商安装 Curl/SSL ，用来支持加密的能力（通过插件）。"
-
-#: admin.php:2257
-#, php-format
-msgid "Your web server's PHP/Curl installation does not support https access. We cannot access %s without this support. Please contact your web hosting provider's support. %s <strong>requires</strong> Curl+https. Please do not file any support requests; there is no alternative."
-msgstr "您web服务器的 PHP/Curl 不支持https。没有此支持，我们无法使用 %s，请联系您的主机提供商提供支持，%s <strong>需要</strong> Curl+https。请不要向我们发送任何支持请求，没有其他的方式越过此需求"
-
-#: admin.php:2260
-#, php-format
-msgid "Good news: Your site's communications with %s can be encrypted. If you see any errors to do with encryption, then look in the 'Expert Settings' for more help."
-msgstr "好消息：您站点与 %s 的通信可以加密。如果在加密的过程中出现任何错误，请察看”高级设置“部分获取帮助"
-
-#: admin.php:2332
-msgid "Delete this backup set"
-msgstr "删除此备份集"
-
-#: admin.php:2354
-#: admin.php:2376
-#, php-format
-msgid "(No %s)"
-msgstr "(No %s)"
-
-#: admin.php:2354
-msgid "database"
+#: admin.php:1015
+msgid "By UpdraftPlus.Com"
+msgstr "来自UpdraftPlus.Com"
+
+#: admin.php:1015
+msgid "Lead developer's homepage"
+msgstr "主要开发者的个人主页"
+
+#: admin.php:1015
+msgid "Donate"
+msgstr "捐助"
+
+#: admin.php:1015
+msgid "Other WordPress plugins"
+msgstr "其他的WordPress插件"
+
+#: admin.php:1015
+msgid "Version"
+msgstr "版本"
+
+#: admin.php:1019
+msgid "Your backup has been restored."
+msgstr "您的备份已经被存储"
+
+#: admin.php:1019
+msgid "Your old (themes, uploads, plugins, whatever) directories have been retained with \"-old\" appended to their name. Remove them when you are satisfied that the backup worked properly."
+msgstr "您的旧目录名被加上 -old 后缀（主题，上传，插件，其他），如果对此次备份满意，可以安全的移除它们"
+
+#: admin.php:1025
+msgid "Old directories successfully deleted."
+msgstr "旧目录删除成功"
+
+#: admin.php:1028
+msgid "Your PHP memory limit (set by your web hosting company) is quite low. UpdraftPlus attempted to raise it but was unsuccessful. This plugin may struggle with a memory limit of less than 64 Mb  - especially if you have very large files uploaded (though on the other hand, many sites will bhe  successful with a 32Mb limit - your experience may vary)."
+msgstr "您的PHP内存限制（因为您的主机提供商）很低，UpdraftPlus尝试去提高但是失败了。如过限制小于64Mb，UpdraftPlus的工作将会很艰难，特别是当您存在大的上传文件时（尽管其他的站点在32Mb的限制下工作良好 - 您的环境可能不一样）"
+
+#: admin.php:1028
+msgid "Current limit is:"
+msgstr "目前的限制为："
+
+#: admin.php:1032
+msgid "Your PHP max_execution_time is less than 60 seconds. This possibly means you're running in safe_mode. Either disable safe_mode or modify your php.ini to set max_execution_time to a higher number. If you do not, then longer will be needed to complete a backup (but that is all). Present limit is:"
+msgstr "您PHP的max_execution_time设置小于60秒，很可能您正运行在safe_mode。或者关闭safe_mode，或者修改您的php.ini文件，将max_execution_time改的大一些。如果不这么做，备份将会花费很长时间，目前的设置为："
+
+#: admin.php:1032
+msgid "seconds"
+msgstr "秒"
+
+#: admin.php:1040
+msgid "Delete Old Directories"
+msgstr "删除旧目录"
+
+#: admin.php:1040
+msgid "Are you sure you want to delete the old directories? This cannot be undone."
+msgstr "确认删除旧目录？此步骤无法回退"
+
+#: admin.php:1054
+msgid "Existing Schedule And Backups"
+msgstr "存在的任务和备份"
+
+#: admin.php:1058
+msgid "JavaScript warning"
+msgstr "JavaScript 警告"
+
+#: admin.php:1059
+msgid "This admin interface uses JavaScript heavily. You either need to activate it within your browser, or to use a JavaScript-capable browser."
+msgstr "此管理界面严重依赖JavaScript。或者激活您的浏览器JavaScript功能，或者还一个支持JavaScript的浏览器"
+
+#: admin.php:1072 admin.php:1085
+msgid "Nothing currently scheduled"
+msgstr "目前木有任何任务"
+
+#: admin.php:1077
+msgid "At the same time as the files backup"
+msgstr "和文件一起备份"
+
+#: admin.php:1097
+msgid "All the times shown in this section are using WordPress's configured time zone, which you can set in Settings -> General"
+msgstr "此区域中的时间使用 WordPress 的时区，您可以在 Settings -> General 中修改"
+
+#: admin.php:1097
+msgid "Next scheduled backups"
+msgstr "下一个备份任务"
+
+#: admin.php:1099
+msgid "Files"
+msgstr "文件"
+
+#: admin.php:1100 admin.php:1371 admin.php:1374 admin.php:2341 admin.php:2343
+#: admin.php:2659
+msgid "Database"
 msgstr "数据库"
 
-#: admin.php:2364
-msgid "Press here to download"
-msgstr "点击这里下载"
-
-#: admin.php:2383
-msgid "Backup Log"
-msgstr "备份日志"
-
-#: admin.php:2403
-msgid "After pressing this button, you will be given the option to choose which components you wish to restore"
-msgstr "点击这个按钮后，您将会获得恢复哪些部分的选项"
-
-#: admin.php:2518
-msgid "This backup does not exist in the backup history - restoration aborted. Timestamp:"
-msgstr "备份历史中不存在此备份 - 退出恢复。时间点："
-
-#: admin.php:2547
-msgid "UpdraftPlus Restoration: Progress"
-msgstr "UpdraftPlus 恢复：处理"
-
-#: admin.php:2569
-msgid "ABORT: Could not find the information on which entities to restore."
-msgstr "ABORT：无法找到恢复条目的信息"
-
-#: admin.php:2570
-msgid "If making a request for support, please include this information:"
-msgstr "如果需要支持，请包含这些信息："
-
-#: admin.php:2591
-msgid "Final checks"
-msgstr "最后检测"
-
-#: admin.php:2602
-msgid "Skipping restoration of WordPress core when importing a single site into a multisite installation. If you had anything necessary in your WordPress directory then you will need to re-add it manually from the zip file."
-msgstr "在将单站点导入多站点时跳过WordPress的核心文件。如果您的WordPress目录中存在其他必要的文件，您需要手动将它们添加到zip文件中。"
-
-#: admin.php:2610
-#, php-format
-msgid "Looking for %s archive: file name: %s"
-msgstr "查找归档 %s：文件名：%s"
-
-#: admin.php:2612
-msgid "File is not locally present - needs retrieving from remote storage"
-msgstr "文件在本地不存在 - 需要从远程存储获取"
-
-#: admin.php:2619
-msgid "Archive is expected to be size:"
-msgstr "归档预期尺寸："
-
-#: admin.php:2624
-msgid "file is size:"
-msgstr "文件尺寸："
-
-#: admin.php:2627
-msgid "The backup records do not contain information about the proper size of this file."
-msgstr "备份记录中没有包含此文件的尺寸信息。"
-
-#: admin.php:2630
-#: admin.php:2631
-msgid "Could not find one of the files for restoration"
-msgstr "无法找到需要恢复的文件"
-
-#: admin.php:2641
-#: admin.php:2665
-msgid "Error message"
-msgstr "错误信息"
-
-#: includes/Dropbox/OAuth/Consumer/ConsumerAbstract.php:91
-#, php-format
-msgid "You need to re-authenticate with %s, as your existing credentials are not working."
-msgstr "您需要重新验证 %s，因为目前存在的证书无法使用。"
-
-#: methods/webdav.php:13
-#: methods/webdav.php:34
-#: methods/webdav.php:50
-#: methods/sftp.php:13
-#: methods/sftp.php:34
-#: methods/sftp.php:50
-#, php-format
-msgid "You do not have the UpdraftPlus %s add-on installed - get it from %s"
-msgstr "您还没有安装UpdraftPlus的%s插件 - 从 %s 获取"
-
-#: methods/webdav.php:63
-#: methods/sftp.php:63
-#, php-format
-msgid "%s support is available as an add-on"
-msgstr "%s 支持以插件的方式可用"
-
-#: methods/webdav.php:63
-#: methods/sftp.php:63
-msgid "follow this link to get it"
-msgstr "点此链接来获取"
-
-#: methods/s3generic.php:21
-#: methods/s3generic.php:30
-msgid "S3 (Compatible)"
-msgstr "S3 (兼容模式)"
-
-#: methods/googledrive.php:111
-msgid "No refresh token was received from Google. This often means that you entered your client secret wrongly, or that you have not yet re-authenticated (below) since correcting it. Re-check it, then follow the link to authenticate again. Finally, if that does not work, then use expert mode to wipe all your settings, create a new Google client ID/secret, and start again."
-msgstr "没有从Google获取到token。这意味着您可能输错了密码，或者您修改密码后没有进行重新验证。请认真检查，然后根据链接进行验证。最后，如果还是无法工作，请使用高级模式擦除所有设置，建立新的Google客户端帐号/密码，重新开始"
-
-#: methods/googledrive.php:120
-msgid "Authorization failed"
-msgstr "验证失败"
-
-#: methods/googledrive.php:141
-#, php-format
-msgid "Your %s quota usage: %s %% used, %s available"
-msgstr "您的 %s 配额使用：已使用 %s %%， 剩余 %s"
-
-#: methods/googledrive.php:147
-msgid "Success"
-msgstr "成功"
-
-#: methods/googledrive.php:147
-#, php-format
-msgid "you have authenticated your %s account."
-msgstr "您已经验证了您的%s帐号"
-
-#: methods/googledrive.php:163
-#: methods/googledrive.php:220
-msgid "Have not yet obtained an access token from Google - you need to authorise or re-authorise your connection to Google Drive."
-msgstr "还没有从Google获得token - 您需要验证或者重新验证您的Google Drive链接"
-
-#: methods/googledrive.php:164
-#: methods/googledrive.php:351
-msgid "Have not yet obtained an access token from Google (has the user authorised?)"
-msgstr "还没有从Google获得token （您的用户验证过了吗）"
-
-#: methods/googledrive.php:195
-#, php-format
-msgid "Account full: your %s account has only %d bytes left, but the file to be uploaded is %d bytes"
-msgstr "全部账户：您的 %s 账户只剩下了%d字节的空间，但是将要上传的文件为%d字节"
-
-#: methods/googledrive.php:205
-#, php-format
-msgid "Failed to upload to %s"
-msgstr "向%s上传失败"
-
-#: methods/googledrive.php:322
-#, php-format
-msgid "An error occurred during %s upload (see log for more details)"
-msgstr "上传%s时出现错误（从日志中获取详细信息）"
-
-#: methods/googledrive.php:361
-#, php-format
-msgid "Google Drive error: %d: could not download: could not find a record of the Google Drive file ID for this file"
-msgstr "Google Drive 出错：%d：无法下载：无法找到此文件的Google Drive文件ID"
-
-#: methods/googledrive.php:366
-#, php-format
-msgid "Could not find %s in order to download it"
-msgstr "无法找到%s，无法下载"
-
-#: methods/googledrive.php:379
-#, php-format
-msgid "%s error: zero-size file was downloaded"
-msgstr "%s 错误：下载了0字节文件"
-
-#: methods/googledrive.php:379
-msgid "Google Drive "
-msgstr "Google Drive "
-
-#: methods/googledrive.php:397
-msgid "Account is not authorized."
-msgstr "帐号未验证。"
-
-#: methods/googledrive.php:430
-#, php-format
-msgid "%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your site is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts."
-msgstr "%s是一个很好的选择，UpdraftPlus支持分片上传 - 无论您的站点有多大，UpdraftPlus可以分批次上传，避开超时限制。"
-
-#: methods/googledrive.php:440
-#, php-format
-msgid "Your web server's PHP installation does not included a required module (%s). Please contact your web hosting provider's support."
-msgstr "您web服务器的PHP没有需要的模块（%s）。请联系您的主机提供商进行处理"
-
-#: methods/googledrive.php:440
-#, php-format
-msgid "UpdraftPlus's %s module <strong>requires</strong> %s. Please do not file any support requests; there is no alternative."
-msgstr "UpdraftPlus 的 %s 模块<strong>依赖</strong>  %s。不要发送任何支持请求，没有其他选择。"
-
-#: methods/googledrive.php:450
-msgid "For longer help, including screenshots, follow this link. The description below is sufficient for more expert users."
-msgstr "对于长期支持用户，包括截图等。请点击此链接，这里有针对专家用户的足够描述"
-
-#: methods/googledrive.php:451
-msgid "Follow this link to your Google API Console, and there create a Client ID in the API Access section."
-msgstr "点击此链接进入您的Google API控制台，会在那里生成一个客户ID"
-
-#: methods/googledrive.php:451
-msgid "Select 'Web Application' as the application type."
-msgstr "选择”网页应用“作为应用类型"
-
-#: methods/googledrive.php:451
-msgid "You must add the following as the authorised redirect URI (under \"More Options\") when asked"
-msgstr "如果需要，您必须添加下面的链接作为重定向RUI（在 \"更多选择\"下面）"
-
-#: methods/googledrive.php:451
-msgid "N.B. If you install UpdraftPlus on several WordPress sites, then you cannot re-use your client ID; you must create a new one from your Google API console for each site."
-msgstr "N.B. 如果您在多个WordPress站点安装了UpdraftPlus，您不能重复的使用客户ID；您必须在Google API 终端中为每一个站点建立一个客户ID。"
-
-#: methods/googledrive.php:454
-msgid "You do not have the SimpleXMLElement installed. Google Drive backups will <b>not</b> work until you do."
-msgstr "您没有安装SimpleXMLElement，除非您安装，不然Google Drive将无法工作。"
-
-#: methods/googledrive.php:461
-msgid "Client ID"
-msgstr "客户ID"
-
-#: methods/googledrive.php:462
-msgid "If Google later shows you the message \"invalid_client\", then you did not enter a valid client ID here."
-msgstr "如果Google向您显示了 \"invalid_client\"的信息；很可能是您没有输入可用的客户ID。"
-
-#: methods/googledrive.php:465
-msgid "Client Secret"
-msgstr "客户密钥"
-
-#: methods/googledrive.php:469
-msgid "Folder ID"
-msgstr "文件夹ID"
-
-#: methods/googledrive.php:470
-msgid "<strong>This is NOT a folder name</strong>. To get a folder's ID navigate to that folder in Google Drive in your web browser and copy the ID from your browser's address bar. It is the part that comes after <kbd>#folders/.</kbd> Leave empty to use your root folder)"
-msgstr "<strong>这不是目录一个名</strong>。要获取目录ID，请去您的Google Drive，点击进入目录，然后从地址栏复制<kbd>#folders/.</kbd>后面的值。如果是根目录，请留空。 "
-
-#: methods/googledrive.php:473
-msgid "Authenticate with Google"
-msgstr "与Google验证"
-
-#: methods/googledrive.php:474
-msgid "<strong>After</strong> you have saved your settings (by clicking 'Save Changes' below), then come back here once and click this link to complete authentication with Google."
-msgstr "在保存您的设置之后（点击”保存修改“），请再一次回到这里，点击这个链接来完成Google验证。"
-
-#: methods/cloudfiles.php:53
-#: methods/cloudfiles.php:57
-#: methods/cloudfiles.php:209
-#: methods/cloudfiles.php:262
-#: methods/cloudfiles.php:266
-#, php-format
-msgid "%s authentication failed"
-msgstr "%s 验证失败"
-
-#: methods/cloudfiles.php:61
-#: methods/cloudfiles.php:270
-#: methods/cloudfiles.php:289
-msgid "Cloud Files error - failed to create and access the container"
-msgstr "云文件错误 - 无法创建、访问容器"
-
-#: methods/cloudfiles.php:88
-#, php-format
-msgid "%s Error: Failed to open local file"
-msgstr "%s错误：无法打开本地文件"
-
-#: methods/cloudfiles.php:105
-#: methods/cloudfiles.php:147
-#: methods/s3.php:128
-#: methods/s3.php:134
-#: methods/s3.php:135
-#: addons/sftp.php:86
-#, php-format
-msgid "%s Error: Failed to upload"
-msgstr "%s 错误：上传失败"
-
-#: methods/cloudfiles.php:169
-#, php-format
-msgid "%s error - failed to re-assemble chunks"
-msgstr "%s 错误 - 重组分片失败"
-
-#: methods/cloudfiles.php:178
-msgid "Cloud Files error - failed to upload file"
-msgstr "云文件错误 - 上传文件失败"
-
-#: methods/cloudfiles.php:179
-#, php-format
-msgid "%s error - failed to upload file"
-msgstr "%s 错误 - 上传文件失败"
-
-#: methods/cloudfiles.php:318
-#: methods/cloudfiles.php:335
-#, php-format
-msgid "%s Error"
-msgstr "%s 错误"
-
-#: methods/cloudfiles.php:318
-#: addons/webdav.php:201
-msgid "Error opening local file: Failed to download"
-msgstr "打开本地文件失败：无法下载"
-
-#: methods/cloudfiles.php:335
-msgid "Error downloading remote file: Failed to download ("
-msgstr "下载远程文件错误：下载失败（"
-
-#: methods/cloudfiles.php:344
-#, php-format
-msgid "Error - no such file exists at %s"
-msgstr "错误 - %s 不存在这样的文件"
-
-#: methods/cloudfiles.php:348
-#, php-format
-msgid "Error - failed to download the file from %s"
-msgstr "错误 - 从%s下载文件失败"
-
-#: methods/cloudfiles.php:357
-msgid "Testing - Please Wait..."
-msgstr "测试中 - 稍微等一下。。。"
-
-#: methods/cloudfiles.php:371
-#: methods/cloudfiles.php:434
-#: methods/s3.php:348
-#: methods/s3.php:422
-#: methods/ftp.php:199
-#: addons/webdav.php:267
-#: addons/sftp.php:235
-#, php-format
-msgid "Test %s Settings"
-msgstr "测试%s设置"
-
-#: methods/cloudfiles.php:404
-msgid "Get your API key <a href=\"https://mycloud.rackspace.com/\">from your Rackspace Cloud console</a> (read instructions <a href=\"http://www.rackspace.com/knowledge_center/article/rackspace-cloud-essentials-1-generating-your-api-key\">here</a>), then pick a container name to use for storage. This container will be created for you if it does not already exist."
-msgstr "从 <a href=\"https://mycloud.rackspace.com/\">您的 Rackspace 云控制台</a>获取API key，(<a href=\"http://www.rackspace.com/knowledge_center/article/rackspace-cloud-essentials-1-generating-your-api-key\">操作指南</a>),然后挑选一个容器名称作为存储使用。如果不存在，将会为您创建此容器。"
-
-#: methods/cloudfiles.php:404
-msgid "Also, you should read this important FAQ."
-msgstr "您需要阅读这个很重要的FAQ文档。"
-
-#: methods/cloudfiles.php:408
-msgid "US or UK Cloud"
-msgstr "US 或者 UK 云"
-
-#: methods/cloudfiles.php:414
-msgid "US (default)"
-msgstr "US (默认)"
-
-#: methods/cloudfiles.php:415
-msgid "UK"
-msgstr "UK"
-
-#: methods/cloudfiles.php:420
-msgid "Cloud Files username"
-msgstr "云文件帐号"
-
-#: methods/cloudfiles.php:424
-msgid "Cloud Files API key"
-msgstr "云文件 API key"
-
-#: methods/cloudfiles.php:428
-msgid "Cloud Files container"
-msgstr "云文件容器"
-
-#: methods/cloudfiles.php:442
-#: methods/cloudfiles.php:447
-#: methods/s3.php:435
-#: methods/s3.php:439
-#: methods/ftp.php:220
-#: methods/ftp.php:224
-#: addons/webdav.php:294
-#: addons/sftp.php:265
-#: addons/sftp.php:269
-#: addons/sftp.php:273
-#, php-format
-msgid "Failure: No %s was given."
-msgstr "错误：没有设置%s"
-
-#: methods/cloudfiles.php:442
-#: methods/s3.php:435
-msgid "API key"
-msgstr "API key"
-
-#: methods/cloudfiles.php:447
-#: addons/sftp.php:204
-msgid "Username"
-msgstr "用户名"
-
-#: methods/cloudfiles.php:467
-msgid "Failure: No container details were given."
-msgstr "失败：没有提供容器的详细信息。"
-
-#: methods/cloudfiles.php:477
-#: methods/cloudfiles.php:480
-#: methods/cloudfiles.php:483
-msgid "Cloud Files authentication failed"
-msgstr "云文件验证失败"
-
-#: methods/cloudfiles.php:494
-msgid "Cloud Files error - we accessed the container, but failed to create a file within it"
-msgstr "云文件错误 - 我们可以进入容器，但是无法在其中创建文件"
-
-#: methods/cloudfiles.php:498
-msgid "We accessed the container, and were able to create files within it."
-msgstr "可是使用容器，并且可以在里边创建文件。"
-
-#: methods/email.php:16
-msgid "WordPress Backup"
-msgstr "WordPress备份"
-
-#: methods/email.php:16
-msgid "Backup is of:"
-msgstr "备份："
-
-#: methods/email.php:16
-msgid "Be wary; email backups may fail because of file size limitations on mail servers."
-msgstr "注意：由于邮件服务器的文件大小限制，可能会导致邮件备份失败。"
-
-#: methods/email.php:26
-msgid "Note:"
-msgstr "注意："
-
-#: methods/email.php:27
-msgid "The email address entered above will be used. If choosing \"E-Mail\", then <strong>be aware</strong> that mail servers tend to have size limits; typically around 10-20Mb; backups larger than any limits will not arrive. If you really need a large backup via email, then you could fund a new feature (to break the backup set into configurable-size pieces) - but the demand has not yet existed for such a feature."
-msgstr "将会使用上面填写的邮件地址。如果选择 \"邮件\"，<strong>请注意</strong>邮件服务器会有文件尺寸限制，通常情况下是 10 - 20Mb；大于限制尺寸的备份文件将无法发送。如果您确实需要使用邮件传送大备份文件，可能存在一种新的特性（将文件分割成配置好的小尺寸）- 但是，现在目前不存在该类需求。"
-
-#: methods/s3.php:154
-#, php-format
-msgid "%s upload: getting uploadID for multipart upload failed - see log file for more details"
-msgstr "%s 上传：获取多模块上传ID失败 - 察看日志获取详细信息"
-
-#: methods/s3.php:177
-#, php-format
-msgid "%s error: file %s was shortened unexpectedly"
-msgstr "%s 错误：文件%s被未知的缩短"
-
-#: methods/s3.php:187
-#, php-format
-msgid "%s chunk %s: upload failed"
-msgstr "%s 分片 %s：上传失败"
-
-#: methods/s3.php:201
-#, php-format
-msgid "%s upload (%s): re-assembly failed (see log for more details)"
-msgstr "%s 上传 （%s）：重组失败（察看日志获取详细信息）"
-
-#: methods/s3.php:205
-#, php-format
-msgid "%s re-assembly error (%s): (see log file for more)"
-msgstr "%s 重组失败（%s）：（察看日志获取详细信息）"
-
-#: methods/s3.php:217
-#, php-format
-msgid "%s Error: Failed to create bucket %s. Check your permissions and credentials."
-msgstr "%s 错误：创建bucket %s 失败。检查您的权限和授权。"
-
-#: methods/s3.php:253
-#: methods/s3.php:321
-#, php-format
-msgid "%s Error: Failed to access bucket %s. Check your permissions and credentials."
-msgstr "%s 错误：进入bucket %s失。检查您的权限和证书。"
-
-#: methods/s3.php:317
-#, php-format
-msgid "%s Error: Failed to download %s. Check your permissions and credentials."
-msgstr "%s 错误：下载 %s 失败，检查您的权限和证书。"
-
-#: methods/s3.php:333
-#, php-format
-msgid "Testing %s Settings..."
-msgstr "测试 %s 设置"
-
-#: methods/s3.php:369
-msgid "Examples of S3-compatible storage providers: "
-msgstr "兼容 S3 的存储示例："
-
-#: methods/s3.php:377
-msgid "... and many more!"
-msgstr "。。。更多"
-
-#: methods/s3.php:398
-#, php-format
-msgid "Get your access key and secret key <a href=\"%s\">from your %s console</a>, then pick a (globally unique - all %s users) bucket name (letters and numbers) (and optionally a path) to use for storage. This bucket will be created for you if it does not already exist."
-msgstr "<a href=\"%s\">从您的 %s 控制台</a>获得access key 和 secret key，然后，挑选一个（所有 %s 用户都不相同的）bucket名称（字母和数字）（可以使用路径名）作为存储使用。如果不存在，将会为您创建此bucket。"
-
-#: methods/s3.php:398
-msgid "If you see errors about SSL certificates, then please go here for help."
-msgstr "如果您看到了SSL证书错误，请到这里寻求帮助。"
-
-#: methods/s3.php:402
-#, php-format
-msgid "%s end-point"
-msgstr "%s end-point"
-
-#: methods/s3.php:409
-#, php-format
-msgid "%s access key"
-msgstr "%s access key"
-
-#: methods/s3.php:413
-#, php-format
-msgid "%s secret key"
-msgstr "%s secret key"
-
-#: methods/s3.php:417
-#, php-format
-msgid "%s location"
-msgstr "%s 位置"
-
-#: methods/s3.php:418
-msgid "Enter only a bucket name or a bucket and path. Examples: mybucket, mybucket/mypath"
-msgstr "只需要输入bucket名称或者bucket和路径，如：mybucket, mybucket/mypath"
-
-#: methods/s3.php:439
-msgid "API secret"
-msgstr "API secret"
-
-#: methods/s3.php:460
-msgid "Failure: No bucket details were given."
-msgstr "失败：没有提供详细的bucket信息"
-
-#: methods/s3.php:475
-msgid "Region"
-msgstr "区域"
-
-#: methods/s3.php:493
-#, php-format
-msgid "Failure: We could not successfully access or create such a bucket. Please check your access credentials, and if those are correct then try another bucket name (as another %s user may already have taken your name)."
-msgstr "失败：我们无法进入或者创建此bucket。请检查您的证书，如果证书正确，请尝试其它的bucket名称（可能其他的 %s 用户已经使用了您选择的bucket名称）"
-
-#: methods/s3.php:494
-#, php-format
-msgid "The error reported by %s was:"
-msgstr "从%s获取的错误信息是："
-
-#: methods/s3.php:507
-#: methods/s3.php:519
-msgid "Failure"
+#: admin.php:207
+msgid "Your website is hosted using the %s web server."
+msgstr "您的网站放在%s站点服务器上"
+
+#: admin.php:207
+msgid "Please consult this FAQ if you have problems backing up."
+msgstr "如果您有备份方面的问题，请察看此FAQ"
+
+#: admin.php:220 admin.php:224
+msgid "Click here to authenticate your %s account (you will not be able to back up to %s without it)."
+msgstr "点击这里验证您的%s帐号（如果不验证将无法使用%s备份）"
+
+#: admin.php:375
+msgid "The backup archive for restoring this file could not be found. The remote storage method in use (%s) does not allow us to retrieve files. To proceed with this restoration, you need to obtain a copy of this file and place it inside UpdraftPlus's working folder"
+msgstr "无法找到还原此文件的备份归档。正在使用的远程存储方式(%s)不允许我们获取文件。您需要手动获取一个备份文件放在UpdraftPlus的工作目录来继续本次还原"
+
+#: admin.php:390
+msgid "Nothing yet logged"
+msgstr "还有日志被记录"
+
+#: admin.php:530
+msgid "Schedule backup"
+msgstr "计划备份"
+
+#: admin.php:533
+msgid "Failed."
+msgstr "失败"
+
+#: admin.php:536
+msgid "OK. You should soon see activity in the \"Last log message\" field below."
+msgstr "OK，你应该赶快察看下面的 \"Last log message\""
+
+#: admin.php:536
+msgid "Nothing happening? Follow this link for help."
+msgstr "没有反应？点击这个链接获得帮助"
+
+#: admin.php:555
+msgid "Job deleted"
+msgstr "删除任务"
+
+#: admin.php:561
+msgid "Could not find that job - perhaps it has already finished?"
+msgstr "无法找到任务 - 或许已经完成了？"
+
+#: restorer.php:792 restorer.php:827 admin.php:573
+msgid "Error"
 msgstr "错误"
 
-#: methods/s3.php:507
-#: methods/s3.php:519
-msgid "We successfully accessed the bucket, but the attempt to create a file in it failed."
-msgstr "我们成功进入bucket，但是在里边创建文件失败。"
-
-#: methods/s3.php:509
-msgid "We accessed the bucket, and were able to create files within it."
-msgstr "我们进入了bucket，并且可以在里边建立文件。"
-
-#: methods/s3.php:512
-#, php-format
-msgid "The communication with %s was encrypted."
-msgstr "和%s的通信被加密。"
-
-#: methods/s3.php:514
-#, php-format
-msgid "The communication with %s was not encrypted."
-msgstr "与%s的通信没有加密。"
-
-#: methods/s3.php:519
-msgid "Please check your access credentials."
-msgstr "请检查您的证书。"
-
-#: methods/dropbox.php:35
-#, php-format
-msgid "The %s PHP module is not installed"
-msgstr "%s PHP模块没有安装"
-
-#: methods/dropbox.php:41
-msgid "You do not appear to be authenticated with Dropbox"
-msgstr "您似乎没有验证Dropbox"
-
-#: methods/dropbox.php:52
-#, php-format
-msgid "Dropbox error: %s (see log file for more)"
-msgstr "Dropbox错误：%s（察看日志获取更多信息）"
-
-#: methods/dropbox.php:138
-#: methods/dropbox.php:143
-#, php-format
-msgid "error: failed to upload file to %s (see log file for more)"
-msgstr "错误：上传文件至%s失败（察看日志获取详细信息）"
-
-#: methods/dropbox.php:174
-#, php-format
-msgid "You do not appear to be authenticated with %s (whilst deleting)"
-msgstr "您似乎没有验证%s（在删除时）"
-
-#: methods/dropbox.php:182
-#, php-format
-msgid "Failed to access %s when deleting (see log file for more)"
-msgstr "删除时接触%s失败（察看日志获取相信信息）"
-
-#: methods/dropbox.php:212
-#, php-format
-msgid "You do not appear to be authenticated with %s"
-msgstr "您似乎没有验证%s"
-
-#: methods/dropbox.php:274
-#, php-format
-msgid "Your web server's PHP installation does not included a required module (%s). Please contact your web hosting provider's support and ask for them to enable it."
-msgstr "您web服务器的PHP没有包含一个必须的模块（%s），请联系您的主机提供商获取帮助，使其开启改模块。"
-
-#: methods/dropbox.php:286
-msgid "Need to use sub-folders?"
-msgstr "需要使用子目录？"
-
-#: methods/dropbox.php:286
-msgid "Backups are saved in"
-msgstr "备份并保存"
-
-#: methods/dropbox.php:286
-msgid "If you back up several sites into the same Dropbox and want to organise with sub-folders, then "
-msgstr "如果您使用同一个Dropbox帐号备份多个站点，并且各个站点使用子目录。然后"
-
-#: methods/dropbox.php:286
-msgid "there's an add-on for that."
-msgstr "点击这里获取相关插件"
-
-#: methods/dropbox.php:291
-msgid "Authenticate with Dropbox"
-msgstr "验证Dropbox"
-
-#: methods/dropbox.php:292
-msgid "<strong>After</strong> you have saved your settings (by clicking 'Save Changes' below), then come back here once and click this link to complete authentication with Dropbox."
-msgstr "当您保存好设置之后（点击下面的“保存修改”），请再一次返回这里，点击此连接来完成和Dropbox的验证。"
-
-#: methods/dropbox.php:335
-#, php-format
-msgid "you have authenticated your %s account"
-msgstr "您已经验证了你的%s帐号"
-
-#: methods/dropbox.php:338
-msgid "though part of the returned information was not as expected - your mileage may vary"
-msgstr "尽管部分返回的信息非预期 - 您还是可以选择其他"
-
-#: methods/dropbox.php:341
-#, php-format
-msgid "Your %s account name: %s"
-msgstr "您的%s帐号名：%s"
-
-#: methods/ftp.php:44
-#: methods/ftp.php:127
-#, php-format
-msgid "%s login failure"
-msgstr "%s 登陆失败"
-
-#: methods/ftp.php:63
-#, php-format
-msgid "%s upload failed"
-msgstr "%s 上传失败"
-
-#: methods/ftp.php:162
-msgid "Settings test result"
-msgstr "设置测试结果"
-
-#: methods/ftp.php:178
-msgid "Only non-encrypted FTP is supported by regular UpdraftPlus."
-msgstr "通常的UpdraftPlus只支持无加密的FTP。"
-
-#: methods/ftp.php:178
-msgid "If you want encryption (e.g. you are storing sensitive business data), then an add-on is available."
-msgstr "如果您需要加密（比如您保存了私密的商业信息），可以使用此插件。"
-
-#: methods/ftp.php:182
-msgid "FTP Server"
-msgstr "FTP 服务器"
-
-#: methods/ftp.php:186
-msgid "FTP Login"
-msgstr "FTP 帐号"
-
-#: methods/ftp.php:190
-msgid "FTP Password"
-msgstr "FTP 密码"
-
-#: methods/ftp.php:194
-msgid "Remote Path"
-msgstr "远程路径"
-
-#: methods/ftp.php:195
-msgid "Needs to already exist"
-msgstr "已经存在"
-
-#: methods/ftp.php:216
-msgid "Failure: No server details were given."
-msgstr "失败：没有提供详细的服务器信息。"
-
-#: methods/ftp.php:231
-msgid "Failure: we did not successfully log in with those credentials."
-msgstr "失败：我们无法使用那些证书登陆。"
-
-#: methods/ftp.php:239
-msgid "Failure: an unexpected internal UpdraftPlus error occurred when testing the credentials - please contact the developer"
-msgstr "失败：测试证书时出现非预期的UpdraftPlus内部错误 - 请联系开发人员"
-
-#: methods/ftp.php:243
-msgid "Success: we successfully logged in, and confirmed our ability to create a file in the given directory (login type:"
-msgstr "成功：我们成功登陆，并且确认了在给定目录创建文件的能力（登陆方式："
-
-#: methods/ftp.php:246
-msgid "Failure: we successfully logged in, but were not able to create a file in the given directory."
-msgstr "失败：我们成功登陆，但是无法在指定目录创建文件。"
-
-#: addons/webdav.php:40
-#: addons/webdav.php:150
-#: addons/webdav.php:185
-#: addons/sftp.php:28
-#, php-format
-msgid "No %s settings were found"
-msgstr "没有发现%s的设置"
-
-#: addons/webdav.php:116
-#: addons/webdav.php:120
-#, php-format
-msgid "Chunk %s: A %s error occurred"
-msgstr "分片 %s：发生了一个 %s 错误"
-
-#: addons/webdav.php:201
-#: addons/webdav.php:208
-#: addons/webdav.php:221
-msgid "WebDAV Error"
-msgstr "WebDAV 错误"
-
-#: addons/webdav.php:208
-msgid "Error opening remote file: Failed to download"
-msgstr "打开远程文件失败：下载失败"
-
-#: addons/webdav.php:221
-msgid "Local write failed: Failed to download"
-msgstr "本地写入失败：下载失败"
-
-#: addons/webdav.php:257
-msgid "WebDAV URL"
-msgstr "WebDAV URL"
-
-#: addons/webdav.php:261
-#, php-format
-msgid "Enter a complete URL, beginning with webdav:// or webdavs:// and including path, username, password and port as required - e.g.%s"
-msgstr "输入完成的URL，使用webdav:// 或者 webdavs:// 开头，并且包含路径、用户名、密码、端口等 - 如：%s"
-
-#: addons/webdav.php:317
-msgid "Failed: We were not able to place a file in that directory - please check your credentials."
-msgstr "失败：我们无法在相关目录放置文件 - 请检查您的证书"
-
-#: addons/morefiles.php:40
-#: addons/morefiles.php:254
-msgid "WordPress Core"
-msgstr "WordPress 核心"
-
-#: addons/morefiles.php:44
-msgid "Over-write wp-config.php"
-msgstr "覆盖  wp-config.php"
-
-#: addons/morefiles.php:44
-msgid "(learn more about this important option)"
-msgstr "（学习更多关于这个重要的选项）"
-
-#: addons/morefiles.php:63
-msgid "The above files comprise everything in a WordPress installation."
-msgstr "上面的文件包括WordPress安装后的全部文件。"
-
-#: addons/morefiles.php:70
-msgid "WordPress core (including any additions to your WordPress root directory)"
-msgstr "WordPress 核心文件（包括WordPress根目录附加的任何文件）"
-
-#: addons/morefiles.php:71
-#, php-format
-msgid "WordPress root directory server path: %s"
-msgstr "WordPress跟目录的服务器路径：%s"
-
-#: addons/morefiles.php:83
-msgid "Any other directory on your server that you wish to back up"
-msgstr "其他您想要备份的目录"
-
-#: addons/morefiles.php:84
-msgid "More Files"
-msgstr "更多文件"
-
-#: addons/morefiles.php:99
-msgid "Enter the directory:"
-msgstr "进入目录："
-
-#: addons/morefiles.php:103
-msgid "If you are not sure what this option is for, then you will not want it, and should turn it off."
-msgstr "如果您不确定这个选项是干什么的，那么您很可能不需要它，请关闭。"
-
-#: addons/morefiles.php:103
-msgid "If using it, enter an absolute path (it is not relative to your WordPress install)."
-msgstr "如果使用，请输入绝对路径（不是相对于WordPress的相对路径）"
-
-#: addons/morefiles.php:105
-msgid "Be careful what you enter - if you enter / then it really will try to create a zip containing your entire webserver."
-msgstr "小心您的输入 - 如果您输入 / ，那么生成的zip文件会包含您的整个站点"
-
-#: addons/morefiles.php:135
-msgid "If entering multiple files/directories, then separate them with commas."
-msgstr "如果输入多个文件/目录，请使用逗号进行分割。"
-
-#: addons/morefiles.php:177
-#: addons/morefiles.php:254
-#, php-format
-msgid "No backup of %s directories: there was nothing found to back up"
-msgstr "没有备份的%s目录：没有发现任何要备份的东西"
-
-#: addons/morefiles.php:177
-msgid "more"
-msgstr "更多"
-
-#: addons/sftp.php:23
-msgid "Encrypted FTP is available, and will be automatically tried first (before falling back to non-encrypted if it is not successful), unless you disable it using the expert options. The 'Test FTP Login' button will tell you what type of connection is in use."
-msgstr "加密的FTP可用，将会首先尝试（如果失败，将会使用未加密的方式）。如果不需要此功能，请在高级选项中禁用。“测试FTP登陆”按钮将会告诉你正在使用的连接方式。"
-
-#: addons/sftp.php:23
-msgid "Some servers advertise encrypted FTP as available, but then time-out (after a long time) when you attempt to use it. If you find this happenning, then go into the \"Expert Options\" (below) and turn off SSL there."
-msgstr "一些FTP服务号称支持加密的方式，但是使用时会出现超时（长时间后）。如果发生此类事情，请进入\"高级选项\"（下面），关闭SSL。 "
-
-#: addons/sftp.php:23
-msgid "Explicit encryption is used by default. To force implicit encryption (port 990), add :990 to your FTP server below."
-msgstr "默认使用显式加密。需要强制使用隐式加密（端口990），在下面的FTP服务器后添加 :990"
-
-#: addons/sftp.php:30
-#: addons/sftp.php:31
-#: addons/sftp.php:32
-#, php-format
-msgid "No %s found"
-msgstr "没有找到%s"
-
-#: addons/sftp.php:30
-msgid "SFTP host setting"
-msgstr "SFTP 主机设置"
-
-#: addons/sftp.php:31
-msgid "SFTP user setting"
-msgstr "SFTP 用户设置"
-
-#: addons/sftp.php:32
-msgid "SFTP password"
-msgstr "SFTP 密码"
-
-#: addons/sftp.php:50
-msgid "Check your file permissions: Could not successfully create and enter directory:"
-msgstr "检查您的文件权限信息：无法创建并且进入目录："
-
-#: addons/sftp.php:141
-#, php-format
-msgid "%s Error: Failed to download"
-msgstr "%s 错误：下载失败"
-
-#: addons/sftp.php:185
-msgid "Resuming partial uploads is not supported, so you will need to ensure that your webserver allows PHP processes to run long enough to upload your largest backup file."
-msgstr "不支持断点续传功能。所以您必须确认您的web服务器允许PHP处理足够长时间的事务来上传您最大的文件。"
-
-#: addons/sftp.php:190
-msgid "Host"
-msgstr "主机"
-
-#: addons/sftp.php:197
-msgid "Port"
-msgstr "端口"
-
-#: addons/sftp.php:211
-msgid "Password"
-msgstr "密码"
-
-#: addons/sftp.php:227
-msgid "Directory path"
-msgstr "路径"
-
-#: addons/sftp.php:229
-msgid "Where to change directory to after logging in - often this is relative to your home directory."
-msgstr "登陆后将转换到的目录 - 通常和您的家目录相关。"
-
-#: addons/sftp.php:265
-msgid "host name"
-msgstr "主机名"
-
-#: addons/sftp.php:269
-msgid "username"
-msgstr "账户"
-
-#: addons/sftp.php:273
-msgid "password"
-msgstr "密码"
-
-#: addons/sftp.php:278
-msgid "Failure: Port must be an integer."
-msgstr "错误：端口必须是数字。"
-
-#: addons/sftp.php:304
-msgid "Check your file permissions: Could not successfully create and enter:"
-msgstr "检查您的文件权限：无法创建并且进入："
-
-#: addons/sftp.php:318
-msgid "Failed: We were able to log in and move to the indicated directory, but failed to successfully created a file in that location."
-msgstr "失败：我们可以登陆、转移至制定目录，但是无法在那里创建文件。"
-
-#: addons/fixtime.php:77
-#: addons/fixtime.php:87
-msgid "starting from next time it is"
-msgstr "从下一次开始"
-
-#: addons/fixtime.php:77
-#: addons/fixtime.php:87
-msgid "Enter in format HH:MM (e.g. 14:22)."
-msgstr "输入格式 HH:MM （如：14:22）"
-
-#: addons/fixtime.php:77
-#: addons/fixtime.php:87
-msgid "The time zone used is that from your WordPress settings, in Settings -> General."
-msgstr "使用的时区信息来自WordPress设置，在 Settings -> General 中"
-
-#: addons/multisite.php:126
-msgid "Multisite Install"
-msgstr "安装多站点"
-
-#: addons/multisite.php:132
-msgid "You do not have sufficient permissions to access this page."
-msgstr "您没有察看此页面的适当权限。"
-
-#: addons/multisite.php:151
-msgid "You do not have permission to access this page."
-msgstr "您没有权限察看此页面。"
-
-#: addons/multisite.php:213
-msgid "Must-use plugins"
-msgstr "必须使用 插件"
-
-#: addons/multisite.php:220
-msgid "Blog uploads"
-msgstr "博客上传"
-
-#: addons/migrator.php:40
-msgid "This looks like a migration (the backup is from a site with a different address/URL), but you did not check the option to search-and-replace the database. That is usually a mistake."
-msgstr "现在貌似是在迁移（备份文件中的URL地址来自不同的站点），但是您没有选中“查找/替换数据库”选项，这将会是一个错误。"
-
-#: addons/migrator.php:44
-msgid "Processed plugin:"
-msgstr "处理过的插件："
-
-#: addons/migrator.php:52
-msgid "Network activating theme:"
-msgstr "网络活跃主题："
-
-#: addons/migrator.php:86
-msgid "Information needed to continue:"
-msgstr "如果要继续，需要的信息："
-
-#: addons/migrator.php:87
-msgid "Please supply the following information:"
-msgstr "请补充以下信息："
-
-#: addons/migrator.php:90
-msgid "Enter details for where this new site is to live within your multisite install:"
-msgstr "使用多站点安装方式时，请在这里填入关于此站点位置的详细信息："
-
-#: addons/migrator.php:99
-msgid "Site Name:"
-msgstr "站点名字："
-
-#: addons/migrator.php:101
-msgid "Site Domain:"
-msgstr "站点域名"
-
-#: addons/migrator.php:118
-msgid "Migrated site (from UpdraftPlus)"
-msgstr "迁移站点（从UpdraftPlus）"
-
-#: addons/migrator.php:147
-msgid "<strong>ERROR</strong>: Site URL already taken."
-msgstr "<strong>错误</strong>：站点 RUL 已经获取。"
-
-#: addons/migrator.php:154
-msgid "New site:"
-msgstr "新站点："
-
-#: addons/migrator.php:170
-#, php-format
-msgid "All references to the site location in the database will be replaced with your current site URL, which is: %s"
-msgstr "数据库中参考的所有站点位置信息将会使用您目前的URL替换：%s"
-
-#: addons/migrator.php:170
-msgid "Search and replace site location in the database (migrate)"
-msgstr "察看并且在数据库中替换站点位置（迁移）"
-
-#: addons/migrator.php:170
-msgid "(learn more)"
-msgstr "（学习更多）"
-
-#: addons/migrator.php:257
-#: addons/migrator.php:371
-#, php-format
-msgid "Failed: the %s operation was not able to start."
-msgstr "失败：无法开始%s操作"
-
-#: addons/migrator.php:259
-#: addons/migrator.php:373
-#, php-format
-msgid "Failed: we did not understand the result returned by the %s operation."
-msgstr "失败：我们无法识别 %s 操作返回的结果信息。"
-
-#: addons/migrator.php:280
-msgid "Database: search and replace site URL"
-msgstr "数据库：查找并替换站点URL"
-
-#: addons/migrator.php:283
-msgid "This option was not selected."
-msgstr "此选项没有被选择。"
-
-#: addons/migrator.php:298
-#: addons/migrator.php:303
-#, php-format
-msgid "Error: unexpected empty parameter (%s, %s)"
-msgstr "错误：未知的空参数（%s,%s）"
-
-#: addons/migrator.php:308
-#, php-format
-msgid "Nothing to do: the site URL is already: %s"
-msgstr "无事可干：站点URL已经存在：%s"
-
-#: addons/migrator.php:313
-#, php-format
-msgid "Warning: the database's site URL (%s) is different to what we expected (%s)"
-msgstr "警告：站点URL（%s）和我们预期的不相符（%s）"
-
-#: addons/migrator.php:320
-#, php-format
-msgid "Database search and replace: replace %s in backup dump with %s"
-msgstr "数据库查找和替换：在备份文件中将%s替换成%s"
-
-#: addons/migrator.php:338
-msgid "Could not get list of tables"
-msgstr "无法获取表的清单"
-
-#: addons/migrator.php:349
-#, php-format
-msgid "<strong>Search and replacing table:</strong> %s: already done"
-msgstr "<strong>查找并替换表：</strong> %s：已经完成"
-
-#: addons/migrator.php:390
-msgid "Tables examined:"
-msgstr "检查多的表："
-
-#: addons/migrator.php:391
-msgid "Rows examined:"
-msgstr "检查多的行："
-
-#: addons/migrator.php:392
-msgid "Changes made:"
-msgstr "做出的修改："
-
-#: addons/migrator.php:393
-msgid "SQL update commands run:"
-msgstr "SQL更新命令执行："
-
-#: addons/migrator.php:394
-msgid "Errors:"
-msgstr "错误："
-
-#: addons/migrator.php:395
-msgid "Time taken (seconds):"
-msgstr "花费时间（秒）："
-
-#: addons/migrator.php:453
-#, php-format
-msgid "<strong>Search and replacing table:</strong> %s"
-msgstr "<strong>查找并替换表：</strong> %s"
-
-#: addons/migrator.php:482
-#, php-format
-msgid "rows: %d"
-msgstr "行：%d"
-
-#: addons/migrator.php:547
-#, php-format
-msgid "\"%s\" has no primary key, manual change needed on row %s."
-msgstr "\"%s\" 木有主键，需要在row %s上手动修改。"
-
-#: addons/dropbox-folders.php:21
-msgid "Store at"
-msgstr "保存在"
-
+#: admin.php:590
+msgid "Download failed"
+msgstr "下载失败"
+
+#: admin.php:604 admin.php:1272
+msgid "File ready."
+msgstr "文件准备好了。"
+
+#: admin.php:612
+msgid "Download in progress"
+msgstr "正在下载"
+
+#: admin.php:615
+msgid "No local copy present."
+msgstr "没有本地备份"
+
+#: admin.php:827
+msgid "Bad filename format - this does not look like a file created by UpdraftPlus"
+msgstr "文件名格式错误 - 貌似不是UpdraftPlus创建的文件"
+
+#: admin.php:906
+msgid "Bad filename format - this does not look like an encrypted database file created by UpdraftPlus"
+msgstr "文件名格式错误 -貌似不是UpdraftPlus创建的加密数据库文件"
+
+#: admin.php:935
+msgid "Restore successful!"
+msgstr "还原成功！"
+
+#: admin.php:936 admin.php:974 admin.php:993
+msgid "Actions"
+msgstr "动作"
+
+#: admin.php:936 admin.php:951 admin.php:974 admin.php:993
+msgid "Return to UpdraftPlus Configuration"
+msgstr "退出到UpdraftPlus设置"
+
+#: admin.php:963
+msgid "Remove old directories"
+msgstr "移除旧的目录"
+
+#: admin.php:969
+msgid "Old directories successfully removed."
+msgstr "旧目录移除成功"
+
+#: admin.php:972
+msgid "Old directory removal failed for some reason. You may want to do this manually."
+msgstr "移除旧目录失败，您可能需要手动进行操作"
+
+#: admin.php:984
+msgid "Backup directory could not be created"
+msgstr "无法创建备份目录"
+
+#: admin.php:991
+msgid "Backup directory successfully created."
+msgstr "备份目录创建成功"
+
+#: admin.php:1008
+msgid "Your settings have been wiped."
+msgstr "您的设置已经被擦除了"
+
+#: updraftplus.php:2212 updraftplus.php:2218
+msgid "Please help UpdraftPlus by giving a positive review at wordpress.org"
+msgstr "为了帮助UpdraftPlus，请在 wordpress.org给出一个正面的评价"
+
+#: updraftplus.php:2225
+msgid "Need even more features and support? Check out UpdraftPlus Premium"
+msgstr "需要更多的功能或是支持吗？请购买UpdraftPlus商业版"
+
+#: updraftplus.php:2235
+msgid "Check out UpdraftPlus.Com for help, add-ons and support"
+msgstr "关注UpdraftPlus.Com来获得帮助、附加功能和支持"
+
+#: updraftplus.php:2238
+msgid "Want to say thank-you for UpdraftPlus?"
+msgstr "想对UpdraftPlus说谢谢？"
+
+#: updraftplus.php:2238
+msgid "Please buy our very cheap 'no adverts' add-on."
+msgstr "请购买我们非常便宜的“无广告版”插件"
+
+#: backup.php:36
+msgid "Infinite recursion: consult your log for more information"
+msgstr "无限递归：请察看您的日志，以获取更多信息"
+
+#: backup.php:613
+msgid "Could not create %s zip. Consult the log file for more information."
+msgstr "无法创建 %s zip压缩文件。察看日志文件，以获取详细信息"
+
+#: admin.php:103 admin.php:120
+msgid "Allowed Files"
+msgstr "允许文件"
+
+#: admin.php:183
+msgid "Settings"
+msgstr "设置"
+
+#: admin.php:187
+msgid "Add-Ons / Pro Support"
+msgstr "插件/Pro 支持"
+
+#: admin.php:199 admin.php:203 admin.php:207 admin.php:216 admin.php:1151
+#: admin.php:2248 admin.php:2255 admin.php:2257
+msgid "Warning"
+msgstr "警告"
+
+#: admin.php:199
+msgid "You have less than %s of free disk space on the disk which UpdraftPlus is configured to use to create backups. UpdraftPlus could well run out of space. Contact your the operator of your server (e.g. your web hosting company) to resolve this issue."
+msgstr "您分配给UpdraftPlus使用的备份磁盘剩余空间少于%s，UpdraftPlus无法正常运行。请联系您的主机管理员来解决这个问题"
+
+#: admin.php:203
+msgid "UpdraftPlus does not officially support versions of WordPress before %s. It may work for you, but if it does not, then please be aware that no support is available until you upgrade WordPress."
+msgstr "UpdraftPlus目前不支持%s之前的WordPress，可能会工作；但是如果无法工作，请您只好升级WordPress了"
+
+#: updraftplus.php:1042
+msgid "The backup has not finished; a resumption is scheduled within 5 minutes"
+msgstr "备份失败，5分钟后重新开始"
+
+#: updraftplus.php:1124
+msgid "Backed up"
+msgstr "备份"
+
+#: updraftplus.php:1124
+msgid "WordPress backup is complete"
+msgstr "Wordpress 备份完成"
+
+#: updraftplus.php:1124
+msgid "Backup contains"
+msgstr "备份包含"
+
+#: updraftplus.php:1124
+msgid "Latest status"
+msgstr "最新状态"
+
+#: updraftplus.php:1404
+msgid "Backup directory (%s) is not writable, or does not exist."
+msgstr "备份目录(%s)没有写权限，或者不存在该目录"
+
+#: updraftplus.php:1574
+msgid "Could not read the directory"
+msgstr "无法读取目录"
+
+#: updraftplus.php:1591
+msgid "Could not save backup history because we have no backup array. Backup probably failed."
+msgstr "由于没有备份数组，所以无法保存备份历史信息。备份失败"
+
+#: updraftplus.php:1625
+msgid "Could not open the backup file for writing"
+msgstr "无法写入备份文件"
+
+#: updraftplus.php:1646
+msgid "Generated: %s"
+msgstr "发起者： %s"
+
+#: updraftplus.php:1647
+msgid "Hostname: %s"
+msgstr "主机名：%s"
+
+#: updraftplus.php:1648
+msgid "Database: %s"
+msgstr "数据库：%s"
+
+#: updraftplus.php:1711
+msgid "The backup directory is not writable."
+msgstr "无法写备份目录"
+
+#: updraftplus.php:1732
+msgid "Table: %s"
+msgstr "表：%s"
+
+#: updraftplus.php:1737
+msgid "Skipping non-WP table: %s"
+msgstr "跳过不是 WP 开跳的表： %s"
+
+#: updraftplus.php:1844
+msgid "Delete any existing table %s"
+msgstr "删除已经存在的表 %s"
+
+#: updraftplus.php:1853
+msgid "Table structure of table %s"
+msgstr "表 %s 的结构"
+
+#: updraftplus.php:1859
+msgid "Error with SHOW CREATE TABLE for %s."
+msgstr "表 %s 的 SHOW CREATE TABLE 出错"
+
+#: updraftplus.php:1965
+msgid "End of data contents of table %s"
+msgstr "表 %s 的内容完毕"
+
+#: updraftplus.php:2132 restorer.php:72 admin.php:655
+msgid "Decryption failed. The database file is encrypted, but you have no encryption key entered."
+msgstr "解密失败。数据库文件已加密，但是您没有输入密码"
+
+#: updraftplus.php:2145 restorer.php:87 admin.php:673
+msgid "Decryption failed. The most likely cause is that you used the wrong key."
+msgstr "解密失败。很可能是因为您输入的密码错误"
+
+#: updraftplus.php:2145
+msgid "The decryption key used:"
+msgstr "使用密码："
+
+#: updraftplus.php:2160
+msgid "File not found"
+msgstr "没有找到文件"
+
+#: updraftplus.php:2210
+msgid "Can you translate? Want to improve UpdraftPlus for speakers of your language?"
+msgstr "您可以翻译吗？想为和您说一样语言的人在使用 UpdraftPlus 的时候造福吗"
+
+#: updraftplus.php:2212 updraftplus.php:2218
+msgid "Like UpdraftPlus and can spare one minute?"
+msgstr "喜欢UpdraftPlus， 并且可以抽出1分钟时间？"
+
+#: updraftplus.php:598
+msgid "Themes"
+msgstr "主题"
+
+#: updraftplus.php:599
+msgid "Uploads"
+msgstr "上传"
+
+#: updraftplus.php:614
+msgid "Others"
+msgstr "其他"
+
+#: updraftplus.php:924
+msgid "Could not create files in the backup directory. Backup aborted - check your UpdraftPlus settings."
+msgstr "无法在备份目录创建文件，退出备份 - 请检查您的UpdraftPlus设置"
+
+#: updraftplus.php:994
+msgid "Encryption error occurred when encrypting database. Encryption aborted."
+msgstr "数据库加密出错 - 退出加密"
+
+#: updraftplus.php:1033
+msgid "The backup apparently succeeded and is now complete"
+msgstr "备份成功完成"
+
+#: updraftplus.php:1039
+msgid "The backup attempt has finished, apparently unsuccessfully"
+msgstr "备份完成，但是貌似不成功"
+
+#: options.php:26
+msgid "UpdraftPlus Backups"
+msgstr "UpdraftPlus  归档"
+
+#: updraftplus.php:328 updraftplus.php:333 updraftplus.php:338 admin.php:220
+#: admin.php:224
+msgid "UpdraftPlus notice:"
+msgstr "UpdraftPlus 注意事项："
+
+#: updraftplus.php:328
+msgid "The log file could not be read."
+msgstr "无法读取日志文件"
+
+#: updraftplus.php:333
+msgid "No log files were found."
+msgstr "无法找到日志文件"
+
+#: updraftplus.php:338
+msgid "The given file could not be read."
+msgstr "无法读取给定的文件"
+
+#: updraftplus.php:597
+msgid "Plugins"
+msgstr "插件"
