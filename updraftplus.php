@@ -406,8 +406,12 @@ class UpdraftPlus {
 		}
 		$this->log($logline);
 		$disk_free_space = @disk_free_space($updraft_dir);
-		$this->log("Free space on disk containing Updraft's temporary directory: ".round($disk_free_space/1048576,1)." Mb");
-		if ($disk_free_space < 50*1048576) $this->log(sprintf(__('Your free disk space is very low - only %s Mb remain', 'updraftplus'), round($disk_free_space/1048576, 1)), 'warning');
+		if ($disk_free_space === false) {
+			$this->log("Free space on disk containing Updraft's temporary directory: Unknown");
+		} else {
+			$this->log("Free space on disk containing Updraft's temporary directory: ".round($disk_free_space/1048576,1)." Mb");
+			if ($disk_free_space < 50*1048576) $this->log(sprintf(__('Your free disk space is very low - only %s Mb remain', 'updraftplus'), round($disk_free_space/1048576, 1)), 'warning');
+		}
 	}
 
 	/* Logs the given line, adding (relative) time stamp and newline
