@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.46
+Version: 1.6.47
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -406,8 +406,12 @@ class UpdraftPlus {
 		}
 		$this->log($logline);
 		$disk_free_space = @disk_free_space($updraft_dir);
-		$this->log("Free space on disk containing Updraft's temporary directory: ".round($disk_free_space/1048576,1)." Mb");
-		if ($disk_free_space < 50*1048576) $this->log(sprintf(__('Your free disk space is very low - only %s Mb remain', 'updraftplus'), round($disk_free_space/1048576, 1)), 'warning');
+		if ($disk_free_space === false) {
+			$this->log("Free space on disk containing Updraft's temporary directory: Unknown");
+		} else {
+			$this->log("Free space on disk containing Updraft's temporary directory: ".round($disk_free_space/1048576,1)." Mb");
+			if ($disk_free_space < 50*1048576) $this->log(sprintf(__('Your free disk space is very low - only %s Mb remain', 'updraftplus'), round($disk_free_space/1048576, 1)), 'warning');
+		}
 	}
 
 	/* Logs the given line, adding (relative) time stamp and newline
@@ -419,7 +423,7 @@ class UpdraftPlus {
 	function log($line, $level = 'notice', $uniq_id = false) {
 
 		if ('error' == $level || 'warning' == $level) {
-			if ('error' == $level && $this->error_count() == 0) $this->log("An error condition has occurred for the first time during this job (follows)");
+			if ('error' == $level && $this->error_count() == 0) $this->log("An error condition has occurred for the first time during this job");
 			$this->errors[] = array('level' => $level, 'message' => $line);
 			# Errors are logged separately
 			if ('error' == $level) return;
