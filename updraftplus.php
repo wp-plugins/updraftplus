@@ -2177,6 +2177,8 @@ class UpdraftPlus {
 					header('Content-type: application/x-gzip');
 				}
 				header("Content-Disposition: attachment; filename=\"$file\";");
+				# Prevent the file being read into memory
+				@ob_end_flush();
 				readfile($fullpath);
 			}
 // 			$this->delete_local($file);
