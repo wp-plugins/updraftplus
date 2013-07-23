@@ -641,6 +641,9 @@ class UpdraftPlus {
 		@ignore_user_abort(true);
 		// This is scheduled for 5 minutes after a backup job starts
 
+		$runs_started = $this->jobdata_get('runs_started');
+		if (!is_array($runs_started)) $runs_started=array();
+
 		// Restore state
 		$resumption_extralog = '';
 		if ($resumption_no > 0) {
@@ -650,11 +653,20 @@ class UpdraftPlus {
 
 			$time_passed = $this->jobdata_get('run_times');
 			if (!is_array($time_passed)) $time_passed = array();
+			$time_now = microtime(true);
+// 			foreach ($time_passed as $run => $passed) {
+// 				if (isset($runs_started[$run]) && $runs_started[$run] + $time_passed[$run] + 30 > $time_now) {
+// 					$this->terminate_due_to_activity('check-in', round($time_now,1), round($time_mod,1));
+// 				}
+// 			}
 
 			$prev_resumption = $resumption_no - 1;
 			if (isset($time_passed[$prev_resumption])) $resumption_extralog = ", previous check-in=".round($time_passed[$prev_resumption], 1)."s";
 
 		}
+
+		$runs_started[$resumption_no] = microtime(true);
+		$this->jobdata_set('runs_started', $runs_started);
 
 		// Import existing warnings. The purpose of this is so that when save_backup_history() is called, it has a complete set - because job data expires quickly, whilst the warnings of the last backup run need to persist
 		$warnings = $this->jobdata_get('warnings');
@@ -1826,8 +1838,10 @@ class UpdraftPlus {
 	} //wp_db_backup
 
 	function terminate_due_to_activity($file, $time_now, $time_mod) {
-		$file_size = filesize($file);
-		$this->log("Terminate: the final database file ($file) exists, and was modified within the last 30 seconds (time_mod=$time_mod, time_now=$time_now, diff=".($time_now-$time_mod).", size=$file_size). This likely means that another UpdraftPlus run is at work; so we will exit.");
+		# We check-in, to avoid 'no check in last time!' detectors firing
+		$this->record_still_alive();
+		$file_size = file_exists($file) ? round(filesize($file)/1024,1). 'Kb' : 'n/a';
+		$this->log("Terminate: ".basename($file)." exists with activity within the last 30 seconds (time_mod=$time_mod, time_now=$time_now, diff=".($time_now-$time_mod).", size=$file_size). This likely means that another UpdraftPlus run is at work; so we will exit.");
 		$this->increase_resume_and_reschedule(120, true);
 		die;
 	}
@@ -2161,7 +2175,7 @@ class UpdraftPlus {
 					$rijndael->setKey($encryption);
 					$ciphertext = $rijndael->decrypt(file_get_contents($fullpath));
 					if ($ciphertext) {
-						header('Content-type: application/x-gzip');
+						header('Content-type: application/octet-stream');
 						header("Content-Disposition: attachment; filename=\"".substr($file,0,-6)."\";");
 						print $ciphertext;
 					} else {
@@ -2174,7 +2188,7 @@ class UpdraftPlus {
 				if ($file_ext == 'zip') {
 					header('Content-type: application/zip');
 				} else {
-					header('Content-type: application/x-gzip');
+					header('Content-type: application/octet-stream');
 				}
 				header("Content-Disposition: attachment; filename=\"$file\";");
 				# Prevent the file being read into memory
