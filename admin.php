@@ -1,5 +1,9 @@
 <?php
 
+// TODO: Deleting multi-archive sets in the downloader does not yet work
+// TODO: Not yet tested deleting multi-archive sets via the X button
+// TODO: Uploading multi-archive sets is not yet tested
+
 // TODO: Multi-archive sets: needs to work with binzip somehow (difficulty is, we don't know the compressed size in advance - could just count based on uncompressed, since anything getting really big is likely to already be compressed). And PclZip, though I suspect that's impossible.
 // TODO: mysql maximum packet size - need to intelligently split the backup SQL (or up the packet size + reconnect)
 
@@ -270,7 +274,7 @@ class UpdraftPlus_Admin {
 		// Base name
 		$file = $backup_history[$timestamp][$type];
 
-		// Deal wtih multi-archive sets
+		// Deal with multi-archive sets
 		if (is_array($file)) $file=$file[$findex];
 
 		// Where it should end up being downloaded to
@@ -295,7 +299,6 @@ class UpdraftPlus_Admin {
 		$updraftplus->log("Requested to obtain file: timestamp=$timestamp, type=$type, index=$findex");
 
 		$itext = (empty($findex)) ? '' : $findex;
-
 		$known_size = isset($backup_history[$timestamp][$type.$itext.'-size']) ? $backup_history[$timestamp][$type.$itext.'-size'] : 0;
 
 		$service = (isset($backup_history[$timestamp]['service'])) ? $backup_history[$timestamp]['service'] : false;
@@ -427,7 +430,7 @@ class UpdraftPlus_Admin {
 						if (is_string($whatwegot)) $whatwegot = array($whatwegot);
 						$expected_index = 0;
 						$missing = '';
-						asort($whatwegot);
+						ksort($whatwegot);
 						foreach ($whatwegot as $index => $file) {
 							if ($index != $expected_index) $missing .= ($missing == '') ? (1+$expected_index) : ",".(1+$expected_index);
 						}
@@ -1252,8 +1255,8 @@ class UpdraftPlus_Admin {
 									}
 								});
 							}
-							function updraftplus_downloadstage2(timestamp, type) {
-								location.href=ajaxurl+'?_wpnonce=<?php echo wp_create_nonce("updraftplus_download"); ?>&timestamp='+timestamp+'&type='+type+'&stage=2&action=updraft_download_backup';
+							function updraftplus_downloadstage2(timestamp, type, findex) {
+								location.href=ajaxurl+'?_wpnonce=<?php echo wp_create_nonce("updraftplus_download"); ?>&timestamp='+timestamp+'&type='+type+'&stage=2&findex='+findex+'&action=updraft_download_backup';
 							}
 							function updraft_downloader(base, nonce, what, whicharea, set_contents, prettydate) {
 								if (typeof set_contents !== "string") set_contents=set_contents.toString();
@@ -1261,16 +1264,18 @@ class UpdraftPlus_Admin {
 								for (var i=0;i<set_contents.length; i++) {
 									// Create somewhere for the status to be found
 									var stid = base+nonce+'_'+what+'_'+set_contents[i];
+									var show_index = parseInt(set_contents[i]); show_index++;
+									var itext = (set_contents[i] == 0) ? '' : ' ('+show_index+')';
 									if (!jQuery('#'+stid).length) {
 										var prdate = (prettydate) ? prettydate : nonce;
-										jQuery(whicharea).append('<div style="clear:left; border: 1px solid; padding: 8px; margin-top: 4px; max-width:840px;" id="'+stid+'"><button onclick="jQuery(\'#'+stid+'\').fadeOut().remove();" type="button" style="float:right; margin-bottom: 8px;">X</button><strong>Download '+what+' ('+prdate+')</strong>:<div class="raw"><?php _e('Begun looking for this entity','updraftplus');?></div><div class="file" id="'+stid+'_st"><div class="dlfileprogress" style="width: 0;"></div></div>');
+										jQuery(whicharea).append('<div style="clear:left; border: 1px solid; padding: 8px; margin-top: 4px; max-width:840px;" id="'+stid+'"><button onclick="jQuery(\'#'+stid+'\').fadeOut().remove();" type="button" style="float:right; margin-bottom: 8px;">X</button><strong>Download '+what+itext+' ('+prdate+')</strong>:<div class="raw"><?php _e('Begun looking for this entity','updraftplus');?></div><div class="file" id="'+stid+'_st"><div class="dlfileprogress" style="width: 0;"></div></div>');
 										// <b><span class="dlname">??</span></b> (<span class="dlsofar">?? KB</span>/<span class="dlsize">??</span> KB)
 										(function(base, nonce, what, i) {
 											setTimeout(function(){updraft_downloader_status(base, nonce, what, i);}, 300);
 										})(base, nonce, what, set_contents[i]);
 									}
 									// Now send the actual request to kick it all off
-									jQuery.post(ajaxurl, jQuery('#uddownloadform_'+what+'_'+nonce).serialize());
+									jQuery.post(ajaxurl, jQuery('#uddownloadform_'+what+'_'+nonce+'_'+set_contents[i]).serialize());
 								}
 								// We don't want the form to submit as that replaces the document
 								return false;
@@ -1348,7 +1353,7 @@ class UpdraftPlus_Admin {
 												} else if (resp.p < 100 || base != 'uddlstatus_') {
 													jQuery('#'+stid+' .raw').html(resp.m);
 												} else {
-													jQuery('#'+stid+' .raw').html('<?php _e('File ready.','updraftplus'); ?> <?php _e('You should:','updraftplus'); ?> <button type="button" onclick="updraftplus_downloadstage2(\''+nonce+'\', \''+what+'\')\">Download to your computer</button> and then, if you wish, <button id="uddownloaddelete_'+nonce+'_'+what+'" type="button" onclick="updraftplus_deletefromserver(\''+nonce+'\', \''+what+'\')\">Delete from your web server</button>');
+													jQuery('#'+stid+' .raw').html('<?php _e('File ready.','updraftplus'); ?> <?php _e('You should:','updraftplus'); ?> <button type="button" onclick="updraftplus_downloadstage2(\''+nonce+'\', \''+what+'\', \''+findex+'\')\">Download to your computer</button> and then, if you wish, <button id="uddownloaddelete_'+nonce+'_'+what+'" type="button" onclick="updraftplus_deletefromserver(\''+nonce+'\', \''+what+'\')\">Delete from your web server</button>');
 												}
 											}
 											dlstatus_lastlog = response;
@@ -2436,13 +2441,13 @@ ENDHERE;
 			<td><div class="updraftplus-remove" style="width: 19px; height: 19px; padding-top:0px; font-size: 18px; text-align:center;font-weight:bold; border-radius: 7px;"><a style="text-decoration:none;" href="javascript:updraft_delete('$key', '$non', $sval);" title="$title">×</a></div></td><td><b>$pretty_date</b></td>
 			<td>
 ENDHERE;
-		if (isset($backup['db'])) {
-			$entities .= '/db=0/';
-			$sdescrip = preg_replace('/ \(.*\)$/', '', __('Database','updraftplus'));
-			$nf = wp_nonce_field('updraftplus_download', '_wpnonce', true, false);
-			$dbt = __('Database','updraftplus');
-			$ret .= <<<ENDHERE
-				<form id="uddownloadform_db_$key" action="admin-ajax.php" onsubmit="return updraft_downloader('uddlstatus_', $key, 'db', '#ud_downloadstatus', '0', '$esc_pretty_date')" method="post">
+			if (isset($backup['db'])) {
+				$entities .= '/db=0/';
+				$sdescrip = preg_replace('/ \(.*\)$/', '', __('Database','updraftplus'));
+				$nf = wp_nonce_field('updraftplus_download', '_wpnonce', true, false);
+				$dbt = __('Database','updraftplus');
+				$ret .= <<<ENDHERE
+				<form id="uddownloadform_db_${key}_0" action="admin-ajax.php" onsubmit="return updraft_downloader('uddlstatus_', $key, 'db', '#ud_downloadstatus', '0', '$esc_pretty_date')" method="post">
 					$nf
 					<input type="hidden" name="action" value="updraft_download_backup" />
 					<input type="hidden" name="type" value="db" />
@@ -2450,48 +2455,48 @@ ENDHERE;
 					<input type="submit" value="$dbt" />
 				</form>
 ENDHERE;
-		} else {
-			$ret .= sprintf(_x('(No %s)','Message shown when no such object is available','updraftplus'), __('database', 'updraftplus'));
-		}
-		$ret .="</td>";
+			} else {
+				$ret .= sprintf(_x('(No %s)','Message shown when no such object is available','updraftplus'), __('database', 'updraftplus'));
+			}
+			$ret .="</td>";
 
-		// Now go through each of the file entities
-		foreach ($backupable_entities as $type => $info) {
-			$ret .= '<td>';
-			$sdescrip = preg_replace('/ \(.*\)$/', '', $info['description']);
-			if (strlen($sdescrip) > 20 && isset($info['shortdescription'])) $sdescrip = $info['shortdescription'];
-			if (isset($backup[$type])) {
-				if (!is_array($backup[$type])) $backup[$type]=array($backup[$type]);
-				asort($backup[$type]);
-				$ide = __('Press here to download','updraftplus').' '.strtolower($info['description']);
-				$nf = wp_nonce_field('updraftplus_download',  '_wpnonce', true, false);
-				$howmanyinset = count($backup[$type]);
-				# TODO: Upload detection needs to put them in the expected index
-				$expected_index = 0;
-				$index_missing = false;
-				$set_contents = '';
-				$entities .= "/$type=";
-				foreach ($backup[$type] as $findex => $bfile) {
-					$set_contents .= ($set_contents == '') ? $findex : ",$findex";
-					if ($findex != $expected_index) $index_missing = true;
-					$expected_index++;
-				}
-				$entities .= $set_contents.'/';
-				foreach ($backup[$type] as $findex => $bfile) {
+			// Now go through each of the file entities
+			foreach ($backupable_entities as $type => $info) {
+				$ret .= '<td>';
+				$sdescrip = preg_replace('/ \(.*\)$/', '', $info['description']);
+				if (strlen($sdescrip) > 20 && isset($info['shortdescription'])) $sdescrip = $info['shortdescription'];
+				if (isset($backup[$type])) {
+					if (!is_array($backup[$type])) $backup[$type]=array($backup[$type]);
+					$nf = wp_nonce_field('updraftplus_download',  '_wpnonce', true, false);
+					$howmanyinset = count($backup[$type]);
+					# TODO: Upload detection needs to put them in the expected index
+					$expected_index = 0;
+					$index_missing = false;
+					$set_contents = '';
+					$entities .= "/$type=";
+					$whatfiles = $backup[$type];
+					ksort($whatfiles);
+					foreach ($whatfiles as $findex => $bfile) {
+						$set_contents .= ($set_contents == '') ? $findex : ",$findex";
+						if ($findex != $expected_index) $index_missing = true;
+						$expected_index++;
+					}
+					$entities .= $set_contents.'/';
 					$first_printed = true;
-					$pdescrip = ($findex > 0) ? $sdescrip.' ('.($findex+1).')' : $sdescrip;
-					if (!$first_printed) {
-						$ret .= '<noscript>';
-					}
-					if (count($backup[$type]) >0) {
-						$ide .= ' '.sprintf(__('(%d archive(s) in set).', 'updraftplus'), $howmanyinset);
-					}
-					if ($index_missing) {
-						$ide .= ' '.__('You appear to be missing one or more archives from this multi-archive set.', 'updraftplus');
-					}
-					# TODO: Everywhere where we have howmanyinset, we instead need to list the actual ones in set - because the assumption that we have 0, 1, 2, 3,,, is wrong - they may have uploaded something else.
-					$ret .= <<<ENDHERE
-					<form id="uddownloadform_${type}_${key}" action="admin-ajax.php" onsubmit="return updraft_downloader('uddlstatus_', '$key', '$type', '#ud_downloadstatus', '$set_contents', '$esc_pretty_date')" method="post">
+					foreach ($whatfiles as $findex => $bfile) {
+						$ide = __('Press here to download','updraftplus').' '.strtolower($info['description']);
+						$pdescrip = ($findex > 0) ? $sdescrip.' ('.($findex+1).')' : $sdescrip;
+						if (!$first_printed) {
+							$ret .= '<div style="display:none;">';
+						}
+						if (count($backup[$type]) >0) {
+							$ide .= ' '.sprintf(__('(%d archive(s) in set).', 'updraftplus'), $howmanyinset);
+						}
+						if ($index_missing) {
+							$ide .= ' '.__('You appear to be missing one or more archives from this multi-archive set.', 'updraftplus');
+						}
+						$ret .= <<<ENDHERE
+					<form id="uddownloadform_${type}_${key}_${findex}" action="admin-ajax.php" onsubmit="return updraft_downloader('uddlstatus_', '$key', '$type', '#ud_downloadstatus', '$set_contents', '$esc_pretty_date')" method="post">
 						$nf
 						<input type="hidden" name="action" value="updraft_download_backup" />
 						<input type="hidden" name="type" value="$type" />
@@ -2500,22 +2505,23 @@ ENDHERE;
 						<input type="submit" title="$ide" value="$pdescrip" />
 					</form>
 ENDHERE;
-					if (!$first_printed) {
-						$ret .= '</noscript>';
-					} else {
-						$first_printed = false;
+						if (!$first_printed) {
+							$ret .= '</div>';
+						} else {
+							$first_printed = false;
+						}
 					}
+				} else {
+					$ret .= sprintf(_x('(No %s)','Message shown when no such object is available','updraftplus'), preg_replace('/\s\(.{12,}\)/', '', strtolower($sdescrip)));
 				}
-		} else {
-			$ret .= sprintf(_x('(No %s)','Message shown when no such object is available','updraftplus'), preg_replace('/\s\(.{12,}\)/', '', strtolower($sdescrip))); }
-			$ret .= '</td>';
-		};
+				$ret .= '</td>';
+			};
 
-		$ret .= '<td>';
-		if (isset($backup['nonce']) && preg_match("/^[0-9a-f]{12}$/",$backup['nonce']) && is_readable($updraft_dir.'/log.'.$backup['nonce'].'.txt')) {
-			$nval = $backup['nonce'];
-			$lt = __('Backup Log','updraftplus');
-			$ret .= <<<ENDHERE
+			$ret .= '<td>';
+			if (isset($backup['nonce']) && preg_match("/^[0-9a-f]{12}$/",$backup['nonce']) && is_readable($updraft_dir.'/log.'.$backup['nonce'].'.txt')) {
+				$nval = $backup['nonce'];
+				$lt = __('Backup Log','updraftplus');
+				$ret .= <<<ENDHERE
 				<form action="options-general.php" method="get">
 					<input type="hidden" name="action" value="downloadlog" />
 					<input type="hidden" name="page" value="updraftplus" />
@@ -2523,20 +2529,20 @@ ENDHERE;
 					<input type="submit" value="$lt" />
 				</form>
 ENDHERE;
-			} else {
-				$ret .= "(No&nbsp;backup&nbsp;log)";
-			}
-			$ret .= <<<ENDHERE
+				} else {
+					$ret .= "(No&nbsp;backup&nbsp;log)";
+				}
+				$ret .= <<<ENDHERE
 			</td>
 			<td>
 				<form method="post" action="">
 					<input type="hidden" name="backup_timestamp" value="$key">
 					<input type="hidden" name="action" value="updraft_restore" />
 ENDHERE;
-			if ($entities) {
-				$ret .= '<button title="'.__('After pressing this button, you will be given the option to choose which components you wish to restore','updraftplus').'" type="button" class="button-primary" style="padding-top:2px;padding-bottom:2px;font-size:16px !important; min-height:26px;" onclick="'."updraft_restore_setoptions('$entities'); jQuery('#updraft_restore_timestamp').val('$key'); jQuery('.updraft_restore_date').html('$pretty_date'); updraft_restore_stage = 1; jQuery('#updraft-restore-modal').dialog('open'); jQuery('#updraft-restore-modal-stage1').show();jQuery('#updraft-restore-modal-stage2').hide(); jQuery('#updraft-restore-modal-stage2a').html('');\">".__('Restore','updraftplus').'</button>';
-			}
-			$ret .= <<<ENDHERE
+				if ($entities) {
+					$ret .= '<button title="'.__('After pressing this button, you will be given the option to choose which components you wish to restore','updraftplus').'" type="button" class="button-primary" style="padding-top:2px;padding-bottom:2px;font-size:16px !important; min-height:26px;" onclick="'."updraft_restore_setoptions('$entities'); jQuery('#updraft_restore_timestamp').val('$key'); jQuery('.updraft_restore_date').html('$pretty_date'); updraft_restore_stage = 1; jQuery('#updraft-restore-modal').dialog('open'); jQuery('#updraft-restore-modal-stage1').show();jQuery('#updraft-restore-modal-stage2').hide(); jQuery('#updraft-restore-modal-stage2a').html('');\">".__('Restore','updraftplus').'</button>';
+				}
+				$ret .= <<<ENDHERE
 				</form>
 			</td>
 		</tr>
@@ -2571,7 +2577,7 @@ ENDHERE;
 		}
 		</script>
 ENDHERE;
-		}
+			}
 		$ret .= '</table>';
 		return $ret;
 	}

@@ -1,5 +1,9 @@
 <?php
 
+# TODO: Email backup method should be able to force split limit down to something manageable - or at least, should make the option display.
+# TODO: Test situation where large file taking over the split limit is the last file (i.e. no more, no further zip)
+# TODO: Make sure no debugging code left behind (error_log, file_put_contents)
+
 if (!defined ('ABSPATH')) die('No direct access allowed');
 
 // This file contains functions that are only needed/loaded when a backup is running (reduces memory usage on other site pages)
@@ -55,7 +59,7 @@ class UpdraftPlus_Backup {
 
 		$updraft_dir = $updraftplus->backups_dir_location();
 
-		$itext = (empty($index)) ? '' : $index;
+		$itext = (empty($index)) ? '' : ($index+1);
 		$base_path = $backup_file_basename.'-'.$whichone.$itext.'.zip';
 		$full_path = $updraft_dir.'/'.$base_path;
 		$time_now = time();
@@ -100,7 +104,7 @@ class UpdraftPlus_Backup {
 			# The caller is required to update $index from $this->index
 			return false;
 		} else {
-			$itext = (empty($this->index)) ? '' : $this->index;
+			$itext = (empty($this->index)) ? '' : ($this->index+1);
 			$full_path = $updraft_dir.'/'.$backup_file_basename.'-'.$whichone.$itext.'.zip';
 			@rename($full_path.'.tmp', $full_path);
 			$timetaken = max(microtime(true)-$this->zip_microtime_start, 0.000001);
@@ -115,7 +119,7 @@ class UpdraftPlus_Backup {
 		$files_existing = array();
 		$res_index = 0;
 		for ($i = $original_index; $i<= $this->index; $i++) {
-			$itext = (empty($i)) ? '' : $i;
+			$itext = (empty($i)) ? '' : ($i+1);
 			$full_path = $updraft_dir.'/'.$backup_file_basename.'-'.$whichone.$itext.'.zip';
 			if (file_exists($full_path)) {
 				$files_existing[$res_index] = $backup_file_basename.'-'.$whichone.$itext.'.zip';
@@ -211,7 +215,7 @@ class UpdraftPlus_Backup {
 		global $updraftplus;
 		$updraft_dir = $updraftplus->backups_dir_location();
 
-		$itext = (empty($this->index)) ? '' : $this->index;
+		$itext = (empty($this->index)) ? '' : ($this->index+1);
 		$destination_base = $backup_file_basename.'-'.$whichone.$itext.'.zip.tmp';
 		$destination = $updraft_dir.'/'.$destination_base;
 
@@ -379,7 +383,7 @@ class UpdraftPlus_Backup {
 		$this->zipfiles_batched = array();
 		$this->zipfiles_lastwritetime = time();
 
-		$this->zip_split_every = max((int)$updraftplus->jobdata_get('split_every'), 250)*1024*1024;
+		$this->zip_split_every = max((int)$updraftplus->jobdata_get('split_every'), UPDRAFTPLUS_SPLIT_MIN)*1024*1024;
 		$this->zip_basename = $updraft_dir.'/'.$backup_file_basename.'-'.$whichone;
 
 		// Magic value, used later to detect no error occurring
@@ -400,11 +404,21 @@ class UpdraftPlus_Backup {
 			if ($howmany < 0) $last_error = $howmany;
 		}
 
+
+		# Reset these variables because the index may have changed since we began
+
+		# TODO: Logic error - we dont' know whether the new one will have any files in or not; the 
+		$itext = (empty($this->index)) ? '' : ($this->index+1);
+		$destination_base = $backup_file_basename.'-'.$whichone.$itext.'.zip.tmp';
+		$destination = $updraft_dir.'/'.$destination_base;
+
+		# TODO: Not MA-compatible
 		if ($this->zipfiles_added > 0 || $last_error == 2349864) {
 			// ZipArchive::addFile sometimes fails
 			if (filesize($destination) < 90) {
 				// Retry with PclZip
 				$updraftplus->log("Zip::addFile apparently failed ($last_error, ".filesize($destination).") - retrying with PclZip");
+				# TODO: This is not MA-compatible
 				$this->zip_preferpcl = true;
 				return $this->make_zipfile($source, $backup_file_basename, $whichone);
 			}
@@ -661,14 +675,23 @@ class UpdraftPlus_Backup {
 			if ($this->zipfiles_added % 100 == 0) $updraftplus->log("Zip: ".basename($zipfile).": ".$this->zipfiles_added." files added (on-disk size: ".round(@filesize($zipfile)/1024,1)." Kb)");
 
 			if ($bump_index) {
-				$updraftplus->log(sprintf("Zip size has gone over split limit (%s Mb >= %s Mb) - bumping index (%d)", $bumped_at, round($this->zip_split_every/1048576, 1), $this->index));
+				$updraftplus->log(sprintf("Zip size has gone over split limit (%s Mb >= %s Mb) - bumping index (from: %d)", $bumped_at, round($this->zip_split_every/1048576, 1), $this->index));
 				$bump_index = false;
 				$this->bump_index();
-				$zipfile = $this->zip_basename.$this->index.'.zip.tmp';
+				$zipfile = $this->zip_basename.($this->index+1).'.zip.tmp';
 			}
 			if (empty($zip)) {
 				$zip = new ZipArchive;
-				$opencode = $zip->open($zipfile);
+
+				if (file_exists($zipfile)) {
+					$opencode = $zip->open($zipfile);
+					$original_size = filesize($zipfile);
+					clearstatcache();
+				} else {
+					$opencode = $zip->open($zipfile, ZIPARCHIVE::CREATE);
+					$original_size = 0;
+				}
+
 				if ($opencode !== true) return array($opencode, 0);
 			}
 
@@ -707,11 +730,12 @@ class UpdraftPlus_Backup {
 
 		$timetaken = max(microtime(true)-$this->zip_microtime_start, 0.000001);
 
-		$full_path = $this->zip_basename.$this->index.'.zip';
+		$itext = ($this->index == 0) ? '' : ($this->index+1);
+		$full_path = $this->zip_basename.$itext.'.zip';
 		@rename($full_path.'.tmp', $full_path);
 		$kbsize = filesize($full_path)/1024;
 		$rate = round($kbsize/$timetaken, 1);
-		$updraftplus->log("Created $whichone zip (".$this->index.") - file size is ".round($kbsize,1)." Kb in ".round($timetaken,1)." s ($rate Kb/s)");
+		$updraftplus->log("Created ".$this->whichone." zip (".$this->index.") - file size is ".round($kbsize,1)." Kb in ".round($timetaken,1)." s ($rate Kb/s)");
 		$this->zip_microtime_start = microtime(true);
 
 		$this->index++;

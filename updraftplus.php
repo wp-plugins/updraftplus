@@ -1007,7 +1007,7 @@ class UpdraftPlus {
 			'backup_time', $this->backup_time,
 			'backup_time_ms', $this->backup_time_ms,
 			'service', UpdraftPlus_Options::get_updraft_option('updraft_service'),
-			'split_every', max(absint(UpdraftPlus_Options::get_updraft_option('split_every', 1024)), UPDRAFTPLUS_SPLIT_MIN),
+			'split_every', max(absint(UpdraftPlus_Options::get_updraft_option('updraft_split_every', 256)), UPDRAFTPLUS_SPLIT_MIN),
 			'maxzipbatch', 26214400, #25Mb
 			'job_file_entities', $job_file_entities,
 		);
@@ -1523,9 +1523,10 @@ class UpdraftPlus {
 				// Populate prior parts of array, if we're on a subsequent zip file
 				if ($index >0) {
 					for ($i=0; $i++; $i<$index) {
-						$itext = (0 == $i) ? '' : $index;
+						$itext = (0 == $i) ? '' : ($i+1);
 						$backup_array[$youwhat][$i] = $backup_file_basename.'-'.$youwhat.$itext.'.zip';
 						$z = $updraft_dir.'/'.$backup_file_basename.'-'.$youwhat.$itext.'.zip';
+						$itext = (0 == $i) ? '' : $i;
 						if (file_exists($z)) $backup_array[$youwhat.$itext.'-size'] = filesize($z);
 					}
 				}
@@ -1574,7 +1575,7 @@ class UpdraftPlus {
 						if (is_string($created)) $created=array($created);
 						foreach ($created as $findex => $fname) {
 							$backup_array[$youwhat][$index] = $fname;
-							$itext = ($index == 0) ? '' : $findex;
+							$itext = ($index == 0) ? '' : $index;
 							$index++;
 							$backup_array[$youwhat.$itext.'-size'] = filesize($updraft_dir.'/'.$fname);
 						}
