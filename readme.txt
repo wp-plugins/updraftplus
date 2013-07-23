@@ -14,7 +14,7 @@ Easy and complete backups + restoration. Manual or automated backups (Amazon S3,
 
 <a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3 (or compatible), Dropbox, Google Drive, Rackspace Cloud, DreamObjects, FTP, SFTP, WebDAV and email) and restore with a single click. Backups of files and database can have separate schedules.
 
-* Thousands of users: widely tested and reliable (over 180,000 downloads). Ranks in the top 1% on rankwp.com (228 out of 25,000 plugins).
+* Thousands of users: widely tested and reliable (over 190,000 downloads). Ranks in the top 1% on rankwp.com (228 out of 25,000 plugins).
 * Top-quality: ranks 45th out of 25,000 plugins for quality on rankwp.com (top 0.25% - last checked 23rd May 2013).
 * Supports backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP and email. Also (via an add-on) FTP over SSL, SFTP and WebDAV. (Note: Microsoft forbid SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
 * Quick restore (both file and database backups)
@@ -107,7 +107,7 @@ Not a bug, but one issue to be aware of is that backups of very large sites (lot
 
 = My site was hacked, and I have no backups! I thought UpdraftPlus was working! Can I kill you? =
 
-No, there's no warranty or guarantee, etc. It's completely up to you to verify that UpdraftPlus is working correctly. If it doesn't then that's unfortunate, but this is a free plugin.
+No, there's no warranty or guarantee, etc. It's completely up to you to verify that UpdraftPlus is creating your backups correctly. If it doesn't then that's unfortunate, but this is a free plugin.
 
 = I am not running the most recent version of UpdraftPlus. Should I upgrade? =
 
@@ -120,6 +120,9 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 == Changelog ==
 
 = Development trunk - not yet released/supported =
+* TWEAK: Save the result of looking for a binary zip (don't re-test)
+* TWEAK: Log file times are now recorded relative to the backup start, rather than the current resumption start
+* FIX: Make sure output buffering is off when sending files from the browser (prevents memory exhaustion)
 
 = 1.6.46 - 2013/07/11 =
 * FEATURE: New storage back-end for any S3-compatible provider (e.g. Google Cloud Storage, Eucalyptus, Cloudian, many more - tested with Dreamobjects and original S3)

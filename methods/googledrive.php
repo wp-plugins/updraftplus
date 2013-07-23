@@ -164,7 +164,7 @@ class UpdraftPlus_BackupModule_googledrive {
 			return new WP_Error( "no_access_token", __("Have not yet obtained an access token from Google (has the user authorised?)",'updraftplus'));
 		}
 
-		$updraft_dir = $updraftplus->backups_dir_location().'/';
+		$updraft_dir = trailingslashit($updraftplus->backups_dir_location());
 
 		// Make sure $this->gdocs is a UpdraftPlus_GDocs object, or give an error
 		if ( is_wp_error( $e = $this->need_gdocs($access_token) ) ) return false;

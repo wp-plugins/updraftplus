@@ -74,6 +74,8 @@ class UpdraftPlus_Options {
 		register_setting('updraft-options-group', 'updraft_googledrive_secret' );
 		register_setting('updraft-options-group', 'updraft_googledrive_remotepath', array($updraftplus_admin, 'googledrive_remove_folderurlprefix') );
 
+		register_setting('updraft-options-group', 'updraft_split_every', array($updraftplus_admin, 'optionfilter_split_every') );
+
 		register_setting('updraft-options-group', 'updraft_ftp_login' );
 		register_setting('updraft-options-group', 'updraft_ftp_pass' );
 		register_setting('updraft-options-group', 'updraft_ftp_remote_path' );
