@@ -3,6 +3,7 @@
 // TODO: Deleting multi-archive sets in the downloader does not yet work
 // TODO: Not yet tested deleting multi-archive sets via the X button
 // TODO: Uploading multi-archive sets is not yet tested
+// TODO: Not yet tested resuming during a multi-archive run
 
 // TODO: Multi-archive sets: needs to work with binzip somehow (difficulty is, we don't know the compressed size in advance - could just count based on uncompressed, since anything getting really big is likely to already be compressed). And PclZip, though I suspect that's impossible.
 // TODO: mysql maximum packet size - need to intelligently split the backup SQL (or up the packet size + reconnect)
