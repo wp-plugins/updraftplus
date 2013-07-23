@@ -677,7 +677,7 @@ class UpdraftPlus_Backup {
 			$updraftplus->log(__('A zip error occurred - check your log for more details.', 'updraftplus'), 'warning', 'zipcloseerror');
 			$updraftplus->log("ZipArchive::Close returned an error. List of files we were trying to add follows (check their permissions).");
 			foreach ($files_zipadded_since_open as $ffile) {
-				$updraftplus->log("File: ".$file['addas']." (exists: ".(int)@file_exists($ffile['file']).", size: ".@filesize($ffile['file']).')');
+				$updraftplus->log("File: ".$ffile['addas']." (exists: ".(int)@file_exists($ffile['file']).", size: ".@filesize($ffile['file']).')');
 			}
 		}
 
