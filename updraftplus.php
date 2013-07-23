@@ -15,6 +15,7 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // Multi-archive sets (need to be handled on creation, uploading, downloading, (?done?)deletion). Test.
 // Backup notes
+// Restore-console not showing proper time-zone?
 // One user changed his backup filename format. Produce more help for this.
 // Save ~0.5s: cache (within job) results of binzip test
 // On restore, don't remove directories like wp-content/plugin and replace them; instead empty + fill (in case there are corner-cases - not found any yet, but is better)
