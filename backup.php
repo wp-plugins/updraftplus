@@ -281,6 +281,7 @@ class UpdraftPlus_Backup {
 			$orig_size = file_exists($destination) ? filesize($destination) : 0;
 			$last_size = $orig_size;
 			clearstatcache();
+			$last_recorded_alive = time();
 
 			foreach ($source as $s) {
 
@@ -295,8 +296,12 @@ class UpdraftPlus_Backup {
 				if ($handle) {
 					while (!feof($handle)) {
 						$w = fgets($handle, 1024);
-						// Logging all this really slows things down
+						// Logging all this really slows things down; use debug to mitigate
 						if ($w && $debug) $updraftplus->log("Output from zip: ".trim($w), 'debug');
+						if (time() > $last_recorded_alive + 5) {
+							$updraftplus->record_still_alive();
+							$last_recorded_alive = time();
+						}
 						if (file_exists($destination)) {
 							$new_size = filesize($destination);
 							if (!$something_useful_happened && $new_size > $orig_size + 20) {

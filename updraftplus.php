@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.49
+Version: 1.6.50
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -2284,7 +2284,7 @@ class UpdraftPlus {
 	}
 
 	function wordshell_random_advert($urls) {
-		if (defined('UPDRAFTPLUS_NOADS')) return "";
+		if (defined('UPDRAFTPLUS_NOADS3')) return "";
 		$rad = rand(0,8);
 		switch ($rad) {
 		case 0:
@@ -2306,7 +2306,7 @@ class UpdraftPlus {
 			return $this->url_start($urls,'www.simbahosting.co.uk')."Need high-quality WordPress hosting from WordPress specialists? (Including automatic backups and 1-click installer). Get it from the creators of UpdraftPlus.".$this->url_end($urls,'www.simbahosting.co.uk');
 			break;
 		case 5:
-			if (!defined('UPDRAFTPLUS_NOADS')) {
+			if (!defined('UPDRAFTPLUS_NOADS3')) {
 				return $this->url_start($urls,'updraftplus.com').__("Need even more features and support? Check out UpdraftPlus Premium",'updraftplus').$this->url_end($urls,'updraftplus.com');
 			} else {
 				return "Thanks for being an UpdraftPlus premium user. Keep visiting ".$this->url_start($urls,'updraftplus.com')."updraftplus.com".$this->url_end($urls,'updraftplus.com')." to see what's going on.";

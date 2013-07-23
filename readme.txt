@@ -122,7 +122,9 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 = Development trunk - not yet released/supported =
 * TWEAK: Save the result of looking for a binary zip (don't re-test)
 * TWEAK: Log file times are now recorded relative to the backup start, rather than the current resumption start
+* TWEAK: More code-tidying
 * FIX: Make sure output buffering is off when sending files from the browser (prevents memory exhaustion)
+* FIX: Prevent double-backup (very unusual combination of circumstances)
 
 = 1.6.46 - 2013/07/11 =
 * FEATURE: New storage back-end for any S3-compatible provider (e.g. Google Cloud Storage, Eucalyptus, Cloudian, many more - tested with Dreamobjects and original S3)
