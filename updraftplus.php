@@ -826,6 +826,7 @@ class UpdraftPlus {
 					$this->log("$file: $key: This file has already been successfully uploaded");
 				} elseif (is_file($updraft_dir.'/'.$file)) {
 					$this->log("$file: $key: This file has not yet been successfully uploaded: will queue");
+					# TODO: Not multi-archive compatible
 					$undone_files[$key] = $file;
 				} else {
 					$this->log("$file: $key: Note: This file was not marked as successfully uploaded, but does not exist on the local filesystem ($updraft_dir/$file)");
@@ -1031,7 +1032,7 @@ class UpdraftPlus {
 			$this->log("$file: applying encryption");
 			$encryption_error = 0;
 			$microstart = microtime(true);
-			require_once(UPDRAFTPLUS_DIR.'/includes/phpseclib/Crypt/Rijndael.php');
+			if (!class_exists('Crypt_Rijndael')) require_once(UPDRAFTPLUS_DIR.'/includes/phpseclib/Crypt/Rijndael.php');
 			$rijndael = new Crypt_Rijndael();
 			$rijndael->setKey($encryption);
 			$updraft_dir = $this->backups_dir_location();

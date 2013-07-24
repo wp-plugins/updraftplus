@@ -1,5 +1,6 @@
 <?php
 
+// TODO: Only the final of multi-archive set gets uploaded to remote storage. Need to see how storage handlers handle arrays - do they rely on keys or not; do we flatten them first? (Find the TODO: in updraftplus.php)
 // TODO: Not yet tested deleting multi-archive sets via the X button
 // TODO: Uploading multi-archive sets is not yet tested
 // TODO: Not yet tested resuming during a multi-archive run. Kill, inspect state.
@@ -15,7 +16,7 @@ if (!defined ('ABSPATH')) die ('No direct access allowed');
 // This gets called in admin_init, earlier than default (so our object can get used by those hooking admin_init). Or possibly in admin_menu.
 
 global $updraftplus_admin;
-if (empty($updraftplus_admin)) $updraftplus_admin = new UpdraftPlus_Admin();
+if (!is_a($updraftplus_admin, 'UpdraftPlus_Admin')) $updraftplus_admin = new UpdraftPlus_Admin();
 
 class UpdraftPlus_Admin {
 
@@ -395,9 +396,9 @@ class UpdraftPlus_Admin {
 		// Test the nonce
 		$nonce = (empty($_REQUEST['nonce'])) ? "" : $_REQUEST['nonce'];
 		if (! wp_verify_nonce($nonce, 'updraftplus-credentialtest-nonce') || empty($_REQUEST['subaction'])) die('Security check');
-		if ('lastlog' == $_GET['subaction']) {
+		if (isset($_GET['subaction']) && 'lastlog' == $_GET['subaction']) {
 			echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', '('.__('Nothing yet logged', 'updraftplus').')'));
-		} elseif ('restore_alldownloaded' == $_GET['subaction'] && isset($_GET['restoreopts']) && isset($_GET['timestamp'])) {
+		} elseif (isset($_GET['subaction']) && 'restore_alldownloaded' == $_GET['subaction'] && isset($_GET['restoreopts']) && isset($_GET['timestamp'])) {
 
 			$backups = $updraftplus->get_backup_history();
 
@@ -586,11 +587,11 @@ class UpdraftPlus_Admin {
 				$updraftplus->log("A backup run has been scheduled");
 			}
 
-		} elseif ('lastbackup' == $_GET['subaction']) {
+		} elseif (isset($_GET['subaction']) && 'lastbackup' == $_GET['subaction']) {
 			echo $this->last_backup_html();
-		} elseif ('activejobs_list' == $_GET['subaction']) {
+		} elseif (isset($_GET['subaction']) && 'activejobs_list' == $_GET['subaction']) {
 			$this->print_active_jobs();
-		} elseif ('activejobs_delete' == $_GET['subaction'] && isset($_GET['jobid'])) {
+		} elseif (isset($_GET['subaction']) && 'activejobs_delete' == $_GET['subaction'] && isset($_GET['jobid'])) {
 
 			$cron = get_option('cron');
 			$found_it = 0;
@@ -610,7 +611,7 @@ class UpdraftPlus_Admin {
 			if (!$found_it) { echo 'X:'.__('Could not find that job - perhaps it has already finished?', 'updraftplus'); }
 
 			
-		} elseif ('diskspaceused' == $_GET['subaction'] && isset($_GET['entity'])) {
+		} elseif (isset($_GET['subaction']) && 'diskspaceused' == $_GET['subaction'] && isset($_GET['entity'])) {
 			if ($_GET['entity'] == 'updraft') {
 				echo $this->recursive_directory_size($updraftplus->backups_dir_location());
 			} else {
@@ -622,13 +623,13 @@ class UpdraftPlus_Admin {
 					_e('Error','updraftplus');
 				}
 			}
-		} elseif ('historystatus' == $_GET['subaction']) {
+		} elseif (isset($_GET['subaction']) && 'historystatus' == $_GET['subaction']) {
 			$rescan = (isset($_GET['rescan']) && $_GET['rescan'] == 1);
 			if ($rescan) $this->rebuild_backup_history();
 			$backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
 			$backup_history = (is_array($backup_history))?$backup_history:array();
 			echo json_encode(array('n' => sprintf(__('%d set(s) available', 'updraftplus'), count($backup_history)), 't' => $this->existing_backup_table($backup_history)));
-		} elseif ('downloadstatus' == $_GET['subaction'] && isset($_GET['timestamp']) && isset($_GET['type'])) {
+		} elseif (isset($_GET['subaction']) && 'downloadstatus' == $_GET['subaction'] && isset($_GET['timestamp']) && isset($_GET['type'])) {
 
 			$response = array();
 			$findex = (isset($_GET['findex'])) ? $_GET['findex'] : '0';
@@ -676,7 +677,7 @@ class UpdraftPlus_Admin {
 
 			echo json_encode($response);
 
-		} elseif ($_POST['subaction'] == 'credentials_test') {
+		} elseif (isset($_POST['subaction']) && $_POST['subaction'] == 'credentials_test') {
 			$method = (preg_match("/^[a-z0-9]+$/", $_POST['method'])) ? $_POST['method'] : "";
 
 			// Test the credentials, return a code
