@@ -1,9 +1,9 @@
 <?php
 
-// TODO: Deleting multi-archive sets in the downloader does not yet work
 // TODO: Not yet tested deleting multi-archive sets via the X button
 // TODO: Uploading multi-archive sets is not yet tested
-// TODO: Not yet tested resuming during a multi-archive run
+// TODO: Not yet tested resuming during a multi-archive run. Kill, inspect state.
+// TODO: Test multi-archive sets where after bumping the index there's nothing more needed to back up
 
 // TODO: Multi-archive sets: needs to work with binzip somehow (difficulty is, we don't know the compressed size in advance - could just count based on uncompressed, since anything getting really big is likely to already be compressed). And PclZip, though I suspect that's impossible.
 // TODO: mysql maximum packet size - need to intelligently split the backup SQL (or up the packet size + reconnect)
@@ -382,7 +382,7 @@ class UpdraftPlus_Admin {
 			$remote_obj->download($file);
 		} else {
 			$updraftplus->log("Automatic backup restoration is not available with the method: $service.");
-			$updraftplus->log("$file: ".sprintf(__("The backup archive for restoring this file could not be found. The remote storage method in use (%s) does not allow us to retrieve files. To proceed with this restoration, you need to obtain a copy of this file and place it inside UpdraftPlus's working folder", 'updraftplus'), $service)." (".$this->prune_updraft_dir_prefix($updraftplus->backups_dir_location()).")", 'error');
+			$updraftplus->log("$file: ".sprintf(__("The backup archive for this file could not be found. The remote storage method in use (%s) does not allow us to retrieve files. To perform any restoration using UpdraftPlus, you will need to obtain a copy of this file and place it inside UpdraftPlus's working folder", 'updraftplus'), $service)." (".$this->prune_updraft_dir_prefix($updraftplus->backups_dir_location()).")", 'error');
 		}
 
 	}
@@ -643,7 +643,11 @@ class UpdraftPlus_Admin {
 					if (is_array($errs) && !empty($errs)) {
 						$response['e'] .= '<ul style="list-style: disc inside;">';
 						foreach ($errs as $err) {
-							$response['e'] .= '<li>'.htmlspecialchars($err).'</li>';
+							if (is_array($err)) {
+								$response['e'] .= '<li>'.htmlspecialchars($err['message']).'</li>';
+							} else {
+								$response['e'] .= '<li>'.htmlspecialchars($err).'</li>';
+							}
 						}
 						$response['e'] .= '</ul>';
 					}
@@ -1240,18 +1244,18 @@ class UpdraftPlus_Admin {
 								});
 							}
 							var lastlog_lastmessage = "";
-							function updraftplus_deletefromserver(timestamp, type) {
+							function updraftplus_deletefromserver(timestamp, type, findex) {
+								if (!findex) findex=0;
 								var pdata = {
 									action: 'updraft_download_backup',
 									stage: 'delete',
 									timestamp: timestamp,
 									type: type,
+									findex: findex,
 									_wpnonce: '<?php echo wp_create_nonce("updraftplus_download"); ?>'
 								};
 								jQuery.post(ajaxurl, pdata, function(response) {
-									if (response == 'deleted') {
-										
-									} else {
+									if (response != 'deleted') {
 										alert('We requested to delete the file, but could not understand the server\'s response '+response);
 									}
 								});
@@ -1354,7 +1358,7 @@ class UpdraftPlus_Admin {
 												} else if (resp.p < 100 || base != 'uddlstatus_') {
 													jQuery('#'+stid+' .raw').html(resp.m);
 												} else {
-													jQuery('#'+stid+' .raw').html('<?php _e('File ready.','updraftplus'); ?> <?php _e('You should:','updraftplus'); ?> <button type="button" onclick="updraftplus_downloadstage2(\''+nonce+'\', \''+what+'\', \''+findex+'\')\">Download to your computer</button> and then, if you wish, <button id="uddownloaddelete_'+nonce+'_'+what+'" type="button" onclick="updraftplus_deletefromserver(\''+nonce+'\', \''+what+'\')\">Delete from your web server</button>');
+													jQuery('#'+stid+' .raw').html('<?php _e('File ready.','updraftplus'); ?> <?php _e('You should:','updraftplus'); ?> <button type="button" onclick="updraftplus_downloadstage2(\''+nonce+'\', \''+what+'\', \''+findex+'\')\">Download to your computer</button> and then, if you wish, <button id="uddownloaddelete_'+nonce+'_'+what+'" type="button" onclick="updraftplus_deletefromserver(\''+nonce+'\', \''+what+'\', \''+findex+'\')\">Delete from your web server</button>');
 												}
 											}
 											dlstatus_lastlog = response;
