@@ -2170,7 +2170,7 @@ class UpdraftPlus {
 					_e("Decryption failed. The database file is encrypted, but you have no encryption key entered.",'updraftplus');
 					$this->log('Decryption of database failed: the database file is encrypted, but you have no encryption key entered.', 'error');
 				} else {
-					require_once(UPDRAFTPLUS_DIR.'/includes/phpseclib/Crypt/Rijndael.php');
+					if (!class_exists('Crypt_Rijndael')) require_once(UPDRAFTPLUS_DIR.'/includes/phpseclib/Crypt/Rijndael.php');
 					$rijndael = new Crypt_Rijndael();
 					$rijndael->setKey($encryption);
 					$ciphertext = $rijndael->decrypt(file_get_contents($fullpath));
