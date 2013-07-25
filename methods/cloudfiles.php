@@ -27,7 +27,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 
 	function backup($backup_array) {
 
-		global $updraftplus;
+		global $updraftplus, $updraftplus_backup;
 
 		$updraft_dir = $updraftplus->backups_dir_location().'/';
 		$path = untrailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_path'));
@@ -182,7 +182,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 
 		}
 
-		$updraftplus->prune_retained_backups('cloudfiles', $this, array('cloudfiles_object' => $cont_obj, 'cloudfiles_orig_path' => $path, 'cloudfiles_container' => $container));
+		$updraftplus_backup->prune_retained_backups('cloudfiles', $this, array('cloudfiles_object' => $cont_obj, 'cloudfiles_orig_path' => $path, 'cloudfiles_container' => $container));
 
 	}
 

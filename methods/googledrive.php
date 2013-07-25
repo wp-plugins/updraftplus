@@ -153,7 +153,7 @@ class UpdraftPlus_BackupModule_googledrive {
 	// This function just does the formalities, and off-loads the main work to upload_file
 	function backup($backup_array) {
 
-		global $updraftplus;
+		global $updraftplus, $updraftplus_backup;
 
 		if( !class_exists('UpdraftPlus_GDocs')) require_once(UPDRAFTPLUS_DIR.'/includes/class-gdocs.php');
 
@@ -205,7 +205,7 @@ class UpdraftPlus_BackupModule_googledrive {
 				$updraftplus->log("$file_name: ".sprintf(__('Failed to upload to %s','updraftplus'),__('Google Drive','updraftplus')), 'error');
 			}
 		}
-		$updraftplus->prune_retained_backups("googledrive", $this, null);
+		$updraftplus_backup->prune_retained_backups("googledrive", $this, null);
 	}
 
 	function delete($files) {

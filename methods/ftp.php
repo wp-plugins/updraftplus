@@ -26,7 +26,7 @@ class UpdraftPlus_BackupModule_ftp {
 
 	function backup($backup_array) {
 
-		global $updraftplus;
+		global $updraftplus, $updraftplus_backup;
 
 		$server = UpdraftPlus_Options::get_updraft_option('updraft_server_address');
 		$user = UpdraftPlus_Options::get_updraft_option('updraft_ftp_login');
@@ -64,7 +64,7 @@ class UpdraftPlus_BackupModule_ftp {
 			}
 		}
 
-		$updraftplus->prune_retained_backups("ftp", $this, array('ftp_object' => $ftp, 'ftp_remote_path' => $ftp_remote_path));
+		$updraftplus_backup->prune_retained_backups("ftp", $this, array('ftp_object' => $ftp, 'ftp_remote_path' => $ftp_remote_path));
 	}
 
 	function delete($files, $ftparr = array()) {

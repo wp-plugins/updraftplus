@@ -1,10 +1,8 @@
 <?php
 
-// TODO: Only the final of multi-archive set gets uploaded to remote storage. Need to see how storage handlers handle arrays - do they rely on keys or not; do we flatten them first? (Find the TODO: in updraftplus.php)
-// TODO: Not yet tested deleting multi-archive sets via the X button
-// TODO: Uploading multi-archive sets is not yet tested
-// TODO: Not yet tested resuming during a multi-archive run. Kill, inspect state.
-// TODO: Test multi-archive sets where after bumping the index there's nothing more needed to back up
+// TODO: Each zip file upon a resumption has the whole directory tree in it. Is that bad? I think in the case of others + wpcore, then it's going to be moving just-moved-in directories on the second set. So, need to tweak those situations to not move on that one; copy-in instead. Furthermore, for all of them, if the contents of a subdir are split over multiple zips, then our copy-in code is not yet adequate.
+# TODO: If we use PclZip via a retry, then we need to reset index to 0, since it can't multi-archive
+# TODO: Email backup method should be able to force split limit down to something manageable - or at least, should make the option display.
 
 // TODO: Multi-archive sets: needs to work with binzip somehow (difficulty is, we don't know the compressed size in advance - could just count based on uncompressed, since anything getting really big is likely to already be compressed). And PclZip, though I suspect that's impossible.
 // TODO: mysql maximum packet size - need to intelligently split the backup SQL (or up the packet size + reconnect)
@@ -532,7 +530,7 @@ class UpdraftPlus_Admin {
 						if ($deleted === -1) {
 							//echo __('Did not know how to delete from this cloud service.', 'updraftplus');
 						} elseif ($deleted !== false) {
-							$remote_deleted++;
+							$remote_deleted = $remote_deleted + count($files);
 						} else {
 							// Do nothing
 						}
@@ -1059,8 +1057,11 @@ class UpdraftPlus_Admin {
 
 		// updraft_file_ids is not deleted
 		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_all') { $updraftplus->boot_backup(true,true); }
-		elseif (isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_db') { $updraftplus->backup_db(); }
-		elseif (isset($_POST['action']) && $_POST['action'] == 'updraft_wipesettings') {
+		elseif (isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_db') {
+			global $updraftplus_backup;
+			if (!is_a($updraftplus_backup, 'UpdraftPlus_Backup')) require_once(UPDRAFTPLUS_DIR.'/backup.php');
+			$updraftplus_backup->backup_db();
+		} elseif (isset($_POST['action']) && $_POST['action'] == 'updraft_wipesettings') {
 			$settings = array('updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_wpcore', 'updraft_include_wpcore_exclude', 'updraft_include_more', 
 			'updraft_include_blogs', 'updraft_include_mu-plugins', 'updraft_include_others_exclude', 'updraft_lastmessage', 'updraft_googledrive_clientid', 'updraft_googledrive_token', 'updraft_dropboxtk_request_token', 'updraft_dropboxtk_access_token', 'updraft_dropbox_folder', 'updraft_last_backup', 'updraft_starttime_files', 'updraft_starttime_db', 'updraft_sftp_settings', 'updraft_s3generic_login', 'updraft_s3generic_pass', 'updraft_s3generic_remote_path', 'updraft_s3generic_endpoint', 'updraft_webdav_settings', 'updraft_disable_ping', 'updraft_cloudfiles_user', 'updraft_cloudfiles_apikey', 'updraft_cloudfiles_path', 'updraft_cloudfiles_authurl', 'updraft_ssl_useservercerts', 'updraft_ssl_disableverify', 'updraft_s3_login', 'updraft_s3_pass', 'updraft_s3_remote_path', 'updraft_dreamobjects_login', 'updraft_dreamobjects_pass', 'updraft_dreamobjects_remote_path');
 			foreach ($settings as $s) {

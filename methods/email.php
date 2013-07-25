@@ -6,7 +6,7 @@ class UpdraftPlus_BackupModule_email {
 
 	function backup($backup_array) {
 
-		global $updraftplus;
+		global $updraftplus, $updraftplus_backup;
 
 		$updraft_dir = $updraftplus->backups_dir_location().'/';
 
@@ -17,7 +17,7 @@ class UpdraftPlus_BackupModule_email {
 			}
 			$updraftplus->uploaded_file($file);
 		}
-		$updraftplus->prune_retained_backups("email", null, null);
+		$updraftplus_backup->prune_retained_backups("email", null, null);
 	}
 
 	public static function config_print() {

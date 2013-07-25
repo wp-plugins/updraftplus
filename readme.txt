@@ -122,7 +122,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 = Development trunk - not yet released/supported =
 * TWEAK: Save the result of looking for a binary zip (don't re-test)
 * TWEAK: Log file times are now recorded relative to the backup start, rather than the current resumption start
-* TWEAK: More code-tidying
+* TWEAK: More code-tidying and optimisation
 * FIX: Make sure output buffering is off when sending files from the browser (prevents memory exhaustion)
 * FIX: Prevent double-backup (very unusual combination of circumstances)
 

@@ -27,7 +27,7 @@ class UpdraftPlus_BackupModule_dropbox {
 
 	function backup($backup_array) {
 
-		global $updraftplus;
+		global $updraftplus, $updraftplus_backup;
 		$updraftplus->log("Dropbox: begin cloud upload");
 
 		if (!function_exists('mcrypt_encrypt')) {
@@ -156,7 +156,7 @@ class UpdraftPlus_BackupModule_dropbox {
 
 		}
 
-		$updraftplus->prune_retained_backups('dropbox', $this, null);
+		$updraftplus_backup->prune_retained_backups('dropbox', $this, null);
 
 	}
 
