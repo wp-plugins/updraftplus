@@ -114,73 +114,118 @@ class Updraft_Restorer extends WP_Upgrader {
 	// The only purpose of the $type parameter is 1) to detect 'others' and apply a historical bugfix 2) to detect wpcore, and apply the setting for what to do with wp-config.php
 	// Must use only wp_filesystem
 	// $dest_dir must already have a trailing slash
-	// $preserve_existing: 0 = overwrite with no backup; 1 = make backup of existing; 2 = do nothing if there is existing
+	// $preserve_existing: this setting only applise at the top level: 0 = overwrite with no backup; 1 = make backup of existing; 2 = do nothing if there is existing, 3 = do nothing to the top level directory, but do copy-in contents. Thus, on a multi-archive set where you want a backup, you'd do this: first call with $preserve_existing === 1, then on subsequent zips call with 3
 	function move_backup_in($working_dir, $dest_dir, $preserve_existing = 1, $do_not_overwrite = array('plugins', 'themes', 'uploads', 'upgrade'), $type = 'not-others', $send_actions = false) {
 
 		global $wp_filesystem;
 
-		$upgrade_files = $wp_filesystem->dirlist($working_dir);
+		# Get the content to be moved in. Include hidden files = true. Recursion is only required if we're likely to copy-in
+		$recursive = (3 == $preserve_existing) ? true : false;
+		$upgrade_files = $wp_filesystem->dirlist($working_dir, true, $recursive);
 
-		if ( !empty($upgrade_files) ) {
-			foreach ( $upgrade_files as $filestruc ) {
-				$file = $filestruc['name'];
+		if (empty($upgrade_files)) return true;
 
-				// Correctly restore files in 'others' in no directory that were wrongly backed up in versions 1.4.0 - 1.4.48
-				if ('others' == $type && preg_match('/^([\-_A-Za-z0-9]+\.php)$/', $file, $matches) && $wp_filesystem->exists($working_dir . "/$file/$file")) {
-					echo "Found file: $file/$file: presuming this is a backup with a known fault (backup made with versions 1.4.0 - 1.4.48); will rename to simply $file<br>";
-					$file = $matches[1];
-					$tmp_file = rand(0,999999999).'.php';
-					// Rename directory
-					$wp_filesystem->move($working_dir . "/$file", $working_dir . "/".$tmp_file, true);
-					$wp_filesystem->move($working_dir . "/$tmp_file/$file", $working_dir ."/".$file, true);
-					$wp_filesystem->rmdir($working_dir . "/$tmp_file", false);
+		foreach ( $upgrade_files as $file => $filestruc ) {
+// 			$file = $filestruc['name'];
+
+			// Correctly restore files in 'others' in no directory that were wrongly backed up in versions 1.4.0 - 1.4.48
+			if ('others' == $type && preg_match('/^([\-_A-Za-z0-9]+\.php)$/', $file, $matches) && $wp_filesystem->exists($working_dir . "/$file/$file")) {
+				echo "Found file: $file/$file: presuming this is a backup with a known fault (backup made with versions 1.4.0 - 1.4.48); will rename to simply $file<br>";
+				$file = $matches[1];
+				$tmp_file = rand(0,999999999).'.php';
+				// Rename directory
+				$wp_filesystem->move($working_dir . "/$file", $working_dir . "/".$tmp_file, true);
+				$wp_filesystem->move($working_dir . "/$tmp_file/$file", $working_dir ."/".$file, true);
+				$wp_filesystem->rmdir($working_dir . "/$tmp_file", false);
+			}
+
+			if ('wpcore' == $type && 'wp-config.php' == $file) {
+				if (empty($_POST['updraft_restorer_wpcore_includewpconfig'])) {
+					_e('wp-config.php from backup: will restore as wp-config-backup.php', 'updraftplus');
+					$wp_filesystem->move($working_dir . "/$file", $working_dir . "/wp-config-backup.php", true);
+					$file = "wp-config-backup.php";
+				} else {
+					_e('wp-config.php from backup: restoring (as per user\'s request)', 'updraftplus');
 				}
+				echo '<br>';
+			}
 
-				if ('wpcore' == $type && 'wp-config.php' == $file) {
-					if (empty($_POST['updraft_restorer_wpcore_includewpconfig'])) {
-						_e('wp-config.php from backup: will restore as wp-config-backup.php', 'updraftplus');
-						$wp_filesystem->move($working_dir . "/$file", $working_dir . "/wp-config-backup.php", true);
-						$file = "wp-config-backup.php";
-					} else {
-						_e('wp-config.php from backup: restoring (as per user\'s request)', 'updraftplus');
-					}
-					echo '<br>';
-				}
+			# Sanity check (should not be possible as these were excluded at backup time)
+			if (in_array($file, $do_not_overwrite)) continue;
 
-				# Sanity check (should not be possible as these were excluded at backup time)
-				if (!in_array($file, $do_not_overwrite)) {
-					# First, move the existing one, if necessary (may not be present)
-					if ($wp_filesystem->exists($dest_dir.$file)) {
-						if ($preserve_existing == 1) {
-							if ( !$wp_filesystem->move($dest_dir.$file, $dest_dir.$file.'-old', true) ) {
-								return new WP_Error('old_move_failed', $this->strings['old_move_failed']." (wp-content/$file)");
-							}
-						} elseif ($preserve_existing == 0) {
-							if (!$wp_filesystem->delete($dest_dir.$file, true)) {
-								return new WP_Error('old_delete_failed', $this->strings['old_delete_failed']." ($file)");
-							}
-// 							if ( !$wp_filesystem->move($dest_dir.$file, $working_dir.'/'.$file.'-old', true) ) {
-// 								return new WP_Error('old_move_failed', $this->strings['old_move_failed']." (wp-content/$file)");
-// 							}
-						}
+			# First, move the existing one, if necessary (may not be present)
+			if ($wp_filesystem->exists($dest_dir.$file)) {
+				if ($preserve_existing == 1) {
+					# Move existing to -old
+					if ( !$wp_filesystem->move($dest_dir.$file, $dest_dir.$file.'-old', true) ) {
+						return new WP_Error('old_move_failed', $this->strings['old_move_failed']." (wp-content/$file)");
 					}
-					# Now, move in the new one
-					if (2 == $preserve_existing && $wp_filesystem->exists($dest_dir.$file)) {
-						# Remove it - so that we are clean later
-						@$wp_filesystem->delete($working_dir.'/'.$file, true);
-					} else {
-						if ($wp_filesystem->move($working_dir . "/".$file, $dest_dir.$file, true) ) {
-							if ($send_actions) do_action('updraftplus_restored_'.$type.'_one', $file);
-						} else {
-							return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
-						}
+				} elseif ($preserve_existing == 0) {
+					# Over-write, no backup
+					if (!$wp_filesystem->delete($dest_dir.$file, true)) {
+						return new WP_Error('old_delete_failed', $this->strings['old_delete_failed']." ($file)");
 					}
 				}
+			}
+
+			# Secondly, move in the new one
+			if (2 == $preserve_existing && $wp_filesystem->exists($dest_dir.$file)) {
+				# Something exists - no move. Remove it from the temporary directory - so that it will be clean later
+				@$wp_filesystem->delete($working_dir.'/'.$file, true);
+			} elseif (3 != $preserve_existing || !$wp_filesystem->exists($dest_dir.$file)) {
+				if ($wp_filesystem->move($working_dir . "/".$file, $dest_dir.$file, true) ) {
+					if ($send_actions) do_action('updraftplus_restored_'.$type.'_one', $file);
+				} else {
+					return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
+				}
+			} elseif (3 == $preserve_existing && !empty($filestruc['files'])) {
+				# The directory ($dest_dir) already exists, and we've been requested to copy-i. We need to perform the recursive copy-in
+				# $filestruc['files'] is then a new structure like $upgrade_files
+				# First pass: create directory structure
+				# TODO: Get chmod value for the parent directory, and re-use it (instead of passing false)
+// Not needed
+// $this->create_directory_tree($dest_dir, $filestruc['files'], false);
+				# Second pass: copy in the files. This also needs to make sure the directories exist, in case the zip file lacks entries
+				$this->copy_files_in($working_dir, $dest_dir, $filestruc['files'], false);
 			}
 		}
 
 		return true;
 
+	}
+
+// 	# TODO: Remove, unneeded
+// 	function create_directory_tree($dest_dir, $files, $chmod) {
+// 		global $wp_filesystem;
+// 		foreach ($files as $rname => $rfile) {
+// 			if ('d' == $rfile['type'] && $rname != '.' && $rname != '..') {
+// 				# TODO: Error checking/handling - mkdir returns false if the directory already exists, and throws a warning
+// 				$wp_filesystem->mkdir($dest_dir.'/'.$rname, $chmod);
+// 				if (!empty($files['files'])) $this->create_directory_tree($dest_dir.'/'.$rname, $files['files']));
+// 			}
+// 		}
+// 	}
+
+	# TODO: Needs testing
+	# TODO: Pass in a chmod for creating directories
+	# $dest_dir must already exist
+	# TODO: We are meant to leave the working directory empty. Hence, need to rmdir() once a directory is empty.
+	function copy_files_in($source_dir, $dest_dir, $files, $chmod = false) {
+		global $wp_filesystem;
+		foreach ($files as $rname => $rfile) {
+			if ('d' != $rfile['type']) {
+				# TODO: Error handling
+				# Delete it if it already exists (or perhaps WP does it for us)
+				$wp_filesystem->move($source_dir.'/'.$rname, $dest_dir.'/'.$rname, true);
+			} else {
+				# TODO: Error handling. mkdir returns false if already exists - check it.
+				$wp_filesystem->mkdir($dest_dir.'/'.$rname, $chmod);
+				if (!empty($files['files'])) {
+					# Recurse
+					$this->copy_files_in($source_dir.'/'.$rname, $dest_dir.'/'.$rname, $files['files'], $chmod);
+				}
+			}
+		}
 	}
 
 	function str_replace_once($needle, $replace, $haystack) {
@@ -204,15 +249,12 @@ class Updraft_Restorer extends WP_Upgrader {
 		$wp_filesystem_dir = $this->get_wp_filesystem_dir($info['path']);
 		if ($wp_filesystem_dir === false) return false;
 
-
 		global $updraftplus_addons_migrator, $wp_filesystem;
 		if ('plugins' == $type || 'uploads' == $type || 'themes' == $type && (!is_multisite() || $this->ud_backup_is_multisite !== 0 || ('uploads' != $type || !isset($updraftplus_addons_migrator['new_blogid'] )))) {
 			if ($wp_filesystem->exists($wp_filesystem_dir.'-old')) {
 				return new WP_Error('already_exists', sprintf(__('An existing unremoved backup from a previous restore exists: %s', 'updraftplus'), $wp_filesystem_dir.'-old'));
 			}
 		}
-
-		// TODO: On multi-archive sets, check that we've got them all
 
 		return true;
 	}
@@ -268,15 +310,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		// We copy the variable because we may be importing with a different prefix (e.g. on multisite imports of individual blog data)
 		$import_table_prefix = $table_prefix;
 
-		if ($type == 'others') {
-
-			$dirname = basename($info['path']);
-
-			// In this special case, the backup contents are not in a folder, so it is not simply a case of moving the folder around, but rather looping over all that we find
-
-			$this->move_backup_in($working_dir, trailingslashit($wp_filesystem_dir), true, array('plugins', 'themes', 'uploads', 'upgrade'), 'others');
-
-		} elseif (is_multisite() && $this->ud_backup_is_multisite === 0 && ( ( 'plugins' == $type || 'themes' == $type )  || ( 'uploads' == $type && isset($updraftplus_addons_migrator['new_blogid'])) )) {
+		if (is_multisite() && $this->ud_backup_is_multisite === 0 && ( ( 'plugins' == $type || 'themes' == $type )  || ( 'uploads' == $type && isset($updraftplus_addons_migrator['new_blogid'])) )) {
 
 			# Migrating a single site into a multisite
 			if ('plugins' == $type || 'themes' == $type) {
@@ -334,6 +368,18 @@ class Updraft_Restorer extends WP_Upgrader {
 			$rdb = $this->restore_backup_db($working_dir, $working_dir_localpath, $import_table_prefix);
 			if (false === $rdb || is_wp_error($rdb)) return $rdb;
 
+		} elseif ($type == 'others') {
+
+			$dirname = basename($info['path']);
+
+			// In this special case, the backup contents are not in a folder, so it is not simply a case of moving the folder around, but rather looping over all that we find
+
+			# TODO: Make multi-archive compatible
+			# TODO: Then copy the solution to wpcore as well
+			$this->move_backup_in($working_dir, trailingslashit($wp_filesystem_dir), 1, array('plugins', 'themes', 'uploads', 'upgrade'), 'others');
+
+			$this->been_restored['others'] = true;
+
 		} else {
 
 			// Default action: used for plugins, themes and uploads (and wpcore, via a filter)
@@ -341,6 +387,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			show_message($this->strings['moving_old']);
 
 			// Multi-archive sets: we record what we've already begun on, and on subsequent runs, copy in instead of replacing
+# TODO: Will multi-core move-in over-write directories on second run when they are split across archives?
 			$movedin = apply_filters('updraftplus_restore_movein_'.$type, $working_dir, $this->abspath, $wp_filesystem_dir);
 			// A filter, to allow add-ons to perform the install of non-standard entities, or to indicate that it's not possible
 			if (false === $movedin) {
@@ -369,8 +416,7 @@ class Updraft_Restorer extends WP_Upgrader {
 				}
 			}
 
-			$been_restored = $this->been_restored;
-			$been_restored[$type] = true;
+			$this->been_restored[$type] = true;
 
 		}
 

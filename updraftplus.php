@@ -15,6 +15,9 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // Multi-archive sets (need to be handled on creation, uploading, downloading, (?done?)deletion). Test.
 // Backup notes
+// Put in a maintenance-mode detector
+// Put in a default handler for "Backup Now" button so that if JS is faulty, the user still sees something (prevents support requests)
+// Pre-flight check: scan the zip files. Or at least, refuse zero-sized ones. Check sizes against records.
 // Add more info to email - e.g. names + sizes + checksums of uploads + locations
 // Restore-console not showing proper time-zone?
 // One user changed his backup filename format. Produce more help for this.

@@ -1,7 +1,9 @@
 <?php
 
 // TODO: Each zip file upon a resumption has the whole directory tree in it. Is that bad? I think in the case of others + wpcore, then it's going to be moving just-moved-in directories on the second set. So, need to tweak those situations to not move on that one; copy-in instead. Furthermore, for all of them, if the contents of a subdir are split over multiple zips, then our copy-in code is not yet adequate.
-# TODO: If we use PclZip via a retry, then we need to reset index to 0, since it can't multi-archive
+# TODO: Test the multi-archive code on a site with awkward permissions
+# TODO: Test the multi-archive code on a site with non-standard locations
+# TODO: If we use PclZip via a retry, then we need to reset index to 0, since it can't multi-archive. Or perhaps just scrap the retry and instead log an error? Or only retry if index is still 0?
 # TODO: Email backup method should be able to force split limit down to something manageable - or at least, should make the option display.
 
 // TODO: Multi-archive sets: needs to work with binzip somehow (difficulty is, we don't know the compressed size in advance - could just count based on uncompressed, since anything getting really big is likely to already be compressed). And PclZip, though I suspect that's impossible.
@@ -399,6 +401,7 @@ class UpdraftPlus_Admin {
 		} elseif (isset($_GET['subaction']) && 'restore_alldownloaded' == $_GET['subaction'] && isset($_GET['restoreopts']) && isset($_GET['timestamp'])) {
 
 			$backups = $updraftplus->get_backup_history();
+			$updraft_dir = $updraftplus->backups_dir_location();
 
 			$timestamp = (int)$_GET['timestamp'];
 			if (!isset($backups[$timestamp])) {
@@ -424,7 +427,8 @@ class UpdraftPlus_Admin {
 				}
 
 				$backupable_entities = $updraftplus->get_backupable_file_entities(true);
-				foreach ($backupable_entities as $type => $path) {
+				$backupable_plus_db = $backupable_entities; $backupable_plus_db['db'] = 'path-unused';
+				foreach ($backupable_plus_db as $type => $path) {
 					if (isset($elements[$type])) {
 						$whatwegot = $backups[$timestamp][$type];
 						if (is_string($whatwegot)) $whatwegot = array($whatwegot);
@@ -433,6 +437,17 @@ class UpdraftPlus_Admin {
 						ksort($whatwegot);
 						foreach ($whatwegot as $index => $file) {
 							if ($index != $expected_index) $missing .= ($missing == '') ? (1+$expected_index) : ",".(1+$expected_index);
+							if (!file_exists($updraft_dir.'/'.$file)) {
+								$err .= sprintf(__('File not found (you need to upload it): %s', 'updraftplus'), $updraft_dir.'/'.$file)."<br>";
+							} elseif (filesize($updraft_dir.'/'.$file) == 0) {
+								$err .= sprintf(__('File was found, but is zero-sized (you need to re-upload it): %s', 'updraftplus'), $file)."<br>";
+							} else {
+								$itext = (0 == $index) ? '' : $itext;
+								if (!empty($backups[$timestamp][$type.$itext.'-size']) && $backups[$timestamp][$type.$itext.'-size'] != filesize($updraft_dir.'/'.$file)) {
+									$warn .= sprintf(__('File (%s) was found, but has a different size (%s) from what was expected (%s) - it may be corrupt.', 'updraftplus'), $file, filesize($updraft_dir.'/'.$file), $backups[$timestamp][$type.$itext.'-size'])."<br>";
+								}
+							}
+							$expected_index++;
 						}
 						if ('' != $missing) {
 							$warn .= sprintf(__("This multi-archive backup set appears to have the following archives missing: %s", 'updraftplus'), $missing)."<br>";
