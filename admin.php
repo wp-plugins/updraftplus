@@ -1,6 +1,6 @@
 <?php
 
-// TODO: Each zip file upon a resumption has the whole directory tree in it. Is that bad? I think in the case of others + wpcore, then it's going to be moving just-moved-in directories on the second set. So, need to tweak those situations to not move on that one; copy-in instead. Furthermore, for all of them, if the contents of a subdir are split over multiple zips, then our copy-in code is not yet adequate.
+// TODO: Test restoring multi-archive - multi-archives for 1) plugins 2) others 3) wpcore. Need to make sure they copy-in correctly, including when sub-diretories are split across archives
 # TODO: Test the multi-archive code on a site with awkward permissions
 # TODO: Test the multi-archive code on a site with non-standard locations
 # TODO: If we use PclZip via a retry, then we need to reset index to 0, since it can't multi-archive. Or perhaps just scrap the retry and instead log an error? Or only retry if index is still 0?
@@ -2752,7 +2752,9 @@ ENDHERE;
 		// We use a single object for each entity, because we want to store information about the backup set
 		if(!class_exists('WP_Upgrader')) require_once(ABSPATH . 'wp-admin/includes/class-wp-upgrader.php');
 		require_once(UPDRAFTPLUS_DIR.'/restorer.php');
-		$restorer = new Updraft_Restorer();
+
+		global $updraftplus_restorer;
+		$updraftplus_restorer = new Updraft_Restorer();
 
 		$second_loop = array();
 
@@ -2766,7 +2768,7 @@ ENDHERE;
 
 			if (!isset($entities_to_restore[$type])) continue;
 
-			if ($type == 'wpcore' && is_multisite() && 0 === $restorer->ud_backup_is_multisite) {
+			if ($type == 'wpcore' && is_multisite() && 0 === $updraftplus_restorer->ud_backup_is_multisite) {
 				echo "<p>$type: <strong>".__('Skipping restoration of WordPress core when importing a single site into a multisite installation. If you had anything necessary in your WordPress directory then you will need to re-add it manually from the zip file.', 'updraftplus')."</strong></p>";
 				continue;
 			}
@@ -2803,7 +2805,7 @@ ENDHERE;
 			}
 
 			$info = (isset($backupable_entities[$type])) ? $backupable_entities[$type] : array();
-			$val = $restorer->pre_restore_backup($files, $type, $info);
+			$val = $updraftplus_restorer->pre_restore_backup($files, $type, $info);
 			if (is_wp_error($val)) {
 				foreach ($val->get_error_messages() as $msg) {
 					echo '<strong>'.__('Error message',  'updraftplus').':</strong> '.htmlspecialchars($msg).'<br>';
@@ -2818,10 +2820,10 @@ ENDHERE;
 			$second_loop[$type] = $files;
 		}
 
-		$restorer->delete = (UpdraftPlus_Options::get_updraft_option('updraft_delete_local')) ? true : false;
+		$updraftplus_restorer->delete = (UpdraftPlus_Options::get_updraft_option('updraft_delete_local')) ? true : false;
 		if ('none' == $service) {
-			if ($restorer->delete) _e('Will not delete any archives after unpacking them, because there was no cloud storage for this backup','updraftplus').'<br>';
-			$restorer->delete = false;
+			if ($updraftplus_restorer->delete) _e('Will not delete any archives after unpacking them, because there was no cloud storage for this backup','updraftplus').'<br>';
+			$updraftplus_restorer->delete = false;
 		}
 
 		// Second loop: now actually do the restoration
@@ -2834,7 +2836,7 @@ ENDHERE;
 
 			if (is_string($files)) $files = array($files);
 			foreach ($files as $file) {
-				$val = $restorer->restore_backup($file, $type, $info);
+				$val = $updraftplus_restorer->restore_backup($file, $type, $info);
 
 				if(is_wp_error($val)) {
 					foreach ($val->get_error_messages() as $msg) {

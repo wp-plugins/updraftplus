@@ -114,7 +114,7 @@ class Updraft_Restorer extends WP_Upgrader {
 	// The only purpose of the $type parameter is 1) to detect 'others' and apply a historical bugfix 2) to detect wpcore, and apply the setting for what to do with wp-config.php
 	// Must use only wp_filesystem
 	// $dest_dir must already have a trailing slash
-	// $preserve_existing: this setting only applise at the top level: 0 = overwrite with no backup; 1 = make backup of existing; 2 = do nothing if there is existing, 3 = do nothing to the top level directory, but do copy-in contents. Thus, on a multi-archive set where you want a backup, you'd do this: first call with $preserve_existing === 1, then on subsequent zips call with 3
+	// $preserve_existing: this setting only applies at the top level: 0 = overwrite with no backup; 1 = make backup of existing; 2 = do nothing if there is existing, 3 = do nothing to the top level directory, but do copy-in contents. Thus, on a multi-archive set where you want a backup, you'd do this: first call with $preserve_existing === 1, then on subsequent zips call with 3
 	function move_backup_in($working_dir, $dest_dir, $preserve_existing = 1, $do_not_overwrite = array('plugins', 'themes', 'uploads', 'upgrade'), $type = 'not-others', $send_actions = false) {
 
 		global $wp_filesystem;
@@ -173,7 +173,7 @@ class Updraft_Restorer extends WP_Upgrader {
 				# Something exists - no move. Remove it from the temporary directory - so that it will be clean later
 				@$wp_filesystem->delete($working_dir.'/'.$file, true);
 			} elseif (3 != $preserve_existing || !$wp_filesystem->exists($dest_dir.$file)) {
-				if ($wp_filesystem->move($working_dir . "/".$file, $dest_dir.$file, true) ) {
+				if ($wp_filesystem->move($working_dir."/".$file, $dest_dir.$file, true) ) {
 					if ($send_actions) do_action('updraftplus_restored_'.$type.'_one', $file);
 				} else {
 					return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
@@ -182,11 +182,13 @@ class Updraft_Restorer extends WP_Upgrader {
 				# The directory ($dest_dir) already exists, and we've been requested to copy-i. We need to perform the recursive copy-in
 				# $filestruc['files'] is then a new structure like $upgrade_files
 				# First pass: create directory structure
-				# TODO: Get chmod value for the parent directory, and re-use it (instead of passing false)
-// Not needed
-// $this->create_directory_tree($dest_dir, $filestruc['files'], false);
-				# Second pass: copy in the files. This also needs to make sure the directories exist, in case the zip file lacks entries
-				$this->copy_files_in($working_dir, $dest_dir, $filestruc['files'], false);
+				# Get chmod value for the parent directory, and re-use it (instead of passing false)
+
+				$chmod = $wp_filesystem->getnumchmodfromh($wp_filesystem->gethchmod($dest_dir));
+				# Copy in the files. This also needs to make sure the directories exist, in case the zip file lacks entries
+				if (!$this->copy_files_in($working_dir, $dest_dir, $filestruc['files'], $chmod)) {
+					return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
+				}
 			}
 		}
 
@@ -194,38 +196,33 @@ class Updraft_Restorer extends WP_Upgrader {
 
 	}
 
-// 	# TODO: Remove, unneeded
-// 	function create_directory_tree($dest_dir, $files, $chmod) {
-// 		global $wp_filesystem;
-// 		foreach ($files as $rname => $rfile) {
-// 			if ('d' == $rfile['type'] && $rname != '.' && $rname != '..') {
-// 				# TODO: Error checking/handling - mkdir returns false if the directory already exists, and throws a warning
-// 				$wp_filesystem->mkdir($dest_dir.'/'.$rname, $chmod);
-// 				if (!empty($files['files'])) $this->create_directory_tree($dest_dir.'/'.$rname, $files['files']));
-// 			}
-// 		}
-// 	}
-
 	# TODO: Needs testing
-	# TODO: Pass in a chmod for creating directories
 	# $dest_dir must already exist
-	# TODO: We are meant to leave the working directory empty. Hence, need to rmdir() once a directory is empty.
 	function copy_files_in($source_dir, $dest_dir, $files, $chmod = false) {
 		global $wp_filesystem;
 		foreach ($files as $rname => $rfile) {
 			if ('d' != $rfile['type']) {
-				# TODO: Error handling
 				# Delete it if it already exists (or perhaps WP does it for us)
-				$wp_filesystem->move($source_dir.'/'.$rname, $dest_dir.'/'.$rname, true);
+				if (!$wp_filesystem->move($source_dir.'/'.$rname, $dest_dir.'/'.$rname, true)) {
+					echo sprintf(__('Failed to move directory (check your file permissions and disk quote): %s', 'updraftplus'), $source_dir.'/'.$rname." -&gt; ".$dest_dir.'/'.$rname);
+					return false;
+				}
 			} else {
-				# TODO: Error handling. mkdir returns false if already exists - check it.
-				$wp_filesystem->mkdir($dest_dir.'/'.$rname, $chmod);
+				if ($wp_filesystem->is_file($dest_dir.'/'.$rname)) @$wp_filesystem->delete($dest_dir.'/'.$rname, false, 'f');
+				if (!$wp_filesystem->is_dir($dest_dir.'/'.$rname) && !$wp_filesystem->mkdir($dest_dir.'/'.$rname, $chmod)) {
+					echo sprintf(__('Failed to create directory (check your file permissions and disk quote): %s', 'updraftplus'), $dest_dir.'/'.$rname);
+					return false;
+				}
 				if (!empty($files['files'])) {
 					# Recurse
-					$this->copy_files_in($source_dir.'/'.$rname, $dest_dir.'/'.$rname, $files['files'], $chmod);
+					$docopy = $this->copy_files_in($source_dir.'/'.$rname, $dest_dir.'/'.$rname, $files['files'], $chmod);
+					if (false === $docopy) return false;
 				}
 			}
 		}
+		# We are meant to leave the working directory empty. Hence, need to rmdir() once a directory is empty. But not the root of it all.
+		if (false !== strpos($source_dir, '/')) $wp_filesystem->rmdir($source_dir, false);
+		return true;
 	}
 
 	function str_replace_once($needle, $replace, $haystack) {
@@ -374,9 +371,10 @@ class Updraft_Restorer extends WP_Upgrader {
 
 			// In this special case, the backup contents are not in a folder, so it is not simply a case of moving the folder around, but rather looping over all that we find
 
-			# TODO: Make multi-archive compatible
-			# TODO: Then copy the solution to wpcore as well
-			$this->move_backup_in($working_dir, trailingslashit($wp_filesystem_dir), 1, array('plugins', 'themes', 'uploads', 'upgrade'), 'others');
+			# On subsequent archives of a multi-archive set, don't move anything; but do on the first
+			$preserve_existing = (isset($this->been_restored['others'])) ? 3 : 1;
+
+			$this->move_backup_in($working_dir, trailingslashit($wp_filesystem_dir), $preserve_existing, array('plugins', 'themes', 'uploads', 'upgrade'), 'others');
 
 			$this->been_restored['others'] = true;
 
@@ -387,7 +385,6 @@ class Updraft_Restorer extends WP_Upgrader {
 			show_message($this->strings['moving_old']);
 
 			// Multi-archive sets: we record what we've already begun on, and on subsequent runs, copy in instead of replacing
-# TODO: Will multi-core move-in over-write directories on second run when they are split across archives?
 			$movedin = apply_filters('updraftplus_restore_movein_'.$type, $working_dir, $this->abspath, $wp_filesystem_dir);
 			// A filter, to allow add-ons to perform the install of non-standard entities, or to indicate that it's not possible
 			if (false === $movedin) {
@@ -409,11 +406,18 @@ class Updraft_Restorer extends WP_Upgrader {
 
 				// The backup may not actually have /$type, since that is info from the present site
 				$move_from = $this->get_first_directory($working_dir, array(basename($info['path']), $type));
+				if (false === $move_from) return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
 
 				show_message($this->strings['moving_backup']);
-				if (false === $move_from || !$wp_filesystem->move($move_from, $wp_filesystem_dir, true) ) {
+
+				if (!isset($this->been_restored[$type])) {
+					if (!$wp_filesystem->move($move_from, $wp_filesystem_dir, true) ) {
+						return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
+					}
+				} elseif (!$this->move_backup_in($move_from,  $wp_filesystem_dir, 3, array())) {
 					return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
 				}
+
 			}
 
 			$this->been_restored[$type] = true;
