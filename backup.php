@@ -6,12 +6,10 @@ if (!defined ('ABSPATH')) die('No direct access allowed');
 
 global $updraftplus_backup;
 $updraftplus_backup = new UpdraftPlus_Backup();
-if (defined('UPDRAFTPLUS_PREFERPCLZIP') && UPDRAFTPLUS_PREFERPCLZIP == true) $updraftplus_backup->zip_preferpcl = true;
 
 class UpdraftPlus_Backup {
 
 	public $index = 0;
-	public $zip_preferpcl = false;
 
 	private $zipfiles_added;
 	private $zipfiles_added_thisrun = 0;
@@ -28,6 +26,19 @@ class UpdraftPlus_Backup {
 	private $dbhandle;
 	private $dbhandle_isgz;
 
+	private $use_zip_object = 'UpdraftPlus_ZipArchive';
+
+	public function __construct() {
+
+		# In tests, PclZip was found to be 25% slower
+		if ($this->use_zip_object != 'UpdraftPlus_PclZip' && empty($this->binzip) && ((defined('UPDRAFTPLUS_PREFERPCLZIP') && UPDRAFTPLUS_PREFERPCLZIP == true) || (!extension_loaded('zip') && !method_exists('ZipArchive', 'AddFile')))) {
+			global $updraftplus;
+			$updraftplus->log("Zip engine: ZipArchive is not available or is disabled (will use PclZip if needed)");
+			$this->use_zip_object = 'UpdraftPlus_PclZip';
+		}
+
+	}
+
 	private function create_zip($create_from_dir, $whichone, $backup_file_basename, $index) {
 		// Note: $create_from_dir can be an array or a string
 		@set_time_limit(900);
@@ -38,7 +49,7 @@ class UpdraftPlus_Backup {
 
 		global $updraftplus;
 
-		if ($whichone != "others") $updraftplus->log("Beginning creation of dump of $whichone");
+		if ('others' != $whichone) $updraftplus->log("Beginning creation of dump of $whichone");
 
 		if (is_string($create_from_dir) && !file_exists($create_from_dir)) {
 			$flag_error = true;
@@ -97,7 +108,7 @@ class UpdraftPlus_Backup {
 		# The paths in the zip should then begin with '$whichone', having removed WP_CONTENT_DIR from the front
 		$zipcode = $this->make_zipfile($create_from_dir, $backup_file_basename, $whichone);
 		if ($zipcode !== true) {
-			$updraftplus->log("ERROR: Zip failure: Could not create $whichone zip (".$this->index." / $index): code=$zipcode");
+			$updraftplus->log("ERROR: Zip failure: Could not create $whichone zip (".$this->index." / $index)");
 			$updraftplus->log(sprintf(__("Could not create %s zip. Consult the log file for more information.",'updraftplus'),$whichone), 'error');
 			# The caller is required to update $index from $this->index
 			return false;
@@ -109,7 +120,7 @@ class UpdraftPlus_Backup {
 				$timetaken = max(microtime(true)-$this->zip_microtime_start, 0.000001);
 				$kbsize = filesize($full_path)/1024;
 				$rate = round($kbsize/$timetaken, 1);
-				$updraftplus->log("Created $whichone zip (".$this->index.") - file size is ".round($kbsize,1)." Kb in ".round($timetaken,1)." s ($rate Kb/s)");
+				$updraftplus->log("Created $whichone zip (".$this->index.") - ".round($kbsize,1)." Kb in ".round($timetaken,1)." s ($rate Kb/s)");
 				// We can now remove any left-over temporary files from this job
 				
 			} elseif ($this->index > $original_index) {
@@ -961,6 +972,7 @@ class UpdraftPlus_Backup {
 			if (is_readable($fullpath)) {
 				$key = ($fullpath == $original_fullpath) ? basename($fullpath) : $use_path_when_storing.'/'.basename($fullpath);
 				$this->zipfiles_batched[$fullpath] = $key;
+				$this->makezip_recursive_batchedbytes += @filesize($fullpath);
 				@touch($zipfile);
 			} else {
 				$updraftplus->log("$fullpath: unreadable file");
@@ -971,7 +983,7 @@ class UpdraftPlus_Backup {
 			if (!$dir_handle = @opendir($fullpath)) {
 				$updraftplus->log("Failed to open directory: $fullpath");
 				$updraftplus->log(sprintf(__("Failed to open directory: %s",'updraftplus'), $fullpath), 'error');
-				return;
+				return false;
 			}
 			while ($e = readdir($dir_handle)) {
 				if ($e != '.' && $e != '..') {
@@ -980,6 +992,7 @@ class UpdraftPlus_Backup {
 						if (is_file($deref)) {
 							if (is_readable($deref)) {
 								$this->zipfiles_batched[$deref] = $use_path_when_storing.'/'.$e;
+								$this->makezip_recursive_batchedbytes += @filesize($deref);
 								@touch($zipfile);
 							} else {
 								$updraftplus->log("$deref: unreadable file");
@@ -991,6 +1004,7 @@ class UpdraftPlus_Backup {
 					} elseif (is_file($fullpath.'/'.$e)) {
 						if (is_readable($fullpath.'/'.$e)) {
 							$this->zipfiles_batched[$fullpath.'/'.$e] = $use_path_when_storing.'/'.$e;
+							$this->makezip_recursive_batchedbytes += @filesize($fullpath.'/'.$e);
 							@touch($zipfile);
 						} else {
 							$updraftplus->log("$fullpath/$e: unreadable file");
@@ -1009,7 +1023,9 @@ class UpdraftPlus_Backup {
 		// We go every 25 files, because if you wait too much longer, the contents may have changed from under you. Note though that since this fires once-per-directory, the actual number by this stage may be much larger; the most we saw was over 3000; but in that case, makezip_addfiles() will split the write-out up into smaller chunks
 		// And for some redundancy (redundant because of the touches going on anyway), we try to touch the file after 20 seconds, to help with the "recently modified" check on resumption (we saw a case where the file went for 155 seconds without being touched and so the other runner was not detected)
 		if (count($this->zipfiles_batched) > 25 || (file_exists($zipfile) && ((time()-filemtime($zipfile)) > 20) )) {
-			$ret = $this->makezip_addfiles();
+			$ret = true;
+			# In fact, this is entirely redundant, and slows things down - the logic in makezip_addfiles() now does this, much better
+// 			$ret = $this->makezip_addfiles();
 		} else {
 			$ret = true;
 		}
@@ -1042,43 +1058,19 @@ class UpdraftPlus_Backup {
 		// We need meta-info about $whichone
 		$backupable_entities = $updraftplus->get_backupable_file_entities(true, false);
 
-		// TODO: Split into multi-archive sets - is it even possible with PclZip?
-		// Fallback to PclZip - which my tests show is 25% slower (and we can't resume, or split into multi-archive sets)
-		if ($this->zip_preferpcl || (!extension_loaded('zip') && !method_exists('ZipArchive', 'AddFile'))) {
-			if(!class_exists('PclZip')) require_once(ABSPATH.'/wp-admin/includes/class-pclzip.php');
-			$zip_object = new PclZip($destination);
-			$remove_path = WP_CONTENT_DIR;
-			$add_path = false;
-			// Remove prefixes
-			if (isset($backupable_entities[$whichone])) {
-				if ('plugins' == $whichone || 'themes' == $whichone || 'uploads' == $whichone) {
-					$remove_path = dirname($backupable_entities[$whichone]);
-					# To normalise instead of removing (which binzip doesn't support, so we don't do it), you'd remove the dirname() in the above line, and uncomment the below one.
-					#$add_path = $whichone;
-				} else {
-					$remove_path = $backupable_entities[$whichone];
-				}
-			}
-			if ($add_path) {
-				$zipcode = $zip_object->create($source, PCLZIP_OPT_REMOVE_PATH, $remove_path, PCLZIP_OPT_ADD_PATH, $add_path);
-			} else {
-				$zipcode = $zip_object->create($source, PCLZIP_OPT_REMOVE_PATH, $remove_path);
-			}
-			if ($zipcode == 0 ) {
-				$updraftplus->log("PclZip Error: ".$zip_object->errorInfo(true), 'warning');
-				return $zip_object->errorCode();
-			} else {
-				return true;
-			}
-		}
-
 		// false means 'tried + failed'; whereas 0 means 'not yet tried'
 		if ($this->binzip === 0 && (!defined('UPDRAFTPLUS_NO_BINZIP') || !UPDRAFTPLUS_NO_BINZIP) ) {
 			$updraftplus->log('Checking if we have a zip executable available');
 			$binzip = $updraftplus->find_working_bin_zip();
-			if (is_string($binzip)) $updraftplus->log("Found one: $binzip");
+			if (is_string($binzip)) $updraftplus->log("Zip engine: found/will use a binary zip: $binzip");
 			$this->binzip = $binzip;
 		}
+
+
+		// TODO: Split into multi-archive sets - is it even possible with PclZip?
+		// Fallback to PclZip - which my tests show is 25% slower (and we can't resume, or split into multi-archive sets)
+
+		
 
 		// TODO: Handle stderr?
 		// TODO: Handle multi-archive
@@ -1168,15 +1160,22 @@ class UpdraftPlus_Backup {
 			// If the file exists, then we should grab its index of files inside, and sizes
 			// Then, when we come to write a file, we should check if it's already there, and only add if it is not
 			if (file_exists($examine_zip) && is_readable($examine_zip) && filesize($examine_zip)>0) {
-				$this->existing_zipfiles_size += filesize($examine_zip);
-				$zip = new ZipArchive;
-				$zip->open($examine_zip);
 
-				for ($i=0; $i < $zip->numFiles; $i++) {
-					$si = $zip->statIndex($i);
-					$name = $si['name'];
-					$this->existing_files[$name] = $si['size'];
-					$this->existing_files_rawsize += $si['size'];
+				$this->existing_zipfiles_size += filesize($examine_zip);
+				$zip = new $this->use_zip_object;
+				if (!$zip->open($examine_zip)) {
+					$updraftplus->log("Could not open zip file to examine (".$zip->last_error."); will remove: ".basename($examine_zip));
+					@unlink($examine_zip);
+				} else {
+
+					for ($i=0; $i < $zip->numFiles; $i++) {
+						$si = $zip->statIndex($i);
+						$name = $si['name'];
+						$this->existing_files[$name] = $si['size'];
+						$this->existing_files_rawsize += $si['size'];
+					}
+
+					@$zip->close();
 				}
 
 				$updraftplus->log(basename($examine_zip).": Zip file already exists, with ".count($this->existing_files)." files");
@@ -1198,24 +1197,25 @@ class UpdraftPlus_Backup {
 		$this->zip_split_every = max((int)$updraftplus->jobdata_get('split_every'), UPDRAFTPLUS_SPLIT_MIN)*1024*1024;
 		$this->zip_basename = $updraft_dir.'/'.$backup_file_basename.'-'.$whichone;
 
-		// Magic value, used later to detect no error occurring
-		$last_error = 2349864;
-		if (is_array($source)) {
-			foreach ($source as $element) {
-				$howmany = $this->makezip_recursive_add($element, basename($element), $element);
-				if ($howmany < 0) $last_error = $howmany;
-			}
-		} else {
-			$howmany = $this->makezip_recursive_add($source, basename($source), $source);
-			if ($howmany < 0) $last_error = $howmany;
+		$error_occured = false;
+
+		# Store this in its original form
+		$this->source = $source;
+
+		# Reset. This counter is used only with PcLZip, to decide if it's better to do it all-in-one
+		$this->makezip_recursive_batchedbytes = 0;
+		if (!is_array($source)) $source=array($source);
+		foreach ($source as $element) {
+			$add_them = $this->makezip_recursive_add($element, basename($element), $element);
+			if (is_wp_error($add_them) || false === $add_them) $error_occured = true;
 		}
 
 		// Any not yet dispatched?
 		if (count($this->zipfiles_dirbatched)>0 || count($this->zipfiles_batched)>0) {
-			$howmany = $this->makezip_addfiles();
-			if ($howmany < 0) $last_error = $howmany;
+			$updraftplus->log(sprintf("Remaining entities to add to zip file: %d directories, %d files", count($this->zipfiles_dirbatched), count($this->zipfiles_batched)));
+			$add_them = $this->makezip_addfiles();
+			if (is_wp_error($add_them) || false === $add_them) $error_occured = true;
 		}
-
 
 		# Reset these variables because the index may have changed since we began
 
@@ -1223,19 +1223,16 @@ class UpdraftPlus_Backup {
 		$destination_base = $backup_file_basename.'-'.$whichone.$itext.'.zip.tmp';
 		$destination = $updraft_dir.'/'.$destination_base;
 
-		# TODO: Not MA-compatible
-		if ($this->zipfiles_added > 0 || $last_error == 2349864) {
+		if ($this->zipfiles_added > 0 || $error_occured == false) {
 			// ZipArchive::addFile sometimes fails
-			if ($this->index == $original_index && filesize($destination) < 90) {
-				// Retry with PclZip
-				$updraftplus->log("Zip::addFile apparently failed ($last_error, ".filesize($destination).") - retrying with PclZip");
-				# TODO: This is not MA-compatible - ignorant of which index we might be on; needs to reset
-				$this->zip_preferpcl = true;
+			if (filesize($destination) < 90 && 'UpdraftPlus_ZipArchive' == $this->use_zip_object) {
+				$updraftplus->log("ZipArchive::addFile apparently failed ($last_error, type=$whichone, size=".filesize($destination).") - retrying with PclZip");
+				$this->use_zip_object = 'UpdraftPlus_PclZip';
 				return $this->make_zipfile($source, $backup_file_basename, $whichone);
 			}
 			return true;
 		} else {
-			return $last_error;
+			return false;
 		}
 
 	}
@@ -1259,23 +1256,57 @@ class UpdraftPlus_Backup {
 		// Short-circuit the null case, because we want to detect later if something useful happenned
 		if (count($this->zipfiles_dirbatched) == 0 && count($this->zipfiles_batched) == 0) return true;
 
+		# If on PclZip, then if possible short-circuit to a quicker method (makes a huge time difference - on a folder of 1500 small files, 2.6s instead of 76.6)
+		# This assumes that makezip_addfiles() is only called once so that we know about all needed files (the new style)
+		# This is rather conservative - because it assumes zero compression. But we can't know that in advance.
+		if (0 == $this->index && 'UpdraftPlus_PclZip' == $this->use_zip_object && $this->makezip_recursive_batchedbytes < $this->zip_split_every && $this->makezip_recursive_batchedbytes < 512*1024*1024) {
+			$updraftplus->log("PclZip, and only one archive required - will attempt to do in single operation (data: ".round($this->makezip_recursive_batchedbytes/1024,1)." Kb, split: ".round($this->zip_split_every/1024, 1)." Kb)");
+			if(!class_exists('PclZip')) require_once(ABSPATH.'/wp-admin/includes/class-pclzip.php');
+			$zip = new PclZip($zipfile);
+			$remove_path = ($this->whichone == 'wpcore') ? untrailingslashit(ABSPATH) : WP_CONTENT_DIR;
+			$add_path = false;
+			// Remove prefixes
+			$backupable_entities = $updraftplus->get_backupable_file_entities(true);
+			if (isset($backupable_entities[$this->whichone])) {
+					if ('plugins' == $whichone || 'themes' == $whichone || 'uploads' == $whichone) {
+						$remove_path = dirname($backupable_entities[$whichone]);
+						# To normalise instead of removing (which binzip doesn't support, so we don't do it), you'd remove the dirname() in the above line, and uncomment the below one.
+						#$add_path = $whichone;
+					} else {
+						$remove_path = $backupable_entities[$whichone];
+					}
+			}
+			if ($add_path) {
+					$zipcode = $zip->create($this->source, PCLZIP_OPT_REMOVE_PATH, $remove_path, PCLZIP_OPT_ADD_PATH, $add_path);
+			} else {
+					$zipcode = $zip->create($this->source, PCLZIP_OPT_REMOVE_PATH, $remove_path);
+			}
+			if ($zipcode == 0 ) {
+					$updraftplus->log("PclZip Error: ".$zip->errorInfo(true), 'warning');
+					return $zip->errorCode();
+			} else {
+					return true;
+			}
+		}
+
 		// 05-Mar-2013 - added a new check on the total data added; it appears that things fall over if too much data is contained in the cumulative total of files that were addFile'd without a close-open cycle; presumably data is being stored in memory. In the case in question, it was a batch of MP3 files of around 100Mb each - 25 of those equals 2.5Gb!
 
 		$data_added_since_reopen = 0;
 		# The following array is used only for error reporting if ZipArchive::close fails (since that method itself reports no error messages - we have to track manually what we were attempting to add)
 		$files_zipadded_since_open = array();
 
-		$zip = new ZipArchive;
+		$zip = new $this->use_zip_object;
 		if (file_exists($zipfile)) {
 			$opencode = $zip->open($zipfile);
 			$original_size = filesize($zipfile);
 			clearstatcache();
 		} else {
-			$opencode = $zip->open($zipfile, ZIPARCHIVE::CREATE);
+			$create_code = (defined('ZIPARCHIVE::CREATE')) ? ZIPARCHIVE::CREATE : 1;
+			$opencode = $zip->open($zipfile, $create_code);
 			$original_size = 0;
 		}
 
-		if ($opencode !== true) return array($opencode, 0);
+		if ($opencode !== true) return new WP_Error('no_open', sprintf(__('Failed to open the zip file (%s) - %s', 'updraftplus'),$zipfile, $zip->last_error));
 		// Make sure all directories are created before we start creating files
 		while ($dir = array_pop($this->zipfiles_dirbatched)) {
 			$zip->addEmptyDir($dir);
@@ -1310,7 +1341,8 @@ class UpdraftPlus_Backup {
 				*/
 
 				# Add 10% margin. It only really matters when the OS has a file size limit, exceeding which causes failure (e.g. 2Gb on 32-bit)
-				$reaching_split_limit = ( defined('UPDRAFTPLUS_EXPERIMENTAL_MULTIARCHIVE') && true == UPDRAFTPLUS_EXPERIMENTAL_MULTIARCHIVE && $this->zip_last_ratio > 0 && ($original_size + 1.1*$data_added_since_reopen*$this->zip_last_ratio) > $this->zip_split_every) ? true : false;
+				# Since we don't test before the file has been created (so that zip_last_ratio has meaningful data), we rely on max_zip_batch being less than zip_split_every - which should always be the case
+				$reaching_split_limit = ( defined('UPDRAFTPLUS_EXPERIMENTAL_MULTIARCHIVE') && true == UPDRAFTPLUS_EXPERIMENTAL_MULTIARCHIVE && $this->zip_last_ratio > 0 && $original_size>0 && ($original_size + 1.1*$data_added_since_reopen*$this->zip_last_ratio) > $this->zip_split_every) ? true : false;
 
 				if ($reaching_split_limit || $data_added_since_reopen > $maxzipbatch || (time() - $this->zipfiles_lastwritetime) > 1.5) {
 
@@ -1327,7 +1359,7 @@ class UpdraftPlus_Backup {
 					}
 					if (!$zip->close()) {
 						$updraftplus->log(__('A zip error occurred - check your log for more details.', 'updraftplus'), 'warning', 'zipcloseerror');
-						$updraftplus->log("ZipArchive::Close returned an error. List of files we were trying to add follows (check their permissions).");
+						$updraftplus->log("The attempt to close the zip file returned an error (".$zip->last_error."). List of files we were trying to add follows (check their permissions).");
 						foreach ($files_zipadded_since_open as $ffile) {
 							$updraftplus->log("File: ".$ffile['addas']." (exists: ".(int)@file_exists($ffile['file']).", size: ".@filesize($ffile['file']).')');
 						}
@@ -1418,6 +1450,9 @@ class UpdraftPlus_Backup {
 								# Also don't allow anything that is going to be more than 18 seconds - actually, that's harmful because of the basically fixed time taken to copy the file
 								# $new_maxzipbatch = floor(min(18*$rate ,$new_maxzipbatch));
 
+								# Don't go above the split amount (though we expect that to be higher anyway, unless sending via email)
+								$new_maxzipbatch = min($new_maxzipbatch, $this->zip_split_every);
+
 								# Don't raise it above a level that failed on a previous run
 								$maxzipbatch_ceiling = $updraftplus->jobdata_get('maxzipbatch_ceiling');
 								if (is_numeric($maxzipbatch_ceiling) && $maxzipbatch_ceiling > 20*1024*1024 && $new_maxzipbatch > $maxzipbatch_ceiling) {
@@ -1492,18 +1527,19 @@ class UpdraftPlus_Backup {
 				$zipfile = $this->zip_basename.($this->index+1).'.zip.tmp';
 			}
 			if (empty($zip)) {
-				$zip = new ZipArchive;
+				$zip = new $this->use_zip_object;
 
 				if (file_exists($zipfile)) {
 					$opencode = $zip->open($zipfile);
 					$original_size = filesize($zipfile);
 					clearstatcache();
 				} else {
-					$opencode = $zip->open($zipfile, ZIPARCHIVE::CREATE);
+					$create_code = (defined('ZIPARCHIVE::CREATE')) ? ZIPARCHIVE::CREATE : 1;
+					$opencode = $zip->open($zipfile, $create_code);
 					$original_size = 0;
 				}
 
-				if ($opencode !== true) return array($opencode, 0);
+				if ($opencode !== true) return new WP_Error('no_open', sprintf(__('Failed to open the zip file (%s) - %s', 'updraftplus'),$zipfile, $zip->last_error));
 			}
 
 		}
@@ -1511,10 +1547,10 @@ class UpdraftPlus_Backup {
 		# Reset array
 		$this->zipfiles_batched = array();
 
-		$ret =  $zip->close();
+		$ret = $zip->close();
 		if (!$ret) {
 			$updraftplus->log(__('A zip error occurred - check your log for more details.', 'updraftplus'), 'warning', 'zipcloseerror');
-			$updraftplus->log("ZipArchive::Close returned an error. List of files we were trying to add follows (check their permissions).");
+			$updraftplus->log("Closing the zip file returned an error (".$zip->last_error."). List of files we were trying to add follows (check their permissions).");
 			foreach ($files_zipadded_since_open as $ffile) {
 				$updraftplus->log("File: ".$ffile['addas']." (exists: ".(int)@file_exists($ffile['file']).", size: ".@filesize($ffile['file']).')');
 			}
@@ -1547,7 +1583,7 @@ class UpdraftPlus_Backup {
 		@rename($full_path.'.tmp', $full_path);
 		$kbsize = filesize($full_path)/1024;
 		$rate = round($kbsize/$timetaken, 1);
-		$updraftplus->log("Created ".$this->whichone." zip (".$this->index.") - file size is ".round($kbsize,1)." Kb in ".round($timetaken,1)." s ($rate Kb/s)");
+		$updraftplus->log("Created ".$this->whichone." zip (".$this->index.") - ".round($kbsize,1)." Kb in ".round($timetaken,1)." s ($rate Kb/s)");
 		$this->zip_microtime_start = microtime(true);
 
 		# No need to add $itext here - we can just delete any temporary files for this zip
@@ -1556,6 +1592,149 @@ class UpdraftPlus_Backup {
 		$this->index++;
 		$job_file_entities[$youwhat]['index']=$this->index;
 		$updraftplus->jobdata_set('job_file_entities', $job_file_entities);
+	}
+
+}
+
+# We just add a last_error variable for comaptibility with our UpdraftPlus_PclZip object
+class UpdraftPlus_ZipArchive extends ZipArchive {
+	public $last_error = '(Unknown: ZipArchive does not return error messages)';
+}
+
+#class UpdraftPlus_BinZip {
+#}
+
+# A ZipArchive compatibility layer, with behaviour sufficient for our usage of ZipArchive
+class UpdraftPlus_PclZip {
+
+	private $pclzip;
+	private $path;
+	private $addfiles;
+	private $adddirs;
+	private $statindex;
+	public $last_error;
+
+	function __construct() {
+		$this->addfiles = array();
+		$this->adddirs = array();
+	}
+
+	public function __get($name) {
+		if ($name != 'numFiles') return null;
+
+		if (empty($this->pclzip)) return false;
+
+		$statindex = $this->pclzip->listContent();
+
+		if (empty($statindex)) {
+			$this->statindex=array();
+			return 0;
+		}
+
+		$result = array();
+		foreach ($statindex as $i => $file) {
+			if (!isset($statindex[$i]['folder']) || 0 == $statindex[$i]['folder']) {
+				$result[] = $file;
+			}
+			unset($statindex[$i]);
+		}
+
+		$this->statindex=$result;
+
+		return count($this->statindex);
+
+	}
+
+	public function statIndex($i) {
+
+		if (empty($this->statindex[$i])) return array('name' => null, 'size' => 0);
+
+		return array('name' => $this->statindex[$i]['filename'], 'size' => $this->statindex[$i]['size']);
+
+	}
+
+	public function open($path, $flags = 0) {
+		if(!class_exists('PclZip')) require_once(ABSPATH.'/wp-admin/includes/class-pclzip.php');
+		if(!class_exists('PclZip')) {
+			$this->last_error = "No PclZip class was found";
+			return false;
+		}
+
+		$ziparchive_create_match = (defined('ZIPARCHIVE::CREATE')) ? ZIPARCHIVE::CREATE : 1;
+
+		if ($flags == 1 && file_exists($path)) @unlink($path);
+
+		$this->pclzip = new PclZip($path);
+		if (empty($this->pclzip)) {
+			$this->last_error = 'Could not get a PclZip object';
+			return false;
+		}
+
+		# Make the empty directory we need to implement addEmptyDir()
+		global $updraftplus;
+		$updraft_dir = $updraftplus->backups_dir_location();
+		if (!is_dir($updraft_dir.'/emptydir') && !mkdir($updraft_dir.'/emptydir')) {
+			$this->last_error = "Could not create empty directory ($updraft_dir/emptydir)";
+			return false;
+		}
+
+		$this->path = $path;
+
+		return true;
+
+	}
+
+	# Do the actual write-out - it is assumed that close() is where this is done. Needs to return true/false
+	public function close() {
+		if (empty($this->pclzip)) {
+			$this->last_error = 'Zip file was not opened';
+			return false;
+		}
+
+		global $updraftplus;
+		$updraft_dir = $updraftplus->backups_dir_location();
+
+		$activity = false;
+
+		# Add the empty directories
+		foreach ($this->adddirs as $dir) {
+			if (false == $this->pclzip->add($updraft_dir.'/emptydir', PCLZIP_OPT_REMOVE_PATH, $updraft_dir.'/emptydir', PCLZIP_OPT_ADD_PATH, $dir)) {
+				$this->last_error = $this->pclzip->errorInfo(true);
+				return false;
+			}
+			$activity = true;
+		}
+
+		# Add the files
+		foreach ($this->addfiles as $file => $add_as) {
+			if (false == $this->pclzip->add($file, PCLZIP_OPT_REMOVE_PATH, dirname($file), PCLZIP_OPT_ADD_PATH, dirname($add_as))) {
+				$this->last_error = $this->pclzip->errorInfo(true);
+				return false;
+			}
+			$activity = true;
+		}
+
+		$this->pclzip = false;
+		$this->addfiles = array();
+		$this->adddirs = array();
+
+		clearstatcache();
+		if ($activity && filesize($this->path) < 50) {
+			$this->last_error = "Write failed - unknown cause (check your file permissions)";
+			return false;
+		}
+
+		return true;
+	}
+
+	# Note: basename($add_as) is irrelevant; that is, it is actually basename($file) that will be used. But these are always identical in our usage.
+	public function addFile($file, $add_as) {
+		$this->addfiles[$file] = $add_as;
+	}
+
+	# PclZip doesn't have a direct way to do this
+	public function addEmptyDir($dir) {
+		$this->adddirs[] = $dir;
 	}
 
 }

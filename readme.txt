@@ -124,6 +124,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * TWEAK: Log file times are now recorded relative to the backup start, rather than the current resumption start
 * TWEAK: More code-tidying and optimisation
 * TWEAK: Various extra sanity-checks for possible problems
+* INTERNALS: PclZip zip method now has feature parity with ZipArchive (can resume, more logging)
 * FIX: Make sure output buffering is off when sending files from the browser (prevents memory exhaustion)
 * FIX: Prevent double-backup (very unusual combination of circumstances)
 

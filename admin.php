@@ -3,13 +3,15 @@
 // TODO: Test restoring multi-archive - multi-archives for 1) plugins 2) others 3) wpcore. Need to make sure they copy-in correctly, including when sub-diretories are split across archives
 # TODO: Test the multi-archive code on a site with awkward permissions
 # TODO: Test the multi-archive code on a site with non-standard locations
-# TODO: If we use PclZip via a retry, then we need to reset index to 0, since it can't multi-archive. Or perhaps just scrap the retry and instead log an error? Or only retry if index is still 0?
-# TODO: Email backup method should be able to force split limit down to something manageable - or at least, should make the option display.
+# TODO: Test m-a on a few live sites
 
-// TODO: Multi-archive sets: needs to work with binzip somehow (difficulty is, we don't know the compressed size in advance - could just count based on uncompressed, since anything getting really big is likely to already be compressed). And PclZip, though I suspect that's impossible.
+# TODO: BinZip is not yet MA-compatible. Create an UpdraftPlus_BinZip class. Test timings (see zip-timings.txt). Turn BinZip back on if it's good.
+
+# TODO: Email backup method should be able to force split limit down to something manageable - or at least, should make the option display. (Put it in email class. Tweak the storage dropdown to not hide stuff also in expert class if expert is shown).
+
 // TODO: mysql maximum packet size - need to intelligently split the backup SQL (or up the packet size + reconnect)
 
-if (!defined ('ABSPATH')) die ('No direct access allowed');
+if (!defined ('ABSPATH')) die('No direct access allowed');
 
 // For the purposes of improving site performance (don't load in 10s of Kilobytes of un-needed code on every page load), admin-area code is being progressively moved here.
 
