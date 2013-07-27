@@ -39,7 +39,7 @@ class UpdraftPlus_Backup {
 
 	}
 
-	private function create_zip($create_from_dir, $whichone, $backup_file_basename, $index) {
+	public function create_zip($create_from_dir, $whichone, $backup_file_basename, $index) {
 		// Note: $create_from_dir can be an array or a string
 		@set_time_limit(900);
 
@@ -1059,18 +1059,14 @@ class UpdraftPlus_Backup {
 		$backupable_entities = $updraftplus->get_backupable_file_entities(true, false);
 
 		// false means 'tried + failed'; whereas 0 means 'not yet tried'
-		if ($this->binzip === 0 && (!defined('UPDRAFTPLUS_NO_BINZIP') || !UPDRAFTPLUS_NO_BINZIP) ) {
+		// TODO: Turn back on once either 1) multi-archive compatible, or 2) have added some code to detect that only one archive is required
+		if (1==0 && $this->binzip === 0 && (!defined('UPDRAFTPLUS_NO_BINZIP') || !UPDRAFTPLUS_NO_BINZIP) ) {
 			$updraftplus->log('Checking if we have a zip executable available');
 			$binzip = $updraftplus->find_working_bin_zip();
 			if (is_string($binzip)) $updraftplus->log("Zip engine: found/will use a binary zip: $binzip");
 			$this->binzip = $binzip;
 		}
 
-
-		// TODO: Split into multi-archive sets - is it even possible with PclZip?
-		// Fallback to PclZip - which my tests show is 25% slower (and we can't resume, or split into multi-archive sets)
-
-		
 
 		// TODO: Handle stderr?
 		// TODO: Handle multi-archive
@@ -1225,7 +1221,7 @@ class UpdraftPlus_Backup {
 
 		if ($this->zipfiles_added > 0 || $error_occured == false) {
 			// ZipArchive::addFile sometimes fails
-			if (filesize($destination) < 90 && 'UpdraftPlus_ZipArchive' == $this->use_zip_object) {
+			if ((file_exists($destination) || $this->index == $original_index) && filesize($destination) < 90 && 'UpdraftPlus_ZipArchive' == $this->use_zip_object) {
 				$updraftplus->log("ZipArchive::addFile apparently failed ($last_error, type=$whichone, size=".filesize($destination).") - retrying with PclZip");
 				$this->use_zip_object = 'UpdraftPlus_PclZip';
 				return $this->make_zipfile($source, $backup_file_basename, $whichone);

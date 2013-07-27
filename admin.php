@@ -1,9 +1,13 @@
 <?php
 
-// TODO: Test restoring multi-archive - multi-archives for 1) plugins 2) others 3) wpcore. Need to make sure they copy-in correctly, including when sub-diretories are split across archives
-# TODO: Test the multi-archive code on a site with awkward permissions
-# TODO: Test the multi-archive code on a site with non-standard locations
+// TODO: Test restoring multi-archive - multi-archives for 1) (DONE)plugins 2) others 3) wpcore. Need to make sure they copy-in correctly, including when sub-diretories are split across archives
+# TODO: Test the multi-archive restore code on a site with awkward permissions
+# TODO: Test the multi-archive restore code on a site with non-standard locations
 # TODO: Test m-a on a few live sites
+# TODO: Look for this pattern in the site root: pclzip-51f3c72989c15.tmp
+# TODO: Once we know that there is a second archive, we should rename the first file with a "1" in the filename, so that missing archives are better detected upon upload/support. We could rename *all* the files at the 'finished files' stage to be like '1of5', '2of5', etc. Then detect that via the regex when scanning + uploading. Then we'll know exactly which are missing. Will just need to verify that nothing relies on the old file names once the file status is set to 'finished' (or even better, recognise this new convention - make the 'of(\d+)' optional).
+# TODO: Uploading multi-archives - is the regex set correctly? Will it add, not over-write the array, and place in the correct slot?
+# TODO: Re-enable restoration
 
 # TODO: BinZip is not yet MA-compatible. Create an UpdraftPlus_BinZip class. Test timings (see zip-timings.txt). Turn BinZip back on if it's good.
 
@@ -81,11 +85,11 @@ class UpdraftPlus_Admin {
 
 		if (version_compare($wp_version, '3.2', '<')) add_action('admin_notices', array($this, 'show_admin_warning_wordpressversion'));
 
-			wp_enqueue_script('jquery');
-			wp_enqueue_script('jquery-ui-dialog');
-			wp_enqueue_script('plupload-all');
-			wp_register_script('updraftplus-plupload', UPDRAFTPLUS_URL.'/includes/ud-plupload.js', array('jquery'));
-			wp_enqueue_script('updraftplus-plupload');
+		wp_enqueue_script('jquery');
+		wp_enqueue_script('jquery-ui-dialog');
+		wp_enqueue_script('plupload-all');
+		wp_register_script('updraftplus-plupload', UPDRAFTPLUS_URL.'/includes/ud-plupload.js', array('jquery'));
+		wp_enqueue_script('updraftplus-plupload');
 
 	}
 
@@ -108,7 +112,7 @@ class UpdraftPlus_Admin {
 			'url' => admin_url('admin-ajax.php'),
 			'flash_swf_url' => includes_url('js/plupload/plupload.flash.swf'),
 			'silverlight_xap_url' => includes_url('js/plupload/plupload.silverlight.xap'),
-			'filters' => array(array('title' => __('Allowed Files'), 'extensions' => 'zip,gz,crypt')),
+			'filters' => array(array('title' => __('Allowed Files'), 'extensions' => 'zip,gz,crypt,txt')),
 			'multipart' => true,
 			'multi_selection' => true,
 			'urlstream_upload' => true,
@@ -444,7 +448,7 @@ class UpdraftPlus_Admin {
 							} elseif (filesize($updraft_dir.'/'.$file) == 0) {
 								$err .= sprintf(__('File was found, but is zero-sized (you need to re-upload it): %s', 'updraftplus'), $file)."<br>";
 							} else {
-								$itext = (0 == $index) ? '' : $itext;
+								$itext = (0 == $index) ? '' : $index;
 								if (!empty($backups[$timestamp][$type.$itext.'-size']) && $backups[$timestamp][$type.$itext.'-size'] != filesize($updraft_dir.'/'.$file)) {
 									$warn .= sprintf(__('File (%s) was found, but has a different size (%s) from what was expected (%s) - it may be corrupt.', 'updraftplus'), $file, filesize($updraft_dir.'/'.$file), $backups[$timestamp][$type.$itext.'-size'])."<br>";
 								}
@@ -897,11 +901,18 @@ class UpdraftPlus_Admin {
 
 		if (!isset($_POST['chunks']) || (isset($_POST['chunk']) && $_POST['chunk'] == $_POST['chunks']-1)) {
 			$file = basename($status['file']);
-			if (!preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+\.(zip|gz|gz\.crypt)$/i', $file)) {
-
+			if (!preg_match('/^log\.[a-f0-9]{12}\.txt/', $file) && !preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)[0-9]*\.(zip|gz|gz\.crypt)$/i', $file, $matches)) {
 				@unlink($status['file']);
-				echo 'ERROR:'.__('Bad filename format - this does not look like a file created by UpdraftPlus','updraftplus');
+				echo sprintf(__('Error: %s', 'updraftplus'),__('Bad filename format - this does not look like a file created by UpdraftPlus','updraftplus'));
 				exit;
+			} else {
+				$backupable_entities = $updraftplus->get_backupable_file_entities(true);
+				$type = $matches[3];
+				if ('db' != $type && !isset($backupable_entities[$type]) && !preg_match('/^log\.[a-f0-9]{12}\.txt/', $file)) {
+					@unlink($status['file']);
+					echo sprintf(__('Error: %s', 'updraftplus'),sprintf(__('This looks like a file created by UpdraftPlus, but this install does not know about this type of object: %s. Perhaps you need to install an add-on?','updraftplus'), htmlspecialchars($type)));
+					exit;
+				}
 			}
 		}
 
@@ -2606,7 +2617,7 @@ ENDHERE;
 		return $ret;
 	}
 
-	// This function examines inside the updraft directory to see if any new archives have been uploaded. If so, it adds them to the backup set. (No removal of items from the backup set is done)
+	// This function examines inside the updraft directory to see if any new archives have been uploaded. If so, it adds them to the backup set. (Non-present items are also removed, only if the service is 'none').
 	function rebuild_backup_history() {
 
 		global $updraftplus;
@@ -2624,11 +2635,11 @@ ENDHERE;
 		// Accumulate a list of known files
 		foreach ($backup_history as $btime => $bdata) {
 			$found_file = false;
-			foreach ($bdata as $key => $value) {
+			foreach ($bdata as $key => $values) {
 				// Record which set this file is found in
-				$values = (is_array($value)) ? $value : array($value);
+				if (!is_array($values)) $values=array($values);
 				foreach ($values as $val) {
-					if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+\.(zip|gz|gz\.crypt)$/i', $val, $matches)) {
+					if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z][0-9]*+\.(zip|gz|gz\.crypt)$/i', $val, $matches)) {
 						$nonce = $matches[2];
 						if (isset($bdata['service']) && $bdata['service'] == 'none' && !is_file($updraft_dir.'/'.$val)) {
 							# File no longer present
@@ -2648,10 +2659,9 @@ ENDHERE;
 
 		if (!$handle = opendir($updraft_dir)) return;
 
-		# TODO: This is not yet multi-archive friendly
 		while (false !== ($entry = readdir($handle))) {
 			if ($entry != "." && $entry != "..") {
-				if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)(\d+)?\.(zip|gz|gz\.crypt)$/i', $entry, $matches)) {
+				if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9])*\.(zip|gz|gz\.crypt)$/i', $entry, $matches)) {
 					$btime = strtotime($matches[1]);
 					if ($btime > 100) {
 						if (!isset($known_files[$entry])) {
@@ -2660,7 +2670,6 @@ ENDHERE;
 							$type = $matches[3];
 							$index = (empty($matches[4])) ? '0' : (max((int)$matches[4]-1,0));
 							$itext = ($index == 0) ? '' : $index;
-							// TODO: Store using the index (first need to tweak reading side to cope with it)
 							// The time from the filename does not include seconds. Need to identify the seconds to get the right time
 							if (isset($known_nonces[$nonce])) $btime = $known_nonces[$nonce];
 							// No cloud backup known of this file
@@ -2807,6 +2816,7 @@ ENDHERE;
 			}
 
 			$info = (isset($backupable_entities[$type])) ? $backupable_entities[$type] : array();
+
 			$val = $updraftplus_restorer->pre_restore_backup($files, $type, $info);
 			if (is_wp_error($val)) {
 				foreach ($val->get_error_messages() as $msg) {
@@ -2821,7 +2831,6 @@ ENDHERE;
 
 			$second_loop[$type] = $files;
 		}
-
 		$updraftplus_restorer->delete = (UpdraftPlus_Options::get_updraft_option('updraft_delete_local')) ? true : false;
 		if ('none' == $service) {
 			if ($updraftplus_restorer->delete) _e('Will not delete any archives after unpacking them, because there was no cloud storage for this backup','updraftplus').'<br>';

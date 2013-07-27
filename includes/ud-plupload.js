@@ -26,9 +26,8 @@ uploader.bind('FilesAdded', function(up, files){
 // 				var hundredmb = 100 * 1024 * 1024, max = parseInt(up.settings.max_file_size, 10);
 	
 	plupload.each(files, function(file){
-	
-		if (! /^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+\.(zip|gz|gz\.crypt)$/i.test(file.name)) {
-			alert(file.name+': This file is a zip, but does not appear to be an UpdraftPlus backup archive (such files are .zip files which have a name like: backup_(time)_(site name)_(code)_(type).zip)');
+		if (! /^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+[0-9]*\.(zip|gz|gz\.crypt)$/i.test(file.name) && ! /^log\.([0-9a-f]{12})\.txt$/.test(file.name)) {
+			alert(file.name+': This file does not appear to be an UpdraftPlus backup archive (such files are .zip or .gz files which have a name like: backup_(time)_(site name)_(code)_(type).(zip|gz)). However, UpdraftPlus archives are standard zip/SQL files - so if you are sure that your file has the right format, then you can rename it to match that pattern.');
 			uploader.removeFile(file);
 			return;
 		}
@@ -107,7 +106,7 @@ if(up.features.dragdrop){
 		plupload.each(files, function(file){
 			
 			if (! /^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+\.(gz\.crypt)$/i.test(file.name)) {
-				alert(file.name+': This file does not appear to be an UpdraftPlus encrypted database archive (such files are .gz.crypt files which have a name like: backup_(time)_(site name)_(code)_db.crypt.gz)');
+				alert(file.name+': This file does not appear to be an UpdraftPlus encrypted database archive (such files are .gz.crypt files which have a name like: backup_(time)_(site name)_(code)_db.crypt.gz).');
 				uploader.removeFile(file);
 				return;
 			}

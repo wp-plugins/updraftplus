@@ -22,7 +22,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		$this->strings['decrypt_database'] = __('Decrypting database (can take a while)...','updraftplus');
 		$this->strings['decrypted_database'] = __('Database successfully decrypted.','updraftplus');
 		$this->strings['moving_old'] = __('Moving old directory out of the way...','updraftplus');
-		$this->strings['moving_backup'] = __('Moving unpacked backup in place...','updraftplus');
+		$this->strings['moving_backup'] = __('Moving unpacked backup into place...','updraftplus');
 		$this->strings['restore_database'] = __('Restoring the database (on a large site this can take a long time - if it times out (which can happen if your web hosting company has configured your hosting to limit resources) then you should use a different method, such as phpMyAdmin)...','updraftplus');
 		$this->strings['cleaning_up'] = __('Cleaning up rubbish...','updraftplus');
 		$this->strings['old_delete_failed'] = __('Could not move old directory out of the way. Perhaps you already have -old directories that need deleting first?','updraftplus');
@@ -111,7 +111,7 @@ class Updraft_Restorer extends WP_Upgrader {
 	}
 
 	// For moving files out of a directory into their new location
-	// The only purpose of the $type parameter is 1) to detect 'others' and apply a historical bugfix 2) to detect wpcore, and apply the setting for what to do with wp-config.php
+	// The purposes of the $type parameter are 1) to detect 'others' and apply a historical bugfix 2) to detect wpcore, and apply the setting for what to do with wp-config.php 3) to work out whether to delete the directory itself
 	// Must use only wp_filesystem
 	// $dest_dir must already have a trailing slash
 	// $preserve_existing: this setting only applies at the top level: 0 = overwrite with no backup; 1 = make backup of existing; 2 = do nothing if there is existing, 3 = do nothing to the top level directory, but do copy-in contents. Thus, on a multi-archive set where you want a backup, you'd do this: first call with $preserve_existing === 1, then on subsequent zips call with 3
@@ -126,7 +126,6 @@ class Updraft_Restorer extends WP_Upgrader {
 		if (empty($upgrade_files)) return true;
 
 		foreach ( $upgrade_files as $file => $filestruc ) {
-// 			$file = $filestruc['name'];
 
 			// Correctly restore files in 'others' in no directory that were wrongly backed up in versions 1.4.0 - 1.4.48
 			if ('others' == $type && preg_match('/^([\-_A-Za-z0-9]+\.php)$/', $file, $matches) && $wp_filesystem->exists($working_dir . "/$file/$file")) {
@@ -158,7 +157,7 @@ class Updraft_Restorer extends WP_Upgrader {
 				if ($preserve_existing == 1) {
 					# Move existing to -old
 					if ( !$wp_filesystem->move($dest_dir.$file, $dest_dir.$file.'-old', true) ) {
-						return new WP_Error('old_move_failed', $this->strings['old_move_failed']." (wp-content/$file)");
+						return new WP_Error('old_move_failed', $this->strings['old_move_failed']." ($dest_dir.$file)");
 					}
 				} elseif ($preserve_existing == 0) {
 					# Over-write, no backup
@@ -179,50 +178,71 @@ class Updraft_Restorer extends WP_Upgrader {
 					return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
 				}
 			} elseif (3 == $preserve_existing && !empty($filestruc['files'])) {
-				# The directory ($dest_dir) already exists, and we've been requested to copy-i. We need to perform the recursive copy-in
+				# The directory ($dest_dir) already exists, and we've been requested to copy-in. We need to perform the recursive copy-in
 				# $filestruc['files'] is then a new structure like $upgrade_files
 				# First pass: create directory structure
 				# Get chmod value for the parent directory, and re-use it (instead of passing false)
 
 				$chmod = $wp_filesystem->getnumchmodfromh($wp_filesystem->gethchmod($dest_dir));
 				# Copy in the files. This also needs to make sure the directories exist, in case the zip file lacks entries
-				if (!$this->copy_files_in($working_dir, $dest_dir, $filestruc['files'], $chmod)) {
-					return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
-				}
+				$delete_root = ('others' == $type || 'wpcore' == $type) ? false : true;
+				$copy_in = $this->copy_files_in($working_dir.'/'.$file, $dest_dir.$file, $filestruc['files'], $chmod, $delete_root);
+
+				if (is_wp_error($copy_in)) return $copy_in;
+				if (!$copy_in) return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
+
+				$wp_filesystem->rmdir($working_dir.'/'.$file);
+			} else {
+				$wp_filesystem->rmdir($working_dir.'/'.$file);
 			}
 		}
+
+		if (3 == $preserve_existing) $wp_filesystem->rmdir($working_dir);
 
 		return true;
 
 	}
 
-	# TODO: Needs testing
+	# TODO: Needs testing with others/wpcore
 	# $dest_dir must already exist
-	function copy_files_in($source_dir, $dest_dir, $files, $chmod = false) {
+	function copy_files_in($source_dir, $dest_dir, $files, $chmod = false, $deletesource = false) {
 		global $wp_filesystem;
 		foreach ($files as $rname => $rfile) {
 			if ('d' != $rfile['type']) {
 				# Delete it if it already exists (or perhaps WP does it for us)
-				if (!$wp_filesystem->move($source_dir.'/'.$rname, $dest_dir.'/'.$rname, true)) {
-					echo sprintf(__('Failed to move directory (check your file permissions and disk quote): %s', 'updraftplus'), $source_dir.'/'.$rname." -&gt; ".$dest_dir.'/'.$rname);
+					if (!$wp_filesystem->move($source_dir.'/'.$rname, $dest_dir.'/'.$rname, true)) {
+					echo sprintf(__('Failed to move file (check your file permissions and disk quota): %s', 'updraftplus'), $source_dir.'/'.$rname." -&gt; ".$dest_dir.'/'.$rname);
 					return false;
 				}
 			} else {
+				# Directory
 				if ($wp_filesystem->is_file($dest_dir.'/'.$rname)) @$wp_filesystem->delete($dest_dir.'/'.$rname, false, 'f');
-				if (!$wp_filesystem->is_dir($dest_dir.'/'.$rname) && !$wp_filesystem->mkdir($dest_dir.'/'.$rname, $chmod)) {
-					echo sprintf(__('Failed to create directory (check your file permissions and disk quote): %s', 'updraftplus'), $dest_dir.'/'.$rname);
-					return false;
-				}
-				if (!empty($files['files'])) {
-					# Recurse
-					$docopy = $this->copy_files_in($source_dir.'/'.$rname, $dest_dir.'/'.$rname, $files['files'], $chmod);
-					if (false === $docopy) return false;
+				# No such directory yet: just move it
+				if (!$wp_filesystem->is_dir($dest_dir.'/'.$rname)) {
+					if (!$wp_filesystem->move($source_dir.'/'.$rname, $dest_dir.'/'.$rname, false)) {
+						echo sprintf(__('Failed to move directory (check your file permissions and disk quota): %s', 'updraftplus'), $source_dir.'/'.$rname." -&gt; ".$dest_dir.'/'.$rname);
+						return false;
+					}
+				} elseif (!empty($rfile['files'])) {
+					# There is a directory - and we want to to copy in
+					$docopy = $this->copy_files_in($source_dir.'/'.$rname, $dest_dir.'/'.$rname, $rfile['files'], $chmod, false);
+					if (is_wp_error($docopy)) return $docopy;
+					if (false === $docopy) {
+						return false;
+					}
+				} else {
+					# There is a directory: but nothing to copy in to it
+					@$wp_filesystem->rmdir($source_dir.'/'.$rname);
 				}
 			}
 		}
-		# We are meant to leave the working directory empty. Hence, need to rmdir() once a directory is empty. But not the root of it all.
-		if (false !== strpos($source_dir, '/')) $wp_filesystem->rmdir($source_dir, false);
+		# We are meant to leave the working directory empty. Hence, need to rmdir() once a directory is empty. But not the root of it all in case of others/wpcore.
+		if ($deletesource || strpos($source_dir, '/') !== false) {
+			$wp_filesystem->rmdir($source_dir, false);
+		}
+
 		return true;
+
 	}
 
 	function str_replace_once($needle, $replace, $haystack) {
@@ -232,6 +252,13 @@ class Updraft_Restorer extends WP_Upgrader {
 
 	// Pre-flight check: chance to complain and abort before anything at all is done
 	function pre_restore_backup($backup_files, $type, $info) {
+
+		# TODO - remove after testing
+		if (count($backup_files)>1) {
+			show_message(__('<strong>Restoring from a multi-archive set is not yet allowed (we\'re still testing!).</strong>', 'updraftplus'));
+			return false;
+		}
+
 		if (is_string($backup_files)) $backup_files=array($backup_files);
 
 		if ($type == 'more') {
@@ -316,9 +343,13 @@ class Updraft_Restorer extends WP_Upgrader {
 
 				show_message($this->strings['moving_backup']);
 				// Only move in entities that are not already there (2)
-				if (false === $move_from || !$this->move_backup_in($move_from, trailingslashit($wp_filesystem_dir), 2, array(), $type, true) ) {
-					return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
+				$new_move_failed = (false === $move_from) ? true : false;
+				if (false === $new_move_failed) {
+					$move_in = $this->move_backup_in($move_from, trailingslashit($wp_filesystem_dir), 2, array(), $type, true);
+					if (is_wp_error($move_in)) return $move_in;
+					if (!$move_in) $new_move_failed = true;
 				}
+				if ($new_move_failed) return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
 				@$wp_filesystem->delete($move_from);
 
 			} else {
@@ -350,8 +381,7 @@ class Updraft_Restorer extends WP_Upgrader {
 					if ( !$wp_filesystem->move($move_from, $fsud, true) ) {
 						return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
 					}
-/*
-					$this->move_backup_in($move_from, trailingslashit($wp_filesystem->wp_content_dir()).$type.'/', 1, array(), $type);*/
+
 					@$wp_filesystem->delete($move_from);
 
 				} else {
@@ -382,8 +412,6 @@ class Updraft_Restorer extends WP_Upgrader {
 
 			// Default action: used for plugins, themes and uploads (and wpcore, via a filter)
 
-			show_message($this->strings['moving_old']);
-
 			// Multi-archive sets: we record what we've already begun on, and on subsequent runs, copy in instead of replacing
 			$movedin = apply_filters('updraftplus_restore_movein_'.$type, $working_dir, $this->abspath, $wp_filesystem_dir);
 			// A filter, to allow add-ons to perform the install of non-standard entities, or to indicate that it's not possible
@@ -399,6 +427,8 @@ class Updraft_Restorer extends WP_Upgrader {
 						# In theory, supply true as the 3rd parameter of true achieves this; in practice, not always so (leads to support requests)
 						$wp_filesystem->delete($wp_filesystem_dir."-old", true);
 					}
+
+					show_message($this->strings['moving_old']);
 					if ( !$wp_filesystem->move($wp_filesystem_dir, $wp_filesystem_dir."-old", false) ) {
 						return new WP_Error('old_move_failed', $this->strings['old_move_failed']);
 					}
@@ -414,8 +444,10 @@ class Updraft_Restorer extends WP_Upgrader {
 					if (!$wp_filesystem->move($move_from, $wp_filesystem_dir, true) ) {
 						return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
 					}
-				} elseif (!$this->move_backup_in($move_from,  $wp_filesystem_dir, 3, array())) {
-					return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
+				} else {
+					$move_in = $this->move_backup_in($move_from,  trailingslashit($wp_filesystem_dir), 3, array(), $type);
+					if (is_wp_error($move_in)) return $move_in;
+					if (!$move_in) return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
 				}
 
 			}
