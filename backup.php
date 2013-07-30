@@ -784,12 +784,13 @@ class UpdraftPlus_Backup {
 			}
 			
 			// Experimentation here shows that on large tables (we tested with 180,000 rows) on MyISAM, 1000 makes the table dump out 3x faster than the previous value of 100. After that, the benefit diminishes (increasing to 4000 only saved another 12%)
+			// TODO: Re-raise to 1000 once we've made the restorer deal with mysql's max packet size
 			if($segment == 'none') {
 				$row_start = 0;
-				$row_inc = 1000;
+				$row_inc = 250;
 			} else {
-				$row_start = $segment * 1000;
-				$row_inc = 1000;
+				$row_start = $segment * 250;
+				$row_inc = 250;
 			}
 
 			do {

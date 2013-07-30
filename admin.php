@@ -1,20 +1,5 @@
 <?php
 
-// TODO: Test restoring multi-archive - multi-archives for 1) (DONE)plugins 2) others 3) wpcore. Need to make sure they copy-in correctly, including when sub-diretories are split across archives
-# TODO: Test the multi-archive restore code on a site with awkward permissions
-# TODO: Test the multi-archive restore code on a site with non-standard locations
-# TODO: Test m-a on a few live sites
-# TODO: Look for this pattern in the site root: pclzip-51f3c72989c15.tmp
-# TODO: Once we know that there is a second archive, we should rename the first file with a "1" in the filename, so that missing archives are better detected upon upload/support. We could rename *all* the files at the 'finished files' stage to be like '1of5', '2of5', etc. Then detect that via the regex when scanning + uploading. Then we'll know exactly which are missing. Will just need to verify that nothing relies on the old file names once the file status is set to 'finished' (or even better, recognise this new convention - make the 'of(\d+)' optional).
-# TODO: Uploading multi-archives - is the regex set correctly? Will it add, not over-write the array, and place in the correct slot?
-# TODO: Re-enable restoration
-
-# TODO: BinZip is not yet MA-compatible. Create an UpdraftPlus_BinZip class. Test timings (see zip-timings.txt). Turn BinZip back on if it's good.
-
-# TODO: Email backup method should be able to force split limit down to something manageable - or at least, should make the option display. (Put it in email class. Tweak the storage dropdown to not hide stuff also in expert class if expert is shown).
-
-// TODO: mysql maximum packet size - need to intelligently split the backup SQL (or up the packet size + reconnect)
-
 if (!defined ('ABSPATH')) die('No direct access allowed');
 
 // For the purposes of improving site performance (don't load in 10s of Kilobytes of un-needed code on every page load), admin-area code is being progressively moved here.
@@ -435,29 +420,28 @@ class UpdraftPlus_Admin {
 				$backupable_entities = $updraftplus->get_backupable_file_entities(true);
 				$backupable_plus_db = $backupable_entities; $backupable_plus_db['db'] = 'path-unused';
 				foreach ($backupable_plus_db as $type => $path) {
-					if (isset($elements[$type])) {
-						$whatwegot = $backups[$timestamp][$type];
-						if (is_string($whatwegot)) $whatwegot = array($whatwegot);
-						$expected_index = 0;
-						$missing = '';
-						ksort($whatwegot);
-						foreach ($whatwegot as $index => $file) {
-							if ($index != $expected_index) $missing .= ($missing == '') ? (1+$expected_index) : ",".(1+$expected_index);
-							if (!file_exists($updraft_dir.'/'.$file)) {
-								$err .= sprintf(__('File not found (you need to upload it): %s', 'updraftplus'), $updraft_dir.'/'.$file)."<br>";
-							} elseif (filesize($updraft_dir.'/'.$file) == 0) {
-								$err .= sprintf(__('File was found, but is zero-sized (you need to re-upload it): %s', 'updraftplus'), $file)."<br>";
-							} else {
-								$itext = (0 == $index) ? '' : $index;
-								if (!empty($backups[$timestamp][$type.$itext.'-size']) && $backups[$timestamp][$type.$itext.'-size'] != filesize($updraft_dir.'/'.$file)) {
-									$warn .= sprintf(__('File (%s) was found, but has a different size (%s) from what was expected (%s) - it may be corrupt.', 'updraftplus'), $file, filesize($updraft_dir.'/'.$file), $backups[$timestamp][$type.$itext.'-size'])."<br>";
-								}
+					if (!isset($elements[$type])) continue;
+					$whatwegot = $backups[$timestamp][$type];
+					if (is_string($whatwegot)) $whatwegot = array($whatwegot);
+					$expected_index = 0;
+					$missing = '';
+					ksort($whatwegot);
+					foreach ($whatwegot as $index => $file) {
+						if ($index != $expected_index) $missing .= ($missing == '') ? (1+$expected_index) : ",".(1+$expected_index);
+						if (!file_exists($updraft_dir.'/'.$file)) {
+							$err .= sprintf(__('File not found (you need to upload it): %s', 'updraftplus'), $updraft_dir.'/'.$file)."<br>";
+						} elseif (filesize($updraft_dir.'/'.$file) == 0) {
+							$err .= sprintf(__('File was found, but is zero-sized (you need to re-upload it): %s', 'updraftplus'), $file)."<br>";
+						} else {
+							$itext = (0 == $index) ? '' : $index;
+							if (!empty($backups[$timestamp][$type.$itext.'-size']) && $backups[$timestamp][$type.$itext.'-size'] != filesize($updraft_dir.'/'.$file)) {
+								$warn .= sprintf(__('File (%s) was found, but has a different size (%s) from what was expected (%s) - it may be corrupt.', 'updraftplus'), $file, filesize($updraft_dir.'/'.$file), $backups[$timestamp][$type.$itext.'-size'])."<br>";
 							}
-							$expected_index++;
 						}
-						if ('' != $missing) {
-							$warn .= sprintf(__("This multi-archive backup set appears to have the following archives missing: %s", 'updraftplus'), $missing)."<br>";
-						}
+						$expected_index++;
+					}
+					if ('' != $missing) {
+						$warn .= sprintf(__("This multi-archive backup set appears to have the following archives missing: %s", 'updraftplus'), $missing)."<br>";
 					}
 				}
 
@@ -1123,11 +1107,11 @@ class UpdraftPlus_Admin {
 			<?php
 			}
 			if($this->scan_old_dirs()) {?>
-				<div class="updated fade" style="padding:8px;"><?php _e('You have old directories from a previous backup (technical information: these are suffixed with -old). Use this button to delete them (if you have verified that the restoration worked).','updraftplus');?>
+				<div class="updated fade" style="padding:8px;"><?php _e('Your WordPress install has old directories from its state before you restored/migrated (technical information: these are suffixed with -old). Use this button to delete them (if you have verified that the restoration worked).','updraftplus');?>
 				<form method="post" action="<?php echo remove_query_arg(array('updraft_restore_success','action')) ?>">
 					<?php wp_nonce_field('updraft_delete_old_dirs'); ?>
 					<input type="hidden" name="action" value="updraft_delete_old_dirs" />
-					<input type="submit" class="button-primary" value="<?php _e('Delete Old Directories','updraftplus');?>" onclick="return(confirm('<?php echo htmlspecialchars(__('Are you sure you want to delete the old directories? This cannot be undone.','updraftplus'));?>'))" />
+					<input type="submit" class="button-primary" value="<?php _e('Delete Old Directories','updraftplus');?>"  />
 				</form>
 				</div>
 			<?php
@@ -2504,7 +2488,6 @@ ENDHERE;
 					if (!is_array($backup[$type])) $backup[$type]=array($backup[$type]);
 					$nf = wp_nonce_field('updraftplus_download',  '_wpnonce', true, false);
 					$howmanyinset = count($backup[$type]);
-					# TODO: Upload detection needs to put them in the expected index
 					$expected_index = 0;
 					$index_missing = false;
 					$set_contents = '';
@@ -2797,7 +2780,7 @@ ENDHERE;
 				// If a file size is stored in the backup data, then verify correctness of the local file
 				if (isset($backup_history[$timestamp][$type.$index.'-size'])) {
 					$fs = $backup_history[$timestamp][$type.$index.'-size'];
-					echo __("Archive is expected to be size:",'updraftplus')." ".round($fs/1024)." Kb: ";
+					echo __("Archive is expected to be size:",'updraftplus')." ".round($fs/1024, 1)." Kb: ";
 					$as = @filesize($fullpath);
 					if ($as == $fs) {
 						echo __('OK','updraftplus').'<br>';

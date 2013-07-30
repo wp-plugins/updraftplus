@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.52
+Version: 1.6.53
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -13,8 +13,13 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
-// Multi-archive sets (need to be handled on creation, uploading, downloading, (?done?)deletion). Test.
 // Backup notes
+# BinZip is not yet MA-compatible. Create an UpdraftPlus_BinZip class. Test timings (see zip-timings.txt). Turn BinZip back on if it's good.
+# Once we know that there is a second archive, we should rename the first file with a "1" in the filename, so that missing archives are better detected upon upload/support. We could rename *all* the files at the 'finished files' stage to be like '1of5', '2of5', etc. Then detect that via the regex when scanning + uploading. Then we'll know exactly which are missing. Will just need to verify that nothing relies on the old file names once the file status is set to 'finished' (or even better, recognise this new convention - make the 'of(\d+)' optional).
+# Email backup method should be able to force split limit down to something manageable - or at least, should make the option display. (Put it in email class. Tweak the storage dropdown to not hide stuff also in expert class if expert is shown).
+# Look for this pattern in the site root: pclzip-51f3c72989c15.tmp (how to reliably reproduce?)
+// mysql maximum packet size - need to intelligently split the backup SQL (or up the packet size + reconnect)
+// Roll UD-addons plugin into the main plugin for those getting it from ud.com
 // Put in a maintenance-mode detector
 // Put in a default handler for "Backup Now" button so that if JS is faulty, the user still sees something (prevents support requests)
 // Exclude .git and .svn by default from wpcore
@@ -113,7 +118,7 @@ TODO - some of these are out of date/done, needs pruning
 // Create single zip, containing even WordPress itself
 // Remove the recurrence of admin notices when settings are saved due to _wp_referer
 
-Encrypt filesystem, if memory allows (and have option for abort if not); split up into multiple zips when needed
+Encrypt filesystem, if memory allows (and have option for abort if not)
 // New sub-module to verify that the backups are there, independently of backup thread
 */
 

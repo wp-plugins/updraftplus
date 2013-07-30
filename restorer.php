@@ -4,7 +4,7 @@ class Updraft_Restorer extends WP_Upgrader {
 	public $ud_backup_is_multisite = -1;
 
 	// This is just used so far for detecting whether we're on the second run for an entity or not.
-	private $been_restored = array();
+	public $been_restored = array();
 
 	public $delete = false;
 
@@ -197,13 +197,10 @@ class Updraft_Restorer extends WP_Upgrader {
 			}
 		}
 
-		if (3 == $preserve_existing) $wp_filesystem->rmdir($working_dir);
-
 		return true;
 
 	}
 
-	# TODO: Needs testing with others/wpcore
 	# $dest_dir must already exist
 	function copy_files_in($source_dir, $dest_dir, $files, $chmod = false, $deletesource = false) {
 		global $wp_filesystem;
@@ -252,12 +249,6 @@ class Updraft_Restorer extends WP_Upgrader {
 
 	// Pre-flight check: chance to complain and abort before anything at all is done
 	function pre_restore_backup($backup_files, $type, $info) {
-
-		# TODO - remove after testing
-		if (count($backup_files)>1) {
-			show_message(__('<strong>Restoring from a multi-archive set is not yet allowed (we\'re still testing!).</strong>', 'updraftplus'));
-			return false;
-		}
 
 		if (is_string($backup_files)) $backup_files=array($backup_files);
 
@@ -448,6 +439,7 @@ class Updraft_Restorer extends WP_Upgrader {
 					$move_in = $this->move_backup_in($move_from,  trailingslashit($wp_filesystem_dir), 3, array(), $type);
 					if (is_wp_error($move_in)) return $move_in;
 					if (!$move_in) return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
+					$wp_filesystem->rmdir($move_from);
 				}
 
 			}
