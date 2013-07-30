@@ -15,13 +15,14 @@ Easy and complete backups + restoration. Manual or automated backups (Amazon S3,
 <a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3 (or compatible), Dropbox, Google Drive, Rackspace Cloud, DreamObjects, FTP, SFTP, WebDAV and email) and restore with a single click. Backups of files and database can have separate schedules.
 
 * Thousands of users: widely tested and reliable (over 190,000 downloads). Ranks in the top 1% on rankwp.com (228 out of 25,000 plugins).
-* Top-quality: ranks 45th out of 25,000 plugins for quality on rankwp.com (top 0.25% - last checked 23rd May 2013).
-* Supports backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP and email. Also (via an add-on) FTP over SSL, SFTP and WebDAV. (Note: Microsoft forbid SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
+* Top-quality: ranks 45th out of 25,000 WordPress plugins for quality on rankwp.com (top 0.25% - last checked 23rd May 2013).
+* Supports WordPress backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP and email. Also (via an add-on) FTP over SSL, SFTP and WebDAV. (Note: Microsoft forbid SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
 * Quick restore (both file and database backups)
 * Backup automatically on a repeating schedule
 * Site duplicator/migrator: can copy sites, and (with add-on) move them to new locations
 * Files and databases can have separate schedules
 * Failed uploads are automatically resumed/retried
+* Large sites can be split into multiple archives
 * Select which files to backup (plugins, themes, content, other)
 * Select which components of a backup to restore
 * Download backup archives direct from your WordPress dashboard
@@ -33,7 +34,7 @@ Easy and complete backups + restoration. Manual or automated backups (Amazon S3,
 
 = Don't Risk Anything Less =
 
-Your backups are worth the same as your entire investment in your website. The day may come when you get hacked, or your hosting company does, or they go bust - without good backups, you lose everything. Do you really want to entrust all your work to plugins with only a few thousand downloads, or that has no professional backup or support? Believe us - writing a reliable backup plugin that works consistently across the huge range of WordPress deployments is hard.
+Your WordPress backups are worth the same as your entire investment in your website. The day may come when you get hacked, or your hosting company does, or they go bust - without good backups, you lose everything. Do you really want to entrust all your work to plugins with only a few thousand downloads, or that has no professional backup or support? Believe us - writing a reliable backup plugin that works consistently across the huge range of WordPress deployments is hard.
 
 = UpdraftPlus Addons And Premium =
 
@@ -61,7 +62,7 @@ Many thanks to the existing translators:
 
 = Other support =
 
-We hang out in the support forum for this plugin - http://wordpress.org/support/plugin/updraftplus - however, to save our time so that we can spend it on development, please read the plugin's Frequently Asked Questions - <a href="http://updraftplus.com/support/frequently-asked-questions/">http://updraftplus.com/support/frequently-asked-questions/</a> - before going there, and ensure that you have updated to the latest released version of UpdraftPlus.
+We hang out in the WordPress support forum for this plugin - http://wordpress.org/support/plugin/updraftplus - however, to save our time so that we can spend it on development, please read the plugin's Frequently Asked Questions - <a href="http://updraftplus.com/support/frequently-asked-questions/">http://updraftplus.com/support/frequently-asked-questions/</a> - before going there, and ensure that you have updated to the latest released version of UpdraftPlus.
 
 == Installation ==
 
@@ -91,11 +92,11 @@ Finally, if you post in the WordPress support forum, then make sure you include 
 
 = Anything essential to know? =
 
-After you have set up UpdraftPlus, you must check that your backups are taking place successfully. WordPress is a complex piece of software that runs in many situations. Don't wait until you need your backups before you find out that they never worked in the first place. Remember, there's no warranty and no guarantees - this is free software.
+After you have set up UpdraftPlus, you must check that your WordPress backups are taking place successfully. WordPress is a complex piece of software that runs in many situations. Don't wait until you need your backups before you find out that they never worked in the first place. Remember, there's no warranty and no guarantees - this is free software.
 
 = My enormous website is hosted by a dirt-cheap provider who starve my account of resources, and UpdraftPlus runs out of time! Help! Please make UpdraftPlus deal with this situation so that I can save two dollars! =
 
-UpdraftPlus supports resuming backup runs right from the beginning, so that it does not need to do everything in a single go; but this has limits. If your website is huge and your web hosting company gives your tiny resources on an over-loaded server, then your solution is to purchase better web hosting, or to hire me professionally. Otherwise, this is not considered a bug. UpdraftPlus is known to successfully back up websites that run into the gigabytes on web servers that are not resource-starved.
+UpdraftPlus supports resuming backup runs right from the beginning, so that it does not need to do everything in a single go; but this has limits. If your website is huge and your web hosting company gives your tiny resources on an over-loaded server, then go into the "Expert settings" and reduce the size at which zip files are split (versions 1.6.53 onwards). UpdraftPlus is known to successfully back up websites that run into the multiple-gigabytes on web servers that are not resource-starved.
 
 = Will you support Windows Live SkyDrive? =
 
@@ -120,6 +121,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 == Changelog ==
 
 = Development trunk - not yet released/supported =
+* FEATURE: Split large sites into multiple zips (see: http://updraftplus.com/splitting-large-sites-into-multiple-archives/)
 * TWEAK: Save the result of looking for a binary zip (don't re-test)
 * TWEAK: Log file times are now recorded relative to the backup start, rather than the current resumption start
 * TWEAK: More code-tidying and optimisation
@@ -503,7 +505,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 We recognise and thank the following for code and/or libraries used and/or modified under the terms of their open source licences:
 
-* UpdraftPlus is derived from the original Updraft by Paul Kehrer (Twitter: http://twitter.com/reaperhulk, Blog: http://langui.sh)
+* UpdraftPlus is derived from the original Updraft WordPress plugin by Paul Kehrer (Twitter: http://twitter.com/reaperhulk, Blog: http://langui.sh)
 * Sorin Iclanzan, http://profiles.wordpress.org/hel.io/
 * Ben Tadiar, https://github.com/BenTheDesigner/Dropbox
 * Beau Brownlee, http://www.solutionbot.com/2009/01/02/php-ftp-class/
@@ -533,4 +535,4 @@ We recognise and thank the following for code and/or libraries used and/or modif
 Furthermore, reliance upon any non-English translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
 
 == Upgrade Notice ==
-1.6.17: WP 3.6 support. Dreamhost Dreamobjects support. Polish translation. More expert options. Restoration to sites with different table prefixes. Lots of usability + portability tweaks.
+1.6.17: WordPress 3.6 support. Dreamhost Dreamobjects support. Polish translation. More expert options. Restoration to sites with different table prefixes. Lots of usability + portability tweaks.
