@@ -1,6 +1,6 @@
 === UpdraftPlus Backup ===
 Contributors: DavidAnderson
-Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, s3 compatible, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp, ftps, migrate, duplicate, copy, updraft, schedule, database backup, db backup
+Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, s3 compatible, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp, ftps, migrate, duplicate, copy, updraft, schedule, database backup, db backup, back up
 Requires at least: 3.1
 Tested up to: 3.6
 Stable tag: 1.6.46
@@ -14,9 +14,9 @@ Easy and complete backups + restoration. Manual or automated backups (Amazon S3,
 
 <a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3 (or compatible), Dropbox, Google Drive, Rackspace Cloud, DreamObjects, FTP, SFTP, WebDAV and email) and restore with a single click. Backups of files and database can have separate schedules.
 
-* Thousands of users: widely tested and reliable (over 170,000 downloads). Ranks in the top 1% on rankwp.com (228 out of 25,000 plugins).
-* Top-quality: ranks 45th out of 25,000 plugins for quality on rankwp.com (top 0.25% - last checked 23rd May 2013).
-* Supports backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP and email. Also (via an add-on) FTP over SSL, SFTP and WebDAV. (Note: Microsoft forbid SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
+* Thousands of users: widely tested and reliable (over 195,000 downloads). Ranks in the top 1% on rankwp.com (228 out of 25,000 plugins).
+* Top-quality: ranks 45th out of 25,000 WordPress plugins for quality on rankwp.com (top 0.25% - last checked 23rd May 2013).
+* Supports WordPress backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP and email. Also (via an add-on) FTP over SSL, SFTP and WebDAV. (Note: Microsoft forbid SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
 * Quick restore (both file and database backups)
 * Backup automatically on a repeating schedule
 * Site duplicator/migrator: can copy sites, and (with add-on) move them to new locations
@@ -62,7 +62,7 @@ Many thanks to the existing translators:
 
 = Other support =
 
-We hang out in the support forum for this plugin - http://wordpress.org/support/plugin/updraftplus - however, to save our time so that we can spend it on development, please read the plugin's Frequently Asked Questions - <a href="http://updraftplus.com/support/frequently-asked-questions/">http://updraftplus.com/support/frequently-asked-questions/</a> - before going there, and ensure that you have updated to the latest released version of UpdraftPlus.
+We hang out in the WordPress support forum for this plugin - http://wordpress.org/support/plugin/updraftplus - however, to save our time so that we can spend it on development, please read the plugin's Frequently Asked Questions - <a href="http://updraftplus.com/support/frequently-asked-questions/">http://updraftplus.com/support/frequently-asked-questions/</a> - before going there, and ensure that you have updated to the latest released version of UpdraftPlus.
 
 == Installation ==
 
@@ -497,7 +497,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 We recognise and thank the following for code and/or libraries used and/or modified under the terms of their open source licences:
 
-* UpdraftPlus is derived from the original Updraft by Paul Kehrer (Twitter: http://twitter.com/reaperhulk, Blog: http://langui.sh)
+* UpdraftPlus is derived from the original Updraft WordPress plugin by Paul Kehrer (Twitter: http://twitter.com/reaperhulk, Blog: http://langui.sh)
 * Sorin Iclanzan, http://profiles.wordpress.org/hel.io/
 * Ben Tadiar, https://github.com/BenTheDesigner/Dropbox
 * Beau Brownlee, http://www.solutionbot.com/2009/01/02/php-ftp-class/
