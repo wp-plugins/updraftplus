@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.53
+Version: 1.6.54
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -18,6 +18,7 @@ TODO - some of these are out of date/done, needs pruning
 # Once we know that there is a second archive, we should rename the first file with a "1" in the filename, so that missing archives are better detected upon upload/support. We could rename *all* the files at the 'finished files' stage to be like '1of5', '2of5', etc. Then detect that via the regex when scanning + uploading. Then we'll know exactly which are missing. Will just need to verify that nothing relies on the old file names once the file status is set to 'finished' (or even better, recognise this new convention - make the 'of(\d+)' optional).
 # Email backup method should be able to force split limit down to something manageable - or at least, should make the option display. (Put it in email class. Tweak the storage dropdown to not hide stuff also in expert class if expert is shown).
 # Look for this pattern in the site root: pclzip-51f3c72989c15.tmp (how to reliably reproduce?)
+// Remember historical resumption intervals. But remember that the site may migrate, so we need to check their accuracy from time to time.
 // mysql maximum packet size - need to intelligently split the backup SQL (or up the packet size + reconnect)
 // Roll UD-addons plugin into the main plugin for those getting it from ud.com
 // Put in a maintenance-mode detector
@@ -575,7 +576,7 @@ class UpdraftPlus {
 		$this->jobdata_set('run_times', $time_passed);
 
 		$resume_interval = $this->jobdata_get('resume_interval');
-		if ($time_this_run + 25 > $resume_interval) {
+		if ($time_this_run + 30 > $resume_interval) {
 			$new_interval = ceil($time_this_run + 30);
 			$this->log("The time we have been running (".round($time_this_run,1).") is approaching the resumption interval ($resume_interval) - increasing resumption interval to $new_interval");
 			$this->jobdata_set('resume_interval', $new_interval);

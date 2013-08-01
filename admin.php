@@ -1,5 +1,7 @@
 <?php
 
+// TODO: files matching pattern pclzip-51f3ad2b94c3b.tmp in site root - see where they come from/how to reproduce/clean
+
 if (!defined ('ABSPATH')) die('No direct access allowed');
 
 // For the purposes of improving site performance (don't load in 10s of Kilobytes of un-needed code on every page load), admin-area code is being progressively moved here.

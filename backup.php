@@ -1334,25 +1334,24 @@ class UpdraftPlus_Backup {
 				- more than $maxzipbatch bytes have been batched
 				- more than 1.5 seconds have passed since the last time we wrote
 				- that adding this batch of data is likely already enough to take us over the split limit (and if that happens, then do actually split - to prevent a scenario of progressively tinier writes as we approach but don't actually reach the limit)
-				- NOT YET: POSSIBLE: NEEDS FINE-TUNING: more files are batched than the lesser of (1000, + whats already in the zip file, and that is more than 200
+				- more than 500 files batched (should perhaps intelligently lower this as the zip file gets bigger - not yet needed)
 				*/
 
 				# Add 10% margin. It only really matters when the OS has a file size limit, exceeding which causes failure (e.g. 2Gb on 32-bit)
 				# Since we don't test before the file has been created (so that zip_last_ratio has meaningful data), we rely on max_zip_batch being less than zip_split_every - which should always be the case
 				$reaching_split_limit = ( defined('UPDRAFTPLUS_EXPERIMENTAL_MULTIARCHIVE') && true == UPDRAFTPLUS_EXPERIMENTAL_MULTIARCHIVE && $this->zip_last_ratio > 0 && $original_size>0 && ($original_size + 1.1*$data_added_since_reopen*$this->zip_last_ratio) > $this->zip_split_every) ? true : false;
 
-				if ($reaching_split_limit || $data_added_since_reopen > $maxzipbatch || (time() - $this->zipfiles_lastwritetime) > 1.5) {
+				if ($zipfiles_added_thisbatch > 500 || $reaching_split_limit || $data_added_since_reopen > $maxzipbatch || (time() - $this->zipfiles_lastwritetime) > 1.5) {
 
 					$something_useful_sizetest = false;
 
 					if ($data_added_since_reopen > $maxzipbatch) {
-
 						$something_useful_sizetest = true;
-
-						$updraftplus->log("Adding batch to zip file: over ".round($maxzipbatch/1048576,1)." Mb added on this batch (".round($data_added_since_reopen/1048576,1)." Mb, ".count($this->zipfiles_batched)." files batched, $zipfiles_added_thisbatch (".$this->zipfiles_added_thisrun.") added so far); re-opening (prior size: ".round($original_size/1024,1).' Kb)');
-					
+						$updraftplus->log("Adding batch to zip file (".$this->use_zip_object."): over ".round($maxzipbatch/1048576,1)." Mb added on this batch (".round($data_added_since_reopen/1048576,1)." Mb, ".count($this->zipfiles_batched)." files batched, $zipfiles_added_thisbatch (".$this->zipfiles_added_thisrun.") added so far); re-opening (prior size: ".round($original_size/1024,1).' Kb)');
+					} elseif ($zipfiles_added_thisbatch >500) {
+						$updraftplus->log("Adding batch to zip file (".$this->use_zip_object."): over 500 files added on this batch (".round($data_added_since_reopen/1048576,1)." Mb, ".count($this->zipfiles_batched)." files batched, $zipfiles_added_thisbatch (".$this->zipfiles_added_thisrun.") added so far); re-opening (prior size: ".round($original_size/1024,1).' Kb)');
 					} elseif (!$reaching_split_limit) {
-						$updraftplus->log("Adding batch to zip file: over 1.5 seconds have passed since the last write (".round($data_added_since_reopen/1048576,1)." Mb, $zipfiles_added_thisbatch (".$this->zipfiles_added_thisrun.") files added so far); re-opening (prior size: ".round($original_size/1024,1).' Kb)');
+						$updraftplus->log("Adding batch to zip file (".$this->use_zip_object."): over 1.5 seconds have passed since the last write (".round($data_added_since_reopen/1048576,1)." Mb, $zipfiles_added_thisbatch (".$this->zipfiles_added_thisrun.") files added so far); re-opening (prior size: ".round($original_size/1024,1).' Kb)');
 					}
 					if (!$zip->close()) {
 						$updraftplus->log(__('A zip error occurred - check your log for more details.', 'updraftplus'), 'warning', 'zipcloseerror');
@@ -1361,6 +1360,7 @@ class UpdraftPlus_Backup {
 							$updraftplus->log("File: ".$ffile['addas']." (exists: ".(int)@file_exists($ffile['file']).", size: ".@filesize($ffile['file']).')');
 						}
 					}
+					$zipfiles_added_thisbatch = 0;
 					
 					# This triggers a re-open, later
 					unset($zip);
@@ -1702,13 +1702,15 @@ class UpdraftPlus_PclZip {
 			$activity = true;
 		}
 
-		# Add the files
-		foreach ($this->addfiles as $file => $add_as) {
-			if (false == $this->pclzip->add($file, PCLZIP_OPT_REMOVE_PATH, dirname($file), PCLZIP_OPT_ADD_PATH, dirname($add_as))) {
-				$this->last_error = $this->pclzip->errorInfo(true);
-				return false;
+		foreach ($this->addfiles as $rdirname => $adirnames) {
+			foreach ($adirnames as $adirname => $files) {
+				if (false == $this->pclzip->add($files, PCLZIP_OPT_REMOVE_PATH, $rdirname, PCLZIP_OPT_ADD_PATH, $adirname)) {
+					$this->last_error = $this->pclzip->errorInfo(true);
+					return false;
+				}
+				$activity = true;
 			}
-			$activity = true;
+			unset($this->addfiles[$rdirname]);
 		}
 
 		$this->pclzip = false;
@@ -1726,7 +1728,10 @@ class UpdraftPlus_PclZip {
 
 	# Note: basename($add_as) is irrelevant; that is, it is actually basename($file) that will be used. But these are always identical in our usage.
 	public function addFile($file, $add_as) {
-		$this->addfiles[$file] = $add_as;
+		# Add the files. PclZip appears to do the whole (copy zip to temporary file, add file, move file) cycle for each file - so batch them as much as possible. We have to batch by dirname(). On a test with 1000 files of 25Kb each in the same directory, this reduced the time needed on that directory from 120s to 15s (or 5s with primed caches).
+		$rdirname = dirname($file);
+		$adirname = dirname($add_as);
+		$this->addfiles[$rdirname][$adirname][] = $file;
 	}
 
 	# PclZip doesn't have a direct way to do this
