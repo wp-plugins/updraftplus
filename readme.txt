@@ -66,7 +66,7 @@ We hang out in the WordPress support forum for this plugin - http://wordpress.or
 
 == Installation ==
 
-<a href="http://updraftplus.com/download/">Please go here for full instructions</a>.
+<a href="http://updraftplus.com/download/">Please go here for full instructions for installing this plugin.</a>
 
 == Frequently Asked Questions ==
 
@@ -78,11 +78,11 @@ Check out <a href="http://updraftplus.com/updraftplus-full-feature-list/">our fu
 
 = I found a bug. What do I do? =
 
-Firstly, please make sure you read this FAQ through to the end - it may already have the answer you need. If it does, then please consider a donation (http://david.dw-perspective.org.uk/donate); it takes time to develop this plugin and FAQ.
+Firstly, please make sure you read this FAQ through to the end - it may already have the answer you need. If it does, then please consider a donation (e.g. buy our "No Adverts" add-on - http://updraftplus.com/shop/); it takes time to develop this plugin and FAQ.
 
 If it does not, then contact me! This is a complex backup plugin and the only way I can ensure it's robust is to get bug reports and fix the problems that crop up. Please make sure you are using the latest version of the plugin, and that you include the version in your bug report - if you are not using the latest, then the first thing you will be asked to do is upgrade.
 
-Please turn on debugging mode (in the UpdraftPlus options page) and then try again, and after that send me the log if you can find it (there are links to download logs on the UpdraftPlus settings page; or you may be emailed it; failing that, it is in the directory wp-content/updraft, so FTP in and look for it there). If you cannot find the log, then I may not be able to help so much, but you can try - include as much information as you can when reporting (PHP version, your blog's site, the error you saw and how you got to the page that caused it, etcetera).
+Please turn on debugging mode (in the UpdraftPlus options page) and then try again, and after that send me the log if you can find it (there are links to download logs on the UpdraftPlus settings page; or you may be emailed it; failing that, it is in the directory wp-content/updraft, so FTP in and look for it there). If you cannot find the log, then I may not be able to help so much, but you can try - include as much information as you can when reporting (PHP version, your blog's site, the error you saw and how you got to the page that caused it, any other relevant WordPress plugins you have installed, etcetera).
 
 If you know where to find your PHP error logs (often a file called error_log, possibly in your wp-admin directory (check via FTP)), then that's even better (don't send me multi-megabytes; just send the few lines that appear when you run a backup, if any).
 
