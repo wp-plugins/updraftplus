@@ -23,7 +23,6 @@ TODO - some of these are out of date/done, needs pruning
 // Put in a maintenance-mode detector
 // Put in a default handler for "Backup Now" button so that if JS is faulty, the user still sees something (prevents support requests)
 // Exclude .git and .svn by default from wpcore
-// Pre-flight check: scan the zip files. Or at least, refuse zero-sized ones. Check sizes against records.
 // Add more info to email - e.g. names + sizes + checksums of uploads + locations
 // Restore-console not showing proper time-zone?
 // One user changed his backup filename format. Produce more help for this.
@@ -154,7 +153,7 @@ if (!defined('UPDRAFTPLUS_WARN_FILE_SIZE')) define('UPDRAFTPLUS_WARN_FILE_SIZE',
 if (!defined('UPDRAFTPLUS_WARN_DB_ROWS')) define('UPDRAFTPLUS_WARN_DB_ROWS', 150000);
 
 # The smallest value (in megabytes) that the "split zip files at" setting is allowed to be set to
-if (!defined('UPDRAFTPLUS_SPLIT_MIN')) define('UPDRAFTPLUS_SPLIT_MIN', 256);
+if (!defined('UPDRAFTPLUS_SPLIT_MIN')) define('UPDRAFTPLUS_SPLIT_MIN', 100);
 
 // This is used in various places, based on our assumption of the maximum time any job should take. May need lengthening in future if we get reports which show enormous sets hitting the limit.
 // Also one section requires at least 1% progress each run, so on a 5-minute schedule, that equals just under 9 hours - then an extra allowance takes it just over. (However these days, we reduce the scheduling time if possible, so we get more attempts).
@@ -985,7 +984,7 @@ class UpdraftPlus {
 			'backup_time', $this->backup_time,
 			'backup_time_ms', $this->backup_time_ms,
 			'service', UpdraftPlus_Options::get_updraft_option('updraft_service'),
-			'split_every', max(absint(UpdraftPlus_Options::get_updraft_option('updraft_split_every', 256)), UPDRAFTPLUS_SPLIT_MIN),
+			'split_every', max(absint(UpdraftPlus_Options::get_updraft_option('updraft_split_every', 1024)), UPDRAFTPLUS_SPLIT_MIN),
 			'maxzipbatch', 26214400, #25Mb
 			'job_file_entities', $job_file_entities,
 		);
