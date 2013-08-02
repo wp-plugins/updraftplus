@@ -2746,7 +2746,6 @@ ENDHERE;
 		uksort($backup_set, array($this, 'sort_restoration_entities'));
 
 		// We use a single object for each entity, because we want to store information about the backup set
-		if(!class_exists('WP_Upgrader')) require_once(ABSPATH . 'wp-admin/includes/class-wp-upgrader.php');
 		require_once(UPDRAFTPLUS_DIR.'/restorer.php');
 
 		global $updraftplus_restorer;

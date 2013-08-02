@@ -127,6 +127,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * TWEAK: More code-tidying and optimisation
 * TWEAK: Various extra sanity-checks for possible problems
 * INTERNALS: PclZip zip method now has feature parity with ZipArchive (can resume, more logging)
+* TWEAK/FIX: When restoring/migrating, split SQL commands to avoid exceeding MySQL's max_allowed_packet
 * FIX: Make sure output buffering is off when sending files from the browser (prevents memory exhaustion)
 * FIX: Prevent double-backup (very unusual combination of circumstances)
 

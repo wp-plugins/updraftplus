@@ -389,7 +389,7 @@ class UpdraftPlus_Backup {
 		}
 
 		//get the blog name and rip out all non-alphanumeric chars other than _
-		$blog_name = preg_replace('/[^A-Za-z0-9_]/','', str_replace(' ','_', substr(get_bloginfo(), 0, 96)));
+		$blog_name = preg_replace('/[^A-Za-z0-9_]/','', str_replace(' ','_', substr(get_bloginfo(), 0, 60)));
 		if (!$blog_name) $blog_name = 'non_alpha_name';
 		$blog_name = apply_filters('updraftplus_blog_name', $blog_name);
 

@@ -14,15 +14,20 @@ Author URI: http://updraftplus.com
 /*
 TODO - some of these are out of date/done, needs pruning
 // Backup notes
+// Log migrations/restores, and have an option for auto-emailing the log
 # BinZip is not yet MA-compatible. Create an UpdraftPlus_BinZip class. Test timings (see zip-timings.txt). Turn BinZip back on if it's good.
 # Once we know that there is a second archive, we should rename the first file with a "1" in the filename, so that missing archives are better detected upon upload/support. We could rename *all* the files at the 'finished files' stage to be like '1of5', '2of5', etc. Then detect that via the regex when scanning + uploading. Then we'll know exactly which are missing. Will just need to verify that nothing relies on the old file names once the file status is set to 'finished' (or even better, recognise this new convention - make the 'of(\d+)' optional).
 # Email backup method should be able to force split limit down to something manageable - or at least, should make the option display. (Put it in email class. Tweak the storage dropdown to not hide stuff also in expert class if expert is shown).
 # Look for this pattern in the site root: pclzip-51f3c72989c15.tmp (how to reliably reproduce?)
 // Remember historical resumption intervals. But remember that the site may migrate, so we need to check their accuracy from time to time.
+// Unpack zips via AJAX? Do bit-by-bit to allow enormous opens a better chance? (have a huge one in Dropbox)
 // mysql maximum packet size - need to intelligently split the backup SQL (or up the packet size + reconnect)
 // Roll UD-addons plugin into the main plugin for those getting it from ud.com
 // Put in a maintenance-mode detector
 // Put in a default handler for "Backup Now" button so that if JS is faulty, the user still sees something (prevents support requests)
+// Detect CloudFlare output in attempts to connect - detecting cloudflare.com should be sufficient
+// Bring multisite shop page up to date
+// Give a help page to go with the message: A zip error occurred - check your log for more details (reduce support requests)
 // Exclude .git and .svn by default from wpcore
 // Add more info to email - e.g. names + sizes + checksums of uploads + locations
 // Restore-console not showing proper time-zone?
@@ -56,6 +61,7 @@ TODO - some of these are out of date/done, needs pruning
 // Ginormous tables - need to make sure we "touch" the being-written-out-file (and double-check that we check for that) every 15 seconds - https://friendpaste.com/697eKEcWib01o6zT1foFIn
 // With ginormous tables, log how many times they've been attempted: after 3rd attempt, log a warning and move on. But first, batch ginormous tables (resumable)
 // Import single site into a multisite: http://codex.wordpress.org/Migrating_Multiple_Blogs_into_WordPress_3.0_Multisite, http://wordpress.org/support/topic/single-sites-to-multisite?replies=5, http://wpmu.org/import-export-wordpress-sites-multisite/
+// Dropbox authentication broken by other plugins' debug output - find a way to alert user.
 // Add note in FAQs about 'maintenance mode' plugins
 // Selective restores - some resources
 // Automatically de-activate cacheing/minifying plugins upon restore (and inform user) to prevent unexpected clashes
@@ -66,7 +72,6 @@ TODO - some of these are out of date/done, needs pruning
 // Bulk download of entire set at once (not have to click 7 times).
 // Restoration should also clear all common cache locations (or just not back them up)
 // Deal with gigantic database tables - e.g. those over a million rows on cheap hosting.
-// Think this was fixed a while ago: Some code assumes that the updraft_dir is inside WP_CONTENT_DIR. We should be using WP_Filesystem::find_folder to remove this assumption
 // When restoring core, need an option to retain database settings / exclude wp-config.php
 // If migrating, warn about consequences of over-writing wp-config.php
 // Produce a command-line version of the restorer (so that people with shell access are immune from server-enforced timeouts)
