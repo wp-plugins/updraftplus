@@ -21,12 +21,12 @@ TODO - some of these are out of date/done, needs pruning
 # Look for this pattern in the site root: pclzip-51f3c72989c15.tmp (how to reliably reproduce?)
 // Remember historical resumption intervals. But remember that the site may migrate, so we need to check their accuracy from time to time.
 // Unpack zips via AJAX? Do bit-by-bit to allow enormous opens a better chance? (have a huge one in Dropbox)
-// mysql maximum packet size - need to intelligently split the backup SQL (or up the packet size + reconnect)
 // Roll UD-addons plugin into the main plugin for those getting it from ud.com
 // Put in a maintenance-mode detector
 // Put in a default handler for "Backup Now" button so that if JS is faulty, the user still sees something (prevents support requests)
 // Detect CloudFlare output in attempts to connect - detecting cloudflare.com should be sufficient
 // Bring multisite shop page up to date
+// Re-do pricing + support packages
 // Give a help page to go with the message: A zip error occurred - check your log for more details (reduce support requests)
 // Exclude .git and .svn by default from wpcore
 // Add more info to email - e.g. names + sizes + checksums of uploads + locations
@@ -50,7 +50,6 @@ TODO - some of these are out of date/done, needs pruning
 // Make search+replace two-pass to deal with moving between exotic non-default moved-directory setups
 // Get link - http://www.rackspace.com/knowledge_center/article/how-to-use-updraftplus-to-back-up-cloud-sites-to-cloud-files
 // Eliminate variable backup_time (which is floor(backup_time_ms))
-// Warn on giganticus files, so that there's a clue for the user if PHP times out or disk space runs out on it
 // 'Delete from your webserver' should trigger a rescan if the backup was local-only
 // Notify user only if backup fails
 // Encrypt archives - http://www.frostjedi.com/phpbb3/viewtopic.php?f=46&t=168508&p=391881&e=391881
