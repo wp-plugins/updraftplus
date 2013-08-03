@@ -84,7 +84,7 @@ class UpdraftPlus_Admin {
 	function admin_head() {
 
 		global $pagenow;
-		if ($pagenow != 'options-general.php' || !isset($_REQUEST['page']) && 'updraftplus' != $_REQUEST['page']) return;
+		if ($pagenow != 'options-general.php' || !isset($_REQUEST['page']) || 'updraftplus' != $_REQUEST['page']) return;
 
  		$chunk_size = min(wp_max_upload_size()-1024, 1024*1024*2);
 
