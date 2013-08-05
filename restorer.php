@@ -857,6 +857,12 @@ class Updraft_Restorer extends WP_Upgrader {
 
 	function sql_exec($sql_line, $sql_type) {
 
+		// if (strlen($sql_line) > 100000) {
+		// echo "Length: ".strlen($sql_line)." Mem: ".round(memory_get_usage(true)/1048576, 1)." / ".round(memory_get_usage()/1048576, 1)."<br>";
+		// }
+
+// 		echo "Memory usage (Mb): ".round(memory_get_usage(false)/1048576, 1)." : ".round(memory_get_usage(true)/1048576, 1)."<br>";
+
 		global $wpdb, $updraftplus;
 
 		if ($sql_type == 2 && $this->create_forbidden) {

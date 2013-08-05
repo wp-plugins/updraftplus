@@ -126,6 +126,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * TWEAK: Log file times are now recorded relative to the backup start, rather than the current resumption start
 * TWEAK: More code-tidying and optimisation
 * TWEAK: Various extra sanity-checks for possible problems
+* TWEAK: Warn user if trying to upload an above-limit (>10Gb) file to Google Drive
 * INTERNALS: PclZip zip method now has feature parity with ZipArchive (can resume, more logging)
 * TWEAK/FIX: When restoring/migrating, split SQL commands to avoid exceeding MySQL's max_allowed_packet
 * FIX: Make sure output buffering is off when sending files from the browser (prevents memory exhaustion)

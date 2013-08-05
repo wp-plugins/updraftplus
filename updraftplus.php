@@ -1210,6 +1210,26 @@ class UpdraftPlus {
 
 	}
 
+	/**
+	 * Add backquotes to tables and db-names in
+	 * SQL queries. Taken from phpMyAdmin.
+	 */
+	public function backquote($a_name) {
+		if (!empty($a_name) && $a_name != '*') {
+			if (is_array($a_name)) {
+				$result = array();
+				reset($a_name);
+				while(list($key, $val) = each($a_name)) 
+					$result[$key] = '`' . $val . '`';
+				return $result;
+			} else {
+				return '`' . $a_name . '`';
+			}
+		} else {
+			return $a_name;
+		}
+	}
+
 	// avoid_these_dirs and skip_these_dirs ultimately do the same thing; but avoid_these_dirs takes full paths whereas skip_these_dirs takes basenames; and they are logged differently (dirs in avoid are potentially dangerous to include; skip is just a user-level preference). They are allowed to overlap.
 	function compile_folder_list_for_backup($backup_from_inside_dir, $avoid_these_dirs, $skip_these_dirs) {
 

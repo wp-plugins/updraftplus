@@ -577,8 +577,8 @@ class UpdraftPlus_Backup {
 
 		if (!$updraftplus->really_is_writable($updraft_dir)) {
 			$updraftplus->log("The backup directory ($updraft_dir) is not writable.");
-			$updraftplus->log("$updraft_dir: ".__('The backup directory is not writable.','updraftplus'), 'error');
-			return false;
+			$updraftplus->log("$updraft_dir: ".__('The backup directory is not writable - the database backup is expected to shortly fail.','updraftplus'), 'warning');
+			# Why not just fail now? We saw a bizarre case when the results of really_is_writable() changed during the run.
 		}
 
 		$stitch_files = array();
@@ -593,17 +593,18 @@ class UpdraftPlus_Backup {
 				$updraftplus->log("Table $table: corresponding file already exists; moving on");
 			} else {
 				// Open file, store the handle
-				$this->backup_db_open($updraft_dir.'/'.$table_file_prefix.'.tmp.gz', true);
+				$opened = $this->backup_db_open($updraft_dir.'/'.$table_file_prefix.'.tmp.gz', true);
+				if (false === $opened) return false;
 				# === is needed, otherwise 'false' matches (i.e. prefix does not match)
 				if ( strpos($table, $table_prefix) === 0 ) {
 					// Create the SQL statements
 					$this->stow("# --------------------------------------------------------\n");
-					$this->stow("# " . sprintf(__('Table: %s','wp-db-backup'),$this->backquote($table)) . "\n");
+					$this->stow("# " . sprintf(__('Table: %s','wp-db-backup'),$updraftplus->backquote($table)) . "\n");
 					$this->stow("# --------------------------------------------------------\n");
 					$this->backup_table($table);
 				} else {
 					$this->stow("# --------------------------------------------------------\n");
-					$this->stow("# " . sprintf(__('Skipping non-WP table: %s','wp-db-backup'),$this->backquote($table)) . "\n");
+					$this->stow("# " . sprintf(__('Skipping non-WP table: %s','wp-db-backup'),$updraftplus->backquote($table)) . "\n");
 					$this->stow("# --------------------------------------------------------\n");				
 				}
 				// Close file
@@ -626,7 +627,8 @@ class UpdraftPlus_Backup {
 		}
 
 		// Finally, stitch the files together
-		$this->backup_db_open($backup_final_file_name, true);
+		$opendb = $this->backup_db_open($backup_final_file_name, true);
+		if (false === $opendb) return false;
 		$this->backup_db_header();
 
 		// We delay the unlinking because if two runs go concurrently and fail to detect each other (should not happen, but there's no harm in assuming the detection failed) then that leads to files missing from the db dump
@@ -670,26 +672,6 @@ class UpdraftPlus_Backup {
 
 	} //wp_db_backup
 
- 	/**
-	 * Add backquotes to tables and db-names in
-	 * SQL queries. Taken from phpMyAdmin.
-	 */
-	private function backquote($a_name) {
-		if (!empty($a_name) && $a_name != '*') {
-			if (is_array($a_name)) {
-				$result = array();
-				reset($a_name);
-				while(list($key, $val) = each($a_name)) 
-					$result[$key] = '`' . $val . '`';
-				return $result;
-			} else {
-				return '`' . $a_name . '`';
-			}
-		} else {
-			return $a_name;
-		}
-	}
-
 	/**
 	 * Taken partially from phpMyAdmin and partially from
 	 * Alain Wolf, Zurich - Switzerland
@@ -717,16 +699,16 @@ class UpdraftPlus_Backup {
 			// Add SQL statement to drop existing table
 			$this->stow("\n\n");
 			$this->stow("#\n");
-			$this->stow("# " . sprintf(__('Delete any existing table %s','wp-db-backup'),$this->backquote($table)) . "\n");
+			$this->stow("# " . sprintf(__('Delete any existing table %s','wp-db-backup'),$updraftplus->backquote($table)) . "\n");
 			$this->stow("#\n");
 			$this->stow("\n");
-			$this->stow("DROP TABLE IF EXISTS " . $this->backquote($table) . ";\n");
+			$this->stow("DROP TABLE IF EXISTS " . $updraftplus->backquote($table) . ";\n");
 			
 			// Table structure
 			// Comment in SQL-file
 			$this->stow("\n\n");
 			$this->stow("#\n");
-			$this->stow("# " . sprintf(__('Table structure of table %s','wp-db-backup'),$this->backquote($table)) . "\n");
+			$this->stow("# " . sprintf(__('Table structure of table %s','wp-db-backup'),$updraftplus->backquote($table)) . "\n");
 			$this->stow("#\n");
 			$this->stow("\n");
 			
@@ -754,7 +736,7 @@ class UpdraftPlus_Backup {
 			}
 		
 			// Comment in SQL-file
-			$this->stow("\n\n#\n# " . sprintf('Data contents of table %s',$this->backquote($table)) . "\n");
+			$this->stow("\n\n#\n# " . sprintf('Data contents of table %s',$updraftplus->backquote($table)) . "\n");
 
 			$table_status = $wpdb->get_row("SHOW TABLE STATUS WHERE Name='$table'");
 			if (isset($table_status->Rows)) {
@@ -797,7 +779,7 @@ class UpdraftPlus_Backup {
 				@set_time_limit(900);
 
 				$table_data = $wpdb->get_results("SELECT * FROM $table LIMIT {$row_start}, {$row_inc}", ARRAY_A);
-				$entries = 'INSERT INTO ' . $this->backquote($table) . ' VALUES ';
+				$entries = 'INSERT INTO ' . $updraftplus->backquote($table) . ' VALUES ';
 				//    \x08\\x09, not required
 				$search = array("\x00", "\x0a", "\x0d", "\x1a");
 				$replace = array('\0', '\n', '\r', '\Z');
@@ -839,7 +821,7 @@ class UpdraftPlus_Backup {
 			// Create footer/closing comment in SQL-file
 			$this->stow("\n");
 			$this->stow("#\n");
-			$this->stow("# " . sprintf(__('End of data contents of table %s','wp-db-backup'),$this->backquote($table)) . "\n");
+			$this->stow("# " . sprintf(__('End of data contents of table %s','wp-db-backup'),$updraftplus->backquote($table)) . "\n");
 			$this->stow("# --------------------------------------------------------\n");
 			$this->stow("\n");
 		}
@@ -890,7 +872,6 @@ class UpdraftPlus_Backup {
 
 	// Open a file, store its filehandle
 	private function backup_db_open($file, $allow_gz = true) {
-		global $updraftplus;
 		if (function_exists('gzopen') && $allow_gz == true) {
 			$this->dbhandle = @gzopen($file, 'w');
 			$this->dbhandle_isgz = true;
@@ -898,10 +879,12 @@ class UpdraftPlus_Backup {
 			$this->dbhandle = @fopen($file, 'w');
 			$this->dbhandle_isgz = false;
 		}
-		if(!$this->dbhandle) {
+		if(false === $this->dbhandle) {
+			global $updraftplus;
 			$updraftplus->log("ERROR: $file: Could not open the backup file for writing");
-			$updraftplus->log("$file: ".__("Could not open the backup file for writing",'updraftplus'), 'error');
+			$updraftplus->log($file.": ".__("Could not open the backup file for writing",'updraftplus'), 'error');
 		}
+		return $this->dbhandle;
 	}
 
 	private function stow($query_line) {
@@ -935,7 +918,7 @@ class UpdraftPlus_Backup {
 		$this->stow("#\n");
 		$this->stow("# " . sprintf(__('Generated: %s','wp-db-backup'),date("l j. F Y H:i T")) . "\n");
 		$this->stow("# " . sprintf(__('Hostname: %s','wp-db-backup'),DB_HOST) . "\n");
-		$this->stow("# " . sprintf(__('Database: %s','wp-db-backup'),$this->backquote(DB_NAME)) . "\n");
+		$this->stow("# " . sprintf(__('Database: %s','wp-db-backup'),$updraftplus->backquote(DB_NAME)) . "\n");
 		$this->stow("# --------------------------------------------------------\n");
 
 		if (defined("DB_CHARSET")) {
