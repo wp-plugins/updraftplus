@@ -29,6 +29,7 @@ class UpdraftPlus_Backup {
 
 		// De-reference
 		$fullpath = realpath($fullpath);
+		$original_fullpath = realpath($original_fullpath);
 
 		// Is the place we've ended up above the original base? That leads to infinite recursion
 		if (($fullpath !== $original_fullpath && strpos($original_fullpath, $fullpath) === 0) || ($original_fullpath == $fullpath && strpos($use_path_when_storing, '/') !== false) ) {
