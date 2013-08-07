@@ -52,13 +52,16 @@ Are you able to translate UpdraftPlus into another language? Are you ready to he
 
 Many thanks to the existing translators:
 
-* Deutsch / German (de_DE): Marcel Herrguth - mherrguth at mrgeneration.de
+* Swedish / Svensk (se_SV): Steve Sandström - http://www.brandicon.se
 * Español / Spanish (es_ES): Fernando Villasmil - villasmil.fernando at gmail.com
+* Polski / Polish (pl_PL): Bartosz Kaczmarek - barth.kaczmarek at gmail.com
+* Chinese (zh_CN): K L Wang - http://klwang.info
+* Italiano / Italian (it_IT): Francesco Carpana - f.carpana at gmail.com
+
+And to these (need updating or new translators; now less than 50% translated):
+* Deutsch / German (de_DE): Marcel Herrguth - mherrguth at mrgeneration.de
 * Magyar / Hungarian (hu_HU): Szépe Viktor - http://www.szepe.net
 * Nederlands / Dutch (nl_NL): Hans van der Vlist - hansvandervlist at gmail.com
-* Polski / Polish (pl_PL): Bartosz Kaczmarek - barth.kaczmarek at gmail.com
-* Italiano / Italian (it_IT): Francesco Carpana - f.carpana at gmail.com
-* Chinese (zh_CN): K L Wang - http://klwang.info
 
 = Other support =
 
@@ -122,11 +125,13 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 = Development trunk - not yet released/supported =
 * FEATURE: Split large sites into multiple zips (see: http://updraftplus.com/splitting-large-sites-into-multiple-archives/)
+* FEATURE: Svensk / Swedish translation (se_SV) by Steve Sandström (http://www.brandicon.se)
 * TWEAK: Save the result of looking for a binary zip (don't re-test)
 * TWEAK: Log file times are now recorded relative to the backup start, rather than the current resumption start
 * TWEAK: More code-tidying and optimisation
 * TWEAK: Various extra sanity-checks for possible problems
 * TWEAK: Warn user if trying to upload an above-limit (>10Gb) file to Google Drive
+* TWEAK: Reduce memory usage during restore
 * INTERNALS: PclZip zip method now has feature parity with ZipArchive (can resume, more logging)
 * TWEAK/FIX: When restoring/migrating, split SQL commands to avoid exceeding MySQL's max_allowed_packet
 * FIX: Make sure output buffering is off when sending files from the browser (prevents memory exhaustion)

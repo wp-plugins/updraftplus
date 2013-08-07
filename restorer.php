@@ -275,7 +275,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		if ($wp_filesystem_dir === false) return false;
 
 		global $updraftplus_addons_migrator, $wp_filesystem;
-		if ('plugins' == $type || 'uploads' == $type || 'themes' == $type && (!is_multisite() || $this->ud_backup_is_multisite !== 0 || ('uploads' != $type || !isset($updraftplus_addons_migrator['new_blogid'] )))) {
+		if ('plugins' == $type || 'uploads' == $type || 'themes' == $type && (!is_multisite() || $this->ud_backup_is_multisite !== 0 || ('uploads' != $type || empty($updraftplus_addons_migrator->new_blogid )))) {
 			if ($wp_filesystem->exists($wp_filesystem_dir.'-old')) {
 				return new WP_Error('already_exists', sprintf(__('An existing unremoved backup from a previous restore exists: %s', 'updraftplus'), $wp_filesystem_dir.'-old'));
 			}
@@ -335,7 +335,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		// We copy the variable because we may be importing with a different prefix (e.g. on multisite imports of individual blog data)
 		$import_table_prefix = $table_prefix;
 
-		if (is_multisite() && $this->ud_backup_is_multisite === 0 && ( ( 'plugins' == $type || 'themes' == $type )  || ( 'uploads' == $type && isset($updraftplus_addons_migrator['new_blogid'])) )) {
+		if (is_multisite() && $this->ud_backup_is_multisite === 0 && ( ( 'plugins' == $type || 'themes' == $type )  || ( 'uploads' == $type && !empty($updraftplus_addons_migrator->new_blogid)) )) {
 
 			# Migrating a single site into a multisite
 			if ('plugins' == $type || 'themes' == $type) {
@@ -358,7 +358,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 				show_message($this->strings['moving_old']);
 
-				switch_to_blog($updraftplus_addons_migrator['new_blogid']);
+				switch_to_blog($updraftplus_addons_migrator->new_blogid);
 
 				$ud = wp_upload_dir();
 				$wpud = $ud['basedir'];
@@ -786,12 +786,12 @@ class Updraft_Restorer extends WP_Upgrader {
 					if ($restoring_table == $import_table_prefix.'options') {
 						if ('' == $old_siteurl) {
 							global $updraftplus_addons_migrator;
-							if (isset($updraftplus_addons_migrator['new_blogid'])) switch_to_blog($updraftplus_addons_migrator['new_blogid']);
+							if (isset($updraftplus_addons_migrator->new_blogid)) switch_to_blog($updraftplus_addons_migrator->new_blogid);
 
 							$old_siteurl = $wpdb->get_row("SELECT option_value FROM $wpdb->options WHERE option_name='siteurl'")->option_value;
 							do_action('updraftplus_restore_db_record_old_siteurl', $old_siteurl);
 							
-							if (isset($updraftplus_addons_migrator['new_blogid'])) restore_current_blog();
+							if (isset($updraftplus_addons_migrator->new_blogid)) restore_current_blog();
 						}
 					}
 				}
@@ -918,7 +918,7 @@ class Updraft_Restorer extends WP_Upgrader {
 // 		add_filter('all', array($this, 'option_filter'));
 
 		global $updraftplus_addons_migrator;
-		if (isset($updraftplus_addons_migrator['new_blogid'])) switch_to_blog($updraftplus_addons_migrator['new_blogid']);
+		if (!empty($updraftplus_addons_migrator->new_blogid)) switch_to_blog($updraftplus_addons_migrator->new_blogid);
 
 		foreach (array('permalink_structure', 'rewrite_rules', 'page_on_front') as $opt) {
 			add_filter('pre_option_'.$opt, array($this, 'option_filter_'.$opt));
@@ -932,7 +932,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			remove_filter('pre_option_'.$opt, array($this, 'option_filter_'.$opt));
 		}
 
-		if (isset($updraftplus_addons_migrator['new_blogid'])) restore_current_blog();
+		if (!empty($updraftplus_addons_migrator->new_blogid)) restore_current_blog();
 
 // 		remove_filter('all', array($this, 'option_filter'));
 

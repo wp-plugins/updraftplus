@@ -366,7 +366,7 @@ class UpdraftPlus_BackupModule_s3 {
 			<td><?php echo $img_html ?><p><em><?php printf(__('%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your site is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.','updraftplus'),$whoweare_long);?></em></p>
 			<?php
 				if ('s3generic' == $key) {
-					_e('Examples of S3-compatible storage providers: ');
+					_e('Examples of S3-compatible storage providers:').' ';
 					echo '<a href="http://www.cloudian.com/">Cloudian</a>, ';
 					echo '<a href="http://cloud.google.com/storage">Google Cloud Storage</a>, ';
 					echo '<a href="https://www.mh.connectria.com/rp/order/cloud_storage_index">Connectria</a>, ';
