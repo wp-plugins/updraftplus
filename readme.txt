@@ -52,7 +52,7 @@ Are you able to translate UpdraftPlus into another language? Are you ready to he
 
 Many thanks to the existing translators:
 
-* Swedish / Svensk (se_SV): Steve Sandström - http://www.brandicon.se
+* Swedish / Svensk (sv_SE): Steve Sandström - http://www.brandicon.se
 * Español / Spanish (es_ES): Fernando Villasmil - villasmil.fernando at gmail.com
 * Polski / Polish (pl_PL): Bartosz Kaczmarek - barth.kaczmarek at gmail.com
 * Chinese (zh_CN): K L Wang - http://klwang.info
@@ -125,7 +125,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 = Development trunk - not yet released/supported =
 * FEATURE: Split large sites into multiple zips (see: http://updraftplus.com/splitting-large-sites-into-multiple-archives/)
-* FEATURE: Svensk / Swedish translation (se_SV) by Steve Sandström (http://www.brandicon.se)
+* FEATURE: Svensk / Swedish translation (sv_SE) by Steve Sandström (http://www.brandicon.se)
 * TWEAK: Save the result of looking for a binary zip (don't re-test)
 * TWEAK: Log file times are now recorded relative to the backup start, rather than the current resumption start
 * TWEAK: More code-tidying and optimisation
@@ -136,6 +136,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * TWEAK/FIX: When restoring/migrating, split SQL commands to avoid exceeding MySQL's max_allowed_packet
 * FIX: Make sure output buffering is off when sending files from the browser (prevents memory exhaustion)
 * FIX: Prevent double-backup (very unusual combination of circumstances)
+* FIX: Some Windows webserver configurations could have corruption of filenames of WordPress core backups (recoverable)
 
 = 1.6.46 - 2013/07/11 =
 * FEATURE: New storage back-end for any S3-compatible provider (e.g. Google Cloud Storage, Eucalyptus, Cloudian, many more - tested with Dreamobjects and original S3)

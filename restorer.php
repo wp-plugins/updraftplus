@@ -138,8 +138,12 @@ class Updraft_Restorer extends WP_Upgrader {
 		foreach ( $upgrade_files as $file => $filestruc ) {
 
 			// Correctly restore files in 'others' in no directory that were wrongly backed up in versions 1.4.0 - 1.4.48
-			if ('others' == $type && preg_match('/^([\-_A-Za-z0-9]+\.php)$/', $file, $matches) && $wp_filesystem->exists($working_dir . "/$file/$file")) {
-				echo "Found file: $file/$file: presuming this is a backup with a known fault (backup made with versions 1.4.0 - 1.4.48); will rename to simply $file<br>";
+			if (('others' == $type || 'wpcore' == $type ) && preg_match('/^([\-_A-Za-z0-9]+\.php)$/', $file, $matches) && $wp_filesystem->exists($working_dir . "/$file/$file")) {
+				if ('others' == $type) {
+					echo "Found file: $file/$file: presuming this is a backup with a known fault (backup made with versions 1.4.0 - 1.4.48, and sometimes up to 1.6.55 on some Windows servers); will rename to simply $file<br>";
+				} else {
+					echo "Found file: $file/$file: presuming this is a backup with a known fault (backup made with versions before 1.6.55 in certain situations on Windows servers); will rename to simply $file<br>";
+				}
 				$file = $matches[1];
 				$tmp_file = rand(0,999999999).'.php';
 				// Rename directory

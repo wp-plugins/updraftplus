@@ -942,8 +942,9 @@ class UpdraftPlus_Backup {
 
 		global $updraftplus;
 
-		// De-reference
+		// De-reference. Important to do to both, because on Windows only doing it to one can make them non-equal, where they were previously equal - something which we later rely upon
 		$fullpath = realpath($fullpath);
+		$original_fullpath = realpath($original_fullpath);
 
 		// Is the place we've ended up above the original base? That leads to infinite recursion
 		if (($fullpath !== $original_fullpath && strpos($original_fullpath, $fullpath) === 0) || ($original_fullpath == $fullpath && strpos($use_path_when_storing, '/') !== false) ) {

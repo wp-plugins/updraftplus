@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.55
+Version: 1.6.56
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -16,6 +16,8 @@ TODO - some of these are out of date/done, needs pruning
 // Backup notes
 // Log migrations/restores, and have an option for auto-emailing the log
 # BinZip is not yet MA-compatible. Create an UpdraftPlus_BinZip class. Test timings (see zip-timings.txt). Turn BinZip back on if it's good.
+# "Backup of:" note has vanished
+# Add sanity checking of wpcore backup - there ought to be what we expect in there (saw a crazy one)
 # Once we know that there is a second archive, we should rename the first file with a "1" in the filename, so that missing archives are better detected upon upload/support. We could rename *all* the files at the 'finished files' stage to be like '1of5', '2of5', etc. Then detect that via the regex when scanning + uploading. Then we'll know exactly which are missing. Will just need to verify that nothing relies on the old file names once the file status is set to 'finished' (or even better, recognise this new convention - make the 'of(\d+)' optional).
 # Email backup method should be able to force split limit down to something manageable - or at least, should make the option display. (Put it in email class. Tweak the storage dropdown to not hide stuff also in expert class if expert is shown).
 # Look for this pattern in the site root: pclzip-51f3c72989c15.tmp (how to reliably reproduce?)
