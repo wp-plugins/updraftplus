@@ -51,6 +51,7 @@ Are you able to translate UpdraftPlus into another language? Are you ready to he
 
 Many thanks to the existing translators:
 
+* Swedish / Svensk (sv_SE): Steve Sandström - http://www.brandicon.se
 * Deutsch / German (de_DE): Marcel Herrguth - mherrguth at mrgeneration.de
 * Español / Spanish (es_ES): Fernando Villasmil - villasmil.fernando at gmail.com
 * Magyar / Hungarian (hu_HU): Szépe Viktor - http://www.szepe.net
