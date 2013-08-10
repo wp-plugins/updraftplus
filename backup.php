@@ -960,7 +960,7 @@ class UpdraftPlus_Backup {
 				$key = ($fullpath == $original_fullpath) ? basename($fullpath) : $use_path_when_storing.'/'.basename($fullpath);
 				$this->zipfiles_batched[$fullpath] = $key;
 				$this->makezip_recursive_batchedbytes += @filesize($fullpath);
-				@touch($zipfile);
+				#@touch($zipfile);
 			} else {
 				$updraftplus->log("$fullpath: unreadable file");
 				$updraftplus->log(sprintf(__("%s: unreadable file - could not be backed up", 'updraftplus'), $fullpath), 'warning');
@@ -980,7 +980,7 @@ class UpdraftPlus_Backup {
 							if (is_readable($deref)) {
 								$this->zipfiles_batched[$deref] = $use_path_when_storing.'/'.$e;
 								$this->makezip_recursive_batchedbytes += @filesize($deref);
-								@touch($zipfile);
+								#@touch($zipfile);
 							} else {
 								$updraftplus->log("$deref: unreadable file");
 								$updraftplus->log(sprintf(__("%s: unreadable file - could not be backed up"), $deref), 'warning');
@@ -992,7 +992,7 @@ class UpdraftPlus_Backup {
 						if (is_readable($fullpath.'/'.$e)) {
 							$this->zipfiles_batched[$fullpath.'/'.$e] = $use_path_when_storing.'/'.$e;
 							$this->makezip_recursive_batchedbytes += @filesize($fullpath.'/'.$e);
-							@touch($zipfile);
+							#@touch($zipfile);
 						} else {
 							$updraftplus->log("$fullpath/$e: unreadable file");
 							$updraftplus->log(sprintf(__("%s: unreadable file - could not be backed up", 'updraftplus'), $use_path_when_storing.'/'.$e), 'warning');
@@ -1012,6 +1012,7 @@ class UpdraftPlus_Backup {
 		if (count($this->zipfiles_batched) > 25 || (file_exists($zipfile) && ((time()-filemtime($zipfile)) > 20) )) {
 			$ret = true;
 			# In fact, this is entirely redundant, and slows things down - the logic in makezip_addfiles() now does this, much better
+			# If adding this back in, then be careful - we now assume that makezip_recursive_add() does *not* touch the zipfile
 // 			$ret = $this->makezip_addfiles();
 		} else {
 			$ret = true;
@@ -1192,7 +1193,12 @@ class UpdraftPlus_Backup {
 			if (is_wp_error($add_them) || false === $add_them) $error_occured = true;
 		}
 
-		// Any not yet dispatched?
+		// Any not yet dispatched? Under our present scheme, at this point nothing has yet been despatched. And since the enumerating of all files can take a while, we can at this point do a further modification check to reduce the chance of overlaps.
+		// This relies on us *not* touch()ing the zip file to indicate to any resumption 'behind us' that we're already here. Rather, we're relying on the combined facts that a) if it takes us a while to search the directory tree, then it should do for the one behind us too (though they'll have the benefit of cache, so could catch very fast) and b) we touch *immediately* after finishing the enumeration of the files to add.
+		$updraftplus->check_recent_modification($destination);
+		// Here we're relying on the fact that both PclZip and ZipArchive will happily operate on an empty file. Note that BinZip *won't* (for that, may need a new strategy - e.g. add the very first file on its own, in order to 'lay down a marker')
+		@touch($destination);
+
 		if (count($this->zipfiles_dirbatched)>0 || count($this->zipfiles_batched)>0) {
 			$updraftplus->log(sprintf("Remaining entities to add to zip file: %d directories, %d files", count($this->zipfiles_dirbatched), count($this->zipfiles_batched)));
 			$add_them = $this->makezip_addfiles();
@@ -1337,6 +1343,8 @@ class UpdraftPlus_Backup {
 						$updraftplus->log("Adding batch to zip file (".$this->use_zip_object."): over 500 files added on this batch (".round($data_added_since_reopen/1048576,1)." Mb, ".count($this->zipfiles_batched)." files batched, $zipfiles_added_thisbatch (".$this->zipfiles_added_thisrun.") added so far); re-opening (prior size: ".round($original_size/1024,1).' Kb)');
 					} elseif (!$reaching_split_limit) {
 						$updraftplus->log("Adding batch to zip file (".$this->use_zip_object."): over 1.5 seconds have passed since the last write (".round($data_added_since_reopen/1048576,1)." Mb, $zipfiles_added_thisbatch (".$this->zipfiles_added_thisrun.") files added so far); re-opening (prior size: ".round($original_size/1024,1).' Kb)');
+					} else {
+						$updraftplus->log("Adding batch to zip file (".$this->use_zip_object."): possibly approaching split limit (".round($data_added_since_reopen/1048576,1)." Mb, $zipfiles_added_thisbatch (".$this->zipfiles_added_thisrun.") files added so far); re-opening (prior size: ".round($original_size/1024,1).' Kb)');
 					}
 					if (!$zip->close()) {
 						$updraftplus->log(__('A zip error occurred - check your log for more details.', 'updraftplus'), 'warning', 'zipcloseerror');
@@ -1353,7 +1361,8 @@ class UpdraftPlus_Backup {
 					// Call here, in case we've got so many big files that we don't complete the whole routine
 					if (filesize($zipfile) > $original_size) {
 
-						$this->zip_last_ratio = ($data_added_since_reopen > 0) ? (filesize($zipfile) - $original_size)/$data_added_since_reopen : 1;
+						# It is essential that this does not go above 1, even though in reality (and this can happen at the start, if just 1 file is added (e.g. due to >1.5s detection) the 'compressed' zip file may be *bigger* than the files stored in it. When that happens, if the ratio is big enough, it can then fire the "approaching split limit" detection (very) prematurely
+						$this->zip_last_ratio = ($data_added_since_reopen > 0) ? max((filesize($zipfile) - $original_size)/$data_added_since_reopen, 1) : 1;
 
 						# We need a rolling update of this
 						$original_size = filesize($zipfile);

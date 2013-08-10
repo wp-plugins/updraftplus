@@ -133,7 +133,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * TWEAK: Various extra sanity-checks for possible problems
 * TWEAK: Warn user if trying to upload an above-limit (>10Gb) file to Google Drive
 * TWEAK: Reduce memory usage during restore
-* TWEAK: Move JavaScript into separate file
+* TWEAK: Move JavaScript into separate file, and make strings translatable
 * INTERNALS: PclZip zip method now has feature parity with ZipArchive (can resume, more logging)
 * TWEAK/FIX: When restoring/migrating, split SQL commands to avoid exceeding MySQL's max_allowed_packet
 * FIX: Make sure output buffering is off when sending files from the browser (prevents memory exhaustion)

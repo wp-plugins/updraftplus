@@ -8,6 +8,7 @@ function updraft_delete(key, nonce, showremote) {
 	}
 	jQuery('#updraft-delete-modal').dialog('open');
 }
+
 function updraft_restore_setoptions(entities) {
 	var howmany = 0;
 	jQuery('input[name="updraft_restore[]"]').each(function(x,y){
@@ -357,7 +358,7 @@ jQuery(document).ready(function($){
 				}
 	};
 	updraft_restore_modal_buttons[updraftlion.cancel] = function() { jQuery(this).dialog("close"); };
-	
+
 	jQuery( "#updraft-restore-modal" ).dialog({
 		autoOpen: false, height: 505, width: 590, modal: true,
 		buttons: updraft_restore_modal_buttons
@@ -597,4 +598,4 @@ jQuery(document).ready(function($){
 
 	jQuery('#updraft-hidethis').remove();
 
-});   
+});
