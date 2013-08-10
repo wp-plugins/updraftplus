@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the UpdraftPlus package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2013-08-07 14:54:51+0000\n"
+"PO-Revision-Date: 2013-08-10 07:20:03+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -1850,7 +1850,7 @@ msgstr "Var 12:e timma"
 
 #: admin.php:1534
 msgid "To proceed, press 'Backup Now'. Then, watch the 'Last Log Message' field for activity after about 10 seconds. WordPress should start the backup running in the background."
-msgstr "För att fortsätta, tryck 'Ta Backup Nu' Titta sedan på 'Sista Logg-Meddelande'-gältet för aktivitet efter ungefär 10 sekunder. WordPress bör börja köra backupen i bakgrunden."
+msgstr "För att fortsätta, tryck 'Ta Backup Nu' Titta sedan på 'Sista Logg-Meddelande'-fältet för aktivitet efter ungefär 10 sekunder. WordPress bör börja köra backupen i bakgrunden."
 
 #: admin.php:1536
 msgid "Does nothing happen when you schedule backups?"
