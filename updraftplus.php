@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.56
+Version: 1.6.57
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -16,6 +16,7 @@ TODO - some of these are out of date/done, needs pruning
 // Backup notes
 // Log migrations/restores, and have an option for auto-emailing the log
 # BinZip is not yet MA-compatible. Create an UpdraftPlus_BinZip class. Test timings (see zip-timings.txt). Turn BinZip back on if it's good.
+// Log a warning if the resumption is loonnggg after it was expected to be (usually on unvisited dev sites)
 // Warn people whose hosts have set DISABLE_WP_CRON
 # "Backup of:" note has vanished
 # Add sanity checking of wpcore backup - there ought to be what we expect in there (saw a crazy one)

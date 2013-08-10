@@ -49,7 +49,9 @@ class UpdraftPlus_Backup {
 
 		global $updraftplus;
 
-		if ('others' != $whichone) $updraftplus->log("Beginning creation of dump of $whichone");
+		$this->zip_split_every = max((int)$updraftplus->jobdata_get('split_every'), UPDRAFTPLUS_SPLIT_MIN)*1024*1024;
+
+		if ('others' != $whichone) $updraftplus->log("Beginning creation of dump of $whichone (split every: ".round($this->zip_split_every/1048576,1)." Mb)");
 
 		if (is_string($create_from_dir) && !file_exists($create_from_dir)) {
 			$flag_error = true;
@@ -1175,7 +1177,6 @@ class UpdraftPlus_Backup {
 		$this->zipfiles_batched = array();
 		$this->zipfiles_lastwritetime = time();
 
-		$this->zip_split_every = max((int)$updraftplus->jobdata_get('split_every'), UPDRAFTPLUS_SPLIT_MIN)*1024*1024;
 		$this->zip_basename = $updraft_dir.'/'.$backup_file_basename.'-'.$whichone;
 
 		$error_occured = false;
@@ -1323,7 +1324,7 @@ class UpdraftPlus_Backup {
 
 				# Add 10% margin. It only really matters when the OS has a file size limit, exceeding which causes failure (e.g. 2Gb on 32-bit)
 				# Since we don't test before the file has been created (so that zip_last_ratio has meaningful data), we rely on max_zip_batch being less than zip_split_every - which should always be the case
-				$reaching_split_limit = ( defined('UPDRAFTPLUS_EXPERIMENTAL_MULTIARCHIVE') && true == UPDRAFTPLUS_EXPERIMENTAL_MULTIARCHIVE && $this->zip_last_ratio > 0 && $original_size>0 && ($original_size + 1.1*$data_added_since_reopen*$this->zip_last_ratio) > $this->zip_split_every) ? true : false;
+				$reaching_split_limit = ( $this->zip_last_ratio > 0 && $original_size>0 && ($original_size + 1.1*$data_added_since_reopen*$this->zip_last_ratio) > $this->zip_split_every) ? true : false;
 
 				if ($zipfiles_added_thisbatch > 500 || $reaching_split_limit || $data_added_since_reopen > $maxzipbatch || (time() - $this->zipfiles_lastwritetime) > 1.5) {
 
@@ -1358,7 +1359,7 @@ class UpdraftPlus_Backup {
 						$original_size = filesize($zipfile);
 
 						# Move on to next zip?
-						if (defined('UPDRAFTPLUS_EXPERIMENTAL_MULTIARCHIVE') && true == UPDRAFTPLUS_EXPERIMENTAL_MULTIARCHIVE && ($reaching_split_limit || filesize($zipfile) > $this->zip_split_every)) {
+						if ($reaching_split_limit || filesize($zipfile) > $this->zip_split_every) {
 							$bump_index = true;
 							# Take the filesize now because later we wanted to know we did clearstatcache()
 							$bumped_at = round(filesize($zipfile)/1048576, 1);
@@ -1542,7 +1543,7 @@ class UpdraftPlus_Backup {
 		if (file_exists($zipfile) && filesize($zipfile) > $original_size) $updraftplus->something_useful_happened();
 
 		# Move on to next archive?
-		if (defined('UPDRAFTPLUS_EXPERIMENTAL_MULTIARCHIVE') && true == UPDRAFTPLUS_EXPERIMENTAL_MULTIARCHIVE && file_exists($zipfile) && filesize($zipfile) > $this->zip_split_every) {
+		if (file_exists($zipfile) && filesize($zipfile) > $this->zip_split_every) {
 			$updraftplus->log(sprintf("Zip size has gone over split limit (%s, %s) - bumping index (%d)", round(filesize($zipfile)/1048576,1), round($this->zip_split_every/1048576, 1), $this->index));
 			$this->bump_index();
 		}

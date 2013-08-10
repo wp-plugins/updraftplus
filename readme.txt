@@ -134,7 +134,6 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * TWEAK: Reduce memory usage during restore
 * INTERNALS: PclZip zip method now has feature parity with ZipArchive (can resume, more logging)
 * TWEAK/FIX: When restoring/migrating, split SQL commands to avoid exceeding MySQL's max_allowed_packet
-* TWEAK/FIX: Amend WebDAV library to work around problem in some SabreDAV/ownCloud installs
 * FIX: Make sure output buffering is off when sending files from the browser (prevents memory exhaustion)
 * FIX: Prevent double-backup (very unusual combination of circumstances)
 * FIX: Some Windows webserver configurations could have corruption of filenames of WordPress core backups (recoverable)
