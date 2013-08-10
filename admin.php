@@ -72,11 +72,44 @@ class UpdraftPlus_Admin {
 
 		if (version_compare($wp_version, '3.2', '<')) add_action('admin_notices', array($this, 'show_admin_warning_wordpressversion'));
 
-		wp_enqueue_script('jquery');
-		wp_enqueue_script('jquery-ui-dialog');
-		wp_enqueue_script('plupload-all');
-		wp_register_script('updraftplus-plupload', UPDRAFTPLUS_URL.'/includes/ud-plupload.js', array('jquery'));
-		wp_enqueue_script('updraftplus-plupload');
+		wp_enqueue_script('updraftplus-admin-ui', UPDRAFTPLUS_URL.'/includes/updraft-admin-ui.js', array('jquery', 'jquery-ui-dialog', 'plupload-all'));
+		wp_localize_script( 'updraftplus-admin-ui', 'updraftlion', array(
+			'rescanning' => __('Rescanning (looking for backups that you have uploaded manually into the internal backup store)...','updraftplus'),
+			'unexpectedresponse' => __('Unexpected response:','updraftplus'),
+			'calculating' => __('calculating...','updraftplus'),
+			'begunlooking' => __('Begun looking for this entity','updraftplus'),
+			'stilldownloading' => __('Some files are still downloading or being processed - please wait.', 'updraftplus'),
+			'processing' => __('Processing files - please wait...', 'updraftplus'),
+			'emptyresponse' => __('Error: the server sent an empty response.', 'updraftplus'),
+			'warnings' => __('Warnings:','updraftplus'),
+			'errors' => __('Errors:','updraftplus'),
+			'jsonnotunderstood' => __('Error: the server sent us a response (JSON) which we did not understand.', 'updraftplus'),
+			'error' => __('Error:','updraftplus'),
+			'fileready' => __('File ready.','updraftplus'),
+			'youshould' => __('You should:','updraftplus'),
+			'deletefromserver' => __('Delete from your web server','updraftplus'),
+			'downloadtocomputer' => __('Download to your computer','updraftplus'),
+			'andthen' => __('and then, if you wish,', 'updraftplus'),
+			'notunderstood' => __('Download error: the server sent us a response which we did not understand.', 'updraftplus'),
+			'requeststart' => __('Requesting start of backup...', 'updraftplus'),
+			'phpinfo' => __('PHP information', 'updraftplus'),
+			'raw' => __('Raw backup history', 'updraftplus'),
+			'notarchive' => __('This file does not appear to be an UpdraftPlus backup archive (such files are .zip or .gz files which have a name like: backup_(time)_(site name)_(code)_(type).(zip|gz)). However, UpdraftPlus archives are standard zip/SQL files - so if you are sure that your file has the right format, then you can rename it to match that pattern.','updraftplus'),
+			'makesure' => __('(make sure that you were trying to upload a zip file previously created by UpdraftPlus)','updraftplus'),
+			'uploaderror' => __('Upload error:','updraftplus'),
+			'notdba' => __('This file does not appear to be an UpdraftPlus encrypted database archive (such files are .gz.crypt files which have a name like: backup_(time)_(site name)_(code)_db.crypt.gz).','updraftplus'),
+			'uploaderr' => __('Upload error', 'updraftplus'),
+			'followlink' => __('Follow this link to attempt decryption and download the database file to your computer.','updraftplus'),
+			'thiskey' => __('This decryption key will be attempted:','updraftplus'),
+			'unknownresp' => __('Unknown server response:','updraftplus'),
+			'ukrespstatus' => __('Unknown server response status:','updraftplus'),
+			'uploaded' => __('The file was uploaded.','updraftplus'),
+			'backupnow' => __('Backup Now', 'updraftplus'),
+			'cancel' => __('Cancel', 'updraftplus'),
+			'delete' => __('Delete', 'updraftplus'),
+			'close' => __('Close', 'updraftplus'),
+			'restore' => __('Restore', 'updraftplus'),
+		) );
 
 	}
 
@@ -110,7 +143,12 @@ class UpdraftPlus_Admin {
 			)
 		);
 
-		?><script type="text/javascript">var updraft_plupload_config=<?php echo json_encode($plupload_init); ?>;</script>
+		?><script type="text/javascript">
+			var updraft_plupload_config=<?php echo json_encode($plupload_init); ?>;
+			var updraft_credentialtest_nonce='<?php echo wp_create_nonce('updraftplus-credentialtest-nonce');?>';
+			var updraft_download_nonce='<?php echo wp_create_nonce('updraftplus_download');?>';
+			var updraft_siteurl = '<?php echo esc_js(site_url());?>';
+		</script>
 		<?php
 			$plupload_init['browse_button'] = 'plupload-browse-button2';
 			$plupload_init['container'] = 'plupload-upload-ui2';
@@ -1092,7 +1130,7 @@ class UpdraftPlus_Admin {
 			<br>
 
 			<div id="updraft-hidethis">
-			<p><strong><?php _e('Warning:', 'updraftplus'); ?> <?php _e("If you can still read these words after the page finishes loading, then there is a JavaScript or jQuery problem in site.", 'updraftplus'); ?> <a href="http://updraftplus.com/do-you-have-a-javascript-or-jquery-error/"><?php _e('Go here for more information.', 'updraftplus'); ?></a></strong></p>
+			<p><strong><?php _e('Warning:', 'updraftplus'); ?> <?php _e("If you can still read these words after the page finishes loading, then there is a JavaScript or jQuery problem in the site.", 'updraftplus'); ?> <a href="http://updraftplus.com/do-you-have-a-javascript-or-jquery-error/"><?php _e('Go here for more information.', 'updraftplus'); ?></a></strong></p>
 			</p>
 			</div>
 
@@ -1174,6 +1212,10 @@ class UpdraftPlus_Admin {
 					$last_backup_html = $this->last_backup_html();
 
 					?>
+
+				<script>
+					var lastbackup_laststatus = '<?php echo esc_js($last_backup_html);?>';
+				</script>
 
 				<tr>
 					<th><span title="<?php _e('All the times shown in this section are using WordPress\'s configured time zone, which you can set in Settings -> General', 'updraftplus'); ?>"><?php _e('Next scheduled backups','updraftplus');?>:</span></th>
@@ -1258,149 +1300,6 @@ class UpdraftPlus_Admin {
 						</div>
 
 						<div id="ud_downloadstatus"></div>
-						<script>
-							function updraftplus_diskspace() {
-								jQuery('#updraft_diskspaceused').html('<em><?php _e('calculating...','updraftplus');?></em>');
-								jQuery.get(ajaxurl, { action: 'updraft_ajax', entity: 'updraft', subaction: 'diskspaceused', nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>' }, function(response) {
-									jQuery('#updraft_diskspaceused').html(response);
-								});
-							}
-							var lastlog_lastmessage = "";
-							function updraftplus_deletefromserver(timestamp, type, findex) {
-								if (!findex) findex=0;
-								var pdata = {
-									action: 'updraft_download_backup',
-									stage: 'delete',
-									timestamp: timestamp,
-									type: type,
-									findex: findex,
-									_wpnonce: '<?php echo wp_create_nonce("updraftplus_download"); ?>'
-								};
-								jQuery.post(ajaxurl, pdata, function(response) {
-									if (response != 'deleted') {
-										alert('We requested to delete the file, but could not understand the server\'s response '+response);
-									}
-								});
-							}
-							function updraftplus_downloadstage2(timestamp, type, findex) {
-								location.href=ajaxurl+'?_wpnonce=<?php echo wp_create_nonce("updraftplus_download"); ?>&timestamp='+timestamp+'&type='+type+'&stage=2&findex='+findex+'&action=updraft_download_backup';
-							}
-							function updraft_downloader(base, nonce, what, whicharea, set_contents, prettydate) {
-								if (typeof set_contents !== "string") set_contents=set_contents.toString();
-								var set_contents = set_contents.split(',');
-								for (var i=0;i<set_contents.length; i++) {
-									// Create somewhere for the status to be found
-									var stid = base+nonce+'_'+what+'_'+set_contents[i];
-									var show_index = parseInt(set_contents[i]); show_index++;
-									var itext = (set_contents[i] == 0) ? '' : ' ('+show_index+')';
-									if (!jQuery('#'+stid).length) {
-										var prdate = (prettydate) ? prettydate : nonce;
-										jQuery(whicharea).append('<div style="clear:left; border: 1px solid; padding: 8px; margin-top: 4px; max-width:840px;" id="'+stid+'"><button onclick="jQuery(\'#'+stid+'\').fadeOut().remove();" type="button" style="float:right; margin-bottom: 8px;">X</button><strong>Download '+what+itext+' ('+prdate+')</strong>:<div class="raw"><?php _e('Begun looking for this entity','updraftplus');?></div><div class="file" id="'+stid+'_st"><div class="dlfileprogress" style="width: 0;"></div></div>');
-										// <b><span class="dlname">??</span></b> (<span class="dlsofar">?? KB</span>/<span class="dlsize">??</span> KB)
-										(function(base, nonce, what, i) {
-											setTimeout(function(){updraft_downloader_status(base, nonce, what, i);}, 300);
-										})(base, nonce, what, set_contents[i]);
-									}
-									// Now send the actual request to kick it all off
-									jQuery.post(ajaxurl, jQuery('#uddownloadform_'+what+'_'+nonce+'_'+set_contents[i]).serialize());
-								}
-								// We don't want the form to submit as that replaces the document
-								return false;
-							}
-							function updraft_restorer_checkstage2(doalert) {
-								// How many left?
-								var stilldownloading = jQuery('#ud_downloadstatus2 .file').length;
-								if (stilldownloading > 0) {
-									if (doalert) { alert('<?php _e('Some files are still downloading or being processed - please wait.', 'updraftplus'); ?>'); }
-									return;
-								}
-								// Allow pressing 'Restore' to proceed
-								jQuery('#updraft-restore-modal-stage2a').html('<?php _e('Processing files - please wait...', 'updraftplus'); ?>');
-								jQuery.get(ajaxurl, {
-									action: 'updraft_ajax',
-									subaction: 'restore_alldownloaded', 
-									nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>',
-									timestamp: jQuery('#updraft_restore_timestamp').val(),
-									restoreopts: jQuery('#updraft_restore_form').serialize()
-								}, function(data) {
-									try {
-										var resp = jQuery.parseJSON(data);
-										if (null == resp) {
-											jQuery('#updraft-restore-modal-stage2a').html('<?php _e('Error: the server sent an empty response.');?>');
-											return;
-										}
-										var report = resp.m;
-										if (resp.w != '') {
-											report = report + "<p><strong>" + '<?php echo __('Warnings:','updraftplus');?></strong><br>' + resp.w + "</p>";
-										}
-										if (resp.e != '') {
-											report = report + "<p><strong>" + '<?php echo __('Errors:','updraftplus');?></strong><br>' + resp.e + "</p>";
-										} else {
-											updraft_restore_stage = 3;
-										}
-										jQuery('#updraft-restore-modal-stage2a').html(report);
-									} catch(err) {
-										console.log(err);
-										jQuery('#updraft-restore-modal-stage2a').html('<?php _e('Error: the server sent us a response (JSON) which we did not understand.', 'updraftplus');?>');
-									}
-								});
-							}
-							var dlstatus_sdata = {
-								action: 'updraft_ajax',
-								subaction: 'downloadstatus',
-								nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>'
-							};
-							dlstatus_lastlog = '';
-							function updraft_downloader_status(base, nonce, what, findex) {
-								if (findex == null || findex == 0 || findex == '') { findex='0'; }
-								// Get the DOM id of the status div (add _st for the id of the file itself)
-								var stid = base+nonce+'_'+what+'_'+findex;
-								if (!jQuery('#'+stid).length) { return; }
-// 								console.log(stid+": "+jQuery('#'+stid).length);
-								dlstatus_sdata.timestamp = nonce;
-								dlstatus_sdata.type = what;
-								dlstatus_sdata.findex = findex;
-								jQuery.get(ajaxurl, dlstatus_sdata, function(response) {
-									nexttimer = 1250;
-									if (dlstatus_lastlog == response) { nexttimer = 3000; }
-									try {
-										var resp = jQuery.parseJSON(response);
-										var cancel_repeat = 0;
-										if (resp.e != null) {
-											jQuery('#'+stid+' .raw').html('<strong><?php _e('Error:','updraftplus'); ?></strong> '+resp.e);
-											console.log(resp);
-										} else if (resp.p != null) {
-											jQuery('#'+stid+'_st .dlfileprogress').width(resp.p+'%');
-											//jQuery('#'+stid+'_st .dlsofar').html(Math.round(resp.s/1024));
-											//jQuery('#'+stid+'_st .dlsize').html(Math.round(resp.t/1024));
-											if (resp.m != null) {
-												if (resp.p >=100 && base == 'udrestoredlstatus_') {
-													jQuery('#'+stid+' .raw').html(resp.m);
-													jQuery('#'+stid).fadeOut('slow', function() { jQuery(this).remove(); updraft_restorer_checkstage2(0);});
-												} else if (resp.p < 100 || base != 'uddlstatus_') {
-													jQuery('#'+stid+' .raw').html(resp.m);
-												} else {
-													jQuery('#'+stid+' .raw').html('<?php _e('File ready.','updraftplus'); ?> <?php _e('You should:','updraftplus'); ?> <button type="button" onclick="updraftplus_downloadstage2(\''+nonce+'\', \''+what+'\', \''+findex+'\')\">Download to your computer</button> and then, if you wish, <button id="uddownloaddelete_'+nonce+'_'+what+'" type="button" onclick="updraftplus_deletefromserver(\''+nonce+'\', \''+what+'\', \''+findex+'\')\">Delete from your web server</button>');
-												}
-											}
-											dlstatus_lastlog = response;
-										} else if (resp.m != null) {
-												jQuery('#'+stid+' .raw').html(resp.m);
-										} else {
-											alert('<?php _e('Error: the server sent us a response (JSON) which we did not understand', 'updraftplus'); ?> ('+response+')');
-											cancel_repeat = 1;
-										}
-										if (cancel_repeat == 0) {
-											(function(base, nonce, what, findex) {
-												setTimeout(function(){updraft_downloader_status(base, nonce, what, findex)}, nexttimer);
-											})(base, nonce, what, findex);
-										}
-									} catch(err) {
-										alert('<?php _e('Download error: the server sent us a response which we did not understand.', 'updraftplus'); ?> <?php _e("Error:",'updraftplus');?> '+err);
-									}
-								});
-							}
-						</script>
 						<div id="updraft_existing_backups" style="margin-bottom:12px;">
 							<?php
 								print $this->existing_backup_table($backup_history);
@@ -1427,17 +1326,6 @@ class UpdraftPlus_Admin {
 	</fieldset>
 </form>
 </div>
-
-<script>
-jQuery(document).ready(function() {
-	jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'ping', nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>' }, function(data, response) {
-		if ('success' == response && data != 'pong' && data.indexOf('pong')>=0) {
-			jQuery('#ud-whitespace-warning').show();
-		}
-	});
-	jQuery('#updraft-hidethis').remove();
-});
-</script>
 
 <div id="updraft-restore-modal" title="UpdraftPlus - <?php _e('Restore backup','updraftplus');?>">
 <p><strong><?php _e('Restore backup from','updraftplus');?>:</strong> <span class="updraft_restore_date"></span></p>
@@ -1494,16 +1382,6 @@ jQuery(document).ready(function() {
 			}
 
 			?>
-
-			<script>
-				jQuery('#updraft_restore_db').change(function(){
-					if (jQuery('#updraft_restore_db').is(':checked')) {
-						jQuery('#updraft_restorer_dboptions').slideDown();
-					} else {
-						jQuery('#updraft_restorer_dboptions').slideUp();
-					}
-				});
-			</script>
 
 			</div>
 
@@ -1629,67 +1507,6 @@ jQuery(document).ready(function() {
 				</div>
 			</div>
 
-			<script type="text/javascript">
-			/* <![CDATA[ */
-				
-				function updraft_activejobs_delete(jobid) {
-					jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'activejobs_delete', jobid: jobid, nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>' }, function(response) {
-						if (response.substr(0,2) == 'Y:') {
-							jQuery('#updraft-jobid-'+jobid).html(response.substr(2)).fadeOut('slow').remove();
-						} else if (response.substr(0,2) == 'X:') {
-							alert(response.substr(2));
-						} else {
-							alert('<?php _e('Unknown response:', 'updraftplus'); ?> '+response);
-						}
-					});
-				}
-
-				function updraft_activejobs_update() {
-					jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'activejobs_list', nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>' }, function(response) {
-						jQuery('#updraft_activejobs').html(response);
-					});
-				}
-
-				function updraftplus_diskspace_entity(key) {
-					jQuery('#updraft_diskspaceused_'+key).html('<em><?php _e('calculating...','updraftplus');?></em>');
-					jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'diskspaceused', entity: key, nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>' }, function(response) {
-						jQuery('#updraft_diskspaceused_'+key).html(response);
-					});
-				}
-
-				function updraft_iframe_modal(getwhat, title) {
-					jQuery('#updraft-iframe-modal-innards').html('<iframe width="100%" height="440px" src="'+ajaxurl+'?action=updraft_ajax&subaction='+getwhat+'&nonce=<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>"></iframe>');
-					jQuery('#updraft-iframe-modal').dialog('option', 'title', title).dialog('open');
-				}
-
-				jQuery(document).ready(function() {
-
-					jQuery('#updraft-service').change(function() {
-						jQuery('.updraftplusmethod').hide();
-						var active_class = jQuery(this).val();
-						jQuery('.'+active_class).show();
-					});
-
-				jQuery('#updraftplus-phpinfo').click(function(e) {
-					e.preventDefault();
-					updraft_iframe_modal('phpinfo', '<?php _e('PHP information', 'updraftplus'); ?>');
-				});
-
-				jQuery('#updraftplus-rawbackuphistory').click(function(e) {
-					e.preventDefault();
-					updraft_iframe_modal('rawbackuphistory', '<?php _e('Raw backup history', 'updraftplus'); ?>');
-				});
-
-				})
-				jQuery(window).load(function() {
-					//this is for hiding the restore progress at the top after it is done
-					setTimeout('jQuery("#updraft-restore-progress").toggle(1000);',3000)
-					jQuery('#updraft-restore-progress-toggle').click(function() {
-						jQuery('#updraft-restore-progress').toggle(500)
-					})
-				})
-			/* ]]> */
-			</script>
 			<?php
 	}
 
@@ -1956,20 +1773,6 @@ jQuery(document).ready(function() {
 
 						echo '</div>';
 
-						echo <<<ENDHERE
-						<script>
-							jQuery(document).ready(function() {
-								jQuery('#updraft_include_others').click(function() {
-									if (jQuery('#updraft_include_others').is(':checked')) {
-										jQuery('#updraft_include_others_exclude').slideDown();
-									} else {
-										jQuery('#updraft_include_others_exclude').slideUp();
-									}
-								});
-							});
-						</script>
-ENDHERE;
-
 					} else {
 						echo "<input id=\"updraft_include_$key\" type=\"checkbox\" name=\"updraft_include_$key\" value=\"1\" $included /><label for=\"updraft_include_$key\"".((isset($info['htmltitle'])) ? ' title="'.htmlspecialchars($info['htmltitle']).'"' : '')."> ".$info['description']."</label><br>";
 						do_action("updraftplus_config_option_include_$key");
@@ -2053,194 +1856,8 @@ ENDHERE;
 			</table>
 			<script type="text/javascript">
 			/* <![CDATA[ */
-				var updraft_restore_stage = 1;
-				var lastlog_lastmessage = "";
-				var lastlog_sdata = {
-					action: 'updraft_ajax',
-					subaction: 'lastlog',
-					nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>'
-				};
-				function updraft_showlastlog(repeat){
-					jQuery.get(ajaxurl, lastlog_sdata, function(response) {
-						nexttimer = 1500;
-						if (lastlog_lastmessage == response) { nexttimer = 4500; }
-						if (repeat) { setTimeout(function(){updraft_showlastlog(true);}, nexttimer);}
-						jQuery('#updraft_lastlogcontainer').html(response);
-						lastlog_lastmessage = response;
-					});
-				}
-				var lastbackup_sdata = {
-					action: 'updraft_ajax',
-					subaction: 'lastbackup',
-					nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>'
-				};
-				var lastbackup_laststatus = '<?php echo esc_html($last_backup_html);?>';
-				function updraft_showlastbackup(){
-					jQuery.get(ajaxurl, lastbackup_sdata, function(response) {
-						if (lastbackup_laststatus == response) {
-							setTimeout(function(){updraft_showlastbackup();}, 7000);
-						} else {
-							jQuery('#updraft_last_backup').html(response);
-						}
-						lastbackup_laststatus = response;
-					});
-				}
-				var updraft_historytimer = 0;
-				var calculated_diskspace = 0;
-				function updraft_historytimertoggle(forceon) {
-					if (!updraft_historytimer || forceon == 1) {
-						updraft_updatehistory(0);
-						updraft_historytimer = setInterval(function(){updraft_updatehistory(0);}, 30000);
-						if (!calculated_diskspace) {
-							updraftplus_diskspace();
-							calculated_diskspace=1;
-						}
-					} else {
-						clearTimeout(updraft_historytimer);
-						updraft_historytimer = 0;
-					}
-				}
-				function updraft_updatehistory(rescan) {
-					if (rescan == 1) {
-						jQuery('#updraft_existing_backups').html('<p style="text-align:center;"><em><?php _e('Rescanning (looking for backups that you have uploaded manually into the internal backup store)...', 'updraftplus'); ?></em></p>');
-					}
-					jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'historystatus', nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>', rescan: rescan }, function(response) {
-						try {
-							resp = jQuery.parseJSON(response);
-							if (resp.n != null) { jQuery('#updraft_showbackups').html(resp.n); }
-							if (resp.t != null) { jQuery('#updraft_existing_backups').html(resp.t); }
-						} catch(err) {
-							console.log('<?php _e("Unexpected response:",'updraftplus');?> '+response);
-						}
-					});
-				}
-
-				function updraft_check_same_times() {
-					if (jQuery('#updraft_interval').val() == jQuery('#updraft_interval_database').val() && jQuery('#updraft_interval').val() != 'manual') {
-						jQuery('#updraft_db_timings').css('opacity','0.25');
-					} else {
-						jQuery('#updraft_db_timings').css('opacity','1');
-					}
-				}
 
 				jQuery(document).ready(function() {
-
-					updraft_check_same_times();
-
-					jQuery( "#updraft-delete-modal" ).dialog({
-						autoOpen: false, height: 230, width: 430, modal: true,
-						buttons: {
-							'<?php _e('Delete','updraftplus');?>': function() {
-								jQuery('#updraft-delete-waitwarning').slideDown();
-								timestamp = jQuery('#updraft_delete_timestamp').val();
-								jQuery.post(ajaxurl, jQuery('#updraft_delete_form').serialize(), function(response) {
-									jQuery('#updraft-delete-waitwarning').slideUp();
-									var resp;
-									try {
-										resp = jQuery.parseJSON(response);
-									} catch(err) {
-										alert('<?php _e("Unexpected response:",'updraftplus');?> '+response);
-									}
-									if (resp.result != null) {
-										if (resp.result == 'error') {
-											alert('<?php _e('Error:','updraftplus');?> '+resp.message);
-										} else if (resp.result == 'success') {
-											jQuery('#updraft_showbackups').load(ajaxurl+'?action=updraft_ajax&subaction=countbackups&nonce=<?php echo wp_create_nonce('updraftplus-credentialtest-nonce');?>');
-											jQuery('#updraft_existing_backups_row_'+timestamp).slideUp().remove();
-											jQuery("#updraft-delete-modal").dialog('close');
-											alert(resp.message);
-										}
-									}
-								});
-							},
-							'<?php _e('Cancel','updraftplus');?>': function() { jQuery(this).dialog("close"); }
-						}
-					});
-
-					jQuery( "#updraft-restore-modal" ).dialog({
-						autoOpen: false, height: 505, width: 590, modal: true,
-						buttons: {
-							'<?php _e('Restore','updraftplus');?>': function() {
-								var anyselected = 0;
-								var whichselected = [];
-								// Make a list of what files we want
-								jQuery('input[name="updraft_restore[]"]').each(function(x,y){
-									if (jQuery(y).is(':checked')) {
-										anyselected = 1;
-										var howmany = jQuery(y).data('howmany');
-										var restobj = [ jQuery(y).val(), howmany ];
-										whichselected.push(restobj);
-										//alert(jQuery(y).val());
-									}
-								});
-								if (anyselected == 1) {
-									if (updraft_restore_stage == 1) {
-										jQuery('#updraft-restore-modal-stage1').slideUp('slow');
-										jQuery('#updraft-restore-modal-stage2').show();
-										updraft_restore_stage = 2;
-										var pretty_date = jQuery('.updraft_restore_date').first().text();
-										// Create the downloader active widgets
-										for (var i=0; i<whichselected.length; i++) {
-											updraft_downloader('udrestoredlstatus_', jQuery('#updraft_restore_timestamp').val(), whichselected[i][0], '#ud_downloadstatus2', whichselected[i][1], pretty_date);
-										}
-										// Make sure all are downloaded
-									} else if (updraft_restore_stage == 2) {
-										updraft_restorer_checkstage2(1);
-									} else if (updraft_restore_stage == 3) {
-										jQuery('#updraft_restore_form').submit();
-									}
-								} else {
-									alert('You did not select any components to restore. Please select at least one, and then try again.');
-								}
-							},
-							'<?php _e('Cancel','updraftplus');?>': function() { jQuery(this).dialog("close"); }
-						}
-					});
-
-					jQuery("#updraft-iframe-modal" ).dialog({
-						autoOpen: false, height: 500, width: 780, modal: true
-					});
-
-					jQuery("#updraft-backupnow-modal" ).dialog({
-						autoOpen: false, height: 265, width: 390, modal: true,
-						buttons: {
-							'<?php _e('Backup Now','updraftplus');?>': function() {
-								jQuery(this).dialog("close");
-								jQuery('#updraft_backup_started').html('<em><?php _e('Requesting start of backup...', 'updraftplus');?></em>').slideDown('');
-								jQuery.post(ajaxurl, { action: 'updraft_ajax', subaction: 'backupnow', nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>' }, function(response) {
-									jQuery('#updraft_backup_started').html(response);
-									setTimeout(function() {jQuery.get('<?php echo site_url(); ?>');}, 5100);
-									setTimeout(function() {updraft_showlastlog();}, 6000);
-									setTimeout(function() {updraft_activejobs_update();}, 6000);
-									setTimeout(function() {
-										jQuery('#updraft_lastlogmessagerow').fadeOut('slow', function() {
-											jQuery(this).fadeIn('slow');
-										});
-										},
-										3200
-									);
-									setTimeout(function() {jQuery('#updraft_backup_started').fadeOut('slow');}, 60000);
-									// Should be redundant (because of the polling for the last log line), but harmless (invokes page load)
-								});
-							},
-							'<?php _e('Cancel','updraftplus');?>': function() { jQuery(this).dialog("close"); }
-						}
-					});
-
-					jQuery( "#updraft-migrate-modal" ).dialog({
-						autoOpen: false, height: 265, width: 390, modal: true,
-						buttons: {
-							'<?php _e('Close','updraftplus');?>': function() { jQuery(this).dialog("close"); }
-						}
-					});
-
-					jQuery('#enableexpertmode').click(function() {
-						jQuery('.expertmode').fadeIn();
-						updraft_activejobs_update();
-						setInterval(function() {updraft_activejobs_update();}, 15000);
-						jQuery('#enableexpertmode').off('click'); 
-						return false;
-					});
 					<?php
 						$really_is_writable = $updraftplus->really_is_writable($updraft_dir);
 						if (!$really_is_writable) echo "jQuery('.backupdirrow').show();\n";
@@ -2568,36 +2185,6 @@ ENDHERE;
 				</form>
 			</td>
 		</tr>
-		<script>
-		function updraft_delete(key, nonce, showremote) {
-			jQuery('#updraft_delete_timestamp').val(key);
-			jQuery('#updraft_delete_nonce').val(nonce);
-			if (showremote) {
-				jQuery('#updraft-delete-remote-section, #updraft_delete_remote').removeAttr('disabled').show();
-			} else {
-				jQuery('#updraft-delete-remote-section, #updraft_delete_remote').hide().attr('disabled','disabled');
-			}
-			jQuery('#updraft-delete-modal').dialog('open');
-		}
-		function updraft_restore_setoptions(entities) {
-			var howmany = 0;
-			jQuery('input[name="updraft_restore[]"]').each(function(x,y){
-				var entity = jQuery(y).val();
-				var epat = entity+'=([0-9,]+)';
-				var eregex = new RegExp(epat);
-				var ematch = entities.match(eregex);
-				if (ematch) {
-					jQuery(y).removeAttr('disabled').data('howmany', ematch[1]).parent().show();
-					howmany++;
-					if (entity == 'db') { howmany += 4.5;}
-				} else {
-					jQuery(y).attr('disabled','disabled').parent().hide();
-				}
-			});
-			var height = 276+howmany*20;
-			jQuery('#updraft-restore-modal').dialog("option", "height", height);
-		}
-		</script>
 ENDHERE;
 			}
 		$ret .= '</table>';

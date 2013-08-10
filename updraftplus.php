@@ -475,7 +475,7 @@ class UpdraftPlus {
 			$findex = (!empty($_POST['findex'])) ? $_POST['findex'] : 0;
 			set_transient('ud_dlmess_'.$_POST['timestamp'].'_'.$_POST['type'].'_'.$findex, $line." (".date('M d H:i:s').")", 3600);
 		} else {
-			if ($level != 'debug') UpdraftPlus_Options::update_updraft_option('updraft_lastmessage', $line." (".date('M d H:i:s').")");
+			if ($level != 'debug') UpdraftPlus_Options::update_updraft_option('updraft_lastmessage', $line." (".date_i18n('M d H:i:s').")");
 		}
 		if (defined('UPDRAFTPLUS_CONSOLELOG')) print $line."\n";
 	}

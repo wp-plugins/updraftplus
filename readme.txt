@@ -127,11 +127,13 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: Split large sites into multiple zips (see: http://updraftplus.com/splitting-large-sites-into-multiple-archives/)
 * FEATURE: Svensk / Swedish translation (sv_SE) by Steve Sandström (http://www.brandicon.se)
 * TWEAK: Save the result of looking for a binary zip (don't re-test)
+* TWEAK: Show 'Last log message' in dashboard using local time zone
 * TWEAK: Log file times are now recorded relative to the backup start, rather than the current resumption start
 * TWEAK: More code-tidying and optimisation
 * TWEAK: Various extra sanity-checks for possible problems
 * TWEAK: Warn user if trying to upload an above-limit (>10Gb) file to Google Drive
 * TWEAK: Reduce memory usage during restore
+* TWEAK: Move JavaScript into separate file
 * INTERNALS: PclZip zip method now has feature parity with ZipArchive (can resume, more logging)
 * TWEAK/FIX: When restoring/migrating, split SQL commands to avoid exceeding MySQL's max_allowed_packet
 * FIX: Make sure output buffering is off when sending files from the browser (prevents memory exhaustion)
