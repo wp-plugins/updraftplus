@@ -272,8 +272,14 @@ class Updraft_Restorer extends WP_Upgrader {
 		}
 
 		// Ensure access to the indicated directory - and to WP_CONTENT_DIR (in which we use upgrade/)
-		$res = $this->fs_connect(array($info['path'], WP_CONTENT_DIR) );
+		$need_these = array (WP_CONTENT_DIR);
+		if (!empty($info['path'])) $need_these[] = $info['path'];
+
+		$res = $this->fs_connect($need_these);
 		if (false === $res || is_wp_error($res)) return $res;
+
+		# Code below here assumes that we're dealing with file-based entities
+		if ('db' == $type) return true;
 
 		$wp_filesystem_dir = $this->get_wp_filesystem_dir($info['path']);
 		if ($wp_filesystem_dir === false) return false;
@@ -293,6 +299,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		// Get the wp_filesystem location for the folder on the local install
 		switch ( $path ) {
 			case ABSPATH:
+			case '';
 				$wp_filesystem_dir = $wp_filesystem->abspath();
 				break;
 			case WP_CONTENT_DIR:
@@ -322,7 +329,8 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		global $wp_filesystem, $updraftplus_addons_migrator, $updraftplus, $table_prefix;
 
-		$wp_filesystem_dir = $this->get_wp_filesystem_dir($info['path']);
+		$get_dir = (empty($info['path'])) ? '' : $info['path'];
+		$wp_filesystem_dir = $this->get_wp_filesystem_dir($get_dir);
 		if ($wp_filesystem_dir === false) return false;
 
 		if (empty($this->abspath)) $this->abspath = trailingslashit($wp_filesystem->abspath());

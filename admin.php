@@ -2806,7 +2806,7 @@ ENDHERE;
 			$val = $updraftplus_restorer->pre_restore_backup($files, $type, $info);
 			if (is_wp_error($val)) {
 				foreach ($val->get_error_messages() as $msg) {
-					echo '<strong>'.__('Error message',  'updraftplus').':</strong> '.htmlspecialchars($msg).'<br>';
+					echo '<strong>'.__('Error:',  'updraftplus').'</strong> '.htmlspecialchars($msg).'<br>';
 				}
 				echo '</div>'; //close the updraft_restore_progress div even if we error
 				return $val;
@@ -2830,6 +2830,7 @@ ENDHERE;
 			$info = (isset($backupable_entities[$type])) ? $backupable_entities[$type] : array();
 
 			echo ('db' == $type) ? "<h2>".__('Database','updraftplus')."</h2>" : "<h2>".$info['description']."</h2>";
+
 
 			if (is_string($files)) $files = array($files);
 			foreach ($files as $file) {
