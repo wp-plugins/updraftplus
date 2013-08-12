@@ -24,6 +24,7 @@ TODO - some of these are out of date/done, needs pruning
 # Email backup method should be able to force split limit down to something manageable - or at least, should make the option display. (Put it in email class. Tweak the storage dropdown to not hide stuff also in expert class if expert is shown).
 # Look for this pattern in the site root: pclzip-51f3c72989c15.tmp (how to reliably reproduce?)
 // Remember historical resumption intervals. But remember that the site may migrate, so we need to check their accuracy from time to time.
+// Pre-decrypting working?
 // Make clearer that after activating 'all addons' you don't need to activate 1-by-1
 // More sophisticated options for retaining/deleting (e.g. 4/day for X days, then 7/week for Z weeks, then 1/month for Y months)
 // Fix backup time needs to allow selection of date also.

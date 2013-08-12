@@ -272,14 +272,6 @@ function updraft_downloader_status(base, nonce, what, findex) {
 	});
 }
 
-jQuery(window).load(function() {
-	//this is for hiding the restore progress at the top after it is done
-	setTimeout('jQuery("#updraft-restore-progress").toggle(1000);',3000)
-	jQuery('#updraft-restore-progress-toggle').click(function() {
-		jQuery('#updraft-restore-progress').toggle(500)
-	})
-})
-
 jQuery(document).ready(function($){
 	
 	jQuery('#updraft_restore_db').change(function(){

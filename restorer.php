@@ -966,6 +966,18 @@ class Updraft_Restorer extends WP_Upgrader {
 				echo __('OK', 'updraftplus');
 			}
 			echo '<br>';
+
+			// Now deal with the situation where the imported database sets a new over-ride upload_path that is absolute - which may not be wanted
+			$new_upload_path = $wpdb->get_row($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", 'upload_path'));
+			$new_upload_path = (is_object($new_upload_path)) ? $new_upload_path->option_value : '';
+			// The danger situation is absolute and points somewhere that is now perhaps not accessible at all
+			if (!empty($new_upload_path) && $new_upload_path != $this->prior_upload_path && strpos($new_upload_path, '/') === 0) {
+				if (!file_exists($new_upload_path)) {
+					echo sprintf(__("Uploads path (%s) does not exist - resetting (%s)",'updraftplus'), $new_upload_path, $this->prior_upload_path);
+					update_option('upload_path', $this->prior_upload_path);
+				}
+			}
+
 		} elseif ($table == $import_table_prefix.'usermeta' && $import_table_prefix != $old_table_prefix) {
 
 			echo sprintf(__('Table prefix has changed: changing %s table field(s) accordingly:', 'updraftplus'),'usermeta').' ';
@@ -1001,16 +1013,6 @@ class Updraft_Restorer extends WP_Upgrader {
 				echo __('OK', 'updraftplus');
 			}
 			echo "<br>";
-
-			// Now deal with the situation where the imported database sets a new over-ride upload_path that is absolute - which may not be wanted
-			$new_upload_path = $wpdb->get_row($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", 'upload_path'));
-			// The danger situation is absolute and points somewhere that is now perhaps not accessible at all
-			if (!empty($new_upload_path) && $new_upload_path != $this->prior_upload_path && strpos($new_upload_path, '/') === 0) {
-				if (!file_exists($new_upload_path)) {
-					echo sprintf(__("Uploads path (%s) does not exist - resetting (%s)",'updraftplus'), $new_upload_path, $this->prior_upload_path);
-					update_option('upload_path', $this->prior_upload_path);
-				}
-			}
 
 		}
 
