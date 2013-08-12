@@ -1344,7 +1344,7 @@ class UpdraftPlus_Backup {
 					} elseif (!$reaching_split_limit) {
 						$updraftplus->log("Adding batch to zip file (".$this->use_zip_object."): over 1.5 seconds have passed since the last write (".round($data_added_since_reopen/1048576,1)." Mb, $zipfiles_added_thisbatch (".$this->zipfiles_added_thisrun.") files added so far); re-opening (prior size: ".round($original_size/1024,1).' Kb)');
 					} else {
-						$updraftplus->log("Adding batch to zip file (".$this->use_zip_object."): possibly approaching split limit (".round($data_added_since_reopen/1048576,1)." Mb, $zipfiles_added_thisbatch (".$this->zipfiles_added_thisrun.") files added so far); re-opening (prior size: ".round($original_size/1024,1).' Kb)');
+						$updraftplus->log("Adding batch to zip file (".$this->use_zip_object."): possibly approaching split limit (".round($data_added_since_reopen/1048576,1)." Mb, $zipfiles_added_thisbatch (".$this->zipfiles_added_thisrun.") files added so far); last ratio: ".round($this->zip_last_ratio,4)."; re-opening (prior size: ".round($original_size/1024,1).' Kb)');
 					}
 					if (!$zip->close()) {
 						$updraftplus->log(__('A zip error occurred - check your log for more details.', 'updraftplus'), 'warning', 'zipcloseerror');
@@ -1362,7 +1362,7 @@ class UpdraftPlus_Backup {
 					if (filesize($zipfile) > $original_size) {
 
 						# It is essential that this does not go above 1, even though in reality (and this can happen at the start, if just 1 file is added (e.g. due to >1.5s detection) the 'compressed' zip file may be *bigger* than the files stored in it. When that happens, if the ratio is big enough, it can then fire the "approaching split limit" detection (very) prematurely
-						$this->zip_last_ratio = ($data_added_since_reopen > 0) ? max((filesize($zipfile) - $original_size)/$data_added_since_reopen, 1) : 1;
+						$this->zip_last_ratio = ($data_added_since_reopen > 0) ? min((filesize($zipfile) - $original_size)/$data_added_since_reopen, 1) : 1;
 
 						# We need a rolling update of this
 						$original_size = filesize($zipfile);
@@ -1512,7 +1512,7 @@ class UpdraftPlus_Backup {
 			if ($this->zipfiles_added % 100 == 0) $updraftplus->log("Zip: ".basename($zipfile).": ".$this->zipfiles_added." files added (on-disk size: ".round(@filesize($zipfile)/1024,1)." Kb)");
 
 			if ($bump_index) {
-				$updraftplus->log(sprintf("Zip size has gone over split limit (%s Mb >= %s Mb) - bumping index (from: %d)", $bumped_at, round($this->zip_split_every/1048576, 1), $this->index));
+				$updraftplus->log(sprintf("Zip size is at/near split limit (%s Mb / %s Mb) - bumping index (from: %d)", $bumped_at, round($this->zip_split_every/1048576, 1), $this->index));
 				$bump_index = false;
 				$this->bump_index();
 				$zipfile = $this->zip_basename.($this->index+1).'.zip.tmp';

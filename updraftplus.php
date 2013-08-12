@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.59
+Version: 1.6.60
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -24,6 +24,8 @@ TODO - some of these are out of date/done, needs pruning
 # Email backup method should be able to force split limit down to something manageable - or at least, should make the option display. (Put it in email class. Tweak the storage dropdown to not hide stuff also in expert class if expert is shown).
 # Look for this pattern in the site root: pclzip-51f3c72989c15.tmp (how to reliably reproduce?)
 // Remember historical resumption intervals. But remember that the site may migrate, so we need to check their accuracy from time to time.
+// Make clearer that after activating 'all addons' you don't need to activate 1-by-1
+// More sophisticated options for retaining/deleting (e.g. 4/day for X days, then 7/week for Z weeks, then 1/month for Y months)
 // Fix backup time needs to allow selection of date also.
 // Unpack zips via AJAX? Do bit-by-bit to allow enormous opens a better chance? (have a huge one in Dropbox)
 // Roll UD-addons plugin into the main plugin for those getting it from ud.com
