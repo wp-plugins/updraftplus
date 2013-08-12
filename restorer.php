@@ -583,6 +583,9 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		do_action('updraftplus_restore_db_pre');
 
+		# This is now a legacy option (at least on the front end), so we should not see it much
+		$this->prior_upload_path = get_option('upload_path');
+
 		// There is a file backup.db.gz inside the working directory
 
 		# The 'off' check is for badly configured setups - http://wordpress.org/support/topic/plugin-wp-super-cache-warning-php-safe-mode-enabled-but-safe-mode-is-off
@@ -998,6 +1001,16 @@ class Updraft_Restorer extends WP_Upgrader {
 				echo __('OK', 'updraftplus');
 			}
 			echo "<br>";
+
+			// Now deal with the situation where the imported database sets a new over-ride upload_path that is absolute - which may not be wanted
+			$new_upload_path = $wpdb->get_row($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", 'upload_path'));
+			// The danger situation is absolute and points somewhere that is now perhaps not accessible at all
+			if (!empty($new_upload_path) && $new_upload_path != $this->prior_upload_path && strpos($new_upload_path, '/') === 0) {
+				if (!file_exists($new_upload_path)) {
+					echo sprintf(__("Uploads path (%s) does not exist - resetting (%s)",'updraftplus'), $new_upload_path, $this->prior_upload_path);
+					update_option('upload_path', $this->prior_upload_path);
+				}
+			}
 
 		}
 

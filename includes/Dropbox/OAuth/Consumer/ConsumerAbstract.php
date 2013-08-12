@@ -49,7 +49,7 @@ abstract class Dropbox_ConsumerAbstract
                 $this->getAccessToken();
             } catch(Dropbox_Exception $e) {
                 global $updraftplus;
-                $updraftplus->log($e->getMessage().' - need to reauthenticate with Dropbox');
+                $updraftplus->log($e->getMessage().' - need to reauthenticate this site with Dropbox');
                 $this->getRequestToken();
                 $this->authorise();
             }
