@@ -52,6 +52,7 @@ Are you able to translate UpdraftPlus into another language? Are you ready to he
 
 Many thanks to the existing translators:
 
+* Français / French translation (fr_FR): Françoise Lhermitte - http://www.ajwan.net
 * Swedish / Svensk (sv_SE): Steve Sandström - http://www.brandicon.se
 * Español / Spanish (es_ES): Fernando Villasmil - villasmil.fernando at gmail.com
 * Polski / Polish (pl_PL): Bartosz Kaczmarek - barth.kaczmarek at gmail.com
@@ -126,6 +127,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 = Development trunk - not yet released/supported =
 * FEATURE: Split large sites into multiple zips (see: http://updraftplus.com/splitting-large-sites-into-multiple-archives/)
 * FEATURE: Svensk / Swedish translation (sv_SE) by Steve Sandström (http://www.brandicon.se)
+* FEATURE: Français / French translation (fr_FR) by Françoise Lhermitte (http://www.ajwan.net) and others
 * TWEAK: Save the result of looking for a binary zip (don't re-test)
 * TWEAK: Show 'Last log message' in dashboard using local time zone
 * TWEAK: Log file times are now recorded relative to the backup start, rather than the current resumption start
