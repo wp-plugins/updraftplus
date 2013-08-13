@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.60
+Version: 1.6.62
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -488,6 +488,7 @@ class UpdraftPlus {
 			if ($level != 'debug') UpdraftPlus_Options::update_updraft_option('updraft_lastmessage', $line." (".date_i18n('M d H:i:s').")");
 		}
 		if (defined('UPDRAFTPLUS_CONSOLELOG')) print $line."\n";
+		if (defined('UPDRAFTPLUS_BROWSERLOG')) print htmlentities($line)."\n";
 	}
 
 	// This function is used by cloud methods to provide standardised logging, but more importantly to help us detect that meaningful activity took place during a resumption run, so that we can schedule further resumptions if it is worthwhile
@@ -748,7 +749,11 @@ class UpdraftPlus {
 		// A different argument than before is needed otherwise the event is ignored
 		$next_resumption = $resumption_no+1;
 		if ($next_resumption < 10) {
-			$schedule_resumption = true;
+			if ($this->jobdata_get('one_shot') === true) {
+				$this->log('We are in "one shot" mode - no resumptions will be scheduled');
+			} else {
+				$schedule_resumption = true;
+			}
 		} else {
 			// We're in over-time - we only reschedule if something useful happened last time (used to be that we waited for it to happen this time - but that meant that transient errors, e.g. Google 400s on uploads, scuppered it all - we'd do better to have another chance
 			$useful_checkin = $this->jobdata_get('useful_checkin');
@@ -813,7 +818,9 @@ class UpdraftPlus {
 				$our_files['db'] = $db_backup;
 			}
 
-			if ($backup_database != 'encrypted') $this->jobdata_set("backup_database", 'finished');
+			if ($backup_database != 'encrypted') $this->jobdata_set('backup_database', 'finished');
+		} elseif ('no' == $backup_database) {
+			$this->log('No database backup - not part of this run');
 		} else {
 			$this->log("Unrecognised data when trying to ascertain if the database was backed up ($backup_database)");
 		}
@@ -827,7 +834,7 @@ class UpdraftPlus {
 		if (isset($our_files['db']) && !preg_match("/\.crypt$/", $our_files['db'])) {
 			$our_files['db'] = $updraftplus_backup->encrypt_file($our_files['db']);
 			// No need to save backup history now, as it will happen in a few lines time
-			if (preg_match("/\.crypt$/", $our_files['db'])) $this->jobdata_set("backup_database", 'encrypted');
+			if (preg_match("/\.crypt$/", $our_files['db'])) $this->jobdata_set('backup_database', 'encrypted');
 		}
 
 		if (isset($our_files['db']) && file_exists($updraft_dir.'/'.$our_files['db'])) {
@@ -944,7 +951,7 @@ class UpdraftPlus {
 	}
 
 	// This procedure initiates a backup run
-	function boot_backup($backup_files, $backup_database) {
+	public function boot_backup($backup_files, $backup_database, $restrict_files_to_override = false, $one_shot = false) {
 
 		@ignore_user_abort(true);
 		// 15 minutes
@@ -988,7 +995,7 @@ class UpdraftPlus {
 		$job_file_entities = array();
 		$possible_backups = $this->get_backupable_file_entities(true);
 		foreach ($possible_backups as $youwhat => $whichdir) {
-			if (UpdraftPlus_Options::get_updraft_option("updraft_include_$youwhat", apply_filters("updraftplus_defaultoption_include_$youwhat", true))) {
+			if ((false === $restrict_files_to_override && UpdraftPlus_Options::get_updraft_option("updraft_include_$youwhat", apply_filters("updraftplus_defaultoption_include_$youwhat", true))) || (is_array($restrict_files_to_override) && in_array($youwhat, $restrict_files_to_override))) {
 				// The 0 indicates the zip file index
 				$job_file_entities[$youwhat] = array(
 					'index' => 0,
@@ -1007,10 +1014,11 @@ class UpdraftPlus {
 			'split_every', max(absint(UpdraftPlus_Options::get_updraft_option('updraft_split_every', 1024)), UPDRAFTPLUS_SPLIT_MIN),
 			'maxzipbatch', 26214400, #25Mb
 			'job_file_entities', $job_file_entities,
+			'one_shot', $one_shot
 		);
 
 		// Save what *should* be done, to make it resumable from this point on
-		if ($backup_database) array_push($initial_jobdata, 'backup_database', 'begun');
+		array_push($initial_jobdata, 'backup_database', (($backup_database) ? 'begun' : 'no'));
 		if ($backup_files) array_push($initial_jobdata, 'backup_files', 'begun');
 
 		// Use of jobdata_set_multi saves around 200ms
@@ -1096,6 +1104,24 @@ class UpdraftPlus {
 			if (('error' == $level && (is_string($err) || is_wp_error($err))) || (is_array($err) && $level == $err['level']) ) { $count++; }
 		}
 		return $count;
+	}
+
+	public function list_errors() {
+		echo '<ul style="list-style: disc inside;">';
+		foreach ($this->errors as $err) {
+			if (is_wp_error($err)) {
+				foreach ($err->get_error_messages() as $msg) {
+					echo '<li>'.htmlspecialchars($msg).'<li>';
+				}
+			} elseif (is_array($err) && 'error' == $err['level']) {
+				echo  "<li>".htmlspecialchars($err['message'])."</li>";
+			} elseif (is_string($err)) {
+				echo  "<li>".htmlspecialchars($err)."</li>";
+			} else {
+				print "<li>".print_r($err,true)."</li>";
+			}
+		}
+		echo '</ul>';
 	}
 
 	function save_last_backup($backup_array) {

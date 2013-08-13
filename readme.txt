@@ -127,6 +127,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 = Development trunk - not yet released/supported =
 * FEATURE: Split large sites into multiple zips (see: http://updraftplus.com/splitting-large-sites-into-multiple-archives/)
 * FEATURE: Fix time add-on can now also choose the day of the week
+* FEATURE: New add-on/Premium feature - Automatic Backups (automatically take backups before plugin/theme updates) - http://updraftplus.com/shop/autobackup/
 * FEATURE: Svensk / Swedish translation (sv_SE) by Steve Sandström (http://www.brandicon.se)
 * FEATURE: Français / French translation (fr_FR) by ufo3D - http://ufo-3d.fr/ with help from Françoise Lhermitte - http://www.ajwan.net
 * TWEAK: Save the result of looking for a binary zip (don't re-test)

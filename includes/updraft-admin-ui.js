@@ -300,6 +300,9 @@ function updraft_downloader_status(base, nonce, what, findex) {
 
 jQuery(document).ready(function($){
 	
+	setTimeout(function(){updraft_showlastlog(true);}, 1200);
+	jQuery('.updraftplusmethod').hide();
+	
 	jQuery('#updraft_restore_db').change(function(){
 		if (jQuery('#updraft_restore_db').is(':checked')) {
 			jQuery('#updraft_restorer_dboptions').slideDown();

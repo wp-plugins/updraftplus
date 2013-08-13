@@ -17,6 +17,10 @@ class UpdraftPlus_Admin {
 
 	function admin_init() {
 
+		add_action('core_upgrade_preamble', array($this, 'core_upgrade_preamble'));
+		add_action('admin_action_upgrade-plugin', array($this, 'admin_action_upgrade_pluginortheme'));
+		add_action('admin_action_upgrade-theme', array($this, 'admin_action_upgrade_pluginortheme'));
+
 		add_action('admin_head', array($this,'admin_head'));
 		add_filter('plugin_action_links', array($this, 'plugin_action_links'), 10, 2);
 		add_action('wp_ajax_updraft_download_backup', array($this, 'updraft_download_backup'));
@@ -113,6 +117,21 @@ class UpdraftPlus_Admin {
 			'restore' => __('Restore', 'updraftplus'),
 		) );
 
+	}
+
+	function core_upgrade_preamble() {
+		if (!class_exists('UpdraftPlus_Addon_Autobackup') && defined('UPDRAFTPLUS_NOADS3')) return;
+		?>
+		<div id="updraft-autobackup" class="updated" style="border: 1px dotted; padding: 6px; margin:8px 0px; max-width: 540px;">
+			<h3 style="margin-top: 0px;"><?php _e('Be safe with an automatic backup','updraftplus');?></h3>
+			<?php echo apply_filters('updraftplus_autobackup_blurb', __('UpdraftPlus Premium can  <strong>automatically</strong> take a backup of your plugins or themes before you update.', 'updraftplus').' <a href="http://updraftplus.com/shop/autobackup/">'.__('Be safe every time, without needing to remember - follow this link to learn more.' ,'updraftplus').'</a>'); ?>
+		</div>
+		<script>
+		jQuery(document).ready(function() {
+			jQuery('#updraft-autobackup').appendTo('.wrap p:first');
+		});
+		</script>
+		<?php
 	}
 
 	function admin_head() {
@@ -227,6 +246,17 @@ class UpdraftPlus_Admin {
 			array_unshift($links, $settings_link);
 		}
 		return $links;
+	}
+
+	function admin_action_upgrade_pluginortheme() {
+		if (!class_exists('UpdraftPlus_Addon_Autobackup') && !defined('UPDRAFTPLUS_NOADS3')) {
+			?>
+			<div id="updraft-autobackup" class="updated" style="border: 1px dotted; padding: 6px; margin:8px 0px; max-width: 540px;">
+				<h3 style="margin-top: 0px;"><?php _e('Be safe with an automatic backup','updraftplus');?></h3>
+				<?php echo apply_filters('updraftplus_autobackup_blurb', __('UpdraftPlus Premium can  <strong>automatically</strong> take a backup of your plugins or themes before you update.', 'updraftplus').' <a href="http://updraftplus.com/shop/autobackup/">'.__('Be safe every time, without needing to remember - follow this link to learn more.' ,'updraftplus').'</a>'); ?>
+			</div>
+			<?php
+		}
 	}
 
 	function show_admin_warning($message, $class = "updated") {
@@ -433,7 +463,7 @@ class UpdraftPlus_Admin {
 		// Test the nonce
 		$nonce = (empty($_REQUEST['nonce'])) ? "" : $_REQUEST['nonce'];
 		if (! wp_verify_nonce($nonce, 'updraftplus-credentialtest-nonce') || empty($_REQUEST['subaction'])) die('Security check');
-		if (isset($_GET['subaction']) && 'lastlog' == $_GET['subaction']) {
+		if (isset($_REQUEST['subaction']) && 'lastlog' == $_REQUEST['subaction']) {
 			echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', '('.__('Nothing yet logged', 'updraftplus').')'));
 		} elseif (isset($_GET['subaction']) && 'restore_alldownloaded' == $_GET['subaction'] && isset($_GET['restoreopts']) && isset($_GET['timestamp'])) {
 
@@ -1059,19 +1089,9 @@ error_log('ddd');
 				echo '<b>'.__('Actions','updraftplus').':</b> <a href="options-general.php?page=updraftplus&updraft_restore_success=true">'.__('Return to UpdraftPlus Configuration','updraftplus').'</a>';
 				return;
 			} elseif (is_wp_error($backup_success)) {
-				echo '<p>Restore failed...</p><ul style="list-style: disc inside;">';
-				foreach ($updraftplus->errors as $err) {
-					if (is_wp_error($err)) {
-						foreach ($err->get_error_messages() as $msg) {
-							echo '<li>'.htmlspecialchars($msg).'<li>';
-						}
-					} elseif (is_string($err)) {
-						echo  "<li>".htmlspecialchars($err)."</li>";
-					} else {
-						print "<li>".print_r($err,true)."</li>";
-					}
-				}
-				echo '</ul><b>Actions:</b> <a href="options-general.php?page=updraftplus">'.__('Return to UpdraftPlus Configuration','updraftplus').'</a>';
+				echo '<p>Restore failed...</p>';
+				$updraftplus->list_errors();
+				echo '<b>Actions:</b> <a href="options-general.php?page=updraftplus">'.__('Return to UpdraftPlus Configuration','updraftplus').'</a>';
 				return;
 			} elseif (false === $backup_success) {
 				# This means, "not yet - but stay on the page because we may be able to do it later, e.g. if the user types in the requested information"
@@ -1874,8 +1894,6 @@ error_log('ddd');
 						$really_is_writable = $updraftplus->really_is_writable($updraft_dir);
 						if (!$really_is_writable) echo "jQuery('.backupdirrow').show();\n";
 					?>
-					setTimeout(function(){updraft_showlastlog(true);}, 1200);
-					jQuery('.updraftplusmethod').hide();
 					<?php
 						if ($active_service) echo "jQuery('.${active_service}').show();";
 						foreach ($updraftplus->backup_methods as $method => $description) {
