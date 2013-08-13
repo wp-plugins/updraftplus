@@ -97,7 +97,8 @@ class UpdraftPlus_Options {
 		register_setting('updraft-options-group', 'updraft_starttime_files', array('UpdraftPlus_Options', 'hourminute') );
 		register_setting('updraft-options-group', 'updraft_starttime_db', array('UpdraftPlus_Options', 'hourminute') );
 
-		register_setting('updraft-options-group', 'updraft_disable_ping', array('UpdraftPlus_Options', 'pingfilter') );
+		register_setting('updraft-options-group', 'updraft_startday_files', array('UpdraftPlus_Options', 'weekday') );
+		register_setting('updraft-options-group', 'updraft_startday_db', array('UpdraftPlus_Options', 'weekday') );
 
 		global $pagenow;
 		if (is_multisite() && $pagenow == 'options-general.php' && isset($_REQUEST['page']) && 'updraftplus' == substr($_REQUEST['page'], 0, 11)) {
@@ -114,6 +115,11 @@ class UpdraftPlus_Options {
 		if (preg_match("/^[0-2][0-9]:[0-5][0-9]$/", $pot)) return $pot;
 		if ('' == $pot) return date('H:i', time()+300);
 		return '00:00';
+	}
+
+	public static function weekday($pot) {
+		$pot=absint($pot);
+		return ($pot>6) ? 0 : $pot;
 	}
 
 	public static function show_admin_warning_multisite() {

@@ -1,7 +1,5 @@
 <?php
 
-// TODO: files matching pattern pclzip-51f3ad2b94c3b.tmp in site root - see where they come from/how to reproduce/clean
-
 if (!defined ('ABSPATH')) die('No direct access allowed');
 
 // For the purposes of improving site performance (don't load in 10s of Kilobytes of un-needed code on every page load), admin-area code is being progressively moved here.
@@ -40,6 +38,10 @@ class UpdraftPlus_Admin {
 		}
 
 		if (UpdraftPlus_Options::user_can_manage() && $this->disk_space_check(1024*1024*35) === false) add_action('admin_notices', array($this, 'show_admin_warning_diskspace'));
+
+		if (UpdraftPlus_Options::user_can_manage() && defined('DISABLE_WP_CRON') && DISABLE_WP_CRON == true) {
+			add_action('admin_notices', array($this, 'show_admin_warning_disabledcron'));
+		}
 
 		// Next, the actions that only come on settings pages
 		// if ($pagenow != 'options-general.php') return;
@@ -229,6 +231,10 @@ class UpdraftPlus_Admin {
 
 	function show_admin_warning($message, $class = "updated") {
 		echo '<div class="updraftmessage '.$class.' fade">'."<p>$message</p></div>";
+	}
+
+	function show_admin_warning_disabledcron() {
+		$this->show_admin_warning('<strong>'.__('Warning','updraftplus').':</strong> '.__('The scheduler is disabled in your WordPress install, via the DISABLE_WP_CRON setting. No backups (even &quot;Backup Now&quot;) can run until it is enabled.','updraftplus').' <a href="http://updraftplus.com/faqs/my-scheduled-backups-and-pressing-backup-now-does-nothing-however-pressing-debug-backup-does-produce-a-backup/#disablewpcron">'.__('Go here for more information.','updraftplus').'</a>');
 	}
 
 	function show_admin_warning_diskspace() {
@@ -440,21 +446,22 @@ class UpdraftPlus_Admin {
 				die;
 			}
 
-			$mess = '';
+			$mess = array();
 			parse_str($_GET['restoreopts'], $res);
 
 			if (isset($res['updraft_restore'])) {
 
 				$elements = array_flip($res['updraft_restore']);
 
-				$warn = ''; $err = '';
+				$warn = array();
+				$err = array();
 
 				if (isset($elements['db'])) {
 					// Analyse the header of the database file + display results
-					$mess .= '<p>';
 					list ($mess2, $warn2, $err2) = $this->analyse_db_file($_GET['timestamp'], $res);
-					$mess .= $mess2; $warn .= $warn2; $err .= $err2;
-					$mess .= '</p>';
+					if (!empty($mess2)) $mess[] = '<p>'.$mess2.'</p>';
+					if (!empty($warn2)) $warn[] = $warn2;
+					if (!empty($err2)) $err[] = $err2;
 				}
 
 				$backupable_entities = $updraftplus->get_backupable_file_entities(true);
@@ -469,31 +476,33 @@ class UpdraftPlus_Admin {
 					foreach ($whatwegot as $index => $file) {
 						if ($index != $expected_index) $missing .= ($missing == '') ? (1+$expected_index) : ",".(1+$expected_index);
 						if (!file_exists($updraft_dir.'/'.$file)) {
-							$err .= sprintf(__('File not found (you need to upload it): %s', 'updraftplus'), $updraft_dir.'/'.$file)."<br>";
+							$err[] = sprintf(__('File not found (you need to upload it): %s', 'updraftplus'), $updraft_dir.'/'.$file);
 						} elseif (filesize($updraft_dir.'/'.$file) == 0) {
-							$err .= sprintf(__('File was found, but is zero-sized (you need to re-upload it): %s', 'updraftplus'), $file)."<br>";
+							$err[] = sprintf(__('File was found, but is zero-sized (you need to re-upload it): %s', 'updraftplus'), $file);
 						} else {
 							$itext = (0 == $index) ? '' : $index;
 							if (!empty($backups[$timestamp][$type.$itext.'-size']) && $backups[$timestamp][$type.$itext.'-size'] != filesize($updraft_dir.'/'.$file)) {
-								$warn .= sprintf(__('File (%s) was found, but has a different size (%s) from what was expected (%s) - it may be corrupt.', 'updraftplus'), $file, filesize($updraft_dir.'/'.$file), $backups[$timestamp][$type.$itext.'-size'])."<br>";
+								$warn[] = sprintf(__('File (%s) was found, but has a different size (%s) from what was expected (%s) - it may be corrupt.', 'updraftplus'), $file, filesize($updraft_dir.'/'.$file), $backups[$timestamp][$type.$itext.'-size']);
 							}
+							do_action_ref_array("updraftplus_checkzip_$type", array($updraft_dir.'/'.$file, &$mess, &$warn, &$err));
 						}
 						$expected_index++;
 					}
+					do_action_ref_array("updraftplus_checkzip_end_$type", array(&$mess, &$warn, &$err));
 					if ('' != $missing) {
-						$warn .= sprintf(__("This multi-archive backup set appears to have the following archives missing: %s", 'updraftplus'), $missing)."<br>";
+						$warn[] = sprintf(__("This multi-archive backup set appears to have the following archives missing: %s", 'updraftplus'), $missing);
 					}
 				}
 
-				if ('' == $err && '' == $warn) {
-					$mess = '<p>'.__('The backup archive files have been successfully processed. Now press Restore again to proceed.', 'updraftplus').'</p>'.$mess;
-				} elseif ('' == $err) {
-					$mess = '<p>'.__('The backup archive files have been processed, but with some warnings. If all is well, then now press Restore again to proceed. Otherwise, cancel and correct any problems first.', 'updraftplus').'</p>'.$mess;
+				if (0 == count($err) && 0 == count($warn)) {
+					$mess_first = __('The backup archive files have been successfully processed. Now press Restore again to proceed.', 'updraftplus');
+				} elseif (0 == count($err)) {
+					$mess_first = __('The backup archive files have been processed, but with some warnings. If all is well, then now press Restore again to proceed. Otherwise, cancel and correct any problems first.', 'updraftplus');
 				} else {
-					$mess = '<p>'.__('The backup archive files have been processed, but with some errors. You will need to cancel and correct any problems before retrying.', 'updraftplus').'</p>'.$mess;
+					$mess_first = __('The backup archive files have been processed, but with some errors. You will need to cancel and correct any problems before retrying.', 'updraftplus');
 				}
 
-				echo json_encode(array('m' => $mess, 'w' => $warn, 'e' => $err));
+				echo json_encode(array('m' => '<p>'.$mess_first.'</p>'.implode('<br>', $mess), 'w' => implode('<br>', $warn), 'e' => implode('<br>', $err)));
 			}
 
 		} elseif (isset($_POST['backup_timestamp']) && 'deleteset' == $_REQUEST['subaction']) {
@@ -740,11 +749,11 @@ class UpdraftPlus_Admin {
 
 		global $updraftplus;
 		$backup = $updraftplus->get_backup_history($timestamp);
-		if (!isset($backup['nonce']) || !isset($backup['db'])) return;
+		if (!isset($backup['nonce']) || !isset($backup['db'])) return array($mess, $warn, $err);
 
 		$updraft_dir = $updraftplus->backups_dir_location();
 
-		$db_file = $updraft_dir.'/'.$backup['db'];
+		$db_file = (is_string($backup['db'])) ? $updraft_dir.'/'.$backup['db'] : $updraft_dir.'/'.$backup['db'][0];
 
 		if (!is_readable($db_file)) return;
 
@@ -776,12 +785,15 @@ class UpdraftPlus_Admin {
 				return array($mess, $warn, $err);
 			}
 		}
+error_log('ccc');
 
 		$dbhandle = gzopen($db_file, 'r');
 		if (!$dbhandle) {
 			$err .=  sprintf(__('Error: %s', 'updraftplus'), __('Failed to open database file.','updraftplus'));
 			return array($mess, $warn, $err);
 		}
+error_log('ddd');
+
 
 		# Analyse the file, print the results.
 
@@ -1115,7 +1127,7 @@ class UpdraftPlus_Admin {
 			$updraftplus_backup->backup_db();
 		} elseif (isset($_POST['action']) && $_POST['action'] == 'updraft_wipesettings') {
 			$settings = array('updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_wpcore', 'updraft_include_wpcore_exclude', 'updraft_include_more', 
-			'updraft_include_blogs', 'updraft_include_mu-plugins', 'updraft_include_others_exclude', 'updraft_lastmessage', 'updraft_googledrive_clientid', 'updraft_googledrive_token', 'updraft_dropboxtk_request_token', 'updraft_dropboxtk_access_token', 'updraft_dropbox_folder', 'updraft_last_backup', 'updraft_starttime_files', 'updraft_starttime_db', 'updraft_sftp_settings', 'updraft_s3generic_login', 'updraft_s3generic_pass', 'updraft_s3generic_remote_path', 'updraft_s3generic_endpoint', 'updraft_webdav_settings', 'updraft_disable_ping', 'updraft_cloudfiles_user', 'updraft_cloudfiles_apikey', 'updraft_cloudfiles_path', 'updraft_cloudfiles_authurl', 'updraft_ssl_useservercerts', 'updraft_ssl_disableverify', 'updraft_s3_login', 'updraft_s3_pass', 'updraft_s3_remote_path', 'updraft_dreamobjects_login', 'updraft_dreamobjects_pass', 'updraft_dreamobjects_remote_path');
+			'updraft_include_blogs', 'updraft_include_mu-plugins', 'updraft_include_others_exclude', 'updraft_lastmessage', 'updraft_googledrive_clientid', 'updraft_googledrive_token', 'updraft_dropboxtk_request_token', 'updraft_dropboxtk_access_token', 'updraft_dropbox_folder', 'updraft_last_backup', 'updraft_starttime_files', 'updraft_starttime_db', 'updraft_startday_db', 'updraft_startday_files', 'updraft_sftp_settings', 'updraft_s3generic_login', 'updraft_s3generic_pass', 'updraft_s3generic_remote_path', 'updraft_s3generic_endpoint', 'updraft_webdav_settings', 'updraft_disable_ping', 'updraft_cloudfiles_user', 'updraft_cloudfiles_apikey', 'updraft_cloudfiles_path', 'updraft_cloudfiles_authurl', 'updraft_ssl_useservercerts', 'updraft_ssl_disableverify', 'updraft_s3_login', 'updraft_s3_pass', 'updraft_s3_remote_path', 'updraft_dreamobjects_login', 'updraft_dreamobjects_pass', 'updraft_dreamobjects_remote_path');
 			foreach ($settings as $s) {
 				UpdraftPlus_Options::delete_updraft_option($s);
 			}
@@ -1717,7 +1729,7 @@ class UpdraftPlus_Admin {
 						echo ">$descrip</option>\n";
 					}
 					?>
-					</select> <?php echo apply_filters('updraftplus_schedule_showfileconfig', '<input type="hidden" name="updraftplus_starttime_files" value="">'); ?>
+					</select> <span id="updraft_files_timings"><?php echo apply_filters('updraftplus_schedule_showfileopts', '<input type="hidden" name="updraftplus_starttime_files" value="">'); ?></span>
 					<?php
 					echo __('and retain this many backups', 'updraftplus').': ';
 					$updraft_retain = UpdraftPlus_Options::get_updraft_option('updraft_retain', 1);
@@ -1735,7 +1747,7 @@ class UpdraftPlus_Admin {
 						echo ">$descrip</option>\n";
 					}
 					?>
-					</select> <span id="updraft_db_timings"><?php echo apply_filters('updraftplus_schedule_showdbconfig', '<input type="hidden" name="updraftplus_starttime_db" value="">'); ?></span>
+					</select> <span id="updraft_db_timings"><?php echo apply_filters('updraftplus_schedule_showdbopts', '<input type="hidden" name="updraftplus_starttime_db" value="">'); ?></span>
 					<?php
 					echo __('and retain this many backups', 'updraftplus').': ';
 					$updraft_retain_db = UpdraftPlus_Options::get_updraft_option('updraft_retain_db', $updraft_retain);
@@ -1745,7 +1757,7 @@ class UpdraftPlus_Admin {
 			</tr>
 			<tr class="backup-interval-description">
 				<td></td><td><p><?php echo htmlspecialchars(__('If you would like to automatically schedule backups, choose schedules from the dropdowns above. Backups will occur at the intervals specified. If the two schedules are the same, then the two backups will take place together. If you choose "manual" then you must click the "Backup Now" button whenever you wish a backup to occur.', 'updraftplus')); ?></p>
-				<?php echo apply_filters('updraftplus_fixtime_advert', '<p><strong>'.__('To fix the time at which a backup should take place,','updraftplus').' </strong> ('.__('e.g. if your server is busy at day and you want to run overnight','updraftplus').'), <a href="http://updraftplus.com/shop/fix-time/">'.htmlspecialchars(__('use the "Fix Time" add-on','updraftplus')).'</a></p>'); ?>
+				<?php echo apply_filters('updraftplus_fixtime_ftinfo', '<p><strong>'.__('To fix the time at which a backup should take place,','updraftplus').' </strong> ('.__('e.g. if your server is busy at day and you want to run overnight','updraftplus').'), <a href="http://updraftplus.com/shop/fix-time/">'.htmlspecialchars(__('use the "Fix Time" add-on','updraftplus')).'</a></p>'); ?>
 				</td>
 			</tr>
 			<tr>

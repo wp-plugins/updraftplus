@@ -13,21 +13,16 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
+# Add sanity checking of wpcore backup - there ought to be what we expect in there (saw a crazy one)
+// Make clearer that after activating 'all addons' you don't need to activate 1-by-1
 // Backup notes
 // Log migrations/restores, and have an option for auto-emailing the log
 # BinZip is not yet MA-compatible. Create an UpdraftPlus_BinZip class. Test timings (see zip-timings.txt). Turn BinZip back on if it's good.
 // Log a warning if the resumption is loonnggg after it was expected to be (usually on unvisited dev sites)
-// Warn people whose hosts have set DISABLE_WP_CRON
-# "Backup of:" note has vanished
-# Add sanity checking of wpcore backup - there ought to be what we expect in there (saw a crazy one)
 # Once we know that there is a second archive, we should rename the first file with a "1" in the filename, so that missing archives are better detected upon upload/support. We could rename *all* the files at the 'finished files' stage to be like '1of5', '2of5', etc. Then detect that via the regex when scanning + uploading. Then we'll know exactly which are missing. Will just need to verify that nothing relies on the old file names once the file status is set to 'finished' (or even better, recognise this new convention - make the 'of(\d+)' optional).
 # Email backup method should be able to force split limit down to something manageable - or at least, should make the option display. (Put it in email class. Tweak the storage dropdown to not hide stuff also in expert class if expert is shown).
-# Look for this pattern in the site root: pclzip-51f3c72989c15.tmp (how to reliably reproduce?)
-// Remember historical resumption intervals. But remember that the site may migrate, so we need to check their accuracy from time to time.
-// Pre-decrypting working?
-// Make clearer that after activating 'all addons' you don't need to activate 1-by-1
+// Remember historical resumption intervals. But remember that the site may migrate, so we need to check their accuracy from time to time. Use transient?
 // More sophisticated options for retaining/deleting (e.g. 4/day for X days, then 7/week for Z weeks, then 1/month for Y months)
-// Fix backup time needs to allow selection of date also.
 // Unpack zips via AJAX? Do bit-by-bit to allow enormous opens a better chance? (have a huge one in Dropbox)
 // Roll UD-addons plugin into the main plugin for those getting it from ud.com
 // Put in a maintenance-mode detector
@@ -86,7 +81,6 @@ TODO - some of these are out of date/done, needs pruning
 // More sophisticated pruning options - e.g. "but only keep 1 backup every <x> <days> after <y> <weeks>"
 // Migrator - list+download from remote, kick-off backup remotely
 // April 20, 2015: This is the date when the Google Documents API is likely to stop working (https://developers.google.com/google-apps/documents-list/terms)
-// Fix-time add-on should also fix the day/date, when relevant
 // Search for other TODO-s in the code
 // More databases
 // Opt-in non-personal stats + link to aggregated results
@@ -376,13 +370,13 @@ class UpdraftPlus {
 		load_plugin_textdomain('updraftplus', false, basename(dirname(__FILE__)).'/languages');
 	}
 
-	// Cleans up temporary files found in the updraft directory
+	// Cleans up temporary files found in the updraft directory (and some in the site root - pclzip)
 	// Always cleans up temporary files over 12 hours old.
 	// With parameters, also cleans up those.
 	function clean_temporary_files($match = '', $older_than = 43200) {
 		$updraft_dir = $this->backups_dir_location();
+		$now_time=time();
 		if ($handle = opendir($updraft_dir)) {
-			$now_time=time();
 			while (false !== ($entry = readdir($handle))) {
 				// This match is for files created internally by zipArchive::addFile
 				$ziparchive_match = preg_match("/$match([0-9]+)?\.zip\.tmp\.([A-Za-z0-9]){6}?$/i", $entry);
@@ -397,6 +391,19 @@ class UpdraftPlus {
 				}
 			}
 			@closedir($handle);
+		}
+		# Depending on the PHP setup, the current working directory could be ABSPATH or wp-admin - scan both
+		foreach (array(ABSPATH, ABSPATH.'wp-admin/') as $path) {
+			if ($handle = opendir($path)) {
+				while (false !== ($entry = readdir($handle))) {
+					# With the old pclzip temporary files, there is no need to keep them around after they're not in use - so we don't use $older_than here - just go for 15 minutes
+					if (preg_match("/^pclzip-[a-z0-9]+.tmp$/", $entry) && $now_time-filemtime($path.$entry) >= 900) {
+						$this->log("Deleting old PclZip temporary file: $entry");
+						@unlink($path.$entry);
+					}
+				}
+				@closedir($handle);
+			}
 		}
 	}
 
@@ -1353,7 +1360,7 @@ class UpdraftPlus {
 			case 'weekly':
 			case 'fortnightly':
 			case 'monthly':
-				$first_time = apply_filters('updraftplus_schedule_start_files', time()+30);
+				$first_time = apply_filters('updraftplus_schedule_firsttime_files', time()+30);
 				wp_schedule_event($first_time, $interval, 'updraft_backup');
 			break;
 		}
@@ -1387,7 +1394,7 @@ class UpdraftPlus {
 			case 'weekly':
 			case 'fortnightly':
 			case 'monthly':
-				$first_time = apply_filters('updraftplus_schedule_start_db', time()+30);
+				$first_time = apply_filters('updraftplus_schedule_firsttime_db', time()+30);
 				wp_schedule_event($first_time, $interval, 'updraft_backup_database');
 			break;
 		}

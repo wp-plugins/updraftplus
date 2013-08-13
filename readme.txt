@@ -52,7 +52,7 @@ Are you able to translate UpdraftPlus into another language? Are you ready to he
 
 Many thanks to the existing translators:
 
-* Français / French translation (fr_FR): Françoise Lhermitte - http://www.ajwan.net
+* Français / French translation (fr_FR): ufo3D - http://ufo-3d.fr/ with help from Françoise Lhermitte - http://www.ajwan.net
 * Swedish / Svensk (sv_SE): Steve Sandström - http://www.brandicon.se
 * Español / Spanish (es_ES): Fernando Villasmil - villasmil.fernando at gmail.com
 * Polski / Polish (pl_PL): Bartosz Kaczmarek - barth.kaczmarek at gmail.com
@@ -126,12 +126,14 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 = Development trunk - not yet released/supported =
 * FEATURE: Split large sites into multiple zips (see: http://updraftplus.com/splitting-large-sites-into-multiple-archives/)
+* FEATURE: Fix time add-on can now also choose the day of the week
 * FEATURE: Svensk / Swedish translation (sv_SE) by Steve Sandström (http://www.brandicon.se)
-* FEATURE: Français / French translation (fr_FR) by Françoise Lhermitte (http://www.ajwan.net) and others
+* FEATURE: Français / French translation (fr_FR) by ufo3D - http://ufo-3d.fr/ with help from Françoise Lhermitte - http://www.ajwan.net
 * TWEAK: Save the result of looking for a binary zip (don't re-test)
 * TWEAK: Show 'Last log message' in dashboard using local time zone
 * TWEAK: Log file times are now recorded relative to the backup start, rather than the current resumption start
 * TWEAK: More code-tidying and optimisation
+* TWEAK: Warn the user if the WordPress scheduler is disabled
 * TWEAK: Various extra sanity-checks for possible problems
 * TWEAK: Warn user if trying to upload an above-limit (>10Gb) file to Google Drive
 * TWEAK: Reduce memory usage during restore
@@ -140,7 +142,8 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * TWEAK/FIX: When restoring/migrating, split SQL commands to avoid exceeding MySQL's max_allowed_packet
 * FIX: Make sure output buffering is off when sending files from the browser (prevents memory exhaustion)
 * FIX: Prevent double-backup (very unusual combination of circumstances)
-* FIX: Some Windows webserver configurations could have corruption of filenames of WordPress core backups (recoverable)
+* FIX: Some Windows webserver configurations could have corruption of filenames in WordPress core backups (recoverable)
+* FIX: Remove temporary files created by PclZip (where PclZip is used)
 
 = 1.6.46 - 2013/07/11 =
 * FEATURE: New storage back-end for any S3-compatible provider (e.g. Google Cloud Storage, Eucalyptus, Cloudian, many more - tested with Dreamobjects and original S3)
