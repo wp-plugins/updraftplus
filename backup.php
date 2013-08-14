@@ -42,7 +42,7 @@ class UpdraftPlus_Backup {
 			$binzip = $updraftplus->find_working_bin_zip();
 			if (is_string($binzip)) $updraftplus->log("Zip engine: found/will use a binary zip: $binzip");
 			$this->binzip = $binzip;
-			if  $this->use_zip_object = 'UpdraftPlus_BinZip';
+			$this->use_zip_object = 'UpdraftPlus_BinZip';
 		}
 
 		# In tests, PclZip was found to be 25% slower than ZipArchive
