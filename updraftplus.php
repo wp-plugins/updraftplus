@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.65
+Version: 1.6.66
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -20,11 +20,13 @@ TODO - some of these are out of date/done, needs pruning
 // Log a warning if the resumption is loonnggg after it was expected to be (usually on unvisited dev sites)
 # Email backup method should be able to force split limit down to something manageable - or at least, should make the option display. (Put it in email class. Tweak the storage dropdown to not hide stuff also in expert class if expert is shown).
 // Remember historical resumption intervals. But remember that the site may migrate, so we need to check their accuracy from time to time. Use transient?
+// Import/slurp backups from other sites. See: http://www.skyverge.com/blog/extending-the-wordpress-xml-rpc-api/
 // More sophisticated options for retaining/deleting (e.g. 4/day for X days, then 7/week for Z weeks, then 1/month for Y months)
 // Unpack zips via AJAX? Do bit-by-bit to allow enormous opens a better chance? (have a huge one in Dropbox)
 // Roll UD-addons plugin into the main plugin for those getting it from ud.com
 // Put in a maintenance-mode detector
 // Detect CloudFlare output in attempts to connect - detecting cloudflare.com should be sufficient
+// Show 'Migrate' instead of 'Restore' on the button if relevant
 // Bring multisite shop page up to date
 // Re-do pricing + support packages
 // Give a help page to go with the message: A zip error occurred - check your log for more details (reduce support requests)
@@ -990,7 +992,7 @@ class UpdraftPlus {
 		// Log some information that may be helpful
 		$this->log("Tasks: Backup files: $backup_files (schedule: ".UpdraftPlus_Options::get_updraft_option('updraft_interval', 'unset').") Backup DB: $backup_database (schedule: ".UpdraftPlus_Options::get_updraft_option('updraft_interval_database', 'unset').")");
 
-		if (false === $oneshot) {
+		if (false === $one_shot) {
 			# If the files and database schedules are the same, and if this the file one, then we rope in database too.
 			# On the other hand, if the schedules were the same and this was the database run, then there is nothing to do.
 			if (UpdraftPlus_Options::get_updraft_option('updraft_interval') == UpdraftPlus_Options::get_updraft_option('updraft_interval_database') || UpdraftPlus_Options::get_updraft_option('updraft_interval_database', 'xyz') == 'xyz' ) {
@@ -1011,15 +1013,17 @@ class UpdraftPlus {
 // 		if ($max_execution_time >0 && $max_execution_time<300 && $resume_interval< $max_execution_time + 30) $resume_interval = $max_execution_time + 30;
 
 		$job_file_entities = array();
-		$possible_backups = $this->get_backupable_file_entities(true);
-		foreach ($possible_backups as $youwhat => $whichdir) {
-			if ((false === $restrict_files_to_override && UpdraftPlus_Options::get_updraft_option("updraft_include_$youwhat", apply_filters("updraftplus_defaultoption_include_$youwhat", true))) || (is_array($restrict_files_to_override) && in_array($youwhat, $restrict_files_to_override))) {
-				// The 0 indicates the zip file index
-				$job_file_entities[$youwhat] = array(
-					'index' => 0,
-					'status' => 'notstarted',
-					'indexstatus' => array(0 => 'notstarted')
-				);
+		if ($backup_files) {
+			$possible_backups = $this->get_backupable_file_entities(true);
+			foreach ($possible_backups as $youwhat => $whichdir) {
+				if ((false === $restrict_files_to_override && UpdraftPlus_Options::get_updraft_option("updraft_include_$youwhat", apply_filters("updraftplus_defaultoption_include_$youwhat", true))) || (is_array($restrict_files_to_override) && in_array($youwhat, $restrict_files_to_override))) {
+					// The 0 indicates the zip file index
+					$job_file_entities[$youwhat] = array(
+						'index' => 0,
+						'status' => 'notstarted',
+						'indexstatus' => array(0 => 'notstarted')
+					);
+				}
 			}
 		}
 
