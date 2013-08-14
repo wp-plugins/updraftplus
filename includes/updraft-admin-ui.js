@@ -349,7 +349,7 @@ jQuery(document).ready(function($){
 		var whichselected = [];
 		// Make a list of what files we want
 		jQuery('input[name="updraft_restore[]"]').each(function(x,y){
-			if (jQuery(y).is(':checked')) {
+			if (jQuery(y).is(':checked') && !jQuery(y).is(':disabled')) {
 				anyselected = 1;
 				var howmany = jQuery(y).data('howmany');
 				var restobj = [ jQuery(y).val(), howmany ];
@@ -488,7 +488,7 @@ uploader.bind('FilesAdded', function(up, files){
 // 				var hundredmb = 100 * 1024 * 1024, max = parseInt(up.settings.max_file_size, 10);
 	
 	plupload.each(files, function(file){
-		if (! /^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+[0-9]*\.(zip|gz|gz\.crypt)$/i.test(file.name) && ! /^log\.([0-9a-f]{12})\.txt$/.test(file.name)) {
+		if (! /^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i.test(file.name) && ! /^log\.([0-9a-f]{12})\.txt$/.test(file.name)) {
 			alert(file.name+": "+updraftlion.notarchive);
 			uploader.removeFile(file);
 			return;

@@ -516,17 +516,21 @@ class UpdraftPlus_Admin {
 					$err = array_merge($err, $err2);
 				}
 
-				$backupable_entities = $updraftplus->get_backupable_file_entities(true);
-				$backupable_plus_db = $backupable_entities; $backupable_plus_db['db'] = 'path-unused';
-				foreach ($backupable_plus_db as $type => $path) {
+				$backupable_entities = $updraftplus->get_backupable_file_entities(true, true);
+				$backupable_plus_db = $backupable_entities; $backupable_plus_db['db'] = array('path' => 'path-unused', 'description' => __('Database', 'updraftplus'));
+				foreach ($backupable_plus_db as $type => $info) {
 					if (!isset($elements[$type])) continue;
 					$whatwegot = $backups[$timestamp][$type];
 					if (is_string($whatwegot)) $whatwegot = array($whatwegot);
 					$expected_index = 0;
 					$missing = '';
 					ksort($whatwegot);
+					$outof = false;
 					foreach ($whatwegot as $index => $file) {
-						if ($index != $expected_index) $missing .= ($missing == '') ? (1+$expected_index) : ",".(1+$expected_index);
+						if (preg_match('/\d+of(\d+)\.zip/', $file, $omatch)) { $outof = max($matches[1], 1); }
+						if ($index != $expected_index) {
+							$missing .= ($missing == '') ? (1+$expected_index) : ",".(1+$expected_index);
+						}
 						if (!file_exists($updraft_dir.'/'.$file)) {
 							$err[] = sprintf(__('File not found (you need to upload it): %s', 'updraftplus'), $updraft_dir.'/'.$file);
 						} elseif (filesize($updraft_dir.'/'.$file) == 0) {
@@ -541,8 +545,14 @@ class UpdraftPlus_Admin {
 						$expected_index++;
 					}
 					do_action_ref_array("updraftplus_checkzip_end_$type", array(&$mess, &$warn, &$err));
+					# Detect missing archives where they are missing from the end of the set
+					if ($outof>0 && $expected_index < $outof) {
+						for ($j = $expected_index; $j<$outof; $j++) {
+							$missing .= ($missing == '') ? (1+$j) : ",".(1+$j);
+						}
+					}
 					if ('' != $missing) {
-						$warn[] = sprintf(__("This multi-archive backup set appears to have the following archives missing: %s", 'updraftplus'), $missing);
+						$warn[] = sprintf(__("This multi-archive backup set appears to have the following archives missing: %s", 'updraftplus'), $missing.' ('.$info['description'].')');
 					}
 				}
 
@@ -1052,7 +1062,7 @@ CREATE TABLE $wpdb->signups (
 
 		if (!isset($_POST['chunks']) || (isset($_POST['chunk']) && $_POST['chunk'] == $_POST['chunks']-1)) {
 			$file = basename($status['file']);
-			if (!preg_match('/^log\.[a-f0-9]{12}\.txt/', $file) && !preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)[0-9]*\.(zip|gz|gz\.crypt)$/i', $file, $matches)) {
+			if (!preg_match('/^log\.[a-f0-9]{12}\.txt/', $file) && !preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i', $file, $matches)) {
 				@unlink($status['file']);
 				echo sprintf(__('Error: %s', 'updraftplus'),__('Bad filename format - this does not look like a file created by UpdraftPlus','updraftplus'));
 				exit;
@@ -1402,7 +1412,7 @@ CREATE TABLE $wpdb->signups (
 						<li title="<?php _e('This is a count of the contents of your Updraft directory','updraftplus');?>"><strong><?php _e('Web-server disk space in use by UpdraftPlus','updraftplus');?>:</strong> <span id="updraft_diskspaceused"><em>(calculating...)</em></span> <a href="#" onclick="updraftplus_diskspace(); return false;"><?php _e('refresh','updraftplus');?></a></li></ul>
 
 						<div id="updraft-plupload-modal" title="<?php _e('UpdraftPlus - Upload backup files','updraftplus'); ?>" style="width: 75%; margin: 16px; display:none; margin-left: 100px;">
-						<p style="max-width: 600px;"><em><?php _e("Upload files into UpdraftPlus. Use this to import backups made on a different WordPress installation." ,'updraftplus');?> <?php echo htmlspecialchars(__('Or, you can place them manually into your UpdraftPlus directory (usually wp-content/updraft), e.g. via FTP, and then use the "rescan" link above.', 'updraftplus'));?></em></p>
+						<p style="max-width: 610px;"><em><?php _e("Upload files into UpdraftPlus. Use this to import backups made on a different WordPress installation." ,'updraftplus');?> <?php echo htmlspecialchars(__('Or, you can place them manually into your UpdraftPlus directory (usually wp-content/updraft), e.g. via FTP, and then use the "rescan" link above.', 'updraftplus'));?></em></p>
 							<div id="plupload-upload-ui" style="width: 70%;">
 								<div id="drag-drop-area">
 									<div class="drag-drop-inside">
@@ -2329,7 +2339,7 @@ ENDHERE;
 				// Record which set this file is found in
 				if (!is_array($values)) $values=array($values);
 				foreach ($values as $val) {
-					if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z][0-9]*+\.(zip|gz|gz\.crypt)$/i', $val, $matches)) {
+					if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]([0-9]+(of[0-9]+)?)?+\.(zip|gz|gz\.crypt)$/i', $val, $matches)) {
 						$nonce = $matches[2];
 						if (isset($bdata['service']) && $bdata['service'] == 'none' && !is_file($updraft_dir.'/'.$val)) {
 							# File no longer present
@@ -2351,7 +2361,7 @@ ENDHERE;
 
 		while (false !== ($entry = readdir($handle))) {
 			if ($entry != "." && $entry != "..") {
-				if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9])*\.(zip|gz|gz\.crypt)$/i', $entry, $matches)) {
+				if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i', $entry, $matches)) {
 					$btime = strtotime($matches[1]);
 					if ($btime > 100) {
 						if (!isset($known_files[$entry])) {

@@ -446,7 +446,6 @@ class UpdraftPlus_Backup {
 
 			if (isset($job_file_entities[$youwhat])) {
 
-				# TODO: Where's the code where we're going to set this thing that we read here?
 				$index = (int)$job_file_entities[$youwhat]['index'];
 				if (empty($index)) $index=0;
 				$indextext = (0 == $index) ? '' : $index;
@@ -559,6 +558,25 @@ class UpdraftPlus_Backup {
 		$backup_array = $this->backup_dirs($transient_status);
 		// This can get over-written later
 		$updraftplus->jobdata_set('backup_files', 'finished');
+
+		$updraft_dir = $updraftplus->backups_dir_location();
+		foreach ($backup_array as $entity => $files) {
+			if (!is_array($files)) $files=array($files);
+			$outof = count($files);
+			foreach ($files as $ind => $file) {
+				if (preg_match('/^(backup_[\-0-9]{15}_.*_[0-9a-f]{12}-[\-a-z]+)([0-9]+)?\.zip$/i', $file, $matches)) {
+					$num = max((int)$matches[2],1);
+					if (file_exists($updraft_dir.'/'.$file)) {
+						$new = $matches[1].$num.'of'.$outof.'.zip';
+						if (@rename($updraft_dir.'/'.$file, $updraft_dir.'/'.$new)) {
+							$updraftplus->log(sprintf("Renaming: %s to %s", $file, $new));
+							$backup_array[$entity][$ind] = $new;
+						}
+					}
+				}
+			}
+		}
+
 		return $backup_array;
 	}
 
