@@ -32,7 +32,20 @@ class UpdraftPlus_Backup {
 
 	public function __construct() {
 
-		# In tests, PclZip was found to be 25% slower
+		global $updraftplus;
+
+		# Decide which zip engine to begin with
+
+		// false means 'tried + failed'; whereas 0 means 'not yet tried'
+		if ($this->binzip === 0 && (!defined('UPDRAFTPLUS_PREFERPCLZIP') || UPDRAFTPLUS_PREFERPCLZIP != true) && (!defined('UPDRAFTPLUS_NO_BINZIP') || !UPDRAFTPLUS_NO_BINZIP) && $updraftplus->current_resumption <9) {
+			$updraftplus->log('Checking if we have a zip executable available');
+			$binzip = $updraftplus->find_working_bin_zip();
+			if (is_string($binzip)) $updraftplus->log("Zip engine: found/will use a binary zip: $binzip");
+			$this->binzip = $binzip;
+			if  $this->use_zip_object = 'UpdraftPlus_BinZip';
+		}
+
+		# In tests, PclZip was found to be 25% slower than ZipArchive
 		if ($this->use_zip_object != 'UpdraftPlus_PclZip' && empty($this->binzip) && ((defined('UPDRAFTPLUS_PREFERPCLZIP') && UPDRAFTPLUS_PREFERPCLZIP == true) || (!extension_loaded('zip') && !method_exists('ZipArchive', 'AddFile')))) {
 			global $updraftplus;
 			$updraftplus->log("Zip engine: ZipArchive is not available or is disabled (will use PclZip if needed)");
@@ -776,13 +789,12 @@ class UpdraftPlus_Backup {
 			}
 			
 			// Experimentation here shows that on large tables (we tested with 180,000 rows) on MyISAM, 1000 makes the table dump out 3x faster than the previous value of 100. After that, the benefit diminishes (increasing to 4000 only saved another 12%)
-			// TODO: Re-raise to 1000 once we've made the restorer deal with mysql's max packet size
 			if($segment == 'none') {
 				$row_start = 0;
-				$row_inc = 250;
+				$row_inc = 1000;
 			} else {
-				$row_start = $segment * 250;
-				$row_inc = 250;
+				$row_start = $segment * 1000;
+				$row_inc = 1000;
 			}
 
 			do {
@@ -1053,17 +1065,6 @@ class UpdraftPlus_Backup {
 
 		// We need meta-info about $whichone
 		$backupable_entities = $updraftplus->get_backupable_file_entities(true, false);
-
-		// false means 'tried + failed'; whereas 0 means 'not yet tried'
-
-# TODO: Test resumptions
-		if ($this->binzip === 0 && (!defined('UPDRAFTPLUS_NO_BINZIP') || !UPDRAFTPLUS_NO_BINZIP) && $updraftplus->current_resumption <9) {
-			$updraftplus->log('Checking if we have a zip executable available');
-			$binzip = $updraftplus->find_working_bin_zip();
-			if (is_string($binzip)) $updraftplus->log("Zip engine: found/will use a binary zip: $binzip");
-			$this->binzip = $binzip;
-			if (!defined('UPDRAFTPLUS_PREFERPCLZIP') || UPDRAFTPLUS_PREFERPCLZIP != true) $this->use_zip_object = 'UpdraftPlus_BinZip';
-		}
 
 		$this->existing_files = array();
 		# Used for tracking compression ratios
