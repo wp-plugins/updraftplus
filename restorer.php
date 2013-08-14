@@ -256,11 +256,6 @@ class Updraft_Restorer extends WP_Upgrader {
 
 	}
 
-	function str_replace_once($needle, $replace, $haystack) {
-		$pos = strpos($haystack,$needle);
-		return ($pos !== false) ? substr_replace($haystack,$replace,$pos,strlen($needle)) : $haystack;
-	}
-
 	// Pre-flight check: chance to complain and abort before anything at all is done
 	function pre_restore_backup($backup_files, $type, $info) {
 
@@ -742,7 +737,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			if (3 == $sql_type && $sql_line && strlen($sql_line.$buffer) > $max_allowed_packet && preg_match('/,\s*$/', $sql_line) && preg_match('/^\s*\(/', $buffer)) {
 				// Remove the final comma; replace with semi-colon
 				$sql_line = substr(rtrim($sql_line), 0, strlen($sql_line)-1).';';
-				if ('' != $old_table_prefix && $import_table_prefix != $old_table_prefix) $sql_line = $this->str_replace_once($old_table_prefix, $import_table_prefix, $sql_line);
+				if ('' != $old_table_prefix && $import_table_prefix != $old_table_prefix) $sql_line = $updraftplus->str_replace_once($old_table_prefix, $import_table_prefix, $sql_line);
 				# Run the SQL command; then set up for the next one.
 				$this->line++;
 				echo "Split line to avoid exceeding maximum packet size (".strlen($sql_line)." + ".strlen($buffer)." > $max_allowed_packet)<br>";
@@ -777,7 +772,7 @@ class Updraft_Restorer extends WP_Upgrader {
 					echo '<strong>'.__('Old table prefix:', 'updraftplus').'</strong> '.htmlspecialchars($old_table_prefix).'<br>';
 				}
 				if ('' != $old_table_prefix && $import_table_prefix != $old_table_prefix) {
-					$sql_line = $this->str_replace_once($old_table_prefix, $import_table_prefix, $sql_line);
+					$sql_line = $updraftplus->str_replace_once($old_table_prefix, $import_table_prefix, $sql_line);
 				}
 			} elseif (preg_match('/^\s*create table \`?([^\`\(]*)\`?\s*\(/i', $sql_line, $matches)) {
 
@@ -833,9 +828,9 @@ class Updraft_Restorer extends WP_Upgrader {
 				$this->table_name = $matches[1];
 				echo '<strong>'.sprintf(__('Restoring table (%s)','updraftplus'), $engine).":</strong> ".htmlspecialchars($this->table_name);
 				if ('' != $old_table_prefix && $import_table_prefix != $old_table_prefix) {
-					$new_table_name = $this->str_replace_once($old_table_prefix, $import_table_prefix, $this->table_name);
+					$new_table_name = $updraftplus->str_replace_once($old_table_prefix, $import_table_prefix, $this->table_name);
 					echo ' - '.__('will restore as:', 'updraftplus').' '.htmlspecialchars($new_table_name);
-					$sql_line = $this->str_replace_once($old_table_prefix, $import_table_prefix, $sql_line);
+					$sql_line = $updraftplus->str_replace_once($old_table_prefix, $import_table_prefix, $sql_line);
 				} else {
 					$new_table_name = $this->table_name;
 				}
@@ -845,7 +840,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 			} elseif (preg_match('/^\s*(insert into \`?([^\`]*)\`?\s+values)/i', $sql_line, $matches)) {
 				$sql_type = 3;
-				if ('' != $old_table_prefix && $import_table_prefix != $old_table_prefix) $sql_line = $this->str_replace_once($old_table_prefix, $import_table_prefix, $sql_line);
+				if ('' != $old_table_prefix && $import_table_prefix != $old_table_prefix) $sql_line = $updraftplus->str_replace_once($old_table_prefix, $import_table_prefix, $sql_line);
 			}
 
 			$do_exec = $this->sql_exec($sql_line, $sql_type);

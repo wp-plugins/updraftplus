@@ -23,7 +23,7 @@ class UpdraftPlus_Backup {
 	private $zip_basename = '';
 	private $zipfiles_lastwritetime;
 	// 0 = unknown; false = failed
-	private $binzip = 0;
+	public $binzip = 0;
 
 	private $dbhandle;
 	private $dbhandle_isgz;
@@ -365,9 +365,10 @@ class UpdraftPlus_Backup {
 
 	}
 
-	// The purpose of this function is to make sure that the options table is put in the database first, then the users table, then the usermeta table
+	// The purpose of this function is to make sure that the options table is put in the database first, then the users table, then the usermeta table; and after that the core WP tables - so that when restoring we restore the core tables first
 	private function backup_db_sorttables($a, $b) {
 		global $table_prefix;
+		$core_tables = array('terms', 'term_taxonomy', 'term_relationships', 'commentmeta', 'comments', 'links', 'postmeta', 'posts', 'site', 'sitemeta', 'blogs', 'blogversions');
 		if ($a == $b) return 0;
 		if ($a == $table_prefix.'options') return -1;
 		if ($b ==  $table_prefix.'options') return 1;
@@ -375,6 +376,11 @@ class UpdraftPlus_Backup {
 		if ($b ==  $table_prefix.'users') return 1;
 		if ($a == $table_prefix.'usermeta') return -1;
 		if ($b ==  $table_prefix.'usermeta') return 1;
+		global $updraftplus;
+		$na = $updraftplus->str_replace_once($table_prefix, '', $a);
+		$nb = $updraftplus->str_replace_once($table_prefix, '', $b);
+		if (in_array($na, $core_tables) && !in_array($nb, $core_tables)) return -1;
+		if (!in_array($na, $core_tables) && in_array($nb, $core_tables)) return 1;
 		return strcmp($a, $b);
 	}
 
@@ -1049,88 +1055,14 @@ class UpdraftPlus_Backup {
 		$backupable_entities = $updraftplus->get_backupable_file_entities(true, false);
 
 		// false means 'tried + failed'; whereas 0 means 'not yet tried'
-		// TODO: Turn back on once either 1) multi-archive compatible, or 2) have added some code to detect that only one archive is required
-		if (1==0 && $this->binzip === 0 && (!defined('UPDRAFTPLUS_NO_BINZIP') || !UPDRAFTPLUS_NO_BINZIP) ) {
+
+# TODO: Test resumptions
+		if ($this->binzip === 0 && (!defined('UPDRAFTPLUS_NO_BINZIP') || !UPDRAFTPLUS_NO_BINZIP) && $updraftplus->current_resumption <9) {
 			$updraftplus->log('Checking if we have a zip executable available');
 			$binzip = $updraftplus->find_working_bin_zip();
 			if (is_string($binzip)) $updraftplus->log("Zip engine: found/will use a binary zip: $binzip");
 			$this->binzip = $binzip;
-		}
-
-
-		// TODO: Handle stderr?
-		// TODO: Handle multi-archive
-		// We only use binzip up to resumption 8, in case there is some undetected problem. We can make this more sophisticated if a need arises.
-		if (is_string($this->binzip) && $updraftplus->current_resumption <9) {
-
-			if (is_string($source)) $source = array($source);
-
-			$all_ok = true;
-
-			$debug = UpdraftPlus_Options::get_updraft_option('updraft_debug_mode');
-
-			# Don't use -q and do use -v, as we rely on output to process to detect useful activity
-			$zip_params = '-v';
-
-			$orig_size = file_exists($destination) ? filesize($destination) : 0;
-			$last_size = $orig_size;
-			clearstatcache();
-			$last_recorded_alive = time();
-
-			foreach ($source as $s) {
-
-				$exec = "cd ".escapeshellarg(dirname($s))."; ".$this->binzip." $zip_params -u -r ".escapeshellarg($destination)." ".escapeshellarg(basename($s))." ";
-
-				$updraftplus->log("Attempting binary zip ($exec)");
-
-				$handle = popen($exec, "r");
-
-				$something_useful_happened = $updraftplus->something_useful_happened;
-
-				if ($handle) {
-					while (!feof($handle)) {
-						$w = fgets($handle, 1024);
-						// Logging all this really slows things down; use debug to mitigate
-						if ($w && $debug) $updraftplus->log("Output from zip: ".trim($w), 'debug');
-						if (time() > $last_recorded_alive + 5) {
-							$updraftplus->record_still_alive();
-							$last_recorded_alive = time();
-						}
-						if (file_exists($destination)) {
-							$new_size = filesize($destination);
-							if (!$something_useful_happened && $new_size > $orig_size + 20) {
-								$updraftplus->something_useful_happened();
-								$something_useful_happened = true;
-							}
-							clearstatcache();
-							# Log when 20% bigger or at least every 50Mb
-							if ($new_size > $last_size*1.2 || $new_size > $last_size + 52428800) {
-								$updraftplus->log(sprintf("$destination_base: size is now: %.2f Mb", round($new_size/1048576,1)));
-								$last_size = $new_size;
-							}
-						}
-					}
-					$ret = pclose($handle);
-					// Code 12 = nothing to do
-					if ($ret != 0 && $ret != 12) {
-						$updraftplus->log("Binary zip: error (code: $ret)");
-						if ($w && !$debug) $updraftplus->log("Last output from zip: ".trim($w), 'debug');
-						$all_ok = false;
-					}
-				} else {
-					$updraftplus->log("Error: popen failed");
-					$all_ok = false;
-				}
-
-			}
-
-			if ($all_ok) {
-				$updraftplus->log("Binary zip: apparently successful");
-				return true;
-			} else {
-				$updraftplus->log("Binary zip: an error occured, so we will run over again with ZipArchive");
-			}
-
+			if (!defined('UPDRAFTPLUS_PREFERPCLZIP') || UPDRAFTPLUS_PREFERPCLZIP != true) $this->use_zip_object = 'UpdraftPlus_BinZip';
 		}
 
 		$this->existing_files = array();

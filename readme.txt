@@ -14,7 +14,7 @@ Easy and complete backups + restoration. Manual or automated backups (Amazon S3,
 
 <a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3 (or compatible), Dropbox, Google Drive, Rackspace Cloud, DreamObjects, FTP, SFTP, WebDAV and email) and restore with a single click. Backups of files and database can have separate schedules.
 
-* Thousands of users: widely tested and reliable (over 195,000 downloads). Ranks in the top 1% on rankwp.com (228 out of 25,000 plugins).
+* Thousands of users: widely tested and reliable (over 215,000 downloads). Ranks in the top 1% on rankwp.com (228 out of 25,000 plugins).
 * Top-quality: ranks 45th out of 25,000 WordPress plugins for quality on rankwp.com (top 0.25% - last checked 23rd May 2013).
 * Supports WordPress backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP and email. Also (via an add-on) FTP over SSL, SFTP and WebDAV. (Note: Microsoft forbid SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
 * Quick restore (both file and database backups)
@@ -139,7 +139,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * TWEAK: Warn user if trying to upload an above-limit (>10Gb) file to Google Drive
 * TWEAK: Reduce memory usage during restore
 * TWEAK: Move JavaScript into separate file, and make strings translatable
-* INTERNALS: PclZip zip method now has feature parity with ZipArchive (can resume, more logging)
+* INTERNALS: PclZip and BinZip methods now have feature parity with ZipArchive (can resume+split, more logging)
 * TWEAK/FIX: When restoring/migrating, split SQL commands to avoid exceeding MySQL's max_allowed_packet
 * FIX: Make sure output buffering is off when sending files from the browser (prevents memory exhaustion)
 * FIX: Prevent double-backup (very unusual combination of circumstances)

@@ -120,11 +120,13 @@ class UpdraftPlus_Admin {
 	}
 
 	function core_upgrade_preamble() {
-		if (!class_exists('UpdraftPlus_Addon_Autobackup') && defined('UPDRAFTPLUS_NOADS3')) return;
+		if (!class_exists('UpdraftPlus_Addon_Autobackup') && (defined('UPDRAFTPLUS_NOADS3') || true == get_transient('updraftplus_dismissedautobackup'))) return;
 		?>
-		<div id="updraft-autobackup" class="updated" style="border: 1px dotted; padding: 6px; margin:8px 0px; max-width: 540px;">
+		<div id="updraft-autobackup" class="updated" style="padding: 6px; margin:8px 0px;">
+			<?php if (!class_exists('UpdraftPlus_Addon_Autobackup')) { ?>
+			<div style="float:right;"><a href="#" onclick="jQuery('#updraft-autobackup').slideUp(); jQuery.post(ajaxurl, {action: 'updraft_ajax', subaction: 'dismissautobackup', nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce');?>' });"><?php echo sprintf(__('Dismiss (for %s weeks)', 'updraftplus'), 10); ?></a></div> <?php } ?>
 			<h3 style="margin-top: 0px;"><?php _e('Be safe with an automatic backup','updraftplus');?></h3>
-			<?php echo apply_filters('updraftplus_autobackup_blurb', __('UpdraftPlus Premium can  <strong>automatically</strong> take a backup of your plugins or themes before you update.', 'updraftplus').' <a href="http://updraftplus.com/shop/autobackup/">'.__('Be safe every time, without needing to remember - follow this link to learn more.' ,'updraftplus').'</a>'); ?>
+			<?php echo apply_filters('updraftplus_autobackup_blurb', __('UpdraftPlus Premium can  <strong>automatically</strong> take a backup of your plugins or themes and database before you update.', 'updraftplus').' <a href="http://updraftplus.com/shop/autobackup/">'.__('Be safe every time, without needing to remember - follow this link to learn more.' ,'updraftplus').'</a>'); ?>
 		</div>
 		<script>
 		jQuery(document).ready(function() {
@@ -249,11 +251,29 @@ class UpdraftPlus_Admin {
 	}
 
 	function admin_action_upgrade_pluginortheme() {
-		if (!class_exists('UpdraftPlus_Addon_Autobackup') && !defined('UPDRAFTPLUS_NOADS3')) {
+
+		if (isset($_GET['action']) && ($_GET['action'] == 'upgrade-plugin' || $_GET['action'] == 'upgrade-theme') && !class_exists('UpdraftPlus_Addon_Autobackup') && !defined('UPDRAFTPLUS_NOADS3')) {
+
+			$dismissed = get_transient('updraftplus_dismissedautobackup');
+			if (true == $dismissed) return;
+
+			if ( 'upgrade-plugin' == $action ) {
+				$title = __('Update Plugin');
+				$parent_file = 'plugins.php';
+				$submenu_file = 'plugins.php';
+			} else {
+				$title = __('Update Theme');
+				$parent_file = 'themes.php';
+				$submenu_file = 'themes.php';
+			}
+
+			require_once(ABSPATH . 'wp-admin/admin-header.php');
+
 			?>
-			<div id="updraft-autobackup" class="updated" style="border: 1px dotted; padding: 6px; margin:8px 0px; max-width: 540px;">
+			<div id="updraft-autobackup" class="updated" style="float:left; padding: 6px; margin:8px 0px;">
+				<div style="float:right;"><a href="#" onclick="jQuery('#updraft-autobackup').slideUp(); jQuery.post(ajaxurl, {action: 'updraft_ajax', subaction: 'dismissautobackup', nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce');?>' });"><?php echo sprintf(__('Dismiss (for %s weeks)', 'updraftplus'), 10); ?></a></div>
 				<h3 style="margin-top: 0px;"><?php _e('Be safe with an automatic backup','updraftplus');?></h3>
-				<?php echo apply_filters('updraftplus_autobackup_blurb', __('UpdraftPlus Premium can  <strong>automatically</strong> take a backup of your plugins or themes before you update.', 'updraftplus').' <a href="http://updraftplus.com/shop/autobackup/">'.__('Be safe every time, without needing to remember - follow this link to learn more.' ,'updraftplus').'</a>'); ?>
+				<p><?php echo __('UpdraftPlus Premium can  <strong>automatically</strong> take a backup of your plugins or themes and database before you update.', 'updraftplus').' <a href="http://updraftplus.com/shop/autobackup/">'.__('Be safe every time, without needing to remember - follow this link to learn more.' ,'updraftplus').'</a>'; ?></p>
 			</div>
 			<?php
 		}
@@ -465,6 +485,8 @@ class UpdraftPlus_Admin {
 		if (! wp_verify_nonce($nonce, 'updraftplus-credentialtest-nonce') || empty($_REQUEST['subaction'])) die('Security check');
 		if (isset($_REQUEST['subaction']) && 'lastlog' == $_REQUEST['subaction']) {
 			echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', '('.__('Nothing yet logged', 'updraftplus').')'));
+		} elseif (isset($_REQUEST['subaction']) && 'dismissautobackup' == $_REQUEST['subaction']) {
+			set_transient('updraftplus_dismissedautobackup', true, 86400*70);
 		} elseif (isset($_GET['subaction']) && 'restore_alldownloaded' == $_GET['subaction'] && isset($_GET['restoreopts']) && isset($_GET['timestamp'])) {
 
 			$backups = $updraftplus->get_backup_history();
@@ -489,9 +511,9 @@ class UpdraftPlus_Admin {
 				if (isset($elements['db'])) {
 					// Analyse the header of the database file + display results
 					list ($mess2, $warn2, $err2) = $this->analyse_db_file($_GET['timestamp'], $res);
-					if (!empty($mess2)) $mess[] = '<p>'.$mess2.'</p>';
-					if (!empty($warn2)) $warn[] = $warn2;
-					if (!empty($err2)) $err[] = $err2;
+					$mess = array_merge($mess, $mess2);
+					$warn = array_merge($warn, $warn2);
+					$err = array_merge($err, $err2);
 				}
 
 				$backupable_entities = $updraftplus->get_backupable_file_entities(true);
@@ -775,9 +797,11 @@ class UpdraftPlus_Admin {
 
 	function analyse_db_file($timestamp, $res) {
 
-		$mess = ''; $warn = ''; $err = '';
+		$mess = array(); $warn = array(); $err = array();
 
-		global $updraftplus;
+		global $updraftplus, $wp_version, $table_prefix;
+		include(ABSPATH.'wp-includes/version.php');
+
 		$backup = $updraftplus->get_backup_history($timestamp);
 		if (!isset($backup['nonce']) || !isset($backup['db'])) return array($mess, $warn, $err);
 
@@ -793,7 +817,7 @@ class UpdraftPlus_Admin {
 			$encryption = UpdraftPlus_Options::get_updraft_option('updraft_encryptionphrase');
 
 			if (!$encryption) {
-				$err .= sprintf(__('Error: %s', 'updraftplus'), __('Decryption failed. The database file is encrypted, but you have no encryption key entered.', 'updraftplus'));
+				$err[] = sprintf(__('Error: %s', 'updraftplus'), __('Decryption failed. The database file is encrypted, but you have no encryption key entered.', 'updraftplus'));
 				return array($mess, $warn, $err);
 			}
 
@@ -806,24 +830,27 @@ class UpdraftPlus_Admin {
 			if ($ciphertext) {
 				$new_db_file = $updraft_dir.'/'.basename($db_file, '.crypt');
 				if (!file_put_contents($new_db_file, $ciphertext)) {
-					$err .= sprintf(__('Error: %s', 'updraftplus'), __('Failed to write out the decrypted database to the filesystem.','updraftplus'));
+					$err[] = __('Failed to write out the decrypted database to the filesystem.','updraftplus');
 					return array($mess, $warn, $err);
 				}
 				$db_file = $new_db_file;
 			} else {
-				$err .= sprintf(__('Error: %s', 'updraftplus'), __('Decryption failed. The most likely cause is that you used the wrong key.','updraftplus'));
+				$err[] = __('Decryption failed. The most likely cause is that you used the wrong key.','updraftplus');
 				return array($mess, $warn, $err);
 			}
 		}
-error_log('ccc');
+
+		# Even the empty schema when gzipped comes to 1565 bytes; a blank WP 3.6 install at 5158. But we go low, in case someone wants to share single tables.
+		if (filesize($db_file) < 1000) {
+			$err[] = sprintf(__('The database is too small to be a valid WordPress database (size: %s Kb).','updraftplus'), round(filesize($db_file)/1024, 1));
+			return array($mess, $warn, $err);
+		}
 
 		$dbhandle = gzopen($db_file, 'r');
 		if (!$dbhandle) {
-			$err .=  sprintf(__('Error: %s', 'updraftplus'), __('Failed to open database file.','updraftplus'));
+			$err[] =  __('Failed to open database file.','updraftplus');
 			return array($mess, $warn, $err);
 		}
-error_log('ddd');
-
 
 		# Analyse the file, print the results.
 
@@ -832,20 +859,34 @@ error_log('ddd');
 		$old_table_prefix = '';
 		$old_siteinfo = array();
 		$gathering_siteinfo = true;
-		while (!gzeof($dbhandle) && $line < 100) {
+		$old_wp_version = '';
+		$import_table_prefix = $table_prefix;
+
+		$tables_found = array();
+
+		// TODO: If the backup is the right size/checksum, then we could restore the $line <= 100 in the 'while' condition and not bother scanning the whole thing? Or better: sort the core tables to be first so that this usually terminates early
+
+		$wanted_tables = array('terms', 'term_taxonomy', 'term_relationships', 'commentmeta', 'comments', 'links', 'options', 'postmeta', 'posts', 'users', 'usermeta');
+
+		while (!gzeof($dbhandle) && ($line<100 || count($wanted_tables)>0)) {
 			$line++;
 			// Up to 1Mb
 			$buffer = rtrim(gzgets($dbhandle, 1048576));
 			// Comments are what we are interested in
 			if (substr($buffer, 0, 1) == '#') {
 
-				// TODO: More information - e.g. WordPress version. Warn if importing new into old.
 				if ('' == $old_siteurl && preg_match('/^\# Backup of: (http(.*))$/', $buffer, $matches)) {
 					$old_siteurl = $matches[1];
-					$mess .= __('Backup of:', 'updraftplus').' '.htmlspecialchars($old_siteurl).'<br>';
+					$mess[] = __('Backup of:', 'updraftplus').' '.htmlspecialchars($old_siteurl);
 					// Check for should-be migration
 					if ($old_siteurl != site_url()) {
-						$warn .= apply_filters('updraftplus_dbscan_urlchange', sprintf(__('Warning: %s', 'updraftplus'), '<a href="http://updraftplus.com/shop/migrator/">'.__('This backup set is from a different site - this is not a restoration, but a migration. You need the Migrator add-on in order to make this work.', 'updraftplus').'</a>'), $old_siteurl, $res);
+						$warn[] = apply_filters('updraftplus_dbscan_urlchange', sprintf(__('Warning: %s', 'updraftplus'), '<a href="http://updraftplus.com/shop/migrator/">'.__('This backup set is from a different site - this is not a restoration, but a migration. You need the Migrator add-on in order to make this work.', 'updraftplus').'</a>'), $old_siteurl, $res);
+					}
+				} elseif ('' == $old_wp_version && preg_match('/^\# WordPress Version: ([0-9]+(\.[0-9]+)+)/', $buffer, $matches)) {
+					$old_wp_version = $matches[1];
+					if (version_compare($old_wp_version, $wp_version, '>')) {
+						$mess[] = sprintf(__('%s version: %s', 'updraftplus'), 'WordPress', $old_wp_version);
+						$warn[] = sprintf(__('You are importing from a newer version of WordPress (%s) into an older one (%s). There are no guarantees that WordPress can handle this.', 'updraftplus'), $old_wp_version, $wp_version);
 					}
 				} elseif ('' == $old_table_prefix && preg_match('/^\# Table prefix: (\S+)$/', $buffer, $matches)) {
 					$old_table_prefix = $matches[1];
@@ -857,12 +898,12 @@ error_log('ddd');
 						if (isset($old_siteinfo['multisite']) && !$old_siteinfo['multisite'] && is_multisite()) {
 							// Just need to check that you're crazy
 							if (!defined('UPDRAFTPLUS_EXPERIMENTAL_IMPORTINTOMULTISITE') ||  UPDRAFTPLUS_EXPERIMENTAL_IMPORTINTOMULTISITE != true) {
-								$err .=  sprintf(__('Error: %s', 'updraftplus'), __('You are running on WordPress multisite - but your backup is not of a multisite site.', 'updraftplus'));
+								$err[] =  sprintf(__('Error: %s', 'updraftplus'), __('You are running on WordPress multisite - but your backup is not of a multisite site.', 'updraftplus'));
 								return array($mess, $warn, $err);
 							}
 							// Got the needed code?
 							if (!class_exists('UpdraftPlusAddOn_MultiSite') || !class_exists('UpdraftPlus_Addons_Migrator')) {
-								 $err .= sprintf(__('Error: %s', 'updraftplus'), __('To import an ordinary WordPress site into a multisite installation requires both the multisite and migrator add-ons.', 'updraftplus'));
+								 $err[] = sprintf(__('Error: %s', 'updraftplus'), __('To import an ordinary WordPress site into a multisite installation requires both the multisite and migrator add-ons.', 'updraftplus'));
 								return array($mess, $warn, $err);
 							}
 						}
@@ -870,16 +911,60 @@ error_log('ddd');
 						$key = $kvmatches[1];
 						$val = $kvmatches[2];
 						if ('multisite' == $key && $val) {
-							$mess .= '<strong>'.__('Site information:','updraftplus').'</strong>'.' is a WordPress Network<br>';
+							$mess[] = '<strong>'.__('Site information:','updraftplus').'</strong>'.' is a WordPress Network';
 						}
 						$old_siteinfo[$key]=$val;
 					}
 				}
 
+			} elseif (preg_match('/^\s*create table \`?([^\`\(]*)\`?\s*\(/i', $buffer, $matches)) {
+				$table = $matches[1];
+				$tables_found[] = $table;
+				if ($old_table_prefix) {
+					// Remove prefix
+					$table = $updraftplus->str_replace_once($old_table_prefix, '', $table);
+					if (in_array($table, $wanted_tables)) {
+						$wanted_tables = array_diff($wanted_tables, array($table));
+					}
+				}
 			}
 		}
 
 		@gzclose($dbhandle);
+
+/*        $blog_tables = "CREATE TABLE $wpdb->terms (
+CREATE TABLE $wpdb->term_taxonomy (
+CREATE TABLE $wpdb->term_relationships (
+CREATE TABLE $wpdb->commentmeta (
+CREATE TABLE $wpdb->comments (
+CREATE TABLE $wpdb->links (
+CREATE TABLE $wpdb->options (
+CREATE TABLE $wpdb->postmeta (
+CREATE TABLE $wpdb->posts (
+        $users_single_table = "CREATE TABLE $wpdb->users (
+        $users_multi_table = "CREATE TABLE $wpdb->users (
+        $usermeta_table = "CREATE TABLE $wpdb->usermeta (
+        $ms_global_tables = "CREATE TABLE $wpdb->blogs (
+CREATE TABLE $wpdb->blog_versions (
+CREATE TABLE $wpdb->registration_log (
+CREATE TABLE $wpdb->site (
+CREATE TABLE $wpdb->sitemeta (
+CREATE TABLE $wpdb->signups (
+*/
+
+		$missing_tables = array();
+		if ($old_table_prefix) {
+			foreach ($wanted_tables as $table) {
+				if (!in_array($old_table_prefix.$table, $tables_found)) {
+					$missing_tables[] = $table;
+				}
+			}
+			if (count($missing_tables)>0) {
+				$warn[] = sprintf(__('This database backup is missing core WordPress tables: %s', 'updraftplus'), implode(', ', $missing_tables));
+			}
+		} else {
+			$warn[] = __('UpdraftPlus was unable to find the table prefix when scanning the database backup.', 'updraftplus');
+		}
 
 		return array($mess, $warn, $err);
 
@@ -1142,9 +1227,10 @@ error_log('ddd');
 		// updraft_file_ids is not deleted
 		if(isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_all') { $updraftplus->boot_backup(true,true); }
 		elseif (isset($_POST['action']) && $_POST['action'] == 'updraft_backup_debug_db') {
-			global $updraftplus_backup;
-			if (!is_a($updraftplus_backup, 'UpdraftPlus_Backup')) require_once(UPDRAFTPLUS_DIR.'/backup.php');
-			$updraftplus_backup->backup_db();
+			$updraftplus->boot_backup(false, true, false, true);
+//			global $updraftplus_backup;
+// 			if (!is_a($updraftplus_backup, 'UpdraftPlus_Backup')) require_once(UPDRAFTPLUS_DIR.'/backup.php');
+// 			$updraftplus_backup->backup_db();
 		} elseif (isset($_POST['action']) && $_POST['action'] == 'updraft_wipesettings') {
 			$settings = array('updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_wpcore', 'updraft_include_wpcore_exclude', 'updraft_include_more', 
 			'updraft_include_blogs', 'updraft_include_mu-plugins', 'updraft_include_others_exclude', 'updraft_lastmessage', 'updraft_googledrive_clientid', 'updraft_googledrive_token', 'updraft_dropboxtk_request_token', 'updraft_dropboxtk_access_token', 'updraft_dropbox_folder', 'updraft_last_backup', 'updraft_starttime_files', 'updraft_starttime_db', 'updraft_startday_db', 'updraft_startday_files', 'updraft_sftp_settings', 'updraft_s3generic_login', 'updraft_s3generic_pass', 'updraft_s3generic_remote_path', 'updraft_s3generic_endpoint', 'updraft_webdav_settings', 'updraft_disable_ping', 'updraft_cloudfiles_user', 'updraft_cloudfiles_apikey', 'updraft_cloudfiles_path', 'updraft_cloudfiles_authurl', 'updraft_ssl_useservercerts', 'updraft_ssl_disableverify', 'updraft_s3_login', 'updraft_s3_pass', 'updraft_s3_remote_path', 'updraft_dreamobjects_login', 'updraft_dreamobjects_pass', 'updraft_dreamobjects_remote_path');
@@ -1158,7 +1244,7 @@ error_log('ddd');
 		<div class="wrap">
 			<h1><?php echo $updraftplus->plugin_title; ?></h1>
 
-			<?php _e('By UpdraftPlus.Com','updraftplus')?> ( <a href="http://updraftplus.com">UpdraftPlus.Com</a> | <a href="http://updraftplus.com/news/"><?php _e('News','updraftplus');?></a> | <?php if (!defined('UPDRAFTPLUS_NOADS3')) { ?><a href="http://updraftplus.com/shop/"><?php _e("Premium",'updraftplus');?></a>  | <?php } ?><a href="http://david.dw-perspective.org.uk"><?php _e("Lead developer's homepage",'updraftplus');?></a> | <?php if (1==0 && !defined('UPDRAFTPLUS_NOADS3')) { ?><a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate"><?php _e('Donate','updraftplus');?></a> | <?php } ?><a href="http://updraftplus.com/support/frequently-asked-questions/">FAQs</a> | <a href="http://profiles.wordpress.org/davidanderson/"><?php _e('Other WordPress plugins','updraftplus');?></a>). <?php _e('Version','updraftplus');?>: <?php echo $updraftplus->version; ?>
+			<?php _e('By UpdraftPlus.Com','updraftplus')?> ( <a href="http://updraftplus.com">UpdraftPlus.Com</a> | <a href="http://updraftplus.com/news/"><?php _e('News','updraftplus');?></a> | <?php if (!defined('UPDRAFTPLUS_NOADS3')) { ?><a href="http://updraftplus.com/shop/"><?php _e("Premium",'updraftplus');?></a>  | <?php } ?><a href="http://updraftplus.com/support/"><?php _e("Support",'updraftplus');?></a> | <a href="http://david.dw-perspective.org.uk"><?php _e("Lead developer's homepage",'updraftplus');?></a> | <?php if (1==0 && !defined('UPDRAFTPLUS_NOADS3')) { ?><a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate"><?php _e('Donate','updraftplus');?></a> | <?php } ?><a href="http://updraftplus.com/support/frequently-asked-questions/">FAQs</a> | <a href="http://profiles.wordpress.org/davidanderson/"><?php _e('More plugins','updraftplus');?></a> ) <?php _e('Version','updraftplus');?>: <?php echo $updraftplus->version; ?>
 			<br>
 
 			<div id="updraft-hidethis">

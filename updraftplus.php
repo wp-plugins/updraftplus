@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.62
+Version: 1.6.65
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -13,10 +13,10 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
-# Add sanity checking of wpcore backup - there ought to be what we expect in there (saw a crazy one)
 // Make clearer that after activating 'all addons' you don't need to activate 1-by-1
 // Backup notes
 // Log migrations/restores, and have an option for auto-emailing the log
+// Alert user if warnings are interfering with header() - and thus breaking OAuth for Dropbox/Google Drive first-time setup.
 # BinZip is not yet MA-compatible. Create an UpdraftPlus_BinZip class. Test timings (see zip-timings.txt). Turn BinZip back on if it's good.
 // Log a warning if the resumption is loonnggg after it was expected to be (usually on unvisited dev sites)
 # Once we know that there is a second archive, we should rename the first file with a "1" in the filename, so that missing archives are better detected upon upload/support. We could rename *all* the files at the 'finished files' stage to be like '1of5', '2of5', etc. Then detect that via the regex when scanning + uploading. Then we'll know exactly which are missing. Will just need to verify that nothing relies on the old file names once the file status is set to 'finished' (or even better, recognise this new convention - make the 'of(\d+)' optional).
@@ -26,37 +26,30 @@ TODO - some of these are out of date/done, needs pruning
 // Unpack zips via AJAX? Do bit-by-bit to allow enormous opens a better chance? (have a huge one in Dropbox)
 // Roll UD-addons plugin into the main plugin for those getting it from ud.com
 // Put in a maintenance-mode detector
-// Put in a default handler for "Backup Now" button so that if JS is faulty, the user still sees something (prevents support requests)
 // Detect CloudFlare output in attempts to connect - detecting cloudflare.com should be sufficient
 // Bring multisite shop page up to date
 // Re-do pricing + support packages
 // Give a help page to go with the message: A zip error occurred - check your log for more details (reduce support requests)
 // Exclude .git and .svn by default from wpcore
-// Add more info to email - e.g. names + sizes + checksums of uploads + locations
 // Restore-console not showing proper time-zone?
-// One user changed his backup filename format. Produce more help for this.
-// Save ~0.5s: cache (within job) results of binzip test
-// On restore, don't remove directories like wp-content/plugin and replace them; instead empty + fill (in case there are corner-cases - not found any yet, but is better)
 // Add option to add, not just replace entities on restore/migrate
 // Warnings of unreadable files upon PclZip fall-back may need to be more visible - test
 // Add warning to backup run at beginning if -old dirs exist
-// Alert user if warnings are interfering with header() - and thus breaking OAuth for Dropbox/Google Drive first-time setup.
 // Auto-alert if disk usage passes user-defined threshold / or an automatically computed one. Auto-alert if more backups are known than should be (usually a sign of incompleteness)
 // Generic S3 provider: add page to site. S3-compatible storage providers: http://www.dragondisk.com/s3-storage-providers.html
-// Importer - import backup sets from another WP site
+// Importer - import backup sets from another WP site directly via HTTP
 // Option to create new user for self post-restore
 // Auto-disable certain cacheing/minifying plugins post-restore
 // Enhance Google Drive support to not require registration, and to allow offline auth
 // Add note post-DB backup: you will need to log in using details from newly-imported DB
 // Check why this one wasn't caught by the automatic-user-entered-wrong-thing-in-folder-ID field: https://drive.google.com/?pli=1&authuser=0#folders/0B3ad2KUS8hxPbVp4UGJlVW5ObjQ (http://pastebin.com/fpEEWV7U)
-// Log file SHA1 after finishing creation
 // Make search+replace two-pass to deal with moving between exotic non-default moved-directory setups
 // Get link - http://www.rackspace.com/knowledge_center/article/how-to-use-updraftplus-to-back-up-cloud-sites-to-cloud-files
-// Eliminate variable backup_time (which is floor(backup_time_ms))
 // 'Delete from your webserver' should trigger a rescan if the backup was local-only
 // Notify user only if backup fails
+// Log file SHA1 after finishing creation
+// Add more info to email - e.g. names + sizes + checksums of uploads + locations
 // Encrypt archives - http://www.frostjedi.com/phpbb3/viewtopic.php?f=46&t=168508&p=391881&e=391881
-// Give clearer message when Dropbox auth fails during run
 // Option for additive restores - i.e. add content (themes, plugins,...) instead of replacing
 // Testing framework - automated testing of all file upload / download / deletion methods
 // Though Google Drive code users WP's native HTTP functions, it seems to not work if WP natively uses something other than curl
@@ -78,21 +71,17 @@ TODO - some of these are out of date/done, needs pruning
 // If migrating, warn about consequences of over-writing wp-config.php
 // Produce a command-line version of the restorer (so that people with shell access are immune from server-enforced timeouts)
 // Restorations should be logged also
-// More sophisticated pruning options - e.g. "but only keep 1 backup every <x> <days> after <y> <weeks>"
 // Migrator - list+download from remote, kick-off backup remotely
 // April 20, 2015: This is the date when the Google Documents API is likely to stop working (https://developers.google.com/google-apps/documents-list/terms)
 // Search for other TODO-s in the code
-// More databases
 // Opt-in non-personal stats + link to aggregated results
 // Stand-alone installer - take a look at this: http://wordpress.org/extend/plugins/duplicator/screenshots/
 // More DB add-on (other non-WP tables; even other databases)
 // Unlimited customers should be auto-emailed each time they add a site (security)
 // Update all-features page at updraftplus.com (not updated after 1.5.5)
-// Count available time before doing a database restore
 // Add in downloading in the 'Restore' modal, and remove the advice to do so manually.
 // Save database encryption key inside backup history on per-db basis, so that if it changes we can still decrypt
 // Switch to Google Drive SDK. Google folders. https://developers.google.com/drive/folder
-// Affiliate links? (I have no need...)
 // Convert S3.php to use WP's native HTTP functions
 // AJAX-ify restoration
 // Ability to re-scan existing cloud storage
@@ -517,6 +506,7 @@ class UpdraftPlus {
 		return (@ini_get('safe_mode') && strtolower(@ini_get('safe_mode')) != "off") ? 1 : 0;
 	}
 
+	# We require -@ and -u -r to work - which is the usual Linux binzip
 	function find_working_bin_zip($logit = true) {
 		if ($this->detect_safe_mode()) return false;
 		// The hosting provider may have explicitly disabled the popen function
@@ -551,21 +541,48 @@ class UpdraftPlus {
 						$all_ok = false;
 					}
 
+					# Now test -@
+					if (true == $all_ok) {
+						file_put_contents($updraft_dir.'/binziptest/subdir1/subdir2/test2.html', '<html></body><a href="http://updraftplus.com">UpdraftPlus is a really great backup and restoration plugin for WordPress.</body></html>');
+						
+						$exec = "cd ".escapeshellarg($updraft_dir).";  echo ".escapeshellarg('binziptest/subdir1/subdir2/test2.html')." | $potzip -@ binziptest/test.zip";
+
+						$all_ok=true;
+						$handle = popen($exec, "r");
+						if ($handle) {
+							while (!feof($handle)) {
+								$w = fgets($handle);
+								if ($w && $logit) $this->log("Output: ".trim($w));
+							}
+							$ret = pclose($handle);
+							if ($ret !=0) {
+								if ($logit) $this->log("Binary zip: error (code: $ret)");
+								$all_ok = false;
+							}
+						} else {
+							if ($logit) $this->log("Error: popen failed");
+							$all_ok = false;
+						}
+
+					}
+
 					// Do we now actually have a working zip? Need to test the created object using PclZip
 					// If it passes, then remove dirs and then return $potzip;
-
+					$found_first = false;
+					$found_second = false;
 					if ($all_ok && file_exists($updraft_dir.'/binziptest/test.zip')) {
 						if(!class_exists('PclZip')) require_once(ABSPATH.'/wp-admin/includes/class-pclzip.php');
 						$zip = new PclZip($updraft_dir.'/binziptest/test.zip');
 						$foundit = 0;
 						if (($list = $zip->listContent()) != 0) {
 							foreach ($list as $obj) {
-								if ($list['filename'] && $list['stored_filename'] && $list['size']==127) $all_ok=-1;
+								if ($obj['filename'] && !empty($obj['stored_filename']) && 'binziptest/subdir1/subdir2/test.html' == $obj['stored_filename'] && $obj['size']==127) $found_first=true;
+								if ($obj['filename'] && !empty($obj['stored_filename']) && 'binziptest/subdir1/subdir2/test2.html' == $obj['stored_filename'] && $obj['size']==134) $found_second=true;
 							}
 						}
 					}
 					$this->remove_binzip_test_files($updraft_dir);
-					if ($all_ok == -1 ) {
+					if ($found_first && $found_second) {
 						if ($logit) $this->log("Working binary zip found: $potzip");
 						return $potzip;
 					}
@@ -579,6 +596,7 @@ class UpdraftPlus {
 
 	function remove_binzip_test_files($updraft_dir) {
 		@unlink($updraft_dir.'/binziptest/subdir1/subdir2/test.html');
+		@unlink($updraft_dir.'/binziptest/subdir1/subdir2/test2.html');
 		@rmdir($updraft_dir.'/binziptest/subdir1/subdir2');
 		@rmdir($updraft_dir.'/binziptest/subdir1');
 		@unlink($updraft_dir.'/binziptest/test.zip');
@@ -974,13 +992,15 @@ class UpdraftPlus {
 		// Log some information that may be helpful
 		$this->log("Tasks: Backup files: $backup_files (schedule: ".UpdraftPlus_Options::get_updraft_option('updraft_interval', 'unset').") Backup DB: $backup_database (schedule: ".UpdraftPlus_Options::get_updraft_option('updraft_interval_database', 'unset').")");
 
-		# If the files and database schedules are the same, and if this the file one, then we rope in database too.
-		# On the other hand, if the schedules were the same and this was the database run, then there is nothing to do.
-		if (UpdraftPlus_Options::get_updraft_option('updraft_interval') == UpdraftPlus_Options::get_updraft_option('updraft_interval_database') || UpdraftPlus_Options::get_updraft_option('updraft_interval_database', 'xyz') == 'xyz' ) {
-			$backup_database = ($backup_files == true) ? true : false;
+		if (false === $oneshot) {
+			# If the files and database schedules are the same, and if this the file one, then we rope in database too.
+			# On the other hand, if the schedules were the same and this was the database run, then there is nothing to do.
+			if (UpdraftPlus_Options::get_updraft_option('updraft_interval') == UpdraftPlus_Options::get_updraft_option('updraft_interval_database') || UpdraftPlus_Options::get_updraft_option('updraft_interval_database', 'xyz') == 'xyz' ) {
+				$backup_database = ($backup_files == true) ? true : false;
+			}
+			$this->log("Processed schedules. Tasks now: Backup files: $backup_files Backup DB: $backup_database");
 		}
 
-		$this->log("Processed schedules. Tasks now: Backup files: $backup_files Backup DB: $backup_database");
 
 		# If nothing to be done, then just finish
 		if (!$backup_files && !$backup_database) {
@@ -1024,7 +1044,7 @@ class UpdraftPlus {
 		// Use of jobdata_set_multi saves around 200ms
 		call_user_func_array(array($this, 'jobdata_set_multi'), $initial_jobdata);
 
-		// Everything is now set up; now go
+		// Everything is set up; now go
 		$this->backup_resume(0, $this->nonce);
 
 	}
@@ -1335,11 +1355,11 @@ class UpdraftPlus {
 		}
 	}
 	
-	function is_db_encrypted($file) {
+	public function is_db_encrypted($file) {
 		return preg_match('/\.crypt$/i', $file);
 	}
 
-	function get_backup_history($timestamp = false) {
+	public function get_backup_history($timestamp = false) {
 		$backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
 		// In fact, it looks like the line below actually *introduces* a race condition
 		//by doing a raw DB query to get the most up-to-date data from this option we slightly narrow the window for the multiple-cron race condition
@@ -1363,10 +1383,16 @@ class UpdraftPlus {
 		die;
 	}
 
-	function str_lreplace($search, $replace, $subject) {
+	# Replace last occurence
+	public function str_lreplace($search, $replace, $subject) {
 		$pos = strrpos($subject, $search);
 		if($pos !== false) $subject = substr_replace($subject, $replace, $pos, strlen($search));
 		return $subject;
+	}
+
+	public function str_replace_once($needle, $replace, $haystack) {
+		$pos = strpos($haystack,$needle);
+		return ($pos !== false) ? substr_replace($haystack,$replace,$pos,strlen($needle)) : $haystack;
 	}
 
 	/*
@@ -1375,7 +1401,7 @@ class UpdraftPlus {
 	are saved it is called.  it returns the actual result from wp_filter_nohtml_kses (a sanitization filter) 
 	so the option can be properly saved.
 	*/
-	function schedule_backup($interval) {
+	public function schedule_backup($interval) {
 		//clear schedule and add new so we don't stack up scheduled backups
 		wp_clear_scheduled_hook('updraft_backup');
 		switch($interval) {
@@ -1393,12 +1419,12 @@ class UpdraftPlus {
 		return wp_filter_nohtml_kses($interval);
 	}
 
-	function deactivation () {
-		wp_clear_scheduled_hook('updraftplus_weekly_ping');
+	public function deactivation () {
+// 		wp_clear_scheduled_hook('updraftplus_weekly_ping');
 	}
 
 	// Acts as a WordPress options filter
-	function googledrive_clientid_checkchange($client_id) {
+	public function googledrive_clientid_checkchange($client_id) {
 		if (UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token') != '' && UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid') != $client_id) {
 			require_once(UPDRAFTPLUS_DIR.'/methods/googledrive.php');
 			add_action('http_api_curl', array($this, 'add_curl_capath'));
@@ -1409,7 +1435,7 @@ class UpdraftPlus {
 		return $client_id;
 	}
 
-	function schedule_backup_database($interval) {
+	public function schedule_backup_database($interval) {
 		//clear schedule and add new so we don't stack up scheduled backups
 		wp_clear_scheduled_hook('updraft_backup_database');
 		switch($interval) {
@@ -1428,7 +1454,7 @@ class UpdraftPlus {
 	}
 
 	//wp-cron only has hourly, daily and twicedaily, so we need to add some of our own
-	function modify_cron_schedules($schedules) {
+	public function modify_cron_schedules($schedules) {
 		$schedules['weekly'] = array( 'interval' => 604800, 'display' => 'Once Weekly' );
 		$schedules['fortnightly'] = array( 'interval' => 1209600, 'display' => 'Once Each Fortnight' );
 		$schedules['monthly'] = array( 'interval' => 2592000, 'display' => 'Once Monthly' );
@@ -1438,7 +1464,7 @@ class UpdraftPlus {
 	}
 
 	// Returns without any trailing slash
-	function backups_dir_location() {
+	public function backups_dir_location() {
 
 		if (!empty($this->backup_dir)) return $this->backup_dir;
 
@@ -1465,7 +1491,7 @@ class UpdraftPlus {
 		return $updraft_dir;
 	}
 
-	function spool_file($type, $fullpath, $encryption = "") {
+	public function spool_file($type, $fullpath, $encryption = "") {
 
 		@set_time_limit(900);
 
@@ -1521,7 +1547,7 @@ class UpdraftPlus {
 		}
 	}
 
-	function retain_range($input) {
+	public function retain_range($input) {
 		$input = (int)$input;
 		return  ($input > 0 && $input < 3650) ? $input : 1;
 	}
@@ -1550,15 +1576,15 @@ class UpdraftPlus {
 		return ($memory_limit >= $memory)?true:false;
 	}
 
-	function url_start($urls,$url) {
+	private function url_start($urls,$url) {
 		return ($urls) ? '<a href="http://'.$url.'">' : "";
 	}
 
-	function url_end($urls,$url) {
+	private function url_end($urls,$url) {
 		return ($urls) ? '</a>' : " (http://$url)";
 	}
 
-	function wordshell_random_advert($urls) {
+	public function wordshell_random_advert($urls) {
 		if (defined('UPDRAFTPLUS_NOADS3')) return "";
 		$rad = rand(0,8);
 		switch ($rad) {
