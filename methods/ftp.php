@@ -145,7 +145,8 @@ class UpdraftPlus_BackupModule_ftp {
 	public static function config_print_javascript_onready() {
 		?>
 		jQuery('#updraft-ftp-test').click(function(){
-			var data = {
+			jQuery('#updraft-ftp-test').html('<?php echo sprintf(__('Testing %s Settings...', 'updraftplus'),'FTP'); ?>');
+				var data = {
 				action: 'updraft_ajax',
 				subaction: 'credentials_test',
 				method: 'ftp',
@@ -159,6 +160,7 @@ class UpdraftPlus_BackupModule_ftp {
 				nossl: (jQuery('#updraft_ssl_nossl').is(':checked')) ? 1 : 0,
 			};
 			jQuery.post(ajaxurl, data, function(response) {
+					jQuery('#updraft-ftp-test').html('<?php echo sprintf(__('Test %s Settings', 'updraftplus'),'FTP'); ?>');
 				alert('<?php _e('Settings test result:','updraftplus');?> ' + response);
 			});
 		});
