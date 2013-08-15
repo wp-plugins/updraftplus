@@ -42,13 +42,12 @@ class UpdraftPlus_BackupModule_dropbox {
 			return false;
 		}
 
-		$updraftplus->log("Dropbox: access gained");
-
 		try {
 			$dropbox = $this->bootstrap();
+			$updraftplus->log("Dropbox: access gained");
 			$dropbox->setChunkSize(524288); // 512Kb
 		} catch (Exception $e) {
-			$updraftplus->log('Dropbox error: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
+			$updraftplus->log('Dropbox error when trying to gain access: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
 			$updraftplus->log(sprintf(__('Dropbox error: %s (see log file for more)','updraftplus'), $e->getMessage()), 'error');
 			return false;
 		}

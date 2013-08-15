@@ -406,13 +406,6 @@ class UpdraftPlus_Backup {
 
 		if(!$updraftplus->backup_time) $updraftplus->backup_time_nonce();
 
-		$updraft_dir = $updraftplus->backups_dir_location();
-		if(!$updraftplus->really_is_writable($updraft_dir)) {
-			$updraftplus->log("Backup directory ($updraft_dir) is not writable, or does not exist");
-			$updraftplus->log(sprintf(__("Backup directory (%s) is not writable, or does not exist.", 'updraftplus'), $updraft_dir), 'error');
-			return array();
-		}
-
 		//get the blog name and rip out all non-alphanumeric chars other than _
 		$blog_name = preg_replace('/[^A-Za-z0-9_]/','', str_replace(' ','_', substr(get_bloginfo(), 0, 32)));
 		if (!$blog_name) $blog_name = 'non_alpha_name';
@@ -425,7 +418,7 @@ class UpdraftPlus_Backup {
 		$possible_backups = $updraftplus->get_backupable_file_entities(true);
 
 		// Was there a check-in last time? If not, then reduce the amount of data attempted
-		if ($updraftplus->current_resumption >= 2 && $updraftplus->current_resumption<=10) {
+		if ($transient_status != 'finished' && $updraftplus->current_resumption >= 2 && $updraftplus->current_resumption<=10) {
 			$maxzipbatch = $updraftplus->jobdata_get('maxzipbatch', 26214400);
 			if ((int)$maxzipbatch < 1) $maxzipbatch = 26214400;
 			$time_passed = $updraftplus->jobdata_get('run_times');
@@ -440,6 +433,13 @@ class UpdraftPlus_Backup {
 					$updraftplus->jobdata_set('maxzipbatch_ceiling', $new_maxzipbatch);
 				}
 			}
+		}
+
+		$updraft_dir = $updraftplus->backups_dir_location();
+		if($transient_status != 'finished' && !$updraftplus->really_is_writable($updraft_dir)) {
+			$updraftplus->log("Backup directory ($updraft_dir) is not writable, or does not exist");
+			$updraftplus->log(sprintf(__("Backup directory (%s) is not writable, or does not exist.", 'updraftplus'), $updraft_dir), 'error');
+			return array();
 		}
 
 		$job_file_entities = $updraftplus->jobdata_get('job_file_entities');
@@ -568,13 +568,15 @@ class UpdraftPlus_Backup {
 			foreach ($files as $ind => $file) {
 				if (preg_match('/^(backup_[\-0-9]{15}_.*_[0-9a-f]{12}-[\-a-z]+)([0-9]+)?\.zip$/i', $file, $matches)) {
 					$num = max((int)$matches[2],1);
+					$new = $matches[1].$num.'of'.$outof.'.zip';
 					if (file_exists($updraft_dir.'/'.$file)) {
-						$new = $matches[1].$num.'of'.$outof.'.zip';
 						if (@rename($updraft_dir.'/'.$file, $updraft_dir.'/'.$new)) {
 							$updraftplus->log(sprintf("Renaming: %s to %s", $file, $new));
 							$backup_array[$entity][$ind] = $new;
 						}
-					}
+					} elseif (file_exists($updraft_dir.'/'.$new)) {
+						$backup_array[$entity][$ind] = $new;
+					} 
 				}
 			}
 		}
