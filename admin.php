@@ -1273,11 +1273,7 @@ CREATE TABLE $wpdb->signups (
 			if($deleted_old_dirs) echo '<div style="color:blue" class=\"updated fade\">'.__('Old directories successfully deleted.','updraftplus').'</div>';
 
 			if(!$updraftplus->memory_check(64)) {?>
-				<div style="color:orange"><?php _e("Your PHP memory limit (set by your web hosting company) is quite low. UpdraftPlus attempted to raise it but was unsuccessful. This plugin may struggle with a memory limit of less than 64 Mb  - especially if you have very large files uploaded (though on the other hand, many sites will bhe  successful with a 32Mb limit - your experience may vary).",'updraftplus');?> <?php _e('Current limit is:','updraftplus');?> <?php echo $updraftplus->memory_check_current(); ?> Mb</div>
-			<?php
-			}
-			if(1==0 && !$this->execution_time_check(60)) {?>
-				<div style="color:orange"><?php _e("Your PHP max_execution_time is less than 60 seconds. This possibly means you're running in safe_mode. Either disable safe_mode or modify your php.ini to set max_execution_time to a higher number. If you do not, then longer will be needed to complete a backup (but that is all). Present limit is:",'updraftplus');?> <?php echo ini_get('max_execution_time').' '.__('seconds','updraftplus')?>.</div>
+				<div class="updated fade" style="padding:8px;"><?php _e("Your PHP memory limit (set by your web hosting company) is very low. UpdraftPlus attempted to raise it but was unsuccessful. This plugin may struggle with a memory limit of less than 64 Mb  - especially if you have very large files uploaded (though on the other hand, many sites will be successful with a 32Mb limit - your experience may vary).",'updraftplus');?> <?php _e('Current limit is:','updraftplus');?> <?php echo $updraftplus->memory_check_current(); ?> Mb</div>
 			<?php
 			}
 			if($this->scan_old_dirs()) {?>

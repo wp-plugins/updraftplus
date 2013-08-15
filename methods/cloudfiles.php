@@ -369,7 +369,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 			};
 			jQuery.post(ajaxurl, data, function(response) {
 				jQuery('#updraft-cloudfiles-test').html('<?php echo sprintf(__('Test %s Settings','updraftplus'),'Cloud Files');?>');
-				alert('Settings test result: ' + response);
+				alert('<?php _e('Settings test result:','updraftplus');?> ' + response);
 			});
 		});
 		<?php

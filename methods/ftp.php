@@ -159,7 +159,7 @@ class UpdraftPlus_BackupModule_ftp {
 				nossl: (jQuery('#updraft_ssl_nossl').is(':checked')) ? 1 : 0,
 			};
 			jQuery.post(ajaxurl, data, function(response) {
-				alert('<?php _e('Settings test result','updraftplus');?>: ' + response);
+				alert('<?php _e('Settings test result:','updraftplus');?> ' + response);
 			});
 		});
 		<?php

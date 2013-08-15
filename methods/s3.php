@@ -346,7 +346,7 @@ class UpdraftPlus_BackupModule_s3 {
 			};
 			jQuery.post(ajaxurl, data, function(response) {
 					jQuery('#updraft-<?php echo $key; ?>-test').html('<?php echo sprintf(__('Test %s Settings', 'updraftplus'),$whoweare); ?>');
-					alert('Settings test result: ' + response);
+					alert('<?php _e('Settings test result:','updraftplus');?> '+response);
 			});
 		});
 		<?php

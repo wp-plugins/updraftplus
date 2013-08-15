@@ -523,7 +523,6 @@ class UpdraftPlus_Backup {
 						}
 					} else {
 						$updraftplus->log("$youwhat: create_zip returned an error");
-						$job_file_entities[$youwhat]['index'] = $index;
 					}
 
 					$job_file_entities[$youwhat]['index'] = $this->index;
