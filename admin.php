@@ -226,7 +226,7 @@ class UpdraftPlus_Admin {
 	}
 
 	function googledrive_remove_folderurlprefix($input) {
-		return str_replace('https://drive.google.com/#folders/', '', $input);
+		return preg_replace('/https:\/\/drive.google.com\/(.*)#folders\//', '', $input);
 	}
 
 	function disk_space_check($space) {

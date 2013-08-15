@@ -34,14 +34,13 @@ TODO - some of these are out of date/done, needs pruning
 // Add option to add, not just replace entities on restore/migrate
 // Warnings of unreadable files upon PclZip fall-back may need to be more visible - test
 // Add warning to backup run at beginning if -old dirs exist
-// Auto-alert if disk usage passes user-defined threshold / or an automatically computed one. Auto-alert if more backups are known than should be (usually a sign of incompleteness)
+// Auto-alert if disk usage passes user-defined threshold / or an automatically computed one. Auto-alert if more backups are known than should be (usually a sign of incompleteness). Actually should just delete unknown backups over a certain age.
 // Generic S3 provider: add page to site. S3-compatible storage providers: http://www.dragondisk.com/s3-storage-providers.html
 // Importer - import backup sets from another WP site directly via HTTP
 // Option to create new user for self post-restore
 // Auto-disable certain cacheing/minifying plugins post-restore
 // Enhance Google Drive support to not require registration, and to allow offline auth
 // Add note post-DB backup: you will need to log in using details from newly-imported DB
-// Check why this one wasn't caught by the automatic-user-entered-wrong-thing-in-folder-ID field: https://drive.google.com/?pli=1&authuser=0#folders/0B3ad2KUS8hxPbVp4UGJlVW5ObjQ (http://pastebin.com/fpEEWV7U)
 // Make search+replace two-pass to deal with moving between exotic non-default moved-directory setups
 // Get link - http://www.rackspace.com/knowledge_center/article/how-to-use-updraftplus-to-back-up-cloud-sites-to-cloud-files
 // 'Delete from your webserver' should trigger a rescan if the backup was local-only
@@ -108,7 +107,6 @@ TODO - some of these are out of date/done, needs pruning
 // Allow connecting to remote storage, scanning + populating backup history from it
 // GoogleDrive in-dashboard download resumption loads the whole archive into memory - should instead either chunk or directly stream fo the file handle
 // Multisite add-on should allow restoring of each blog individually
-// When looking for files to delete, is the current encryption setting used? Should not be.
 // Create single zip, containing even WordPress itself
 // Remove the recurrence of admin notices when settings are saved due to _wp_referer
 
@@ -251,7 +249,7 @@ class UpdraftPlus {
 
 	}
 
-	function admin_init() {
+	public function admin_init() {
 		// We are in the admin area: now load all that code
 		global $updraftplus_admin;
 		if (empty($updraftplus_admin)) require_once(UPDRAFTPLUS_DIR.'/admin.php');
@@ -292,13 +290,13 @@ class UpdraftPlus {
 
 	}
 
-	function add_curl_capath($handle) {
+	public function add_curl_capath($handle) {
 		if (!UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts')) curl_setopt($handle, CURLOPT_CAINFO, UPDRAFTPLUS_DIR.'/includes/cacert.pem' );
 	}
 
 	// Handle actions passed on to method plugins; e.g. Google OAuth 2.0 - ?page=updraftplus&action=updraftmethod-googledrive-auth
 	// Also handle action=downloadlog
-	function handle_url_actions() {
+	public function handle_url_actions() {
 
 		// First, basic security check: must be an admin page, with ability to manage options, with the right parameters
 		// Also, only on GET because WordPress on the options page repeats parameters sometimes when POST-ing via the _wp_referer field

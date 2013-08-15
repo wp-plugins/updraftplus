@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: UpdraftPlus\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-08-15 10:36+0100\n"
-"PO-Revision-Date: 2013-08-15 10:37+0100\n"
+"POT-Creation-Date: 2013-08-15 11:29+0100\n"
+"PO-Revision-Date: 2013-08-15 11:29+0100\n"
 "Last-Translator: David Anderson <contact@updraftplus.com>\n"
 "Language-Team:  <contact@updraftplus.com>\n"
 "Language: \n"
@@ -18,134 +18,134 @@ msgstr ""
 msgid "UpdraftPlus Backups"
 msgstr ""
 
-#: updraftplus.php:343
-#: updraftplus.php:348
-#: updraftplus.php:353
+#: updraftplus.php:341
+#: updraftplus.php:346
+#: updraftplus.php:351
 #: admin.php:312
 #: admin.php:316
 msgid "UpdraftPlus notice:"
 msgstr ""
 
-#: updraftplus.php:343
+#: updraftplus.php:341
 msgid "The log file could not be read."
 msgstr ""
 
-#: updraftplus.php:348
+#: updraftplus.php:346
 msgid "No log files were found."
 msgstr ""
 
-#: updraftplus.php:353
+#: updraftplus.php:351
 msgid "The given file could not be read."
 msgstr ""
 
-#: updraftplus.php:437
+#: updraftplus.php:435
 #, php-format
 msgid "Your free disk space is very low - only %s Mb remain"
 msgstr ""
 
-#: updraftplus.php:656
+#: updraftplus.php:654
 msgid "Plugins"
 msgstr ""
 
-#: updraftplus.php:657
+#: updraftplus.php:655
 msgid "Themes"
 msgstr ""
 
-#: updraftplus.php:658
+#: updraftplus.php:656
 msgid "Uploads"
 msgstr ""
 
-#: updraftplus.php:673
+#: updraftplus.php:671
 msgid "Others"
 msgstr ""
 
-#: updraftplus.php:983
+#: updraftplus.php:981
 msgid "Could not create files in the backup directory. Backup aborted - check your UpdraftPlus settings."
 msgstr ""
 
-#: updraftplus.php:1084
+#: updraftplus.php:1082
 msgid "The backup apparently succeeded and is now complete"
 msgstr ""
 
-#: updraftplus.php:1086
+#: updraftplus.php:1084
 msgid "The backup apparently succeeded (with warnings) and is now complete"
 msgstr ""
 
-#: updraftplus.php:1090
+#: updraftplus.php:1088
 msgid "The backup attempt has finished, apparently unsuccessfully"
 msgstr ""
 
-#: updraftplus.php:1093
+#: updraftplus.php:1091
 msgid "The backup has not finished; a resumption is scheduled within 5 minutes"
 msgstr ""
 
-#: updraftplus.php:1338
+#: updraftplus.php:1336
 msgid "Could not read the directory"
 msgstr ""
 
-#: updraftplus.php:1355
+#: updraftplus.php:1353
 msgid "Could not save backup history because we have no backup array. Backup probably failed."
 msgstr ""
 
-#: updraftplus.php:1516
+#: updraftplus.php:1514
 #: restorer.php:87
 #: admin.php:830
 msgid "Decryption failed. The database file is encrypted, but you have no encryption key entered."
 msgstr ""
 
-#: updraftplus.php:1529
+#: updraftplus.php:1527
 #: restorer.php:102
 #: admin.php:848
 msgid "Decryption failed. The most likely cause is that you used the wrong key."
 msgstr ""
 
-#: updraftplus.php:1529
+#: updraftplus.php:1527
 msgid "The decryption key used:"
 msgstr ""
 
-#: updraftplus.php:1547
+#: updraftplus.php:1545
 msgid "File not found"
 msgstr ""
 
-#: updraftplus.php:1597
+#: updraftplus.php:1595
 msgid "Can you translate? Want to improve UpdraftPlus for speakers of your language?"
 msgstr ""
 
-#: updraftplus.php:1599
-#: updraftplus.php:1605
+#: updraftplus.php:1597
+#: updraftplus.php:1603
 msgid "Like UpdraftPlus and can spare one minute?"
 msgstr ""
 
-#: updraftplus.php:1599
-#: updraftplus.php:1605
+#: updraftplus.php:1597
+#: updraftplus.php:1603
 msgid "Please help UpdraftPlus by giving a positive review at wordpress.org"
 msgstr ""
 
-#: updraftplus.php:1612
+#: updraftplus.php:1610
 msgid "Need even more features and support? Check out UpdraftPlus Premium"
 msgstr ""
 
-#: updraftplus.php:1619
+#: updraftplus.php:1617
 msgid "Subscribe to the UpdraftPlus blog to get up-to-date news and offers"
 msgstr ""
 
-#: updraftplus.php:1619
+#: updraftplus.php:1617
 msgid "Blog link"
 msgstr ""
 
-#: updraftplus.php:1619
+#: updraftplus.php:1617
 msgid "RSS link"
 msgstr ""
 
-#: updraftplus.php:1622
+#: updraftplus.php:1620
 msgid "Check out UpdraftPlus.Com for help, add-ons and support"
 msgstr ""
 
-#: updraftplus.php:1625
+#: updraftplus.php:1623
 msgid "Want to say thank-you for UpdraftPlus?"
 msgstr ""
 
-#: updraftplus.php:1625
+#: updraftplus.php:1623
 msgid "Please buy our very cheap 'no adverts' add-on."
 msgstr ""
 
@@ -2049,7 +2049,7 @@ msgid "Folder ID"
 msgstr ""
 
 #: methods/googledrive.php:482
-msgid "<strong>This is NOT a folder name</strong>. To get a folder's ID navigate to that folder in Google Drive in your web browser and copy the ID from your browser's address bar. It is the part that comes after <kbd>#folders/.</kbd> Leave empty to use your root folder)"
+msgid "<strong>This is NOT a folder name</strong>. To get a folder's ID navigate to that folder in Google Drive in your web browser and copy the ID from your browser's address bar. It is the part that comes after <kbd>#folders/</kbd>. Leave empty to use your root folder."
 msgstr ""
 
 #: methods/googledrive.php:485
