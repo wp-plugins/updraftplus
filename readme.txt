@@ -137,7 +137,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * TWEAK: Log file times are now recorded relative to the backup start, rather than the current resumption start
 * TWEAK: More code-tidying and optimisation
 * TWEAK: Warn the user if the WordPress scheduler is disabled
-* TWEAK: Various extra sanity-checks for possible problems
+* TWEAK: Many + various extra sanity-checks for possible problems
 * TWEAK: Warn user if trying to upload an above-limit (>10Gb) file to Google Drive
 * TWEAK: Reduce memory usage during restore
 * TWEAK: Move JavaScript into separate file, and make strings translatable

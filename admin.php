@@ -1288,9 +1288,7 @@ CREATE TABLE $wpdb->signups (
 			}
 			if(!empty($updraftplus->errors)) {
 				echo '<div class="error fade" style="padding:8px;">';
-				foreach($updraftplus->errors as $error) {
-					echo '<div style="color:red">'.$error.'</div>';
-				}
+				$updraftplus->list_errors();
 				echo '</div>';
 			}
 			?>

@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.68
+Version: 1.6.69
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -16,7 +16,6 @@ TODO - some of these are out of date/done, needs pruning
 // Make clearer that after activating 'all addons' you don't need to activate 1-by-1
 // Backup notes
 // Log migrations/restores, and have an option for auto-emailing the log
-// Alert user if warnings are interfering with header() - and thus breaking OAuth for Dropbox/Google Drive first-time setup.
 // Log a warning if the resumption is loonnggg after it was expected to be (usually on unvisited dev sites)
 # Email backup method should be able to force split limit down to something manageable - or at least, should make the option display. (Put it in email class. Tweak the storage dropdown to not hide stuff also in expert class if expert is shown).
 // Remember historical resumption intervals. But remember that the site may migrate, so we need to check their accuracy from time to time. Use transient?
@@ -313,7 +312,6 @@ class UpdraftPlus {
 				add_action('http_api_curl', array($this, 'add_curl_capath'));
 				if (method_exists($call_class, $call_method)) call_user_func(array($call_class,$call_method));
 				remove_action('http_api_curl', array($this, 'add_curl_capath'));
-
 			} elseif ($_GET['action'] == 'downloadlog' && isset($_GET['updraftplus_backup_nonce']) && preg_match("/^[0-9a-f]{12}$/",$_GET['updraftplus_backup_nonce'])) {
 				// No WordPress nonce is needed here or for the next, since the backup is already nonce-based
 				$updraft_dir = $this->backups_dir_location();

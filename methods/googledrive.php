@@ -58,7 +58,12 @@ class UpdraftPlus_BackupModule_googledrive {
 			'access_type' => 'offline',
 			'approval_prompt' => 'force'
 		);
-		header('Location: https://accounts.google.com/o/oauth2/auth?'.http_build_query($params));
+		if(headers_sent()) {
+			global $updraftplus;
+			$updraftplus->log(sprintf(__('The %s authentication could not go ahead, because something else on your site is breaking it. Try disabling your other plugins and switching to a default theme. (Specifically, you are looking for the component that sends output (most likely PHP warnings/errors) before the page begins. Turning off any debugging settings may also help).', ''), 'Google Drive'), 'error');
+		} else {
+			header('Location: https://accounts.google.com/o/oauth2/auth?'.http_build_query($params));
+		}
 	}
 
 	// Revoke a Google account refresh token
