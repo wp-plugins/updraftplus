@@ -507,22 +507,22 @@ class UpdraftPlus_Backup {
 
 						if (count($dirlist)>0) {
 							$created = $this->create_zip($dirlist, $youwhat, $backup_file_basename, $index);
+							# Now, store the results
+							if (is_string($created) || is_array($created)) {
+								if (is_string($created)) $created=array($created);
+								foreach ($created as $findex => $fname) {
+									$backup_array[$youwhat][$index] = $fname;
+									$itext = ($index == 0) ? '' : $index;
+									$index++;
+									$backup_array[$youwhat.$itext.'-size'] = filesize($updraft_dir.'/'.$fname);
+								}
+							} else {
+								$updraftplus->log("$youwhat: create_zip returned an error");
+							}
 						} else {
 							$updraftplus->log("No backup of $youwhat: there was nothing found to back up");
 						}
 
-					}
-					# Now, store the results
-					if (is_string($created) || is_array($created)) {
-						if (is_string($created)) $created=array($created);
-						foreach ($created as $findex => $fname) {
-							$backup_array[$youwhat][$index] = $fname;
-							$itext = ($index == 0) ? '' : $index;
-							$index++;
-							$backup_array[$youwhat.$itext.'-size'] = filesize($updraft_dir.'/'.$fname);
-						}
-					} else {
-						$updraftplus->log("$youwhat: create_zip returned an error");
 					}
 
 					$job_file_entities[$youwhat]['index'] = $this->index;
