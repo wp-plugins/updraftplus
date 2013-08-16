@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.72
+Version: 1.6.73
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -29,6 +29,7 @@ TODO - some of these are out of date/done, needs pruning
 // Show 'Migrate' instead of 'Restore' on the button if relevant
 // Bring multisite shop page up to date
 // Re-do pricing + support packages
+// Option to create S3 bucket with RRS
 // Give a help page to go with the message: A zip error occurred - check your log for more details (reduce support requests)
 // Exclude .git and .svn by default from wpcore
 // Restore-console not showing proper time-zone?

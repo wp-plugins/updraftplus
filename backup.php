@@ -551,7 +551,6 @@ class UpdraftPlus_Backup {
 			$updraft_dir = $updraftplus->backups_dir_location();
 
 			foreach ($backup_array as $files) {
-
 				if (!is_array($files)) $files=array($files);
 				foreach ($files as $file) $updraftplus->check_recent_modification($updraft_dir.'/'.$file);
 			}
@@ -570,8 +569,6 @@ class UpdraftPlus_Backup {
 			$updraftplus->log("This backup run is not intended for files - skipping");
 			return array();
 		}
-		// We want this array, even if already finished
-		// This can get over-written later
 
 		/*
 		// DOES NOT WORK: there is no crash-safe way to do this here - have to be renamed at cloud-upload time instead
