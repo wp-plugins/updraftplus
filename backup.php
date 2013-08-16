@@ -544,21 +544,32 @@ class UpdraftPlus_Backup {
 		$transient_status = $updraftplus->jobdata_get('backup_files');
 		if ('finished' == $transient_status) {
 			$updraftplus->log("Creation of backups of directories: already finished");
+			$backup_array = $updraftplus->jobdata_get('backup_files_array');
+			if (!is_array($backup_array)) $backup_array = array();
+
+			# Check for recent activity
+			$updraft_dir = $updraftplus->backups_dir_location();
+			foreach ($backup_array as $files) {
+				if (!is_array($files)) $files=array($files);
+				foreach ($files as $file) $updraftplus->check_recent_modification($updraft_dir.'/'.$file);
+			}
+
 		} elseif ('begun' == $transient_status) {
 			if ($resumption_no>0) {
 				$updraftplus->log("Creation of backups of directories: had begun; will resume");
 			} else {
 				$updraftplus->log("Creation of backups of directories: beginning");
 			}
+			$backup_array = $this->backup_dirs($transient_status);
+			$updraftplus->jobdata_set('backup_files_array', $backup_array);
+			$updraftplus->jobdata_set('backup_files', 'finished');
 		} else {
 			# This is not necessarily a backup run which is meant to contain files at all
 			$updraftplus->log("This backup run is not intended for files - skipping");
 			return array();
 		}
 		// We want this array, even if already finished
-		$backup_array = $this->backup_dirs($transient_status);
 		// This can get over-written later
-		$updraftplus->jobdata_set('backup_files', 'finished');
 
 		/*
 		// DOES NOT WORK: there is no crash-safe way to do this here - have to be renamed at cloud-upload time instead

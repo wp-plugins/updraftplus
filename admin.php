@@ -2369,7 +2369,7 @@ ENDHERE;
 							// No cloud backup known of this file
 							if (!isset($backup_history[$btime])) $backup_history[$btime] = array('service' => 'none' );
 							$backup_history[$btime][$type][$index] = $entry;
-							$fs = filesize($updraft_dir.'/'.$entry);
+							$fs = @filesize($updraft_dir.'/'.$entry);
 							if (false !== $fs) $backup_history[$btime][$type.$itext.'-size'] = $fs;
 							$backup_history[$btime]['nonce'] = $nonce;
 						}
