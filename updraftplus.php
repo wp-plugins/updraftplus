@@ -19,6 +19,7 @@ TODO - some of these are out of date/done, needs pruning
 // Log a warning if the resumption is loonnggg after it was expected to be (usually on unvisited dev sites)
 # Email backup method should be able to force split limit down to something manageable - or at least, should make the option display. (Put it in email class. Tweak the storage dropdown to not hide stuff also in expert class if expert is shown).
 // Remember historical resumption intervals. But remember that the site may migrate, so we need to check their accuracy from time to time. Use transient?
+// Look at how the updraft dir is chosen... abspath+wp-content/updraft is not the best universal default
 // Import/slurp backups from other sites. See: http://www.skyverge.com/blog/extending-the-wordpress-xml-rpc-api/
 // More sophisticated options for retaining/deleting (e.g. 4/day for X days, then 7/week for Z weeks, then 1/month for Y months)
 // Unpack zips via AJAX? Do bit-by-bit to allow enormous opens a better chance? (have a huge one in Dropbox)

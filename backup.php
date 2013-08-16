@@ -145,7 +145,7 @@ class UpdraftPlus_Backup {
 			} elseif ($this->index > $original_index) {
 				$updraftplus->log("Did not create $whichone zip (".$this->index.") - not needed");
 			} else {
-				$updraftplus->log("Expected $whichone zip (".$this->index.") was not found (".basename($fullpath).")", 'warning');
+				$updraftplus->log("Looked-for $whichone zip (".$this->index.") was not found (".basename($full_path).".tmp)", 'warning');
 			}
 			$updraftplus->clean_temporary_files('_'.$updraftplus->nonce."-$whichone", 0);
 		}
@@ -450,7 +450,7 @@ class UpdraftPlus_Backup {
 
 				$index = (int)$job_file_entities[$youwhat]['index'];
 				if (empty($index)) $index=0;
-				$indextext = (0 == $index) ? '' : $index;
+				$indextext = (0 == $index) ? '' : (1+$index);
 				$zip_file = $updraft_dir.'/'.$backup_file_basename.'-'.$youwhat.$indextext.'.zip';
 
 				# Split needed?
@@ -560,26 +560,31 @@ class UpdraftPlus_Backup {
 		// This can get over-written later
 		$updraftplus->jobdata_set('backup_files', 'finished');
 
+		/*
+		// DOES NOT WORK: there is no crash-safe way to do this here - have to be renamed at cloud-upload time instead
 		$updraft_dir = $updraftplus->backups_dir_location();
+		$new_backup_array = array();
 		foreach ($backup_array as $entity => $files) {
 			if (!is_array($files)) $files=array($files);
 			$outof = count($files);
 			foreach ($files as $ind => $file) {
+				$nval = $file;
 				if (preg_match('/^(backup_[\-0-9]{15}_.*_[0-9a-f]{12}-[\-a-z]+)([0-9]+)?\.zip$/i', $file, $matches)) {
 					$num = max((int)$matches[2],1);
 					$new = $matches[1].$num.'of'.$outof.'.zip';
 					if (file_exists($updraft_dir.'/'.$file)) {
 						if (@rename($updraft_dir.'/'.$file, $updraft_dir.'/'.$new)) {
 							$updraftplus->log(sprintf("Renaming: %s to %s", $file, $new));
-							$backup_array[$entity][$ind] = $new;
+							$nval = $new;
 						}
 					} elseif (file_exists($updraft_dir.'/'.$new)) {
-						$backup_array[$entity][$ind] = $new;
-					} 
+						$nval = $new;
+					}
 				}
+				$new_backup_array[$entity][$ind] = $nval;
 			}
 		}
-
+		*/
 		return $backup_array;
 	}
 
@@ -1172,7 +1177,7 @@ class UpdraftPlus_Backup {
 
 		if ($this->zipfiles_added > 0 || $error_occured == false) {
 			// ZipArchive::addFile sometimes fails
-			if ((file_exists($destination) || $this->index == $original_index) && filesize($destination) < 90 && 'UpdraftPlus_ZipArchive' == $this->use_zip_object) {
+			if ((file_exists($destination) || $this->index == $original_index) && @filesize($destination) < 90 && 'UpdraftPlus_ZipArchive' == $this->use_zip_object) {
 				$updraftplus->log("ZipArchive::addFile apparently failed ($last_error, type=$whichone, size=".filesize($destination).") - retrying with PclZip");
 				$this->use_zip_object = 'UpdraftPlus_PclZip';
 				return $this->make_zipfile($source, $backup_file_basename, $whichone);
