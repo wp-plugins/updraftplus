@@ -354,7 +354,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 	public static function config_print_javascript_onready() {
 		?>
 		jQuery('#updraft-cloudfiles-test').click(function(){
-			jQuery(this).html('<?php echo __('Testing - Please Wait...','updraftplus');?>');
+			jQuery(this).html('<?php echo esc_js(__('Testing - Please Wait...','updraftplus'));?>');
 			var data = {
 				action: 'updraft_ajax',
 				subaction: 'credentials_test',
@@ -368,8 +368,8 @@ class UpdraftPlus_BackupModule_cloudfiles {
 				disableverify: jQuery('#updraft_ssl_disableverify').val()
 			};
 			jQuery.post(ajaxurl, data, function(response) {
-				jQuery('#updraft-cloudfiles-test').html('<?php echo sprintf(__('Test %s Settings','updraftplus'),'Cloud Files');?>');
-				alert('Settings test result: ' + response);
+				jQuery('#updraft-cloudfiles-test').html('<?php echo esc_js(sprintf(__('Test %s Settings','updraftplus'),'Cloud Files'));?>');
+				alert('<?php echo esc_js(sprintf(__('%s settings test result:', 'updraftplus'), 'Cloud Files'));?> ' + response);
 			});
 		});
 		<?php

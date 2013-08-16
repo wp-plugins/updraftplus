@@ -1220,11 +1220,11 @@ class UpdraftPlus_Admin {
 								// How many left?
 								var stilldownloading = jQuery('#ud_downloadstatus2 .file').length;
 								if (stilldownloading > 0) {
-									if (doalert) { alert('<?php _e('Some files are still downloading or being processed - please wait.', 'updraftplus'); ?>'); }
+									if (doalert) { alert('<?php echo esc_js(__('Some files are still downloading or being processed - please wait.', 'updraftplus')); ?>'); }
 									return;
 								}
 								// Allow pressing 'Restore' to proceed
-								jQuery('#updraft-restore-modal-stage2a').html('<?php _e('Processing files - please wait...', 'updraftplus'); ?>');
+								jQuery('#updraft-restore-modal-stage2a').html('<?php echo esc_js(__('Processing files - please wait...', 'updraftplus')); ?>');
 								jQuery.get(ajaxurl, {
 									action: 'updraft_ajax',
 									subaction: 'restore_alldownloaded', 
