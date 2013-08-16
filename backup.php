@@ -549,7 +549,9 @@ class UpdraftPlus_Backup {
 
 			# Check for recent activity
 			$updraft_dir = $updraftplus->backups_dir_location();
+
 			foreach ($backup_array as $files) {
+
 				if (!is_array($files)) $files=array($files);
 				foreach ($files as $file) $updraftplus->check_recent_modification($updraft_dir.'/'.$file);
 			}
