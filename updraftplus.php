@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.73
+Version: 1.6.74
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -15,6 +15,7 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // Make clearer that after activating 'all addons' you don't need to activate 1-by-1
 // Backup notes
+// Raise a warning for probably-too-large email attachments
 // mysqldump, if available, for faster database dumps. Need then to test compatibility with max_packet_size detection in restoration
 // Log migrations/restores, and have an option for auto-emailing the log
 // Log a warning if the resumption is loonnggg after it was expected to be (usually on unvisited dev sites)

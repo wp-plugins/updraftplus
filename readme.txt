@@ -140,6 +140,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * TWEAK: Many + various extra sanity-checks for possible problems
 * TWEAK: Warn user if trying to upload an above-limit (>10Gb) file to Google Drive
 * TWEAK: Reduce memory usage during restore
+* TWEAK: No longer require mbstring extension for Dropbox
 * TWEAK: Move JavaScript into separate file, and make strings translatable
 * INTERNALS: PclZip and BinZip methods now have feature parity with ZipArchive (can resume+split, more logging)
 * TWEAK/FIX: When restoring/migrating, split SQL commands to avoid exceeding MySQL's max_allowed_packet
