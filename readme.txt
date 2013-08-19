@@ -52,7 +52,7 @@ Are you able to translate UpdraftPlus into another language? Are you ready to he
 
 Many thanks to the existing translators:
 
-* Français / French translation (fr_FR): ufo3D - http://ufo-3d.fr/ with help from Françoise Lhermitte - http://www.ajwan.net
+* Français / French translation (fr_FR): ufo3D - http://ufo-3d.fr/ and Thomas Jacobsen - http://123informatique.ch/ - with help from Françoise Lhermitte - http://www.ajwan.net
 * Swedish / Svensk (sv_SE): Steve Sandström - http://www.brandicon.se
 * Español / Spanish (es_ES): Fernando Villasmil - villasmil.fernando at gmail.com
 * Polski / Polish (pl_PL): Bartosz Kaczmarek - barth.kaczmarek at gmail.com
@@ -131,7 +131,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: Fix time add-on can now also choose the day of the week
 * FEATURE: New add-on/Premium feature - Automatic Backups (automatically take backups before plugin/theme updates) - http://updraftplus.com/shop/autobackup/
 * FEATURE: Svensk / Swedish translation (sv_SE) by Steve Sandström (http://www.brandicon.se)
-* FEATURE: Français / French translation (fr_FR) by ufo3D - http://ufo-3d.fr/ with help from Françoise Lhermitte - http://www.ajwan.net
+* FEATURE: Français / French translation (fr_FR) by ufo3D - http://ufo-3d.fr/ and Thomas Jacobsen - http://123informatique.ch/ -  with help from Françoise Lhermitte - http://www.ajwan.net
 * TWEAK: Save the result of looking for a binary zip (don't re-test)
 * TWEAK: Show 'Last log message' in dashboard using local time zone
 * TWEAK: Log file times are now recorded relative to the backup start, rather than the current resumption start

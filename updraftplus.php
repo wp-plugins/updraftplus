@@ -15,10 +15,12 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // Make clearer that after activating 'all addons' you don't need to activate 1-by-1
 // Backup notes
+// mysqldump, if available, for faster database dumps. Need then to test compatibility with max_packet_size detection in restoration
 // Log migrations/restores, and have an option for auto-emailing the log
 // Log a warning if the resumption is loonnggg after it was expected to be (usually on unvisited dev sites)
 # Email backup method should be able to force split limit down to something manageable - or at least, should make the option display. (Put it in email class. Tweak the storage dropdown to not hide stuff also in expert class if expert is shown).
 // Remember historical resumption intervals. But remember that the site may migrate, so we need to check their accuracy from time to time. Use transient?
+// What happens if you restore with a database that then changes the setting for updraft_dir ? Should be safe, as the setting is cached during a run: double-check.
 // Look at how the updraft dir is chosen... abspath+wp-content/updraft is not the best universal default
 // Import/slurp backups from other sites. See: http://www.skyverge.com/blog/extending-the-wordpress-xml-rpc-api/
 // More sophisticated options for retaining/deleting (e.g. 4/day for X days, then 7/week for Z weeks, then 1/month for Y months)
@@ -30,6 +32,7 @@ TODO - some of these are out of date/done, needs pruning
 // Bring multisite shop page up to date
 // Re-do pricing + support packages
 // Option to create S3 bucket with RRS
+// More files: back up multiple directories, not just one
 // Give a help page to go with the message: A zip error occurred - check your log for more details (reduce support requests)
 // Exclude .git and .svn by default from wpcore
 // Restore-console not showing proper time-zone?
