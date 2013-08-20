@@ -87,7 +87,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			if (!$encryption) return new WP_Error('no_encryption_key', __('Decryption failed. The database file is encrypted, but you have no encryption key entered.', 'updraftplus'));
 
 			// Encrypted - decrypt it
-			require_once(UPDRAFTPLUS_DIR.'/includes/phpseclib/Crypt/Rijndael.php');
+			$updraftplus->ensure_phpseclib('Crypt_Rijndael', 'Crypt/Rijndael');
 			$rijndael = new Crypt_Rijndael();
 
 			// Get decryption key

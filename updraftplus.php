@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.7.0
+Version: 1.7.1
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -13,10 +13,10 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
-// Make clearer that after activating 'all addons' you don't need to activate 1-by-1
 // Backup notes
 // Raise a warning for probably-too-large email attachments
 // mysqldump, if available, for faster database dumps. Need then to test compatibility with max_packet_size detection in restoration
+// Check flow of activation on multisite
 // Log migrations/restores, and have an option for auto-emailing the log
 // Log a warning if the resumption is loonnggg after it was expected to be (usually on unvisited dev sites)
 # Email backup method should be able to force split limit down to something manageable - or at least, should make the option display. (Put it in email class. Tweak the storage dropdown to not hide stuff also in expert class if expert is shown).
@@ -26,7 +26,6 @@ TODO - some of these are out of date/done, needs pruning
 // Import/slurp backups from other sites. See: http://www.skyverge.com/blog/extending-the-wordpress-xml-rpc-api/
 // More sophisticated options for retaining/deleting (e.g. 4/day for X days, then 7/week for Z weeks, then 1/month for Y months)
 // Unpack zips via AJAX? Do bit-by-bit to allow enormous opens a better chance? (have a huge one in Dropbox)
-// Roll UD-addons plugin into the main plugin for those getting it from ud.com
 // Put in a maintenance-mode detector
 // Detect CloudFlare output in attempts to connect - detecting cloudflare.com should be sufficient
 // Show 'Migrate' instead of 'Restore' on the button if relevant
@@ -176,15 +175,16 @@ if (!isset($updraftplus)) $updraftplus = new UpdraftPlus();
 
 if (!$updraftplus->memory_check(192)) {
 // Experience appears to show that the memory limit is only likely to be hit (unless it is very low) by single files that are larger than available memory (when compressed)
-	# Add sanity check - found someone who'd set WP_MAX_MEMORY_LIMIT to 256K !
+	# Add sanity checks - found someone who'd set WP_MAX_MEMORY_LIMIT to 256K !
 	if (!$updraftplus->memory_check($updraftplus->memory_check_current(WP_MAX_MEMORY_LIMIT))) {
-		@ini_set('memory_limit', WP_MAX_MEMORY_LIMIT); //up the memory limit to the maximum WordPress is allowing for large backup files
+		$new = absint($updraftplus->memory_check_current(WP_MAX_MEMORY_LIMIT));
+		if ($new>32 && $new<100000) {
+			@ini_set('memory_limit', $new.'M'); //up the memory limit to the maximum WordPress is allowing for large backup files
+		}
 	}
 }
 
 if (!class_exists('UpdraftPlus_Options')) require_once(UPDRAFTPLUS_DIR.'/options.php');
-
-set_include_path(get_include_path().PATH_SEPARATOR.UPDRAFTPLUS_DIR.'/includes/phpseclib');
 
 class UpdraftPlus {
 
@@ -254,6 +254,12 @@ class UpdraftPlus {
 
 		register_deactivation_hook(__FILE__, array($this, 'deactivation'));
 
+	}
+
+	public function ensure_phpseclib($class = false, $class_path = false) {
+		if ($class && class_exists($class)) return;
+		if (false === strpos(get_include_path(), UPDRAFTPLUS_DIR.'/includes/phpseclib')) set_include_path(get_include_path().PATH_SEPARATOR.UPDRAFTPLUS_DIR.'/includes/phpseclib');
+		if ($class_path) require_once(UPDRAFTPLUS_DIR.'/includes/phpseclib/'.$class_path.'.php');
 	}
 
 	public function admin_init() {
@@ -1521,7 +1527,7 @@ class UpdraftPlus {
 					_e("Decryption failed. The database file is encrypted, but you have no encryption key entered.",'updraftplus');
 					$this->log('Decryption of database failed: the database file is encrypted, but you have no encryption key entered.', 'error');
 				} else {
-					require_once(UPDRAFTPLUS_DIR.'/includes/phpseclib/Crypt/Rijndael.php');
+					$this->ensure_phpseclib('Crypt_Rijndael', 'Crypt/Rijndael');
 					$rijndael = new Crypt_Rijndael();
 					$rijndael->setKey($encryption);
 					$ciphertext = $rijndael->decrypt(file_get_contents($fullpath));
@@ -1561,6 +1567,7 @@ class UpdraftPlus {
 	function memory_check_current($memory_limit = false) {
 		# Returns in megabytes
 		if ($memory_limit == false) $memory_limit = ini_get('memory_limit');
+		$memory_limit = rtrim($memory_limit);
 		$memory_unit = $memory_limit[strlen($memory_limit)-1];
 		$memory_limit = substr($memory_limit,0,strlen($memory_limit)-1);
 		switch($memory_unit) {

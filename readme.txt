@@ -3,7 +3,7 @@ Contributors: DavidAnderson
 Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, s3 compatible, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp, ftps, migrate, duplicate, copy, updraft, schedule, database backup
 Requires at least: 3.1
 Tested up to: 3.6
-Stable tag: 1.7.0
+Stable tag: 1.7.1
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -125,6 +125,10 @@ Yes; especially before you submit any support requests.
 Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ .
 
 == Changelog ==
+
+= 1.7.1 - 2013/08/20 =
+* FIX: Fix error preventing file backups in 1.7.0 for PHP installs without the ZipArchive class.
+* TWEAK: Only include phpseclib in the path when required
 
 = 1.7.0 - 2013/08/20 =
 * FEATURE: Split large sites into multiple zips (see: http://updraftplus.com/splitting-large-sites-into-multiple-archives/)
@@ -554,4 +558,4 @@ We recognise and thank the following for code and/or libraries used and/or modif
 Furthermore, reliance upon any non-English translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
 
 == Upgrade Notice ==
-1.6.17: WordPress 3.6 support. Dreamhost Dreamobjects support. Polish translation. More expert options. Restoration to sites with different table prefixes. Lots of usability + portability tweaks.
+* 1.7.1: Fix error preventing file backups in 1.7.0 for PHP installs without the ZipArchive class.

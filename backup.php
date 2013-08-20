@@ -48,7 +48,7 @@ class UpdraftPlus_Backup {
 		}
 
 		# In tests, PclZip was found to be 25% slower than ZipArchive
-		if ($this->use_zip_object != 'UpdraftPlus_PclZip' && empty($this->binzip) && ((defined('UPDRAFTPLUS_PREFERPCLZIP') && UPDRAFTPLUS_PREFERPCLZIP == true) || (!extension_loaded('zip') && !method_exists('ZipArchive', 'AddFile')))) {
+		if ($this->use_zip_object != 'UpdraftPlus_PclZip' && empty($this->binzip) && ((defined('UPDRAFTPLUS_PREFERPCLZIP') && UPDRAFTPLUS_PREFERPCLZIP == true) || !class_exists('ZipArchive') || !class_exists('UpdraftPlus_ZipArchive') || (!extension_loaded('zip') && !method_exists('ZipArchive', 'AddFile')))) {
 			global $updraftplus;
 			$updraftplus->log("Zip engine: ZipArchive is not available or is disabled (will use PclZip if needed)");
 			$this->use_zip_object = 'UpdraftPlus_PclZip';
@@ -894,7 +894,7 @@ class UpdraftPlus_Backup {
 			$updraftplus->log("$file: applying encryption");
 			$encryption_error = 0;
 			$microstart = microtime(true);
-			if (!class_exists('Crypt_Rijndael')) require_once(UPDRAFTPLUS_DIR.'/includes/phpseclib/Crypt/Rijndael.php');
+			$updraftplus->ensure_phpseclib('Crypt_Rijndael', 'Crypt/Rijndael');
 			$rijndael = new Crypt_Rijndael();
 			$rijndael->setKey($encryption);
 			$updraft_dir = $updraftplus->backups_dir_location();

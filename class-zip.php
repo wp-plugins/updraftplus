@@ -2,10 +2,12 @@
 
 if (!defined ('ABSPATH')) die('No direct access allowed');
 
+if (class_exists('ZipArchive')):
 # We just add a last_error variable for comaptibility with our UpdraftPlus_PclZip object
 class UpdraftPlus_ZipArchive extends ZipArchive {
 	public $last_error = '(Unknown: ZipArchive does not return error messages)';
 }
+endif;
 
 class UpdraftPlus_BinZip extends UpdraftPlus_PclZip {
 
