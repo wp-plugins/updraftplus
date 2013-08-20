@@ -890,7 +890,8 @@ class UpdraftPlus_Admin {
 					$mess[] = __('Backup of:', 'updraftplus').' '.htmlspecialchars($old_siteurl);
 					// Check for should-be migration
 					if ($old_siteurl != site_url()) {
-						$warn[] = apply_filters('updraftplus_dbscan_urlchange', sprintf(__('Warning: %s', 'updraftplus'), '<a href="http://updraftplus.com/shop/migrator/">'.__('This backup set is from a different site - this is not a restoration, but a migration. You need the Migrator add-on in order to make this work.', 'updraftplus').'</a>'), $old_siteurl, $res);
+						$powarn = apply_filters('updraftplus_dbscan_urlchange', sprintf(__('Warning: %s', 'updraftplus'), '<a href="http://updraftplus.com/shop/migrator/">'.__('This backup set is from a different site - this is not a restoration, but a migration. You need the Migrator add-on in order to make this work.', 'updraftplus').'</a>'), $old_siteurl, $res);
+						if (!empty($powarn)) $warn[] = $powarn;
 					}
 				} elseif ('' == $old_wp_version && preg_match('/^\# WordPress Version: ([0-9]+(\.[0-9]+)+)/', $buffer, $matches)) {
 					$old_wp_version = $matches[1];
