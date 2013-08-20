@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the UpdraftPlus package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2013-08-19 09:30:07+0000\n"
+"PO-Revision-Date: 2013-08-20 10:41:43+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -283,7 +283,7 @@ msgstr "Cela ressemble à un fichier créé par UpdraftPlus, mais cette installa
 
 #: admin.php:560
 msgid "The backup archive files have been successfully processed. Now press Restore again to proceed."
-msgstr "L'archive de sauvegarde a bien été traitée. Cliquez le bouton Restore pour continuer."
+msgstr "L'archive de sauvegarde a bien été traitée. Cliquez le bouton Restaurer pour continuer."
 
 #: admin.php:562
 msgid "The backup archive files have been processed, but with some warnings. If all is well, then now press Restore again to proceed. Otherwise, cancel and correct any problems first."
@@ -1861,7 +1861,7 @@ msgstr "Utiliser une clé de décryptage"
 
 #: admin.php:1944
 msgid "Copying Your Backup To Remote Storage"
-msgstr "Copie de votre sauvegarde vers le stockage distant"
+msgstr "Copier votre sauvegarde vers un service de stockage en ligne"
 
 #: admin.php:1948
 msgid "Choose your remote storage"
@@ -2181,7 +2181,7 @@ msgstr "Restaurer la sauvegarde depuis"
 
 #: admin.php:1465
 msgid "Restoring will replace this site's themes, plugins, uploads, database and/or other content directories (according to what is contained in the backup set, and your selection)."
-msgstr "La restauration va remplacer les thèmes, les extensions, les fichiers, la base de données et/ou le contenu d'autres répertoires (conformément aux éléments que vous avez sélectionnés)."
+msgstr "La restauration va remplacer les thèmes, les extensions, les fichiers, la base de données et/ou le contenu d'autres répertoires (conformément aux éléments que vous allez sélectionner)."
 
 #: admin.php:1465
 msgid "Choose the components to restore"
@@ -2257,11 +2257,11 @@ msgstr "%d lot(s) disponible(s)"
 
 #: admin.php:1395
 msgid "Downloading and restoring"
-msgstr "En cours de téléchargement et de restauration"
+msgstr "Téléchargement et Restauration de vos sauvegardes"
 
 #: admin.php:1400
 msgid "Downloading"
-msgstr "En cours de téléchargement"
+msgstr "Téléchargement"
 
 #: admin.php:1400
 msgid "Pressing a button for Database/Plugins/Themes/Uploads/Others will make UpdraftPlus try to bring the backup file back from the remote storage (if any - e.g. Amazon S3, Dropbox, Google Drive, FTP) to your webserver. Then you will be allowed to download it to your computer. If the fetch from the remote storage stops progressing (wait 30 seconds to make sure), then press again to resume. Remember that you can also visit the cloud storage vendor's website directly."

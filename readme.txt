@@ -126,7 +126,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= Development trunk - not yet released/supported =
+= 1.7.0 - 2013/08/20 =
 * FEATURE: Split large sites into multiple zips (see: http://updraftplus.com/splitting-large-sites-into-multiple-archives/)
 * FEATURE: Fix time add-on can now also choose the day of the week
 * FEATURE: New add-on/Premium feature - Automatic Backups (automatically take backups before plugin/theme updates) - http://updraftplus.com/shop/autobackup/

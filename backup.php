@@ -17,7 +17,7 @@ class UpdraftPlus_Backup {
 	private $zipfiles_added_thisrun = 0;
 	private $zipfiles_dirbatched;
 	private $zipfiles_batched;
-	private $zip_split_every = 1073741824; # 1Gb
+	private $zip_split_every = 838860800; # 800Mb
 	private $zip_last_ratio = 1;
 	private $whichone;
 	private $zip_basename = '';
@@ -853,11 +853,7 @@ class UpdraftPlus_Backup {
 								$value = ( null === $value || '' === $value) ? $defs[strtolower($key)] : $value;
 								$values[] = ( '' === $value ) ? "''" : $value;
 							} else {
-								if (null === $value) {
-									$values[] = 'NULL';
-								} else {
-									$values[] = "'" . str_replace($search, $replace, str_replace('\'', '\\\'', str_replace('\\', '\\\\', $value))) . "'";
-								}
+								$values[] = (null === $value) ? 'NULL' : "'" . str_replace($search, $replace, str_replace('\'', '\\\'', str_replace('\\', '\\\\', $value))) . "'";
 							}
 						}
 						if ($thisentry) $thisentry .= ",\n ";

@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.6.74
+Version: 1.7.0
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -972,7 +972,7 @@ class UpdraftPlus {
 	}
 
 	// This procedure initiates a backup run
-	public function boot_backup($backup_files, $backup_database, $restrict_files_to_override = false, $one_shot = false) {
+	public function boot_backup($backup_files, $backup_database, $restrict_files_to_override = false, $one_shot = false, $service = false) {
 
 		@ignore_user_abort(true);
 		// 15 minutes
@@ -1004,6 +1004,7 @@ class UpdraftPlus {
 			$this->log("Processed schedules. Tasks now: Backup files: $backup_files Backup DB: $backup_database");
 		}
 
+		if (!is_string($service)) $service = UpdraftPlus_Options::get_updraft_option('updraft_service');
 
 		# If nothing to be done, then just finish
 		if (!$backup_files && !$backup_database) {
@@ -1035,8 +1036,8 @@ class UpdraftPlus {
 			'job_type', 'backup',
 			'backup_time', $this->backup_time,
 			'backup_time_ms', $this->backup_time_ms,
-			'service', UpdraftPlus_Options::get_updraft_option('updraft_service'),
-			'split_every', max(absint(UpdraftPlus_Options::get_updraft_option('updraft_split_every', 1024)), UPDRAFTPLUS_SPLIT_MIN),
+			'service', $service,
+			'split_every', max(absint(UpdraftPlus_Options::get_updraft_option('updraft_split_every', 800)), UPDRAFTPLUS_SPLIT_MIN),
 			'maxzipbatch', 26214400, #25Mb
 			'job_file_entities', $job_file_entities,
 			'one_shot', $one_shot
