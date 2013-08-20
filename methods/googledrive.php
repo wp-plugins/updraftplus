@@ -58,7 +58,12 @@ class UpdraftPlus_BackupModule_googledrive {
 			'access_type' => 'offline',
 			'approval_prompt' => 'force'
 		);
-		header('Location: https://accounts.google.com/o/oauth2/auth?'.http_build_query($params));
+		if(headers_sent()) {
+			global $updraftplus;
+			$updraftplus->log(sprintf(__('The %s authentication could not go ahead, because something else on your site is breaking it. Try disabling your other plugins and switching to a default theme. (Specifically, you are looking for the component that sends output (most likely PHP warnings/errors) before the page begins. Turning off any debugging settings may also help).', ''), 'Google Drive'), 'error');
+		} else {
+			header('Location: https://accounts.google.com/o/oauth2/auth?'.http_build_query($params));
+		}
 	}
 
 	// Revoke a Google account refresh token
@@ -153,7 +158,7 @@ class UpdraftPlus_BackupModule_googledrive {
 	// This function just does the formalities, and off-loads the main work to upload_file
 	function backup($backup_array) {
 
-		global $updraftplus;
+		global $updraftplus, $updraftplus_backup;
 
 		if( !class_exists('UpdraftPlus_GDocs')) require_once(UPDRAFTPLUS_DIR.'/includes/class-gdocs.php');
 
@@ -164,7 +169,7 @@ class UpdraftPlus_BackupModule_googledrive {
 			return new WP_Error( "no_access_token", __("Have not yet obtained an access token from Google (has the user authorised?)",'updraftplus'));
 		}
 
-		$updraft_dir = $updraftplus->backups_dir_location().'/';
+		$updraft_dir = trailingslashit($updraftplus->backups_dir_location());
 
 		// Make sure $this->gdocs is a UpdraftPlus_GDocs object, or give an error
 		if ( is_wp_error( $e = $this->need_gdocs($access_token) ) ) return false;
@@ -188,13 +193,20 @@ class UpdraftPlus_BackupModule_googledrive {
 			$file_name = basename($file_path);
 			$updraftplus->log("$file_name: Attempting to upload to Google Drive");
 
+			$filesize = filesize($file_path);
+			$already_failed = false;
 			if ($available_quota != -1) {
-				$filesize = filesize($file_path);
 				if ($filesize > $available_quota) {
+					$already_failed = true;
 					$updraftplus->log("File upload expected to fail: file ($file_name) size is $filesize b, whereas available quota is only $available_quota b");
 					$updraftplus->log(sprintf(__("Account full: your %s account has only %d bytes left, but the file to be uploaded is %d bytes",'updraftplus'),__('Google Drive', 'updraftplus'), $available_quota, $filesize), 'error');
 				}
 			}
+			if (!$already_failed && $filesize > 10737418240) {
+				# 10Gb
+				$updraftplus->log("File upload expected to fail: file ($file_name) size is $filesize b (".round($filesize/1073741824, 4)." Gb), whereas Google Drive's limit is 10Gb (1073741824 bytes)");
+				$updraftplus->log(sprintf(__("Upload expected to fail: the %s limit for any single file is %s, whereas this file is %s Gb (%d bytes)",'updraftplus'),__('Google Drive', 'updraftplus'), '10Gb (1073741824)', round($filesize/1073741824, 4), $filesize), 'warning');
+			} 
 
 			$timer_start = microtime(true);
 			if ( $id = $this->upload_file( $file_path, $file_name, UpdraftPlus_Options::get_updraft_option('updraft_googledrive_remotepath')) ) {
@@ -205,7 +217,7 @@ class UpdraftPlus_BackupModule_googledrive {
 				$updraftplus->log("$file_name: ".sprintf(__('Failed to upload to %s','updraftplus'),__('Google Drive','updraftplus')), 'error');
 			}
 		}
-		$updraftplus->prune_retained_backups("googledrive", $this, null);
+		$updraftplus_backup->prune_retained_backups("googledrive", $this, null);
 	}
 
 	function delete($files) {
@@ -467,7 +479,7 @@ class UpdraftPlus_BackupModule_googledrive {
 			</tr>
 			<tr class="updraftplusmethod googledrive">
 				<th><?php echo __('Google Drive','updraftplus').' '.__('Folder ID','updraftplus'); ?>:</th>
-				<td><input type="text" style="width:392px" name="updraft_googledrive_remotepath" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_googledrive_remotepath')); ?>" /> <em><?php _e("<strong>This is NOT a folder name</strong>. To get a folder's ID navigate to that folder in Google Drive in your web browser and copy the ID from your browser's address bar. It is the part that comes after <kbd>#folders/.</kbd> Leave empty to use your root folder)",'updraftplus');?></em></td>
+				<td><input type="text" style="width:392px" name="updraft_googledrive_remotepath" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_googledrive_remotepath')); ?>" /> <em><?php _e("<strong>This is NOT a folder name</strong>. To get a folder's ID navigate to that folder in Google Drive in your web browser and copy the ID from your browser's address bar. It is the part that comes after <kbd>#folders/</kbd>. Leave empty to use your root folder.",'updraftplus');?></em></td>
 			</tr>
 			<tr class="updraftplusmethod googledrive">
 				<th><?php _e('Authenticate with Google');?>:</th>
