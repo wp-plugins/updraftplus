@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the UpdraftPlus package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2013-08-20 10:43:06+0000\n"
+"PO-Revision-Date: 2013-08-21 05:56:12+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,330 +12,332 @@ msgstr ""
 
 #: methods/googledrive.php:482
 msgid "<strong>This is NOT a folder name</strong>. To get a folder's ID navigate to that folder in Google Drive in your web browser and copy the ID from your browser's address bar. It is the part that comes after <kbd>#folders/</kbd>. Leave empty to use your root folder."
-msgstr ""
+msgstr "<strong>To NIE JEST nazwa folderu</strong>. Aby uzyskać identyfikator folderu przejdź do tego folderu w Dysku Google w przeglądarce internetowej i skopiuj identyfikator z przeglądarki w pasku adresu. Jest to część, która przychodzi po <kbd>#foldery/</kbd>. Zostaw puste, aby korzystać z folderu głównego."
 
 #: methods/cloudfiles.php:372 methods/s3.php:349 methods/ftp.php:164
 #: addons/webdav.php:287 addons/sftp.php:257
 msgid "Settings test result:"
-msgstr ""
+msgstr "Wynik testu ustawień:"
 
 #: includes/Dropbox/OAuth/Consumer/ConsumerAbstract.php:88
 #: methods/googledrive.php:63
 msgid "The %s authentication could not go ahead, because something else on your site is breaking it. Try disabling your other plugins and switching to a default theme. (Specifically, you are looking for the component that sends output (most likely PHP warnings/errors) before the page begins. Turning off any debugging settings may also help)."
-msgstr ""
+msgstr "Uwierzytelnianie %s nie może przejść dalej, bo coś innego na Twojej stronie mu przeszkadza. Spróbuj wyłączyć inne swoje wtyczki i przełączyć do domyślnego motywu. (W szczególności, gdy szukasz elementu, który wysyła dane wyjściowe (najprawdopodobniej ostrzeżenia PHP/błędy) zanim strona zacznie. Wyłączenie jakiś ustawień debugowania może pomóc)."
 
 #: admin.php:1276
 msgid "Your PHP memory limit (set by your web hosting company) is very low. UpdraftPlus attempted to raise it but was unsuccessful. This plugin may struggle with a memory limit of less than 64 Mb  - especially if you have very large files uploaded (though on the other hand, many sites will be successful with a 32Mb limit - your experience may vary)."
-msgstr ""
+msgstr "Twój limit pamięci PHP (ustawiony przez firmę hostingową) jest bardzo niski. UpdraftPlus próbował go podnieść, ale nie udało się. Wtyczka może walczyć z limitem pamięci mniejszej niż 64 Mb - zwłaszcza jeśli masz bardzo duże przesłane pliki (choć z drugiej strony, wiele stron będzie skuteczne z limitem 32 MB - Twoje doświadczenia mogą ulec zmianie)."
 
 #: addons/autobackup.php:172
 msgid "Backup succeeded <a href=\"#updraftplus-autobackup-log\" onclick=\"var s = document.getElementById('updraftplus-autobackup-log'); s.style.display = 'block';\">(view log...)</a> - now proceeding with the updates..."
-msgstr ""
+msgstr "Kopia zapasowa powiodła się <a href=\"#updraftplus-autobackup-log\" onclick=\"var s = document.getElementById('updraftplus-autobackup-log'); s.style.display = 'block';\">(view log...)</a> - teraz przystępowanie do aktualizacji..."
 
 #: addons/autobackup.php:224
 msgid "UpdraftPlus Automatic Backups"
-msgstr ""
+msgstr "Automatyczne tworzenie kopii zapasowych UpdraftPlus. "
 
 #: addons/autobackup.php:229
 msgid "Do not abort after pressing Proceed below - wait for the backup to complete."
-msgstr ""
+msgstr "Nie przerywaj po naciśnięciu przycisku dalej widocznego poniżej - czekaj na wykonanie kopii zapasowej, aby móc zakończyć."
 
 #: addons/autobackup.php:230
 msgid "Proceed with update"
-msgstr ""
+msgstr "Postępowanie z aktualizacją"
 
 #: addons/autobackup.php:52 addons/autobackup.php:115
 msgid "(logs can be found in the UpdraftPlus settings page as normal - or will be shown here if something goes wrong)..."
-msgstr ""
+msgstr "(dzienniki można znaleźć w ustawieniach strony UpdraftPlus - lub pojawi się tutaj, jeśli coś pójdzie nie tak)..."
 
 #: addons/autobackup.php:56 addons/autobackup.php:121
 msgid "Starting automatic backup..."
-msgstr ""
+msgstr "Automatyczne uruchamianie kopii zapasowej..."
 
 #: addons/autobackup.php:78
 msgid "plugins"
-msgstr ""
+msgstr "wtyczki"
 
 #: addons/autobackup.php:85
 msgid "themes"
-msgstr ""
+msgstr "motywy"
 
 #: addons/autobackup.php:107
 msgid "You do not have sufficient permissions to update this site."
-msgstr ""
+msgstr "Nie masz wystarczających uprawnień, aby aktualizować tą stronę."
 
 #: addons/autobackup.php:115
 msgid "Creating database backup with UpdraftPlus..."
-msgstr ""
+msgstr "Tworzenie kopii zapasowej bazy danych z UpdraftPlus..."
 
 #: addons/autobackup.php:123 addons/autobackup.php:193
 #: addons/autobackup.php:216
 msgid "Automatic Backup"
-msgstr ""
+msgstr "Automatyczne tworzenie kopii zapasowej"
 
 #: addons/autobackup.php:150
 msgid "Creating backup with UpdraftPlus..."
-msgstr ""
+msgstr "Tworzenie kopii zapasowej z UpdraftPlus..."
 
 #: addons/autobackup.php:157
 msgid "Errors have occurred:"
-msgstr ""
+msgstr "Wystąpiły błędy:"
 
 #: addons/autobackup.php:170
 msgid "Backup succeeded <a href=\"#updraftplus-autobackup-log\" onclick=\"jQuery('#updraftplus-autobackup-log').slideToggle();\">(view log...)</a> - now proceeding with the updates..."
-msgstr ""
+msgstr "Kopia zapasowa powiodła się <a href=\"#updraftplus-autobackup-log\" onclick=\"jQuery('#updraftplus-autobackup-log').slideToggle();\">(view log...)</a> - teraz przystępowanie do aktualizacji..."
 
 #: addons/autobackup.php:28 addons/autobackup.php:228
 msgid "Automatically backup (where relevant) plugins, themes and the WordPress database with UpdraftPlus before updating"
-msgstr ""
+msgstr "Automatyczne tworzenie kopii zapasowych (w stosownych przypadkach) wtyczek, motywów i bazy danych WordPressa z UpdraftPlus przed aktualizacją"
 
 #: addons/autobackup.php:52
 msgid "Creating %s and database backup with UpdraftPlus..."
-msgstr ""
+msgstr "Tworzenie kopii zapasowej %s i bazy danych z UpdraftPlus..."
 
 #: addons/morefiles.php:94
 msgid "Unable to read zip file (%s) - could not pre-scan it to check its integrity."
-msgstr ""
+msgstr "Nie można odczytać pliku zip (%s) - nie można go wstępnie zbadać, aby sprawdzić integralność."
 
 #: addons/morefiles.php:99
 msgid "Unable to open zip file (%s) - could not pre-scan it to check its integrity."
-msgstr ""
+msgstr "Nie można otworzyć pliku zip (%s) - nie można go wstępnie zbadać, aby sprawdzić integralność."
 
 #: addons/morefiles.php:118 addons/morefiles.php:119
 msgid "This does not look like a valid WordPress core backup - the file %s was missing."
-msgstr ""
+msgstr "Nie wygląda to jak ważna kopia zapasowa rdzenia WordPressa - brakuje pliku %s."
 
 #: addons/morefiles.php:118 addons/morefiles.php:119
 msgid "If you are not sure then you should stop; otherwise you may destroy this WordPress installation."
-msgstr ""
+msgstr "Jeśli nie jesteś pewien, powinieneś przerwać; w przeciwnym razie możesz zniszczyć instalację WordPressa."
 
 #: admin.php:1257
 msgid "Support"
-msgstr ""
+msgstr "Wsparcie"
 
 #: admin.php:1257
 msgid "More plugins"
-msgstr ""
+msgstr "Więcej wtyczek"
 
 #: admin.php:898
 msgid "%s version: %s"
-msgstr ""
+msgstr "%s wersja: %s"
 
 #: admin.php:899
 msgid "You are importing from a newer version of WordPress (%s) into an older one (%s). There are no guarantees that WordPress can handle this."
-msgstr ""
+msgstr "Importowanie z nowszej wersji WordPressa (%s) do starszej (%s). Nie ma gwarancji, że WordPress może to obsłużyć."
 
 #: admin.php:973
 msgid "This database backup is missing core WordPress tables: %s"
-msgstr ""
+msgstr "Tej kopii zapasowej bazy danych brakuje tabel podstawowych rdzenia WordPressa: %s"
 
 #: admin.php:976
 msgid "UpdraftPlus was unable to find the table prefix when scanning the database backup."
-msgstr ""
+msgstr "UpdraftPlus nie był w stanie znaleźć prefiksu tabeli podczas skanowania kopii zapasowej bazy danych."
 
 #: admin.php:855
 msgid "The database is too small to be a valid WordPress database (size: %s Kb)."
-msgstr ""
+msgstr "Baza danych raczej nie jest ważna, ponieważ zajmuje niewiele miejsca (rozmiar: %s Kb)."
 
 #: admin.php:287
 msgid "The scheduler is disabled in your WordPress install, via the DISABLE_WP_CRON setting. No backups (even &quot;Backup Now&quot;) can run until it is enabled."
-msgstr ""
+msgstr "Harmonogram jest wyłączony w Twojej instalacji WordPressa, poprzez ustawienie DISABLE_WP_CRON. Brak kopii zapasowych (nawet \"Zrób kopię zapasową teraz\"), można uruchomić, dopóki nie zostanie włączona."
 
 #: admin.php:129 admin.php:276
 msgid "UpdraftPlus Premium can  <strong>automatically</strong> take a backup of your plugins or themes and database before you update."
-msgstr ""
+msgstr "UpdraftPlus Premium może <strong>automatycznie</strong> zrobić kopię zapasową Twoich wtyczek lub tematów i bazy danych przed aktualizacją. "
 
 #: admin.php:129 admin.php:276
 msgid "Be safe every time, without needing to remember - follow this link to learn more."
-msgstr ""
+msgstr "Bądź bezpieczny za każdym razem, bez konieczności zapamiętywania - kliknij w ten link, aby dowiedzieć się więcej."
 
 #: admin.php:261
 msgid "Update Plugin"
-msgstr ""
+msgstr "Aktualizacja Wtyczki"
 
 #: admin.php:265
 msgid "Update Theme"
-msgstr ""
+msgstr "Aktualizacja Motywu"
 
 #: admin.php:127 admin.php:274
 msgid "Dismiss (for %s weeks)"
-msgstr ""
+msgstr "Odwołaj (dla %s tygodni)"
 
 #: admin.php:128 admin.php:275
 msgid "Be safe with an automatic backup"
-msgstr ""
+msgstr "Bądź bezpieczny z automatyczną kopią zapasową"
 
 #: restorer.php:971
 msgid "Uploads path (%s) does not exist - resetting (%s)"
-msgstr ""
+msgstr "Dodana ścieżka (%s) nie istnieje - resetowanie (%s)"
 
 #: admin.php:1261
 msgid "If you can still read these words after the page finishes loading, then there is a JavaScript or jQuery problem in the site."
-msgstr ""
+msgstr "Jeżeli możesz przeczytać te słowa po zakończeniu ładowania strony, występuje problem z JavaScript lub jQuery na tej stronie."
 
 #: admin.php:108
 msgid "Follow this link to attempt decryption and download the database file to your computer."
-msgstr ""
+msgstr "Śledź ten link do próby szyfrowania i pobierz plik bazy danych do komputera."
 
 #: admin.php:109
 msgid "This decryption key will be attempted:"
-msgstr ""
+msgstr "Ten klucz deszyfrowania będzie próbował:"
 
 #: admin.php:110
 msgid "Unknown server response:"
-msgstr ""
+msgstr "Nieznana odpowiedź serwera:"
 
 #: admin.php:111
 msgid "Unknown server response status:"
-msgstr ""
+msgstr "Nieznany status odpowiedzi serwera:"
 
 #: admin.php:112
 msgid "The file was uploaded."
-msgstr ""
+msgstr "Plik został przesłany. "
 
 #: admin.php:103
 msgid "This file does not appear to be an UpdraftPlus backup archive (such files are .zip or .gz files which have a name like: backup_(time)_(site name)_(code)_(type).(zip|gz)). However, UpdraftPlus archives are standard zip/SQL files - so if you are sure that your file has the right format, then you can rename it to match that pattern."
 msgstr ""
+"Plik ten nie wydaje się być archiwum kopii zapasowej UpdraftPlus (pliki takie są w formacie zip lub gz, które mają nazwy jak: backup_ (czas) _ (nazwa witryny) _ (kod) _ (typ).(zip \n"
+"|gz)). Archiwa UpdraftPlus są w standardzie zip/plików SQL - więc jeśli jesteś pewien, że plik ma odpowiedni format, można zmienić jego nazwę na zgodną z tym wzorcem."
 
 #: admin.php:104
 msgid "(make sure that you were trying to upload a zip file previously created by UpdraftPlus)"
-msgstr ""
+msgstr "(upewnij się, że próbowano załadować plik zip wcześniej utworzony przez UpdraftPlus)"
 
 #: admin.php:105
 msgid "Upload error:"
-msgstr ""
+msgstr "Błąd przesyłania:"
 
 #: admin.php:106
 msgid "This file does not appear to be an UpdraftPlus encrypted database archive (such files are .gz.crypt files which have a name like: backup_(time)_(site name)_(code)_db.crypt.gz)."
-msgstr ""
+msgstr "Plik ten nie wydaje się być zaszyfrowanym archiwum bazy danych UpdraftPlus (są to pliki .gz.crypt które mają nazwy jak: backup_ (czas) _ (nazwa witryny) _ (kod) _db.crypt.gz)."
 
 #: admin.php:107
 msgid "Upload error"
-msgstr ""
+msgstr "Błąd przesyłania"
 
 #: admin.php:96
 msgid "Delete from your web server"
-msgstr ""
+msgstr "Usuń z serwera www"
 
 #: admin.php:97
 msgid "Download to your computer"
-msgstr ""
+msgstr "Pobierz na komputer"
 
 #: admin.php:98
 msgid "and then, if you wish,"
-msgstr ""
+msgstr "a następnie, jeśli chcesz,"
 
 #: methods/s3.php:369
 msgid "Examples of S3-compatible storage providers:"
-msgstr ""
+msgstr "Przykłady kompatybilnych z S3 dostawców przechowywania:"
 
 #: methods/googledrive.php:208
 msgid "Upload expected to fail: the %s limit for any single file is %s, whereas this file is %s Gb (%d bytes)"
-msgstr ""
+msgstr "Spodziewane przesyłanie nie powiodło się: limit %s dla pojedynczego pliku to %s, podczas gdy jest to plik %s Gb (%d bajtów)"
 
 #: backup.php:624
 msgid "The backup directory is not writable - the database backup is expected to shortly fail."
-msgstr ""
+msgstr "Katalog kopii zapasowej nie jest zapisywalny - backup bazy danych się nie powiedzie."
 
 #: admin.php:2529
 msgid "Will not delete any archives after unpacking them, because there was no cloud storage for this backup"
-msgstr ""
+msgstr "Nie usuwa żadnych archiwów po rozpakowaniu ich, ponieważ nie było wirtualnej chmury dla tej kopii zapasowej"
 
 #: admin.php:2252
 msgid "(%d archive(s) in set)."
-msgstr ""
+msgstr "(%d archiwum/archiwa w zestawie)."
 
 #: admin.php:2255
 msgid "You appear to be missing one or more archives from this multi-archive set."
-msgstr ""
+msgstr "Wygląda na to, że brakuje jednego lub więcej archiwów z tego zestawu archiwów. "
 
 #: admin.php:2018
 msgid "Split archives every:"
-msgstr ""
+msgstr "Każde dzielenie archiwów:"
 
 #: admin.php:2019
 msgid "UpdraftPlus will split up backup archives when they exceed this file size. The default value is 1 gigabyte. Be careful to leave some margin if your web-server has a hard size limit (e.g. the 2 Gb / 2048 Mb limit on some 32-bit servers/file systems)."
-msgstr ""
+msgstr "Archiwa kopii zapasowej UpdraftPlus będą podzielone, jeżeli przekraczają domyślną wartość pliku, która wynosi 1 GB. Należy uważać, aby zostawić pewien margines, jeśli serwer www ma twardy limit rozmiaru (np. 2 Gb/2048 MB limitu na niektórych 32-bitowych serwerach/systemach plików)."
 
 #: admin.php:1892
 msgid "If entering multiple files/directories, then separate them with commas. You can use a * at the end of any entry as a wildcard."
-msgstr ""
+msgstr "W przypadku wprowadzania wielu plików/katalogów, rozdziel je przecinkami. Możesz użyć * na końcu każdego wpisu jako zamiennika."
 
 #: admin.php:89
 msgid "Error: the server sent an empty response."
-msgstr ""
+msgstr "Błąd: serwer wysłał pustą odpowiedź."
 
 #: admin.php:90
 msgid "Warnings:"
-msgstr ""
+msgstr "Ostrzeżenia:"
 
 #: admin.php:92
 msgid "Error: the server sent us a response (JSON) which we did not understand."
-msgstr ""
+msgstr "Błąd: serwer wysłał nam odpowiedź (JSON), które nie rozumiemy."
 
 #: admin.php:1280
 msgid "Your WordPress install has old directories from its state before you restored/migrated (technical information: these are suffixed with -old). Use this button to delete them (if you have verified that the restoration worked)."
-msgstr ""
+msgstr "Twoja instalacja WordPress ma stare katalogi ze stanu przed przywróceniem/migracją (informacje techniczne: są to przyrostki -old). Użyj tego przycisku, aby je usunąć (po sprawdzeniu, że przywracanie działało)."
 
 #: admin.php:1074
 msgid "This looks like a file created by UpdraftPlus, but this install does not know about this type of object: %s. Perhaps you need to install an add-on?"
-msgstr ""
+msgstr "To wygląda jak plik utworzony przez UpdraftPlus, ale ta instalacja nic nie wie na temat tego typu obiektu: %s. Być może trzeba zainstalować dodatek?"
 
 #: admin.php:560
 msgid "The backup archive files have been successfully processed. Now press Restore again to proceed."
-msgstr ""
+msgstr "Pliki kopii zapasowej archiwum zostały pomyślnie przetworzone. Teraz naciśnij przycisk Przywróć ponownie, aby kontynuować."
 
 #: admin.php:562
 msgid "The backup archive files have been processed, but with some warnings. If all is well, then now press Restore again to proceed. Otherwise, cancel and correct any problems first."
-msgstr ""
+msgstr "Pliki kopii zapasowej archiwum zostały przetworzone, ale z ostrzeżeniami. Jeśli wszystko jest dobrze, to teraz naciśnij Przywróć ponownie, aby kontynuować. W przeciwnym wypadku anuluj i skoryguj w pierwszej kolejności ewentualne problemy."
 
 #: admin.php:564
 msgid "The backup archive files have been processed, but with some errors. You will need to cancel and correct any problems before retrying."
-msgstr ""
+msgstr "Pliki kopii zapasowej archiwum zostały przetworzone, ale z pewnymi błędami. Trzeba będzie zrezygnować i skorygować ewentualne problemy przed ponowną próbą."
 
 #: admin.php:473
 msgid "The backup archive for this file could not be found. The remote storage method in use (%s) does not allow us to retrieve files. To perform any restoration using UpdraftPlus, you will need to obtain a copy of this file and place it inside UpdraftPlus's working folder"
-msgstr ""
+msgstr "Nie można było znaleźć archiwum kopii zapasowej dla tego pliku. Zdalna metoda przechowywania w użyciu (%s) nie pozwala na pobieranie plików. Aby wykonać jakiekolwiek przywracanie przy pomocy UpdraftPlus, trzeba będzie uzyskać kopię tego pliku i umieścić go wewnątrz folderu roboczego UpdraftPlus."
 
 #: admin.php:497
 msgid "No such backup set exists"
-msgstr ""
+msgstr "Nie istnieje taki zestaw kopii zapasowych"
 
 #: admin.php:535
 msgid "File not found (you need to upload it): %s"
-msgstr ""
+msgstr "Nie znaleziono pliku (należy go przesłać): %s"
 
 #: admin.php:537
 msgid "File was found, but is zero-sized (you need to re-upload it): %s"
-msgstr ""
+msgstr "Plik został znaleziony, ale ma zerowy rozmiar (trzeba przesłać go ponownie): %s"
 
 #: admin.php:541
 msgid "File (%s) was found, but has a different size (%s) from what was expected (%s) - it may be corrupt."
-msgstr ""
+msgstr "Pliku (%s) został znaleziony, ale ma inny rozmiar (%s) niż ten, którego oczekiwano (%s) - może być uszkodzony."
 
 #: admin.php:555
 msgid "This multi-archive backup set appears to have the following archives missing: %s"
-msgstr ""
+msgstr "Ten zestaw archiwów kopii zapasowej wydaje się posiadać brakujące archiwa: %s"
 
 #: restorer.php:234
 msgid "Failed to move directory (check your file permissions and disk quota): %s"
-msgstr ""
+msgstr "Nie można przenieść katalogu (sprawdź uprawnienia do plików i przydział dysku): %s"
 
 #: restorer.php:434
 msgid "This directory already exists, and will be replaced"
-msgstr ""
+msgstr "Ten katalog istnieje, i zostanie zastąpiony"
 
 #: restorer.php:225
 msgid "Failed to move file (check your file permissions and disk quota): %s"
-msgstr ""
+msgstr "Nie można przenieść pliku (sprawdź uprawnienia do plików i przydział dysku): %s"
 
 #: restorer.php:28
 msgid "Moving unpacked backup into place..."
-msgstr ""
+msgstr "Przenoszenie rozpakowanej kopii zapasowej do tego miejsca... "
 
 #: backup.php:1256 backup.php:1492
 msgid "Failed to open the zip file (%s) - %s"
-msgstr ""
+msgstr "Nie udało się otworzyć pliku zip (%s) - %s"
 
 #: addons/morefiles.php:79
 msgid "WordPress root directory server path: %s"
