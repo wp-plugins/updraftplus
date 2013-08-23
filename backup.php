@@ -1015,13 +1015,13 @@ class UpdraftPlus_Backup {
 				#@touch($zipfile);
 			} else {
 				$updraftplus->log("$fullpath: unreadable file");
-				$updraftplus->log(sprintf(__("%s: unreadable file - could not be backed up", 'updraftplus'), $fullpath), 'warning');
+				$updraftplus->log(sprintf(__("%s: unreadable file - could not be backed up (check the file permissions)", 'updraftplus'), $fullpath), 'warning');
 			}
 		} elseif (is_dir($fullpath)) {
 			if (!isset($this->existing_files[$use_path_when_storing])) $this->zipfiles_dirbatched[] = $use_path_when_storing;
 			if (!$dir_handle = @opendir($fullpath)) {
 				$updraftplus->log("Failed to open directory: $fullpath");
-				$updraftplus->log(sprintf(__("Failed to open directory: %s",'updraftplus'), $fullpath), 'error');
+				$updraftplus->log(sprintf(__("Failed to open directory (check the file permissions): %s",'updraftplus'), $fullpath), 'error');
 				return false;
 			}
 			while ($e = readdir($dir_handle)) {
