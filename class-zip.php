@@ -76,7 +76,8 @@ class UpdraftPlus_BinZip extends UpdraftPlus_PclZip {
 			$process = proc_open($exec, $descriptorspec, $pipes, $rdirname);
 
 			if (!is_resource($process)) {
-				$this->last_error = $updraftplus->log("BinZip error: popen failed");
+				$updraftplus->log('BinZip error: popen failed');
+				$this->last_error = 'BinZip error: popen failed';
 				return false;
 			}
 

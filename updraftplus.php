@@ -16,8 +16,11 @@ TODO - some of these are out of date/done, needs pruning
 // Backup notes
 // Raise a warning for probably-too-large email attachments
 // mysqldump, if available, for faster database dumps. Need then to test compatibility with max_packet_size detection in restoration
+// Log how much memory is in use once UD gets to start (and thus, how much distance to the ceiling)
 // Check flow of activation on multisite
 // Find a faster encryption method
+// Provide option to make autobackup default to off
+// On restore, raise a warning for ginormous zips
 // Detect double-compressed files when they are uploaded (need a way to detect gz compression in general)
 // Log migrations/restores, and have an option for auto-emailing the log
 // Log a warning if the resumption is loonnggg after it was expected to be (usually on unvisited dev sites)
@@ -432,7 +435,8 @@ class UpdraftPlus {
 
 		$safe_mode = $this->detect_safe_mode();
 
-		$logline = "UpdraftPlus: ".$this->version." WP: ".$wp_version." PHP: ".phpversion()." (".php_uname().") MySQL: $mysql_version Server: ".$_SERVER["SERVER_SOFTWARE"]." safe_mode: $safe_mode max_execution_time: ".@ini_get("max_execution_time")." memory_limit: ".ini_get('memory_limit')." ZipArchive::addFile : ";
+		$memory_usage = round(@memory_get_usage(false)/1048576, 1);
+		$logline = "UpdraftPlus: ".$this->version." WP: ".$wp_version." PHP: ".phpversion()." (".php_uname().") MySQL: $mysql_version Server: ".$_SERVER["SERVER_SOFTWARE"]." safe_mode: $safe_mode max_execution_time: ".@ini_get("max_execution_time")." memory_limit: ".ini_get('memory_limit')." (used: ${memory_usage}M) ZipArchive::addFile : ";
 
 		// method_exists causes some faulty PHP installations to segfault, leading to support requests
 		if (version_compare(phpversion(), '5.2.0', '>=') && extension_loaded('zip')) {
