@@ -126,6 +126,10 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
+= Development version - not yet released/supported =
+* TWEAK: More logging of the success (or not) of backups sent via email
+* TWEAK: Remember hint from previous job if PHP is allowed to run for more than 300 seconds at a time
+
 = 1.7.1 - 2013/08/20 =
 * FIX: Fix error preventing file backups in 1.7.0 for PHP installs without the ZipArchive class.
 * TWEAK: Only include phpseclib in the path when required

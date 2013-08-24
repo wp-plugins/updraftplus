@@ -13,10 +13,10 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
+// Remember minimum resume intervals in between runs
 // Backup notes
 // Raise a warning for probably-too-large email attachments
 // mysqldump, if available, for faster database dumps. Need then to test compatibility with max_packet_size detection in restoration
-// Log how much memory is in use once UD gets to start (and thus, how much distance to the ceiling)
 // Check flow of activation on multisite
 // Find a faster encryption method
 // Provide option to make autobackup default to off
@@ -631,6 +631,7 @@ class UpdraftPlus {
 		$resume_interval = $this->jobdata_get('resume_interval');
 		if ($time_this_run + 30 > $resume_interval) {
 			$new_interval = ceil($time_this_run + 30);
+			set_transient('updraft_initial_resume_interval', (int)$new_interval, 8*86400);
 			$this->log("The time we have been running (".round($time_this_run,1).") is approaching the resumption interval ($resume_interval) - increasing resumption interval to $new_interval");
 			$this->jobdata_set('resume_interval', $new_interval);
 		}
@@ -1010,7 +1011,7 @@ class UpdraftPlus {
 		if (false === $one_shot) {
 			# If the files and database schedules are the same, and if this the file one, then we rope in database too.
 			# On the other hand, if the schedules were the same and this was the database run, then there is nothing to do.
-			if (UpdraftPlus_Options::get_updraft_option('updraft_interval') == UpdraftPlus_Options::get_updraft_option('updraft_interval_database') || UpdraftPlus_Options::get_updraft_option('updraft_interval_database', 'xyz') == 'xyz' ) {
+			if ('manual' != UpdraftPlus_Options::get_updraft_option('updraft_interval') && (UpdraftPlus_Options::get_updraft_option('updraft_interval') == UpdraftPlus_Options::get_updraft_option('updraft_interval_database') || UpdraftPlus_Options::get_updraft_option('updraft_interval_database', 'xyz') == 'xyz' )) {
 				$backup_database = ($backup_files == true) ? true : false;
 			}
 			$this->log("Processed schedules. Tasks now: Backup files: $backup_files Backup DB: $backup_database");
@@ -1024,9 +1025,10 @@ class UpdraftPlus {
 			return;
 		}
 
-		$resume_interval = 300;
-// 		$max_execution_time = ini_get('max_execution_time');
-// 		if ($max_execution_time >0 && $max_execution_time<300 && $resume_interval< $max_execution_time + 30) $resume_interval = $max_execution_time + 30;
+		// Allow the resume interval to be more than 300 if last time we know we went beyond that - but never more than 600
+		$resume_interval = (int)min(max(300, get_transient('updraft_initial_resume_interval')), 600);
+		# We delete it because we only want to know about behaviour found during the very last backup run (so, if you move servers then old data is not retained)
+		delete_transient('updraft_initial_resume_interval');
 
 		$job_file_entities = array();
 		if ($backup_files) {
