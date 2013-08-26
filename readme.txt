@@ -1,27 +1,28 @@
-=== UpdraftPlus Backup ===
+=== UpdraftPlus - WordPress Backup and Restoration ===
 Contributors: DavidAnderson
-Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, s3 compatible, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp, ftps, migrate, duplicate, copy, updraft, schedule, database backup, db backup
+Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, s3 compatible, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp, ftps, migrate, duplicate, copy, updraft, schedule, database backup
 Requires at least: 3.1
 Tested up to: 3.6
-Stable tag: 1.6.17
+Stable tag: 1.7.3
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
-Easy and complete backups and restoration. Manual or automated backups (Amazon S3, Dropbox, Google Drive, Rackspace, FTP, SFTP, WebDAV, email + others).
+Easy and complete backups + restoration. Manual or automated backups (Amazon S3, Dropbox, Google Drive, Rackspace, FTP, SFTP, WebDAV, email + others).
 
 == Description ==
 
 <a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3 (or compatible), Dropbox, Google Drive, Rackspace Cloud, DreamObjects, FTP, SFTP, WebDAV and email) and restore with a single click. Backups of files and database can have separate schedules.
 
-* Thousands of users: widely tested and reliable (over 170,000 downloads). Ranks in the top 1% on rankwp.com (228 out of 25,000 plugins).
-* Top-quality: ranks 45th out of 25,000 plugins for quality on rankwp.com (top 0.25% - last checked 23rd May 2013).
-* Supports backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP and email. Also (via an add-on) FTP over SSL, SFTP and WebDAV. (Note: Microsoft forbid SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
+* Thousands of users: widely tested and reliable (over 215,000 downloads). Ranks in the top 0.5% on rankwp.com (70th out of 25,000 plugins).
+* Top-quality: ranks 52nd out of 25,000 WordPress plugins for quality on rankwp.com (top 0.25% - last checked 20th August 2013).
+* Supports WordPress backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP and email. Also (via an add-on) FTP over SSL, SFTP and WebDAV. (Note: Microsoft forbid SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
 * Quick restore (both file and database backups)
 * Backup automatically on a repeating schedule
 * Site duplicator/migrator: can copy sites, and (with add-on) move them to new locations
 * Files and databases can have separate schedules
 * Failed uploads are automatically resumed/retried
+* Large sites can be split into multiple archives
 * Select which files to backup (plugins, themes, content, other)
 * Select which components of a backup to restore
 * Download backup archives direct from your WordPress dashboard
@@ -33,7 +34,7 @@ Easy and complete backups and restoration. Manual or automated backups (Amazon S
 
 = Don't Risk Anything Less =
 
-Your backups are worth the same as your entire investment in your website. The day may come when you get hacked, or your hosting company does, or they go bust - without good backups, you lose everything. Do you really want to entrust all your work to plugins with only a few thousand downloads, or that has no professional backup or support? Believe us - writing a reliable backup plugin that works consistently across the huge range of WordPress deployments is hard.
+Your WordPress backups are worth the same as your entire investment in your website. The day may come when you get hacked, or your hosting company does, or they go bust - without good backups, you lose everything. Do you really want to entrust all your work to plugins with only a few thousand downloads, or that has no professional backup or support? Believe us - writing a reliable backup plugin that works consistently across the huge range of WordPress deployments is hard.
 
 = UpdraftPlus Addons And Premium =
 
@@ -51,58 +52,61 @@ Are you able to translate UpdraftPlus into another language? Are you ready to he
 
 Many thanks to the existing translators:
 
-* Deutsch / German (de_DE): Marcel Herrguth - mherrguth@mrgeneration.de
-* Español / Spanish (es_ES): Fernando Villasmil - villasmil.fernando@gmail.com
+* Français / French translation (fr_FR): ufo3D - http://ufo-3d.fr/ and Thomas Jacobsen - http://123informatique.ch/ - with help from Françoise Lhermitte - http://www.ajwan.net
+* Swedish / Svensk (sv_SE): Steve Sandström - http://www.brandicon.se
+* Español / Spanish (es_ES): Fernando Villasmil - villasmil.fernando at gmail.com
+* Polski / Polish (pl_PL): Bartosz Kaczmarek - barth.kaczmarek at gmail.com
+* Chinese (zh_CN): K L Wang - http://klwang.info
+* Italiano / Italian (it_IT): Francesco Carpana - f.carpana at gmail.com
+
+And to these (need updating or new translators; now less than 50% translated):
+* Deutsch / German (de_DE): Marcel Herrguth - mherrguth at mrgeneration.de
 * Magyar / Hungarian (hu_HU): Szépe Viktor - http://www.szepe.net
-* Nederlands / Dutch (nl_NL): Hans van der Vlist - hansvandervlist@gmail.com
-* Polski / Polish (pl_PL): Bartosz Kaczmarek - barth.kaczmarek@gmail.com
-* Italiano / Italian (it_IT): Francesco Carpana - f.carpana@gmail.com
+* Nederlands / Dutch (nl_NL): Hans van der Vlist - hansvandervlist at gmail.com
 
 = Other support =
 
-We hang out in the support forum for this plugin - http://wordpress.org/support/plugin/updraftplus - however, to save our time so that we can spend it on development, please read the plugin's Frequently Asked Questions - <a href="http://updraftplus.com/support/frequently-asked-questions/">http://updraftplus.com/support/frequently-asked-questions/</a> - before going there, and ensure that you have updated to the latest released version of UpdraftPlus.
+We hang out in the WordPress support forum for this plugin - http://wordpress.org/support/plugin/updraftplus - however, to save our time so that we can spend it on development, please read the plugin's Frequently Asked Questions - <a href="http://updraftplus.com/support/frequently-asked-questions/">http://updraftplus.com/support/frequently-asked-questions/</a> - before going there, and ensure that you have updated to the latest released version of UpdraftPlus.
 
 == Installation ==
 
-<a href="http://updraftplus.com/download/">Please go here for full instructions</a>.
+<a href="http://updraftplus.com/download/">Please go here for full instructions for installing this plugin.</a>
 
 == Frequently Asked Questions ==
 
-<a href="http://updraftplus.com/support/frequently-asked-questions/"><strong>Please go here for the full FAQs.</strong></a> Below are just a handful which apply to the free wordpress.org version, or which bear repeating.
+<a href="http://updraftplus.com/support/frequently-asked-questions/"><strong>Please go here for the full FAQs - there are many more than below.</strong></a> Below are just a handful which particularly apply to the free wordpress.org version, or which bear repeating.
 
-= Can UpdraftPlus do <something>? =
+= Can UpdraftPlus do (something)? =
 
 Check out <a href="http://updraftplus.com/updraftplus-full-feature-list/">our full list of features</a>, and our <a href="http://updraftplus.com/shop/">add-ons shop</a>.
 
 = I found a bug. What do I do? =
 
-Firstly, please make sure you read this FAQ through to the end - it may already have the answer you need. If it does, then please consider a donation (http://david.dw-perspective.org.uk/donate); it takes time to develop this plugin and FAQ.
+Note - this FAQ is for users of the free plugin. If you're a paying customer, then you should go here: http://updraftplus.com/support/ - please don't ask question in the WordPress.Org forum about purchases, as that's against their rules.
 
-If it does not, then contact me! This is a complex backup plugin and the only way I can ensure it's robust is to get bug reports and fix the problems that crop up. Please make sure you are using the latest version of the plugin, and that you include the version in your bug report - if you are not using the latest, then the first thing you will be asked to do is upgrade.
+Next, please make sure you read this FAQ through to the end - it may already have the answer you need. If it does, then please consider a donation (e.g. buy our "No Adverts" add-on - http://updraftplus.com/shop/); it takes time to develop this plugin and FAQ.
 
-Please turn on debugging mode (in the UpdraftPlus options page) and then try again, and after that send me the log if you can find it (there are links to download logs on the UpdraftPlus settings page; or you may be emailed it; failing that, it is in the directory wp-content/updraft, so FTP in and look for it there). If you cannot find the log, then I may not be able to help so much, but you can try - include as much information as you can when reporting (PHP version, your blog's site, the error you saw and how you got to the page that caused it, etcetera).
+If it does not, then contact me (<a href="http://wordpress.org/support/plugin/updraftplus">the forum is the best way</a>)! This is a complex backup plugin and the only way I can ensure it's robust is to get bug reports and fix the problems that crop up. Please make sure you are using the latest version of the plugin, and that you include the version in your bug report - if you are not using the latest, then the first thing you will be asked to do is upgrade.
+
+Please turn on debugging mode (in the UpdraftPlus options page) and then try again, and after that send me the log if you can find it (there are links to download logs on the UpdraftPlus settings page; or you may be emailed it; failing that, it is in the directory wp-content/updraft, so FTP in and look for it there). If you cannot find the log, then I may not be able to help so much, but you can try - include as much information as you can when reporting (PHP version, your blog's site, the error you saw and how you got to the page that caused it, any other relevant plugins you have installed, etcetera). http://pastebin.com is a good place to post the log.
 
 If you know where to find your PHP error logs (often a file called error_log, possibly in your wp-admin directory (check via FTP)), then that's even better (don't send me multi-megabytes; just send the few lines that appear when you run a backup, if any).
 
-If you are a programmer and can send a patch, then that's even better.
+If you are a programmer and can debug and send a patch, then that's even better.
 
 Finally, if you post in the WordPress support forum, then make sure you include the word UpdraftPlus in your post; otherwise I will not be automatically notified that you posted.
 
 = Anything essential to know? =
 
-After you have set up UpdraftPlus, you must check that your backups are taking place successfully. WordPress is a complex piece of software that runs in many situations. Don't wait until you need your backups before you find out that they never worked in the first place. Remember, there's no warranty and no guarantees - this is free software.
+After you have set up UpdraftPlus, you must check that your WordPress backups are taking place successfully. WordPress is a complex piece of software that runs in many situations. Don't wait until you need your backups before you find out that they never worked in the first place. Remember, there's no warranty and no guarantees - this is free software.
 
 = My enormous website is hosted by a dirt-cheap provider who starve my account of resources, and UpdraftPlus runs out of time! Help! Please make UpdraftPlus deal with this situation so that I can save two dollars! =
 
-UpdraftPlus supports resuming backup runs right from the beginning, so that it does not need to do everything in a single go; but this has limits. If your website is huge and your web hosting company gives your tiny resources on an over-loaded server, then your solution is to purchase better web hosting, or to hire me professionally. Otherwise, this is not considered a bug. UpdraftPlus is known to successfully back up websites that run into the gigabytes on web servers that are not resource-starved.
+UpdraftPlus supports resuming backup runs right from the beginning, so that it does not need to do everything in a single go; but this has limits. If your website is huge and your web hosting company gives your tiny resources on an over-loaded server, then go into the "Expert settings" and reduce the size at which zip files are split (versions 1.6.53 onwards). UpdraftPlus is known to successfully back up websites that run into the multiple-gigabytes on web servers that are not resource-starved.
 
 = Will you support Windows Live SkyDrive? =
 
 No. Microsoft forbid the use of SkyDrive by backup utilities - see http://msdn.microsoft.com/en-us/library/live/hh826521.aspx ("Here are some examples of nonconforming apps: Apps that automatically back up files or folders to SkyDrive.").
-
-= How is this better than the original Updraft? =
-
-You can check the changelog for changes; but the original Updraft, before I forked it, had three major problems. Firstly, it only backed up WP core tables from the database; if any of your plugins stored data in extra tables, then they were not backed up. Secondly, it only backed up your plugins/themes/uploads and not any further directories inside wp-content that other plugins might have created. Thirdly, the database backup did not include charset information, which meant that you needed to know some SQL wizardry to actually be able to use the backup. I made UpdraftPlus out of my experience of trying to back up several sites with Updraft. Then, I added encryption for the database file for extra peace of mind, and future-proofed by getting rid of some deprecated aspects. Since then, many new features have been added, e.g. resuming of failed uploads, and Dropbox support.
 
 = Any known bugs ? =
 
@@ -110,7 +114,7 @@ Not a bug, but one issue to be aware of is that backups of very large sites (lot
 
 = My site was hacked, and I have no backups! I thought UpdraftPlus was working! Can I kill you? =
 
-No, there's no warranty or guarantee, etc. It's completely up to you to verify that UpdraftPlus is working correctly. If it doesn't then that's unfortunate, but this is a free plugin.
+No, there's no warranty or guarantee, etc. It's completely up to you to verify that UpdraftPlus is creating your backups correctly. If it doesn't then that's unfortunate, but this is a free plugin.
 
 = I am not running the most recent version of UpdraftPlus. Should I upgrade? =
 
@@ -118,31 +122,72 @@ Yes; especially before you submit any support requests.
 
 = Have you written any other free plugins? =
 
-Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ . I am also available for hire for bespoke work.
+Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ .
 
 == Changelog ==
 
-= Development branch (not yet released/supported) =
+= 1.7.3 - 2013/08/26 =
+* FIX: Some Dropbox connect errors were being lost
+* FIX: Fix detection of availability of binary zip method on PHP installs where popen() is available put proc_open() is disabled
+* FIX: (Premium): WP Core and More Files remaining locally/not being despatched to cloud storage
+* TWEAK: More logging of the success (or not) of backups sent via email
+* TWEAK: Remember hint from previous job if PHP is allowed to run for more than 300 seconds at a time
+
+= 1.7.1 - 2013/08/20 =
+* FIX: Fix error preventing file backups in 1.7.0 for PHP installs without the ZipArchive class.
+* TWEAK: Only include phpseclib in the path when required
+
+= 1.7.0 - 2013/08/20 =
+* FEATURE: Split large sites into multiple zips (see: http://updraftplus.com/splitting-large-sites-into-multiple-archives/)
+* FEATURE: Fix time add-on can now also choose the day of the week
+* FEATURE: New add-on/Premium feature - Automatic Backups (automatically take backups before plugin/theme updates) - http://updraftplus.com/shop/autobackup/
+* FEATURE: Svensk / Swedish translation (sv_SE) by Steve Sandström (http://www.brandicon.se)
+* FEATURE: Français / French translation (fr_FR) by ufo3D - http://ufo-3d.fr/ and Thomas Jacobsen - http://123informatique.ch/ -  with help from Françoise Lhermitte - http://www.ajwan.net
+* TWEAK: Save the result of looking for a binary zip (don't re-test)
+* TWEAK: Show 'Last log message' in dashboard using local time zone
+* TWEAK: Log file times are now recorded relative to the backup start, rather than the current resumption start
+* TWEAK: More code-tidying and optimisation
+* TWEAK: Warn the user if the WordPress scheduler is disabled
+* TWEAK: Many + various extra sanity-checks for possible problems
+* TWEAK: Warn user if trying to upload an above-limit (>10Gb) file to Google Drive
+* TWEAK: Reduce memory usage during restore
+* TWEAK: No longer require mbstring extension for Dropbox
+* TWEAK: Move JavaScript into separate file, and make strings translatable
+* INTERNALS: PclZip and BinZip methods now have feature parity with ZipArchive (can resume+split, more logging)
+* TWEAK/FIX: When restoring/migrating, split SQL commands to avoid exceeding MySQL's max_allowed_packet
+* FIX: Make sure output buffering is off when sending files from the browser (prevents memory exhaustion)
+* FIX: Prevent double-backup (very unusual combination of circumstances)
+* FIX: Some Windows webserver configurations could have corruption of filenames in WordPress core backups (recoverable)
+* FIX: Remove temporary files created by PclZip (where PclZip is used)
+
+= 1.6.46 - 2013/07/11 =
 * FEATURE: New storage back-end for any S3-compatible provider (e.g. Google Cloud Storage, Eucalyptus, Cloudian, many more - tested with Dreamobjects and original S3)
-* FEATURE: Delete existing backup sets manually (deletes both local + cloud copies)
+* FEATURE: Delete existing backup sets manually (deletes both local + cloud copies). Also show backup set debugging info in expert options; and counter now dynamically updates without refresh.
 * FEATURE: Restorations + migrations can now be attempted even if the user lacks CREATE TABLE or DROP TABLE permissions
-* FEATURE: Italiano/Italian translation by Francesco Carpana (f.carpana@gmail.com)
+* FEATURE: Italiano/Italian translation by Francesco Carpana (f.carpana at gmail.com)
+* FEATURE: Chinese (zh_CN) translation by K L Wang (http://klwang.info)
 * FEATURE: Re-worked error handling internally, leading to users now being notified prominently of warning-level conditions (non-fatal conditions, but things the user should be advised of)
 * FEATURE: Allow some hiding of secrets in the admin area (see: http://updraftplus.com/faqs/in-the-administration-section-it-shows-my-amazon-ftp-etc-passwords-without-using-stars-is-this-safe/)
-* FEATURE: Restorer now obtains files at an earlier stage, allowing analysis + more intelligent presentation of options and applicable warnings pre-restore. Now warns if you are migrating without having chosen search/replace of DB.
+* FEATURE: Restorer now obtains files at an earlier stage, allowing analysis + more intelligent presentation of options and applicable warnings pre-restore. Now warns if you are migrating without having chosen search/replace of DB. Also pre-decrypts the database, which lessens the risk of timeouts.
+* FEATURE: Allow entries in the list of files to exclude from backup to end in a wildcard (*). Change default exclusion for content dir to include backup* to catch other backup plugins' archives.
 * FIX: "Wipe settings" wipes S3 + DreamObjects settings (they were retained previously)
 * FIX: Suppress spurious "Table prefix has changed" message
+* FIX: Now copes on restores/migrations if you've moved around your WP_CONTENT_DIR/WP_PLUGIN_DIR/WP folder
 * FIX: Escape output of logging lines (prevents on-page JavaScript breakage if error from cloud service contained unescaped quotes)
 * FIX: Fix syntax error in rarely-triggered part of scheduling calculation algorithm that could cause a dramatic slow-down
 * FIX: Tweak the no-activity-for-a-while-when-writing-zip detector to not fire prematurely (found an extreme corner-case where this caused a problem)
 * FIX: The "Test (cloud method) settings" button would fail if credentials contained a backslash (\), due to WP's automatic doubling of backslashes
 * FIX: When restoring, don't make failure to remove a temporary directory an abortion condition
+* FIX: Database dump now retains NULL values for string fields (instead of making them empty strings)
+* FIX: Remove directories that cause an error during restoration when user restores from a backup made from a previously-restored site without removing old directories when requested.
+* TWEAK: Detect WP installs with broken plugins that add extra white-space (thus breaking AJAX output)
 * TWEAK: When running on (old) MySQL 4.1, replace TYPE= with ENGINE= for compatibility with later MySQL versions
 * TWEAK: Detect which MySQL engines are available on the restoring side, and switch if the requested engine is not available; remove PAGE_CHECKSUM and TRANSACTIONAL options if engine was (M)aria. Always remove (removed from upstream) PAGE_CHECKSUM from MyISAM.
 * TWEAK: Batch database rows by the 1000 instead of 100 - proved to be 3x faster on massive MyISAM tables
 * TWEAK: Abort a restoration if the first CREATE TABLE command produces an error (rather than continue and likely have many more)
 * TWEAK: Replace one use of method_exists() to prevent triggering segfault in some faulty PHP installs
 * TWEAK: Allow an extra attempt if in "over-time" - allows recovery from transient errors (e.g. cloud service temporary outage) in over-time.
+* TWEAK: Work-around WP installs with broken cacheing setups where cache deletion is not working
 * TWEAK: If ZipArchive::close() fails, then log the list of files we were trying to add at the time
 * TWEAK: Detect generous amounts of time allowed for running better, and schedule appropriately
 * TWEAK: Add detection of jQuery errors in the admin page, and direct users with such errors to a help page
@@ -156,7 +201,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: News blog - http://updraftplus.com/news/ - please subscribe if you want to stay up to date with news of new features, tips, and special offers. RSS link: http://feeds.feedburner.com/UpdraftPlus
 * FEATURE: Restoration/migration now copes with a change of table prefix, and asks WordPress to recreate your .htaccess/web.config file
 * FEATURE: Add support for DreamHost DreamObjects (http://dreamhost.com/cloud/dreamobjects/)
-* FEATURE: Polski / Polish (pl_PL) translation: thanks to Bartosz Kaczmarek (barth.kaczmarek@gmail.com)
+* FEATURE: Polski / Polish (pl_PL) translation: thanks to Bartosz Kaczmarek (barth.kaczmarek at gmail.com)
 * FEATURE: Add expert options to count expected uncompressed backup size, show/delete active jobs, and PHP info
 * FEATURE: Send backup reports to multiple addresses (comma-separate the addresses you wish to use)
 * FIX: Inform users of Dropbox tokens which stop working
@@ -189,7 +234,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: The "More files" add-on can now back up any files from anywhere on your filesystem (not just parts of WordPress)
 * FEATURE: The "More files" add-on can now exclude specified directories from the backup of WordPress core
 * FEATURE: Dropbox and Google Drive now check available quota before uploading
-* FEATURE: Nederlands / Dutch (nl_NL) translation: thanks to Hans van der Vlist - hansvandervlist@gmail.com
+* FEATURE: Nederlands / Dutch (nl_NL) translation: thanks to Hans van der Vlist - hansvandervlist at gmail.com
 * FEATURE: The SFTP/FTPS add-on now supports implicit encryption (so now both explicit + implicit are supported)
 * FIX: Google Drive now requires additional permissions to download your files - you will need to re-authenticate if you are downloading or restoring.
 * FIX: Fix serious corruption issue in larger Rackspace Cloud Files backups (fixed a bug in Rackspace's Cloud Files library)
@@ -210,9 +255,9 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: Built-in multi-uploader, allowing easier restoration of old backup sets
 * FEATURE: Allow instant downloading of the most recently modified log file
 * FEATURE: Built in drag-and-drop database decrypter for manual decryption
-* FEATURE: Deutsch / German translation: thanks to Marcel Herrguth - mherrguth@mrgeneration.de
+* FEATURE: Deutsch / German translation: thanks to Marcel Herrguth - mherrguth at mrgeneration.de
 * FEATURE: Magyar / Hungarian translation: thanks to Szépe Viktor - http://www.szepe.net
-* FEATURE: Spanish / Español translation: thanks to Fernando Villasmil - villasmil.fernando@gmail.com                                                                                                                                                                                                                                    
+* FEATURE: Spanish / Español translation: thanks to Fernando Villasmil - villasmil.fernando at gmail.com                                                                                                                                                                                                                                    
 * FEATURE: Added encryption (used by default) to Amazon S3 communications
 * FEATURE: New "more files" add-on, allowing backup of WordPress core and non-WordPress files
 * RELIABILITY: Various algorithm tweaks to help larger sites on lower resources. Largest site a known user has: 1.5Gb
@@ -490,7 +535,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 We recognise and thank the following for code and/or libraries used and/or modified under the terms of their open source licences:
 
-* UpdraftPlus is derived from the original Updraft by Paul Kehrer (Twitter: http://twitter.com/reaperhulk, Blog: http://langui.sh)
+* UpdraftPlus is derived from the original Updraft WordPress plugin by Paul Kehrer (Twitter: http://twitter.com/reaperhulk, Blog: http://langui.sh)
 * Sorin Iclanzan, http://profiles.wordpress.org/hel.io/
 * Ben Tadiar, https://github.com/BenTheDesigner/Dropbox
 * Beau Brownlee, http://www.solutionbot.com/2009/01/02/php-ftp-class/
@@ -520,4 +565,4 @@ We recognise and thank the following for code and/or libraries used and/or modif
 Furthermore, reliance upon any non-English translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
 
 == Upgrade Notice ==
-1.6.17: WP 3.6 support. Dreamhost Dreamobjects support. Polish translation. More expert options. Restoration to sites with different table prefixes. Lots of usability + portability tweaks.
+* 1.7.3: Fix 3 bugs - recommended upgrade for all

@@ -70,7 +70,7 @@ class UpdraftPlus_BackupModule_s3 {
 
 	function backup($backup_array) {
 
-		global $updraftplus;
+		global $updraftplus, $updraftplus_backup;
 
 		$config = $this->get_config();
 		$whoweare = $config['whoweare'];
@@ -211,7 +211,7 @@ class UpdraftPlus_BackupModule_s3 {
 					}
 				}
 			}
-			$updraftplus->prune_retained_backups($config['key'], $this, array('s3_object' => $s3, 's3_orig_bucket_name' => $orig_bucket_name));
+			$updraftplus_backup->prune_retained_backups($config['key'], $this, array('s3_object' => $s3, 's3_orig_bucket_name' => $orig_bucket_name));
 		} else {
 			$updraftplus->log("$whoweare Error: Failed to create bucket $bucket_name.");
 			$updraftplus->log(sprintf(__('%s Error: Failed to create bucket %s. Check your permissions and credentials.','updraftplus'),$whoweare, $bucket_name), 'error');
@@ -330,7 +330,7 @@ class UpdraftPlus_BackupModule_s3 {
 	public static function config_print_javascript_onready_engine($key, $whoweare) {
 		?>
 		jQuery('#updraft-<?php echo $key; ?>-test').click(function(){
-			jQuery('#updraft-<?php echo $key; ?>-test').html('<?php echo sprintf(__('Testing %s Settings...', 'updraftplus'),$whoweare); ?>');
+			jQuery('#updraft-<?php echo $key; ?>-test').html('<?php echo esc_js(sprintf(__('Testing %s Settings...', 'updraftplus'),$whoweare)); ?>');
 			var data = {
 				action: 'updraft_ajax',
 				subaction: 'credentials_test',
@@ -345,8 +345,8 @@ class UpdraftPlus_BackupModule_s3 {
 				nossl: (jQuery('#updraft_ssl_nossl').is(':checked')) ? 1 : 0,
 			};
 			jQuery.post(ajaxurl, data, function(response) {
-					jQuery('#updraft-<?php echo $key; ?>-test').html('<?php echo sprintf(__('Test %s Settings', 'updraftplus'),$whoweare); ?>');
-					alert('Settings test result: ' + response);
+				jQuery('#updraft-<?php echo $key; ?>-test').html('<?php echo esc_js(sprintf(__('Test %s Settings', 'updraftplus'),$whoweare)); ?>');
+				alert('<?php echo esc_js(sprintf(__('%s settings test result:', 'updraftplus'), 'S3'));?> ' + response);
 			});
 		});
 		<?php
@@ -366,7 +366,7 @@ class UpdraftPlus_BackupModule_s3 {
 			<td><?php echo $img_html ?><p><em><?php printf(__('%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your site is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.','updraftplus'),$whoweare_long);?></em></p>
 			<?php
 				if ('s3generic' == $key) {
-					_e('Examples of S3-compatible storage providers: ');
+					_e('Examples of S3-compatible storage providers:').' ';
 					echo '<a href="http://www.cloudian.com/">Cloudian</a>, ';
 					echo '<a href="http://cloud.google.com/storage">Google Cloud Storage</a>, ';
 					echo '<a href="https://www.mh.connectria.com/rp/order/cloud_storage_index">Connectria</a>, ';

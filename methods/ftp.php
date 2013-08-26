@@ -26,7 +26,7 @@ class UpdraftPlus_BackupModule_ftp {
 
 	function backup($backup_array) {
 
-		global $updraftplus;
+		global $updraftplus, $updraftplus_backup;
 
 		$server = UpdraftPlus_Options::get_updraft_option('updraft_server_address');
 		$user = UpdraftPlus_Options::get_updraft_option('updraft_ftp_login');
@@ -64,7 +64,7 @@ class UpdraftPlus_BackupModule_ftp {
 			}
 		}
 
-		$updraftplus->prune_retained_backups("ftp", $this, array('ftp_object' => $ftp, 'ftp_remote_path' => $ftp_remote_path));
+		$updraftplus_backup->prune_retained_backups("ftp", $this, array('ftp_object' => $ftp, 'ftp_remote_path' => $ftp_remote_path));
 	}
 
 	function delete($files, $ftparr = array()) {
@@ -86,6 +86,12 @@ class UpdraftPlus_BackupModule_ftp {
 				UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify'),
 				UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts')
 			);
+
+			if (!$ftp->connect()) {
+				$updraftplus->log("FTP Failure: we did not successfully log in with those credentials.");
+				return false;
+			}
+
 		}
 
 		$ftp_remote_path = isset($ftparr['ftp_remote_path']) ? $ftparr['ftp_remote_path'] : trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_ftp_remote_path'));
@@ -139,7 +145,8 @@ class UpdraftPlus_BackupModule_ftp {
 	public static function config_print_javascript_onready() {
 		?>
 		jQuery('#updraft-ftp-test').click(function(){
-			var data = {
+			jQuery('#updraft-ftp-test').html('<?php echo esc_js(sprintf(__('Testing %s Settings...', 'updraftplus'),'FTP')); ?>');
+				var data = {
 				action: 'updraft_ajax',
 				subaction: 'credentials_test',
 				method: 'ftp',
@@ -153,7 +160,9 @@ class UpdraftPlus_BackupModule_ftp {
 				nossl: (jQuery('#updraft_ssl_nossl').is(':checked')) ? 1 : 0,
 			};
 			jQuery.post(ajaxurl, data, function(response) {
-				alert('<?php _e('Settings test result','updraftplus');?>: ' + response);
+				jQuery('#updraft-ftp-test').html('<?php echo esc_js(sprintf(__('Test %s Settings', 'updraftplus'),'FTP')); ?>');
+				alert('<?php echo esc_js(sprintf(__('%s settings test result:', 'updraftplus'), 'FTP'));?> ' + response);
+
 			});
 		});
 		<?php
