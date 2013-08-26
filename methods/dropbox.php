@@ -159,7 +159,7 @@ class UpdraftPlus_BackupModule_dropbox {
 
 	}
 
-	function defaults() {
+	public static function defaults() {
 		return array('Z3Q3ZmkwbnplNHA0Zzlx', 'bTY0bm9iNmY4eWhjODRt');
 	}
 
@@ -325,7 +325,7 @@ class UpdraftPlus_BackupModule_dropbox {
 		}
 	}
 
-	function show_authed_admin_warning() {
+	public static function show_authed_admin_warning() {
 		global $updraftplus_admin;
 
 		$dropbox = self::bootstrap();
@@ -370,7 +370,7 @@ class UpdraftPlus_BackupModule_dropbox {
 	}
 
 	// This basically reproduces the relevant bits of bootstrap.php from the SDK
-	function bootstrap() {
+	public static function bootstrap() {
 
 		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/API.php'	);
 		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/Exception.php');
