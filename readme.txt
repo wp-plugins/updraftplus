@@ -3,7 +3,7 @@ Contributors: DavidAnderson
 Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, s3 compatible, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp, ftps, migrate, duplicate, copy, updraft, schedule, database backup
 Requires at least: 3.1
 Tested up to: 3.6
-Stable tag: 1.7.1
+Stable tag: 1.7.3
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -126,7 +126,10 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= Development version - not yet released/supported =
+= 1.7.3 - 2013/08/26 =
+* FIX: Some Dropbox connect errors were being lost
+* FIX: Fix detection of availability of binary zip method on PHP installs where popen() is available put proc_open() is disabled
+* FIX: (Premium): WP Core and More Files remaining locally/not being despatched to cloud storage
 * TWEAK: More logging of the success (or not) of backups sent via email
 * TWEAK: Remember hint from previous job if PHP is allowed to run for more than 300 seconds at a time
 
@@ -562,4 +565,4 @@ We recognise and thank the following for code and/or libraries used and/or modif
 Furthermore, reliance upon any non-English translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
 
 == Upgrade Notice ==
-* 1.7.1: Fix error preventing file backups in 1.7.0 for PHP installs without the ZipArchive class.
+* 1.7.3: Fix 3 bugs - recommended upgrade for all

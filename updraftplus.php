@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.7.2
+Version: 1.7.3
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -524,8 +524,8 @@ class UpdraftPlus {
 	# We require -@ and -u -r to work - which is the usual Linux binzip
 	function find_working_bin_zip($logit = true) {
 		if ($this->detect_safe_mode()) return false;
-		// The hosting provider may have explicitly disabled the popen function
-		if (!function_exists('popen')) return false;
+		// The hosting provider may have explicitly disabled the popen or proc_open functions
+		if (!function_exists('popen') || !function_exists('proc_open')) return false;
 		$updraft_dir = $this->backups_dir_location();
 		foreach (explode(',', UPDRAFTPLUS_ZIP_EXECUTABLE) as $potzip) {
 			if ($logit) $this->log("Testing: $potzip");
@@ -560,22 +560,46 @@ class UpdraftPlus {
 					if (true == $all_ok) {
 						file_put_contents($updraft_dir.'/binziptest/subdir1/subdir2/test2.html', '<html></body><a href="http://updraftplus.com">UpdraftPlus is a really great backup and restoration plugin for WordPress.</body></html>');
 						
-						$exec = "cd ".escapeshellarg($updraft_dir).";  echo ".escapeshellarg('binziptest/subdir1/subdir2/test2.html')." | $potzip -@ binziptest/test.zip";
+						$exec = $potzip." -v -@ binziptest/test.zip";
 
 						$all_ok=true;
-						$handle = popen($exec, "r");
-						if ($handle) {
-							while (!feof($handle)) {
-								$w = fgets($handle);
-								if ($w && $logit) $this->log("Output: ".trim($w));
-							}
-							$ret = pclose($handle);
-							if ($ret !=0) {
-								if ($logit) $this->log("Binary zip: error (code: $ret)");
+
+						$descriptorspec = array(
+							0 => array('pipe', 'r'),
+							1 => array('pipe', 'w'),
+							2 => array('pipe', 'w')
+						);
+						$handle = proc_open($exec, $descriptorspec, $pipes, $updraft_dir);
+						if (is_resource($handle)) {
+							if (!fwrite($pipes[0], "binziptest/subdir1/subdir2/test2.html\n")) {
+								@fclose($pipes[0]);
+								@fclose($pipes[1]);
+								@fclose($pipes[2]);
 								$all_ok = false;
+							} else {
+								fclose($pipes[0]);
+								while (!feof($pipes[1])) {
+									$w = fgets($pipes[1]);
+									if ($w && $logit) $this->log("Output: ".trim($w));
+								}
+								fclose($pipes[1]);
+								
+								while (!feof($pipes[2])) {
+									$last_error = fgets($pipes[2]);
+									if (!empty($last_error) && $logit) $this->log("Error output: ".trim($w));
+								}
+								fclose($pipes[2]);
+
+								$ret = proc_close($handle);
+								if ($ret !=0) {
+									if ($logit) $this->log("Binary zip: error (code: $ret)");
+									$all_ok = false;
+								}
+
 							}
+
 						} else {
-							if ($logit) $this->log("Error: popen failed");
+							if ($logit) $this->log("Error: proc_open failed");
 							$all_ok = false;
 						}
 

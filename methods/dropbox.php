@@ -124,7 +124,7 @@ class UpdraftPlus_BackupModule_dropbox {
 			try {
 				$dropbox->chunkedUpload($updraft_dir.'/'.$file, '', $ufile, true, $offset, $upload_id, array($ourself, 'chunked_callback'));
 			} catch (Exception $e) {
-				$updraftplus->log("Exception: ".$e->getMessage());
+				$updraftplus->log("Dropbox chunked upload exception: ".$e->getMessage());
 				if (preg_match("/Submitted input out of alignment: got \[(\d+)\] expected \[(\d+)\]/i", $e->getMessage(), $matches)) {
 					// Try the indicated offset
 					$we_tried = $matches[1];
@@ -139,7 +139,7 @@ class UpdraftPlus_BackupModule_dropbox {
 					}
 				} else {
 					$updraftplus->log('Dropbox error: '.$e->getMessage());
-					$updraftplus->log('Dropbox ',sprintf(__('error: failed to upload file to %s (see log file for more)','updraftplus'), $ufile), 'error');
+					$updraftplus->log('Dropbox '.sprintf(__('error: failed to upload file to %s (see log file for more)','updraftplus'), $ufile), 'error');
 					$file_success = 0;
 				}
 			}
