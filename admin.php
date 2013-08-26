@@ -2406,9 +2406,7 @@ ENDHERE;
 		}
 		// Now make sure that updraft_restorer_ option fields get passed along to request_filesystem_credentials
 		foreach ($_POST as $key => $value) {
-			if (strpos($key, 'updraft_restorer_') === 0 ) {
-				$extra_fields[] = $key;
-			}
+			if (0 === strpos($key, 'updraft_restorer_')) $extra_fields[] = $key;
 		}
 
 		$credentials = request_filesystem_credentials("options-general.php?page=updraftplus&action=updraft_restore&backup_timestamp=$timestamp", '', false, false, $extra_fields);
@@ -2417,6 +2415,14 @@ ENDHERE;
 			foreach ( $wp_filesystem->errors->get_error_messages() as $message ) show_message($message); 
 			exit; 
 		}
+
+		# Set up logging
+		$updraftplus->backup_time_nonce();
+		$updraftplus->jobdata_set('job_type', 'restore');
+		$updraftplus->logfile_open($updraftplus->nonce);
+		# TODO: Provide download link for the log file
+		# TODO: Automatic purging of old log files
+		# TODO: Provide option to auto-email the log file
 
 		//if we make it this far then WP_Filesystem has been instantiated and is functional (tested with ftpext, what about suPHP and other situations where direct may work?)
 		echo '<h1>'.__('UpdraftPlus Restoration: Progress', 'updraftplus').'</h1><div id="updraft-restore-progress">';
@@ -2430,15 +2436,19 @@ ENDHERE;
 
 		$entities_to_restore = array_flip($_POST['updraft_restore']);
 
+		$entities_log = '';
 		foreach ($_POST as $key => $value) {
 			if (strpos($key, 'updraft_restore_') === 0 ) {
 				$nkey = substr($key, 16);
 				if (!isset($entities_to_restore[$nkey])) {
 					$_POST['updraft_restore'][] = $nkey;
 					$entities_to_restore[$nkey] = 1;
+					$entities_log .= ('' == $entities_log) ? $nkey : ",$nkey";
 				}
 			}
 		}
+
+		$updraftplus->log("Restore job started. Entities to restore: $entities_log");
 
 		if (count($_POST['updraft_restore']) == 0) {
 			echo '<p>'.__('ABORT: Could not find the information on which entities to restore.', 'updraftplus').'</p>';
@@ -2467,7 +2477,7 @@ ENDHERE;
 		echo "<h2>".__('Final checks', 'updraftplus').'</h2>';
 
 		// First loop: make sure that files are present + readable; and populate array for second loop
-		foreach($backup_set as $type => $files) {
+		foreach ($backup_set as $type => $files) {
 			// All restorable entities must be given explicitly, as we can store other arbitrary data in the history array
 			if (!isset($backupable_entities[$type]) && 'db' != $type) continue;
 			if (isset($backupable_entities[$type]['restorable']) && $backupable_entities[$type]['restorable'] == false) continue;
@@ -2475,7 +2485,11 @@ ENDHERE;
 			if (!isset($entities_to_restore[$type])) continue;
 
 			if ($type == 'wpcore' && is_multisite() && 0 === $updraftplus_restorer->ud_backup_is_multisite) {
-				echo "<p>$type: <strong>".__('Skipping restoration of WordPress core when importing a single site into a multisite installation. If you had anything necessary in your WordPress directory then you will need to re-add it manually from the zip file.', 'updraftplus')."</strong></p>";
+				echo "<p>$type: <strong>";
+				echo __('Skipping restoration of WordPress core when importing a single site into a multisite installation. If you had anything necessary in your WordPress directory then you will need to re-add it manually from the zip file.', 'updraftplus');
+				#TODO
+				#$updraftplus->log_e('Skipping restoration of WordPress core when importing a single site into a multisite installation. If you had anything necessary in your WordPress directory then you will need to re-add it manually from the zip file.');
+				echo "</strong></p>";
 				continue;
 			}
 

@@ -13,7 +13,6 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
-// Remember minimum resume intervals in between runs
 // Backup notes
 // Raise a warning for probably-too-large email attachments
 // mysqldump, if available, for faster database dumps. Need then to test compatibility with max_packet_size detection in restoration
@@ -417,11 +416,11 @@ class UpdraftPlus {
 		$this->nonce = $nonce;
 	}
 
-	function logfile_open($nonce) {
+	public function logfile_open($nonce) {
 
 		//set log file name and open log file
 		$updraft_dir = $this->backups_dir_location();
-		$this->logfile_name =  $updraft_dir. "/log.$nonce.txt";
+		$this->logfile_name =  $updraft_dir."/log.$nonce.txt";
 
 		// Use append mode in case it already exists
 		$this->logfile_handle = fopen($this->logfile_name, 'a');
@@ -483,16 +482,38 @@ class UpdraftPlus {
 			$rtime = (!empty($this->backup_time_ms)) ? microtime(true)-$this->backup_time_ms : microtime(true)-$this->opened_log_time;
 			fwrite($this->logfile_handle, sprintf("%08.03f", round($rtime, 3))." (".$this->current_resumption.") $line\n");
 		}
-		if ('download' == $this->jobdata_get('job_type')) {
-			// Download messages are keyed on the job (since they could be running several), and transient
-			// The values of the POST array were checked before
-			$findex = (!empty($_POST['findex'])) ? $_POST['findex'] : 0;
-			set_transient('ud_dlmess_'.$_POST['timestamp'].'_'.$_POST['type'].'_'.$findex, $line." (".date('M d H:i:s').")", 3600);
-		} else {
-			if ($level != 'debug') UpdraftPlus_Options::update_updraft_option('updraft_lastmessage', $line." (".date_i18n('M d H:i:s').")");
+
+		switch ($this->jobdata_get('job_type')) {
+			case 'download':
+				// Download messages are keyed on the job (since they could be running several), and transient
+				// The values of the POST array were checked before
+				$findex = (!empty($_POST['findex'])) ? $_POST['findex'] : 0;
+				set_transient('ud_dlmess_'.$_POST['timestamp'].'_'.$_POST['type'].'_'.$findex, $line." (".date('M d H:i:s').")", 3600);
+				break;
+			case 'restore':
+				#if ('debug' != $level) echo $line."\n";
+				break;
+			default:
+				if ('debug' != $level) UpdraftPlus_Options::update_updraft_option('updraft_lastmessage', $line." (".date_i18n('M d H:i:s').")");
+				break;
 		}
+
 		if (defined('UPDRAFTPLUS_CONSOLELOG')) print $line."\n";
 		if (defined('UPDRAFTPLUS_BROWSERLOG')) print htmlentities($line)."\n";
+	}
+
+	# Q. Why is this abstracted into a separate function? A. To allow poedit and other parsers to pick up the need to translate strings passed to it (and not pick up all of those passed to log()).
+	# 1st argument = the line to be logged (obligatory)
+	# Further arguments = parameters for sprintf()
+	public function log_e() {
+		$args = func_get_args();
+		# Get first argument
+		$pre_line = array_shift($args);
+		# Now run sprintf on it, using any remaining arguments
+		# TODO: Does not work - the line below passes an array; that's not right
+		$line = sprintf(__($pre_line, 'updraftplus'), $args);
+		echo $line.'<br>';
+		$this->log($line);
 	}
 
 	// This function is used by cloud methods to provide standardised logging, but more importantly to help us detect that meaningful activity took place during a resumption run, so that we can schedule further resumptions if it is worthwhile
@@ -724,7 +745,7 @@ class UpdraftPlus {
 
 	}
 
-	function backup_resume($resumption_no, $bnonce) {
+	public function backup_resume($resumption_no, $bnonce) {
 
 		$this->current_resumption = $resumption_no;
 
