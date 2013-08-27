@@ -2334,7 +2334,7 @@ ENDHERE;
 				// Record which set this file is found in
 				if (!is_array($values)) $values=array($values);
 				foreach ($values as $val) {
-					if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]([0-9]+(of[0-9]+)?)?+\.(zip|gz|gz\.crypt)$/i', $val, $matches)) {
+					if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+([0-9]+(of[0-9]+)?)?+\.(zip|gz|gz\.crypt)$/i', $val, $matches)) {
 						$nonce = $matches[2];
 						if (isset($bdata['service']) && $bdata['service'] == 'none' && !is_file($updraft_dir.'/'.$val)) {
 							# File no longer present
