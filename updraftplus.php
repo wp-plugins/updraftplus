@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.7.3
+Version: 1.7.4
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -14,11 +14,13 @@ Author URI: http://updraftplus.com
 /*
 TODO - some of these are out of date/done, needs pruning
 // Backup notes
+// Detect infrequently-visited dev sites (resumption LONG after expected)
 // Raise a warning for probably-too-large email attachments
 // mysqldump, if available, for faster database dumps. Need then to test compatibility with max_packet_size detection in restoration
 // Check flow of activation on multisite
 // Find a faster encryption method
 // Provide option to make autobackup default to off
+// Multiple files in more-files
 // On restore, raise a warning for ginormous zips
 // Detect double-compressed files when they are uploaded (need a way to detect gz compression in general)
 // Log migrations/restores, and have an option for auto-emailing the log
@@ -422,8 +424,26 @@ class UpdraftPlus {
 		$updraft_dir = $this->backups_dir_location();
 		$this->logfile_name =  $updraft_dir."/log.$nonce.txt";
 
-		// Use append mode in case it already exists
+		if (file_exists($this->logfile_name)) {
+			$seek_to = max((filesize($this->logfile_name) - 340), 1);
+			$handle = fopen($this->logfile_name, 'r');
+			if ($handle) {
+				# Returns 0 on success
+				if (0 === @fseek($handle, $seek_to)) {
+					$bytes_back = filesize($this->logfile_name) - $seek_to;
+					# Return to the end of the file
+					$read_recent = fread($handle, $bytes_back);
+					# Move to end of file - ought to be redundant
+					if (false !== strpos($read_recent, 'The backup apparently succeeded') && false !== strpos($read_recent, 'and is now complete')) {
+						$this->backup_is_already_complete = true;
+					}
+				}
+				fclose($handle);
+			}
+		}
+
 		$this->logfile_handle = fopen($this->logfile_name, 'a');
+
 		$this->opened_log_time = microtime(true);
 		$this->log('Opened log file at time: '.date('r'));
 		global $wp_version;
@@ -435,7 +455,8 @@ class UpdraftPlus {
 		$safe_mode = $this->detect_safe_mode();
 
 		$memory_usage = round(@memory_get_usage(false)/1048576, 1);
-		$logline = "UpdraftPlus: ".$this->version." WP: ".$wp_version." PHP: ".phpversion()." (".php_uname().") MySQL: $mysql_version Server: ".$_SERVER["SERVER_SOFTWARE"]." safe_mode: $safe_mode max_execution_time: ".@ini_get("max_execution_time")." memory_limit: ".ini_get('memory_limit')." (used: ${memory_usage}M) ZipArchive::addFile : ";
+		$memory_usage2 = round(@memory_get_usage(true)/1048576, 1);
+		$logline = "UpdraftPlus: ".$this->version." WP: ".$wp_version." PHP: ".phpversion()." (".php_uname().") MySQL: $mysql_version Server: ".$_SERVER["SERVER_SOFTWARE"]." safe_mode: $safe_mode max_execution_time: ".@ini_get("max_execution_time")." memory_limit: ".ini_get('memory_limit')." (used: ${memory_usage}M | ${memory_usage2}M) ZipArchive::addFile: ";
 
 		// method_exists causes some faulty PHP installations to segfault, leading to support requests
 		if (version_compare(phpversion(), '5.2.0', '>=') && extension_loaded('zip')) {
@@ -443,7 +464,23 @@ class UpdraftPlus {
 		} else {
 			$logline .= (method_exists('ZipArchive', 'addFile')) ? "Y" : "N";
 		}
+
+		$w3oc = 'N';
+		if (0 === $this->current_resumption) {
+			if (defined('W3TC') && W3TC == true && function_exists('w3_instance')) {
+				$modules = w3_instance('W3_ModuleStatus');
+				if ($modules->is_enabled('objectcache')) {
+					$w3oc = 'Y';
+				}
+			}
+			$logline .= " W3TC/ObjectCache: $w3oc";
+		}
+
 		$this->log($logline);
+
+		if ('Y' === $w3oc) $this->log(__('W3 Total Cache\'s object cache is active. This is known to have a bug that messes with all scheduled tasks (including backup jobs).','updraftplus').' '.__('You should go to the W3 Total Cache settings page and turn it off.', 'updraftplus'), 'warning');
+
+
 		$disk_free_space = @disk_free_space($updraft_dir);
 		if ($disk_free_space === false) {
 			$this->log("Free space on disk containing Updraft's temporary directory: Unknown");
@@ -802,8 +839,9 @@ class UpdraftPlus {
 		$this->log("Backup run: resumption=$resumption_no, nonce=$bnonce, begun at=$btime (${time_ago}s ago), job type=$job_type".$resumption_extralog);
 
 		// This works round a bizarre bug seen in one WP install, where delete_transient and wp_clear_scheduled_hook both took no effect, and upon 'resumption' the entire backup would repeat.
-		if ($resumption_no >= 1 && 'finished' == $this->jobdata_get('jobstatus')) {
-			$this->log("Terminate: This backup job is already finished.");
+		// Argh. In fact, this has limited effect, as apparently (at least on another install seen), the saving of the updated transient via jobdata_set() also took no effect. Still, it does not hurt.
+		if (($resumption_no >= 1 && 'finished' == $this->jobdata_get('jobstatus')) || (!empty($this->backup_is_already_complete))) {
+			$this->log('Terminate: This backup job is already finished.');
 			die;
 		}
 
@@ -1038,6 +1076,8 @@ class UpdraftPlus {
 
 		//generate backup information
 		$this->backup_time_nonce();
+		// The current_resumption is consulted within logfile_open()
+		$this->current_resumption = 0;
 		$this->logfile_open($this->nonce);
 
 		if (!is_file($this->logfile_name)) {
@@ -1145,9 +1185,16 @@ class UpdraftPlus {
 		if ($this->error_count() == 0) {
 			$send_an_email = true;
 			if ($this->error_count('warning') == 0) {
-				$final_message = __("The backup apparently succeeded and is now complete",'updraftplus');
+				$final_message = __('The backup apparently succeeded and is now complete','updraftplus');
+				# Ensure it is logged in English. Not hugely important; but helps with a tiny number of really broken setups in which the options cacheing is broken
+				if ('The backup apparently succeeded and is now complete' != $final_message) {
+					$updraftplus->log('The backup apparently succeeded and is now complete');
+				}
 			} else {
-				$final_message = __("The backup apparently succeeded (with warnings) and is now complete",'updraftplus');
+				$final_message = __('The backup apparently succeeded (with warnings) and is now complete','updraftplus');
+				if ('The backup apparently succeeded (with warnings) and is now complete' != $final_message) {
+					$updraftplus->log('The backup apparently succeeded (with warnings) and is now complete');
+				}
 			}
 		} elseif ($this->newresumption_scheduled == false) {
 			$send_an_email = true;

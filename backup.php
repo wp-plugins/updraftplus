@@ -615,7 +615,7 @@ class UpdraftPlus_Backup {
 		if (!$updraftplus->opened_log_time) $updraftplus->logfile_open($updraftplus->nonce);
 
 		// Get the blog name and rip out all non-alphanumeric chars other than _
-		$blog_name = preg_replace('/[^A-Za-z0-9_]/','', str_replace(' ','_', substr(get_bloginfo(), 0, 96)));
+		$blog_name = preg_replace('/[^A-Za-z0-9_]/','', str_replace(' ','_', substr(get_bloginfo(), 0, 32)));
 		if (!$blog_name) $blog_name = 'non_alpha_name';
 		$blog_name = apply_filters('updraftplus_blog_name', $blog_name);
 
@@ -807,7 +807,6 @@ class UpdraftPlus_Backup {
 			}
 
 			$this->stow("#\n\n");
-
 		}
 		
 		// In UpdraftPlus, segment is always 'none'
@@ -822,7 +821,7 @@ class UpdraftPlus_Backup {
 						$integer_fields[strtolower($struct->Field)] = "1";
 				}
 			}
-			
+
 			// Experimentation here shows that on large tables (we tested with 180,000 rows) on MyISAM, 1000 makes the table dump out 3x faster than the previous value of 100. After that, the benefit diminishes (increasing to 4000 only saved another 12%)
 			if($segment == 'none') {
 				$row_start = 0;

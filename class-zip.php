@@ -122,7 +122,7 @@ class UpdraftPlus_BinZip extends UpdraftPlus_PclZip {
 
 			while (!feof($pipes[2])) {
 				$last_error = fgets($pipes[2]);
-				if (!empty($last_error)) $this->last_error = $last_error;
+				if (!empty($last_error)) $this->last_error = rtrim($last_error);
 			}
 			fclose($pipes[2]);
 
