@@ -1225,12 +1225,12 @@ class UpdraftPlus_Backup {
 			// Remove prefixes
 			$backupable_entities = $updraftplus->get_backupable_file_entities(true);
 			if (isset($backupable_entities[$this->whichone])) {
-					if ('plugins' == $whichone || 'themes' == $whichone || 'uploads' == $whichone) {
-						$remove_path = dirname($backupable_entities[$whichone]);
+					if ('plugins' == $this->whichone || 'themes' == $this->whichone || 'uploads' == $this->whichone) {
+						$remove_path = dirname($backupable_entities[$this->whichone]);
 						# To normalise instead of removing (which binzip doesn't support, so we don't do it), you'd remove the dirname() in the above line, and uncomment the below one.
-						#$add_path = $whichone;
+						#$add_path = $this->whichone;
 					} else {
-						$remove_path = $backupable_entities[$whichone];
+						$remove_path = $backupable_entities[$this->whichone];
 					}
 			}
 			if ($add_path) {
