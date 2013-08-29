@@ -807,7 +807,6 @@ class UpdraftPlus_Backup {
 			}
 
 			$this->stow("#\n\n");
-
 		}
 		
 		// In UpdraftPlus, segment is always 'none'
@@ -822,7 +821,7 @@ class UpdraftPlus_Backup {
 						$integer_fields[strtolower($struct->Field)] = "1";
 				}
 			}
-			
+
 			// Experimentation here shows that on large tables (we tested with 180,000 rows) on MyISAM, 1000 makes the table dump out 3x faster than the previous value of 100. After that, the benefit diminishes (increasing to 4000 only saved another 12%)
 			if($segment == 'none') {
 				$row_start = 0;
@@ -1080,6 +1079,9 @@ class UpdraftPlus_Backup {
 		global $updraftplus;
 		$updraft_dir = $updraftplus->backups_dir_location();
 
+		# This is only used by one corner-case in BinZip
+		$this->make_zipfile_source = $source;
+
 		$original_index = $this->index;
 
 		$itext = (empty($this->index)) ? '' : ($this->index+1);
@@ -1236,7 +1238,7 @@ class UpdraftPlus_Backup {
 			if ($add_path) {
 					$zipcode = $zip->create($this->source, PCLZIP_OPT_REMOVE_PATH, $remove_path, PCLZIP_OPT_ADD_PATH, $add_path);
 			} else {
-					$zipcode = $zip->create($this->source, PCLZIP_OPT_REMOVE_PATH, $remove_path);
+				$zipcode = $zip->create($this->source, PCLZIP_OPT_REMOVE_PATH, $remove_path);
 			}
 			if ($zipcode == 0 ) {
 					$updraftplus->log("PclZip Error: ".$zip->errorInfo(true), 'warning');
