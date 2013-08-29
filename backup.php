@@ -1079,6 +1079,9 @@ class UpdraftPlus_Backup {
 		global $updraftplus;
 		$updraft_dir = $updraftplus->backups_dir_location();
 
+		# This is only used by one corner-case in BinZip
+		$this->make_zipfile_source = $source;
+
 		$original_index = $this->index;
 
 		$itext = (empty($this->index)) ? '' : ($this->index+1);
@@ -1224,18 +1227,18 @@ class UpdraftPlus_Backup {
 			// Remove prefixes
 			$backupable_entities = $updraftplus->get_backupable_file_entities(true);
 			if (isset($backupable_entities[$this->whichone])) {
-					if ('plugins' == $whichone || 'themes' == $whichone || 'uploads' == $whichone) {
-						$remove_path = dirname($backupable_entities[$whichone]);
+					if ('plugins' == $this->whichone || 'themes' == $this->whichone || 'uploads' == $this->whichone) {
+						$remove_path = dirname($backupable_entities[$this->whichone]);
 						# To normalise instead of removing (which binzip doesn't support, so we don't do it), you'd remove the dirname() in the above line, and uncomment the below one.
-						#$add_path = $whichone;
+						#$add_path = $this->whichone;
 					} else {
-						$remove_path = $backupable_entities[$whichone];
+						$remove_path = $backupable_entities[$this->whichone];
 					}
 			}
 			if ($add_path) {
 					$zipcode = $zip->create($this->source, PCLZIP_OPT_REMOVE_PATH, $remove_path, PCLZIP_OPT_ADD_PATH, $add_path);
 			} else {
-					$zipcode = $zip->create($this->source, PCLZIP_OPT_REMOVE_PATH, $remove_path);
+				$zipcode = $zip->create($this->source, PCLZIP_OPT_REMOVE_PATH, $remove_path);
 			}
 			if ($zipcode == 0 ) {
 					$updraftplus->log("PclZip Error: ".$zip->errorInfo(true), 'warning');

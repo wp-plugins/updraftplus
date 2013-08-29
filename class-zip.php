@@ -27,6 +27,7 @@ class UpdraftPlus_BinZip extends UpdraftPlus_PclZip {
 	public function addFile($file, $add_as) {
 
 		global $updraftplus;
+		# Get the directory that $add_as is relative to
 		$base = $updraftplus->str_lreplace($add_as, '', $file);
 
 		if ($file == $base) {
@@ -70,6 +71,13 @@ class UpdraftPlus_BinZip extends UpdraftPlus_PclZip {
 
 		$added_dirs_yet = false;
 
+		# If there are no files to add, but there are empty directories, then we need to make sure the directories actually get added
+		if (0 == count($this->addfiles) && 0 < count($this->adddirs)) {
+			global $updraftplus_backup;
+			$dir = dirname(realpath($updraftplus_backup->make_zipfile_source));
+			$this->addfiles[$dir] = '././.';
+		}
+
 		// Loop over each destination directory name
 		foreach ($this->addfiles as $rdirname => $files) {
 
@@ -89,9 +97,11 @@ class UpdraftPlus_BinZip extends UpdraftPlus_PclZip {
 				$added_dirs_yet=true;
 			}
 
-			foreach ($files as $file) {
-				// Send the list of files on stdin
-				fwrite($pipes[0], $file."\n");
+			if (is_array($files)) {
+				foreach ($files as $file) {
+					// Send the list of files on stdin
+					fwrite($pipes[0], $file."\n");
+				}
 			}
 			fclose($pipes[0]);
 
