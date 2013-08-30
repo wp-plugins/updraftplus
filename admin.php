@@ -257,7 +257,7 @@ class UpdraftPlus_Admin {
 			$dismissed = get_transient('updraftplus_dismissedautobackup');
 			if (true == $dismissed) return;
 
-			if ( 'upgrade-plugin' == $action ) {
+			if ( 'upgrade-plugin' == $_GET['action'] ) {
 				$title = __('Update Plugin');
 				$parent_file = 'plugins.php';
 				$submenu_file = 'plugins.php';
