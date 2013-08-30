@@ -130,6 +130,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FIX: Fix bug whereby clicking on 'rescan' lost track of backups sent to remote storage
 * FIX: Fix unwanted warning message if the uploads folder was empty
 * FIX: Fix mangled pathnames for PclZip one-shot attempts
+* FIX: Show correct title on page when upgrading
 
 = 1.7.3 - 2013/08/26 =
 * FIX: Some Dropbox connect errors were being lost
