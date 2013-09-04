@@ -234,11 +234,11 @@ class UpdraftPlus_Backup {
 
 			if (isset($backup_to_examine['db'])) {
 				$db_backups_found++;
-				$updraftplus->log("$backup_datestamp: this set includes a database (".$backup_to_examine['db']."); db count is now $db_backups_found");
+				$fname = (is_string($backup_to_examine['db'])) ? $backup_to_examine['db'] : $backup_to_examine['db'][0];
+				$updraftplus->log("$backup_datestamp: this set includes a database (".$fname."); db count is now $db_backups_found");
 				if ($db_backups_found > $updraft_retain_db) {
 					$updraftplus->log("$backup_datestamp: over retain limit ($updraft_retain_db); will delete this database");
-					$dofile = $backup_to_examine['db'];
-					if (!empty($dofile)) $this->prune_file($service, $dofile, $backup_method_object, $backup_passback);
+					if (!empty($dofile)) $this->prune_file($service, $backup_to_examine['db'], $backup_method_object, $backup_passback);
 					unset($backup_to_examine['db']);
 				}
 			}
@@ -382,18 +382,25 @@ class UpdraftPlus_Backup {
 
 	// The purpose of this function is to make sure that the options table is put in the database first, then the users table, then the usermeta table; and after that the core WP tables - so that when restoring we restore the core tables first
 	private function backup_db_sorttables($a, $b) {
-		global $table_prefix;
-		$core_tables = array('terms', 'term_taxonomy', 'term_relationships', 'commentmeta', 'comments', 'links', 'postmeta', 'posts', 'site', 'sitemeta', 'blogs', 'blogversions');
+		global $updraftplus, $wpdb;
+		$our_table_prefix = $updraftplus->get_table_prefix();
 		if ($a == $b) return 0;
-		if ($a == $table_prefix.'options') return -1;
-		if ($b ==  $table_prefix.'options') return 1;
-		if ($a == $table_prefix.'users') return -1;
-		if ($b ==  $table_prefix.'users') return 1;
-		if ($a == $table_prefix.'usermeta') return -1;
-		if ($b ==  $table_prefix.'usermeta') return 1;
+		if ($a == $our_table_prefix.'options') return -1;
+		if ($b ==  $our_table_prefix.'options') return 1;
+		if ($a == $our_table_prefix.'users') return -1;
+		if ($b ==  $our_table_prefix.'users') return 1;
+		if ($a == $our_table_prefix.'usermeta') return -1;
+		if ($b ==  $our_table_prefix.'usermeta') return 1;
+
+		try {
+			$core_tables = array_merge($wpdb->tables, $wpdb->global_tables, $wpdb->ms_global_tables);
+		} catch (Exception $e) {
+		}
+		if (empty($core_tables)) $core_tables = array('terms', 'term_taxonomy', 'term_relationships', 'commentmeta', 'comments', 'links', 'postmeta', 'posts', 'site', 'sitemeta', 'blogs', 'blogversions');
+
 		global $updraftplus;
-		$na = $updraftplus->str_replace_once($table_prefix, '', $a);
-		$nb = $updraftplus->str_replace_once($table_prefix, '', $b);
+		$na = $updraftplus->str_replace_once($our_table_prefix, '', $a);
+		$nb = $updraftplus->str_replace_once($our_table_prefix, '', $b);
 		if (in_array($na, $core_tables) && !in_array($nb, $core_tables)) return -1;
 		if (!in_array($na, $core_tables) && in_array($nb, $core_tables)) return 1;
 		return strcmp($a, $b);
@@ -604,7 +611,9 @@ class UpdraftPlus_Backup {
 	*/
 	public function backup_db($already_done = "begun") {
 
-		global $updraftplus, $table_prefix, $wpdb;
+		global $updraftplus, $wpdb;
+
+		$our_table_prefix = $updraftplus->get_table_prefix();
 
 		$errors = 0;
 
@@ -654,16 +663,12 @@ class UpdraftPlus_Backup {
 				$opened = $this->backup_db_open($updraft_dir.'/'.$table_file_prefix.'.tmp.gz', true);
 				if (false === $opened) return false;
 				# === is needed, otherwise 'false' matches (i.e. prefix does not match)
-				if ( strpos($table, $table_prefix) === 0 ) {
+				if ( strpos($table, $our_table_prefix) === 0 ) {
 					// Create the SQL statements
-					$this->stow("# --------------------------------------------------------\n");
 					$this->stow("# " . sprintf(__('Table: %s','wp-db-backup'),$updraftplus->backquote($table)) . "\n");
-					$this->stow("# --------------------------------------------------------\n");
 					$this->backup_table($table);
 				} else {
-					$this->stow("# --------------------------------------------------------\n");
 					$this->stow("# " . sprintf(__('Skipping non-WP table: %s','wp-db-backup'),$updraftplus->backquote($table)) . "\n");
-					$this->stow("# --------------------------------------------------------\n");				
 				}
 				// Close file
 				$this->close($this->dbhandle);
@@ -755,20 +760,14 @@ class UpdraftPlus_Backup {
 	
 		if(($segment == 'none') || ($segment == 0)) {
 			// Add SQL statement to drop existing table
-			$this->stow("\n\n");
-			$this->stow("#\n");
-			$this->stow("# " . sprintf(__('Delete any existing table %s','wp-db-backup'),$updraftplus->backquote($table)) . "\n");
-			$this->stow("#\n");
 			$this->stow("\n");
+			$this->stow("# " . sprintf(__('Delete any existing table %s','wp-db-backup'),$updraftplus->backquote($table)) . "\n\n");
 			$this->stow("DROP TABLE IF EXISTS " . $updraftplus->backquote($table) . ";\n");
 			
 			// Table structure
 			// Comment in SQL-file
-			$this->stow("\n\n");
-			$this->stow("#\n");
-			$this->stow("# " . sprintf(__('Table structure of table %s','wp-db-backup'),$updraftplus->backquote($table)) . "\n");
-			$this->stow("#\n");
 			$this->stow("\n");
+			$this->stow("# " . sprintf(__('Table structure of table %s','wp-db-backup'),$updraftplus->backquote($table)) . "\n\n");
 			
 			$create_table = $wpdb->get_results("SHOW CREATE TABLE `$table`", ARRAY_N);
 			if (false === $create_table) {
@@ -794,7 +793,7 @@ class UpdraftPlus_Backup {
 			}
 		
 			// Comment in SQL-file
-			$this->stow("\n\n#\n# " . sprintf('Data contents of table %s',$updraftplus->backquote($table)) . "\n");
+			$this->stow("\n\n# " . sprintf('Data contents of table %s',$updraftplus->backquote($table)) . "\n");
 
 			$table_status = $wpdb->get_row("SHOW TABLE STATUS WHERE Name='$table'");
 			if (isset($table_status->Rows)) {
@@ -806,7 +805,7 @@ class UpdraftPlus_Backup {
 				}
 			}
 
-			$this->stow("#\n\n");
+			$this->stow("\n");
 		}
 		
 		// In UpdraftPlus, segment is always 'none'
@@ -872,9 +871,7 @@ class UpdraftPlus_Backup {
 		if(($segment == 'none') || ($segment < 0)) {
 			// Create footer/closing comment in SQL-file
 			$this->stow("\n");
-			$this->stow("#\n");
 			$this->stow("# " . sprintf(__('End of data contents of table %s','wp-db-backup'),$updraftplus->backquote($table)) . "\n");
-			$this->stow("# --------------------------------------------------------\n");
 			$this->stow("\n");
 		}
  		$updraftplus->log("Table $table: Total rows added: $total_rows in ".sprintf("%.02f",max(microtime(true)-$microtime,0.00001))." seconds");
@@ -954,16 +951,16 @@ class UpdraftPlus_Backup {
 	private function backup_db_header() {
 
 		@include(ABSPATH.'wp-includes/version.php');
-		global $wp_version, $table_prefix, $updraftplus;
+		global $wp_version, $updraftplus;
 
 		// Will need updating when WP stops being just plain MySQL
-		$mysql_version = (function_exists('mysql_get_server_info')) ? mysql_get_server_info() : '?';
+		$mysql_version = (function_exists('mysql_get_server_info')) ? @mysql_get_server_info() : '?';
 
 		$this->stow("# WordPress MySQL database backup\n");
 		$this->stow("# Created by UpdraftPlus version ".$updraftplus->version." (http://updraftplus.com)\n");
 		$this->stow("# WordPress Version: $wp_version, running on PHP ".phpversion()." (".$_SERVER["SERVER_SOFTWARE"]."), MySQL $mysql_version\n");
 		$this->stow("# Backup of: ".site_url()."\n");
-		$this->stow("# Table prefix: ".$table_prefix."\n");
+		$this->stow("# Table prefix: ".$updraftplus->get_table_prefix()."\n");
 		$this->stow("# Site info: multisite=".(is_multisite() ? '1' : '0')."\n");
 		$this->stow("# Site info: end\n");
 
@@ -979,7 +976,7 @@ class UpdraftPlus_Backup {
 			$this->stow("/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;\n");
 			$this->stow("/*!40101 SET NAMES " . DB_CHARSET . " */;\n");
 		}
-		$this->stow("/*!40101 SET foreign_key_checks = 0 */;\n");
+		$this->stow("/*!40101 SET foreign_key_checks = 0 */;\n\n");
 	}
 
 	public function phpmailer_init($phpmailer) {

@@ -122,7 +122,7 @@ class UpdraftPlus_BinZip extends UpdraftPlus_PclZip {
 					clearstatcache();
 					# Log when 20% bigger or at least every 50Mb
 					if ($new_size > $last_size*1.2 || $new_size > $last_size + 52428800) {
-						$updraftplus->log($this->path.sprintf(": size is now: %.2f Mb", round($new_size/1048576,1)));
+						$updraftplus->log(basename($this->path).sprintf(": size is now: %.2f Mb", round($new_size/1048576,1)));
 						$last_size = $new_size;
 					}
 				}

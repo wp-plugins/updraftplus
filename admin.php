@@ -809,7 +809,7 @@ class UpdraftPlus_Admin {
 
 		$mess = array(); $warn = array(); $err = array();
 
-		global $updraftplus, $wp_version, $table_prefix;
+		global $updraftplus, $wp_version;
 		include(ABSPATH.'wp-includes/version.php');
 
 		$backup = $updraftplus->get_backup_history($timestamp);
@@ -870,7 +870,6 @@ class UpdraftPlus_Admin {
 		$old_siteinfo = array();
 		$gathering_siteinfo = true;
 		$old_wp_version = '';
-		$import_table_prefix = $table_prefix;
 
 		$tables_found = array();
 

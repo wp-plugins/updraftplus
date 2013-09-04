@@ -9,8 +9,8 @@ class UpdraftPlus_BackupModule_sftp {
 
 		$addon_exists = apply_filters('updraft_sftp_exists', 'no');
 		if ($addon_exists !== 'yes') {
-			$updraftplus->log('You do not have the UpdraftPlus SFTP add-on installed - get it from http://updraftplus.com/shop/');
-			$updraftplus->log(sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'),'SFTP','http://updraftplus.com/shop/'), 'error');
+			$updraftplus->log('You do not have the UpdraftPlus SFTP/SCP add-on installed - get it from http://updraftplus.com/shop/');
+			$updraftplus->log(sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'),'SFTP/SCP','http://updraftplus.com/shop/'), 'error');
 			return false;
 		}
 
@@ -30,8 +30,8 @@ class UpdraftPlus_BackupModule_sftp {
 
 		$addon_exists = apply_filters('updraft_sftp_exists', 'no');
 		if ($addon_exists !== 'yes') {
-			$updraftplus->log('You do not have the UpdraftPlus SFTP add-on installed - get it from http://updraftplus.com/shop/');
-			$updraftplus->log(sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'),'SFTP','http://updraftplus.com/shop/'), 'error');
+			$updraftplus->log('You do not have the UpdraftPlus SFTP/SCP add-on installed - get it from http://updraftplus.com/shop/');
+			$updraftplus->log(sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'),'SFTP/SCP','http://updraftplus.com/shop/'), 'error');
 			return false;
 		}
 
@@ -46,8 +46,8 @@ class UpdraftPlus_BackupModule_sftp {
 
 		$addon_exists = apply_filters('updraft_sftp_exists', 'no');
 		if ($addon_exists !== 'yes') {
-			$updraftplus->log('You do not have the UpdraftPlus SFTP add-on installed - get it from http://updraftplus.com/shop/');
-			$updraftplus->log(sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'),'SFTP','http://updraftplus.com/shop/'), 'error');
+			$updraftplus->log('You do not have the UpdraftPlus SFTP/SCP add-on installed - get it from http://updraftplus.com/shop/');
+			$updraftplus->log(sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'),'SFTP/SCP','http://updraftplus.com/shop/'), 'error');
 			return false;
 		}
 
@@ -60,6 +60,7 @@ class UpdraftPlus_BackupModule_sftp {
 	// Note that logging is not available from this context; it will do nothing.
 	public static function config_print() {
 
+		# TODO: Add in SCP
 		$link = sprintf(__('%s support is available as an add-on','updraftplus'),'SFTP').' - <a href="http://updraftplus.com/shop/sftp/">'.__('follow this link to get it','updraftplus').'</a>';
 
 		$default = <<<ENDHERE

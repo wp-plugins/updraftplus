@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.7.5
+Version: 1.7.6
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -13,10 +13,14 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
+// Test with: http://wordpress.org/plugins/wp-db-driver/
 // Backup notes
+// Binary zip file errors - give them a link to a page so that they can pre-check obvious causes rather than making support the first port of call
+// Put in a help link to explain what WordPress core (including any additions to your WordPress root directory) does (was asked for support)
 // Detect infrequently-visited dev sites (resumption LONG after expected)
 // Raise a warning for probably-too-large email attachments
 // mysqldump, if available, for faster database dumps. Need then to test compatibility with max_packet_size detection in restoration
+// Coverity scan?
 // Check flow of activation on multisite
 // Find a faster encryption method
 // Provide option to make autobackup default to off
@@ -157,7 +161,7 @@ if (!defined('UPDRAFTPLUS_WARN_FILE_SIZE')) define('UPDRAFTPLUS_WARN_FILE_SIZE',
 if (!defined('UPDRAFTPLUS_WARN_DB_ROWS')) define('UPDRAFTPLUS_WARN_DB_ROWS', 150000);
 
 # The smallest value (in megabytes) that the "split zip files at" setting is allowed to be set to
-if (!defined('UPDRAFTPLUS_SPLIT_MIN')) define('UPDRAFTPLUS_SPLIT_MIN', 100);
+if (!defined('UPDRAFTPLUS_SPLIT_MIN')) define('UPDRAFTPLUS_SPLIT_MIN', 75);
 
 // This is used in various places, based on our assumption of the maximum time any job should take. May need lengthening in future if we get reports which show enormous sets hitting the limit.
 // Also one section requires at least 1% progress each run, so on a 5-minute schedule, that equals just under 9 hours - then an extra allowance takes it just over. (However these days, we reduce the scheduling time if possible, so we get more attempts).
@@ -354,17 +358,23 @@ class UpdraftPlus {
 		}
 	}
 
-	function show_admin_warning_unreadablelog() {
+	public function get_table_prefix() {
+		global $wpdb;
+		if (!empty($wpdb->base_prefix)) return $wpdb->base_prefix;
+		return $wpdb->get_blog_prefix(0);
+	}
+
+	public function show_admin_warning_unreadablelog() {
 		global $updraftplus_admin;
 		$updraftplus_admin->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus').'</strong> '.__('The log file could not be read.','updraftplus'));
 	}
 
-	function show_admin_warning_nolog() {
+	public function show_admin_warning_nolog() {
 		global $updraftplus_admin;
 		$updraftplus_admin->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus').'</strong> '.__('No log files were found.','updraftplus'));
 	}
 
-	function show_admin_warning_unreadablefile() {
+	public function show_admin_warning_unreadablefile() {
 		global $updraftplus_admin;
 		$updraftplus_admin->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus').'</strong> '.__('The given file could not be read.','updraftplus'));
 	}
@@ -450,7 +460,7 @@ class UpdraftPlus {
 		@include(ABSPATH.'wp-includes/version.php');
 
 		// Will need updating when WP stops being just plain MySQL
-		$mysql_version = (function_exists('mysql_get_server_info')) ? mysql_get_server_info() : '?';
+		$mysql_version = (function_exists('mysql_get_server_info')) ? @mysql_get_server_info() : '?';
 
 		$safe_mode = $this->detect_safe_mode();
 

@@ -267,11 +267,28 @@ class Updraft_Restorer extends WP_Upgrader {
 		}
 
 		// Ensure access to the indicated directory - and to WP_CONTENT_DIR (in which we use upgrade/)
-		$need_these = array (WP_CONTENT_DIR);
+		$need_these = array(WP_CONTENT_DIR);
 		if (!empty($info['path'])) $need_these[] = $info['path'];
 
 		$res = $this->fs_connect($need_these);
 		if (false === $res || is_wp_error($res)) return $res;
+
+		# Check upgrade directory is writable (instead of having non-obvious messages when we try to write)
+		# In theory, this is redundant (since we already checked for access to WP_CONTENT_DIR); but in practice, this extra check has been needed
+		global $wp_filesystem;
+		if (empty($this->pre_restore_updatedir_writable)) {
+			$upgrade_folder = $wp_filesystem->wp_content_dir() . 'upgrade/';
+			@$wp_filesystem->mkdir($upgrade_folder, 0775);
+			if (!$wp_filesystem->is_dir($upgrade_folder)) {
+				return new WP_Error('no_dir', sprintf(__('UpdraftPlus needed to create a %s in your content directory, but failed - please check your file permissions and enable the access (%s)', 'updraftplus'), __('folder', 'updraftplus'), $upgrade_folder));
+			}
+			$rand_file = 'testfile_'.rand(0,9999999).md5(microtime(true)).'.txt';
+			if ($wp_filesystem->put_contents($upgrade_folder.$rand_file, 'testing...')) {
+				@$wp_filesystem->delete($upgrade_folder.$rand_file);
+			} else {
+				return new WP_Error('no_file', sprintf(__('UpdraftPlus needed to create a %s in your content directory, but failed - please check your file permissions and enable the access (%s)', 'updraftplus'), __('file', 'updraftplus'), $upgrade_folder.$rand_file));
+			}
+		}
 
 		# Code below here assumes that we're dealing with file-based entities
 		if ('db' == $type) return true;
@@ -279,7 +296,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		$wp_filesystem_dir = $this->get_wp_filesystem_dir($info['path']);
 		if ($wp_filesystem_dir === false) return false;
 
-		global $updraftplus_addons_migrator, $wp_filesystem;
+		global $updraftplus_addons_migrator;
 		if ('plugins' == $type || 'uploads' == $type || 'themes' == $type && (!is_multisite() || $this->ud_backup_is_multisite !== 0 || ('uploads' != $type || empty($updraftplus_addons_migrator->new_blogid )))) {
 			if ($wp_filesystem->exists($wp_filesystem_dir.'-old')) {
 				return new WP_Error('already_exists', sprintf(__('An existing unremoved backup from a previous restore exists: %s', 'updraftplus'), $wp_filesystem_dir.'-old'));
@@ -322,7 +339,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			return;
 		}
 
-		global $wp_filesystem, $updraftplus_addons_migrator, $updraftplus, $table_prefix;
+		global $wp_filesystem, $updraftplus_addons_migrator, $updraftplus;
 
 		$get_dir = (empty($info['path'])) ? '' : $info['path'];
 		$wp_filesystem_dir = $this->get_wp_filesystem_dir($get_dir);
@@ -340,7 +357,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		@set_time_limit(1800);
 
 		// We copy the variable because we may be importing with a different prefix (e.g. on multisite imports of individual blog data)
-		$import_table_prefix = $table_prefix;
+		$import_table_prefix = $updraftplus->get_table_prefix();
 
 		if (is_multisite() && $this->ud_backup_is_multisite === 0 && ( ( 'plugins' == $type || 'themes' == $type )  || ( 'uploads' == $type && !empty($updraftplus_addons_migrator->new_blogid)) )) {
 
