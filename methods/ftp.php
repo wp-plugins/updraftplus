@@ -231,7 +231,7 @@ class UpdraftPlus_BackupModule_ftp {
 		$ftp = self::getFTP($server, $login, $pass, $nossl, $disable_verify, $use_server_certs);
 
 		if (!$ftp->connect()) {
-			_e("Failure: we did not successfully log in with those credentials.",'updraftplus');
+			_e('Failure: we did not successfully log in with those credentials.', 'updraftplus');
 			return;
 		}
 		//$ftp->make_dir(); we may need to recursively create dirs? TODO

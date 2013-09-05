@@ -991,9 +991,13 @@ class UpdraftPlus_Backup {
 
 		global $updraftplus;
 
+#$updraftplus->log("MRA: fullpath=$fullpath, upws=$use_path_when_storing, orig_fullpath=$original_fullpath");
+
 		// De-reference. Important to do to both, because on Windows only doing it to one can make them non-equal, where they were previously equal - something which we later rely upon
 		$fullpath = realpath($fullpath);
 		$original_fullpath = realpath($original_fullpath);
+
+#$updraftplus->log("MRA2: fullpath=$fullpath, orig_fullpath=$original_fullpath");
 
 		// Is the place we've ended up above the original base? That leads to infinite recursion
 		if (($fullpath !== $original_fullpath && strpos($original_fullpath, $fullpath) === 0) || ($original_fullpath == $fullpath && strpos($use_path_when_storing, '/') !== false) ) {
@@ -1051,6 +1055,8 @@ class UpdraftPlus_Backup {
 				}
 			}
 			closedir($dir_handle);
+		} else {
+			$updraftplus->log("Unexpected: path fails both is_file() and is_dir(): $fullpath");
 		}
 
 		// We don't want to tweak the zip file on every single file, so we batch them up
@@ -1076,9 +1082,6 @@ class UpdraftPlus_Backup {
 		global $updraftplus;
 		$updraft_dir = $updraftplus->backups_dir_location();
 
-		# This is only used by one corner-case in BinZip
-		$this->make_zipfile_source = $source;
-
 		$original_index = $this->index;
 
 		$itext = (empty($this->index)) ? '' : ($this->index+1);
@@ -1095,6 +1098,9 @@ class UpdraftPlus_Backup {
 
 		// We need meta-info about $whichone
 		$backupable_entities = $updraftplus->get_backupable_file_entities(true, false);
+
+		# This is only used by one corner-case in BinZip
+		$this->make_zipfile_source = (isset($backupable_entities[$whichone])) ? $backupable_entities[$whichone] : $source;
 
 		$this->existing_files = array();
 		# Used for tracking compression ratios

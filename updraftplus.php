@@ -13,8 +13,12 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
+// Auto-empty caches post-restore/post-migration (prevent support requests from people with state/wrong cacheing data)
 // Test with: http://wordpress.org/plugins/wp-db-driver/
 // Backup notes
+// FTP should create the directory if it doesn't exist
+// Incremental - can leverage some of the multi-zip work???
+// Change cron/shell advice: on multisite you need to set $_SERVER['HTTP_HOST'] (see: http://core.trac.wordpress.org/attachment/ticket/14913/14913.diff - and test this advice)
 // Binary zip file errors - give them a link to a page so that they can pre-check obvious causes rather than making support the first port of call
 // Put in a help link to explain what WordPress core (including any additions to your WordPress root directory) does (was asked for support)
 // Detect infrequently-visited dev sites (resumption LONG after expected)
@@ -209,7 +213,7 @@ class UpdraftPlus {
 		'cloudfiles' => 'Rackspace Cloud Files',
 		"googledrive" => "Google Drive",
 		"ftp" => "FTP",
-		'sftp' => 'SFTP',
+		'sftp' => 'SFTP / SCP',
 		'webdav' => 'WebDAV',
 		's3generic' => 'S3-Compatible (Generic)',
 		'dreamobjects' => 'DreamObjects',
