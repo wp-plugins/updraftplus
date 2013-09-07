@@ -991,13 +991,9 @@ class UpdraftPlus_Backup {
 
 		global $updraftplus;
 
-#$updraftplus->log("MRA: fullpath=$fullpath, upws=$use_path_when_storing, orig_fullpath=$original_fullpath");
-
 		// De-reference. Important to do to both, because on Windows only doing it to one can make them non-equal, where they were previously equal - something which we later rely upon
 		$fullpath = realpath($fullpath);
 		$original_fullpath = realpath($original_fullpath);
-
-#$updraftplus->log("MRA2: fullpath=$fullpath, orig_fullpath=$original_fullpath");
 
 		// Is the place we've ended up above the original base? That leads to infinite recursion
 		if (($fullpath !== $original_fullpath && strpos($original_fullpath, $fullpath) === 0) || ($original_fullpath == $fullpath && strpos($use_path_when_storing, '/') !== false) ) {
@@ -1023,7 +1019,7 @@ class UpdraftPlus_Backup {
 				$updraftplus->log(sprintf(__("Failed to open directory (check the file permissions): %s",'updraftplus'), $fullpath), 'error');
 				return false;
 			}
-			while ($e = readdir($dir_handle)) {
+			while (false !== ($e = readdir($dir_handle))) {
 				if ($e != '.' && $e != '..') {
 					if (is_link($fullpath.'/'.$e)) {
 						$deref = realpath($fullpath.'/'.$e);

@@ -127,11 +127,11 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 == Changelog ==
 
 = Development version - not yet released/supported =
-* FEATURE: The SFTP/FTPS storage add-on now also supports SCP
 * FIX: Fix bug whereby clicking on 'rescan' lost track of backups sent to remote storage
 * FIX: Fix obscure bug that could cause WPMU installs to not back up all tables
 * FIX: Fix unwanted warning message if the uploads folder was empty
 * FIX: Fix mangled pathnames for PclZip one-shot attempts
+* FIX: Fix bug that caused files to be dropped if one was in a sub-directory of the entity and named (entire name) "0"
 * FIX: Show correct title on page when upgrading
 * TWEAK: Extra check that the directory is writable before unpacking zip in restore (so user gets friendly error message instead of trickier one)
 
