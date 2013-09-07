@@ -719,10 +719,10 @@ class UpdraftPlus_Admin {
 				if (isset($job['updraft_backup_resume'])) {
 					foreach ($job['updraft_backup_resume'] as $hook => $info) {
 						if (isset($info['args'][1]) && $info['args'][1] == $_GET['jobid']) {
-							$found_it = 1;
 							$args = $cron[$time]['updraft_backup_resume'][$hook]['args'];
 							wp_unschedule_event($time, 'updraft_backup_resume', $args);
 							if (!$found_it) echo json_encode(array('ok' => 'Y', 'm' => __('Job deleted', 'updraftplus')));
+							$found_it = 1;
 						}
 					}
 				}
@@ -1637,12 +1637,11 @@ CREATE TABLE $wpdb->signups (
 			<?php
 	}
 
-	# Using get_option('cron') can lead to losing track of currently-running jobs if a second job starts before the first finishes - when the first finishes, it'll delete the second's cron entry (due to WP's options cacheing). When the second finishes, it then brings back the since-deleted cron entry for the first!
 	# TODO: Show warnings
-	# TODO: Work-around the above issue by deleting 'cron' from WP's option cache before we delete our scheduler entry
 	# TODO: Fold the active-job-fetcher and last-log-fetcher into one (via JSON) to reduce round-trips
 	# TODO: Show last check-in? i.e. Show how many seconds ago for last activity?
 	# TODO: More feedback from 'uploading' stage
+	# TODO: See how it looks in other browsers
 	function print_active_jobs() {
 		$cron = get_option('cron');
 		if (!is_array($cron)) $cron = array();

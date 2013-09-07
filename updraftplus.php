@@ -793,6 +793,14 @@ class UpdraftPlus {
 
 	}
 
+	# This is just a long-winded way of forcing WP to get the value afresh from the db, instead of using the auto-loaded/cached value (which can be out of date, especially since backups are, by their nature, long-running)
+	public function filter_pre_option_cron($v) {
+		global $wpdb;
+		$row = $wpdb->get_row( $wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", 'cron' ) );
+		if (is_object($row )) return maybe_unserialize($row->option_value);
+		return false;
+	}
+
 	public function backup_resume($resumption_no, $bnonce) {
 
 		$this->current_resumption = $resumption_no;
@@ -804,8 +812,9 @@ class UpdraftPlus {
 		// This is scheduled for 5 minutes after a backup job starts
 
 		$runs_started = array();
-
 		$time_now = microtime(true);
+
+		add_filter('pre_option_cron', array($this, 'filter_pre_option_cron'));
 
 		// Restore state
 		$resumption_extralog = '';
