@@ -1557,4 +1557,3 @@ class UpdraftPlus_Backup {
 	}
 
 }
-
