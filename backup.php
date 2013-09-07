@@ -177,6 +177,8 @@ class UpdraftPlus_Backup {
 		add_action('http_api_curl', array($updraftplus, 'add_curl_capath'));
 		if (file_exists($method_include)) require_once($method_include);
 
+		$updraftplus->jobdata_set('jobstatus', 'clouduploading');
+
 		if ($service == "none" || $service == "") {
 			$updraftplus->log("No remote despatch: user chose no remote backup service");
 			$this->prune_retained_backups("none", null, null);
@@ -207,6 +209,7 @@ class UpdraftPlus_Backup {
 			return;
 		}
 
+		$updraftplus->jobdata_set('jobstatus', 'pruning');
 		$updraftplus->log("Retain: beginning examination of existing backup sets");
 
 		// Number of backups to retain - files
@@ -494,6 +497,8 @@ class UpdraftPlus_Backup {
 					}
 				} else {
 
+					$updraftplus->jobdata_set('filecreating_substatus', $youwhat);
+
 					if ('others' == $youwhat) $updraftplus->log("Beginning backup of other directories found in the content directory (index: $index)");
 
 					# Apply a filter to allow add-ons to provide their own method for creating a zip of the entity
@@ -567,9 +572,11 @@ class UpdraftPlus_Backup {
 			} else {
 				$updraftplus->log("Creation of backups of directories: beginning");
 			}
+			$updraftplus->jobdata_set('jobstatus', 'filescreating');
 			$backup_array = $this->backup_dirs($transient_status);
 			$updraftplus->jobdata_set('backup_files_array', $backup_array);
 			$updraftplus->jobdata_set('backup_files', 'finished');
+			$updraftplus->jobdata_set('jobstatus', 'filescreated');
 		} else {
 			# This is not necessarily a backup run which is meant to contain files at all
 			$updraftplus->log("This backup run is not intended for files - skipping");
@@ -634,6 +641,8 @@ class UpdraftPlus_Backup {
 		if ('finished' == $already_done) return basename($backup_file_base.'-db.gz');
 		if ('encrypted' == $already_done) return basename($backup_file_base.'-db.gz.crypt');
 
+		$updraftplus->jobdata_set('jobstatus', 'dbcreating');
+
 		$total_tables = 0;
 
 		$all_tables = $wpdb->get_results("SHOW TABLES", ARRAY_N);
@@ -666,6 +675,7 @@ class UpdraftPlus_Backup {
 				if ( strpos($table, $our_table_prefix) === 0 ) {
 					// Create the SQL statements
 					$this->stow("# " . sprintf(__('Table: %s','wp-db-backup'),$updraftplus->backquote($table)) . "\n");
+					$updraftplus->jobdata_set('dbcreating_substatus', $table);
 					$this->backup_table($table);
 				} else {
 					$this->stow("# " . sprintf(__('Skipping non-WP table: %s','wp-db-backup'),$updraftplus->backquote($table)) . "\n");
@@ -729,6 +739,7 @@ class UpdraftPlus_Backup {
 			return false;
 		} else {
 			# We no longer encrypt here - because the operation can take long, we made it resumable and moved it to the upload loop
+			$updraftplus->jobdata_set('jobstatus', 'dbcreated');
 			$updraftplus->log("Total database tables backed up: $total_tables");
 			return basename($backup_file_base.'-db.gz');
 		}
@@ -887,6 +898,7 @@ class UpdraftPlus_Backup {
 		$encryption = UpdraftPlus_Options::get_updraft_option('updraft_encryptionphrase');
 		if (strlen($encryption) > 0) {
 			$updraftplus->log("$file: applying encryption");
+			$updraftplus->jobdata_set('jobstatus', 'dbencrypting');
 			$encryption_error = 0;
 			$microstart = microtime(true);
 			$updraftplus->ensure_phpseclib('Crypt_Rijndael', 'Crypt/Rijndael');
@@ -900,6 +912,7 @@ class UpdraftPlus_Backup {
 				$updraftplus->log("$file: encryption successful: ".round($file_size,1)."Kb in ".round($time_taken,1)."s (".round($file_size/$time_taken, 1)."Kb/s)");
 				# Delete unencrypted file
 				@unlink($updraft_dir.'/'.$file);
+				$updraftplus->jobdata_set('jobstatus', 'dbencrypted');
 				return basename($file.'.crypt');
 			} else {
 				$updraftplus->log("Encryption error occurred when encrypting database. Encryption aborted.");

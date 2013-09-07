@@ -13,17 +13,17 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
+// Show 'incomplete' notice in the 'restore' section for any backups that do not have a 'complete' flag (or at least, to be forwards compatible, ones with an 'incomplete' flag)
+// Post restore/migrate, check updraft_dir, and reset if non-existent
 // Auto-empty caches post-restore/post-migration (prevent support requests from people with state/wrong cacheing data)
 // Test with: http://wordpress.org/plugins/wp-db-driver/
 // Backup notes
-// FTP should create the directory if it doesn't exist
+// The delete-em at the end needs to be made resumable
+// Show running jobs at top. If there are some, and are overdue, kick off a few visits to wp-cron.php to help along.
 // Incremental - can leverage some of the multi-zip work???
-// Binary zip file errors - give them a link to a page so that they can pre-check obvious causes rather than making support the first port of call
 // Put in a help link to explain what WordPress core (including any additions to your WordPress root directory) does (was asked for support)
-// Detect infrequently-visited dev sites (resumption LONG after expected)
 // Raise a warning for probably-too-large email attachments
 // mysqldump, if available, for faster database dumps. Need then to test compatibility with max_packet_size detection in restoration
-// Coverity scan?
 // Check flow of activation on multisite
 // Find a faster encryption method
 // Provide option to make autobackup default to off
@@ -33,9 +33,7 @@ TODO - some of these are out of date/done, needs pruning
 // Log migrations/restores, and have an option for auto-emailing the log
 // Log a warning if the resumption is loonnggg after it was expected to be (usually on unvisited dev sites)
 # Email backup method should be able to force split limit down to something manageable - or at least, should make the option display. (Put it in email class. Tweak the storage dropdown to not hide stuff also in expert class if expert is shown).
-// Remember historical resumption intervals. But remember that the site may migrate, so we need to check their accuracy from time to time. Use transient?
 // What happens if you restore with a database that then changes the setting for updraft_dir ? Should be safe, as the setting is cached during a run: double-check.
-// Look at how the updraft dir is chosen... abspath+wp-content/updraft is not the best universal default
 // Import/slurp backups from other sites. See: http://www.skyverge.com/blog/extending-the-wordpress-xml-rpc-api/
 // More sophisticated options for retaining/deleting (e.g. 4/day for X days, then 7/week for Z weeks, then 1/month for Y months)
 // Unpack zips via AJAX? Do bit-by-bit to allow enormous opens a better chance? (have a huge one in Dropbox)
@@ -807,6 +805,8 @@ class UpdraftPlus {
 
 		$runs_started = array();
 
+		$time_now = microtime(true);
+
 		// Restore state
 		$resumption_extralog = '';
 		if ($resumption_no > 0) {
@@ -819,7 +819,6 @@ class UpdraftPlus {
 			if (!is_array($runs_started)) $runs_started=array();
 			$time_passed = $this->jobdata_get('run_times');
 			if (!is_array($time_passed)) $time_passed = array();
-			$time_now = microtime(true);
 			foreach ($time_passed as $run => $passed) {
 				if (isset($runs_started[$run]) && $runs_started[$run] + $time_passed[$run] + 30 > $time_now) {
 					$this->terminate_due_to_activity('check-in', round($time_now,1), round($runs_started[$run] + $time_passed[$run],1));
@@ -831,7 +830,7 @@ class UpdraftPlus {
 
 		}
 
-		$runs_started[$resumption_no] = microtime(true);
+		$runs_started[$resumption_no] = $time_now;
 		$this->jobdata_set('runs_started', $runs_started);
 
 		// Import existing warnings. The purpose of this is so that when save_backup_history() is called, it has a complete set - because job data expires quickly, whilst the warnings of the last backup run need to persist
@@ -839,6 +838,19 @@ class UpdraftPlus {
 		if (is_array($warnings)) {
 			foreach ($warnings as $warning) {
 				$this->errors[] = array('level' => 'warning', 'message' => $warning);
+			}
+		}
+
+		// Schedule again, to run in 5 minutes again, in case we again fail
+		// The actual interval can be increased (for future resumptions) by other code, if it detects apparent overlapping
+		$resume_interval = max(intval($this->jobdata_get('resume_interval')), 100);
+
+		if ($resumption_no > 0 && isset($runs_started[$prev_resumption])) {
+			$our_expected_start = $runs_started[$prev_resumption] + $resume_interval;
+			# More than 12 minutes late?
+			if ($time_now > $our_expected_start + 720) {
+				$this->log('Long time past since expected resumption time: approx expected= '.round($our_expected_start,1).", now=".round($time_now, 1).", diff=".round($time_now-$our_expected_start,1));
+				$this->log(__('Your website is visited infrequently and UpdraftPlus is not getting the resources it hoped for; please read this page:', 'updraftplus').' http://updraftplus.com/faqs/why-am-i-getting-warnings-about-my-site-not-having-enough-visitors/', 'warning');
 			}
 		}
 
@@ -858,19 +870,14 @@ class UpdraftPlus {
 			die;
 		}
 
-		// Schedule again, to run in 5 minutes again, in case we again fail
-		// The actual interval can be increased (for future resumptions) by other code, if it detects apparent overlapping
-		$resume_interval = $this->jobdata_get('resume_interval');
-		if (!is_numeric($resume_interval) || $resume_interval<300) $resume_interval = 300;
-
 		// We just do this once, as we don't want to be in permanent conflict with the overlap detector
 		if ($resumption_no == 8) {
 			// $time_passed is set earlier
 			list($max_time, $timings_string, $run_times_known) = $this->max_time_passed($time_passed, 7);
 			$this->log("Time passed on previous resumptions: $timings_string (known: $run_times_known, max: $max_time)");
-			// Remember that 30 seconds is used as the 'perhaps something is still running' detection threshold
-			if ($run_times_known >= 6 && ($max_time + 38 < $resume_interval)) {
-				$resume_interval = round($max_time + 38);
+			// Remember that 30 seconds is used as the 'perhaps something is still running' detection threshold, and that 45 seconds is used as the 'the next resumption is approaching - reschedule!' interval
+			if ($run_times_known >= 6 && ($max_time + 52 < $resume_interval)) {
+				$resume_interval = round($max_time + 52);
 				$this->log("Based on the available data, we are bringing the resumption interval down to: $resume_interval seconds");
 				$this->jobdata_set('resume_interval', $resume_interval);
 			}
@@ -1146,10 +1153,11 @@ class UpdraftPlus {
 		$initial_jobdata = array(
 			'resume_interval', $resume_interval,
 			'job_type', 'backup',
+			'jobstatus', 'begun',
 			'backup_time', $this->backup_time,
 			'backup_time_ms', $this->backup_time_ms,
 			'service', $service,
-			'split_every', max(absint(UpdraftPlus_Options::get_updraft_option('updraft_split_every', 800)), UPDRAFTPLUS_SPLIT_MIN),
+			'split_every', max(intval(UpdraftPlus_Options::get_updraft_option('updraft_split_every', 800)), UPDRAFTPLUS_SPLIT_MIN),
 			'maxzipbatch', 26214400, #25Mb
 			'job_file_entities', $job_file_entities,
 			'one_shot', $one_shot
@@ -1169,6 +1177,8 @@ class UpdraftPlus {
 
 	function backup_finish($cancel_event, $do_cleanup, $allow_email, $resumption_no) {
 
+		$delete_transient = false;
+
 		// The valid use of $do_cleanup is to indicate if in fact anything exists to clean up (if no job really started, then there may be nothing)
 
 		// In fact, leaving the hook to run (if debug is set) is harmless, as the resume job should only do tasks that were left unfinished, which at this stage is none.
@@ -1176,12 +1186,13 @@ class UpdraftPlus {
 			if ($do_cleanup) {
 				$this->log("There were no errors in the uploads, so the 'resume' event ($cancel_event) is being unscheduled");
 				# This apparently-worthless setting of metadata before deleting it is for the benefit of a WP install seen where wp_clear_scheduled_hook() and delete_transient() apparently did nothing (probably a faulty cache)
-				$this->jobdata_set('jobstatus', 'finished');
-				delete_transient("updraft_jobdata_".$this->nonce);
 				wp_clear_scheduled_hook('updraft_backup_resume', array($cancel_event, $this->nonce));
+				$this->jobdata_set('jobstatus', 'finished');
+				$delete_transient = true;
 			}
 		} else {
 			$this->log("There were errors in the uploads, so the 'resume' event is remaining scheduled");
+			$this->jobdata_set('jobstatus', 'resumingforerrors');
 		}
 
 		// Send the results email if appropriate, which means:
@@ -1211,10 +1222,10 @@ class UpdraftPlus {
 			}
 		} elseif ($this->newresumption_scheduled == false) {
 			$send_an_email = true;
-			$final_message = __("The backup attempt has finished, apparently unsuccessfully",'updraftplus');
+			$final_message = __('The backup attempt has finished, apparently unsuccessfully', 'updraftplus');
 		} else {
 			// There are errors, but a resumption will be attempted
-			$final_message = __("The backup has not finished; a resumption is scheduled within 5 minutes",'updraftplus');
+			$final_message = __('The backup has not finished; a resumption is scheduled', 'updraftplus');
 		}
 
 		// Now over-ride the decision to send an email, if needed
@@ -1240,6 +1251,10 @@ class UpdraftPlus {
 
 		// Don't delete the log file now; delete it upon rotation
  		//if (!UpdraftPlus_Options::get_updraft_option('updraft_debug_mode')) @unlink($this->logfile_name);
+
+		// This is left until last for the benefit of the front-end UI, which then gets maximum chance to display the 'finished' status
+		if ($delete_transient) delete_transient('updraft_jobdata_'.$this->nonce);
+
 
 	}
 
@@ -1338,8 +1353,7 @@ class UpdraftPlus {
 
 	function increase_resume_and_reschedule($howmuch = 120, $force_schedule = false) {
 
-		$resume_interval = $this->jobdata_get('resume_interval');
-		if (!is_numeric($resume_interval) || $resume_interval < 300) $resume_interval = 300;
+		$resume_interval = max(intval($this->jobdata_get('resume_interval')), 300);
 
 		if (empty($this->newresumption_scheduled) && $force_schedule) {
 			$this->log("A new resumption will be scheduled to prevent the job ending");
@@ -1595,15 +1609,20 @@ class UpdraftPlus {
 
 		$updraft_dir = untrailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir'));
 		$default_backup_dir = WP_CONTENT_DIR.'/updraft';
-		$updraft_dir = ($updraft_dir)?$updraft_dir:$default_backup_dir;
+		$updraft_dir = ($updraft_dir) ? $updraft_dir : $default_backup_dir;
 
 		// Do a test for a relative path
 		if ('/' != substr($updraft_dir, 0, 1) && "\\" != substr($updraft_dir, 0, 1) && !preg_match('/^[a-zA-Z]:/', $updraft_dir)) {
-			$updraft_dir = ABSPATH.$updraft_dir;
+			# Legacy - file paths stored related to ABSPATH
+			if (is_dir(ABSPATH.$updraft_dir) && is_file(ABSPATH.$updraft_dir.'/index.html') && is_file(ABSPATH.$updraft_dir.'/.htaccess') && !is_file(ABSPATH.$updraft_dir.'/index.php') && false !== strpos(file_get_contents(ABSPATH.$updraft_dir.'/.htaccess', false, null, 0, 20), 'deny from all')) {
+				$updraft_dir = ABSPATH.$updraft_dir;
+			} else {
+				# File paths stored relative to WP_CONTENT_DIR
+				$updraft_dir = trailingslashit(WP_CONTENT_DIR).$updraft_dir;
+			}
 		}
 
-		//if the option isn't set, default it to /backups inside the upload dir
-		//check for the existence of the dir and an enumeration preventer.
+		// Check for the existence of the dir and prevent enumeration
 		// index.php is for a sanity check - make sure that we're not somewhere unexpected
 		if((!is_dir($updraft_dir) || !is_file($updraft_dir.'/index.html') || !is_file($updraft_dir.'/.htaccess')) && !is_file($updraft_dir.'/index.php')) {
 			@mkdir($updraft_dir, 0775, true);

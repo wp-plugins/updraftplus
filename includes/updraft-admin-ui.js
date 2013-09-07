@@ -128,11 +128,17 @@ function updraft_check_same_times() {
 
 function updraft_activejobs_delete(jobid) {
 	jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'activejobs_delete', jobid: jobid, nonce: updraft_credentialtest_nonce }, function(response) {
-		if (response.substr(0,2) == 'Y:') {
-			jQuery('#updraft-jobid-'+jobid).html(response.substr(2)).fadeOut('slow').remove();
-		} else if (response.substr(0,2) == 'X:') {
-			alert(response.substr(2));
-		} else {
+		try {
+			var resp = jQuery.parseJSON(response);
+			if (resp.ok == 'Y') {
+				jQuery('#updraft-jobid-'+jobid).html(resp.m).fadeOut('slow').remove();
+			} else if (resp.ok == 'N') {
+				alert(resp.m);
+			} else {
+				alert(updraftlion.unexpectedresponse+' '+response);
+			}
+		} catch(err) {
+			console.log(err);
 			alert(updraftlion.unexpectedresponse+' '+response);
 		}
 	});
@@ -425,7 +431,7 @@ jQuery(document).ready(function($){
 	jQuery('#enableexpertmode').click(function() {
 		jQuery('.expertmode').fadeIn();
 		updraft_activejobs_update();
-		setInterval(function() {updraft_activejobs_update();}, 15000);
+		setInterval(function() {updraft_activejobs_update();}, 5000);
 		jQuery('#enableexpertmode').off('click'); 
 		return false;
 	});
