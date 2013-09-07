@@ -1022,7 +1022,7 @@ class UpdraftPlus_Backup {
 				$updraftplus->log(sprintf(__("Failed to open directory (check the file permissions): %s",'updraftplus'), $fullpath), 'error');
 				return false;
 			}
-			while ($e = readdir($dir_handle)) {
+			while (false !== ($e = readdir($dir_handle))) {
 				if ($e != '.' && $e != '..') {
 					if (is_link($fullpath.'/'.$e)) {
 						$deref = realpath($fullpath.'/'.$e);
