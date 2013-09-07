@@ -788,8 +788,7 @@ class UpdraftPlus {
 
 		// Schedule again, to run in 5 minutes again, in case we again fail
 		// The actual interval can be increased (for future resumptions) by other code, if it detects apparent overlapping
-		$resume_interval = $this->jobdata_get('resume_interval');
-		if (!is_numeric($resume_interval) || $resume_interval<300) $resume_interval = 300;
+		$resume_interval = max(intval($this->jobdata_get('resume_interval')), 300);
 
 		// We just do this once, as we don't want to be in permanent conflict with the overlap detector
 		if ($resumption_no == 8) {
@@ -1075,7 +1074,7 @@ class UpdraftPlus {
 			'backup_time', $this->backup_time,
 			'backup_time_ms', $this->backup_time_ms,
 			'service', $service,
-			'split_every', max(absint(UpdraftPlus_Options::get_updraft_option('updraft_split_every', 800)), UPDRAFTPLUS_SPLIT_MIN),
+			'split_every', max(intval(UpdraftPlus_Options::get_updraft_option('updraft_split_every', 800)), UPDRAFTPLUS_SPLIT_MIN),
 			'maxzipbatch', 26214400, #25Mb
 			'job_file_entities', $job_file_entities,
 			'one_shot', $one_shot
