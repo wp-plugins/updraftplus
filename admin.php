@@ -722,7 +722,7 @@ class UpdraftPlus_Admin {
 							$found_it = 1;
 							$args = $cron[$time]['updraft_backup_resume'][$hook]['args'];
 							wp_unschedule_event($time, 'updraft_backup_resume', $args);
-							echo json_encode(array('ok' => 'Y', 'm' => __('Job deleted', 'updraftplus')));
+							if (!$found_it) echo json_encode(array('ok' => 'Y', 'm' => __('Job deleted', 'updraftplus')));
 						}
 					}
 				}
@@ -1641,6 +1641,8 @@ CREATE TABLE $wpdb->signups (
 	# TODO: Show warnings
 	# TODO: Work-around the above issue by deleting 'cron' from WP's option cache before we delete our scheduler entry
 	# TODO: Fold the active-job-fetcher and last-log-fetcher into one (via JSON) to reduce round-trips
+	# TODO: Show last check-in? i.e. Show how many seconds ago for last activity?
+	# TODO: More feedback from 'uploading' stage
 	function print_active_jobs() {
 		$cron = get_option('cron');
 		if (!is_array($cron)) $cron = array();
