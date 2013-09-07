@@ -18,7 +18,6 @@ TODO - some of these are out of date/done, needs pruning
 // Backup notes
 // FTP should create the directory if it doesn't exist
 // Incremental - can leverage some of the multi-zip work???
-// Change cron/shell advice: on multisite you need to set $_SERVER['HTTP_HOST'] (see: http://core.trac.wordpress.org/attachment/ticket/14913/14913.diff - and test this advice)
 // Binary zip file errors - give them a link to a page so that they can pre-check obvious causes rather than making support the first port of call
 // Put in a help link to explain what WordPress core (including any additions to your WordPress root directory) does (was asked for support)
 // Detect infrequently-visited dev sites (resumption LONG after expected)
