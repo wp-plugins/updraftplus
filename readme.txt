@@ -127,6 +127,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 == Changelog ==
 
 = Development version - not yet released/supported =
+* FEATURE: New progress meter when a backup is running
 * FEATURE: SCP support (in <a href="http://updraftplus.com/shop/sftp/">SFTP/FTPS/SCP add-on</a>)
 * FIX: Fix bug whereby clicking on 'rescan' lost track of backups sent to remote storage
 * FIX: Fix obscure bug that could cause WPMU installs to not back up all tables

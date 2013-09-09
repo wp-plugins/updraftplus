@@ -491,6 +491,11 @@ class UpdraftPlus_Admin {
 		if (! wp_verify_nonce($nonce, 'updraftplus-credentialtest-nonce') || empty($_REQUEST['subaction'])) die('Security check');
 		if (isset($_REQUEST['subaction']) && 'lastlog' == $_REQUEST['subaction']) {
 			echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', '('.__('Nothing yet logged', 'updraftplus').')'));
+		} elseif (isset($_GET['subaction']) && 'activejobs_list' == $_GET['subaction']) {
+			echo json_encode(array(
+				'l' => htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', '('.__('Nothing yet logged', 'updraftplus').')')),
+				'j' => $this->print_active_jobs()
+			));
 		} elseif (isset($_REQUEST['subaction']) && 'dismissautobackup' == $_REQUEST['subaction']) {
 			set_transient('updraftplus_dismissedautobackup', true, 86400*84);
 		} elseif (isset($_GET['subaction']) && 'restore_alldownloaded' == $_GET['subaction'] && isset($_GET['restoreopts']) && isset($_GET['timestamp'])) {
@@ -709,8 +714,6 @@ class UpdraftPlus_Admin {
 
 		} elseif (isset($_GET['subaction']) && 'lastbackup' == $_GET['subaction']) {
 			echo $this->last_backup_html();
-		} elseif (isset($_GET['subaction']) && 'activejobs_list' == $_GET['subaction']) {
-			$this->print_active_jobs();
 		} elseif (isset($_GET['subaction']) && 'activejobs_delete' == $_GET['subaction'] && isset($_GET['jobid'])) {
 
 			$cron = get_option('cron');
@@ -1374,6 +1377,8 @@ CREATE TABLE $wpdb->signups (
 			</div>
 			<br style="clear:both" />
 			<table class="form-table">
+
+
 				<tr id="updraft_lastlogmessagerow">
 					<th><?php _e('Last log message','updraftplus');?>:</th>
 					<td>
@@ -1381,6 +1386,13 @@ CREATE TABLE $wpdb->signups (
 						<a href="?page=updraftplus&action=downloadlatestmodlog&wpnonce=<?php echo wp_create_nonce('updraftplus_download') ?>"><?php _e('Download most recently modified log file','updraftplus');?></a>
 					</td>
 				</tr>
+
+				<?php $active_jobs = $this->print_active_jobs();?>
+				<tr id="updraft_activejobsrow" style="<?php if (!$active_jobs) echo 'display:none;'; ?>">
+					<th><?php _e('Backups in progress:', 'updraftplus');?></th>
+					<td id="updraft_activejobs"><?php echo $active_jobs;?></td>
+				</tr>
+
 				<tr>
 					<th><?php echo htmlspecialchars(__('Backups, logs & restoring','updraftplus')); ?>:</th>
 					<td><a id="updraft_showbackups" href="#" title="<?php _e('Press to see available backups','updraftplus');?>" onclick="jQuery('.download-backups').fadeToggle(); updraft_historytimertoggle(0);"><?php echo sprintf(__('%d set(s) available', 'updraftplus'), count($backup_history)); ?></a></td>
@@ -1393,7 +1405,9 @@ CREATE TABLE $wpdb->signups (
 					<td>Blah blah blah. Move to right-hand col?</td>
 				</tr>
 				<?php } ?>
+
 			</table>
+
 			<table class="form-table">
 				<tr>
 					<td style="">&nbsp;</td><td class="download-backups" style="display:none; border: 2px dashed #aaa;">
@@ -1628,20 +1642,15 @@ CREATE TABLE $wpdb->signups (
 					<input type="hidden" name="action" value="updraft_wipesettings" />
 					<p><input type="submit" class="button-primary" value="<?php _e('Wipe All Settings','updraftplus'); ?>" onclick="return(confirm('<?php echo htmlspecialchars(__('This will delete all your UpdraftPlus settings - are you sure you want to do this?'));?>'))" /></p>
 				</form>
-				<h3><?php _e('Active jobs', 'updraftplus');?></h3>
-				<div id="updraft_activejobs">
-				<?php $this->print_active_jobs(); ?>
-				</div>
 			</div>
 
 			<?php
 	}
 
-	# TODO: Show warnings
-	# TODO: Fold the active-job-fetcher and last-log-fetcher into one (via JSON) to reduce round-trips
 	# TODO: Show last check-in? i.e. Show how many seconds ago for last activity?
-	# TODO: More feedback from 'uploading' stage
-	# TODO: See how it looks in other browsers
+	# TODO: More feedback from 'uploading' stage (can calculate a precise percentage?)
+	# TODO: More feedback from zip creation stage (can at least work out how many zip files done)
+	# TODO: See how it looks in other browsers (done: Chrome, Firefox)
 	function print_active_jobs() {
 		$cron = get_option('cron');
 		if (!is_array($cron)) $cron = array();
@@ -1649,6 +1658,8 @@ CREATE TABLE $wpdb->signups (
 
 		global $updraftplus;
 		$backupable_entities = $updraftplus->get_backupable_file_entities(true, true);
+
+		$ret = '';
 
 		foreach ($cron as $time => $job) {
 			if (isset($job['updraft_backup_resume'])) {
@@ -1688,12 +1699,15 @@ CREATE TABLE $wpdb->signups (
 							case 'dbcreating':
 							$stage = 2;
 							$curstage = __('Creating database backup', 'updraftplus');
-							if (!empty($jobdata['dbcreating_substatus'])) {
-								$curstage .= ' ('.sprintf(__('table: %s', 'updraftplus'), $jobdata['dbcreating_substatus']).')';
+							if (!empty($jobdata['dbcreating_substatus']['t'])) {
+								$curstage .= ' ('.sprintf(__('table: %s', 'updraftplus'), $jobdata['dbcreating_substatus']['t']).')';
+								if (!empty($jobdata['dbcreating_substatus']['i']) && !empty($jobdata['dbcreating_substatus']['a'])) {
+									$stage = 2 + ($jobdata['dbcreating_substatus']['i'] / $jobdata['dbcreating_substatus']['a']);
+								}
 							}
 							break;
 							case 'dbcreated':
-							$stage = 2;
+							$stage = 3;
 							$curstage = __('Created database backup', 'updraftplus');
 							break;
 							# Stage 3
@@ -1727,27 +1741,31 @@ CREATE TABLE $wpdb->signups (
 							$curstage = __('Unknown', 'updraftplus');
 						}
 
-						echo '<div style="margin-top: 4px; clear:left; float:left; padding: 6px; border: 1px solid;" id="updraft-jobid-'.$job_id.'"><strong>'.$began_at.'</strong> '.sprintf(__("(%s); next resumption: %d (after %ss)", 'updraftplus'), $job_id, $info['args'][0], $time-time()).' - <a href="?page=updraftplus&action=downloadlog&updraftplus_backup_nonce='.$job_id.'">'.__('show log', 'updraftplus').'</a> - <a href="javascript:updraft_activejobs_delete(\''.$job_id.'\')">'.__('delete schedule', 'updraftplus').'</a>';
+						$ret .= '<div style="min-width: 480px; margin-top: 4px; clear:left; float:left; padding: 8px; border: 1px solid;" id="updraft-jobid-'.$job_id.'"><span style="font-weight:bold;" title="'.esc_attr(sprintf(__('Job ID: %s', 'updraftplus'), $job_id)).' - '.sprintf(__("next resumption: %d (after %ss)", 'updraftplus'), $info['args'][0], $time-time()).' ">'.$began_at.'</span>  - <a href="?page=updraftplus&action=downloadlog&updraftplus_backup_nonce='.$job_id.'">'.__('show log', 'updraftplus').'</a> - <a href="javascript:updraft_activejobs_delete(\''.$job_id.'\')">'.__('delete schedule', 'updraftplus').'</a>';
 
-						?>
-						<div style="margin-top: 8px; padding-top: 4px;border: 1px solid #aaa; width: 100%; height: 22px; position: relative; text-align: center; font-style: italic;">
-							<?php
-								echo htmlspecialchars($curstage);
-							?>
-							<div style="z-index:-1; position: absolute; left: 0px; top: 0px; text-align: center; background-color: #f6a828; height: 100%; width:<?php echo (($stage>0) ? (ceil((100/6)*$stage)) : '0'); ?>%"></div>
-							</div>
-						</div>
+						if (!empty($jobdata['warnings']) && is_array($jobdata['warnings'])) {
+							$ret .= '<ul style="list-style: disc inside;">';
+							foreach ($jobdata['warnings'] as $warning) {
+								$ret .= '<li>'.sprintf(__('Warning: %s', 'updraftplus'), make_clickable(htmlspecialchars($warning))).'</li>';
+							}
+							$ret .= '</ul>';
+						}
 
-					</div>
+						$ret .= '<div style="border-radius: 4px; margin-top: 8px; padding-top: 4px;border: 1px solid #aaa; width: 100%; height: 22px; position: relative; text-align: center; font-style: italic;">';
+						$ret .= htmlspecialchars($curstage);
+						$ret .= '<div style="z-index:-1; position: absolute; left: 0px; top: 0px; text-align: center; background-color: #f6a828; height: 100%; width:'.(($stage>0) ? (ceil((100/6)*$stage)) : '0').'%"></div>';
+							$ret .= '</div></div>';
 
-					<?php
+							
+							$ret .= '</div>';
 					}
 				}
 			}
 		}
-		if (0 == $found_jobs) {
-			echo '<p><em>'.__('(None)', 'updraftplus').'</em></p>';
-		}
+// 		if (0 == $found_jobs) {
+// 			$ret .= '<p><em>'.__('(None)', 'updraftplus').'</em></p>';
+// 		}
+		return $ret;
 	}
 
 	//deletes the -old directories that are created when a backup is restored.

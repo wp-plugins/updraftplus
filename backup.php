@@ -659,8 +659,11 @@ class UpdraftPlus_Backup {
 
 		$stitch_files = array();
 
+		$how_many_tables = count($all_tables);
+
 		foreach ($all_tables as $table) {
 			$total_tables++;
+
 			// Increase script execution time-limit to 15 min for every table.
 			@set_time_limit(900);
 			// The table file may already exist if we have produced it on a previous run
@@ -675,7 +678,7 @@ class UpdraftPlus_Backup {
 				if ( strpos($table, $our_table_prefix) === 0 ) {
 					// Create the SQL statements
 					$this->stow("# " . sprintf(__('Table: %s','wp-db-backup'),$updraftplus->backquote($table)) . "\n");
-					$updraftplus->jobdata_set('dbcreating_substatus', $table);
+					$updraftplus->jobdata_set('dbcreating_substatus', array('t' => $table, 'i' => $total_tables, 'a' => $how_many_tables));
 					$this->backup_table($table);
 				} else {
 					$this->stow("# " . sprintf(__('Skipping non-WP table: %s','wp-db-backup'),$updraftplus->backquote($table)) . "\n");

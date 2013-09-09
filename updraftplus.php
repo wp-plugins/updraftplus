@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.7.8
+Version: 1.7.9
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -18,6 +18,7 @@ TODO - some of these are out of date/done, needs pruning
 // Auto-empty caches post-restore/post-migration (prevent support requests from people with state/wrong cacheing data)
 // Test with: http://wordpress.org/plugins/wp-db-driver/
 // Backup notes
+// Detect scheduler not running. Could detect possible causes? (e.g. parse .htaccess)
 // The delete-em at the end needs to be made resumable
 // Show running jobs at top. If there are some, and are overdue, kick off a few visits to wp-cron.php to help along.
 // Incremental - can leverage some of the multi-zip work???

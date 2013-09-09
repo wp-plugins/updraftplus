@@ -31,10 +31,32 @@ function updraft_restore_setoptions(entities) {
 
 var updraft_restore_stage = 1;
 var lastlog_lastmessage = "";
+var lastlog_lastdata = "";
 var lastlog_sdata = {
 	action: 'updraft_ajax',
 	subaction: 'lastlog',
 };
+
+function updraft_activejobs_update(repeat) {
+	jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'activejobs_list', nonce: updraft_credentialtest_nonce }, function(response) {
+		try {
+			resp = jQuery.parseJSON(response);
+			nexttimer = 1500;
+			if (lastlog_lastdata == response) { nexttimer = 4500; }
+			if (repeat) { setTimeout(function(){updraft_activejobs_update(true);}, nexttimer);}
+			lastlog_lastdata = response;
+			if (resp.l != null) { jQuery('#updraft_lastlogcontainer').html(resp.l); }
+			if (resp.j != null && resp.j != '') {
+				jQuery('#updraft_activejobs').html(resp.j);
+				jQuery('#updraft_activejobsrow').show();
+			} else {
+				jQuery('#updraft_activejobsrow').hide();
+			}
+		} catch(err) {
+			console.log(updraftlion.unexpectedresponse+' '+response);
+		}
+	});
+}
 
 function updraft_showlastlog(repeat){
 	lastlog_sdata.nonce = updraft_credentialtest_nonce;
@@ -141,12 +163,6 @@ function updraft_activejobs_delete(jobid) {
 			console.log(err);
 			alert(updraftlion.unexpectedresponse+' '+response);
 		}
-	});
-}
-
-function updraft_activejobs_update() {
-	jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'activejobs_list', nonce: updraft_credentialtest_nonce }, function(response) {
-		jQuery('#updraft_activejobs').html(response);
 	});
 }
 
@@ -306,7 +322,9 @@ function updraft_downloader_status(base, nonce, what, findex) {
 
 jQuery(document).ready(function($){
 	
-	setTimeout(function(){updraft_showlastlog(true);}, 1200);
+	//setTimeout(function(){updraft_showlastlog(true);}, 1200);
+	setTimeout(function() {updraft_activejobs_update(true);}, 1200);
+	
 	jQuery('.updraftplusmethod').hide();
 	
 	jQuery('#updraft_restore_db').change(function(){
@@ -401,7 +419,7 @@ jQuery(document).ready(function($){
 		jQuery.post(ajaxurl, { action: 'updraft_ajax', subaction: 'backupnow', nonce: updraft_credentialtest_nonce }, function(response) {
 			jQuery('#updraft_backup_started').html(response);
 			setTimeout(function() {jQuery.get(updraft_siteurl);}, 5100);
-			setTimeout(function() {updraft_showlastlog();}, 6000);
+			//setTimeout(function() {updraft_showlastlog();}, 6000);
 			setTimeout(function() {updraft_activejobs_update();}, 6000);
 			setTimeout(function() {
 				jQuery('#updraft_lastlogmessagerow').fadeOut('slow', function() {
@@ -431,7 +449,6 @@ jQuery(document).ready(function($){
 	jQuery('#enableexpertmode').click(function() {
 		jQuery('.expertmode').fadeIn();
 		updraft_activejobs_update();
-		setInterval(function() {updraft_activejobs_update();}, 5000);
 		jQuery('#enableexpertmode').off('click'); 
 		return false;
 	});
