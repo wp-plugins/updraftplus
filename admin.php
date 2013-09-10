@@ -1647,7 +1647,6 @@ CREATE TABLE $wpdb->signups (
 			<?php
 	}
 
-	# TODO: Show last check-in? i.e. Show how many seconds ago for last activity?
 	# TODO: More feedback from 'uploading' stage (can calculate a precise percentage?)
 	# TODO: More feedback from zip creation stage (can at least work out how many zip files done)
 	# TODO: See how it looks in other browsers (done: Chrome, Firefox)
@@ -1741,7 +1740,34 @@ CREATE TABLE $wpdb->signups (
 							$curstage = __('Unknown', 'updraftplus');
 						}
 
-						$ret .= '<div style="min-width: 480px; margin-top: 4px; clear:left; float:left; padding: 8px; border: 1px solid;" id="updraft-jobid-'.$job_id.'"><span style="font-weight:bold;" title="'.esc_attr(sprintf(__('Job ID: %s', 'updraftplus'), $job_id)).' - '.sprintf(__("next resumption: %d (after %ss)", 'updraftplus'), $info['args'][0], $time-time()).' ">'.$began_at.'</span>  - <a href="?page=updraftplus&action=downloadlog&updraftplus_backup_nonce='.$job_id.'">'.__('show log', 'updraftplus').'</a> - <a href="javascript:updraft_activejobs_delete(\''.$job_id.'\')">'.__('delete schedule', 'updraftplus').'</a>';
+						$runs_started = $jobdata['runs_started'];
+						$time_passed = $jobdata['run_times'];
+						$last_checkin_ago = -1;
+						if (is_array($time_passed)) {
+							foreach ($time_passed as $run => $passed) {
+								if (isset($runs_started[$run])) {
+									$time_ago = microtime(true) - ($runs_started[$run] + $time_passed[$run]);
+									if ($time_ago < $last_checkin_ago || $last_checkin_ago == -1) $last_checkin_ago = $time_ago;
+								}
+							}
+						}
+
+						$next_res_txt = ' - '.sprintf(__("next resumption: %d (after %ss)", 'updraftplus'), $info['args'][0], $time-time()). ' ';
+						$last_activity_txt = ($last_checkin_ago >= 0) ? ' - '.sprintf(__('last activity: %ss ago', 'updraftplus'), floor($last_checkin_ago)).' ' : '';
+
+						if ($last_checkin_ago < 50) {
+							$show_inline_info = $last_activity_txt;
+							$title_info = $next_res_txt;
+						} else {
+							$show_inline_info = $next_res_txt;
+							$title_info = $last_activity_txt;
+						}
+
+						$ret .= '<div style="min-width: 480px; margin-top: 4px; clear:left; float:left; padding: 8px; border: 1px solid;" id="updraft-jobid-'.$job_id.'"><span style="font-weight:bold;" title="'.esc_attr(sprintf(__('Job ID: %s', 'updraftplus'), $job_id)).$title_info.'">'.$began_at.'</span> ';
+
+						$ret .= $show_inline_info;
+
+						$ret .= '- <a href="?page=updraftplus&action=downloadlog&updraftplus_backup_nonce='.$job_id.'">'.__('show log', 'updraftplus').'</a> - <a href="javascript:updraft_activejobs_delete(\''.$job_id.'\')">'.__('delete schedule', 'updraftplus').'</a>';
 
 						if (!empty($jobdata['warnings']) && is_array($jobdata['warnings'])) {
 							$ret .= '<ul style="list-style: disc inside;">';
@@ -1754,7 +1780,7 @@ CREATE TABLE $wpdb->signups (
 						$ret .= '<div style="border-radius: 4px; margin-top: 8px; padding-top: 4px;border: 1px solid #aaa; width: 100%; height: 22px; position: relative; text-align: center; font-style: italic;">';
 						$ret .= htmlspecialchars($curstage);
 						$ret .= '<div style="z-index:-1; position: absolute; left: 0px; top: 0px; text-align: center; background-color: #f6a828; height: 100%; width:'.(($stage>0) ? (ceil((100/6)*$stage)) : '0').'%"></div>';
-							$ret .= '</div></div>';
+						$ret .= '</div></div>';
 
 							
 							$ret .= '</div>';
