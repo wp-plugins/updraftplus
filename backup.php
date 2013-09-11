@@ -179,6 +179,12 @@ class UpdraftPlus_Backup {
 
 		$updraftplus->jobdata_set('jobstatus', 'clouduploading');
 
+		$upload_status = $updraftplus->jobdata_get('uploading_substatus');
+		if (!is_array($upload_status) || !isset($upload_status['t'])) {
+			$upload_status = array('i' => 0, 't' => count($backup_array));
+			$updraftplus->jobdata_set('uploading_substatus', $upload_status);
+		}
+
 		if ($service == "none" || $service == "") {
 			$updraftplus->log("No remote despatch: user chose no remote backup service");
 			$this->prune_retained_backups("none", null, null);
@@ -243,6 +249,7 @@ class UpdraftPlus_Backup {
 					$updraftplus->log("$backup_datestamp: over retain limit ($updraft_retain_db); will delete this database");
 					if (!empty($dofile)) $this->prune_file($service, $backup_to_examine['db'], $backup_method_object, $backup_passback);
 					unset($backup_to_examine['db']);
+					$updraftplus->record_still_alive();
 				}
 			}
 
@@ -265,6 +272,7 @@ class UpdraftPlus_Backup {
 							$this->prune_file($service, $backup_to_examine[$entity], $backup_method_object, $backup_passback);
 						}
 						unset($backup_to_examine[$entity]);
+						$updraftplus->record_still_alive();
 					}
 
 				}
@@ -453,6 +461,8 @@ class UpdraftPlus_Backup {
 		}
 
 		$job_file_entities = $updraftplus->jobdata_get('job_file_entities');
+		# This is just used for the visual feedback (via the 'substatus' key)
+		$which_entity = 0;
 		# e.g. plugins, themes, uploads, others
 		foreach ($possible_backups as $youwhat => $whichdir) {
 
@@ -497,7 +507,8 @@ class UpdraftPlus_Backup {
 					}
 				} else {
 
-					$updraftplus->jobdata_set('filecreating_substatus', $youwhat);
+					$which_entity++;
+					$updraftplus->jobdata_set('filecreating_substatus', array('e' => $youwhat, 'i' => $which_entity, 't' => count($job_file_entities)));
 
 					if ('others' == $youwhat) $updraftplus->log("Beginning backup of other directories found in the content directory (index: $index)");
 

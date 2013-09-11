@@ -102,7 +102,7 @@ class UpdraftPlus_BackupModule_s3 {
 			if (empty($region) && $config['key'] == 's3') $region = $s3->getBucketLocation($bucket_name);
 			$this->set_endpoint($s3, $region);
 
-			$updraft_dir = $updraftplus->backups_dir_location().'/';
+			$updraft_dir = trailingslashit($updraftplus->backups_dir_location());
 
 			foreach($backup_array as $key => $file) {
 

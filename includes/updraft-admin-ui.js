@@ -50,7 +50,10 @@ function updraft_activejobs_update(repeat) {
 				jQuery('#updraft_activejobs').html(resp.j);
 				jQuery('#updraft_activejobsrow').show();
 			} else {
-				jQuery('#updraft_activejobsrow').hide();
+				if (!jQuery('#updraft_activejobsrow').is(':hidden')) {
+					updraft_showlastbackup();
+					jQuery('#updraft_activejobsrow').hide();
+				}
 			}
 		} catch(err) {
 			console.log(updraftlion.unexpectedresponse+' '+response);

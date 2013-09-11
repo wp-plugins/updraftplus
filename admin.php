@@ -707,8 +707,7 @@ class UpdraftPlus_Admin {
 				$updraftplus->log("A backup run failed to schedule");
 				echo __("Failed.",'updraftplus')."</div>";
 			} else {
-				// For unknown reasons, the <script> runs twice if put inside the <div>
-				echo htmlspecialchars(__('OK. You should soon see activity in the "Last log message" field below.','updraftplus'))." <a href=\"http://updraftplus.com/faqs/my-scheduled-backups-and-pressing-backup-now-does-nothing-however-pressing-debug-backup-does-produce-a-backup/\">".__('Nothing happening? Follow this link for help.','updraftplus')."</a></div><script>setTimeout(function(){updraft_showlastbackup();}, 7000);</script>";
+				echo htmlspecialchars(__('OK. You should soon see activity in the "Last log message" field below.','updraftplus'))." <a href=\"http://updraftplus.com/faqs/my-scheduled-backups-and-pressing-backup-now-does-nothing-however-pressing-debug-backup-does-produce-a-backup/\">".__('Nothing happening? Follow this link for help.','updraftplus')."</a></div>";
 				$updraftplus->log("A backup run has been scheduled");
 			}
 
@@ -1647,9 +1646,6 @@ CREATE TABLE $wpdb->signups (
 			<?php
 	}
 
-	# TODO: More feedback from 'uploading' stage (can calculate a precise percentage?)
-	# TODO: More feedback from zip creation stage (can at least work out how many zip files done)
-	# TODO: See how it looks in other browsers (done: Chrome, Firefox)
 	function print_active_jobs() {
 		$cron = get_option('cron');
 		if (!is_array($cron)) $cron = array();
@@ -1682,16 +1678,18 @@ CREATE TABLE $wpdb->signups (
 							case 'filescreating':
 							$stage = 1;
 							$curstage = __('Creating file backup zips', 'updraftplus');
-							if (!empty($jobdata['filecreating_substatus']) && isset($backupable_entities[$jobdata['filecreating_substatus']]['description'])) {
+							if (!empty($jobdata['filecreating_substatus']) && isset($backupable_entities[$jobdata['filecreating_substatus']['e']]['description'])) {
 							
-							$sdescrip = preg_replace('/ \(.*\)$/', '', $backupable_entities[$jobdata['filecreating_substatus']]['description']);
+							$sdescrip = preg_replace('/ \(.*\)$/', '', $backupable_entities[$jobdata['filecreating_substatus']['e']]['description']);
 							if (strlen($sdescrip) > 20 && isset($backupable_entities[$jobdata['filecreating_substatus']]['shortdescription'])) $sdescrip = $backupable_entities[$jobdata['filecreating_substatus']]['shortdescription'];
-
 								$curstage .= ' ('.$sdescrip.')';
+								if (isset($jobdata['filecreating_substatus']['i']) && isset($jobdata['filecreating_substatus']['t'])) {
+									$stage = min(2, 1 + ($jobdata['filecreating_substatus']['i']/max($jobdata['filecreating_substatus']['t'],1)));
+								}
 							}
 							break;
 							case 'filescreated':
-							$stage = 1;
+							$stage = 2;
 							$curstage = __('Created file backup zips', 'updraftplus');
 							break;
 							# Stage 2
@@ -1701,7 +1699,7 @@ CREATE TABLE $wpdb->signups (
 							if (!empty($jobdata['dbcreating_substatus']['t'])) {
 								$curstage .= ' ('.sprintf(__('table: %s', 'updraftplus'), $jobdata['dbcreating_substatus']['t']).')';
 								if (!empty($jobdata['dbcreating_substatus']['i']) && !empty($jobdata['dbcreating_substatus']['a'])) {
-									$stage = 2 + ($jobdata['dbcreating_substatus']['i'] / $jobdata['dbcreating_substatus']['a']);
+									$stage = min(3, 2 + ($jobdata['dbcreating_substatus']['i'] / max($jobdata['dbcreating_substatus']['a'],1)));
 								}
 							}
 							break;
@@ -1722,6 +1720,14 @@ CREATE TABLE $wpdb->signups (
 							case 'clouduploading':
 							$stage = 4;
 							$curstage = __('Uploading files to remote storage', 'updraftplus');
+							if (isset($jobdata['uploading_substatus']['t']) && isset($jobdata['uploading_substatus']['i'])) {
+								$t = max((int)$jobdata['uploading_substatus']['t'], 1);
+								$i = min($jobdata['uploading_substatus']['i']/$t, 1);
+								$p = min($jobdata['uploading_substatus']['p'], 1);
+								$pd = $i + $p/$t;
+								$stage = 4 + $pd;
+								$curstage .= ' '.sprintf(__('(%s%%, file %s of %s)', 'updraftplus'), floor(100*$pd), $jobdata['uploading_substatus']['i'], $t);
+							}
 							break;
 							case 'pruning':
 							$stage = 5;
@@ -1767,7 +1773,7 @@ CREATE TABLE $wpdb->signups (
 
 						$ret .= $show_inline_info;
 
-						$ret .= '- <a href="?page=updraftplus&action=downloadlog&updraftplus_backup_nonce='.$job_id.'">'.__('show log', 'updraftplus').'</a> - <a href="javascript:updraft_activejobs_delete(\''.$job_id.'\')">'.__('delete schedule', 'updraftplus').'</a>';
+						$ret .= '- <a href="?page=updraftplus&action=downloadlog&updraftplus_backup_nonce='.$job_id.'">'.__('show log', 'updraftplus').'</a> - <a title="'.esc_attr(__('Note: the progress bar below is based on stages, NOT time. Do not stop the backup simply because it seems to have remained in the same place for a while - that is normal.', 'updraftplus')).'" href="javascript:updraft_activejobs_delete(\''.$job_id.'\')">'.__('delete schedule', 'updraftplus').'</a>';
 
 						if (!empty($jobdata['warnings']) && is_array($jobdata['warnings'])) {
 							$ret .= '<ul style="list-style: disc inside;">';

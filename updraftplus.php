@@ -18,6 +18,7 @@ TODO - some of these are out of date/done, needs pruning
 // Auto-empty caches post-restore/post-migration (prevent support requests from people with state/wrong cacheing data)
 // Test with: http://wordpress.org/plugins/wp-db-driver/
 // Backup notes
+// Add soemthing to load a page every X minuets when on the UD settings page - and adjust the page of advice accordingly
 // Detect scheduler not running. Could detect possible causes? (e.g. parse .htaccess)
 // The delete-em at the end needs to be made resumable
 // Show running jobs at top. If there are some, and are overdue, kick off a few visits to wp-cron.php to help along.
@@ -585,6 +586,13 @@ class UpdraftPlus {
 		if ($percent > 0.7 * ( $this->current_resumption - 9)) {
 			$this->something_useful_happened();
 		}
+
+		$upload_status = $this->jobdata_get('uploading_substatus');
+		if (is_array($upload_status)) {
+			$upload_status['p'] = $percent/100;
+			$this->jobdata_set('uploading_substatus', $upload_status);
+		}
+
 	}
 
 	function detect_safe_mode() {
@@ -1152,9 +1160,7 @@ class UpdraftPlus {
 				if ((false === $restrict_files_to_override && UpdraftPlus_Options::get_updraft_option("updraft_include_$youwhat", apply_filters("updraftplus_defaultoption_include_$youwhat", true))) || (is_array($restrict_files_to_override) && in_array($youwhat, $restrict_files_to_override))) {
 					// The 0 indicates the zip file index
 					$job_file_entities[$youwhat] = array(
-						'index' => 0,
-						'status' => 'notstarted',
-						'indexstatus' => array(0 => 'notstarted')
+						'index' => 0
 					);
 				}
 			}
@@ -1306,7 +1312,15 @@ class UpdraftPlus {
 	function uploaded_file($file, $id = false) {
 		$hash = md5($file);
 		$this->log("Recording as successfully uploaded: $file ($hash)");
-		$this->jobdata_set("uploaded_$hash", "yes");
+		$this->jobdata_set("uploaded_$hash", 'yes');
+
+		$upload_status = $this->jobdata_get('uploading_substatus');
+		if (is_array($upload_status) && isset($upload_status['i'])) {
+			$upload_status['i']++;
+			$upload_status['p']=0;
+			$this->jobdata_set('uploading_substatus', $upload_status);
+		}
+
 		if ($id) {
 			$ids = UpdraftPlus_Options::get_updraft_option('updraft_file_ids', array() );
 			$ids[$file] = $id;
