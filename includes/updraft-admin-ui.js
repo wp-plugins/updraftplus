@@ -606,7 +606,7 @@ jQuery(document).ready(function($){
 // 				$('#' + file.id + " span").append('<button type="button" onclick="updraftplus_downloadstage2(\'db\', \'db\'">Download to your computer</button>');
 				// 				$('#' + file.id + " span").append('<form action="admin-ajax.php" onsubmit="return updraft_downloader(\'+bkey+''\', \'db\')" method="post"><input type="hidden" name="_wpnonce" value="'+updraft_downloader_nonce+'"><input type="hidden" name="action" value="updraft_download_backup" /><input type="hidden" name="type" value="db" /><input type="hidden" name="timestamp" value="'+bkey+'" /><input type="submit" value="Download" /></form>');
 				$('#' + file.id + " .fileprogress").hide();
-				$('#' + file.id).append(updraftlion.uploaded+' <a href="?page=updraftplus&action=downloadfile&updraftplus_file='+bkey+'&decrypt_key='+$('#updraftplus_db_decrypt').val()+'">'+updraftlion.folowlink+'</a> '+updraftlion.thiskey+' '+$('#updraftplus_db_decrypt').val().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"));
+				$('#' + file.id).append(updraftlion.uploaded+' <a href="?page=updraftplus&action=downloadfile&updraftplus_file='+bkey+'&decrypt_key='+$('#updraftplus_db_decrypt').val()+'">'+updraftlion.followlink+'</a> '+updraftlion.thiskey+' '+$('#updraftplus_db_decrypt').val().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"));
 			} else {
 				alert(updraftlion.unknownresp+' '+response.response);
 			}
