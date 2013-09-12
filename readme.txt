@@ -2,7 +2,7 @@
 Contributors: DavidAnderson
 Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, s3 compatible, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp, ftps, scp, migrate, duplicate, copy, updraft, schedule, database backup
 Requires at least: 3.1
-Tested up to: 3.6
+Tested up to: 3.6.1
 Stable tag: 1.7.3
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
@@ -127,7 +127,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 == Changelog ==
 
 = Development version - not yet released/supported =
-* FEATURE: New progress meter when a backup is running
+* FEATURE: New progress meter on dashboard page when a backup is running
 * FEATURE: SCP support (in the <a href="http://updraftplus.com/shop/sftp/">SFTP/FTPS/SCP add-on</a>)
 * FIX: Fix bug whereby clicking on 'rescan' lost track of backups sent to remote storage
 * FIX: Fix obscure bug that could cause WPMU installs to not back up all tables
@@ -135,6 +135,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FIX: Fix mangled pathnames for PclZip one-shot attempts
 * FIX: Fix bug that caused files to be dropped if one was in a sub-directory of the entity and named (entire name) "0"
 * FIX: Show correct title on page when upgrading
+* FIX: Fix small typo in inline decrypter that led to viewer reading an incomplete message
 * TWEAK: Warn the user if they seem to be a on a dev website that is not visited + so can't backup (http://updraftplus.com/faqs/why-am-i-getting-warnings-about-my-site-not-having-enough-visitors/)
 * TWEAK: Extra check that the directory is writable before unpacking zip in restore (so user gets friendly error message instead of trickier one)
 
