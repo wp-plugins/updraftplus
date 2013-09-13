@@ -119,7 +119,7 @@ class UpdraftPlus_BackupModule_s3 {
 
 				$filepath = $bucket_path.$file;
 
-				// This is extra code for the 1-chunk case, but less overhead (no bothering with transient data)
+				// This is extra code for the 1-chunk case, but less overhead (no bothering with job data)
 				if ($chunks < 2) {
 					$s3->setExceptions(true);
 					try {

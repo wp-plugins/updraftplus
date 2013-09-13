@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.7.10
+Version: 1.7.11
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -13,12 +13,12 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
-// Review all uses of transients
+// After Oct 15 2013: Remove page(s) from websites discussing W3TC
 // Post restore/migrate, check updraft_dir, and reset if non-existent
 // Auto-empty caches post-restore/post-migration (prevent support requests from people with state/wrong cacheing data)
 // Test with: http://wordpress.org/plugins/wp-db-driver/
 // Backup notes
-// Add soemthing to load a page every X minuets when on the UD settings page - and adjust the page of advice accordingly
+// Add soemthing to load a page every X minutes when on the UD settings page - and adjust the page of advice accordingly
 // Detect scheduler not running. Could detect possible causes? (e.g. parse .htaccess)
 // The delete-em at the end needs to be made resumable
 // Show running jobs at top. If there are some, and are overdue, kick off a few visits to wp-cron.php to help along.
@@ -165,10 +165,6 @@ if (!defined('UPDRAFTPLUS_WARN_DB_ROWS')) define('UPDRAFTPLUS_WARN_DB_ROWS', 150
 
 # The smallest value (in megabytes) that the "split zip files at" setting is allowed to be set to
 if (!defined('UPDRAFTPLUS_SPLIT_MIN')) define('UPDRAFTPLUS_SPLIT_MIN', 75);
-
-// This is used in various places, based on our assumption of the maximum time any job should take. May need lengthening in future if we get reports which show enormous sets hitting the limit.
-// Also one section requires at least 1% progress each run, so on a 5-minute schedule, that equals just under 9 hours - then an extra allowance takes it just over. (However these days, we reduce the scheduling time if possible, so we get more attempts).
-define('UPDRAFT_TRANSTIME', 3600*12);
 
 // Load add-ons and various files that may or may not be present, depending on where the plugin was distributed
 if (is_file(UPDRAFTPLUS_DIR.'/premium.php')) require_once(UPDRAFTPLUS_DIR.'/premium.php');
@@ -390,7 +386,20 @@ class UpdraftPlus {
 	// Cleans up temporary files found in the updraft directory (and some in the site root - pclzip)
 	// Always cleans up temporary files over 12 hours old.
 	// With parameters, also cleans up those.
-	function clean_temporary_files($match = '', $older_than = 43200) {
+	// Also cleans out old job data older than 12 hours old (immutable value)
+	public function clean_temporary_files($match = '', $older_than = 43200) {
+		# Clean out old job data
+		if ($older_than >10000) {
+			global $wpdb;
+			$all_jobs = $wpdb->get_results("SELECT option_name, option_value FROM $wpdb->options WHERE option_name LIKE 'updraft_jobdata_%' LIMIT 1", ARRAY_A);
+			foreach ($all_jobs as $job) {
+				$val = maybe_unserialize($job['option_value']);
+				if (!empty($val['backup_time_ms']) && time() > $val['backup_time_ms'] + 86400) {
+					delete_option($job['option_name']);
+				}
+			}
+			
+		}
 		$updraft_dir = $this->backups_dir_location();
 		$now_time=time();
 		if ($handle = opendir($updraft_dir)) {
@@ -849,7 +858,7 @@ class UpdraftPlus {
 		}
 
 		$runs_started[$resumption_no] = $time_now;
-		$this->jobdata_set('runs_started', $runs_started);
+		if (!empty($this->backup_time)) $this->jobdata_set('runs_started', $runs_started);
 
 		// Import existing warnings. The purpose of this is so that when save_backup_history() is called, it has a complete set - because job data expires quickly, whilst the warnings of the last backup run need to persist
 		$warnings = $this->jobdata_get('warnings');
@@ -929,6 +938,7 @@ class UpdraftPlus {
 
 		// Sanity check
 		if (empty($this->backup_time)) {
+			# TODO: We no longer use object cache-ing - alter this message
 			$this->log('Abort this run: the backup_time parameter appears to be empty (this is usually caused by resuming an already-complete backup, or by your site having a faulty object cache active (e.g. W3 Total Cache\'s object cache))');
 			return false;
 		}
@@ -1065,6 +1075,10 @@ class UpdraftPlus {
 		$this->boot_backup(false,true);
 	}
 
+	public function jobdata_getarray($non) {
+		return get_site_option("updraft_jobdata_".$non, array());
+	}
+
 	// This works with any amount of settings, but we provide also a jobdata_set for efficiency as normally there's only one setting
 	private function jobdata_set_multi() {
 		if (!is_array($this->jobdata)) $this->jobdata = array();
@@ -1076,16 +1090,16 @@ class UpdraftPlus {
 			$value = func_get_arg($i*2-1);
 			$this->jobdata[$key] = $value;
 		}
-		if (!empty($this->nonce)) set_transient("updraft_jobdata_".$this->nonce, $this->jobdata, UPDRAFT_TRANSTIME);
+		if (!empty($this->nonce)) update_site_option("updraft_jobdata_".$this->nonce, $this->jobdata);
 	}
 
 	public function jobdata_set($key, $value) {
 		if (!is_array($this->jobdata)) {
-			$this->jobdata = get_transient("updraft_jobdata_".$this->nonce);
+			$this->jobdata = get_site_option("updraft_jobdata_".$this->nonce);
 			if (!is_array($this->jobdata)) $this->jobdata = array();
 		}
 		$this->jobdata[$key] = $value;
-		set_transient("updraft_jobdata_".$this->nonce, $this->jobdata, UPDRAFT_TRANSTIME);
+		update_site_option("updraft_jobdata_".$this->nonce, $this->jobdata);
 	}
 
 	public function jobdata_delete($key) {
@@ -1094,12 +1108,12 @@ class UpdraftPlus {
 			if (!is_array($this->jobdata)) $this->jobdata = array();
 		}
 		unset($this->jobdata[$key]);
-		set_transient("updraft_jobdata_".$this->nonce, $this->jobdata, UPDRAFT_TRANSTIME);
+		update_site_option("updraft_jobdata_".$this->nonce, $this->jobdata);
 	}
 
 	public function jobdata_get($key, $default = null) {
 		if (!is_array($this->jobdata)) {
-			$this->jobdata = get_transient("updraft_jobdata_".$this->nonce);
+			$this->jobdata = get_site_option("updraft_jobdata_".$this->nonce, array());
 			if (!is_array($this->jobdata)) return $default;
 		}
 		return (isset($this->jobdata[$key])) ? $this->jobdata[$key] : $default;
@@ -1269,8 +1283,7 @@ class UpdraftPlus {
  		//if (!UpdraftPlus_Options::get_updraft_option('updraft_debug_mode')) @unlink($this->logfile_name);
 
 		// This is left until last for the benefit of the front-end UI, which then gets maximum chance to display the 'finished' status
-		if ($delete_jobdata) delete_transient('updraft_jobdata_'.$this->nonce);
-
+		if ($delete_jobdata) delete_site_option('updraft_jobdata_'.$this->nonce);
 
 	}
 

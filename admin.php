@@ -60,14 +60,15 @@ class UpdraftPlus_Admin {
 		}
 
 		// W3 Total Cache's object cache eats transients during cron jobs. Reported to them many times by multiple people.
-		if (defined('W3TC') && W3TC == true) {
-			if (function_exists('w3_instance')) {
-				$modules = w3_instance('W3_ModuleStatus');
-				if ($modules->is_enabled('objectcache')) {
-					add_action('admin_notices', array($this, 'show_admin_warning_w3_total_cache'));
-				}
-			}
-		}
+// TODO: Remove: we no longer deploy transients
+// 		if (defined('W3TC') && W3TC == true) {
+// 			if (function_exists('w3_instance')) {
+// 				$modules = w3_instance('W3_ModuleStatus');
+// 				if ($modules->is_enabled('objectcache')) {
+// 					add_action('admin_notices', array($this, 'show_admin_warning_w3_total_cache'));
+// 				}
+// 			}
+// 		}
 
 		// LiteSpeed has a generic problem with terminating cron jobs
 		if (isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'LiteSpeed') !== false) {
@@ -1258,7 +1259,7 @@ CREATE TABLE $wpdb->signups (
 // 			if (!is_a($updraftplus_backup, 'UpdraftPlus_Backup')) require_once(UPDRAFTPLUS_DIR.'/backup.php');
 // 			$updraftplus_backup->backup_db();
 		} elseif (isset($_POST['action']) && $_POST['action'] == 'updraft_wipesettings') {
-			$settings = array('updraftplus_dismissedautobackup', 'updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_wpcore', 'updraft_include_wpcore_exclude', 'updraft_include_more', 
+			$settings = array('updraftplus_tmp_googledrive_access_token', 'updraftplus_dismissedautobackup', 'updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_wpcore', 'updraft_include_wpcore_exclude', 'updraft_include_more', 
 			'updraft_include_blogs', 'updraft_include_mu-plugins', 'updraft_include_others_exclude', 'updraft_lastmessage', 'updraft_googledrive_clientid', 'updraft_googledrive_token', 'updraft_dropboxtk_request_token', 'updraft_dropboxtk_access_token', 'updraft_dropbox_folder', 'updraft_last_backup', 'updraft_starttime_files', 'updraft_starttime_db', 'updraft_startday_db', 'updraft_startday_files', 'updraft_sftp_settings', 'updraft_s3generic_login', 'updraft_s3generic_pass', 'updraft_s3generic_remote_path', 'updraft_s3generic_endpoint', 'updraft_webdav_settings', 'updraft_disable_ping', 'updraft_cloudfiles_user', 'updraft_cloudfiles_apikey', 'updraft_cloudfiles_path', 'updraft_cloudfiles_authurl', 'updraft_ssl_useservercerts', 'updraft_ssl_disableverify', 'updraft_s3_login', 'updraft_s3_pass', 'updraft_s3_remote_path', 'updraft_dreamobjects_login', 'updraft_dreamobjects_pass', 'updraft_dreamobjects_remote_path');
 
 			foreach ($settings as $s) UpdraftPlus_Options::delete_updraft_option($s);
@@ -1671,7 +1672,7 @@ CREATE TABLE $wpdb->signups (
 					if (isset($info['args'][1])) {
 						$found_jobs++;
 						$job_id = $info['args'][1];
-						$jobdata = get_transient("updraft_jobdata_".$job_id);
+						$jobdata = $updraftplus->jobdata_getarray($job_id);
 						#if (!is_array($jobdata)) $jobdata = array();
 						if (empty($jobdata)) continue;
 						$began_at = (isset($jobdata['backup_time'])) ? get_date_from_gmt(gmdate('Y-m-d H:i:s', $jobdata['backup_time']), 'D, F j, Y H:i') : '?';
@@ -2359,7 +2360,7 @@ CREATE TABLE $wpdb->signups (
 			<td><div class="updraftplus-remove" style="width: 19px; height: 19px; padding-top:0px; font-size: 18px; text-align:center;font-weight:bold; border-radius: 7px;"><a style="text-decoration:none;" href="javascript:updraft_delete('$key', '$non', $sval);" title="$title">×</a></div></td><td><b>$pretty_date</b>
 ENDHERE;
 
-			$jobdata = get_transient("updraft_jobdata_".$non);
+			$jobdata = $updraftplus->jobdata_getarray($non);
 			if (is_array($jobdata) && !empty($jobdata['resume_interval']) && (empty($jobdata['jobstatus']) || 'finished' != $jobdata['jobstatus'])) {
 				$ret .= "<br><span title=\"".esc_attr(__('If you are seeing more backups than you expect, then it is probably because the deletion of old backup sets does not happen until a fresh backup completes.', 'updraftplus'))."\">".__('(Not finished)', 'updraftplus').'</span>';
 			}
