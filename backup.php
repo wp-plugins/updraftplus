@@ -418,7 +418,7 @@ class UpdraftPlus_Backup {
 	}
 
 	// This function is resumable
-	public function backup_dirs($transient_status) {
+	public function backup_dirs($job_status) {
 
 		global $updraftplus;
 
@@ -436,7 +436,7 @@ class UpdraftPlus_Backup {
 		$possible_backups = $updraftplus->get_backupable_file_entities(true);
 
 		// Was there a check-in last time? If not, then reduce the amount of data attempted
-		if ($transient_status != 'finished' && $updraftplus->current_resumption >= 2 && $updraftplus->current_resumption<=10) {
+		if ($job_status != 'finished' && $updraftplus->current_resumption >= 2 && $updraftplus->current_resumption<=10) {
 			$maxzipbatch = $updraftplus->jobdata_get('maxzipbatch', 26214400);
 			if ((int)$maxzipbatch < 1) $maxzipbatch = 26214400;
 			$time_passed = $updraftplus->jobdata_get('run_times');
@@ -454,7 +454,7 @@ class UpdraftPlus_Backup {
 		}
 
 		$updraft_dir = $updraftplus->backups_dir_location();
-		if($transient_status != 'finished' && !$updraftplus->really_is_writable($updraft_dir)) {
+		if($job_status != 'finished' && !$updraftplus->really_is_writable($updraft_dir)) {
 			$updraftplus->log("Backup directory ($updraft_dir) is not writable, or does not exist");
 			$updraftplus->log(sprintf(__("Backup directory (%s) is not writable, or does not exist.", 'updraftplus'), $updraft_dir), 'error');
 			return array();
@@ -492,7 +492,7 @@ class UpdraftPlus_Backup {
 					}
 				}
 
-				if ($transient_status == 'finished') {
+				if ($job_status == 'finished') {
 					// Add the final part of the array
 					if ($index >0) {
 						$fbase = $backup_file_basename.'-'.$youwhat.($index+1).'.zip';
@@ -559,12 +559,12 @@ class UpdraftPlus_Backup {
 		return $backup_array;
 	}
 
-	// This uses a transient; its only purpose is to indicate *total* completion; there is no actual danger, just wasted time, in resuming when it was not needed. So the transient just helps save resources.
+	// This uses a saved status indicator; its only purpose is to indicate *total* completion; there is no actual danger, just wasted time, in resuming when it was not needed. So the saved status indicator just helps save resources.
 	public function resumable_backup_of_files($resumption_no) {
 		global $updraftplus;
 		//backup directories and return a numerically indexed array of file paths to the backup files
-		$transient_status = $updraftplus->jobdata_get('backup_files');
-		if ('finished' == $transient_status) {
+		$bfiles_status = $updraftplus->jobdata_get('backup_files');
+		if ('finished' == $bfiles_status) {
 			$updraftplus->log("Creation of backups of directories: already finished");
 			$backup_array = $updraftplus->jobdata_get('backup_files_array');
 			if (!is_array($backup_array)) $backup_array = array();
@@ -577,14 +577,14 @@ class UpdraftPlus_Backup {
 				foreach ($files as $file) $updraftplus->check_recent_modification($updraft_dir.'/'.$file);
 			}
 
-		} elseif ('begun' == $transient_status) {
+		} elseif ('begun' == $bfiles_status) {
 			if ($resumption_no>0) {
 				$updraftplus->log("Creation of backups of directories: had begun; will resume");
 			} else {
 				$updraftplus->log("Creation of backups of directories: beginning");
 			}
 			$updraftplus->jobdata_set('jobstatus', 'filescreating');
-			$backup_array = $this->backup_dirs($transient_status);
+			$backup_array = $this->backup_dirs($bfiles_status);
 			$updraftplus->jobdata_set('backup_files_array', $backup_array);
 			$updraftplus->jobdata_set('backup_files', 'finished');
 			$updraftplus->jobdata_set('jobstatus', 'filescreated');

@@ -121,7 +121,13 @@ class UpdraftPlus_Admin {
 	}
 
 	function core_upgrade_preamble() {
-		if (!class_exists('UpdraftPlus_Addon_Autobackup') && (defined('UPDRAFTPLUS_NOADS3') || true == get_transient('updraftplus_dismissedautobackup'))) return;
+		if (!class_exists('UpdraftPlus_Addon_Autobackup')) {
+			if (defined('UPDRAFTPLUS_NOADS3')) return;
+			# TODO: Remove legacy/wrong use of transient any time from 1 Jun 2014
+			if (true == get_transient('updraftplus_dismissedautobackup')) return;
+			$dismissed_until = UpdraftPlus_Options::get_updraft_option('updraftplus_dismissedautobackup', 0);
+			if ($dismissed_until > time()) return;
+		}
 		?>
 		<div id="updraft-autobackup" class="updated" style="padding: 6px; margin:8px 0px;">
 			<?php if (!class_exists('UpdraftPlus_Addon_Autobackup')) { ?>
@@ -255,8 +261,11 @@ class UpdraftPlus_Admin {
 
 		if (isset($_GET['action']) && ($_GET['action'] == 'upgrade-plugin' || $_GET['action'] == 'upgrade-theme') && !class_exists('UpdraftPlus_Addon_Autobackup') && !defined('UPDRAFTPLUS_NOADS3')) {
 
+			# TODO: Remove legacy/erroneous use of transient any time after 1 Jun 2014
 			$dismissed = get_transient('updraftplus_dismissedautobackup');
 			if (true == $dismissed) return;
+			$dismissed_until = UpdraftPlus_Options::get_updraft_option('updraftplus_dismissedautobackup', 0);
+			if ($dismissed_until > time()) return;
 
 			if ( 'upgrade-plugin' == $_GET['action'] ) {
 				$title = __('Update Plugin');
@@ -497,7 +506,7 @@ class UpdraftPlus_Admin {
 				'j' => $this->print_active_jobs()
 			));
 		} elseif (isset($_REQUEST['subaction']) && 'dismissautobackup' == $_REQUEST['subaction']) {
-			set_transient('updraftplus_dismissedautobackup', true, 86400*84);
+			UpdraftPlus_Options::update_updraft_option('updraftplus_dismissedautobackup', time() + 84*86400);
 		} elseif (isset($_GET['subaction']) && 'restore_alldownloaded' == $_GET['subaction'] && isset($_GET['restoreopts']) && isset($_GET['timestamp'])) {
 
 			$backups = $updraftplus->get_backup_history();
@@ -1249,7 +1258,7 @@ CREATE TABLE $wpdb->signups (
 // 			if (!is_a($updraftplus_backup, 'UpdraftPlus_Backup')) require_once(UPDRAFTPLUS_DIR.'/backup.php');
 // 			$updraftplus_backup->backup_db();
 		} elseif (isset($_POST['action']) && $_POST['action'] == 'updraft_wipesettings') {
-			$settings = array('updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_wpcore', 'updraft_include_wpcore_exclude', 'updraft_include_more', 
+			$settings = array('updraftplus_dismissedautobackup', 'updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_wpcore', 'updraft_include_wpcore_exclude', 'updraft_include_more', 
 			'updraft_include_blogs', 'updraft_include_mu-plugins', 'updraft_include_others_exclude', 'updraft_lastmessage', 'updraft_googledrive_clientid', 'updraft_googledrive_token', 'updraft_dropboxtk_request_token', 'updraft_dropboxtk_access_token', 'updraft_dropbox_folder', 'updraft_last_backup', 'updraft_starttime_files', 'updraft_starttime_db', 'updraft_startday_db', 'updraft_startday_files', 'updraft_sftp_settings', 'updraft_s3generic_login', 'updraft_s3generic_pass', 'updraft_s3generic_remote_path', 'updraft_s3generic_endpoint', 'updraft_webdav_settings', 'updraft_disable_ping', 'updraft_cloudfiles_user', 'updraft_cloudfiles_apikey', 'updraft_cloudfiles_path', 'updraft_cloudfiles_authurl', 'updraft_ssl_useservercerts', 'updraft_ssl_disableverify', 'updraft_s3_login', 'updraft_s3_pass', 'updraft_s3_remote_path', 'updraft_dreamobjects_login', 'updraft_dreamobjects_pass', 'updraft_dreamobjects_remote_path');
 
 			foreach ($settings as $s) UpdraftPlus_Options::delete_updraft_option($s);

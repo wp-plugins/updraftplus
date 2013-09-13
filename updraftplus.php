@@ -13,7 +13,7 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
-// Show 'incomplete' notice in the 'restore' section for any backups that do not have a 'complete' flag (or at least, to be forwards compatible, ones with an 'incomplete' flag)
+// Review all uses of transients
 // Post restore/migrate, check updraft_dir, and reset if non-existent
 // Auto-empty caches post-restore/post-migration (prevent support requests from people with state/wrong cacheing data)
 // Test with: http://wordpress.org/plugins/wp-db-driver/
@@ -535,7 +535,7 @@ class UpdraftPlus {
 
 		switch ($this->jobdata_get('job_type')) {
 			case 'download':
-				// Download messages are keyed on the job (since they could be running several), and transient
+				// Download messages are keyed on the job (since they could be running several), and type
 				// The values of the POST array were checked before
 				$findex = (!empty($_POST['findex'])) ? $_POST['findex'] : 0;
 				set_transient('ud_dlmess_'.$_POST['timestamp'].'_'.$_POST['type'].'_'.$findex, $line." (".date('M d H:i:s').")", 3600);
@@ -910,7 +910,7 @@ class UpdraftPlus {
 				$schedule_resumption = true;
 			}
 		} else {
-			// We're in over-time - we only reschedule if something useful happened last time (used to be that we waited for it to happen this time - but that meant that transient errors, e.g. Google 400s on uploads, scuppered it all - we'd do better to have another chance
+			// We're in over-time - we only reschedule if something useful happened last time (used to be that we waited for it to happen this time - but that meant that temporary errors, e.g. Google 400s on uploads, scuppered it all - we'd do better to have another chance
 			$useful_checkin = $this->jobdata_get('useful_checkin');
 			$last_resumption = $resumption_no-1;
 
@@ -954,7 +954,7 @@ class UpdraftPlus {
 
 		$backup_database = $this->jobdata_get('backup_database');
 
-		// The transient is read and written below (instead of using the existing variable) so that we can copy-and-paste this part as needed.
+		// The value of jobdata['backup_database'] is read and written below (instead of using the existing variable) so that we can copy-and-paste this part as needed.
 		if ($backup_database == "begun" || $backup_database == 'finished' || $backup_database == 'encrypted') {
 			if ($backup_database == "begun") {
 				if ($resumption_no > 0) {
@@ -1193,7 +1193,7 @@ class UpdraftPlus {
 
 	function backup_finish($cancel_event, $do_cleanup, $allow_email, $resumption_no) {
 
-		$delete_transient = false;
+		$delete_jobdata = false;
 
 		// The valid use of $do_cleanup is to indicate if in fact anything exists to clean up (if no job really started, then there may be nothing)
 
@@ -1204,7 +1204,7 @@ class UpdraftPlus {
 				# This apparently-worthless setting of metadata before deleting it is for the benefit of a WP install seen where wp_clear_scheduled_hook() and delete_transient() apparently did nothing (probably a faulty cache)
 				wp_clear_scheduled_hook('updraft_backup_resume', array($cancel_event, $this->nonce));
 				$this->jobdata_set('jobstatus', 'finished');
-				$delete_transient = true;
+				$delete_jobdata = true;
 			}
 		} else {
 			$this->log("There were errors in the uploads, so the 'resume' event is remaining scheduled");
@@ -1269,7 +1269,7 @@ class UpdraftPlus {
  		//if (!UpdraftPlus_Options::get_updraft_option('updraft_debug_mode')) @unlink($this->logfile_name);
 
 		// This is left until last for the benefit of the front-end UI, which then gets maximum chance to display the 'finished' status
-		if ($delete_transient) delete_transient('updraft_jobdata_'.$this->nonce);
+		if ($delete_jobdata) delete_transient('updraft_jobdata_'.$this->nonce);
 
 
 	}
