@@ -136,6 +136,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FIX: Fix bug that caused files to be dropped if one was in a sub-directory of the entity and named (entire name) "0"
 * FIX: Show correct title on page when upgrading
 * FIX: Permanent solution to conflict with W3TC's object cache (and removal of advisory notice)
+* FIX: Correctly show estimated size of 'others' backup within the expert section
 * FIX: Fix small typo in inline decrypter that led to viewer reading an incomplete message
 * TWEAK: Warn the user if they seem to be a on a dev website that is not visited + so can't backup (http://updraftplus.com/faqs/why-am-i-getting-warnings-about-my-site-not-having-enough-visitors/)
 * TWEAK: Extra check that the directory is writable before unpacking zip in restore (so user gets friendly error message instead of trickier one)

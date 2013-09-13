@@ -2291,7 +2291,13 @@ CREATE TABLE $wpdb->signups (
 
 		$size = 0;
 
-		foreach ($directories as $dir) $size += $this->recursive_directory_size_raw($dir);
+		foreach ($directories as $dir) {
+			if (is_file($dir)) {
+				$size += @filesize($dir);
+			} else {
+				$size += $this->recursive_directory_size_raw($dir);
+			}
+		}
 
 		if ($size > 1073741824) {
 			return round($size / 1073741824, 1).' Gb';
