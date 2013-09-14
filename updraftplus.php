@@ -14,8 +14,7 @@ Author URI: http://updraftplus.com
 /*
 TODO - some of these are out of date/done, needs pruning
 // After Oct 15 2013: Remove page(s) from websites discussing W3TC
-// Exempt UD itself from a plugins restore? (will options be out-of-sync?)
-// Put nice new progress bar onto the auto update pages too
+// Exempt UD itself from a plugins restore? (will options be out-of-sync? exempt options too?)
 // Post restore/migrate, check updraft_dir, and reset if non-existent
 // Auto-empty caches post-restore/post-migration (prevent support requests from people with state/wrong cacheing data)
 // Test with: http://wordpress.org/plugins/wp-db-driver/
@@ -35,7 +34,6 @@ TODO - some of these are out of date/done, needs pruning
 // On restore, raise a warning for ginormous zips
 // Detect double-compressed files when they are uploaded (need a way to detect gz compression in general)
 // Log migrations/restores, and have an option for auto-emailing the log
-// Log a warning if the resumption is loonnggg after it was expected to be (usually on unvisited dev sites)
 # Email backup method should be able to force split limit down to something manageable - or at least, should make the option display. (Put it in email class. Tweak the storage dropdown to not hide stuff also in expert class if expert is shown).
 // What happens if you restore with a database that then changes the setting for updraft_dir ? Should be safe, as the setting is cached during a run: double-check.
 // Import/slurp backups from other sites. See: http://www.skyverge.com/blog/extending-the-wordpress-xml-rpc-api/
@@ -74,8 +72,6 @@ TODO - some of these are out of date/done, needs pruning
 // Ginormous tables - need to make sure we "touch" the being-written-out-file (and double-check that we check for that) every 15 seconds - https://friendpaste.com/697eKEcWib01o6zT1foFIn
 // With ginormous tables, log how many times they've been attempted: after 3rd attempt, log a warning and move on. But first, batch ginormous tables (resumable)
 // Import single site into a multisite: http://codex.wordpress.org/Migrating_Multiple_Blogs_into_WordPress_3.0_Multisite, http://wordpress.org/support/topic/single-sites-to-multisite?replies=5, http://wpmu.org/import-export-wordpress-sites-multisite/
-// Dropbox authentication broken by other plugins' debug output - find a way to alert user.
-// Add note in FAQs about 'maintenance mode' plugins
 // Selective restores - some resources
 // Automatically de-activate cacheing/minifying plugins upon restore (and inform user) to prevent unexpected clashes
 // After restoring the themes, should check to see if the currently-active one still exists or not
@@ -105,7 +101,6 @@ TODO - some of these are out of date/done, needs pruning
 // Ability to re-scan existing cloud storage
 // Dropbox uses one mcrypt function - port to phpseclib for more portability
 // Store meta-data on which version of UD the backup was made with (will help if we ever introduce quirks that need ironing)
-// Test restoration when uploads dir is /assets/ (e.g. with Shoestrap theme)
 // Send the user an email upon their first backup with tips on what to do (e.g. support/improve) (include legacy check to not bug existing users)
 // GoogleDrive +Rackspace folders
 //Do an automated test periodically for the success of loop-back connections
@@ -113,7 +108,6 @@ TODO - some of these are out of date/done, needs pruning
 //Change DB encryption to not require whole gzip in memory (twice)
 //Add Box.Net, SugarSync, Me.Ga support??
 //Make it easier to find add-ons
-//The restorer has a hard-coded wp-content - fix
 // Move the inclusion, cloud and retention data into the backup job (i.e. don't read current config, make it an attribute of each job). In fact, everything should be. So audit all code for where get_option is called inside a backup run: it shouldn't happen.
 // Should we resume if the only errors were upon deletion (i.e. the backup itself was fine?) Presently we do, but it displays errors for the user to confuse them. Perhaps better to make pruning a separate scheuled task??
 // Warn the user if their zip-file creation is slooowww...
