@@ -64,7 +64,7 @@ class UpdraftPlus_BackupModule_ftp {
 			}
 		}
 
-		$updraftplus_backup->prune_retained_backups("ftp", $this, array('ftp_object' => $ftp, 'ftp_remote_path' => $ftp_remote_path));
+		return array('ftp_object' => $ftp, 'ftp_remote_path' => $ftp_remote_path);
 	}
 
 	function delete($files, $ftparr = array()) {

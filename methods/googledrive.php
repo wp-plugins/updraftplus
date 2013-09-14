@@ -217,7 +217,8 @@ class UpdraftPlus_BackupModule_googledrive {
 				$updraftplus->log("$file_name: ".sprintf(__('Failed to upload to %s','updraftplus'),__('Google Drive','updraftplus')), 'error');
 			}
 		}
-		$updraftplus_backup->prune_retained_backups("googledrive", $this, null);
+
+		return null;
 	}
 
 	function delete($files) {

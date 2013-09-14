@@ -155,7 +155,7 @@ class UpdraftPlus_BackupModule_dropbox {
 
 		}
 
-		$updraftplus_backup->prune_retained_backups('dropbox', $this, null);
+		return null;
 
 	}
 

@@ -127,6 +127,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 == Changelog ==
 
 = Development version - not yet released/supported =
+* FEATURE: <a href="http://updraftplus.com/shop/morestorage/">New "more storage" add-on</a>, enabling backing up to multiple storage destinations
 * FEATURE: New progress meter on dashboard page when a backup is running
 * FEATURE: SCP support (in the <a href="http://updraftplus.com/shop/sftp/">SFTP/FTPS/SCP add-on</a>)
 * FIX: Fix bug whereby clicking on 'rescan' lost track of backups sent to remote storage

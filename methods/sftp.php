@@ -7,8 +7,7 @@ class UpdraftPlus_BackupModule_sftp {
 
 		global $updraftplus;
 
-		$addon_exists = apply_filters('updraft_sftp_exists', 'no');
-		if ($addon_exists !== 'yes') {
+		if (apply_filters('updraft_sftp_exists', 'no') !== 'yes') {
 			$updraftplus->log('You do not have the UpdraftPlus SFTP/SCP add-on installed - get it from http://updraftplus.com/shop/');
 			$updraftplus->log(sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'),'SFTP/SCP','http://updraftplus.com/shop/'), 'error');
 			return false;
@@ -19,7 +18,7 @@ class UpdraftPlus_BackupModule_sftp {
 		// If successful, then you must do this:
 		// $updraftplus->uploaded_file($file);
 
-		do_action('updraft_sftp_upload_files', $backup_array, $this);
+		return apply_filters('updraft_sftp_upload_files', null, $backup_array);
 
 	}
 
@@ -28,14 +27,13 @@ class UpdraftPlus_BackupModule_sftp {
 
 		global $updraftplus;
 
-		$addon_exists = apply_filters('updraft_sftp_exists', 'no');
-		if ($addon_exists !== 'yes') {
+		if (apply_filters('updraft_sftp_exists', 'no') !== 'yes') {
 			$updraftplus->log('You do not have the UpdraftPlus SFTP/SCP add-on installed - get it from http://updraftplus.com/shop/');
 			$updraftplus->log(sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'),'SFTP/SCP','http://updraftplus.com/shop/'), 'error');
 			return false;
 		}
 
-		do_action('updraft_sftp_delete_files', $files, $method_obj);
+		return apply_filters('updraft_sftp_delete_files', false, $files, $method_obj);
 
 	}
 
@@ -44,8 +42,7 @@ class UpdraftPlus_BackupModule_sftp {
 
 		global $updraftplus;
 
-		$addon_exists = apply_filters('updraft_sftp_exists', 'no');
-		if ($addon_exists !== 'yes') {
+		if (apply_filters('updraft_sftp_exists', 'no') !== 'yes') {
 			$updraftplus->log('You do not have the UpdraftPlus SFTP/SCP add-on installed - get it from http://updraftplus.com/shop/');
 			$updraftplus->log(sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'),'SFTP/SCP','http://updraftplus.com/shop/'), 'error');
 			return false;

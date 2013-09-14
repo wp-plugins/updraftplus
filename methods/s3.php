@@ -211,7 +211,7 @@ class UpdraftPlus_BackupModule_s3 {
 					}
 				}
 			}
-			$updraftplus_backup->prune_retained_backups($config['key'], $this, array('s3_object' => $s3, 's3_orig_bucket_name' => $orig_bucket_name));
+			return array('s3_object' => $s3, 's3_orig_bucket_name' => $orig_bucket_name);
 		} else {
 			$updraftplus->log("$whoweare Error: Failed to create bucket $bucket_name.");
 			$updraftplus->log(sprintf(__('%s Error: Failed to create bucket %s. Check your permissions and credentials.','updraftplus'),$whoweare, $bucket_name), 'error');

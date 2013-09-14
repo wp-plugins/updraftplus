@@ -169,48 +169,75 @@ class UpdraftPlus_Backup {
 
 		global $updraftplus;
 
-		$service = $updraftplus->jobdata_get('service');
-		$updraftplus->log("Cloud backup selection: ".$service);
-		@set_time_limit(900);
-
-		$method_include = UPDRAFTPLUS_DIR.'/methods/'.$service.'.php';
-		add_action('http_api_curl', array($updraftplus, 'add_curl_capath'));
-		if (file_exists($method_include)) require_once($method_include);
+		$services = $updraftplus->just_one($updraftplus->jobdata_get('service'));
+		if (!is_array($services)) $services = array($services);
 
 		$updraftplus->jobdata_set('jobstatus', 'clouduploading');
 
+		add_action('http_api_curl', array($updraftplus, 'add_curl_capath'));
+
 		$upload_status = $updraftplus->jobdata_get('uploading_substatus');
 		if (!is_array($upload_status) || !isset($upload_status['t'])) {
-			$upload_status = array('i' => 0, 't' => count($backup_array));
+			$upload_status = array('i' => 0, 't' => max(1, count($services))*count($backup_array));
 			$updraftplus->jobdata_set('uploading_substatus', $upload_status);
 		}
 
-		if ($service == "none" || $service == "") {
-			$updraftplus->log("No remote despatch: user chose no remote backup service");
-			$this->prune_retained_backups("none", null, null);
-		} else {
-			$updraftplus->log("Beginning dispatch of backup to remote");
-			$objname = "UpdraftPlus_BackupModule_${service}";
-			if (class_exists($objname)) {
-				$remote_obj = new $objname;
-				$remote_obj->backup($backup_array);
+		$do_prune = array();
+
+		foreach ($services as $ind => $service) {
+
+			# Used for logging by record_upload_chunk()
+			$this->current_service = $service;
+			# Used when deciding whether to delete the local file
+			$this->last_service = ($ind+1 >= count($services)) ? true : false;
+
+			$updraftplus->log("Cloud backup selection: ".$service);
+			@set_time_limit(900);
+
+			$method_include = UPDRAFTPLUS_DIR.'/methods/'.$service.'.php';
+			if (file_exists($method_include)) require_once($method_include);
+
+			if ($service == "none" || $service == "") {
+				$updraftplus->log("No remote despatch: user chose no remote backup service");
+				$this->prune_retained_backups(array("none" => array(null, null)));
 			} else {
-				$updraftplus->log("Unexpected error: no class '$objname' was found ($method_include)");
-				$updraftplus->log(__("Unexpected error: no class '$objname' was found (your UpdraftPlus installation seems broken - try re-installing)",'updraftplus'), 'error');
+				$updraftplus->log("Beginning dispatch of backup to remote ($service)");
+				$sarray = array();
+				foreach ($backup_array as $bind => $file) {
+					if ($updraftplus->is_uploaded($file, $service)) {
+						$updraftplus->log("Already uploaded to $service: $file");
+					} else {
+						$sarray[$bind] = $file;
+					}
+				}
+				if (count($sarray)>0) {
+					$objname = "UpdraftPlus_BackupModule_${service}";
+					if (class_exists($objname)) {
+						$remote_obj = new $objname;
+						$pass_to_prune = $remote_obj->backup($backup_array);
+						$do_prune[$service] = array($remote_obj, $pass_to_prune);
+					} else {
+						$updraftplus->log("Unexpected error: no class '$objname' was found ($method_include)");
+						$updraftplus->log(__("Unexpected error: no class '$objname' was found (your UpdraftPlus installation seems broken - try re-installing)",'updraftplus'), 'error');
+					}
+				}
 			}
 		}
+
+		if (!empty($do_prune)) $this->prune_retained_backups($do_prune);
 
 		remove_action('http_api_curl', array($updraftplus, 'add_curl_capath'));
 
 	}
 
 	// Carries out retain behaviour. Pass in a valid S3 or FTP object and path if relevant.
-	public function prune_retained_backups($service, $backup_method_object = null, $backup_passback = null) {
+	// Services *must* be an array
+	public function prune_retained_backups($services) {
 
 		global $updraftplus;
 
 		// If they turned off deletion on local backups, then there is nothing to do
-		if (UpdraftPlus_Options::get_updraft_option('updraft_delete_local') == 0 && $service == 'none') {
+		if (UpdraftPlus_Options::get_updraft_option('updraft_delete_local') == 0 && count($services) == 1 && in_array('none', $services)) {
 			$updraftplus->log("Prune old backups from local store: nothing to do, since the user disabled local deletion and we are using local backups");
 			return;
 		}
@@ -247,7 +274,9 @@ class UpdraftPlus_Backup {
 				$updraftplus->log("$backup_datestamp: this set includes a database (".$fname."); db count is now $db_backups_found");
 				if ($db_backups_found > $updraft_retain_db) {
 					$updraftplus->log("$backup_datestamp: over retain limit ($updraft_retain_db); will delete this database");
-					if (!empty($dofile)) $this->prune_file($service, $backup_to_examine['db'], $backup_method_object, $backup_passback);
+					if (!empty($backup_to_examine['db'])) {
+						foreach ($services as $service => $sd) $this->prune_file($service, $backup_to_examine['db'], $sd[0], $sd[1]);
+					}
 					unset($backup_to_examine['db']);
 					$updraftplus->record_still_alive();
 				}
@@ -266,10 +295,9 @@ class UpdraftPlus_Backup {
 				$updraftplus->log("$backup_datestamp: this set includes files; fileset count is now $file_backups_found");
 				if ($file_backups_found > $updraft_retain) {
 					$updraftplus->log("$backup_datestamp: over retain limit ($updraft_retain); will delete this file set");
-					
 					foreach ($backupable_entities as $entity => $info) {
 						if (!empty($backup_to_examine[$entity])) {
-							$this->prune_file($service, $backup_to_examine[$entity], $backup_method_object, $backup_passback);
+							foreach ($services as $service => $sd) $this->prune_file($service, $backup_to_examine[$entity], $sd[0], $sd[1]);
 						}
 						unset($backup_to_examine[$entity]);
 						$updraftplus->record_still_alive();
@@ -315,8 +343,9 @@ class UpdraftPlus_Backup {
 	private function prune_file($service, $dofiles, $method_object = null, $object_passback = null ) {
 		global $updraftplus;
 		$updraft_dir = $updraftplus->backups_dir_location();
-		if (is_string($dofiles)) $dofiles=array($dofiles);
+		if (!is_array($dofiles)) $dofiles=array($dofiles);
 		foreach ($dofiles as $dofile) {
+			if (empty($dofile)) continue;
 			$updraftplus->log("Delete file: $dofile, service=$service");
 			$fullpath = $updraft_dir.'/'.$dofile;
 			// delete it if it's locally available
@@ -1267,10 +1296,10 @@ class UpdraftPlus_Backup {
 				$zipcode = $zip->create($this->source, PCLZIP_OPT_REMOVE_PATH, $remove_path);
 			}
 			if ($zipcode == 0 ) {
-					$updraftplus->log("PclZip Error: ".$zip->errorInfo(true), 'warning');
-					return $zip->errorCode();
+				$updraftplus->log("PclZip Error: ".$zip->errorInfo(true), 'warning');
+				return $zip->errorCode();
 			} else {
-					return true;
+				return true;
 			}
 		}
 

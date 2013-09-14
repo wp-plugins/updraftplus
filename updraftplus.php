@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.7.13
+Version: 1.7.14
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -14,6 +14,8 @@ Author URI: http://updraftplus.com
 /*
 TODO - some of these are out of date/done, needs pruning
 // After Oct 15 2013: Remove page(s) from websites discussing W3TC
+// Exempt UD itself from a plugins restore? (will options be out-of-sync?)
+// Put nice new progress bar onto the auto update pages too
 // Post restore/migrate, check updraft_dir, and reset if non-existent
 // Auto-empty caches post-restore/post-migration (prevent support requests from people with state/wrong cacheing data)
 // Test with: http://wordpress.org/plugins/wp-db-driver/
@@ -582,8 +584,8 @@ class UpdraftPlus {
 		if ($file_path) touch($file_path);
 
 		// Log it
-		$service = $this->jobdata_get('service');
-		$log = ucfirst($service)." chunked upload: $percent % uploaded";
+		global $updraftplus_backup;
+		$log = ucfirst($updraftplus_backup->current_service)." chunked upload: $percent % uploaded";
 		if ($extra) $log .= " ($extra)";
 		$this->log($log);
 		// If we are on an 'overtime' resumption run, and we are still meaningfully uploading, then schedule a new resumption
@@ -1022,7 +1024,7 @@ class UpdraftPlus {
 					$undone_files[$key.$findex] = $file;
 				} else {
 					$this->log("$file: $key: Note: This file was not marked as successfully uploaded, but does not exist on the local filesystem ($updraft_dir/$file)");
-					$this->uploaded_file($file);
+					$this->uploaded_file($file, null, true);
 				}
 			}
 		}
@@ -1154,7 +1156,8 @@ class UpdraftPlus {
 			$this->log("Processed schedules. Tasks now: Backup files: $backup_files Backup DB: $backup_database");
 		}
 
-		if (!is_string($service)) $service = UpdraftPlus_Options::get_updraft_option('updraft_service');
+		if (!is_string($service) && !is_array($service)) $service = UpdraftPlus_Options::get_updraft_option('updraft_service');
+		$service = $this->just_one($service);
 
 		# If nothing to be done, then just finish
 		if (!$backup_files && !$backup_database) {
@@ -1193,6 +1196,8 @@ class UpdraftPlus {
 			'one_shot', $one_shot
 		);
 
+		if ($one_shot) update_site_option('updraft_oneshotnonce', $this->nonce);
+
 		// Save what *should* be done, to make it resumable from this point on
 		array_push($initial_jobdata, 'backup_database', (($backup_database) ? 'begun' : 'no'));
 		if ($backup_files) array_push($initial_jobdata, 'backup_files', 'begun');
@@ -1202,6 +1207,8 @@ class UpdraftPlus {
 
 		// Everything is set up; now go
 		$this->backup_resume(0, $this->nonce);
+
+		if ($one_shot) delete_site_option('updraft_oneshotnonce');
 
 	}
 
@@ -1322,10 +1329,21 @@ class UpdraftPlus {
 	}
 
 	// This should be called whenever a file is successfully uploaded
-	function uploaded_file($file, $id = false) {
-		$hash = md5($file);
-		$this->log("Recording as successfully uploaded: $file ($hash)");
-		$this->jobdata_set("uploaded_$hash", 'yes');
+	function uploaded_file($file, $id = false, $force = false) {
+	
+		global $updraftplus_backup;
+
+		$service = (empty($updraftplus_backup->current_service)) ? '' : $updraftplus_backup->current_service;
+		$shash = $service.'-'.md5($file);
+		$this->jobdata_set("uploaded_".$shash, 'yes');
+	
+		if ($force || $updraftplus_backup->last_service) {
+			$hash = md5($file);
+			$this->log("Recording as successfully uploaded: $file ($hash)");
+			$this->jobdata_set("uploaded_".$hash, 'yes');
+		} else {
+			$this->log("Recording as successfully uploaded: $file (".$updraftplus_backup->current_service.", more services to follow)");
+		}
 
 		$upload_status = $this->jobdata_get('uploading_substatus');
 		if (is_array($upload_status) && isset($upload_status['i'])) {
@@ -1340,13 +1358,16 @@ class UpdraftPlus {
 			UpdraftPlus_Options::update_updraft_option('updraft_file_ids',$ids);
 			$this->log("Stored file<->id correlation in database ($file <-> $id)");
 		}
+
 		// Delete local files immediately if the option is set
 		// Where we are only backing up locally, only the "prune" function should do deleting
-		if ($this->jobdata_get('service') != '' && $this->jobdata_get('service') != 'none') $this->delete_local($file);
+		if ($updraftplus_backup->last_service && ($this->jobdata_get('service') !== '' && ((is_array($this->jobdata_get('service')) && count($this->jobdata_get('service')) >0) || (is_string($this->jobdata_get('service')) && $this->jobdata_get('service') !== 'none')))) {
+			$this->delete_local($file);
+		}
 	}
 
-	function is_uploaded($file) {
-		$hash = md5($file);
+	function is_uploaded($file, $service = '') {
+		$hash = $service.'-'.md5($file);
 		return ($this->jobdata_get("uploaded_$hash") === "yes") ? true : false;
 	}
 
@@ -1731,6 +1752,12 @@ class UpdraftPlus {
 	public function retain_range($input) {
 		$input = (int)$input;
 		return  ($input > 0 && $input < 3650) ? $input : 1;
+	}
+
+	public function just_one($input) {
+		$oinput = $input;
+		$rinput = (is_array($input)) ? array_pop($input) : $input;
+		return apply_filters('updraftplus_savestorage', $rinput, $oinput);
 	}
 
 	function memory_check_current($memory_limit = false) {
