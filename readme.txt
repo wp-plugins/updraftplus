@@ -136,6 +136,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FIX: Fix mangled pathnames for PclZip one-shot attempts
 * FIX: Fix bug that caused files to be dropped if one was in a sub-directory of the entity and named (entire name) "0"
 * FIX: Show correct title on page when upgrading
+* FIX: Fix one-character typo that could cause Dropbox uploads to not continue if Dropbox threw a transient error from their end
 * FIX: Permanent solution to conflict with W3TC's object cache (and removal of advisory notice)
 * FIX: Correctly show estimated size of 'others' backup within the expert section
 * FIX: Fix small typo in inline decrypter that led to viewer reading an incomplete message
