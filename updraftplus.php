@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.7.16
+Version: 1.7.17
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -17,9 +17,9 @@ TODO - some of these are out of date/done, needs pruning
 // Exempt UD itself from a plugins restore? (will options be out-of-sync? exempt options too?)
 // Post restore/migrate, check updraft_dir, and reset if non-existent
 // Auto-empty caches post-restore/post-migration (prevent support requests from people with state/wrong cacheing data)
+// Show 'Migrate' instead of 'Restore' on the button if relevant
 // Test with: http://wordpress.org/plugins/wp-db-driver/
 // Backup notes
-// Add soemthing to load a page every X minutes when on the UD settings page - and adjust the page of advice accordingly
 // Detect scheduler not running. Could detect possible causes? (e.g. parse .htaccess)
 // The delete-em at the end needs to be made resumable
 // Show running jobs at top. If there are some, and are overdue, kick off a few visits to wp-cron.php to help along.
@@ -29,7 +29,6 @@ TODO - some of these are out of date/done, needs pruning
 // mysqldump, if available, for faster database dumps. Need then to test compatibility with max_packet_size detection in restoration
 // Check flow of activation on multisite
 // Find a faster encryption method
-// Provide option to make autobackup default to off
 // Multiple files in more-files
 // On restore, raise a warning for ginormous zips
 // Detect double-compressed files when they are uploaded (need a way to detect gz compression in general)
@@ -41,7 +40,6 @@ TODO - some of these are out of date/done, needs pruning
 // Unpack zips via AJAX? Do bit-by-bit to allow enormous opens a better chance? (have a huge one in Dropbox)
 // Put in a maintenance-mode detector
 // Detect CloudFlare output in attempts to connect - detecting cloudflare.com should be sufficient
-// Show 'Migrate' instead of 'Restore' on the button if relevant
 // Bring multisite shop page up to date
 // Re-do pricing + support packages
 // Option to create S3 bucket with RRS

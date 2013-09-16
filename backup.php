@@ -123,6 +123,21 @@ class UpdraftPlus_Backup {
 			$updraftplus->log("File exists ($zip_name), but was apparently not modified within the last 30 seconds, so we assume that any previous run has now terminated (time_mod=$time_mod, time_now=$time_now, diff=".($time_now-$time_mod).")");
 		}
 
+		// Now, check for other forms of temporary file, which would indicate that some activity is going on (even if it hasn't made it into the main zip file yet)
+		// Note: this doesn't catch PclZip temporary files
+		$d = dir($updraft_dir);
+		$match = '_'.$updraftplus->nonce."-".$whichone;
+		while (false !== ($e = $d->read())) {
+			if ('.' == $e || '..' == $e || !is_file($updraft_dir.'/'.$e)) continue;
+			$ziparchive_match = preg_match("/$match([0-9]+)?\.zip\.tmp\.([A-Za-z0-9]){6}?$/i", $e);
+			$binzip_match = preg_match("/^zi([A-Za-z0-9]){6}$/", $e);
+			if ($time_now-filemtime($updraft_dir.'/'.$e) < 30 && ($ziparchive_match || $binzip_match)) {
+				$updraftplus->terminate_due_to_activity($updraft_dir.'/'.$e, $time_now, filemtime($updraft_dir.'/'.$e));
+			}
+		}
+		@$d->close();
+		clearstatcache();
+
 		$this->zip_microtime_start = microtime(true);
 		# The paths in the zip should then begin with '$whichone', having removed WP_CONTENT_DIR from the front
 		$zipcode = $this->make_zipfile($create_from_dir, $backup_file_basename, $whichone);
