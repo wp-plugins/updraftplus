@@ -46,7 +46,6 @@ TODO - some of these are out of date/done, needs pruning
 // More files: back up multiple directories, not just one
 // Give a help page to go with the message: A zip error occurred - check your log for more details (reduce support requests)
 // Exclude .git and .svn by default from wpcore
-// Restore-console not showing proper time-zone?
 // Add option to add, not just replace entities on restore/migrate
 // Warnings of unreadable files upon PclZip fall-back may need to be more visible - test
 // Add warning to backup run at beginning if -old dirs exist

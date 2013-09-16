@@ -1243,7 +1243,15 @@ class UpdraftPlus_Backup {
 		if (count($this->zipfiles_dirbatched)>0 || count($this->zipfiles_batched)>0) {
 			$updraftplus->log(sprintf("Remaining entities to add to zip file: %d directories, %d files", count($this->zipfiles_dirbatched), count($this->zipfiles_batched)));
 			$add_them = $this->makezip_addfiles();
-			if (is_wp_error($add_them) || false === $add_them) $error_occured = true;
+			if (is_wp_error($add_them)) {
+				foreach ($add_them->get_error_messages() as $msg) {
+					$updraftplus->log("Error returned from makezip_addfiles: ".$msg);
+				}
+				$error_occured = true;
+			} elseif (false === $add_them) {
+				$updraftplus->log("Error: makezip_addfiles returned false");
+				$error_occured = true;
+			}
 		}
 
 		# Reset these variables because the index may have changed since we began
@@ -1261,6 +1269,7 @@ class UpdraftPlus_Backup {
 			}
 			return true;
 		} else {
+			$updraftplus->log("makezip failure: zipfiles_added=".$this->zipfiles_added.", error_occurred=".$error_occurred." (method=".$this->use_zip_object.")");
 			return false;
 		}
 
