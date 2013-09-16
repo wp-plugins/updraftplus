@@ -1691,7 +1691,7 @@ CREATE TABLE $wpdb->signups (
 					if (isset($info['args'][1])) {
 // 						$found_jobs++;
 						$job_id = $info['args'][1];
-						$ret .= $this->print_active_job($job_id);
+						$ret .= $this->print_active_job($job_id, false, $time, $info['args'][0]);
 					}
 				}
 			}
@@ -1703,7 +1703,7 @@ CREATE TABLE $wpdb->signups (
 		return $ret;
 	}
 
-	function print_active_job($job_id, $is_oneshot = false) {
+	function print_active_job($job_id, $is_oneshot = false, $time = false, $next_resumption = false) {
 
 		global $updraftplus;
 		$backupable_entities = $updraftplus->get_backupable_file_entities(true, true);
@@ -1806,10 +1806,10 @@ CREATE TABLE $wpdb->signups (
 			}
 		}
 
-		$next_res_txt = ' - '.sprintf(__("next resumption: %d (after %ss)", 'updraftplus'), $info['args'][0], $time-time()). ' ';
+		$next_res_txt = ($is_oneshot) ? '' : ' - '.sprintf(__("next resumption: %d (after %ss)", 'updraftplus'), $next_resumption, $time-time()). ' ';
 		$last_activity_txt = ($last_checkin_ago >= 0) ? ' - '.sprintf(__('last activity: %ss ago', 'updraftplus'), floor($last_checkin_ago)).' ' : '';
 
-		if ($last_checkin_ago < 50) {
+		if ($last_checkin_ago < 50 || $is_oneshot) {
 			$show_inline_info = $last_activity_txt;
 			$title_info = $next_res_txt;
 		} else {

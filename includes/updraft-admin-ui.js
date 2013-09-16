@@ -46,8 +46,8 @@ function updraft_activejobs_update(repeat) {
 			if (repeat) { setTimeout(function(){updraft_activejobs_update(true);}, nexttimer);}
 			lastlog_lastdata = response;
 			if (resp.l != null) { jQuery('#updraft_lastlogcontainer').html(resp.l); }
+			jQuery('#updraft_activejobs').html(resp.j);
 			if (resp.j != null && resp.j != '') {
-				jQuery('#updraft_activejobs').html(resp.j);
 				jQuery('#updraft_activejobsrow').show();
 			} else {
 				if (!jQuery('#updraft_activejobsrow').is(':hidden')) {
