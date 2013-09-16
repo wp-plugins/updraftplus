@@ -151,6 +151,9 @@ function updraft_check_same_times() {
 	}
 }
 
+// Visit the site in the background every 3 minutes - ensures that backups can progress if you've got the UD settings page open
+setInterval(function() {jQuery.get(updraft_siteurl+'/wp-cron.php');}, 180000);
+
 function updraft_activejobs_delete(jobid) {
 	jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'activejobs_delete', jobid: jobid, nonce: updraft_credentialtest_nonce }, function(response) {
 		try {
@@ -421,7 +424,19 @@ jQuery(document).ready(function($){
 		jQuery('#updraft_backup_started').html('<em>'+updraftlion.requeststart+'</em>').slideDown('');
 		jQuery.post(ajaxurl, { action: 'updraft_ajax', subaction: 'backupnow', nonce: updraft_credentialtest_nonce }, function(response) {
 			jQuery('#updraft_backup_started').html(response);
+			// Kick off some activity to get WP to get the scheduled task moving as soon as possible
 			setTimeout(function() {jQuery.get(updraft_siteurl);}, 5100);
+			// If the site has cron or loopbacks disabled, then there may be a backlog to clear... if the site does not have cron disabled, then these have no performance impact
+			setTimeout(function() {jQuery.get(updraft_siteurl+'/wp-cron.php', function() {
+				setTimeout(function() {jQuery.get(updraft_siteurl+'/wp-cron.php');}, 6000);
+			} );}, 5400);
+			setTimeout(function() {jQuery.get(updraft_siteurl+'/wp-cron.php', function() {
+				setTimeout(function() {jQuery.get(updraft_siteurl+'/wp-cron.php');}, 6000);
+			} );}, 17400);
+			setTimeout(function() {jQuery.get(updraft_siteurl+'/wp-cron.php', function() {
+				setTimeout(function() {jQuery.get(updraft_siteurl+'/wp-cron.php');}, 6000);
+			} );}, 27400);
+			
 			//setTimeout(function() {updraft_showlastlog();}, 6000);
 			setTimeout(function() {updraft_activejobs_update();}, 6000);
 			setTimeout(function() {

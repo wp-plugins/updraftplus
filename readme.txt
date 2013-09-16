@@ -130,6 +130,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: <a href="http://updraftplus.com/shop/morestorage/">New "more storage" add-on</a>, enabling backing up to multiple storage destinations
 * FEATURE: New progress meter on dashboard page when a backup is running
 * FEATURE: SCP support (in the <a href="http://updraftplus.com/shop/sftp/">SFTP/FTPS/SCP add-on</a>)
+* FEATURE: If (and only if) your settings page is open, then UpdraftPlus will automatically perform tricks to help backups run even if your WordPress install has its scheduler disabled (of course, enabling your scheduler would better).
 * FIX: Fix bug whereby clicking on 'rescan' lost track of backups sent to remote storage
 * FIX: Fix obscure bug that could cause WPMU installs to not back up all tables
 * FIX: Fix unwanted warning message if the uploads folder was empty
