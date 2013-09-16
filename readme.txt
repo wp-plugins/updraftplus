@@ -14,7 +14,7 @@ Easy and complete backups + restoration. Manual or automated backups (Amazon S3,
 
 <a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3 (or compatible), Dropbox, Google Drive, Rackspace Cloud, DreamObjects, FTP, SFTP, SCP, WebDAV and email) and restore with a single click. Backups of files and database can have separate schedules.
 
-* Thousands of users: widely tested and reliable (over 250,000 downloads). Ranks in the top 0.5% on rankwp.com (70th out of 25,000 plugins).
+* Thousands of users: widely tested and reliable (over 270,000 downloads). Ranks in the top 0.5% on rankwp.com (70th out of 25,000 plugins).
 * Top-quality: ranks 52nd out of 25,000 WordPress plugins for quality on rankwp.com (top 0.25% - last checked 20th August 2013).
 * Supports WordPress backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP and email. Also (via an add-on) FTP over SSL, SFTP, SCP and WebDAV. (Note: Microsoft forbid SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
 * Quick restore (both file and database backups)
@@ -133,6 +133,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FIX: Fix bug whereby clicking on 'rescan' lost track of backups sent to remote storage
 * FIX: Fix obscure bug that could cause WPMU installs to not back up all tables
 * FIX: Fix unwanted warning message if the uploads folder was empty
+* FIX: Show timestamps of available backup sets in local time zone
 * FIX: Fix mangled pathnames for PclZip one-shot attempts
 * FIX: Fix bug that caused files to be dropped if one was in a sub-directory of the entity and named (entire name) "0"
 * FIX: Show correct title on page when upgrading
@@ -142,6 +143,8 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FIX: Fix small typo in inline decrypter that led to viewer reading an incomplete message
 * TWEAK: Warn the user if they seem to be a on a dev website that is not visited + so can't backup (http://updraftplus.com/faqs/why-am-i-getting-warnings-about-my-site-not-having-enough-visitors/)
 * TWEAK: Extra check that the directory is writable before unpacking zip in restore (so user gets friendly error message instead of trickier one)
+* TWEAK: Provide option to remember the "automatic backup" setting
+* TWEAK: <a href="http://updraftplus.com/shop/webdav/">The WebDAV add-on</a> now has support for WebDAV servers that don't support Content-Range (e.g. ownCloud)
 
 = 1.7.3 - 2013/08/26 =
 * FIX: Some Dropbox connect errors were being lost

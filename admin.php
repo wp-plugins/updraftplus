@@ -2410,7 +2410,11 @@ CREATE TABLE $wpdb->signups (
 		krsort($backup_history);
 
 		foreach($backup_history as $key=>$backup) {
-			$pretty_date = date('Y-m-d G:i',$key);
+			# https://core.trac.wordpress.org/ticket/25331
+			# $pretty_date = date_i18n('Y-m-d G:i',$key);
+			// Convert to blog time zone
+			$pretty_date = get_date_from_gmt(gmdate('Y-m-d H:i:s', $key), 'Y-m-d G:i');
+
 			$esc_pretty_date=esc_attr($pretty_date);
 			$entities = '';
 			$sval = ((isset($backup['service']) && $backup['service'] != 'email' && $backup['service'] != 'none')) ? '1' : '0';
