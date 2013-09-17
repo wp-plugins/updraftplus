@@ -409,7 +409,7 @@ class UpdraftPlus_Admin {
 		$known_size = isset($backup_history[$timestamp][$type.$itext.'-size']) ? $backup_history[$timestamp][$type.$itext.'-size'] : 0;
 
 		$services = (isset($backup_history[$timestamp]['service'])) ? $backup_history[$timestamp]['service'] : false;
-		if (is_string($services)) $services = array($servies);
+		if (is_string($services)) $services = array($services);
 
 		$updraftplus->jobdata_set('service', $service);
 

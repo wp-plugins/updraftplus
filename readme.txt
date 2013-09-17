@@ -3,7 +3,7 @@ Contributors: DavidAnderson
 Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, s3 compatible, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp, ftps, scp, migrate, duplicate, copy, updraft, schedule, database backup
 Requires at least: 3.1
 Tested up to: 3.6.1
-Stable tag: 1.7.3
+Stable tag: 1.7.18
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -126,7 +126,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= Development version - not yet released/supported =
+= 1.7.18 - 2013/09/17 =
 * FEATURE: <a href="http://updraftplus.com/shop/morestorage/">New "more storage" add-on</a>, enabling backing up to multiple storage destinations
 * FEATURE: New progress meter on dashboard page when a backup is running
 * FEATURE: SCP support (in the <a href="http://updraftplus.com/shop/sftp/">SFTP/FTPS/SCP add-on</a>)
