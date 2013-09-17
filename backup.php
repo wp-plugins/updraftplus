@@ -199,6 +199,13 @@ class UpdraftPlus_Backup {
 
 		$do_prune = array();
 
+		# If there was no check-in last time, then attempt a different service first - in case a time-out on the attempted service leads to no activity and everything stopping
+		if (count($services) >1 && !empty($updraftplus->no_checkin_last_time)) {
+			$updraftplus->log('No check-in last time: will try a different remote service first');
+			array_push($services, array_shift($services));
+			if (1 == ($updraftplus->current_resumption % 2) && count($services)>2) array_push($services, array_shift($services));
+		}
+
 		foreach ($services as $ind => $service) {
 
 			# Used for logging by record_upload_chunk()
@@ -483,11 +490,9 @@ class UpdraftPlus_Backup {
 		if ($job_status != 'finished' && $updraftplus->current_resumption >= 2 && $updraftplus->current_resumption<=10) {
 			$maxzipbatch = $updraftplus->jobdata_get('maxzipbatch', 26214400);
 			if ((int)$maxzipbatch < 1) $maxzipbatch = 26214400;
-			$time_passed = $updraftplus->jobdata_get('run_times');
-			if (!is_array($time_passed)) $time_passed = array();
-			$last_resumption = $this->current_resumption-1;
+
 			# NOTYET: Possible amendment to original algorithm; not just no check-in, but if the check in was very early (can happen if we get a very early checkin for some trivial operation, then attempt something too big)
-			if (!isset($time_passed[$last_resumption])) {
+			if (!empty($updraftplus->no_checkin_last_time)) {
 				$new_maxzipbatch = max(floor($maxzipbatch * 0.75), 20971520);
 				if ($new_maxzipbatch < $maxzipbatch) {
 					$updraftplus->log("No check-in was detected on the previous run - as a result, we are reducing the batch amount (old=$maxzipbatch, new=$new_maxzipbatch)");
