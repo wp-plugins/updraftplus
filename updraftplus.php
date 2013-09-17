@@ -15,13 +15,13 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // Raise a warning for probably-too-large email attachments (make intelligent - i.e. record what's the largest succesfully despatched so far? Or is that not relevant, since that only tells us about the first link?)
 // After Oct 15 2013: Remove page(s) from websites discussing W3TC
+// Change migrate window: 1) Retain link to article 2) Have selector to choose which backup set to migrate - or a fresh one 3) Have option for FTP/SFTP/SCP despatch 4) Have big "Go" button. Have some indication of what happens next. Test the login first. Have the remote site auto-scan its directory + pick up new sets. Have a way of querying the remote site for its UD-dir. Have a way of saving the settings as a 'profile'. Or just save the last set of settings (since mostly will be just one place to send to). Implement an HTTP/JSON method for sending files too.
 // Exempt UD itself from a plugins restore? (will options be out-of-sync? exempt options too?)
 // Post restore/migrate, check updraft_dir, and reset if non-existent
 // Auto-empty caches post-restore/post-migration (prevent support requests from people with state/wrong cacheing data)
 // Show 'Migrate' instead of 'Restore' on the button if relevant
 // Test with: http://wordpress.org/plugins/wp-db-driver/
 // Backup notes
-// Detect scheduler not running. Could detect possible causes? (e.g. parse .htaccess)
 // The delete-em at the end needs to be made resumable
 // Show running jobs at top. If there are some, and are overdue, kick off a few visits to wp-cron.php to help along.
 // Incremental - can leverage some of the multi-zip work???
@@ -935,7 +935,7 @@ class UpdraftPlus {
 		// Sanity check
 		if (empty($this->backup_time)) {
 			# TODO: We no longer use object cache-ing - alter this message
-			$this->log('Abort this run: the backup_time parameter appears to be empty (this is usually caused by resuming an already-complete backup, or by your site having a faulty object cache active (e.g. W3 Total Cache\'s object cache))');
+			$this->log('Abort this run: the backup_time parameter appears to be empty (this is either a one-time error caused by upgrading from a version earlier than 1.7.18 whilst a backup was in progress (which you can ignore), or caused by resuming an already-complete backup, or by your site having a faulty object cache active (e.g. W3 Total Cache\'s object cache))');
 			return false;
 		}
 
@@ -1107,6 +1107,15 @@ class UpdraftPlus {
 		update_site_option("updraft_jobdata_".$this->nonce, $this->jobdata);
 	}
 
+	public function get_job_option($opt) {
+		// These are meant to be read-only
+		if (!is_array($this->jobdata['option_cache'])) {
+			if (!is_array($this->jobdata)) $this->jobdata = get_site_option("updraft_jobdata_".$this->nonce, array());
+			$this->jobdata['option_cache'] = array();
+		}
+		return (isset($this->jobdata['option_cache'][$opt])) ? $this->jobdata['option_cache'][$opt] : UpdraftPlus_Options::get_updraft_option($opt);
+	}
+
 	public function jobdata_get($key, $default = null) {
 		if (!is_array($this->jobdata)) {
 			$this->jobdata = get_site_option("updraft_jobdata_".$this->nonce, array());
@@ -1152,6 +1161,24 @@ class UpdraftPlus {
 
 		if (!is_string($service) && !is_array($service)) $service = UpdraftPlus_Options::get_updraft_option('updraft_service');
 		$service = $this->just_one($service);
+		if (is_string($service)) $service = array($service);
+
+		$option_cache = array();
+		foreach ($service as $serv) {
+			if ('' == $serv || 'none' == $serv) continue;
+			include_once(UPDRAFTPLUS_DIR.'/methods/'.$serv.'.php');
+			$cclass = 'UpdraftPlus_BackupModule_'.$serv;
+			$obj = new $cclass;
+			if (method_exists($cclass, 'get_credentials')) {
+				$opts = $obj->get_credentials();
+				if (is_array($opts)) {
+					foreach ($opts as $opt) {
+						$option_cache[$opt] = UpdraftPlus_Options::get_updraft_option($opt);
+					}
+				}
+			}
+		}
+		$option_cache = apply_filters('updraftplus_job_option_cache', $option_cache);
 
 		# If nothing to be done, then just finish
 		if (!$backup_files && !$backup_database) {
@@ -1187,6 +1214,7 @@ class UpdraftPlus {
 			'split_every', max(intval(UpdraftPlus_Options::get_updraft_option('updraft_split_every', 800)), UPDRAFTPLUS_SPLIT_MIN),
 			'maxzipbatch', 26214400, #25Mb
 			'job_file_entities', $job_file_entities,
+			'option_cache', $option_cache,
 			'one_shot', $one_shot
 		);
 

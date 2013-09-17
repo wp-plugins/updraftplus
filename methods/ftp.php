@@ -28,15 +28,15 @@ class UpdraftPlus_BackupModule_ftp {
 
 		global $updraftplus, $updraftplus_backup;
 
-		$server = UpdraftPlus_Options::get_updraft_option('updraft_server_address');
-		$user = UpdraftPlus_Options::get_updraft_option('updraft_ftp_login');
+		$server = $updraftplus->get_job_option('updraft_server_address');
+		$user = $updraftplus->get_job_option('updraft_ftp_login');
 
 		$ftp = $this->getFTP(
 			$server,
 			$user,
-			UpdraftPlus_Options::get_updraft_option('updraft_ftp_pass'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_nossl'),
-			UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify'),
-			UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts')
+			$updraftplus->get_job_option('updraft_ftp_pass'), $updraftplus->get_job_option('updraft_ssl_nossl'),
+			$updraftplus->get_job_option('updraft_ssl_disableverify'),
+			$updraftplus->get_job_option('updraft_ssl_useservercerts')
 		);
 
 		if (!$ftp->connect()) {
@@ -49,7 +49,7 @@ class UpdraftPlus_BackupModule_ftp {
 
 		$updraft_dir = $updraftplus->backups_dir_location().'/';
 
-		$ftp_remote_path = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_ftp_remote_path'));
+		$ftp_remote_path = trailingslashit($updraftplus->get_job_option('updraft_ftp_remote_path'));
 		foreach($backup_array as $file) {
 			$fullpath = $updraft_dir.$file;
 			$updraftplus->log("FTP upload attempt: $file -> ftp://$user@$server/${ftp_remote_path}${file}");
@@ -76,15 +76,15 @@ class UpdraftPlus_BackupModule_ftp {
 			$ftp = $ftparr['ftp_object'];
 		} else {
 
-			$server = UpdraftPlus_Options::get_updraft_option('updraft_server_address');
-			$user = UpdraftPlus_Options::get_updraft_option('updraft_ftp_login');
+			$server = $updraftplus->get_job_option('updraft_server_address');
+			$user = $updraftplus->get_job_option('updraft_ftp_login');
 
 			$ftp = $this->getFTP(
 				$server,
 				$user,
-				UpdraftPlus_Options::get_updraft_option('updraft_ftp_pass'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_nossl'),
-				UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify'),
-				UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts')
+				$updraftplus->get_job_option('updraft_ftp_pass'), $updraftplus->get_job_option('updraft_ssl_nossl'),
+				$updraftplus->get_job_option('updraft_ssl_disableverify'),
+				$updraftplus->get_job_option('updraft_ssl_useservercerts')
 			);
 
 			if (!$ftp->connect()) {
@@ -94,7 +94,7 @@ class UpdraftPlus_BackupModule_ftp {
 
 		}
 
-		$ftp_remote_path = isset($ftparr['ftp_remote_path']) ? $ftparr['ftp_remote_path'] : trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_ftp_remote_path'));
+		$ftp_remote_path = isset($ftparr['ftp_remote_path']) ? $ftparr['ftp_remote_path'] : trailingslashit($updraftplus->get_job_option('updraft_ftp_remote_path'));
 
 		$ret = true;
 		foreach ($files as $file) {
@@ -115,11 +115,11 @@ class UpdraftPlus_BackupModule_ftp {
 		global $updraftplus;
 
 		$ftp = $this->getFTP(
-			UpdraftPlus_Options::get_updraft_option('updraft_server_address'),
-			UpdraftPlus_Options::get_updraft_option('updraft_ftp_login'),
-			UpdraftPlus_Options::get_updraft_option('updraft_ftp_pass'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_nossl'),
-			UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify'),
-			UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts')
+			$updraftplus->get_job_option('updraft_server_address'),
+			$updraftplus->get_job_option('updraft_ftp_login'),
+			$updraftplus->get_job_option('updraft_ftp_pass'), $updraftplus->get_job_option('updraft_ssl_nossl'),
+			$updraftplus->get_job_option('updraft_ssl_disableverify'),
+			$updraftplus->get_job_option('updraft_ssl_useservercerts')
 		);
 
 		if (!$ftp->connect()) {
@@ -130,7 +130,7 @@ class UpdraftPlus_BackupModule_ftp {
 
 		//$ftp->make_dir(); we may need to recursively create dirs? TODO
 		
-		$ftp_remote_path = trailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_ftp_remote_path'));
+		$ftp_remote_path = trailingslashit($updraftplus->get_job_option('updraft_ftp_remote_path'));
 		$fullpath = $updraftplus->backups_dir_location().'/'.$file;
 
 		$resume = false;
@@ -169,6 +169,7 @@ class UpdraftPlus_BackupModule_ftp {
 	}
 
 	public static function config_print() {
+		global $updraftplus;
 		?>
 
 		<tr class="updraftplusmethod ftp">
@@ -183,25 +184,29 @@ class UpdraftPlus_BackupModule_ftp {
 
 		<tr class="updraftplusmethod ftp">
 			<th><?php _e('FTP Server','updraftplus');?>:</th>
-			<td><input type="text" size="40" id="updraft_server_address" name="updraft_server_address" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_server_address')); ?>" /></td>
+			<td><input type="text" size="40" id="updraft_server_address" name="updraft_server_address" value="<?php echo htmlspecialchars($updraftplus->get_job_option('updraft_server_address')); ?>" /></td>
 		</tr>
 		<tr class="updraftplusmethod ftp">
 			<th><?php _e('FTP Login','updraftplus');?>:</th>
-			<td><input type="text" size="40" id="updraft_ftp_login" name="updraft_ftp_login" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_ftp_login')) ?>" /></td>
+			<td><input type="text" size="40" id="updraft_ftp_login" name="updraft_ftp_login" value="<?php echo htmlspecialchars($updraftplus->get_job_option('updraft_ftp_login')) ?>" /></td>
 		</tr>
 		<tr class="updraftplusmethod ftp">
 			<th><?php _e('FTP Password','updraftplus');?>:</th>
-			<td><input type="<?php echo apply_filters('updraftplus_admin_secret_field_type', 'text'); ?>" size="40" id="updraft_ftp_pass" name="updraft_ftp_pass" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_ftp_pass')); ?>" /></td>
+			<td><input type="<?php echo apply_filters('updraftplus_admin_secret_field_type', 'text'); ?>" size="40" id="updraft_ftp_pass" name="updraft_ftp_pass" value="<?php echo htmlspecialchars($updraftplus->get_job_option('updraft_ftp_pass')); ?>" /></td>
 		</tr>
 		<tr class="updraftplusmethod ftp">
 			<th><?php _e('Remote Path','updraftplus');?>:</th>
-			<td><input type="text" size="64" id="updraft_ftp_remote_path" name="updraft_ftp_remote_path" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_ftp_remote_path')); ?>" /> <em><?php _e('Needs to already exist','updraftplus');?></em></td>
+			<td><input type="text" size="64" id="updraft_ftp_remote_path" name="updraft_ftp_remote_path" value="<?php echo htmlspecialchars($updraftplus->get_job_option('updraft_ftp_remote_path')); ?>" /> <em><?php _e('Needs to already exist','updraftplus');?></em></td>
 		</tr>
 		<tr class="updraftplusmethod ftp">
 		<th></th>
 		<td><p><button id="updraft-ftp-test" type="button" class="button-primary" style="font-size:18px !important"><?php echo sprintf(__('Test %s Settings','updraftplus'),'FTP');?></button></p></td>
 		</tr>
 		<?php
+	}
+
+	public function get_credentials() {
+		return array('updraft_server_address', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_ssl_disableverify', 'updraft_ssl_nossl', 'updraft_ssl_useservercerts');
 	}
 
 	public static function credentials_test() {

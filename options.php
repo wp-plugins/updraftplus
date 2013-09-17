@@ -79,6 +79,7 @@ class UpdraftPlus_Options {
 		register_setting('updraft-options-group', 'updraft_ftp_login' );
 		register_setting('updraft-options-group', 'updraft_ftp_pass' );
 		register_setting('updraft-options-group', 'updraft_ftp_remote_path' );
+
 		register_setting('updraft-options-group', 'updraft_server_address' );
 		register_setting('updraft-options-group', 'updraft_dir', array($updraftplus_admin, 'prune_updraft_dir_prefix') );
 		register_setting('updraft-options-group', 'updraft_email');
