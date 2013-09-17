@@ -436,7 +436,8 @@ class UpdraftPlus_Backup {
 		// We have to use the action in order to set the MIME type on the attachment - by default, WordPress just puts application/octet-stream
 		if (count($attachments)>0) add_action('phpmailer_init', array($this, 'phpmailer_init'));
 		foreach (explode(',', $sendmail_to) as $sendmail_addr) {
-			wp_mail(trim($sendmail_addr), __('Backed up', 'updraftplus').': '.get_bloginfo('name').' (UpdraftPlus '.$updraftplus->version.') '.date('Y-m-d H:i',time()),'Site: '.site_url()."\r\nUpdraftPlus: ".__('WordPress backup is complete','updraftplus').".\r\n".__('Backup contains','updraftplus').': '.$backup_contains."\r\n".__('Latest status', 'updraftplus').": $final_message\r\n\r\n".$updraftplus->wordshell_random_advert(0)."\r\n".$append_log);
+
+			wp_mail(trim($sendmail_addr), __('Backed up', 'updraftplus').': '.get_bloginfo('name').' (UpdraftPlus '.$updraftplus->version.') '.get_date_from_gmt(gmdate('Y-m-d H:i:s', time()), 'Y-m-d H:i'),'Site: '.site_url()."\r\nUpdraftPlus: ".__('WordPress backup is complete','updraftplus').".\r\n".__('Backup contains','updraftplus').': '.$backup_contains."\r\n".__('Latest status', 'updraftplus').": $final_message\r\n\r\n".$updraftplus->wordshell_random_advert(0)."\r\n".$append_log);
 			if (count($attachments)>0) remove_action('phpmailer_init', array($this, 'phpmailer_init'));
 		}
 

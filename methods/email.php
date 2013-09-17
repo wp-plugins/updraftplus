@@ -17,7 +17,8 @@ class UpdraftPlus_BackupModule_email {
 			foreach (explode(',', UpdraftPlus_Options::get_updraft_option('updraft_email')) as $sendmail_addr) {
 				$send_short = (strlen($sendmail_addr)>5) ? substr($sendmail_addr, 0, 5).'...' : $sendmail_addr;
 				$updraftplus->log("$file: email to: $send_short");
-				$sent = wp_mail(trim($sendmail_addr), __("WordPress Backup",'updraftplus')." ".date('Y-m-d H:i',$updraftplus->backup_time), sprintf(__("Backup is of: %s.",'updraftplus'), $type).' '.__('Be wary; email backups may fail because of file size limitations on mail servers.','updraftplus'), null, array($fullpath));
+
+				$sent = wp_mail(trim($sendmail_addr), __("WordPress Backup",'updraftplus')." ".get_date_from_gmt(gmdate('Y-m-d H:i:s', $updraftplus->backup_time), 'Y-m-d H:i'), sprintf(__("Backup is of: %s.",'updraftplus'), $type).' '.__('Be wary; email backups may fail because of file size limitations on mail servers.','updraftplus'), null, array($fullpath));
 				if ($sent) $any_sent = true;
 			}
 			if ($any_sent) {

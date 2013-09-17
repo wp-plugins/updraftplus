@@ -135,6 +135,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FIX: Fix obscure bug that could cause WPMU installs to not back up all tables
 * FIX: Fix unwanted warning message if the uploads folder was empty
 * FIX: Show timestamps of available backup sets in local time zone
+* FIX: Email subjects and contents use local time zone
 * FIX: Fix mangled pathnames for PclZip one-shot attempts
 * FIX: Fix bug that caused files to be dropped if one was in a sub-directory of the entity and named (entire name) "0"
 * FIX: Show correct title on page when upgrading
