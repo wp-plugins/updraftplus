@@ -75,7 +75,7 @@ class UpdraftPlus_BackupModule_s3 {
 		$config = $this->get_config();
 		$whoweare = $config['whoweare'];
 		$whoweare_key = $config['key'];
-		$whoweare_keys = substr($whoweare_key, 0, 1);
+		$whoweare_keys = substr($whoweare_key, 0, 3);
 
 		$s3 = $this->getS3(
 			$config['login'],
@@ -202,7 +202,7 @@ class UpdraftPlus_BackupModule_s3 {
 							}
 						} catch (Exception $e) {
 							$updraftplus->log("$whoweare re-assembly error ($key): ".$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
-							$updraftplus->log($e->getMessage().": ".sprint(__('%s re-assembly error (%s): (see log file for more)','updraftplus'),$whoweare, $e->getMessage()), 'error');
+							$updraftplus->log($e->getMessage().": ".sprintf(__('%s re-assembly error (%s): (see log file for more)','updraftplus'),$whoweare, $e->getMessage()), 'error');
 						}
 						// Remember to unset, as the deletion code later reuses the object
 						$s3->setExceptions(false);
