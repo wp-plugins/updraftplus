@@ -1,7 +1,7 @@
 === UpdraftPlus - WordPress Backup and Restoration ===
 Contributors: DavidAnderson
 Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, s3 compatible, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp, ftps, scp, migrate, duplicate, copy, updraft, schedule, database backup
-Requires at least: 3.1
+Requires at least: 3.2
 Tested up to: 3.6.1
 Stable tag: 1.7.18
 Author URI: http://updraftplus.com
