@@ -935,7 +935,7 @@ class UpdraftPlus {
 		// Sanity check
 		if (empty($this->backup_time)) {
 			# TODO: We no longer use object cache-ing - alter this message
-			$this->log('Abort this run: the backup_time parameter appears to be empty (this is usually caused by resuming an already-complete backup, or by your site having a faulty object cache active (e.g. W3 Total Cache\'s object cache))');
+			$this->log('Abort this run: the backup_time parameter appears to be empty (this is either a one-time error caused by upgrading from a version earlier than 1.7.18 whilst a backup was in progress (which you can ignore), or caused by resuming an already-complete backup, or by your site having a faulty object cache active (e.g. W3 Total Cache\'s object cache))');
 			return false;
 		}
 
