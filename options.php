@@ -39,7 +39,7 @@ class UpdraftPlus_Options {
 		register_setting('updraft-options-group', 'updraft_retain', array($updraftplus, 'retain_range') );
 		register_setting('updraft-options-group', 'updraft_retain_db', array($updraftplus, 'retain_range') );
 		register_setting('updraft-options-group', 'updraft_encryptionphrase');
-		register_setting('updraft-options-group', 'updraft_service' );
+		register_setting('updraft-options-group', 'updraft_service', array($updraftplus, 'just_one'));
 
 		register_setting('updraft-options-group', 'updraft_s3_login' );
 		register_setting('updraft-options-group', 'updraft_s3_pass' );

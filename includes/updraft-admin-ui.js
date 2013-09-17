@@ -31,10 +31,35 @@ function updraft_restore_setoptions(entities) {
 
 var updraft_restore_stage = 1;
 var lastlog_lastmessage = "";
+var lastlog_lastdata = "";
 var lastlog_sdata = {
 	action: 'updraft_ajax',
 	subaction: 'lastlog',
 };
+
+function updraft_activejobs_update(repeat) {
+	jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'activejobs_list', nonce: updraft_credentialtest_nonce }, function(response) {
+		try {
+			resp = jQuery.parseJSON(response);
+			nexttimer = 1500;
+			if (lastlog_lastdata == response) { nexttimer = 4500; }
+			if (repeat) { setTimeout(function(){updraft_activejobs_update(true);}, nexttimer);}
+			lastlog_lastdata = response;
+			if (resp.l != null) { jQuery('#updraft_lastlogcontainer').html(resp.l); }
+			jQuery('#updraft_activejobs').html(resp.j);
+			if (resp.j != null && resp.j != '') {
+				jQuery('#updraft_activejobsrow').show();
+			} else {
+				if (!jQuery('#updraft_activejobsrow').is(':hidden')) {
+					updraft_showlastbackup();
+					jQuery('#updraft_activejobsrow').hide();
+				}
+			}
+		} catch(err) {
+			console.log(updraftlion.unexpectedresponse+' '+response);
+		}
+	});
+}
 
 function updraft_showlastlog(repeat){
 	lastlog_sdata.nonce = updraft_credentialtest_nonce;
@@ -126,21 +151,24 @@ function updraft_check_same_times() {
 	}
 }
 
+// Visit the site in the background every 3 minutes - ensures that backups can progress if you've got the UD settings page open
+setInterval(function() {jQuery.get(updraft_siteurl+'/wp-cron.php');}, 180000);
+
 function updraft_activejobs_delete(jobid) {
 	jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'activejobs_delete', jobid: jobid, nonce: updraft_credentialtest_nonce }, function(response) {
-		if (response.substr(0,2) == 'Y:') {
-			jQuery('#updraft-jobid-'+jobid).html(response.substr(2)).fadeOut('slow').remove();
-		} else if (response.substr(0,2) == 'X:') {
-			alert(response.substr(2));
-		} else {
+		try {
+			var resp = jQuery.parseJSON(response);
+			if (resp.ok == 'Y') {
+				jQuery('#updraft-jobid-'+jobid).html(resp.m).fadeOut('slow').remove();
+			} else if (resp.ok == 'N') {
+				alert(resp.m);
+			} else {
+				alert(updraftlion.unexpectedresponse+' '+response);
+			}
+		} catch(err) {
+			console.log(err);
 			alert(updraftlion.unexpectedresponse+' '+response);
 		}
-	});
-}
-
-function updraft_activejobs_update() {
-	jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'activejobs_list', nonce: updraft_credentialtest_nonce }, function(response) {
-		jQuery('#updraft_activejobs').html(response);
 	});
 }
 
@@ -300,7 +328,9 @@ function updraft_downloader_status(base, nonce, what, findex) {
 
 jQuery(document).ready(function($){
 	
-	setTimeout(function(){updraft_showlastlog(true);}, 1200);
+	//setTimeout(function(){updraft_showlastlog(true);}, 1200);
+	setTimeout(function() {updraft_activejobs_update(true);}, 1200);
+	
 	jQuery('.updraftplusmethod').hide();
 	
 	jQuery('#updraft_restore_db').change(function(){
@@ -394,8 +424,20 @@ jQuery(document).ready(function($){
 		jQuery('#updraft_backup_started').html('<em>'+updraftlion.requeststart+'</em>').slideDown('');
 		jQuery.post(ajaxurl, { action: 'updraft_ajax', subaction: 'backupnow', nonce: updraft_credentialtest_nonce }, function(response) {
 			jQuery('#updraft_backup_started').html(response);
+			// Kick off some activity to get WP to get the scheduled task moving as soon as possible
 			setTimeout(function() {jQuery.get(updraft_siteurl);}, 5100);
-			setTimeout(function() {updraft_showlastlog();}, 6000);
+			// If the site has cron or loopbacks disabled, then there may be a backlog to clear... if the site does not have cron disabled, then these have no performance impact
+			setTimeout(function() {jQuery.get(updraft_siteurl+'/wp-cron.php', function() {
+				setTimeout(function() {jQuery.get(updraft_siteurl+'/wp-cron.php');}, 6000);
+			} );}, 5400);
+			setTimeout(function() {jQuery.get(updraft_siteurl+'/wp-cron.php', function() {
+				setTimeout(function() {jQuery.get(updraft_siteurl+'/wp-cron.php');}, 6000);
+			} );}, 17400);
+			setTimeout(function() {jQuery.get(updraft_siteurl+'/wp-cron.php', function() {
+				setTimeout(function() {jQuery.get(updraft_siteurl+'/wp-cron.php');}, 6000);
+			} );}, 27400);
+			
+			//setTimeout(function() {updraft_showlastlog();}, 6000);
 			setTimeout(function() {updraft_activejobs_update();}, 6000);
 			setTimeout(function() {
 				jQuery('#updraft_lastlogmessagerow').fadeOut('slow', function() {
@@ -425,7 +467,6 @@ jQuery(document).ready(function($){
 	jQuery('#enableexpertmode').click(function() {
 		jQuery('.expertmode').fadeIn();
 		updraft_activejobs_update();
-		setInterval(function() {updraft_activejobs_update();}, 15000);
 		jQuery('#enableexpertmode').off('click'); 
 		return false;
 	});
@@ -606,7 +647,7 @@ jQuery(document).ready(function($){
 // 				$('#' + file.id + " span").append('<button type="button" onclick="updraftplus_downloadstage2(\'db\', \'db\'">Download to your computer</button>');
 				// 				$('#' + file.id + " span").append('<form action="admin-ajax.php" onsubmit="return updraft_downloader(\'+bkey+''\', \'db\')" method="post"><input type="hidden" name="_wpnonce" value="'+updraft_downloader_nonce+'"><input type="hidden" name="action" value="updraft_download_backup" /><input type="hidden" name="type" value="db" /><input type="hidden" name="timestamp" value="'+bkey+'" /><input type="submit" value="Download" /></form>');
 				$('#' + file.id + " .fileprogress").hide();
-				$('#' + file.id).append(updraftlion.uploaded+' <a href="?page=updraftplus&action=downloadfile&updraftplus_file='+bkey+'&decrypt_key='+$('#updraftplus_db_decrypt').val()+'">'+updraftlion.folowlink+'</a> '+updraftlion.thiskey+' '+$('#updraftplus_db_decrypt').val().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"));
+				$('#' + file.id).append(updraftlion.uploaded+' <a href="?page=updraftplus&action=downloadfile&updraftplus_file='+bkey+'&decrypt_key='+$('#updraftplus_db_decrypt').val()+'">'+updraftlion.followlink+'</a> '+updraftlion.thiskey+' '+$('#updraftplus_db_decrypt').val().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"));
 			} else {
 				alert(updraftlion.unknownresp+' '+response.response);
 			}

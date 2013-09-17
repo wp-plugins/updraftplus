@@ -104,7 +104,7 @@ class UpdraftPlus_BackupModule_googledrive {
 
 					if ( isset($json_values['access_token'])) {
 
-						set_transient('updraftplus_tmp_googledrive_access_token', $json_values['access_token'], 3600);
+						UpdraftPlus_Options::update_updraft_option('updraftplus_tmp_googledrive_access_token', $json_values['access_token']);
 
 						// We do this to clear the GET parameters, otherwise WordPress sticks them in the _wp_referer in the form and brings them back, leading to confusion + errors
 						header('Location: '.admin_url('options-general.php?page=updraftplus&action=updraftmethod-googledrive-auth&state=success'));
@@ -130,7 +130,7 @@ class UpdraftPlus_BackupModule_googledrive {
 
 		global $updraftplus_admin;
 
-		$updraftplus_tmp_access_token = get_transient('updraftplus_tmp_googledrive_access_token');
+		$updraftplus_tmp_access_token = UpdraftPlus_Options::get_updraft_option('updraftplus_tmp_googledrive_access_token');
 		if (empty($updraftplus_tmp_access_token)) return;
 
 		$message = '';
@@ -151,7 +151,7 @@ class UpdraftPlus_BackupModule_googledrive {
 
 		$updraftplus_admin->show_admin_warning(__('Success','updraftplus').': '.sprintf(__('you have authenticated your %s account.','updraftplus'),__('Google Drive','updraftplus')).' '.$message);
 
-		delete_transient('updraftplus_tmp_googledrive_access_token');
+		UpdraftPlus_Options::delete_updraft_option('updraftplus_tmp_googledrive_access_token');
 
 	}
 
@@ -217,7 +217,8 @@ class UpdraftPlus_BackupModule_googledrive {
 				$updraftplus->log("$file_name: ".sprintf(__('Failed to upload to %s','updraftplus'),__('Google Drive','updraftplus')), 'error');
 			}
 		}
-		$updraftplus_backup->prune_retained_backups("googledrive", $this, null);
+
+		return null;
 	}
 
 	function delete($files) {

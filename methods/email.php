@@ -27,7 +27,7 @@ class UpdraftPlus_BackupModule_email {
 				$updraftplus->log(__('The attempt to send the backup via email failed (probably the backup was too large for this method)', 'updraftplus'), 'error');
 			}
 		}
-		$updraftplus_backup->prune_retained_backups("email", null, null);
+		return null;
 	}
 
 	public static function config_print() {
@@ -37,6 +37,9 @@ class UpdraftPlus_BackupModule_email {
 			<td><?php echo str_replace('&gt;','>', str_replace('&lt;','<',htmlspecialchars(__('The email address entered above will be used. If choosing "E-Mail", then <strong>be aware</strong> that mail servers tend to have size limits; typically around 10-20Mb; backups larger than any limits will not arrive. If you really need a large backup via email, then you could fund a new feature (to break the backup set into configurable-size pieces) - but the demand has not yet existed for such a feature.','updraftplus'))));?></td>
 		</tr>
 		<?php
+	}
+
+	public function delete($files) {
 	}
 
 }

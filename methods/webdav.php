@@ -19,7 +19,7 @@ class UpdraftPlus_BackupModule_webdav {
 		// If successful, then you must do this:
 		// $updraftplus->uploaded_file($file);
 
-		do_action('updraft_webdav_upload_files', $backup_array, $this);
+		return apply_filters('updraft_webdav_upload_files', null, $backup_array);
 
 	}
 
@@ -35,7 +35,7 @@ class UpdraftPlus_BackupModule_webdav {
 			return false;
 		}
 
-		do_action('updraft_webdav_delete_files', $files, $method_obj);
+		return apply_filters('updraft_webdav_delete_files', false, $files, $method_obj);
 
 	}
 

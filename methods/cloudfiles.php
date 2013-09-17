@@ -182,7 +182,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 
 		}
 
-		$updraftplus_backup->prune_retained_backups('cloudfiles', $this, array('cloudfiles_object' => $cont_obj, 'cloudfiles_orig_path' => $path, 'cloudfiles_container' => $container));
+		return array('cloudfiles_object' => $cont_obj, 'cloudfiles_orig_path' => $path, 'cloudfiles_container' => $container);
 
 	}
 
