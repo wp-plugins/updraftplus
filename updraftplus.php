@@ -1023,6 +1023,8 @@ class UpdraftPlus {
 			}
 		}
 
+		if (!empty($this->semaphore)) $this->semaphore->unlock();
+
 		if (count($undone_files) == 0) {
 			$this->log("Resume backup ($bnonce, $resumption_no): finish run");
 			$this->log("There were no more files that needed uploading; backup job is complete");
@@ -1159,6 +1161,22 @@ class UpdraftPlus {
 			$this->log("Processed schedules. Tasks now: Backup files: $backup_files Backup DB: $backup_database");
 		}
 
+		$semaphore = (($backup_files) ? 'f' : '') . (($backup_database) ? 'd' : '');
+
+		// Make sure the options for semaphores exist
+		global $wpdb;
+		$results = $wpdb->get_results("
+			SELECT option_id
+				FROM $wpdb->options
+				WHERE option_name IN ('updraftplus_locked_$semaphore', 'updraftplus_unlocked_$semaphore')
+		");
+		// Use of update_option() is correct here - since it is what is used in class-semaphore.php
+		if (!count($results)) {
+			update_option('updraftplus_unlocked_'.$semaphore, '1');
+			update_option('updraftplus_last_lock_time_'.$semaphore, current_time('mysql', 1));
+			update_option('updraftplus_semaphore_'.$semaphore, '0');
+		}
+
 		if (!is_string($service) && !is_array($service)) $service = UpdraftPlus_Options::get_updraft_option('updraft_service');
 		$service = $this->just_one($service);
 		if (is_string($service)) $service = array($service);
@@ -1183,6 +1201,15 @@ class UpdraftPlus {
 		# If nothing to be done, then just finish
 		if (!$backup_files && !$backup_database) {
 			$this->backup_finish(1, false, false, 0);
+			return;
+		}
+
+		require_once(UPDRAFTPLUS_DIR.'/includes/class-semaphore.php');
+		$this->semaphore = UpdraftPlus_Semaphore::factory();
+		$this->semaphore->lock_name = $semaphore;
+		$this->log('Requesting semaphore lock ('.$semaphore.')');
+		if (!$this->semaphore->lock()) {
+			$this->log('Failed to gain semaphore lock ('.$semaphore.') - another backup is apparently already active - aborting (backups of the same time must be started at least 1 minute apart; otherwise they are assumed to be unwanted duplicates)');
 			return;
 		}
 
