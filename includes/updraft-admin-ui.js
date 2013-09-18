@@ -428,14 +428,14 @@ jQuery(document).ready(function($){
 			setTimeout(function() {jQuery.get(updraft_siteurl);}, 5100);
 			// If the site has cron or loopbacks disabled, then there may be a backlog to clear... if the site does not have cron disabled, then these have no performance impact
 			setTimeout(function() {jQuery.get(updraft_siteurl+'/wp-cron.php', function() {
-				setTimeout(function() {jQuery.get(updraft_siteurl+'/wp-cron.php');}, 6000);
-			} );}, 5400);
+				setTimeout(function() {jQuery.get(updraft_siteurl+'/wp-cron.php');}, 8000);
+			} );}, 6400);
 			setTimeout(function() {jQuery.get(updraft_siteurl+'/wp-cron.php', function() {
-				setTimeout(function() {jQuery.get(updraft_siteurl+'/wp-cron.php');}, 6000);
-			} );}, 17400);
+				setTimeout(function() {jQuery.get(updraft_siteurl+'/wp-cron.php');}, 8000);
+			} );}, 18400);
 			setTimeout(function() {jQuery.get(updraft_siteurl+'/wp-cron.php', function() {
-				setTimeout(function() {jQuery.get(updraft_siteurl+'/wp-cron.php');}, 6000);
-			} );}, 27400);
+				setTimeout(function() {jQuery.get(updraft_siteurl+'/wp-cron.php');}, 8000);
+			} );}, 30400);
 			
 			//setTimeout(function() {updraft_showlastlog();}, 6000);
 			setTimeout(function() {updraft_activejobs_update();}, 6000);
