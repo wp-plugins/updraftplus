@@ -1715,6 +1715,11 @@ class UpdraftPlus {
 		if (!empty($this->backup_dir)) return $this->backup_dir;
 
 		$updraft_dir = untrailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_dir'));
+		# When newly installing, if someone had (e.g.) wp-content/updraft in their database from a previous, deleted pre-1.7.18 install but had removed the updraft directory before re-installing, without this fix they'd end up with wp-content/wp-content/updraft.
+		if (preg_match('/^wp-content\/(.*)$/', $updraft_dir, $matches) && ABSPATH.'wp-content' === WP_CONTENT_DIR) {
+			UpdraftPlus_Options::update_updraft_option('updraft_dir', $matches[1]);
+			$updraft_dir = WP_CONTENT_DIR.'/'.$matches[1];
+		}
 		$default_backup_dir = WP_CONTENT_DIR.'/updraft';
 		$updraft_dir = ($updraft_dir) ? $updraft_dir : $default_backup_dir;
 
