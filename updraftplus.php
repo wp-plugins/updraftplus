@@ -1668,9 +1668,6 @@ class UpdraftPlus {
 		$default_backup_dir = WP_CONTENT_DIR.'/updraft';
 		$updraft_dir = ($updraft_dir) ? $updraft_dir : $default_backup_dir;
 
-		$default_backup_dir = WP_CONTENT_DIR.'/updraft';
-		$updraft_dir = ($updraft_dir) ? $updraft_dir : $default_backup_dir;
-
 		// Do a test for a relative path
 		if ('/' != substr($updraft_dir, 0, 1) && "\\" != substr($updraft_dir, 0, 1) && !preg_match('/^[a-zA-Z]:/', $updraft_dir)) {
 			# Legacy - file paths stored related to ABSPATH
