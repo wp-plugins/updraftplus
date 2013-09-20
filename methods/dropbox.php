@@ -32,7 +32,7 @@ class UpdraftPlus_BackupModule_dropbox {
 
 		if (!function_exists('mcrypt_encrypt')) {
 			$updraftplus->log('The mcrypt PHP module is not installed');
-			$updraftplus->log(sprintf(__('The %s PHP module is not installed', 'updraftplus'), 'mcrypt'), 'error');
+			$updraftplus->log(sprintf(__('The %s PHP module is not installed - ask your web hosting company to enable it', 'updraftplus'), 'mcrypt'), 'error');
 			return false;
 		}
 

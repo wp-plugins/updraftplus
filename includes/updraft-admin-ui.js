@@ -51,7 +51,7 @@ function updraft_activejobs_update(repeat) {
 				jQuery('#updraft_activejobsrow').show();
 			} else {
 				if (!jQuery('#updraft_activejobsrow').is(':hidden')) {
-					updraft_showlastbackup();
+					if (typeof lastbackup_laststatus != 'undefined') { updraft_showlastbackup(); }
 					jQuery('#updraft_activejobsrow').hide();
 				}
 			}
@@ -151,8 +151,8 @@ function updraft_check_same_times() {
 	}
 }
 
-// Visit the site in the background every 3 minutes - ensures that backups can progress if you've got the UD settings page open
-setInterval(function() {jQuery.get(updraft_siteurl+'/wp-cron.php');}, 180000);
+// Visit the site in the background every 3.5 minutes - ensures that backups can progress if you've got the UD settings page open
+setInterval(function() {jQuery.get(updraft_siteurl+'/wp-cron.php');}, 210000);
 
 function updraft_activejobs_delete(jobid) {
 	jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'activejobs_delete', jobid: jobid, nonce: updraft_credentialtest_nonce }, function(response) {
@@ -220,7 +220,7 @@ function updraft_downloader(base, nonce, what, whicharea, set_contents, prettyda
 		var itext = (set_contents[i] == 0) ? '' : ' ('+show_index+')';
 		if (!jQuery('#'+stid).length) {
 			var prdate = (prettydate) ? prettydate : nonce;
-			jQuery(whicharea).append('<div style="clear:left; border: 1px solid; padding: 8px; margin-top: 4px; max-width:840px;" id="'+stid+'"><button onclick="jQuery(\'#'+stid+'\').fadeOut().remove();" type="button" style="float:right; margin-bottom: 8px;">X</button><strong>Download '+what+itext+' ('+prdate+')</strong>:<div class="raw">'+updraftlion.begunlooking+'</div><div class="file" id="'+stid+'_st"><div class="dlfileprogress" style="width: 0;"></div></div>');
+			jQuery(whicharea).append('<div style="clear:left; border: 1px solid; padding: 8px; margin-top: 4px; max-width:840px;" id="'+stid+'" class="updraftplus_downloader"><button onclick="jQuery(\'#'+stid+'\').fadeOut().remove();" type="button" style="float:right; margin-bottom: 8px;">X</button><strong>Download '+what+itext+' ('+prdate+')</strong>:<div class="raw">'+updraftlion.begunlooking+'</div><div class="file" id="'+stid+'_st"><div class="dlfileprogress" style="width: 0;"></div></div>');
 			// <b><span class="dlname">??</span></b> (<span class="dlsofar">?? KB</span>/<span class="dlsize">??</span> KB)
 			(function(base, nonce, what, i) {
 				setTimeout(function(){updraft_downloader_status(base, nonce, what, i);}, 300);
@@ -232,6 +232,27 @@ function updraft_downloader(base, nonce, what, whicharea, set_contents, prettyda
 	// We don't want the form to submit as that replaces the document
 	return false;
 }
+
+// Catch HTTP errors if the download status check returns them
+jQuery( document ).ajaxError(function( event, jqxhr, settings, exception ) {
+	if (settings.url.search(ajaxurl) == 0) {
+		if (settings.url.search('subaction=downloadstatus')) {
+			var timestamp = settings.url.match(/timestamp=\d+/);
+			var type = settings.url.match(/type=[a-z]+/);
+			var findex = settings.url.match(/findex=\d+/);
+			var base = settings.url.match(/base=[a-z_]+/);
+			findex = (findex instanceof Array) ? parseInt(findex[0].substr(7)) : 0;
+			type = (type instanceof Array) ? type[0].substr(5) : '';
+			base = (base instanceof Array) ? base[0].substr(5) : '';
+			timestamp = (timestamp instanceof Array) ? parseInt(timestamp[0].substr(10)) : 0;
+			if ('' != base && '' != type && timestamp >0) {
+				var stid = base+timestamp+'_'+type+'_'+findex;
+				jQuery('#'+stid+' .raw').html('<strong>'+updraftlion.error+'</strong> '+updraftlion.servererrorcode);
+			}
+		}
+	}
+});
+
 function updraft_restorer_checkstage2(doalert) {
 	// How many left?
 	var stilldownloading = jQuery('#ud_downloadstatus2 .file').length;
@@ -280,11 +301,13 @@ function updraft_downloader_status(base, nonce, what, findex) {
 	// Get the DOM id of the status div (add _st for the id of the file itself)
 	var stid = base+nonce+'_'+what+'_'+findex;
 	if (!jQuery('#'+stid).length) { return; }
-// 								console.log(stid+": "+jQuery('#'+stid).length);
+//console.log(stid+": "+jQuery('#'+stid).length);
 	dlstatus_sdata.nonce=updraft_credentialtest_nonce;
 	dlstatus_sdata.timestamp = nonce;
 	dlstatus_sdata.type = what;
 	dlstatus_sdata.findex = findex;
+	// This goes in because we want to read it back on any ajaxError event
+	dlstatus_sdata.base = base;
 	jQuery.get(ajaxurl, dlstatus_sdata, function(response) {
 		nexttimer = 1250;
 		if (dlstatus_lastlog == response) { nexttimer = 3000; }
@@ -387,25 +410,26 @@ jQuery(document).ready(function($){
 				//alert(jQuery(y).val());
 			}
 		});
-				if (anyselected == 1) {
-					if (updraft_restore_stage == 1) {
-						jQuery('#updraft-restore-modal-stage1').slideUp('slow');
-						jQuery('#updraft-restore-modal-stage2').show();
-						updraft_restore_stage = 2;
-						var pretty_date = jQuery('.updraft_restore_date').first().text();
-						// Create the downloader active widgets
-						for (var i=0; i<whichselected.length; i++) {
-							updraft_downloader('udrestoredlstatus_', jQuery('#updraft_restore_timestamp').val(), whichselected[i][0], '#ud_downloadstatus2', whichselected[i][1], pretty_date);
-						}
-						// Make sure all are downloaded
-					} else if (updraft_restore_stage == 2) {
-						updraft_restorer_checkstage2(1);
-					} else if (updraft_restore_stage == 3) {
-						jQuery('#updraft_restore_form').submit();
-					}
-				} else {
-					alert('You did not select any components to restore. Please select at least one, and then try again.');
+		if (anyselected == 1) {
+			if (updraft_restore_stage == 1) {
+				jQuery('#updraft-restore-modal-stage1').slideUp('slow');
+				jQuery('#updraft-restore-modal-stage2').show();
+				updraft_restore_stage = 2;
+				var pretty_date = jQuery('.updraft_restore_date').first().text();
+				// Create the downloader active widgets
+				for (var i=0; i<whichselected.length; i++) {
+					updraft_downloader('udrestoredlstatus_', jQuery('#updraft_restore_timestamp').val(), whichselected[i][0], '#ud_downloadstatus2', whichselected[i][1], pretty_date);
 				}
+				// Make sure all are downloaded
+			} else if (updraft_restore_stage == 2) {
+				updraft_restorer_checkstage2(1);
+			} else if (updraft_restore_stage == 3) {
+				jQuery('#updraft-restore-modal-stage2a').html(updraftlion.restoreproceeding);
+				jQuery('#updraft_restore_form').submit();
+			}
+		} else {
+			alert('You did not select any components to restore. Please select at least one, and then try again.');
+		}
 	};
 	updraft_restore_modal_buttons[updraftlion.cancel] = function() { jQuery(this).dialog("close"); };
 
@@ -428,12 +452,12 @@ jQuery(document).ready(function($){
 			setTimeout(function() {jQuery.get(updraft_siteurl);}, 5100);
 			// If the site has cron or loopbacks disabled, then there may be a backlog to clear... if the site does not have cron disabled, then these have no performance impact
 			setTimeout(function() {jQuery.get(updraft_siteurl+'/wp-cron.php', function() {
-				setTimeout(function() { jQuery.get(updraft_siteurl+'/wp-cron.php', function() {
+				setTimeout(function() { jQuery.get(updraft_siteurl, function() {
 					setTimeout(function() { jQuery.get(updraft_siteurl+'/wp-cron.php', function() {
-						setTimeout(function() { jQuery.get(updraft_siteurl+'/wp-cron.php'); }, 10000);
+						setTimeout(function() { jQuery.get(updraft_siteurl); }, 10000);
 					}); }, 10000);
 				});}, 10000);
-			} );}, 5600);
+			} );}, 13600);
 			//setTimeout(function() {updraft_showlastlog();}, 6000);
 			setTimeout(function() {updraft_activejobs_update();}, 6000);
 			setTimeout(function() {

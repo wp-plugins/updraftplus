@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.7.19
+Version: 1.7.20
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -16,6 +16,9 @@ TODO - some of these are out of date/done, needs pruning
 // Raise a warning for probably-too-large email attachments (make intelligent - i.e. record what's the largest succesfully despatched so far? Or is that not relevant, since that only tells us about the first link?)
 // After Oct 15 2013: Remove page(s) from websites discussing W3TC
 // Change migrate window: 1) Retain link to article 2) Have selector to choose which backup set to migrate - or a fresh one 3) Have option for FTP/SFTP/SCP despatch 4) Have big "Go" button. Have some indication of what happens next. Test the login first. Have the remote site auto-scan its directory + pick up new sets. Have a way of querying the remote site for its UD-dir. Have a way of saving the settings as a 'profile'. Or just save the last set of settings (since mostly will be just one place to send to). Implement an HTTP/JSON method for sending files too.
+// ancient .table.gz files need to be purged by the temp reaper
+// Backup Now should have an option for files-only/database-only
+// Prettify shop page: http://wordpress.org/plugins/pricing-table-extended/
 // Exempt UD itself from a plugins restore? (will options be out-of-sync? exempt options too?)
 // Post restore/migrate, check updraft_dir, and reset if non-existent
 // Auto-empty caches post-restore/post-migration (prevent support requests from people with state/wrong cacheing data)

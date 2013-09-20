@@ -876,7 +876,7 @@ class UpdraftPlus_Backup {
 				$updraftplus->log("Table $table: Total expected rows (approximate): ".$rows);
 				$this->stow("# Approximate rows expected in table: $rows\n");
 				if ($rows > UPDRAFTPLUS_WARN_DB_ROWS) {
-					$updraftplus->log(sprintf(__("Table %s has very many rows (%s) - we hope your web hosting company gives you enough resources to dump out that table in the backup", 'updraftplus'), $table, $rows), 'warning');
+					$updraftplus->log(sprintf(__("Table %s has very many rows (%s) - we hope your web hosting company gives you enough resources to dump out that table in the backup", 'updraftplus'), $table, $rows), 'warning', 'manyrows_'.$table);
 				}
 			}
 

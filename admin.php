@@ -85,7 +85,9 @@ class UpdraftPlus_Admin {
 
 		wp_localize_script( 'updraftplus-admin-ui', 'updraftlion', array(
 			'rescanning' => __('Rescanning (looking for backups that you have uploaded manually into the internal backup store)...','updraftplus'),
+			'restoreproceeding' => __('The restore operation has begun. Do not press stop or close your browser until it reports itself as having finished.', 'updraftplus'),
 			'unexpectedresponse' => __('Unexpected response:','updraftplus'),
+			'servererrorcode' => __('The web server returned an error code (try again, or check your web server logs)', 'updraftplus'),
 			'calculating' => __('calculating...','updraftplus'),
 			'begunlooking' => __('Begun looking for this entity','updraftplus'),
 			'stilldownloading' => __('Some files are still downloading or being processed - please wait.', 'updraftplus'),
@@ -1444,7 +1446,7 @@ CREATE TABLE $wpdb->signups (
 						</p>
 						<p style="max-width: 740px;"><ul style="list-style: disc inside;">
 						<li><strong><?php _e('Downloading','updraftplus');?>:</strong> <?php _e("Pressing a button for Database/Plugins/Themes/Uploads/Others will make UpdraftPlus try to bring the backup file back from the remote storage (if any - e.g. Amazon S3, Dropbox, Google Drive, FTP) to your webserver. Then you will be allowed to download it to your computer. If the fetch from the remote storage stops progressing (wait 30 seconds to make sure), then press again to resume. Remember that you can also visit the cloud storage vendor's website directly.",'updraftplus');?></li>
-						<li><strong><?php _e('Restoring','updraftplus');?>:</strong> <?php _e("Press the button for the backup you wish to restore. If your site is large and you are using remote storage, then you should first click on each entity in order to retrieve it back to the webserver. This will prevent time-outs from occuring during the restore process itself.",'updraftplus');?> <?php _e('More tasks:','updraftplus');?> <a href="#" onclick="jQuery('#updraft-plupload-modal').slideToggle(); return false;"><?php _e('upload backup files','updraftplus');?></a> | <a href="#" onclick="updraft_updatehistory(1); return false;" title="<?php _e('Press here to look inside your UpdraftPlus directory (in your web hosting space) for any new backup sets that you have uploaded. The location of this directory is set in the expert settings, below.','updraftplus'); ?>"><?php _e('rescan folder for new backup sets','updraftplus');?></a></li>
+						<li><strong><?php _e('Restoring:','updraftplus');?></strong> <?php _e('Press the Restore button next to the chosen backup set.', 'updraftplus');?> <strong><?php _e('More tasks:','updraftplus');?></strong> <a href="#" onclick="jQuery('#updraft-plupload-modal').slideToggle(); return false;"><?php _e('upload backup files','updraftplus');?></a> | <a href="#" onclick="updraft_updatehistory(1); return false;" title="<?php _e('Press here to look inside your UpdraftPlus directory (in your web hosting space) for any new backup sets that you have uploaded. The location of this directory is set in the expert settings, below.','updraftplus'); ?>"><?php _e('rescan folder for new backup sets','updraftplus');?></a></li>
 						<li><strong><?php _e('Opera web browser','updraftplus');?>:</strong> <?php _e('If you are using this, then turn Turbo/Road mode off.','updraftplus');?></li>
 
 						<?php
@@ -1713,7 +1715,7 @@ CREATE TABLE $wpdb->signups (
 		#if (!is_array($jobdata)) $jobdata = array();
 		if (!isset($jobdata['backup_time'])) return '';
 
-		$began_at = (isset($jobdata['backup_time'])) ? get_date_from_gmt(gmdate('Y-m-d H:i:s', $jobdata['backup_time']), 'D, F j, Y H:i') : '?';
+		$began_at = (isset($jobdata['backup_time'])) ? get_date_from_gmt(gmdate('Y-m-d H:i:s', (int)$jobdata['backup_time']), 'D, F j, Y H:i') : '?';
 
 		$jobstatus = empty($jobdata['jobstatus']) ? 'unknown' : $jobdata['jobstatus'];
 		$stage = 0;
@@ -1806,10 +1808,11 @@ CREATE TABLE $wpdb->signups (
 			}
 		}
 
-		$next_res_txt = ($is_oneshot) ? '' : ' - '.sprintf(__("next resumption: %d (after %ss)", 'updraftplus'), $next_resumption, $time-time()). ' ';
+		$next_res_after = $time-time();
+		$next_res_txt = ($is_oneshot) ? '' : ' - '.sprintf(__("next resumption: %d (after %ss)", 'updraftplus'), $next_resumption, $next_res_after). ' ';
 		$last_activity_txt = ($last_checkin_ago >= 0) ? ' - '.sprintf(__('last activity: %ss ago', 'updraftplus'), floor($last_checkin_ago)).' ' : '';
 
-		if ($last_checkin_ago < 50 || $is_oneshot) {
+		if (($last_checkin_ago < 50 && $next_res_after>30) || $is_oneshot) {
 			$show_inline_info = $last_activity_txt;
 			$title_info = $next_res_txt;
 		} else {
@@ -1976,7 +1979,7 @@ CREATE TABLE $wpdb->signups (
 		if($updraft_last_backup) {
 
 			// Convert to GMT, then to blog time
-			$last_backup_text = "<span style=\"color:".(($updraft_last_backup['success']) ? 'green' : 'black').";\">".get_date_from_gmt(gmdate('Y-m-d H:i:s', $updraft_last_backup['backup_time']), 'D, F j, Y H:i').'</span><br>';
+			$last_backup_text = "<span style=\"color:".(($updraft_last_backup['success']) ? 'green' : 'black').";\">".get_date_from_gmt(gmdate('Y-m-d H:i:s', (int)$updraft_last_backup['backup_time']), 'D, F j, Y H:i').'</span><br>';
 
 			if (is_array($updraft_last_backup['errors'])) {
 				foreach ($updraft_last_backup['errors'] as $err) {
@@ -2413,7 +2416,7 @@ CREATE TABLE $wpdb->signups (
 			# https://core.trac.wordpress.org/ticket/25331
 			# $pretty_date = date_i18n('Y-m-d G:i',$key);
 			// Convert to blog time zone
-			$pretty_date = get_date_from_gmt(gmdate('Y-m-d H:i:s', $key), 'Y-m-d G:i');
+			$pretty_date = get_date_from_gmt(gmdate('Y-m-d H:i:s', (int)$key), 'Y-m-d G:i');
 
 			$esc_pretty_date=esc_attr($pretty_date);
 			$entities = '';

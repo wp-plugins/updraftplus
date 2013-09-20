@@ -128,6 +128,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 = Development version - not yet released/supported =
 * TWEAK: Add semaphore locking to prevent WP's cron system kicking off multiple jobs on overloaded systems
+* TWEAK: Catch and display some previously uncaught AJAX notices when restoring, and display information on the restore process earlier
 
 = 1.7.18 - 2013/09/17 =
 * FEATURE: <a href="http://updraftplus.com/shop/morestorage/">New "more storage" add-on</a>, enabling backing up to multiple storage destinations
