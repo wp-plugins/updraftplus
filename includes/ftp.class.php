@@ -173,12 +173,9 @@ class UpdraftPlus_ftp_wrapper {
 	}
  
 	public function make_dir($directory) {
-		if (ftp_mkdir($this->conn_id, $directory))
-		{
+		if (ftp_mkdir($this->conn_id, $directory)) {
 			return true;
-		}
-		else 
-		{
+		} else {
 			return false;
 		}
 	}
@@ -206,8 +203,7 @@ class UpdraftPlus_ftp_wrapper {
 	}
  
 	public function dir_list($directory) {
-		$contents = ftp_nlist($this->conn_id, $directory);
-		return $contents;
+		return ftp_nlist($this->conn_id, $directory);
 	}
  
 	public function cdup() {
@@ -223,10 +219,7 @@ class UpdraftPlus_ftp_wrapper {
 	}
  
 	public function __destruct() {
-		if ($this->conn_id)
-		{
-			ftp_close($this->conn_id);
-		}
+		if ($this->conn_id) ftp_close($this->conn_id);
 	}
 }
 ?>

@@ -75,7 +75,7 @@ class UpdraftPlus_BackupModule_s3 {
 		$config = $this->get_config();
 		$whoweare = $config['whoweare'];
 		$whoweare_key = $config['key'];
-		$whoweare_keys = substr($whoweare_key, 0, 1);
+		$whoweare_keys = substr($whoweare_key, 0, 3);
 
 		$s3 = $this->getS3(
 			$config['login'],
@@ -102,7 +102,7 @@ class UpdraftPlus_BackupModule_s3 {
 			if (empty($region) && $config['key'] == 's3') $region = $s3->getBucketLocation($bucket_name);
 			$this->set_endpoint($s3, $region);
 
-			$updraft_dir = $updraftplus->backups_dir_location().'/';
+			$updraft_dir = trailingslashit($updraftplus->backups_dir_location());
 
 			foreach($backup_array as $key => $file) {
 
@@ -119,7 +119,7 @@ class UpdraftPlus_BackupModule_s3 {
 
 				$filepath = $bucket_path.$file;
 
-				// This is extra code for the 1-chunk case, but less overhead (no bothering with transient data)
+				// This is extra code for the 1-chunk case, but less overhead (no bothering with job data)
 				if ($chunks < 2) {
 					$s3->setExceptions(true);
 					try {
@@ -202,7 +202,7 @@ class UpdraftPlus_BackupModule_s3 {
 							}
 						} catch (Exception $e) {
 							$updraftplus->log("$whoweare re-assembly error ($key): ".$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
-							$updraftplus->log($e->getMessage().": ".sprint(__('%s re-assembly error (%s): (see log file for more)','updraftplus'),$whoweare, $e->getMessage()), 'error');
+							$updraftplus->log($e->getMessage().": ".sprintf(__('%s re-assembly error (%s): (see log file for more)','updraftplus'),$whoweare, $e->getMessage()), 'error');
 						}
 						// Remember to unset, as the deletion code later reuses the object
 						$s3->setExceptions(false);
@@ -211,7 +211,7 @@ class UpdraftPlus_BackupModule_s3 {
 					}
 				}
 			}
-			$updraftplus_backup->prune_retained_backups($config['key'], $this, array('s3_object' => $s3, 's3_orig_bucket_name' => $orig_bucket_name));
+			return array('s3_object' => $s3, 's3_orig_bucket_name' => $orig_bucket_name);
 		} else {
 			$updraftplus->log("$whoweare Error: Failed to create bucket $bucket_name.");
 			$updraftplus->log(sprintf(__('%s Error: Failed to create bucket %s. Check your permissions and credentials.','updraftplus'),$whoweare, $bucket_name), 'error');
