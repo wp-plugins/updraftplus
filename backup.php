@@ -372,7 +372,7 @@ class UpdraftPlus_Backup {
 			$fullpath = $updraft_dir.'/'.$dofile;
 			// delete it if it's locally available
 			if (file_exists($fullpath)) {
-				$updraftplus->log("Deleting local copy ($fullpath)");
+				$updraftplus->log("Deleting local copy ($dofile)");
 				@unlink($fullpath);
 			}
 		}
@@ -1037,6 +1037,7 @@ class UpdraftPlus_Backup {
 		$this->stow("# Created by UpdraftPlus version ".$updraftplus->version." (http://updraftplus.com)\n");
 		$this->stow("# WordPress Version: $wp_version, running on PHP ".phpversion()." (".$_SERVER["SERVER_SOFTWARE"]."), MySQL $mysql_version\n");
 		$this->stow("# Backup of: ".site_url()."\n");
+		$this->stow("# Home URL: ".home_url()."\n");
 		$this->stow("# Table prefix: ".$updraftplus->get_table_prefix()."\n");
 		$this->stow("# Site info: multisite=".(is_multisite() ? '1' : '0')."\n");
 		$this->stow("# Site info: end\n");
@@ -1247,7 +1248,7 @@ class UpdraftPlus_Backup {
 		@touch($destination);
 
 		if (count($this->zipfiles_dirbatched)>0 || count($this->zipfiles_batched)>0) {
-			$updraftplus->log(sprintf("Remaining entities to add to zip file: %d directories, %d files", count($this->zipfiles_dirbatched), count($this->zipfiles_batched)));
+			$updraftplus->log(sprintf("Total entities for the zip file: %d directories, %d files, %s Mb", count($this->zipfiles_dirbatched), count($this->zipfiles_batched), round($this->makezip_recursive_batchedbytes/1048576,1)));
 			$add_them = $this->makezip_addfiles();
 			if (is_wp_error($add_them)) {
 				foreach ($add_them->get_error_messages() as $msg) {
@@ -1269,12 +1270,18 @@ class UpdraftPlus_Backup {
 		if ($this->zipfiles_added > 0 || $error_occured == false) {
 			// ZipArchive::addFile sometimes fails
 			if ((file_exists($destination) || $this->index == $original_index) && @filesize($destination) < 90 && 'UpdraftPlus_ZipArchive' == $this->use_zip_object) {
-				$updraftplus->log("ZipArchive::addFile apparently failed ($last_error, type=$whichone, size=".filesize($destination).") - retrying with PclZip");
+				$updraftplus->log("makezip_addfiles(ZipArchive) apparently failed ($last_error, type=$whichone, size=".filesize($destination).") - retrying with PclZip");
 				$this->use_zip_object = 'UpdraftPlus_PclZip';
 				return $this->make_zipfile($source, $backup_file_basename, $whichone);
 			}
 			return true;
 		} else {
+			# If ZipArchive, and if an error occurred, and if apparently ZipArchive did nothing, then immediately retry with PclZip. Q. Why this specific criteria? A. Because we've seen it in the wild, and it's quicker to try PcLZip now than waiting until resumption 9 when the automatic switchover happens.
+			if ($error_occurred != false && (file_exists($destination) || $this->index == $original_index) && @filesize($destination) < 90 && 'UpdraftPlus_ZipArchive' == $this->use_zip_object) {
+				$updraftplus->log("makezip_addfiles(ZipArchive) apparently failed ($last_error, type=$whichone, size=".filesize($destination).") - retrying with PclZip");
+				$this->use_zip_object = 'UpdraftPlus_PclZip';
+				return $this->make_zipfile($source, $backup_file_basename, $whichone);
+			}
 			$updraftplus->log("makezip failure: zipfiles_added=".$this->zipfiles_added.", error_occurred=".$error_occurred." (method=".$this->use_zip_object.")");
 			return false;
 		}

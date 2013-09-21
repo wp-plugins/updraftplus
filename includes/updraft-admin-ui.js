@@ -444,9 +444,17 @@ jQuery(document).ready(function($){
 
 	var backupnow_modal_buttons = {};
 	backupnow_modal_buttons[updraftlion.backupnow] = function() {
+		
+		var backupnow_nodb = jQuery('#backupnow_nodb').is(':checked') ? 1 : 0;
+		var backupnow_nofiles = jQuery('#backupnow_nofiles').is(':checked') ? 1 : 0;
+		if (backupnow_nodb && backupnow_nofiles) {
+			alert(updraftlion.excludedeverything);
+			return;
+		}
+		
 		jQuery(this).dialog("close");
 		jQuery('#updraft_backup_started').html('<em>'+updraftlion.requeststart+'</em>').slideDown('');
-		jQuery.post(ajaxurl, { action: 'updraft_ajax', subaction: 'backupnow', nonce: updraft_credentialtest_nonce }, function(response) {
+		jQuery.post(ajaxurl, { action: 'updraft_ajax', subaction: 'backupnow', nonce: updraft_credentialtest_nonce, backupnow_nodb: backupnow_nodb, backupnow_nofiles: backupnow_nofiles }, function(response) {
 			jQuery('#updraft_backup_started').html(response);
 			// Kick off some activity to get WP to get the scheduled task moving as soon as possible
 			setTimeout(function() {jQuery.get(updraft_siteurl);}, 5100);
@@ -457,9 +465,7 @@ jQuery(document).ready(function($){
 				jQuery('#updraft_lastlogmessagerow').fadeOut('slow', function() {
 					jQuery(this).fadeIn('slow');
 				});
-			},
-			3200
-				);
+			}, 3200);
 				setTimeout(function() {jQuery('#updraft_backup_started').fadeOut('slow');}, 60000);
 				// Should be redundant (because of the polling for the last log line), but harmless (invokes page load)
 		});
@@ -467,7 +473,7 @@ jQuery(document).ready(function($){
 	backupnow_modal_buttons[updraftlion.cancel] = function() { jQuery(this).dialog("close"); };
 	
 	jQuery("#updraft-backupnow-modal" ).dialog({
-		autoOpen: false, height: 265, width: 390, modal: true,
+		autoOpen: false, height: 295, width: 440, modal: true,
 		buttons: backupnow_modal_buttons
 	});
 

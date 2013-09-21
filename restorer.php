@@ -511,7 +511,7 @@ class Updraft_Restorer extends WP_Upgrader {
 				@$wp_filesystem->chmod($wp_filesystem_dir, 0775, true);
 			break;
 			case 'db':
-				do_action('updraftplus_restored_db', array('expected_oldsiteurl' => $old_siteurl), $import_table_prefix);
+				do_action('updraftplus_restored_db', array('expected_oldsiteurl' => $old_siteurl, 'expected_oldhome' => $old_home), $import_table_prefix);
 				$this->flush_rewrite_rules();
 			break;
 			default:
@@ -654,9 +654,9 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		$this->start_time = microtime(true);
 
-		// TODO: Print a warning if restoring to a different WP version
 		$old_wpversion = '';
 		$old_siteurl = '';
+		$old_home = '';
 		$old_table_prefix = '';
 		$old_siteinfo = array();
 		$gathering_siteinfo = true;
@@ -714,6 +714,10 @@ class Updraft_Restorer extends WP_Upgrader {
 					$old_siteurl = $matches[1];
 					echo '<strong>'.__('Backup of:', 'updraftplus').'</strong> '.htmlspecialchars($old_siteurl).'<br>';
 					do_action('updraftplus_restore_db_record_old_siteurl', $old_siteurl);
+				} elseif ('' == $old_home && preg_match('/^\# Home URL: (http(.*))$/', $buffer, $matches)) {
+					$old_home = $matches[1];
+					if ($old_siteurl && $old_home != $old_siteurl) echo '<strong>'.__('Site home:', 'updraftplus').'</strong> '.htmlspecialchars($old_home).'<br>';
+					do_action('updraftplus_restore_db_record_old_home', $old_home);
 				} elseif ('' == $old_table_prefix && preg_match('/^\# Table prefix: (\S+)$/', $buffer, $matches)) {
 					$old_table_prefix = $matches[1];
 					echo '<strong>'.__('Old table prefix:', 'updraftplus').'</strong> '.htmlspecialchars($old_table_prefix).'<br>';
@@ -807,20 +811,26 @@ class Updraft_Restorer extends WP_Upgrader {
 				// This CREATE TABLE command may be the de-facto mark for the end of processing a previous table (which is so if this is not the first table in the SQL dump)
 				if ($restoring_table) {
 
-					$this->restored_table($restoring_table, $import_table_prefix, $old_table_prefix);
-					
 					// After restoring the options table, we can set old_siteurl if on legacy (i.e. not already set)
 					if ($restoring_table == $import_table_prefix.'options') {
-						if ('' == $old_siteurl) {
+						if ('' == $old_siteurl || '' == $old_home) {
 							global $updraftplus_addons_migrator;
 							if (isset($updraftplus_addons_migrator->new_blogid)) switch_to_blog($updraftplus_addons_migrator->new_blogid);
 
-							$old_siteurl = $wpdb->get_row("SELECT option_value FROM $wpdb->options WHERE option_name='siteurl'")->option_value;
-							do_action('updraftplus_restore_db_record_old_siteurl', $old_siteurl);
-							
+							if ('' == $old_siteurl) {
+								$old_siteurl = $wpdb->get_row("SELECT option_value FROM $wpdb->options WHERE option_name='siteurl'")->option_value;
+								do_action('updraftplus_restore_db_record_old_siteurl', $old_siteurl);
+							}
+							if ('' == $old_home) {
+								$old_home = $wpdb->get_row("SELECT option_value FROM $wpdb->options WHERE option_name='home'")->option_value;
+								do_action('updraftplus_restore_db_record_old_home', $old_home);
+							}
 							if (isset($updraftplus_addons_migrator->new_blogid)) restore_current_blog();
 						}
 					}
+
+					$this->restored_table($restoring_table, $import_table_prefix, $old_table_prefix);
+
 				}
 
 				$engine = "(?)"; $engine_change_message = '';
@@ -985,7 +995,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			// The danger situation is absolute and points somewhere that is now perhaps not accessible at all
 			if (!empty($new_upload_path) && $new_upload_path != $this->prior_upload_path && strpos($new_upload_path, '/') === 0) {
 				if (!file_exists($new_upload_path)) {
-					echo sprintf(__("Uploads path (%s) does not exist - resetting (%s)",'updraftplus'), $new_upload_path, $this->prior_upload_path);
+					echo sprintf(__("Uploads path (%s) does not exist - resetting (%s)",'updraftplus'), $new_upload_path, $this->prior_upload_path)."<br>";
 					update_option('upload_path', $this->prior_upload_path);
 				}
 			}
@@ -1005,20 +1015,16 @@ class Updraft_Restorer extends WP_Upgrader {
 
 			$errors_occurred = false;
 			foreach ($meta_keys as $meta_key ) {
-				
-
 				//Create new meta key
 				$new_meta_key = $import_table_prefix . substr($meta_key->meta_key, $old_prefix_length);
 				
 				$query = "UPDATE " . $import_table_prefix . "usermeta 
-										SET meta_key='".$new_meta_key."' 
-										WHERE umeta_id=".$meta_key->umeta_id;
+					SET meta_key='".$new_meta_key."' 
+					WHERE umeta_id=".$meta_key->umeta_id;
 
-				if (false === $wpdb->query($query)) {
-					$errors_occurred = true;
-				}
-			
+				if (false === $wpdb->query($query)) $errors_occurred = true;			
 			}
+
 			if ($errors_occurred) {
 				echo __('Error', 'updraftplus');
 			} else {
