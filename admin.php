@@ -1648,7 +1648,7 @@ CREATE TABLE $wpdb->signups (
 
 				echo __('PHP has support for ZipArchive::addFile:', 'updraftplus').' '.$ziparchive_exists.'<br>';
 
-				$binzip = $updraftplus->find_working_bin_zip(false);
+				$binzip = $updraftplus->find_working_bin_zip(false, false);
 
 				echo __('zip executable found:', 'updraftplus').' '.((is_string($binzip)) ? __('Yes').': '.$binzip : __('No')).'<br>';
 

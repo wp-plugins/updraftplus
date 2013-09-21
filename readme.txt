@@ -131,6 +131,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: Restorer now handles hand-moved WP site directories (where they differ from the website base directory)
 * TWEAK: Switch zip engines from ZipArchive earlier if it appears to be broken
 * TWEAK: Now cleans up some previously un-caught temporary files if the backup aborted unexpectedly
+* TWEAK: Cache the results of looking for a zip executable for the duration of the job
 
 = 1.7.20 - 2013/09/20 =
 * TWEAK: Add semaphore locking to prevent WP's cron system kicking off multiple jobs on overloaded systems

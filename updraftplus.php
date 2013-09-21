@@ -15,8 +15,8 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // Raise a warning for probably-too-large email attachments (make intelligent - i.e. record what's the largest succesfully despatched so far? Or is that not relevant, since that only tells us about the first link?)
 // After Oct 15 2013: Remove page(s) from websites discussing W3TC
+// Upon database restore, remove all resumption jobs from the scheduler. And/or never save them.
 // Change migrate window: 1) Retain link to article 2) Have selector to choose which backup set to migrate - or a fresh one 3) Have option for FTP/SFTP/SCP despatch 4) Have big "Go" button. Have some indication of what happens next. Test the login first. Have the remote site auto-scan its directory + pick up new sets. Have a way of querying the remote site for its UD-dir. Have a way of saving the settings as a 'profile'. Or just save the last set of settings (since mostly will be just one place to send to). Implement an HTTP/JSON method for sending files too.
-// Backup Now should have an option for files-only/database-only
 // Prettify shop page: http://wordpress.org/plugins/pricing-table-extended/
 // Exempt UD itself from a plugins restore? (will options be out-of-sync? exempt options too?)
 // Post restore/migrate, check updraft_dir, and reset if non-existent
@@ -605,114 +605,124 @@ class UpdraftPlus {
 	}
 
 	# We require -@ and -u -r to work - which is the usual Linux binzip
-	function find_working_bin_zip($logit = true) {
+	function find_working_bin_zip($logit = true, $cacheit = true) {
 		if ($this->detect_safe_mode()) return false;
 		// The hosting provider may have explicitly disabled the popen or proc_open functions
-		if (!function_exists('popen') || !function_exists('proc_open')) return false;
+		if (!function_exists('popen') || !function_exists('proc_open')) {
+			if ($cacheit) $this->jobdata_set('binzip', false);
+			return false;
+		}
+
+		$existing = $this->jobdata_get('binzip', null);
+		# Theoretically, we could have moved machines, due to a migration
+		if (null !== $existing && (!is_string($existing) || @is_executable($existing))) return $existing;
+
 		$updraft_dir = $this->backups_dir_location();
 		foreach (explode(',', UPDRAFTPLUS_ZIP_EXECUTABLE) as $potzip) {
 			if ($logit) $this->log("Testing: $potzip");
-			if (@is_executable($potzip)) {
-				# Test it, see if it is compatible with Info-ZIP
-				# If you have another kind of zip, then feel free to tell me about it
-				@mkdir($updraft_dir.'/binziptest/subdir1/subdir2', 0777, true);
-				file_put_contents($updraft_dir.'/binziptest/subdir1/subdir2/test.html', '<html></body><a href="http://updraftplus.com">UpdraftPlus is a great backup and restoration plugin for WordPress.</body></html>');
-				@unlink($updraft_dir.'/binziptest/test.zip');
-				if (is_file($updraft_dir.'/binziptest/subdir1/subdir2/test.html')) {
+			if (!@is_executable($potzip)) continue;
 
-					$exec = "cd ".escapeshellarg($updraft_dir)."; $potzip -v -u -r binziptest/test.zip binziptest/subdir1";
+			# Test it, see if it is compatible with Info-ZIP
+			# If you have another kind of zip, then feel free to tell me about it
+			@mkdir($updraft_dir.'/binziptest/subdir1/subdir2', 0777, true);
+			file_put_contents($updraft_dir.'/binziptest/subdir1/subdir2/test.html', '<html></body><a href="http://updraftplus.com">UpdraftPlus is a great backup and restoration plugin for WordPress.</body></html>');
+			@unlink($updraft_dir.'/binziptest/test.zip');
+			if (is_file($updraft_dir.'/binziptest/subdir1/subdir2/test.html')) {
+
+				$exec = "cd ".escapeshellarg($updraft_dir)."; $potzip -v -u -r binziptest/test.zip binziptest/subdir1";
+
+				$all_ok=true;
+				$handle = popen($exec, "r");
+				if ($handle) {
+					while (!feof($handle)) {
+						$w = fgets($handle);
+						if ($w && $logit) $this->log("Output: ".trim($w));
+					}
+					$ret = pclose($handle);
+					if ($ret !=0) {
+						if ($logit) $this->log("Binary zip: error (code: $ret)");
+						$all_ok = false;
+					}
+				} else {
+					if ($logit) $this->log("Error: popen failed");
+					$all_ok = false;
+				}
+
+				# Now test -@
+				if (true == $all_ok) {
+					file_put_contents($updraft_dir.'/binziptest/subdir1/subdir2/test2.html', '<html></body><a href="http://updraftplus.com">UpdraftPlus is a really great backup and restoration plugin for WordPress.</body></html>');
+					
+					$exec = $potzip." -v -@ binziptest/test.zip";
 
 					$all_ok=true;
-					$handle = popen($exec, "r");
-					if ($handle) {
-						while (!feof($handle)) {
-							$w = fgets($handle);
-							if ($w && $logit) $this->log("Output: ".trim($w));
-						}
-						$ret = pclose($handle);
-						if ($ret !=0) {
-							if ($logit) $this->log("Binary zip: error (code: $ret)");
+
+					$descriptorspec = array(
+						0 => array('pipe', 'r'),
+						1 => array('pipe', 'w'),
+						2 => array('pipe', 'w')
+					);
+					$handle = proc_open($exec, $descriptorspec, $pipes, $updraft_dir);
+					if (is_resource($handle)) {
+						if (!fwrite($pipes[0], "binziptest/subdir1/subdir2/test2.html\n")) {
+							@fclose($pipes[0]);
+							@fclose($pipes[1]);
+							@fclose($pipes[2]);
 							$all_ok = false;
+						} else {
+							fclose($pipes[0]);
+							while (!feof($pipes[1])) {
+								$w = fgets($pipes[1]);
+								if ($w && $logit) $this->log("Output: ".trim($w));
+							}
+							fclose($pipes[1]);
+							
+							while (!feof($pipes[2])) {
+								$last_error = fgets($pipes[2]);
+								if (!empty($last_error) && $logit) $this->log("Error output: ".trim($w));
+							}
+							fclose($pipes[2]);
+
+							$ret = proc_close($handle);
+							if ($ret !=0) {
+								if ($logit) $this->log("Binary zip: error (code: $ret)");
+								$all_ok = false;
+							}
+
 						}
+
 					} else {
-						if ($logit) $this->log("Error: popen failed");
+						if ($logit) $this->log("Error: proc_open failed");
 						$all_ok = false;
 					}
 
-					# Now test -@
-					if (true == $all_ok) {
-						file_put_contents($updraft_dir.'/binziptest/subdir1/subdir2/test2.html', '<html></body><a href="http://updraftplus.com">UpdraftPlus is a really great backup and restoration plugin for WordPress.</body></html>');
-						
-						$exec = $potzip." -v -@ binziptest/test.zip";
+				}
 
-						$all_ok=true;
-
-						$descriptorspec = array(
-							0 => array('pipe', 'r'),
-							1 => array('pipe', 'w'),
-							2 => array('pipe', 'w')
-						);
-						$handle = proc_open($exec, $descriptorspec, $pipes, $updraft_dir);
-						if (is_resource($handle)) {
-							if (!fwrite($pipes[0], "binziptest/subdir1/subdir2/test2.html\n")) {
-								@fclose($pipes[0]);
-								@fclose($pipes[1]);
-								@fclose($pipes[2]);
-								$all_ok = false;
-							} else {
-								fclose($pipes[0]);
-								while (!feof($pipes[1])) {
-									$w = fgets($pipes[1]);
-									if ($w && $logit) $this->log("Output: ".trim($w));
-								}
-								fclose($pipes[1]);
-								
-								while (!feof($pipes[2])) {
-									$last_error = fgets($pipes[2]);
-									if (!empty($last_error) && $logit) $this->log("Error output: ".trim($w));
-								}
-								fclose($pipes[2]);
-
-								$ret = proc_close($handle);
-								if ($ret !=0) {
-									if ($logit) $this->log("Binary zip: error (code: $ret)");
-									$all_ok = false;
-								}
-
-							}
-
-						} else {
-							if ($logit) $this->log("Error: proc_open failed");
-							$all_ok = false;
-						}
-
-					}
-
-					// Do we now actually have a working zip? Need to test the created object using PclZip
-					// If it passes, then remove dirs and then return $potzip;
-					$found_first = false;
-					$found_second = false;
-					if ($all_ok && file_exists($updraft_dir.'/binziptest/test.zip')) {
-						if(!class_exists('PclZip')) require_once(ABSPATH.'/wp-admin/includes/class-pclzip.php');
-						$zip = new PclZip($updraft_dir.'/binziptest/test.zip');
-						$foundit = 0;
-						if (($list = $zip->listContent()) != 0) {
-							foreach ($list as $obj) {
-								if ($obj['filename'] && !empty($obj['stored_filename']) && 'binziptest/subdir1/subdir2/test.html' == $obj['stored_filename'] && $obj['size']==127) $found_first=true;
-								if ($obj['filename'] && !empty($obj['stored_filename']) && 'binziptest/subdir1/subdir2/test2.html' == $obj['stored_filename'] && $obj['size']==134) $found_second=true;
-							}
+				// Do we now actually have a working zip? Need to test the created object using PclZip
+				// If it passes, then remove dirs and then return $potzip;
+				$found_first = false;
+				$found_second = false;
+				if ($all_ok && file_exists($updraft_dir.'/binziptest/test.zip')) {
+					if(!class_exists('PclZip')) require_once(ABSPATH.'/wp-admin/includes/class-pclzip.php');
+					$zip = new PclZip($updraft_dir.'/binziptest/test.zip');
+					$foundit = 0;
+					if (($list = $zip->listContent()) != 0) {
+						foreach ($list as $obj) {
+							if ($obj['filename'] && !empty($obj['stored_filename']) && 'binziptest/subdir1/subdir2/test.html' == $obj['stored_filename'] && $obj['size']==127) $found_first=true;
+							if ($obj['filename'] && !empty($obj['stored_filename']) && 'binziptest/subdir1/subdir2/test2.html' == $obj['stored_filename'] && $obj['size']==134) $found_second=true;
 						}
 					}
-					$this->remove_binzip_test_files($updraft_dir);
-					if ($found_first && $found_second) {
-						if ($logit) $this->log("Working binary zip found: $potzip");
-						return $potzip;
-					}
-
 				}
 				$this->remove_binzip_test_files($updraft_dir);
+				if ($found_first && $found_second) {
+					if ($logit) $this->log("Working binary zip found: $potzip");
+					if ($cacheit) $this->jobdata_set('binzip', $potzip);
+					return $potzip;
+				}
+
 			}
+			$this->remove_binzip_test_files($updraft_dir);
 		}
+		if ($cacheit) $this->jobdata_set('binzip', false);
 		return false;
 	}
 
