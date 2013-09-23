@@ -939,6 +939,7 @@ class UpdraftPlus {
 				$schedule_resumption = true;
 			}
 		}
+
 		if (isset($schedule_resumption)) {
 			$schedule_for = time()+$resume_interval;
 			$this->log("Scheduling a resumption ($next_resumption) after $resume_interval seconds ($schedule_for) in case this run gets aborted");
@@ -954,23 +955,33 @@ class UpdraftPlus {
 		}
 
 		global $updraftplus_backup;
-		// Bring in all the zip routines
+		// Bring in all the backup routines
 		if (!is_a($updraftplus_backup, 'UpdraftPlus_Backup')) require_once(UPDRAFTPLUS_DIR.'/backup.php');
 
-		// This should be always called; if there were no files in this run, it returns us an empty array
-		$backup_array = $updraftplus_backup->resumable_backup_of_files($resumption_no);
+		$backup_files = $this->jobdata_get('backup_files');
+		if ('no' == $backup_files) {
 
-		// This save, if there was something, is then immediately picked up again
-		if (is_array($backup_array)) {
-			$this->log('Saving backup status to database (elements: '.count($backup_array).")");
-			$this->save_backup_history($backup_array);
+			$this->log("This backup run is not intended for files - skipping");
+			$our_files = array();
+
+		} else {
+
+			// This should be always called; if there were no files in this run, it returns us an empty array
+			$backup_array = $updraftplus_backup->resumable_backup_of_files($resumption_no);
+
+			// This save, if there was something, is then immediately picked up again
+			if (is_array($backup_array)) {
+				$this->log('Saving backup status to database (elements: '.count($backup_array).")");
+				$this->save_backup_history($backup_array);
+			}
+
+			// Switch of variable name is purely vestigial
+			$our_files = $backup_array;
+			if (!is_array($our_files)) $our_files = array();
+
+			$undone_files = array();
+
 		}
-
-		// Switch of variable name is purely vestigial
-		$our_files = $backup_array;
-		if (!is_array($our_files)) $our_files = array();
-
-		$undone_files = array();
 
 		$backup_database = $this->jobdata_get('backup_database');
 
@@ -1263,7 +1274,7 @@ class UpdraftPlus {
 
 		// Save what *should* be done, to make it resumable from this point on
 		array_push($initial_jobdata, 'backup_database', (($backup_database) ? 'begun' : 'no'));
-		if ($backup_files) array_push($initial_jobdata, 'backup_files', 'begun');
+		array_push($initial_jobdata, 'backup_files', (($backup_files) ? 'begun' : 'no'));
 
 		// Use of jobdata_set_multi saves around 200ms
 		call_user_func_array(array($this, 'jobdata_set_multi'), $initial_jobdata);
