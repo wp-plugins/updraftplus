@@ -133,7 +133,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * TWEAK: Switch zip engines from ZipArchive earlier if it appears to be broken
 * TWEAK: Now cleans up some previously un-caught temporary files if the backup aborted unexpectedly
 * TWEAK: Cache the results of looking for a zip executable for the duration of the job
-* TWEAK: Some plugins place their own code on UD's settings page, and break the layout; overcome this
+* TWEAK: Some badly-written plugins place their own code on UD's settings page, and break the layout; overcome this
 
 = 1.7.20 - 2013/09/20 =
 * TWEAK: Add semaphore locking to prevent WP's cron system kicking off multiple jobs on overloaded systems
