@@ -807,9 +807,9 @@ class UpdraftPlus {
 	}
 
 	# This is just a long-winded way of forcing WP to get the value afresh from the db, instead of using the auto-loaded/cached value (which can be out of date, especially since backups are, by their nature, long-running)
-	public function filter_pre_option_cron($v) {
+	public function filter_updraft_backup_history($v) {
 		global $wpdb;
-		$row = $wpdb->get_row( $wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", 'cron' ) );
+		$row = $wpdb->get_row( $wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", 'updraft_backup_history' ) );
 		if (is_object($row )) return maybe_unserialize($row->option_value);
 		return false;
 	}
@@ -827,7 +827,7 @@ class UpdraftPlus {
 		$runs_started = array();
 		$time_now = microtime(true);
 
-		add_filter('pre_option_cron', array($this, 'filter_pre_option_cron'));
+		add_filter('pre_option_updraft_backup_history', array($this, 'filter_updraft_backup_history'));
 
 		// Restore state
 		$resumption_extralog = '';
