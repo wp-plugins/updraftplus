@@ -724,6 +724,8 @@ class UpdraftPlus_Backup {
 		$how_many_tables = count($all_tables);
 
 		foreach ($all_tables as $table) {
+
+			$manyrows_warning = false;
 			$total_tables++;
 
 			// Increase script execution time-limit to 15 min for every table.
@@ -741,8 +743,24 @@ class UpdraftPlus_Backup {
 					// Create the SQL statements
 					$this->stow("# " . sprintf(__('Table: %s','wp-db-backup'),$updraftplus->backquote($table)) . "\n");
 					$updraftplus->jobdata_set('dbcreating_substatus', array('t' => $table, 'i' => $total_tables, 'a' => $how_many_tables));
-					$bindump = (is_string($binsqldump)) ? $this->backup_table_bindump($binsqldump, $table) : false;
+
+					$table_status = $wpdb->get_row("SHOW TABLE STATUS WHERE Name='$table'");
+					if (isset($table_status->Rows)) {
+						$rows = $table_status->Rows;
+						$updraftplus->log("Table $table: Total expected rows (approximate): ".$rows);
+						$this->stow("# Approximate rows expected in table: $rows\n");
+						if ($rows > UPDRAFTPLUS_WARN_DB_ROWS) {
+							$manyrows_warning = true;
+							$updraftplus->log(sprintf(__("Table %s has very many rows (%s) - we hope your web hosting company gives you enough resources to dump out that table in the backup", 'updraftplus'), $table, $rows), 'warning', 'manyrows_'.$table);
+						}
+					}
+
+					# TODO: Lower this from 10,000 if the feedback is good
+					$bindump = (isset($rows) && $rows>10000 && is_string($binsqldump)) ? $this->backup_table_bindump($binsqldump, $table) : false;
 					if (!$bindump) $this->backup_table($table);
+
+					if (!empty($manyrows_warning)) $updraftplus->log_removewarning('manyrows_'.$table);
+
 				} else {
 					$this->stow("# " . sprintf(__('Skipping non-WP table: %s','wp-db-backup'),$updraftplus->backquote($table)) . "\n");
 				}
@@ -816,18 +834,7 @@ class UpdraftPlus_Backup {
 
 		$microtime = microtime(true);
 
-		global $updraftplus, $wpdb;
-
-		$table_status = $wpdb->get_row("SHOW TABLE STATUS WHERE Name='$table_name'");
-		if (isset($table_status->Rows)) {
-			$rows = $table_status->Rows;
-			$updraftplus->log("Table $table_name (binary mysqldump): Total expected rows (approximate): ".$rows);
-			$this->stow("# Approximate rows expected in table ($table_name): $rows\n");
-			if ($rows > UPDRAFTPLUS_WARN_DB_ROWS) {
-				$manyrows_warning = true;
-				$updraftplus->log(sprintf(__("Table %s has very many rows (%s) - we hope your web hosting company gives you enough resources to dump out that table in the backup", 'updraftplus'), $table_name, $rows), 'warning', 'manyrows_'.$table_name);
-			}
-		}
+		global $updraftplus;
 
 		$pfile = md5(time().rand()).'.tmp';
 		file_put_contents($this->updraft_dir.'/'.$pfile, "[mysqldump]\npassword=".DB_PASSWORD."\n");
@@ -855,8 +862,6 @@ class UpdraftPlus_Backup {
 				if ($any_output) {
 					$updraftplus->log("Table $table_name: binary mysqldump finished (writes: $writes) in ".sprintf("%.02f",max(microtime(true)-$microtime,0.00001))." seconds");
 					$ret = true;
-					if (!empty($manyrows_warning)) $updraftplus->log_removewarning('manyrows_'.$table_name);
-
 				}
 			}
 		} else {
@@ -893,7 +898,7 @@ class UpdraftPlus_Backup {
 			return false;
 		}
 	
-		if(($segment == 'none') || ($segment == 0)) {
+		if($segment == 'none' || $segment == 0) {
 			// Add SQL statement to drop existing table
 			$this->stow("\n");
 			$this->stow("# " . sprintf(__('Delete any existing table %s','wp-db-backup'),$updraftplus->backquote($table)) . "\n\n");
@@ -928,24 +933,12 @@ class UpdraftPlus_Backup {
 			}
 		
 			// Comment in SQL-file
-			$this->stow("\n\n# " . sprintf('Data contents of table %s',$updraftplus->backquote($table)) . "\n");
+			$this->stow("\n\n# " . sprintf('Data contents of table %s',$updraftplus->backquote($table)) . "\n\n");
 
-			$table_status = $wpdb->get_row("SHOW TABLE STATUS WHERE Name='$table'");
-			if (isset($table_status->Rows)) {
-				$rows = $table_status->Rows;
-				$updraftplus->log("Table $table: Total expected rows (approximate): ".$rows);
-				$this->stow("# Approximate rows expected in table: $rows\n");
-				if ($rows > UPDRAFTPLUS_WARN_DB_ROWS) {
-					$manyrows_warning = true;
-					$updraftplus->log(sprintf(__("Table %s has very many rows (%s) - we hope your web hosting company gives you enough resources to dump out that table in the backup", 'updraftplus'), $table, $rows), 'warning', 'manyrows_'.$table);
-				}
-			}
-
-			$this->stow("\n");
 		}
 		
 		// In UpdraftPlus, segment is always 'none'
-		if(($segment == 'none') || ($segment >= 0)) {
+		if($segment == 'none' || $segment >= 0) {
 			$defs = array();
 			$integer_fields = array();
 			// $table_structure was from "DESCRIBE $table"
@@ -1011,8 +1004,6 @@ class UpdraftPlus_Backup {
 			$this->stow("\n");
 		}
  		$updraftplus->log("Table $table: Total rows added: $total_rows in ".sprintf("%.02f",max(microtime(true)-$microtime,0.00001))." seconds");
-
-		if (!empty($manyrows_warning)) $updraftplus->log_removewarning('manyrows_'.$table);
 
 	} // end backup_table()
 
