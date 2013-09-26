@@ -516,11 +516,16 @@ class UpdraftPlus {
 	- Messages at level 'error' do not persist through the job (they are only saved with save_backup_history(), and never restored from there - so only the final save_backup_history() errors persist); we presume that either a) they will be cleared on the next attempt, or b) they will occur again on the final attempt (at which point they will go to the user). But...
 	- ... messages at level 'warning' persist. These are conditions that are unlikely to be cleared, not-fatal, but the user should be informed about. The $uniq_id field (which should not be numeric) can then be used for warnings that should only be logged once
 	*/
+
 	public function log($line, $level = 'notice', $uniq_id = false) {
 
 		if ('error' == $level || 'warning' == $level) {
 			if ('error' == $level && $this->error_count() == 0) $this->log("An error condition has occurred for the first time during this job");
-			$this->errors[] = array('level' => $level, 'message' => $line);
+			if ($uniq_id) {
+				$this->errors[$uniq_id] = array('level' => $level, 'message' => $line);
+			} else {
+				$this->errors[] = array('level' => $level, 'message' => $line);
+			}
 			# Errors are logged separately
 			if ('error' == $level) return;
 			# It's a warning
@@ -557,6 +562,14 @@ class UpdraftPlus {
 
 		if (defined('UPDRAFTPLUS_CONSOLELOG')) print $line."\n";
 		if (defined('UPDRAFTPLUS_BROWSERLOG')) print htmlentities($line)."\n";
+	}
+
+	public function log_removewarning($uniq_id) {
+		$warnings = $this->jobdata_get('warnings');
+		if (!is_array($warnings)) $warnings=array();
+		unset($warnings[$uniq_id]);
+		$this->jobdata_set('warnings', $warnings);
+		unset($this->errors[$uniq_id]);
 	}
 
 	# Q. Why is this abstracted into a separate function? A. To allow poedit and other parsers to pick up the need to translate strings passed to it (and not pick up all of those passed to log()).
@@ -609,7 +622,7 @@ class UpdraftPlus {
 	function find_working_sqldump($logit = true, $cacheit = true) {
 
 		// The hosting provider may have explicitly disabled the popen or proc_open functions
-		if ((!defined('UPDRAFTPLUS_EXPERIMENTAL_MISC') || UPDRAFTPLUS_EXPERIMENTAL_MISC != true) || $this->detect_safe_mode() || !function_exists('popen')) {
+		if ($this->detect_safe_mode() || !function_exists('popen')) {
 			if ($cacheit) $this->jobdata_set('binsqldump', false);
 			return false;
 		}
@@ -1380,12 +1393,12 @@ class UpdraftPlus {
 				$final_message = __('The backup apparently succeeded and is now complete','updraftplus');
 				# Ensure it is logged in English. Not hugely important; but helps with a tiny number of really broken setups in which the options cacheing is broken
 				if ('The backup apparently succeeded and is now complete' != $final_message) {
-					$updraftplus->log('The backup apparently succeeded and is now complete');
+					$this->log('The backup apparently succeeded and is now complete');
 				}
 			} else {
 				$final_message = __('The backup apparently succeeded (with warnings) and is now complete','updraftplus');
 				if ('The backup apparently succeeded (with warnings) and is now complete' != $final_message) {
-					$updraftplus->log('The backup apparently succeeded (with warnings) and is now complete');
+					$this->log('The backup apparently succeeded (with warnings) and is now complete');
 				}
 			}
 		} elseif ($this->newresumption_scheduled == false) {

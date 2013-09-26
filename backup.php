@@ -824,6 +824,7 @@ class UpdraftPlus_Backup {
 			$updraftplus->log("Table $table_name (binary mysqldump): Total expected rows (approximate): ".$rows);
 			$this->stow("# Approximate rows expected in table ($table_name): $rows\n");
 			if ($rows > UPDRAFTPLUS_WARN_DB_ROWS) {
+				$manyrows_warning = true;
 				$updraftplus->log(sprintf(__("Table %s has very many rows (%s) - we hope your web hosting company gives you enough resources to dump out that table in the backup", 'updraftplus'), $table_name, $rows), 'warning', 'manyrows_'.$table_name);
 			}
 		}
@@ -854,6 +855,8 @@ class UpdraftPlus_Backup {
 				if ($any_output) {
 					$updraftplus->log("Table $table_name: binary mysqldump finished (writes: $writes) in ".sprintf("%.02f",max(microtime(true)-$microtime,0.00001))." seconds");
 					$ret = true;
+					if (!empty($manyrows_warning)) $updraftplus->log_removewarning('manyrows_'.$table_name);
+
 				}
 			}
 		} else {
@@ -933,6 +936,7 @@ class UpdraftPlus_Backup {
 				$updraftplus->log("Table $table: Total expected rows (approximate): ".$rows);
 				$this->stow("# Approximate rows expected in table: $rows\n");
 				if ($rows > UPDRAFTPLUS_WARN_DB_ROWS) {
+					$manyrows_warning = true;
 					$updraftplus->log(sprintf(__("Table %s has very many rows (%s) - we hope your web hosting company gives you enough resources to dump out that table in the backup", 'updraftplus'), $table, $rows), 'warning', 'manyrows_'.$table);
 				}
 			}
@@ -1007,6 +1011,8 @@ class UpdraftPlus_Backup {
 			$this->stow("\n");
 		}
  		$updraftplus->log("Table $table: Total rows added: $total_rows in ".sprintf("%.02f",max(microtime(true)-$microtime,0.00001))." seconds");
+
+		if (!empty($manyrows_warning)) $updraftplus->log_removewarning('manyrows_'.$table);
 
 	} // end backup_table()
 
