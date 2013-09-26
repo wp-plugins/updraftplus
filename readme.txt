@@ -129,6 +129,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 = Development version: not yet released/supported =
 
 * FEATURE: Options in the "Backup Now" dialog to exclude files or database from the backup
+* FEATURE: Use binary mysqldump, if available, for faster dumps of large tables (experimental mode)
 * FEATURE: Restorer now handles hand-moved WP site directories (where they differ from the website base directory)
 * FIX: Under certain conditions, the report email could wrongly indicate that files were included in a db-only backup
 * TWEAK: Switch zip engines from ZipArchive earlier if it appears to be broken
