@@ -5,7 +5,7 @@ if (!defined ('ABSPATH')) die('No direct access allowed');
 if (class_exists('ZipArchive')):
 # We just add a last_error variable for comaptibility with our UpdraftPlus_PclZip object
 class UpdraftPlus_ZipArchive extends ZipArchive {
-	public $last_error = '(Unknown: ZipArchive does not return error messages)';
+	public $last_error = 'Unknown: ZipArchive does not return error messages';
 }
 endif;
 
@@ -20,7 +20,6 @@ class UpdraftPlus_BinZip extends UpdraftPlus_PclZip {
 			$this->last_error = "No binary zip was found";
 			return false;
 		}
-		$this->debug = UpdraftPlus_Options::get_updraft_option('updraft_debug_mode');
 		return parent::__construct();
 	}
 
@@ -49,7 +48,7 @@ class UpdraftPlus_BinZip extends UpdraftPlus_PclZip {
 			return false;
 		}
 
-		global $updraftplus;
+		global $updraftplus, $updraftplus_backup;
 		$updraft_dir = $updraftplus->backups_dir_location();
 
 		$activity = false;
@@ -73,7 +72,6 @@ class UpdraftPlus_BinZip extends UpdraftPlus_PclZip {
 
 		# If there are no files to add, but there are empty directories, then we need to make sure the directories actually get added
 		if (0 == count($this->addfiles) && 0 < count($this->adddirs)) {
-			global $updraftplus_backup;
 			$dir = dirname(realpath($updraftplus_backup->make_zipfile_source));
 			$this->addfiles[$dir] = '././.';
 		}
@@ -108,7 +106,7 @@ class UpdraftPlus_BinZip extends UpdraftPlus_PclZip {
 			while (!feof($pipes[1])) {
 				$w = fgets($pipes[1], 1024);
 				// Logging all this really slows things down; use debug to mitigate
-				if ($w && $this->debug) $updraftplus->log("Output from zip: ".trim($w), 'debug');
+				if ($w && $updraftplus_backup->debug) $updraftplus->log("Output from zip: ".trim($w), 'debug');
 				if (time() > $last_recorded_alive + 5) {
 					$updraftplus->record_still_alive();
 					$last_recorded_alive = time();
@@ -140,7 +138,7 @@ class UpdraftPlus_BinZip extends UpdraftPlus_PclZip {
 
 			if ($ret != 0 && $ret != 12) {
 				$updraftplus->log("Binary zip: error (code: $ret - look it up in the Diagnostics section at http://www.info-zip.org/mans/zip.html for interpretation... and also check that your hosting account quota is not full)");
-				if (!empty($w) && !$this->debug) $updraftplus->log("Last output from zip: ".trim($w), 'debug');
+				if (!empty($w) && !$updraftplus_backup->debug) $updraftplus->log("Last output from zip: ".trim($w), 'debug');
 				return false;
 			}
 

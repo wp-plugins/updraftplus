@@ -18,6 +18,7 @@ TODO - some of these are out of date/done, needs pruning
 // Upon database restore, remove all resumption jobs from the scheduler. And/or never save them.
 // Change migrate window: 1) Retain link to article 2) Have selector to choose which backup set to migrate - or a fresh one 3) Have option for FTP/SFTP/SCP despatch 4) Have big "Go" button. Have some indication of what happens next. Test the login first. Have the remote site auto-scan its directory + pick up new sets. Have a way of querying the remote site for its UD-dir. Have a way of saving the settings as a 'profile'. Or just save the last set of settings (since mostly will be just one place to send to). Implement an HTTP/JSON method for sending files too.
 // Prettify shop page: http://wordpress.org/plugins/pricing-table-extended/
+// MySQL manual: See Section 8.2.2.1, Speed of INSERT Statements.
 // Exempt UD itself from a plugins restore? (will options be out-of-sync? exempt options too?)
 // Post restore/migrate, check updraft_dir, and reset if non-existent
 // Auto-empty caches post-restore/post-migration (prevent support requests from people with state/wrong cacheing data)
@@ -152,6 +153,7 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,backup*');
 
 # The following can go in your wp-config.php
 if (!defined('UPDRAFTPLUS_ZIP_EXECUTABLE')) define('UPDRAFTPLUS_ZIP_EXECUTABLE', "/usr/bin/zip,/bin/zip,/usr/local/bin/zip,/usr/sfw/bin/zip,/usr/xdg4/bin/zip,/opt/bin/zip");
+if (!defined('UPDRAFTPLUS_MYSQLDUMP_EXECUTABLE')) define('UPDRAFTPLUS_MYSQLDUMP_EXECUTABLE', "/usr/bin/mysqldump,/bin/mysqldump,/usr/local/bin/mysqldump,/usr/sfw/bin/mysqldump,/usr/xdg4/bin/mysqldump,/opt/bin/mysqldump");
 # If any individual file size is greater than this, then a warning is given
 if (!defined('UPDRAFTPLUS_WARN_FILE_SIZE')) define('UPDRAFTPLUS_WARN_FILE_SIZE', 1024*1024*250);
 # On a test on a Pentium laptop, 100,000 rows needed ~ 1 minute to write out - so 150,000 is around the CPanel default of 90 seconds execution time.
@@ -604,6 +606,61 @@ class UpdraftPlus {
 		return (@ini_get('safe_mode') && strtolower(@ini_get('safe_mode')) != "off") ? 1 : 0;
 	}
 
+	function find_working_sqldump($logit = true, $cacheit = true) {
+
+		// The hosting provider may have explicitly disabled the popen or proc_open functions
+		if ((!defined('UPDRAFTPLUS_EXPERIMENTAL_MISC') || UPDRAFTPLUS_EXPERIMENTAL_MISC != true) || $this->detect_safe_mode() || !function_exists('popen')) {
+			if ($cacheit) $this->jobdata_set('binsqldump', false);
+			return false;
+		}
+		$existing = $this->jobdata_get('binsqldump', null);
+		# Theoretically, we could have moved machines, due to a migration
+		if (null !== $existing && (!is_string($existing) || @is_executable($existing))) return $existing;
+
+		$updraft_dir = $this->backups_dir_location();
+		global $wpdb;
+		$table_name = $wpdb->base_prefix.'options';
+		$tmp_file = md5(time().rand()).".sqltest.tmp";
+		$pfile = md5(time().rand()).'.tmp';
+		file_put_contents($updraft_dir.'/'.$pfile, "[mysqldump]\npassword=".DB_PASSWORD."\n");
+
+		foreach (explode(',', UPDRAFTPLUS_MYSQLDUMP_EXECUTABLE) as $potsql) {
+			if (!@is_executable($potsql)) continue;
+			if ($logit) $this->log("Testing: $potsql");
+
+			$exec = "cd ".escapeshellarg($updraft_dir)."; $potsql  --defaults-file=$pfile --max_allowed_packet=1M --quote-names --add-drop-table --skip-comments --skip-set-charset --allow-keywords --dump-date --extended-insert --where=option_name=\\'siteurl\\' --user=".escapeshellarg(DB_USER)." --host=".escapeshellarg(DB_HOST)." ".DB_NAME." ".escapeshellarg($table_name)." >$tmp_file";
+
+			$result = false;
+			$handle = popen($exec, "r");
+			if ($handle) {
+				while (!feof($handle)) {
+					$w = fgets($handle);
+					if ($w && $logit) $this->log("Output: ".trim($w));
+				}
+				$ret = pclose($handle);
+				if ($ret !=0) {
+					if ($logit) $this->log("Binary mysqldump: error (code: $ret)");
+				} else {
+					$dumped = file_get_contents($updraft_dir.'/'.$tmp_file, false, null, 0, 4096);
+					if (stripos($dumped, 'insert into') !== false) {
+						if ($logit) $this->log("Working binary mysqldump found: $potsql");
+						$result = $potsql;
+						break;
+					}
+				}
+			} else {
+				if ($logit) $this->log("Error: popen failed");
+			}
+		}
+
+		@unlink($updraft_dir.'/'.$pfile);
+		@unlink($updraft_dir.'/'.$tmp_file);
+
+		if ($cacheit) $this->jobdata_set('binsqldump', $result);
+
+		return $result;
+	}
+
 	# We require -@ and -u -r to work - which is the usual Linux binzip
 	function find_working_bin_zip($logit = true, $cacheit = true) {
 		if ($this->detect_safe_mode()) return false;
@@ -619,8 +676,8 @@ class UpdraftPlus {
 
 		$updraft_dir = $this->backups_dir_location();
 		foreach (explode(',', UPDRAFTPLUS_ZIP_EXECUTABLE) as $potzip) {
-			if ($logit) $this->log("Testing: $potzip");
 			if (!@is_executable($potzip)) continue;
+			if ($logit) $this->log("Testing: $potzip");
 
 			# Test it, see if it is compatible with Info-ZIP
 			# If you have another kind of zip, then feel free to tell me about it

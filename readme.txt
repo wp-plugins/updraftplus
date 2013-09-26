@@ -8,7 +8,7 @@ Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
-Easy and complete backups + restoration. Manual or automated backups (Amazon S3, Dropbox, Google Drive, Rackspace, FTP, SFTP, WebDAV, email + others).
+Easy and complete backups + restoration. Manual or automated backups (backup to S3, Dropbox, Google Drive, Rackspace, FTP, SFTP, email + others).
 
 == Description ==
 
@@ -127,6 +127,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 == Changelog ==
 
 = Development version: not yet released/supported =
+
 * FEATURE: Options in the "Backup Now" dialog to exclude files or database from the backup
 * FEATURE: Restorer now handles hand-moved WP site directories (where they differ from the website base directory)
 * FIX: Under certain conditions, the report email could wrongly indicate that files were included in a db-only backup
