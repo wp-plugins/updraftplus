@@ -48,7 +48,7 @@ UpdraftPlus is written by professional WordPress developers. If your site needs 
 
 = Are you multi-lingual? Can you translate? =
 
-Are you able to translate UpdraftPlus into another language? Are you ready to help speakers of your language? UpdraftPlus itself is ready and waiting - the only work needed is the translating. The translation process is easy, and web-based - go here for instructions: <a href="http://updraftplus.com/translate/">http://updraftplus.com/translate/</a>. (Or if you're an expert WordPress translator already, then just pick out the .pot file from the wp-content/plugins/updraftplus/languages/ directory).
+Are you able to translate UpdraftPlus into another language? Are you ready to help speakers of your language? UpdraftPlus itself is ready and waiting - the only work needed is the translating. The translation process is easy, and web-based - go here for instructions: <a href="http://updraftplus.com/translate/">http://updraftplus.com/translate/</a>. (Or if you're an expert WordPress translator already, then just pick out the .pot file from the wp-content/plugins/updraftplus/languages/ directory - if you scan for translatable strings manually, then you need to get these functions: _x(), __(), _e(), _ex(), log_e()).
 
 Many thanks to the existing translators:
 
@@ -132,6 +132,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: Use binary mysqldump, if available, for faster dumps of large tables
 * FEATURE: Restorer now handles hand-moved WP site directories (where they differ from the website base directory)
 * FIX: Under certain conditions, the report email could wrongly indicate that files were included in a db-only backup
+* FIX: Fix a JavaScript error in Internet Explorer 8
 * TWEAK: Switch zip engines from ZipArchive earlier if it appears to be broken
 * TWEAK: Now cleans up some previously un-caught temporary files if the backup aborted unexpectedly
 * TWEAK: Remove the "that's a lot of rows" warning once the table successfully finishes being dumped

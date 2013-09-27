@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: UpdraftPlus\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-21 13:03+0100\n"
-"PO-Revision-Date: 2013-09-21 13:03+0100\n"
+"POT-Creation-Date: 2013-09-27 19:02+0100\n"
+"PO-Revision-Date: 2013-09-27 19:02+0100\n"
 "Last-Translator: David Anderson <contact@updraftplus.com>\n"
 "Language-Team:  <contact@updraftplus.com>\n"
 "Language: \n"
@@ -18,288 +18,300 @@ msgstr ""
 msgid "UpdraftPlus Backups"
 msgstr ""
 
-#: updraftplus.php:361
-#: updraftplus.php:366
-#: updraftplus.php:371
+#: updraftplus.php:365
+#: updraftplus.php:370
+#: updraftplus.php:375
 #: admin.php:328
 #: admin.php:332
 msgid "UpdraftPlus notice:"
 msgstr ""
 
-#: updraftplus.php:361
+#: updraftplus.php:365
 msgid "The log file could not be read."
 msgstr ""
 
-#: updraftplus.php:366
+#: updraftplus.php:370
 msgid "No log files were found."
 msgstr ""
 
-#: updraftplus.php:371
+#: updraftplus.php:375
 msgid "The given file could not be read."
 msgstr ""
 
-#: updraftplus.php:498
+#: updraftplus.php:502
 #: admin.php:324
 msgid "W3 Total Cache's object cache is active. This is known to have a bug that messes with all scheduled tasks (including backup jobs)."
 msgstr ""
 
-#: updraftplus.php:498
+#: updraftplus.php:502
 msgid "You should go to the W3 Total Cache settings page and turn it off."
 msgstr ""
 
-#: updraftplus.php:506
+#: updraftplus.php:510
 #, php-format
 msgid "Your free disk space is very low - only %s Mb remain"
 msgstr ""
 
-#: updraftplus.php:779
+#: updraftplus.php:861
 msgid "Plugins"
 msgstr ""
 
-#: updraftplus.php:780
+#: updraftplus.php:862
 msgid "Themes"
 msgstr ""
 
-#: updraftplus.php:781
+#: updraftplus.php:863
 msgid "Uploads"
 msgstr ""
 
-#: updraftplus.php:796
+#: updraftplus.php:878
 msgid "Others"
 msgstr ""
 
-#: updraftplus.php:879
+#: updraftplus.php:961
 msgid "Your website is visited infrequently and UpdraftPlus is not getting the resources it hoped for; please read this page:"
 msgstr ""
 
-#: updraftplus.php:1147
+#: updraftplus.php:1240
 msgid "Could not create files in the backup directory. Backup aborted - check your UpdraftPlus settings."
 msgstr ""
 
-#: updraftplus.php:1301
+#: updraftplus.php:1394
 msgid "The backup apparently succeeded and is now complete"
 msgstr ""
 
-#: updraftplus.php:1307
+#: updraftplus.php:1400
 msgid "The backup apparently succeeded (with warnings) and is now complete"
 msgstr ""
 
-#: updraftplus.php:1314
+#: updraftplus.php:1407
 msgid "The backup attempt has finished, apparently unsuccessfully"
 msgstr ""
 
-#: updraftplus.php:1317
+#: updraftplus.php:1410
 msgid "The backup has not finished; a resumption is scheduled"
 msgstr ""
 
-#: updraftplus.php:1586
+#: updraftplus.php:1679
 msgid "Could not read the directory"
 msgstr ""
 
-#: updraftplus.php:1603
+#: updraftplus.php:1696
 msgid "Could not save backup history because we have no backup array. Backup probably failed."
 msgstr ""
 
-#: updraftplus.php:1774
+#: updraftplus.php:1867
 #: restorer.php:87
 #: admin.php:866
 msgid "Decryption failed. The database file is encrypted, but you have no encryption key entered."
 msgstr ""
 
-#: updraftplus.php:1787
+#: updraftplus.php:1880
 #: restorer.php:102
 #: admin.php:884
 msgid "Decryption failed. The most likely cause is that you used the wrong key."
 msgstr ""
 
-#: updraftplus.php:1787
+#: updraftplus.php:1880
 msgid "The decryption key used:"
 msgstr ""
 
-#: updraftplus.php:1805
+#: updraftplus.php:1898
 msgid "File not found"
 msgstr ""
 
-#: updraftplus.php:1862
+#: updraftplus.php:1951
+msgid "Want more features or paid, guaranteed support? Check out UpdraftPlus.Com"
+msgstr ""
+
+#: updraftplus.php:1955
 msgid "Can you translate? Want to improve UpdraftPlus for speakers of your language?"
 msgstr ""
 
-#: updraftplus.php:1864
-#: updraftplus.php:1870
+#: updraftplus.php:1957
+#: updraftplus.php:1963
 msgid "Like UpdraftPlus and can spare one minute?"
 msgstr ""
 
-#: updraftplus.php:1864
-#: updraftplus.php:1870
+#: updraftplus.php:1957
+#: updraftplus.php:1963
 msgid "Please help UpdraftPlus by giving a positive review at wordpress.org"
 msgstr ""
 
-#: updraftplus.php:1877
+#: updraftplus.php:1960
+msgid "Check out WordShell"
+msgstr ""
+
+#: updraftplus.php:1960
+msgid "manage WordPress from the command line - huge time-saver"
+msgstr ""
+
+#: updraftplus.php:1970
 msgid "Need even more features and support? Check out UpdraftPlus Premium"
 msgstr ""
 
-#: updraftplus.php:1884
+#: updraftplus.php:1977
 msgid "Subscribe to the UpdraftPlus blog to get up-to-date news and offers"
 msgstr ""
 
-#: updraftplus.php:1884
+#: updraftplus.php:1977
 msgid "Blog link"
 msgstr ""
 
-#: updraftplus.php:1884
+#: updraftplus.php:1977
 msgid "RSS link"
 msgstr ""
 
-#: updraftplus.php:1887
+#: updraftplus.php:1980
 msgid "Check out UpdraftPlus.Com for help, add-ons and support"
 msgstr ""
 
-#: updraftplus.php:1890
+#: updraftplus.php:1983
 msgid "Want to say thank-you for UpdraftPlus?"
 msgstr ""
 
-#: updraftplus.php:1890
+#: updraftplus.php:1983
 msgid "Please buy our very cheap 'no adverts' add-on."
 msgstr ""
 
-#: backup.php:84
+#: backup.php:90
 #, php-format
 msgid "%s - could not back this entity up; the corresponding directory does not exist (%s)"
 msgstr ""
 
-#: backup.php:146
+#: backup.php:150
 #, php-format
 msgid "Could not create %s zip. Consult the log file for more information."
 msgstr ""
 
-#: backup.php:409
+#: backup.php:412
 msgid "Errors encountered:"
 msgstr ""
 
-#: backup.php:426
+#: backup.php:429
 msgid "Warnings encountered:"
 msgstr ""
 
-#: backup.php:440
+#: backup.php:443
 msgid "Backed up"
 msgstr ""
 
-#: backup.php:440
+#: backup.php:443
 msgid "WordPress backup is complete"
 msgstr ""
 
-#: backup.php:440
+#: backup.php:443
 msgid "Backup contains"
 msgstr ""
 
-#: backup.php:440
+#: backup.php:443
 msgid "Latest status"
 msgstr ""
 
-#: backup.php:509
+#: backup.php:511
 #, php-format
 msgid "Backup directory (%s) is not writable, or does not exist."
 msgstr ""
 
-#: backup.php:717
+#: backup.php:718
 msgid "The backup directory is not writable - the database backup is expected to shortly fail."
 msgstr ""
 
-#: backup.php:741
+#: backup.php:744
 #, php-format
 msgid "Table: %s"
 msgstr ""
 
-#: backup.php:745
-#, php-format
-msgid "Skipping non-WP table: %s"
-msgstr ""
-
-#: backup.php:796
-msgid "An error occurred whilst closing the final database file"
-msgstr ""
-
-#: backup.php:839
-#, php-format
-msgid "Delete any existing table %s"
-msgstr ""
-
-#: backup.php:845
-#, php-format
-msgid "Table structure of table %s"
-msgstr ""
-
-#: backup.php:849
-#, php-format
-msgid "Error with SHOW CREATE TABLE for %s."
-msgstr ""
-
-#: backup.php:879
+#: backup.php:754
 #, php-format
 msgid "Table %s has very many rows (%s) - we hope your web hosting company gives you enough resources to dump out that table in the backup"
 msgstr ""
 
-#: backup.php:949
+#: backup.php:765
+#, php-format
+msgid "Skipping non-WP table: %s"
+msgstr ""
+
+#: backup.php:816
+msgid "An error occurred whilst closing the final database file"
+msgstr ""
+
+#: backup.php:904
+#, php-format
+msgid "Delete any existing table %s"
+msgstr ""
+
+#: backup.php:910
+#, php-format
+msgid "Table structure of table %s"
+msgstr ""
+
+#: backup.php:914
+#, php-format
+msgid "Error with SHOW CREATE TABLE for %s."
+msgstr ""
+
+#: backup.php:1003
 #, php-format
 msgid "End of data contents of table %s"
 msgstr ""
 
-#: backup.php:983
+#: backup.php:1036
 msgid "Encryption error occurred when encrypting database. Encryption aborted."
 msgstr ""
 
-#: backup.php:1011
+#: backup.php:1064
 msgid "Could not open the backup file for writing"
 msgstr ""
 
-#: backup.php:1046
+#: backup.php:1099
 #, php-format
 msgid "Generated: %s"
 msgstr ""
 
-#: backup.php:1047
+#: backup.php:1100
 #, php-format
 msgid "Hostname: %s"
 msgstr ""
 
-#: backup.php:1048
+#: backup.php:1101
 #, php-format
 msgid "Database: %s"
 msgstr ""
 
-#: backup.php:1079
+#: backup.php:1132
 msgid "Infinite recursion: consult your log for more information"
 msgstr ""
 
-#: backup.php:1091
+#: backup.php:1144
 #, php-format
 msgid "%s: unreadable file - could not be backed up (check the file permissions)"
 msgstr ""
 
-#: backup.php:1097
+#: backup.php:1150
 #, php-format
 msgid "Failed to open directory (check the file permissions): %s"
 msgstr ""
 
-#: backup.php:1111
-#: backup.php:1123
+#: backup.php:1164
+#: backup.php:1176
 #, php-format
 msgid "%s: unreadable file - could not be backed up"
 msgstr ""
 
-#: backup.php:1360
-#: backup.php:1596
+#: backup.php:1412
+#: backup.php:1648
 #, php-format
 msgid "Failed to open the zip file (%s) - %s"
 msgstr ""
 
-#: backup.php:1374
+#: backup.php:1426
 #, php-format
 msgid "A very large file was encountered: %s (size: %s Mb)"
 msgstr ""
 
-#: backup.php:1413
-#: backup.php:1606
+#: backup.php:1465
+#: backup.php:1658
 msgid "A zip error occurred - check your log for more details."
 msgstr ""
 
@@ -1284,7 +1296,7 @@ msgid "Or, you can place them manually into your UpdraftPlus directory (usually 
 msgstr ""
 
 #: admin.php:1479
-msgid "Drop backup zips here"
+msgid "Drop backup files here"
 msgstr ""
 
 #: admin.php:1480
@@ -2206,6 +2218,10 @@ msgid "Authenticate with Google"
 msgstr ""
 
 #: methods/googledrive.php:487
+msgid "<strong>(You appear to be already authenticated,</strong> though you can authenticate again to refresh your access if you've had a problem)."
+msgstr ""
+
+#: methods/googledrive.php:487
 msgid "<strong>After</strong> you have saved your settings (by clicking 'Save Changes' below), then come back here once and click this link to complete authentication with Google."
 msgstr ""
 
@@ -2575,6 +2591,10 @@ msgstr ""
 
 #: methods/dropbox.php:290
 msgid "Authenticate with Dropbox"
+msgstr ""
+
+#: methods/dropbox.php:291
+msgid "(You appear to be already authenticated)"
 msgstr ""
 
 #: methods/dropbox.php:291

@@ -371,7 +371,7 @@ jQuery(document).ready(function($){
 	updraft_check_same_times();
 
 	var updraft_delete_modal_buttons = {};
-	updraft_delete_modal_buttons[updraftlion.delete] = function() {
+	updraft_delete_modal_buttons[updraftlion.deletebutton] = function() {
 		jQuery('#updraft-delete-waitwarning').slideDown();
 		timestamp = jQuery('#updraft_delete_timestamp').val();
 		jQuery.post(ajaxurl, jQuery('#updraft_delete_form').serialize(), function(response) {
