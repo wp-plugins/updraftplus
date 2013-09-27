@@ -234,7 +234,7 @@ function updraft_downloader(base, nonce, what, whicharea, set_contents, prettyda
 }
 
 // Catch HTTP errors if the download status check returns them
-jQuery( document ).ajaxError(function( event, jqxhr, settings, exception ) {
+jQuery(document).ajaxError(function( event, jqxhr, settings, exception ) {
 	if (exception == null || exception == '') return;
 	if (jxqhr.responseText == null || jxqhr.responseText == '') return;
 	console.log("Error caught by UpdraftPlus ajaxError handler (follows)");
@@ -371,7 +371,7 @@ jQuery(document).ready(function($){
 	updraft_check_same_times();
 
 	var updraft_delete_modal_buttons = {};
-	updraft_delete_modal_buttons[updraftlion.delete] = function() {
+	updraft_delete_modal_buttons[updraftlion.deletebutton] = function() {
 		jQuery('#updraft-delete-waitwarning').slideDown();
 		timestamp = jQuery('#updraft_delete_timestamp').val();
 		jQuery.post(ajaxurl, jQuery('#updraft_delete_form').serialize(), function(response) {

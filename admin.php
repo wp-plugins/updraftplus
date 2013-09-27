@@ -118,7 +118,7 @@ class UpdraftPlus_Admin {
 			'uploaded' => __('The file was uploaded.','updraftplus'),
 			'backupnow' => __('Backup Now', 'updraftplus'),
 			'cancel' => __('Cancel', 'updraftplus'),
-			'delete' => __('Delete', 'updraftplus'),
+			'deletebutton' => __('Delete', 'updraftplus'),
 			'close' => __('Close', 'updraftplus'),
 			'restore' => __('Restore', 'updraftplus'),
 		) );
