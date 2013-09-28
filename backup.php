@@ -154,11 +154,13 @@ class UpdraftPlus_Backup {
 			$itext = (empty($this->index)) ? '' : ($this->index+1);
 			$full_path = $this->updraft_dir.'/'.$backup_file_basename.'-'.$whichone.$itext.'.zip';
 			if (file_exists($full_path.'.tmp')) {
+				$sha = sha1_file($full_path.'.tmp');
+				$updraftplus->jobdata_set('sha1-'.$whichone.$this->index, $sha);
 				@rename($full_path.'.tmp', $full_path);
 				$timetaken = max(microtime(true)-$this->zip_microtime_start, 0.000001);
 				$kbsize = filesize($full_path)/1024;
 				$rate = round($kbsize/$timetaken, 1);
-				$updraftplus->log("Created $whichone zip (".$this->index.") - ".round($kbsize,1)." Kb in ".round($timetaken,1)." s ($rate Kb/s)");
+				$updraftplus->log("Created $whichone zip (".$this->index.") - ".round($kbsize,1)." Kb in ".round($timetaken,1)." s ($rate Kb/s) (SHA1 checksum: $sha)");
 				// We can now remove any left-over temporary files from this job
 				
 			} elseif ($this->index > $original_index) {
@@ -622,7 +624,6 @@ class UpdraftPlus_Backup {
 			if (!is_array($backup_array)) $backup_array = array();
 
 			# Check for recent activity
-
 			foreach ($backup_array as $files) {
 				if (!is_array($files)) $files=array($files);
 				foreach ($files as $file) $updraftplus->check_recent_modification($this->updraft_dir.'/'.$file);
@@ -805,9 +806,7 @@ class UpdraftPlus_Backup {
 		}
 
 		if (defined("DB_CHARSET")) {
-			$this->stow("/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;\n");
-			$this->stow("/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;\n");
-			$this->stow("/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;\n");
+			$this->stow("/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;\n/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;\n/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;\n");
 		}
 
 		$updraftplus->log($file_base.'-db.gz: finished writing out complete database file ('.round(filesize($backup_final_file_name)/1024,1).' Kb)');
@@ -824,7 +823,9 @@ class UpdraftPlus_Backup {
 		} else {
 			# We no longer encrypt here - because the operation can take long, we made it resumable and moved it to the upload loop
 			$updraftplus->jobdata_set('jobstatus', 'dbcreated');
-			$updraftplus->log("Total database tables backed up: $total_tables");
+			$sha = sha1_file($backup_final_file_name);
+			$updraftplus->jobdata_set('sha1-db0', $sha);
+			$updraftplus->log("Total database tables backed up: $total_tables (".basename($backup_final_file_name).": checksum (SHA1): $sha)");
 			return basename($backup_file_base.'-db.gz');
 		}
 
@@ -1024,7 +1025,11 @@ class UpdraftPlus_Backup {
 			if (false === file_put_contents($this->updraft_dir.'/'.$file.'.crypt' , $updraftplus->encrypt($this->updraft_dir.'/'.$file, $encryption))) $encryption_error = 1;
 			if (0 == $encryption_error) {
 				$time_taken = max(0.000001, microtime(true)-$microstart);
-				$updraftplus->log("$file: encryption successful: ".round($file_size,1)."Kb in ".round($time_taken,1)."s (".round($file_size/$time_taken, 1)."Kb/s)");
+
+				$sha = sha1_file($this->updraft_dir.'/'.$file.'.crypt');
+				$updraftplus->jobdata_set('sha1-db0.crypt', $sha);
+
+				$updraftplus->log("$file: encryption successful: ".round($file_size,1)."Kb in ".round($time_taken,2)."s (".round($file_size/$time_taken, 1)."Kb/s) (SHA1 checksum: $sha)");
 				# Delete unencrypted file
 				@unlink($this->updraft_dir.'/'.$file);
 				$updraftplus->jobdata_set('jobstatus', 'dbencrypted');
@@ -1684,10 +1689,12 @@ class UpdraftPlus_Backup {
 
 		$itext = ($this->index == 0) ? '' : ($this->index+1);
 		$full_path = $this->zip_basename.$itext.'.zip';
+		$sha = sha1_file($full_path.'.tmp');
+		$updraftplus->jobdata_set('sha1-'.$youwhat.$this->index, $sha);
 		@rename($full_path.'.tmp', $full_path);
 		$kbsize = filesize($full_path)/1024;
 		$rate = round($kbsize/$timetaken, 1);
-		$updraftplus->log("Created ".$this->whichone." zip (".$this->index.") - ".round($kbsize,1)." Kb in ".round($timetaken,1)." s ($rate Kb/s)");
+		$updraftplus->log("Created ".$this->whichone." zip (".$this->index.") - ".round($kbsize,1)." Kb in ".round($timetaken,1)." s ($rate Kb/s) (SHA1 checksum: ".$sha.")");
 		$this->zip_microtime_start = microtime(true);
 
 		# No need to add $itext here - we can just delete any temporary files for this zip

@@ -17,7 +17,7 @@ TODO - some of these are out of date/done, needs pruning
 // Upon database restore, remove all resumption jobs from the scheduler. And/or never save them.
 // Change migrate window: 1) Retain link to article 2) Have selector to choose which backup set to migrate - or a fresh one 3) Have option for FTP/SFTP/SCP despatch 4) Have big "Go" button. Have some indication of what happens next. Test the login first. Have the remote site auto-scan its directory + pick up new sets. Have a way of querying the remote site for its UD-dir. Have a way of saving the settings as a 'profile'. Or just save the last set of settings (since mostly will be just one place to send to). Implement an HTTP/JSON method for sending files too.
 // Change default setting of retain 1 backup set? (Auto-backup could replace it in that case... don't perform pruning when doing auto-backup?)
-// New reporting add-on: Multiple email addresses, send backup to 1st only, option to send email only on failure, include checksums (SHA1) in report, option to include log file always, option to log to syslog
+// New reporting add-on: Multiple email addresses, send backup to 1st only, option to send email only on failure, include checksums (SHA1) in report (store these in job data immediately post-creation; then aggregate them into the backup history on job finish), option to include log file always, option to log to syslog
 // Strategy for what to do if the updraft_dir contains untracked backups. Automatically rescan?
 // MySQL manual: See Section 8.2.2.1, Speed of INSERT Statements.
 // Exempt UD itself from a plugins restore? (will options be out-of-sync? exempt options too?)
@@ -475,7 +475,7 @@ class UpdraftPlus {
 
 		$memory_usage = round(@memory_get_usage(false)/1048576, 1);
 		$memory_usage2 = round(@memory_get_usage(true)/1048576, 1);
-		$logline = "UpdraftPlus WordPress backup plugin (http://updraftplus.com): ".$this->version." WP: ".$wp_version." PHP: ".phpversion()." (".php_uname().") MySQL: $mysql_version Server: ".$_SERVER["SERVER_SOFTWARE"]." safe_mode: $safe_mode max_execution_time: ".@ini_get("max_execution_time")." memory_limit: ".ini_get('memory_limit')." (used: ${memory_usage}M | ${memory_usage2}M) ZipArchive::addFile: ";
+		$logline = "UpdraftPlus WordPress backup plugin (http://updraftplus.com): ".$this->version." WP: ".$wp_version." PHP: ".phpversion()." (".php_uname().") MySQL: $mysql_version Server: ".$_SERVER["SERVER_SOFTWARE"]." safe_mode: $safe_mode max_execution_time: ".@ini_get("max_execution_time")." memory_limit: ".ini_get('memory_limit')." (used: ${memory_usage}M | ${memory_usage2}M) mcrypt: ".((function_exists('mcrypt_encrypt')) ? '1' : '0')." ZipArchive::addFile: ";
 
 		// method_exists causes some faulty PHP installations to segfault, leading to support requests
 		if (version_compare(phpversion(), '5.2.0', '>=') && extension_loaded('zip')) {
@@ -1075,7 +1075,7 @@ class UpdraftPlus {
 		$backup_database = $this->jobdata_get('backup_database');
 
 		// The value of jobdata['backup_database'] is read and written below (instead of using the existing variable) so that we can copy-and-paste this part as needed.
-		if ($backup_database == "begun" || $backup_database == 'finished' || $backup_database == 'encrypted') {
+		if ('begun' == $backup_database || 'finished' == $backup_database || 'encrypted' == $backup_database) {
 			if ($backup_database == "begun") {
 				if ($resumption_no > 0) {
 					$this->log("Resuming creation of database dump");
@@ -1089,9 +1089,7 @@ class UpdraftPlus {
 			}
 
 			$db_backup = $updraftplus_backup->backup_db($backup_database);
-			if(is_array($our_files) && is_string($db_backup)) {
-				$our_files['db'] = $db_backup;
-			}
+			if(is_array($our_files) && is_string($db_backup)) $our_files['db'] = $db_backup;
 
 			if ($backup_database != 'encrypted') $this->jobdata_set('backup_database', 'finished');
 		} elseif ('no' == $backup_database) {
@@ -1119,12 +1117,18 @@ class UpdraftPlus {
 
 		$backupable_entities = $this->get_backupable_file_entities(true);
 
+		$checksums = array('sha1' => array());
+
 		# Queue files for upload
 		foreach ($our_files as $key => $files) {
 			// Only continue if the stored info was about a dump
 			if (!isset($backupable_entities[$key]) && $key != 'db') continue;
 			if (is_string($files)) $files = array($files);
 			foreach ($files as $findex => $file) {
+				$sha = $this->jobdata_get('sha1-'.$key.$findex);
+				if ($sha) $checksums['sha1'][$key.$findex] = $sha;
+				$sha = $this->jobdata_get('sha1-'.$key.$findex.'.crypt');
+				if ($sha) $checksums['sha1'][$key.$findex.".crypt"] = $sha;
 				if ($this->is_uploaded($file)) {
 					$this->log("$file: $key: This file has already been successfully uploaded");
 				} elseif (is_file($updraft_dir.'/'.$file)) {
@@ -1136,6 +1140,10 @@ class UpdraftPlus {
 				}
 			}
 		}
+		$our_files['checksums'] = $checksums;
+
+		# Save again (now that we have checksums)
+		$this->save_backup_history($our_files);
 
 		if (count($undone_files) == 0) {
 			$this->log("Resume backup ($bnonce, $resumption_no): finish run");
