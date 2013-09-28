@@ -1301,12 +1301,12 @@ class UpdraftPlus {
 				$final_message = __('The backup apparently succeeded and is now complete','updraftplus');
 				# Ensure it is logged in English. Not hugely important; but helps with a tiny number of really broken setups in which the options cacheing is broken
 				if ('The backup apparently succeeded and is now complete' != $final_message) {
-					$updraftplus->log('The backup apparently succeeded and is now complete');
+					$this->log('The backup apparently succeeded and is now complete');
 				}
 			} else {
 				$final_message = __('The backup apparently succeeded (with warnings) and is now complete','updraftplus');
 				if ('The backup apparently succeeded (with warnings) and is now complete' != $final_message) {
-					$updraftplus->log('The backup apparently succeeded (with warnings) and is now complete');
+					$this->log('The backup apparently succeeded (with warnings) and is now complete');
 				}
 			}
 		} elseif ($this->newresumption_scheduled == false) {
