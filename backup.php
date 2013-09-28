@@ -1019,11 +1019,9 @@ class UpdraftPlus_Backup {
 			$updraftplus->jobdata_set('jobstatus', 'dbencrypting');
 			$encryption_error = 0;
 			$microstart = microtime(true);
-			$updraftplus->ensure_phpseclib('Crypt_Rijndael', 'Crypt/Rijndael');
-			$rijndael = new Crypt_Rijndael();
-			$rijndael->setKey($encryption);
 			$file_size = @filesize($this->updraft_dir.'/'.$file)/1024;
-			if (false === file_put_contents($this->updraft_dir.'/'.$file.'.crypt' , $rijndael->encrypt(file_get_contents($this->updraft_dir.'/'.$file)))) {$encryption_error = 1;}
+
+			if (false === file_put_contents($this->updraft_dir.'/'.$file.'.crypt' , $updraftplus->encrypt($this->updraft_dir.'/'.$file, $encryption))) $encryption_error = 1;
 			if (0 == $encryption_error) {
 				$time_taken = max(0.000001, microtime(true)-$microstart);
 				$updraftplus->log("$file: encryption successful: ".round($file_size,1)."Kb in ".round($time_taken,1)."s (".round($file_size/$time_taken, 1)."Kb/s)");

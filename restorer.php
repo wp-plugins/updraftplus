@@ -86,16 +86,11 @@ class Updraft_Restorer extends WP_Upgrader {
 			$encryption = UpdraftPlus_Options::get_updraft_option('updraft_encryptionphrase');
 			if (!$encryption) return new WP_Error('no_encryption_key', __('Decryption failed. The database file is encrypted, but you have no encryption key entered.', 'updraftplus'));
 
-			// Encrypted - decrypt it
-			$updraftplus->ensure_phpseclib('Crypt_Rijndael', 'Crypt/Rijndael');
-			$rijndael = new Crypt_Rijndael();
+			$plaintext = $updraftplus->decrypt(false, $encryption, $wp_filesystem->get_contents($backup_dir.$package));
 
-			// Get decryption key
-			$rijndael->setKey($encryption);
-			$ciphertext = $rijndael->decrypt($wp_filesystem->get_contents($backup_dir.$package));
-			if ($ciphertext) {
+			if ($plaintext) {
 				$this->skin->feedback('decrypted_database');
-				if (!$wp_filesystem->put_contents($working_dir.'/backup.db.gz', $ciphertext)) {
+				if (!$wp_filesystem->put_contents($working_dir.'/backup.db.gz', $plaintext)) {
 					return new WP_Error('write_failed', __('Failed to write out the decrypted database to the filesystem','updraftplus'));
 				}
 			} else {

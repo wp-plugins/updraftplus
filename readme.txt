@@ -129,15 +129,16 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 = Development version: not yet released/supported =
 
 * FEATURE: Options in the "Backup Now" dialog to exclude files or database from the backup
-* FEATURE: Use binary mysqldump, if available, for faster dumps of large tables
-* FEATURE: Restorer now handles hand-moved WP site directories (where they differ from the website base directory)
-* FIX: Under certain conditions, the report email could wrongly indicate that files were included in a db-only backup
+* FEATURE: Use binary mysqldump, if available, for much faster dumps of large tables
+* FEATURE: Restorer now handles hand-moved non-default WP site directories (where they differ from the website base directory)
+* FIX: Under certain conditions, the report email could wrongly state that files were included in a db-only backup
 * FIX: Fix a JavaScript error in Internet Explorer 8
 * TWEAK: Switch zip engines from ZipArchive earlier if it appears to be broken
 * TWEAK: Now cleans up some previously un-caught temporary files if the backup aborted unexpectedly
 * TWEAK: Remove the "that's a lot of rows" warning once the table successfully finishes being dumped
 * TWEAK: Cache the results of looking for a zip executable for the duration of the job
 * TWEAK: Some badly-written plugins place their own code on UD's settings page, and break the layout; overcome this
+* TWEAK: Add a warning for people using encryption without mcrypt installed (slow)
 
 = 1.7.20 - 2013/09/20 =
 * TWEAK: Add semaphore locking to prevent WP's cron system kicking off multiple jobs on overloaded systems

@@ -867,12 +867,8 @@ class UpdraftPlus_Admin {
 				return array($mess, $warn, $err);
 			}
 
-			$updraftplus->ensure_phpseclib('Crypt_Rijndael', 'Crypt/Rijndael');
-			$rijndael = new Crypt_Rijndael();
+			$ciphertext = $updraftplus->decrypt($db_file, $encryption);
 
-			// Get decryption key
-			$rijndael->setKey($encryption);
-			$ciphertext = $rijndael->decrypt(file_get_contents($db_file));
 			if ($ciphertext) {
 				$new_db_file = $updraft_dir.'/'.basename($db_file, '.crypt');
 				if (!file_put_contents($new_db_file, $ciphertext)) {
@@ -2121,7 +2117,26 @@ CREATE TABLE $wpdb->signups (
 			</tr>
 			<tr>
 				<th><?php _e('Email','updraftplus'); ?>:</th>
-				<td><input type="text" title="<?php _e('To send to more than one address, separate each address with a comma.', 'updraftplus'); ?>" style="width:260px" name="updraft_email" value="<?php echo UpdraftPlus_Options::get_updraft_option('updraft_email'); ?>" /> <br><?php _e('Enter an address here to have a report sent (and the whole backup, if you choose) to it.','updraftplus'); ?></td>
+				<td>
+					<?php
+						$updraft_email = UpdraftPlus_Options::get_updraft_option('updraft_email');
+					?>
+					<input type="text" title="<?php _e('To send to more than one address, separate each address with a comma.', 'updraftplus'); ?>" style="width:260px" name="updraft_email" value="<?php esc_attr_e($updraft_email); ?>" /> <br><?php _e('Enter an address here to have a report sent (and the whole backup, if you choose) to it.','updraftplus'); ?>
+
+					<?php
+						$admin_email= get_bloginfo('admin_email');
+						if ($updraftplus->have_addons <10) {
+							if ($updraft_email && $updraft_email != $admin_email) {
+								echo '<strong>';
+							}
+							echo ' '.apply_filters('updraft_reportingemailnotice', sprintf(__("With the next release of UpdraftPlus, you will need an add-on to use a different email address to the site owner's (%s).", 'updraftplus'), $admin_email));
+							if ($updraft_email && $updraft_email != $admin_email) {
+								echo '</strong>';
+							}
+						}
+					?>
+
+				</td>
 			</tr>
 
 			<tr>
@@ -2132,7 +2147,20 @@ CREATE TABLE $wpdb->signups (
 				<td><input type="<?php echo apply_filters('updraftplus_admin_secret_field_type', 'text'); ?>" name="updraft_encryptionphrase" id="updraft_encryptionphrase" value="<?php echo $updraft_encryptionphrase ?>" style="width:132px" /></td>
 			</tr>
 			<tr class="backup-crypt-description">
-				<td></td><td><p><?php _e('If you enter text here, it is used to encrypt backups (Rijndael). <strong>Do make a separate record of it and do not lose it, or all your backups <em>will</em> be useless.</strong> Presently, only the database file is encrypted. This is also the key used to decrypt backups from this admin interface (so if you change it, then automatic decryption will not work until you change it back).','updraftplus');?> <a href="#" onclick="jQuery('#updraftplus_db_decrypt').val(jQuery('#updraft_encryptionphrase').val()); jQuery('#updraft-manualdecrypt-modal').slideToggle(); return false;"><?php _e('You can also decrypt a database manually here.','updraftplus');?></a></p>
+				<td></td><td><?php if (!function_exists('mcrypt_encrypt')) { ?>
+					
+					<p><strong><?php echo sprintf(__('Your web-server does not have the %s module installed.', 'updraftplus'), 'mcrypt').' '.__('Without it, encryption will be a lot slower.', 'updraftplus');?></strong></p>
+					
+					<?php } ?><p><?php _e('If you enter text here, it is used to encrypt backups (Rijndael). <strong>Do make a separate record of it and do not lose it, or all your backups <em>will</em> be useless.</strong> Presently, only the database file is encrypted. This is also the key used to decrypt backups from this admin interface (so if you change it, then automatic decryption will not work until you change it back).','updraftplus');?> <a href="#" onclick="jQuery('#updraftplus_db_decrypt').val(jQuery('#updraft_encryptionphrase').val()); jQuery('#updraft-manualdecrypt-modal').slideToggle(); return false;"><?php _e('You can also decrypt a database manually here.','updraftplus');?></a>
+					<?php
+						if ($updraftplus->have_addons < 10) {
+							if ($updraft_encryptionphrase) echo '<strong>';
+							echo ' '.__("A future release of UpdraftPlus will move the encryption feature into an add-on, and add the capability to encrypt files also.", 'updraftplus');
+							if ($updraft_encryptionphrase) echo '</strong>';
+					}
+					?>
+
+					</p>
 
 				<div id="updraft-manualdecrypt-modal" style="width: 85%; margin: 16px; display:none; margin-left: 100px;">
 					<p><h3><?php _e("Manually decrypt a database backup file" ,'updraftplus');?></h3></p>

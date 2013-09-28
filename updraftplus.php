@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.7.24
+Version: 1.7.25
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -13,12 +13,12 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
-// Raise a warning for probably-too-large email attachments (make intelligent - i.e. record what's the largest succesfully despatched so far? Or is that not relevant, since that only tells us about the first link?)
 // After Oct 15 2013: Remove page(s) from websites discussing W3TC
 // Upon database restore, remove all resumption jobs from the scheduler. And/or never save them.
 // Change migrate window: 1) Retain link to article 2) Have selector to choose which backup set to migrate - or a fresh one 3) Have option for FTP/SFTP/SCP despatch 4) Have big "Go" button. Have some indication of what happens next. Test the login first. Have the remote site auto-scan its directory + pick up new sets. Have a way of querying the remote site for its UD-dir. Have a way of saving the settings as a 'profile'. Or just save the last set of settings (since mostly will be just one place to send to). Implement an HTTP/JSON method for sending files too.
 // Change default setting of retain 1 backup set? (Auto-backup could replace it in that case... don't perform pruning when doing auto-backup?)
-// Prettify shop page: http://wordpress.org/plugins/pricing-table-extended/
+// New reporting add-on: Multiple email addresses, send backup to 1st only, option to send email only on failure, include checksums (SHA1) in report, option to include log file always, option to log to syslog
+// Strategy for what to do if the updraft_dir contains untracked backups. Automatically rescan?
 // MySQL manual: See Section 8.2.2.1, Speed of INSERT Statements.
 // Exempt UD itself from a plugins restore? (will options be out-of-sync? exempt options too?)
 // Post restore/migrate, check updraft_dir, and reset if non-existent
@@ -27,12 +27,8 @@ TODO - some of these are out of date/done, needs pruning
 // Test with: http://wordpress.org/plugins/wp-db-driver/
 // Backup notes
 // The delete-em at the end needs to be made resumable
-// Show running jobs at top. If there are some, and are overdue, kick off a few visits to wp-cron.php to help along.
 // Incremental - can leverage some of the multi-zip work???
 // Put in a help link to explain what WordPress core (including any additions to your WordPress root directory) does (was asked for support)
-// mysqldump, if available, for faster database dumps. Need then to test compatibility with max_packet_size detection in restoration
-// Check flow of activation on multisite
-// Find a faster encryption method
 // Multiple files in more-files
 // On restore, raise a warning for ginormous zips
 // Detect double-compressed files when they are uploaded (need a way to detect gz compression in general)
@@ -115,13 +111,11 @@ TODO - some of these are out of date/done, needs pruning
 // Chunking + resuming on SFTP
 // Add-on to check integrity of backups
 // Add-on to manage all your backups from a single dashboard
-// Make disk space check more intelligent (currently hard-coded at 35Mb)
 // Provide backup/restoration for UpdraftPlus's settings, to allow 'bootstrap' on a fresh WP install - some kind of single-use code which a remote UpdraftPlus can use to authenticate
 // Multiple schedules
 // Allow connecting to remote storage, scanning + populating backup history from it
 // GoogleDrive in-dashboard download resumption loads the whole archive into memory - should instead either chunk or directly stream fo the file handle
 // Multisite add-on should allow restoring of each blog individually
-// Create single zip, containing even WordPress itself
 // Remove the recurrence of admin notices when settings are saved due to _wp_referer
 
 Encrypt filesystem, if memory allows (and have option for abort if not)
@@ -168,16 +162,19 @@ if (is_file(UPDRAFTPLUS_DIR.'/premium.php')) require_once(UPDRAFTPLUS_DIR.'/prem
 if (is_file(UPDRAFTPLUS_DIR.'/autoload.php')) require_once(UPDRAFTPLUS_DIR.'/autoload.php');
 if (is_file(UPDRAFTPLUS_DIR.'/udaddons/updraftplus-addons.php')) include_once(UPDRAFTPLUS_DIR.'/udaddons/updraftplus-addons.php');
 
+$updraftplus_have_addons = 0;
 if (is_dir(UPDRAFTPLUS_DIR.'/addons') && $dir_handle = opendir(UPDRAFTPLUS_DIR.'/addons')) {
 	while (false !== ($e = readdir($dir_handle))) {
 		if (is_file(UPDRAFTPLUS_DIR.'/addons/'.$e) && preg_match('/\.php$/', $e)) {
+			$updraftplus_have_addons++;
 			include_once(UPDRAFTPLUS_DIR.'/addons/'.$e);
 		}
 	}
 	@closedir($dir_handle);
 }
 
-if (!isset($updraftplus)) $updraftplus = new UpdraftPlus();
+$updraftplus = new UpdraftPlus();
+$updraftplus->have_addons = $updraftplus_have_addons;
 
 if (!$updraftplus->memory_check(192)) {
 // Experience appears to show that the memory limit is only likely to be hit (unless it is very low) by single files that are larger than available memory (when compressed)
@@ -225,6 +222,7 @@ class UpdraftPlus {
 	private $jobdata;
 
 	public $something_useful_happened = false;
+	public $have_addons = false;
 
 	// Used to schedule resumption attempts beyond the tenth, if needed
 	public $current_resumption;
@@ -614,6 +612,26 @@ class UpdraftPlus {
 			$this->jobdata_set('uploading_substatus', $upload_status);
 		}
 
+	}
+
+	function decrypt($fullpath, $key, $ciphertext = false) {
+		$this->ensure_phpseclib('Crypt_Rijndael', 'Crypt/Rijndael');
+		$rijndael = new Crypt_Rijndael();
+		$rijndael->setKey($key);
+		return (false == $ciphertext) ? $rijndael->decrypt(file_get_contents($fullpath)) : $rijndael->decrypt($ciphertext);
+	}
+
+	function encrypt($fullpath, $key) {
+		if (!function_exists('mcrypt_encrypt')) {
+			$this->log(sprintf(__('Your web-server does not have the %s module installed.', 'updraftplus'), 'mcrypt').' '.__('Without it, encryption will be a lot slower.', 'updraftplus'), 'warning', 'nomcrypt');
+		}
+		if ($this->have_addons < 10) {
+			$this->log(__("A future release of UpdraftPlus will move the encryption feature into an add-on (and add more features to it).", 'updraftplus'), 'warning', 'needpremiumforcrypt');
+		}
+		$this->ensure_phpseclib('Crypt_Rijndael', 'Crypt/Rijndael');
+		$rijndael = new Crypt_Rijndael();
+		$rijndael->setKey($key);
+		return $rijndael->encrypt(file_get_contents($fullpath));
 	}
 
 	function detect_safe_mode() {
@@ -1119,8 +1137,6 @@ class UpdraftPlus {
 			}
 		}
 
-		if (!empty($this->semaphore)) $this->semaphore->unlock();
-
 		if (count($undone_files) == 0) {
 			$this->log("Resume backup ($bnonce, $resumption_no): finish run");
 			$this->log("There were no more files that needed uploading; backup job is complete");
@@ -1358,6 +1374,8 @@ class UpdraftPlus {
 	}
 
 	function backup_finish($cancel_event, $do_cleanup, $allow_email, $resumption_no) {
+
+		if (!empty($this->semaphore)) $this->semaphore->unlock();
 
 		$delete_jobdata = false;
 
@@ -1867,10 +1885,7 @@ class UpdraftPlus {
 					_e("Decryption failed. The database file is encrypted, but you have no encryption key entered.",'updraftplus');
 					$this->log('Decryption of database failed: the database file is encrypted, but you have no encryption key entered.', 'error');
 				} else {
-					$this->ensure_phpseclib('Crypt_Rijndael', 'Crypt/Rijndael');
-					$rijndael = new Crypt_Rijndael();
-					$rijndael->setKey($encryption);
-					$ciphertext = $rijndael->decrypt(file_get_contents($fullpath));
+					$ciphertext = $this->decrypt($fullpath, $encryption);
 					if ($ciphertext) {
 						header('Content-type: application/x-gzip');
 						header("Content-Disposition: attachment; filename=\"".substr($file,0,-6)."\";");
