@@ -29,7 +29,7 @@ class UpdraftPlus_Backup {
 	private $dbhandle_isgz;
 
 	private $use_zip_object = 'UpdraftPlus_ZipArchive';
-	private $debug = false;
+	public $debug = false;
 
 	private $updraft_dir;
 
