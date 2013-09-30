@@ -495,9 +495,6 @@ class UpdraftPlus {
 
 		$this->log($logline);
 
-		if ('Y' === $w3oc) $this->log(__('W3 Total Cache\'s object cache is active. This is known to have a bug that messes with all scheduled tasks (including backup jobs).','updraftplus').' '.__('You should go to the W3 Total Cache settings page and turn it off.', 'updraftplus'), 'warning');
-
-
 		$disk_free_space = @disk_free_space($updraft_dir);
 		if ($disk_free_space === false) {
 			$this->log("Free space on disk containing Updraft's temporary directory: Unknown");
