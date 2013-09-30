@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.7.25
+Version: 1.7.26
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -30,6 +30,7 @@ TODO - some of these are out of date/done, needs pruning
 // Incremental - can leverage some of the multi-zip work???
 // Put in a help link to explain what WordPress core (including any additions to your WordPress root directory) does (was asked for support)
 // Multiple files in more-files
+// On multisite, the settings should be in the network panel. Connection settings need migrating into site options.
 // On restore, raise a warning for ginormous zips
 // Detect double-compressed files when they are uploaded (need a way to detect gz compression in general)
 // Log migrations/restores, and have an option for auto-emailing the log
@@ -39,6 +40,7 @@ TODO - some of these are out of date/done, needs pruning
 // More sophisticated options for retaining/deleting (e.g. 4/day for X days, then 7/week for Z weeks, then 1/month for Y months)
 // Unpack zips via AJAX? Do bit-by-bit to allow enormous opens a better chance? (have a huge one in Dropbox)
 // Put in a maintenance-mode detector
+// Add update warning if they've got an add-on but not connected account
 // Detect CloudFlare output in attempts to connect - detecting cloudflare.com should be sufficient
 // Bring multisite shop page up to date
 // Re-do pricing + support packages
@@ -214,7 +216,7 @@ class UpdraftPlus {
 	public $logfile_name = "";
 	public $logfile_handle = false;
 	public $backup_time;
-	public $backup_time_ms;
+	public $job_time_ms;
 
 	public $opened_log_time;
 	private $backup_dir;
@@ -232,7 +234,7 @@ class UpdraftPlus {
 
 		// Initialisation actions - takes place on plugin load
 
-		if ($fp = fopen( __FILE__, 'r')) {
+		if ($fp = fopen(__FILE__, 'r')) {
 			$file_data = fread( $fp, 1024 );
 			if (preg_match("/Version: ([\d\.]+)(\r|\n)/", $file_data, $matches)) {
 				$this->version = $matches[1];
@@ -386,10 +388,15 @@ class UpdraftPlus {
 		# Clean out old job data
 		if ($older_than >10000) {
 			global $wpdb;
-			$all_jobs = $wpdb->get_results("SELECT option_name, option_value FROM $wpdb->options WHERE option_name LIKE 'updraft_jobdata_%' LIMIT 1", ARRAY_A);
+			$all_jobs = $wpdb->get_results("SELECT option_name, option_value FROM $wpdb->options WHERE option_name LIKE 'updraft_jobdata_%'", ARRAY_A);
 			foreach ($all_jobs as $job) {
 				$val = maybe_unserialize($job['option_value']);
+				# TODO: Can simplify this after a while (now all jobs use job_time_ms) - 1 Jan 2014
 				if (!empty($val['backup_time_ms']) && time() > $val['backup_time_ms'] + 86400) {
+					delete_option($job['option_name']);
+				} elseif (!empty($val['job_time_ms']) && time() > $val['job_time_ms'] + 86400) {
+					delete_option($job['option_name']);
+				} elseif (empty($val['backup_time_ms']) && empty($val['job_time_ms']) && !empty($val['job_type']) && $val['job_type'] != 'backup') {
 					delete_option($job['option_name']);
 				}
 			}
@@ -431,7 +438,7 @@ class UpdraftPlus {
 	}
 
 	public function backup_time_nonce() {
-		$this->backup_time_ms = microtime(true);
+		$this->job_time_ms = microtime(true);
 		$this->backup_time = time();
 		$nonce = substr(md5(time().rand()), 20);
 		$this->nonce = $nonce;
@@ -540,7 +547,7 @@ class UpdraftPlus {
 
 		if ($this->logfile_handle) {
 			# Record log file times relative to the backup start, if possible
-			$rtime = (!empty($this->backup_time_ms)) ? microtime(true)-$this->backup_time_ms : microtime(true)-$this->opened_log_time;
+			$rtime = (!empty($this->job_time_ms)) ? microtime(true)-$this->job_time_ms : microtime(true)-$this->opened_log_time;
 			fwrite($this->logfile_handle, sprintf("%08.03f", round($rtime, 3))." (".$this->current_resumption.") $line\n");
 		}
 
@@ -934,7 +941,13 @@ class UpdraftPlus {
 		if ($resumption_no > 0) {
 			$this->nonce = $bnonce;
 			$this->backup_time = $this->jobdata_get('backup_time');
-			$this->backup_time_ms = $this->jobdata_get('backup_time_ms');
+			# TODO: Remove legacy use of backup_time_ms after 1 Jan 2014
+			$bts = $this->jobdata_get('backup_time_ms');
+			if (!empty($bts)) {
+				$this->job_time_ms = $this->jobdata_get('backup_time_ms');
+			} else {
+				$this->job_time_ms = $this->jobdata_get('job_time_ms');
+			}
 			$this->logfile_open($bnonce);
 
 			$runs_started = $this->jobdata_get('runs_started');
@@ -971,15 +984,6 @@ class UpdraftPlus {
 		// The actual interval can be increased (for future resumptions) by other code, if it detects apparent overlapping
 		$resume_interval = max(intval($this->jobdata_get('resume_interval')), 100);
 
-		if ($resumption_no > 0 && isset($runs_started[$prev_resumption])) {
-			$our_expected_start = $runs_started[$prev_resumption] + $resume_interval;
-			# More than 12 minutes late?
-			if ($time_now > $our_expected_start + 720) {
-				$this->log('Long time past since expected resumption time: approx expected= '.round($our_expected_start,1).", now=".round($time_now, 1).", diff=".round($time_now-$our_expected_start,1));
-				$this->log(__('Your website is visited infrequently and UpdraftPlus is not getting the resources it hoped for; please read this page:', 'updraftplus').' http://updraftplus.com/faqs/why-am-i-getting-warnings-about-my-site-not-having-enough-visitors/', 'warning', 'infrequentvisits');
-			}
-		}
-
 		$btime = $this->backup_time;
 		$job_type = $this->jobdata_get('job_type');
 
@@ -994,6 +998,15 @@ class UpdraftPlus {
 		if (($resumption_no >= 1 && 'finished' == $this->jobdata_get('jobstatus')) || (!empty($this->backup_is_already_complete))) {
 			$this->log('Terminate: This backup job is already finished.');
 			die;
+		}
+
+		if ($resumption_no > 0 && isset($runs_started[$prev_resumption])) {
+			$our_expected_start = $runs_started[$prev_resumption] + $resume_interval;
+			# More than 12 minutes late?
+			if ($time_now > $our_expected_start + 720) {
+				$this->log('Long time past since expected resumption time: approx expected= '.round($our_expected_start,1).", now=".round($time_now, 1).", diff=".round($time_now-$our_expected_start,1));
+				$this->log(__('Your website is visited infrequently and UpdraftPlus is not getting the resources it hoped for; please read this page:', 'updraftplus').' http://updraftplus.com/faqs/why-am-i-getting-warnings-about-my-site-not-having-enough-visitors/', 'warning', 'infrequentvisits');
+			}
 		}
 
 		// We just do this once, as we don't want to be in permanent conflict with the overlap detector
@@ -1029,18 +1042,17 @@ class UpdraftPlus {
 			}
 		}
 
+		// Sanity check
+		if (empty($this->backup_time)) {
+			$this->log('Abort this run: the backup_time parameter appears to be empty (this is either a one-time error caused by upgrading from a version earlier than 1.7.18 whilst a backup was in progress (which you can ignore), or caused by resuming an already-complete backup.');
+			return false;
+		}
+
 		if (isset($schedule_resumption)) {
 			$schedule_for = time()+$resume_interval;
 			$this->log("Scheduling a resumption ($next_resumption) after $resume_interval seconds ($schedule_for) in case this run gets aborted");
 			wp_schedule_single_event($schedule_for, 'updraft_backup_resume', array($next_resumption, $bnonce));
 			$this->newresumption_scheduled = $schedule_for;
-		}
-
-		// Sanity check
-		if (empty($this->backup_time)) {
-			# TODO: We no longer use object cache-ing - alter this message
-			$this->log('Abort this run: the backup_time parameter appears to be empty (this is either a one-time error caused by upgrading from a version earlier than 1.7.18 whilst a backup was in progress (which you can ignore), or caused by resuming an already-complete backup, or by your site having a faulty object cache active (e.g. W3 Total Cache\'s object cache))');
-			return false;
 		}
 
 		global $updraftplus_backup;
@@ -1329,7 +1341,7 @@ class UpdraftPlus {
 		$this->semaphore->lock_name = $semaphore;
 		$this->log('Requesting semaphore lock ('.$semaphore.')');
 		if (!$this->semaphore->lock()) {
-			$this->log('Failed to gain semaphore lock ('.$semaphore.') - another backup is apparently already active - aborting (backups of the same time must be started at least 1 minute apart; otherwise they are assumed to be unwanted duplicates)');
+			$this->log('Failed to gain semaphore lock ('.$semaphore.') - another backup of this type is apparently already active - aborting (if this is wrong - i.e. if the other backup crashed without removing the lock, then another can be started after 3 minutes)');
 			return;
 		}
 
@@ -1356,7 +1368,7 @@ class UpdraftPlus {
 			'job_type', 'backup',
 			'jobstatus', 'begun',
 			'backup_time', $this->backup_time,
-			'backup_time_ms', $this->backup_time_ms,
+			'job_time_ms', $this->job_time_ms,
 			'service', $service,
 			'split_every', max(intval(UpdraftPlus_Options::get_updraft_option('updraft_split_every', 800)), UPDRAFTPLUS_SPLIT_MIN),
 			'maxzipbatch', 26214400, #25Mb

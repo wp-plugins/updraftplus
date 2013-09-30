@@ -4,7 +4,7 @@ if (!defined ('ABSPATH')) die('No direct access allowed');
 
 // For the purposes of improving site performance (don't load in 10s of Kilobytes of un-needed code on every page load), admin-area code is being progressively moved here.
 
-// This gets called in admin_init, earlier than default (so our object can get used by those hooking admin_init). Or possibly in admin_menu.
+// This gets called in admin_menu, earlier than admin_init
 
 global $updraftplus_admin;
 if (!is_a($updraftplus_admin, 'UpdraftPlus_Admin')) $updraftplus_admin = new UpdraftPlus_Admin();
@@ -60,17 +60,6 @@ class UpdraftPlus_Admin {
 			@error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 			add_action('admin_notices', array($this, 'show_admin_debug_warning'));
 		}
-
-		// W3 Total Cache's object cache eats transients during cron jobs. Reported to them many times by multiple people.
-// TODO: Remove: we no longer deploy transients
-// 		if (defined('W3TC') && W3TC == true) {
-// 			if (function_exists('w3_instance')) {
-// 				$modules = w3_instance('W3_ModuleStatus');
-// 				if ($modules->is_enabled('objectcache')) {
-// 					add_action('admin_notices', array($this, 'show_admin_warning_w3_total_cache'));
-// 				}
-// 			}
-// 		}
 
 		// LiteSpeed has a generic problem with terminating cron jobs
 		if (isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'LiteSpeed') !== false) {
@@ -378,6 +367,7 @@ class UpdraftPlus_Admin {
 
 		// Set the job type before logging, as there can be different logging destinations
 		$updraftplus->jobdata_set('job_type', 'download');
+		$updraftplus->jobdata_set('job_time_ms', $updraftplus->job_time_ms);
 
 		// Retrieve the information from our backup history
 		$backup_history = $updraftplus->get_backup_history();
@@ -617,6 +607,7 @@ class UpdraftPlus_Admin {
 			$updraftplus->backup_time_nonce();
 			// Set the job type before logging, as there can be different logging destinations
 			$updraftplus->jobdata_set('job_type', 'delete');
+			$updraftplus->jobdata_set('job_time_ms', $updraftplus->job_time_ms);
 
 			if (UpdraftPlus_Options::get_updraft_option('updraft_debug_mode')) $updraftplus->logfile_open($updraftplus->nonce);
 
@@ -1311,7 +1302,7 @@ CREATE TABLE $wpdb->signups (
 
 			<?php
 			if(isset($_GET['updraft_restore_success'])) {
-				echo "<div class=\"updated fade\" style=\"padding:8px;\"><strong>".__('Your backup has been restored.','updraftplus').'</strong> '.__('Your old (themes, uploads, plugins, whatever) directories have been retained with "-old" appended to their name. Remove them when you are satisfied that the backup worked properly.')."</div>";
+				echo "<div class=\"updated fade\" style=\"padding:8px;\"><strong>".__('Your backup has been restored.','updraftplus').'</strong> '.__('If your restore included files, then your old (themes, uploads, plugins, whatever) directories have been retained with "-old" appended to their name. Remove them when you are satisfied that the backup worked properly.')."</div>";
 			}
 
 			$ws_advert = $updraftplus->wordshell_random_advert(1);
@@ -1745,8 +1736,8 @@ CREATE TABLE $wpdb->signups (
 			$curstage = __('Creating file backup zips', 'updraftplus');
 			if (!empty($jobdata['filecreating_substatus']) && isset($backupable_entities[$jobdata['filecreating_substatus']['e']]['description'])) {
 			
-			$sdescrip = preg_replace('/ \(.*\)$/', '', $backupable_entities[$jobdata['filecreating_substatus']['e']]['description']);
-			if (strlen($sdescrip) > 20 && isset($backupable_entities[$jobdata['filecreating_substatus']]['shortdescription'])) $sdescrip = $backupable_entities[$jobdata['filecreating_substatus']]['shortdescription'];
+				$sdescrip = preg_replace('/ \(.*\)$/', '', $backupable_entities[$jobdata['filecreating_substatus']['e']]['description']);
+				if (strlen($sdescrip) > 20 && isset($jobdata['filecreating_substatus']['e']) && is_array($jobdata['filecreating_substatus']['e']) && isset($backupable_entities[$jobdata['filecreating_substatus']['e']]['shortdescription'])) $sdescrip = $backupable_entities[$jobdata['filecreating_substatus']['e']]['shortdescription'];
 				$curstage .= ' ('.$sdescrip.')';
 				if (isset($jobdata['filecreating_substatus']['i']) && isset($jobdata['filecreating_substatus']['t'])) {
 					$stage = min(2, 1 + ($jobdata['filecreating_substatus']['i']/max($jobdata['filecreating_substatus']['t'],1)));
@@ -2053,8 +2044,8 @@ CREATE TABLE $wpdb->signups (
 					</select> <span id="updraft_files_timings"><?php echo apply_filters('updraftplus_schedule_showfileopts', '<input type="hidden" name="updraftplus_starttime_files" value="">'); ?></span>
 					<?php
 					echo __('and retain this many backups', 'updraftplus').': ';
-					$updraft_retain = UpdraftPlus_Options::get_updraft_option('updraft_retain', 1);
-					$updraft_retain = ((int)$updraft_retain > 0) ? (int)$updraft_retain : 1;
+					$updraft_retain = (int)UpdraftPlus_Options::get_updraft_option('updraft_retain', 2);
+					$updraft_retain = ($updraft_retain > 0) ? $updraft_retain : 1;
 					?> <input type="text" name="updraft_retain" value="<?php echo $updraft_retain ?>" style="width:40px;" />
 					</td>
 			</tr>
@@ -2071,8 +2062,8 @@ CREATE TABLE $wpdb->signups (
 					</select> <span id="updraft_db_timings"><?php echo apply_filters('updraftplus_schedule_showdbopts', '<input type="hidden" name="updraftplus_starttime_db" value="">'); ?></span>
 					<?php
 					echo __('and retain this many backups', 'updraftplus').': ';
-					$updraft_retain_db = UpdraftPlus_Options::get_updraft_option('updraft_retain_db', $updraft_retain);
-					$updraft_retain_db = ((int)$updraft_retain_db > 0) ? (int)$updraft_retain_db : 1;
+					$updraft_retain_db = (int)UpdraftPlus_Options::get_updraft_option('updraft_retain_db', $updraft_retain);
+					$updraft_retain_db = ($updraft_retain_db > 0) ? $updraft_retain_db : 1;
 					?> <input type="text" name="updraft_retain_db" value="<?php echo $updraft_retain_db ?>" style="width:40px" />
 			</td>
 			</tr>
@@ -2613,7 +2604,7 @@ ENDHERE;
 				// Record which set this file is found in
 				if (!is_array($values)) $values=array($values);
 				foreach ($values as $val) {
-					if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+([0-9]+(of[0-9]+)?)?+\.(zip|gz|gz\.crypt)$/i', $val, $matches)) {
+					if (is_string($val) && preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+([0-9]+(of[0-9]+)?)?+\.(zip|gz|gz\.crypt)$/i', $val, $matches)) {
 						$nonce = $matches[2];
 						if (isset($bdata['service']) && $bdata['service'] == 'none' && !is_file($updraft_dir.'/'.$val)) {
 							# File no longer present
@@ -2698,6 +2689,7 @@ ENDHERE;
 		# Set up logging
 		$updraftplus->backup_time_nonce();
 		$updraftplus->jobdata_set('job_type', 'restore');
+		$updraftplus->jobdata_set('job_time_ms', $updraftplus->job_time_ms);
 		$updraftplus->logfile_open($updraftplus->nonce);
 		# TODO: Provide download link for the log file
 		# TODO: Automatic purging of old log files

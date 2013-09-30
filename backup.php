@@ -451,7 +451,7 @@ class UpdraftPlus_Backup {
 	// The purpose of this function is to make sure that the options table is put in the database first, then the users table, then the usermeta table; and after that the core WP tables - so that when restoring we restore the core tables first
 	private function backup_db_sorttables($a, $b) {
 		global $updraftplus, $wpdb;
-		$our_table_prefix = $updraftplus->get_table_prefix();
+		$our_table_prefix = $this->table_prefix;
 		if ($a == $b) return 0;
 		if ($a == $our_table_prefix.'options') return -1;
 		if ($b ==  $our_table_prefix.'options') return 1;
@@ -682,13 +682,11 @@ class UpdraftPlus_Backup {
 
 		global $updraftplus, $wpdb;
 
-		$our_table_prefix = $updraftplus->get_table_prefix();
+		$this->table_prefix = $updraftplus->get_table_prefix();
 
 		$errors = 0;
 
-		// Get the file prefix
-
-		if(!$updraftplus->backup_time) $updraftplus->backup_time_nonce();
+		if (!$updraftplus->backup_time) $updraftplus->backup_time_nonce();
 		if (!$updraftplus->opened_log_time) $updraftplus->logfile_open($updraftplus->nonce);
 
 		// Get the blog name and rip out all non-alphanumeric chars other than _
@@ -740,7 +738,7 @@ class UpdraftPlus_Backup {
 				$opened = $this->backup_db_open($this->updraft_dir.'/'.$table_file_prefix.'.tmp.gz', true);
 				if (false === $opened) return false;
 				# === is needed, otherwise 'false' matches (i.e. prefix does not match)
-				if ( strpos($table, $our_table_prefix) === 0 ) {
+				if ( strpos($table, $this->table_prefix) === 0 ) {
 					// Create the SQL statements
 					$this->stow("# " . sprintf(__('Table: %s','wp-db-backup'),$updraftplus->backquote($table)) . "\n");
 					$updraftplus->jobdata_set('dbcreating_substatus', array('t' => $table, 'i' => $total_tables, 'a' => $how_many_tables));
@@ -756,14 +754,17 @@ class UpdraftPlus_Backup {
 						}
 					}
 
+					# Don't include the job data for any backups - so that when the database is restored, it doesn't continue an apparently incomplete backup
+					$where =  ($this->table_prefix.'options' == $table || $this->table_prefix.'sitemeta' == $table) ? 'option_name NOT LIKE "updraft_jobdata_%"' : '';
+
 					# TODO: Lower this from 10,000 if the feedback is good
-					$bindump = (isset($rows) && $rows>10000 && is_string($binsqldump)) ? $this->backup_table_bindump($binsqldump, $table) : false;
-					if (!$bindump) $this->backup_table($table);
+					$bindump = (isset($rows) && $rows>10000 && is_string($binsqldump)) ? $this->backup_table_bindump($binsqldump, $table, $where) : false;
+					if (!$bindump) $this->backup_table($table, $where);
 
 					if (!empty($manyrows_warning)) $updraftplus->log_removewarning('manyrows_'.$table);
 
 				} else {
-					$this->stow("# " . sprintf(__('Skipping non-WP table: %s','wp-db-backup'),$updraftplus->backquote($table)) . "\n");
+					$this->stow("# " . sprintf(__('Skipping table (lacks our prefix): %s','wp-db-backup'),$updraftplus->backquote($table)) . "\n");
 				}
 				// Close file
 				$this->close($this->dbhandle);
@@ -831,7 +832,7 @@ class UpdraftPlus_Backup {
 
 	} //wp_db_backup
 
-	private function backup_table_bindump($potsql, $table_name) {
+	private function backup_table_bindump($potsql, $table_name, $where) {
 
 		$microtime = microtime(true);
 
@@ -840,7 +841,9 @@ class UpdraftPlus_Backup {
 		$pfile = md5(time().rand()).'.tmp';
 		file_put_contents($this->updraft_dir.'/'.$pfile, "[mysqldump]\npassword=".DB_PASSWORD."\n");
 
-		$exec = "cd ".escapeshellarg($this->updraft_dir)."; $potsql  --defaults-file=$pfile --max_allowed_packet=1M --quote-names --add-drop-table --skip-comments --skip-set-charset --allow-keywords --dump-date --extended-insert --user=".escapeshellarg(DB_USER)." --host=".escapeshellarg(DB_HOST)." ".DB_NAME." ".escapeshellarg($table_name);
+		if ($where) $where="--where='".escapeshellarg($where)."'";
+
+		$exec = "cd ".escapeshellarg($this->updraft_dir)."; $potsql  --defaults-file=$pfile $where --max_allowed_packet=1M --quote-names --add-drop-table --skip-comments --skip-set-charset --allow-keywords --dump-date --extended-insert --user=".escapeshellarg(DB_USER)." --host=".escapeshellarg(DB_HOST)." ".DB_NAME." ".escapeshellarg($table_name);
 
 		$ret = false;
 		$any_output = false;
@@ -886,7 +889,7 @@ class UpdraftPlus_Backup {
 	 * @param string $segment
 	 * @return void
 	 */
-	private function backup_table($table, $segment = 'none') {
+	private function backup_table($table, $where = '', $segment = 'none') {
 		global $wpdb, $updraftplus;
 
 		$microtime = microtime(true);
@@ -960,14 +963,17 @@ class UpdraftPlus_Backup {
 				$row_inc = 1000;
 			}
 
+			$search = array("\x00", "\x0a", "\x0d", "\x1a");
+			$replace = array('\0', '\n', '\r', '\Z');
+
+			if ($where) $where = "WHERE $where";
+
 			do {
 				@set_time_limit(900);
 
-				$table_data = $wpdb->get_results("SELECT * FROM $table LIMIT {$row_start}, {$row_inc}", ARRAY_A);
+				$table_data = $wpdb->get_results("SELECT * FROM $table $where LIMIT {$row_start}, {$row_inc}", ARRAY_A);
 				$entries = 'INSERT INTO ' . $updraftplus->backquote($table) . ' VALUES ';
 				//    \x08\\x09, not required
-				$search = array("\x00", "\x0a", "\x0d", "\x1a");
-				$replace = array('\0', '\n', '\r', '\Z');
 				if($table_data) {
 					$thisentry = "";
 					foreach ($table_data as $row) {
@@ -995,7 +1001,7 @@ class UpdraftPlus_Backup {
 					if ($thisentry) $this->stow(" \n".$entries.$thisentry.';');
 					$row_start += $row_inc;
 				}
-			} while((count($table_data) > 0) and ($segment=='none'));
+			} while(count($table_data) > 0 && 'none' == $segment);
 		}
 		
 		if(($segment == 'none') || ($segment < 0)) {
@@ -1094,7 +1100,7 @@ class UpdraftPlus_Backup {
 		$this->stow("# WordPress Version: $wp_version, running on PHP ".phpversion()." (".$_SERVER["SERVER_SOFTWARE"]."), MySQL $mysql_version\n");
 		$this->stow("# Backup of: ".site_url()."\n");
 		$this->stow("# Home URL: ".home_url()."\n");
-		$this->stow("# Table prefix: ".$updraftplus->get_table_prefix()."\n");
+		$this->stow("# Table prefix: ".$this->table_prefix."\n");
 		$this->stow("# Site info: multisite=".(is_multisite() ? '1' : '0')."\n");
 		$this->stow("# Site info: end\n");
 
