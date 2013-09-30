@@ -7,7 +7,7 @@ class UpdraftPlus_BackupModule_googledrive {
 	public static function action_auth() {
 		if ( isset( $_GET['state'] ) ) {
 			if ( $_GET['state'] == 'success') {
-				add_action('admin_notices', array('UpdraftPlus_BackupModule_googledrive', 'show_authed_admin_success') );
+				add_action('all_admin_notices', array('UpdraftPlus_BackupModule_googledrive', 'show_authed_admin_success') );
 			}
 			elseif ( $_GET['state'] == 'token' )
 				self::gdrive_auth_token();

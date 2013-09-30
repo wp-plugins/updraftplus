@@ -755,7 +755,13 @@ class UpdraftPlus_Backup {
 					}
 
 					# Don't include the job data for any backups - so that when the database is restored, it doesn't continue an apparently incomplete backup
-					$where =  ($this->table_prefix.'options' == $table || $this->table_prefix.'sitemeta' == $table) ? 'option_name NOT LIKE "updraft_jobdata_%"' : '';
+					if  ($this->table_prefix.'sitemeta' == $table) {
+						$where = 'meta_key NOT LIKE "updraft_jobdata_%"';
+					} elseif ($this->table_prefix.'options' == $table) {
+						$where = 'option_name NOT LIKE "updraft_jobdata_%"';
+					} else {
+						$where = '';
+					}
 
 					# TODO: Lower this from 10,000 if the feedback is good
 					$bindump = (isset($rows) && $rows>10000 && is_string($binsqldump)) ? $this->backup_table_bindump($binsqldump, $table, $where) : false;

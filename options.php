@@ -9,6 +9,14 @@ class UpdraftPlus_Options {
 		return current_user_can('manage_options');
 	}
 
+	public static function admin_page_url() {
+		return admin_url('options-general.php');
+	}
+
+	public static function admin_page() {
+		return 'options-general.php';
+	}
+
 	public static function get_updraft_option($option, $default = null) {
 		return get_option($option, $default);
 	}
@@ -26,9 +34,11 @@ class UpdraftPlus_Options {
 		add_submenu_page('options-general.php', 'UpdraftPlus', __('UpdraftPlus Backups','updraftplus'), "manage_options", "updraftplus", array($updraftplus_admin, "settings_output"));
 	}
 
-	public static function options_form_begin() {
-		echo '<form method="post" action="options.php">';
-		settings_fields('updraft-options-group');
+	public static function options_form_begin($settings_fields = 'updraft-options-group', $allow_autocomplete = true) {
+		echo '<form method="post" action="options.php"';
+		if (!$allow_autocomplete) echo ' autocomplete="off"';
+		echo '>';
+		if ($settings_fields) settings_fields('updraft-options-group');
 	}
 
 	public static function admin_init() {
@@ -103,7 +113,7 @@ class UpdraftPlus_Options {
 
 		global $pagenow;
 		if (is_multisite() && $pagenow == 'options-general.php' && isset($_REQUEST['page']) && 'updraftplus' == substr($_REQUEST['page'], 0, 11)) {
-			add_action('admin_notices', array('UpdraftPlus_Options', 'show_admin_warning_multisite') );
+			add_action('all_admin_notices', array('UpdraftPlus_Options', 'show_admin_warning_multisite') );
 		}
 
 	}

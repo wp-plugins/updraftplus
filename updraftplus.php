@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.7.26
+Version: 1.7.27
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -245,9 +245,14 @@ class UpdraftPlus {
 		# Create admin page
 		add_action('init', array($this, 'handle_url_actions'));
 		// Run earlier than default - hence earlier than other components
-		add_action('admin_init', array($this,'admin_init'), 9);
 		// admin_menu runs earlier, and we need it because options.php wants to use $updraftplus_admin before admin_init happens
-		add_action('admin_menu', array($this,'admin_init'), 9);
+		if (is_multisite()) {
+			add_action('network_admin_menu', array($this, 'admin_menu'), 9);
+		} else {
+			add_action('admin_menu', array($this, 'admin_menu'), 9);
+		}
+		# Not a mistake: admin-ajax.php calls only admin_init and not admin_menu
+		add_action('admin_init', array($this, 'admin_menu'), 9);
 		add_action('updraft_backup', array($this,'backup_files'));
 		add_action('updraft_backup_database', array($this,'backup_database'));
 		# backup_all is used by the manual "Backup Now" button
@@ -268,7 +273,8 @@ class UpdraftPlus {
 		if ($class_path) require_once(UPDRAFTPLUS_DIR.'/includes/phpseclib/'.$class_path.'.php');
 	}
 
-	public function admin_init() {
+	// This function may get called multiple times, so write accordingly
+	public function admin_menu() {
 		// We are in the admin area: now load all that code
 		global $updraftplus_admin;
 		if (empty($updraftplus_admin)) require_once(UPDRAFTPLUS_DIR.'/admin.php');
@@ -300,10 +306,10 @@ class UpdraftPlus {
 					readfile($log_file);
 					exit;
 				} else {
-					add_action('admin_notices', array($this,'show_admin_warning_unreadablelog') );
+					add_action('all_admin_notices', array($this,'show_admin_warning_unreadablelog') );
 				}
 			} else {
-				add_action('admin_notices', array($this,'show_admin_warning_nolog') );
+				add_action('all_admin_notices', array($this,'show_admin_warning_nolog') );
 			}
 		}
 
@@ -338,7 +344,7 @@ class UpdraftPlus {
 					readfile($log_file);
 					exit;
 				} else {
-					add_action('admin_notices', array($this,'show_admin_warning_unreadablelog') );
+					add_action('all_admin_notices', array($this,'show_admin_warning_unreadablelog') );
 				}
 			} elseif ($_GET['action'] == 'downloadfile' && isset($_GET['updraftplus_file']) && preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+\.(gz\.crypt)$/i', $_GET['updraftplus_file'])) {
 				$updraft_dir = $this->backups_dir_location();
@@ -348,7 +354,7 @@ class UpdraftPlus {
 					$this->spool_file('db', $spool_file, $dkey);
 					exit;
 				} else {
-					add_action('admin_notices', array($this,'show_admin_warning_unreadablefile') );
+					add_action('all_admin_notices', array($this,'show_admin_warning_unreadablefile') );
 				}
 			}
 		}
@@ -504,9 +510,6 @@ class UpdraftPlus {
 
 		$this->log($logline);
 
-		if ('Y' === $w3oc) $this->log(__('W3 Total Cache\'s object cache is active. This is known to have a bug that messes with all scheduled tasks (including backup jobs).','updraftplus').' '.__('You should go to the W3 Total Cache settings page and turn it off.', 'updraftplus'), 'warning');
-
-
 		$disk_free_space = @disk_free_space($updraft_dir);
 		if ($disk_free_space === false) {
 			$this->log("Free space on disk containing Updraft's temporary directory: Unknown");
@@ -556,7 +559,10 @@ class UpdraftPlus {
 				// Download messages are keyed on the job (since they could be running several), and type
 				// The values of the POST array were checked before
 				$findex = (!empty($_POST['findex'])) ? $_POST['findex'] : 0;
-				set_transient('ud_dlmess_'.$_POST['timestamp'].'_'.$_POST['type'].'_'.$findex, $line." (".date('M d H:i:s').")", 3600);
+
+				$this->nonce = $_POST['timestamp'];
+				$this->jobdata_set('dlmessage_'.$_POST['timestamp'].'_'.$_POST['type'].'_'.$findex, $line);
+
 				break;
 			case 'restore':
 				#if ('debug' != $level) echo $line."\n";
@@ -844,7 +850,7 @@ class UpdraftPlus {
 		$resume_interval = $this->jobdata_get('resume_interval');
 		if ($time_this_run + 30 > $resume_interval) {
 			$new_interval = ceil($time_this_run + 30);
-			set_transient('updraft_initial_resume_interval', (int)$new_interval, 8*86400);
+			set_site_transient('updraft_initial_resume_interval', (int)$new_interval, 8*86400);
 			$this->log("The time we have been running (".round($time_this_run,1).") is approaching the resumption interval ($resume_interval) - increasing resumption interval to $new_interval");
 			$this->jobdata_set('resume_interval', $new_interval);
 		}
@@ -1346,9 +1352,9 @@ class UpdraftPlus {
 		}
 
 		// Allow the resume interval to be more than 300 if last time we know we went beyond that - but never more than 600
-		$resume_interval = (int)min(max(300, get_transient('updraft_initial_resume_interval')), 600);
+		$resume_interval = (int)min(max(300, get_site_transient('updraft_initial_resume_interval')), 600);
 		# We delete it because we only want to know about behaviour found during the very last backup run (so, if you move servers then old data is not retained)
-		delete_transient('updraft_initial_resume_interval');
+		delete_site_transient('updraft_initial_resume_interval');
 
 		$job_file_entities = array();
 		if ($backup_files) {

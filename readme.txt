@@ -135,6 +135,10 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FEATURE: Restorer now handles hand-moved non-default WP site directories (where they differ from the website base directory)
 * FIX: Under certain conditions, the report email could wrongly state that files were included in a db-only backup
 * FIX: Fix a JavaScript error in Internet Explorer 8
+* FIX: Remove bogus warning about W3TC object cache
+* FIX: Under very unusual circumstances, it was still possible for multiple backup jobs to occur
+* TWEAK: All multisite settings pages have now been moved to the network admin section
+* TWEAK: Internationalised the add-ons management page (Premium)
 * TWEAK: Switch zip engines from ZipArchive earlier if it appears to be broken
 * TWEAK: Now cleans up some previously un-caught temporary files if the backup aborted unexpectedly
 * TWEAK: Backup log file now includes SHA1 checksums

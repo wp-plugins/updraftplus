@@ -22,7 +22,7 @@ class UpdraftPlus_Admin {
 		add_action('admin_action_upgrade-theme', array($this, 'admin_action_upgrade_pluginortheme'));
 
 		add_action('admin_head', array($this,'admin_head'));
-		add_filter('plugin_action_links', array($this, 'plugin_action_links'), 10, 2);
+		add_filter((is_multisite() ? 'network_admin_' : '').'plugin_action_links', array($this, 'plugin_action_links'), 10, 2);
 		add_action('wp_ajax_updraft_download_backup', array($this, 'updraft_download_backup'));
 		add_action('wp_ajax_updraft_ajax', array($this, 'updraft_ajax_handler'));
 		add_action('wp_ajax_plupload_action', array($this,'plupload_action'));
@@ -36,39 +36,36 @@ class UpdraftPlus_Admin {
 		$service = UpdraftPlus_Options::get_updraft_option('updraft_service');
 
 		if (UpdraftPlus_Options::user_can_manage() && ('googledrive' === $service || is_array($service) && in_array('googledrive', $service)) && UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid','') != '' && UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token','') == '') {
-			add_action('admin_notices', array($this,'show_admin_warning_googledrive') );
+			add_action('all_admin_notices', array($this,'show_admin_warning_googledrive') );
 		}
 
 		if (UpdraftPlus_Options::user_can_manage() && ('dropbox' === $service || is_array($service) && in_array('dropbox', $service)) && UpdraftPlus_Options::get_updraft_option('updraft_dropboxtk_request_token','') == '') {
-			add_action('admin_notices', array($this,'show_admin_warning_dropbox') );
+			add_action('all_admin_notices', array($this,'show_admin_warning_dropbox') );
 		}
 
-		if (UpdraftPlus_Options::user_can_manage() && $this->disk_space_check(1024*1024*35) === false) add_action('admin_notices', array($this, 'show_admin_warning_diskspace'));
-
-		// Next, the actions that only come on settings pages
-		// if ($pagenow != 'options-general.php') return;
+		if (UpdraftPlus_Options::user_can_manage() && $this->disk_space_check(1024*1024*35) === false) add_action('all_admin_notices', array($this, 'show_admin_warning_diskspace'));
 
 		// Next, the actions that only come on the UpdraftPlus page
-		if ($pagenow != 'options-general.php' || !isset($_REQUEST['page']) || 'updraftplus' != $_REQUEST['page']) return;
+		if ($pagenow != UpdraftPlus_Options::admin_page() || !isset($_REQUEST['page']) || 'updraftplus' != $_REQUEST['page']) return;
 
 		if (UpdraftPlus_Options::user_can_manage() && defined('DISABLE_WP_CRON') && DISABLE_WP_CRON == true) {
-			add_action('admin_notices', array($this, 'show_admin_warning_disabledcron'));
+			add_action('all_admin_notices', array($this, 'show_admin_warning_disabledcron'));
 		}
 
 		if(UpdraftPlus_Options::get_updraft_option('updraft_debug_mode')) {
 			@ini_set('display_errors',1);
 			@error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
-			add_action('admin_notices', array($this, 'show_admin_debug_warning'));
+			add_action('all_admin_notices', array($this, 'show_admin_debug_warning'));
 		}
 
 		// LiteSpeed has a generic problem with terminating cron jobs
 		if (isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'LiteSpeed') !== false) {
 			if (!is_file(ABSPATH.'.htaccess') || !preg_match('/noabort/i', file_get_contents(ABSPATH.'.htaccess'))) {
-				add_action('admin_notices', array($this, 'show_admin_warning_litespeed'));
+				add_action('all_admin_notices', array($this, 'show_admin_warning_litespeed'));
 			}
 		}
 
-		if (version_compare($wp_version, '3.2', '<')) add_action('admin_notices', array($this, 'show_admin_warning_wordpressversion'));
+		if (version_compare($wp_version, '3.2', '<')) add_action('all_admin_notices', array($this, 'show_admin_warning_wordpressversion'));
 
 		wp_enqueue_script('updraftplus-admin-ui', UPDRAFTPLUS_URL.'/includes/updraft-admin-ui.js', array('jquery', 'jquery-ui-dialog', 'plupload-all'));
 
@@ -141,7 +138,7 @@ class UpdraftPlus_Admin {
 	function admin_head() {
 
 		global $pagenow;
-		if ($pagenow != 'options-general.php' || !isset($_REQUEST['page']) || 'updraftplus' != $_REQUEST['page']) return;
+		if ($pagenow != UpdraftPlus_Options::admin_page() || !isset($_REQUEST['page']) || 'updraftplus' != $_REQUEST['page']) return;
 
  		$chunk_size = min(wp_max_upload_size()-1024, 1024*1024*2);
 
@@ -242,7 +239,7 @@ class UpdraftPlus_Admin {
 	# Adds the settings link under the plugin on the plugin screen.
 	function plugin_action_links($links, $file) {
 		if ($file == 'updraftplus/updraftplus.php'){
-			$settings_link = '<a href="'.site_url().'/wp-admin/options-general.php?page=updraftplus">'.__("Settings", "updraftplus").'</a>';
+			$settings_link = '<a href="'.UpdraftPlus_Options::admin_page_url().'?page=updraftplus">'.__("Settings", "updraftplus").'</a>';
 			array_unshift($links, $settings_link);
 // 			$settings_link = '<a href="http://david.dw-perspective.org.uk/donate">'.__("Donate","UpdraftPlus").'</a>';
 // 			array_unshift($links, $settings_link);
@@ -314,11 +311,11 @@ class UpdraftPlus_Admin {
 	}
 
 	function show_admin_warning_dropbox() {
-		$this->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus').'</strong> <a href="options-general.php?page=updraftplus&action=updraftmethod-dropbox-auth&updraftplus_dropboxauth=doit">'.sprintf(__('Click here to authenticate your %s account (you will not be able to back up to %s without it).','updraftplus'),'Dropbox','Dropbox').'</a>');
+		$this->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus').'</strong> <a href="'.UpdraftPlus_Options::admin_page_url().'&action=updraftmethod-dropbox-auth&updraftplus_dropboxauth=doit">'.sprintf(__('Click here to authenticate your %s account (you will not be able to back up to %s without it).','updraftplus'),'Dropbox','Dropbox').'</a>');
 	}
 
 	function show_admin_warning_googledrive() {
-		$this->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus').'</strong> <a href="options-general.php?page=updraftplus&action=updraftmethod-googledrive-auth&updraftplus_googleauth=doit">'.sprintf(__('Click here to authenticate your %s account (you will not be able to back up to %s without it).','updraftplus'),'Google Drive','Google Drive').'</a>');
+		$this->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus').'</strong> <a href="'.UpdraftPlus_Options::admin_page_url().'?page=updraftplus&action=updraftmethod-googledrive-auth&updraftplus_googleauth=doit">'.sprintf(__('Click here to authenticate your %s account (you will not be able to back up to %s without it).','updraftplus'),'Google Drive','Google Drive').'</a>');
 	}
 
 	// This options filter removes ABSPATH off the front of updraft_dir, if it is given absolutely and contained within it
@@ -425,7 +422,7 @@ class UpdraftPlus_Admin {
 		}
 
 		// The AJAX responder that updates on progress wants to see this
-		set_transient('ud_dlfile_'.$timestamp.'_'.$type.'_'.$findex, "downloading:$known_size:$fullpath", 3600);
+		$updraftplus->jobdata_set('dlfile_'.$timestamp.'_'.$type.'_'.$findex, "downloading:$known_size:$fullpath");
 
 		if ($needs_downloading) {
 			// Close browser connection so that it can resume AJAX polling
@@ -452,14 +449,12 @@ class UpdraftPlus_Admin {
 		if(is_file($fullpath) && is_readable($fullpath)) {
 
 			// That message is then picked up by the AJAX listener
-			set_transient('ud_dlfile_'.$timestamp.'_'.$type.'_'.$findex, 'downloaded:'.filesize($fullpath).":$fullpath", 3600);
+			$updraftplus->jobdata_set('dlfile_'.$timestamp.'_'.$type.'_'.$findex, 'downloaded:'.filesize($fullpath).":$fullpath");
 
 		} else {
-			set_transient('ud_dlfile_'.$timestamp.'_'.$type.'_'.$findex, 'failed', 3600);
-			set_transient('ud_dlerrors_'.$timestamp.'_'.$type.'_'.$findex, $updraftplus->errors, 3600);
-
+			$updraftplus->jobdata_set('dlfile_'.$timestamp.'_'.$type.'_'.$findex, 'failed');
+			$updraftplus->jobdata_set('dlerrors_'.$timestamp.'_'.$type.'_'.$findex, $updraftplus->errors);
 			$updraftplus->log('Remote fetch failed. File '.$fullpath.' did not exist or was unreadable. If you delete local backups then remote retrieval may have failed.');
-
 		}
 
 		@fclose($updraftplus->logfile_handle);
@@ -776,12 +771,13 @@ class UpdraftPlus_Admin {
 			$findex = (isset($_GET['findex'])) ? $_GET['findex'] : '0';
 			if (empty($findex)) $findex = '0';
 
-			$response['m'] = get_transient('ud_dlmess_'.$_GET['timestamp'].'_'.$_GET['type'].'_'.$findex).'<br>';
+			$updraftplus->nonce = $_GET['timestamp'];
+			$response['m'] = $updraftplus->jobdata_get('dlmessage_'.$_GET['timestamp'].'_'.$_GET['type'].'_'.$findex).'<br>';
 
-			if ($file = get_transient('ud_dlfile_'.$_GET['timestamp'].'_'.$_GET['type'].'_'.$findex)) {
+			if ($file = $updraftplus->jobdata_get('dlfile_'.$_GET['timestamp'].'_'.$_GET['type'].'_'.$findex)) {
 				if ('failed' == $file) {
 					$response['e'] = __('Download failed','updraftplus').'<br>';
-					$errs = get_transient('ud_dlerrors_'.$_GET['timestamp'].'_'.$_GET['type'].'_'.$findex);
+					$errs = $updraftplus->jobdata_get('dlerrors_'.$_GET['timestamp'].'_'.$_GET['type'].'_'.$findex);
 					if (is_array($errs) && !empty($errs)) {
 						$response['e'] .= '<ul style="list-style: disc inside;">';
 						foreach ($errs as $err) {
@@ -815,7 +811,6 @@ class UpdraftPlus_Admin {
 					$response['t'] = 1;
 				}
 			}
-
 			echo json_encode($response);
 
 		} elseif (isset($_POST['subaction']) && $_POST['subaction'] == 'credentials_test') {
@@ -1216,19 +1211,17 @@ CREATE TABLE $wpdb->signups (
 				// If we restored the database, then that will have out-of-date information which may confuse the user - so automatically re-scan for them.
 				$this->rebuild_backup_history();
 				echo '<p><strong>'.__('Restore successful!','updraftplus').'</strong></p>';
-				echo '<b>'.__('Actions','updraftplus').':</b> <a href="options-general.php?page=updraftplus&updraft_restore_success=true">'.__('Return to UpdraftPlus Configuration','updraftplus').'</a>';
+				echo '<b>'.__('Actions','updraftplus').':</b> <a href="'.UpdraftPlus_Options::admin_page_url().'?page=updraftplus&updraft_restore_success=true">'.__('Return to UpdraftPlus Configuration','updraftplus').'</a>';
 				return;
 			} elseif (is_wp_error($backup_success)) {
 				echo '<p>Restore failed...</p>';
 				$updraftplus->list_errors();
-				echo '<b>Actions:</b> <a href="options-general.php?page=updraftplus">'.__('Return to UpdraftPlus Configuration','updraftplus').'</a>';
+				echo '<b>Actions:</b> <a href="'.UpdraftPlus_Options::admin_page_url().'">'.__('Return to UpdraftPlus Configuration','updraftplus').'</a>';
 				return;
 			} elseif (false === $backup_success) {
 				# This means, "not yet - but stay on the page because we may be able to do it later, e.g. if the user types in the requested information"
 				return;
 			}
-			//uncomment the below once i figure out how i want the flow of a restoration to work.
-			//echo '<b>'__('Actions','updraftplus').':</b> <a href="options-general.php?page=updraftplus">Return to UpdraftPlus Configuration</a>';
 		}
 		$deleted_old_dirs = false;
 		if(isset($_REQUEST['action']) && $_REQUEST['action'] == 'updraft_delete_old_dirs') {
@@ -1244,7 +1237,7 @@ CREATE TABLE $wpdb->signups (
 			} else {
 				echo '<p>',__('Old directory removal failed for some reason. You may want to do this manually.','updraftplus').'</p><br/>';
 			}
-			echo '<b>'.__('Actions','updraftplus').':</b> <a href="options-general.php?page=updraftplus">'.__('Return to UpdraftPlus Configuration','updraftplus').'</a>';
+			echo '<b>'.__('Actions','updraftplus').':</b> <a href="'.UpdraftPlus_Options::admin_page_url().'">'.__('Return to UpdraftPlus Configuration','updraftplus').'</a>';
 			return;
 		}
 		
@@ -1263,7 +1256,7 @@ CREATE TABLE $wpdb->signups (
 			} elseif ($created !== false) {
 				echo '<p>'.__('Backup directory successfully created.','updraftplus').'</p><br/>';
 			}
-			echo '<b>'.__('Actions','updraftplus').':</b> <a href="options-general.php?page=updraftplus">'.__('Return to UpdraftPlus Configuration','updraftplus').'</a>';
+			echo '<b>'.__('Actions','updraftplus').':</b> <a href="'.UpdraftPlus_Options::admin_page_url().'">'.__('Return to UpdraftPlus Configuration','updraftplus').'</a>';
 			return;
 		}
 		
@@ -1856,7 +1849,7 @@ CREATE TABLE $wpdb->signups (
 	//deletes the -old directories that are created when a backup is restored.
 	function delete_old_dirs() {
 		global $wp_filesystem;
-		$credentials = request_filesystem_credentials(wp_nonce_url("options-general.php?page=updraftplus&action=updraft_delete_old_dirs", 'updraft_delete_old_dirs')); 
+		$credentials = request_filesystem_credentials(wp_nonce_url(UpdraftPlus_Options::admin_page_url()."&action=updraft_delete_old_dirs", 'updraft_delete_old_dirs')); 
 		WP_Filesystem($credentials);
 		if ( $wp_filesystem->errors->get_error_code() ) { 
 			foreach ( $wp_filesystem->errors->get_error_messages() as $message )
@@ -1910,13 +1903,13 @@ CREATE TABLE $wpdb->signups (
 
 		global $wp_filesystem, $updraftplus;
 
-		if (false === ($credentials = request_filesystem_credentials('options-general.php?page=updraftplus&action=updraft_create_backup_dir&nonce='.wp_create_nonce('create_backup_dir')))) {
+		if (false === ($credentials = request_filesystem_credentials(UpdraftPlus_Options::admin_page().'?page=updraftplus&action=updraft_create_backup_dir&nonce='.wp_create_nonce('create_backup_dir')))) {
 			return false;
 		}
 
 		if ( ! WP_Filesystem($credentials) ) {
 			// our credentials were no good, ask the user for them again
-			request_filesystem_credentials('options-general.php?page=updraftplus&action=updraft_create_backup_dir&nonce='.wp_create_nonce('create_backup_dir'), '', true);
+			request_filesystem_credentials(UpdraftPlus_Options::admin_page().'&action=updraft_create_backup_dir&nonce='.wp_create_nonce('create_backup_dir'), '', true);
 			return false;
 		}
 
@@ -2295,7 +2288,7 @@ CREATE TABLE $wpdb->signups (
 						} else {
 							$dir_info .= __('Backup directory specified exists, but is <b>not</b> writable.','updraftplus');
 						}
-						$dir_info .= ' <span style="font-size:110%;font-weight:bold"><a href="options-general.php?page=updraftplus&action=updraft_create_backup_dir&nonce='.wp_create_nonce('create_backup_dir').'">'.__('Click here to attempt to create the directory and set the permissions','updraftplus').'</a></span>, '.__('or, to reset this option','updraftplus').' <a href="#" onclick="jQuery(\'#updraft_dir\').val(\'updraft\'); return false;">'.__('click here','updraftplus').'</a>. '.__('If that is unsuccessful check the permissions on your server or change it to another directory that is writable by your web server process.','updraftplus').'</span>';
+						$dir_info .= ' <span style="font-size:110%;font-weight:bold"><a href="'.UpdraftPlus_Options::admin_page_url().'&action=updraft_create_backup_dir&nonce='.wp_create_nonce('create_backup_dir').'">'.__('Click here to attempt to create the directory and set the permissions','updraftplus').'</a></span>, '.__('or, to reset this option','updraftplus').' <a href="#" onclick="jQuery(\'#updraft_dir\').val(\'updraft\'); return false;">'.__('click here','updraftplus').'</a>. '.__('If that is unsuccessful check the permissions on your server or change it to another directory that is writable by your web server process.','updraftplus').'</span>';
 					}
 
 					echo $dir_info.' '.__("This is where UpdraftPlus will write the zip files it creates initially.  This directory must be writable by your web server. It is relative to your content directory (which by default is called wp-content).", 'updraftplus').' '.__("<b>Do not</b> place it inside your uploads or plugins directory, as that will cause recursion (backups of backups of backups of...).",'updraftplus');?></td>
@@ -2551,8 +2544,9 @@ ENDHERE;
 			if (isset($backup['nonce']) && preg_match("/^[0-9a-f]{12}$/",$backup['nonce']) && is_readable($updraft_dir.'/log.'.$backup['nonce'].'.txt')) {
 				$nval = $backup['nonce'];
 				$lt = __('Backup Log','updraftplus');
+				$url = UpdraftPlus_Options::admin_page();
 				$ret .= <<<ENDHERE
-				<form action="options-general.php" method="get">
+				<form action="$url" method="get">
 					<input type="hidden" name="action" value="downloadlog" />
 					<input type="hidden" name="page" value="updraftplus" />
 					<input type="hidden" name="updraftplus_backup_nonce" value="$nval" />
@@ -2679,7 +2673,7 @@ ENDHERE;
 			if (0 === strpos($key, 'updraft_restorer_')) $extra_fields[] = $key;
 		}
 
-		$credentials = request_filesystem_credentials("options-general.php?page=updraftplus&action=updraft_restore&backup_timestamp=$timestamp", '', false, false, $extra_fields);
+		$credentials = request_filesystem_credentials(UpdraftPlus_Options::admin_page()."&action=updraft_restore&backup_timestamp=$timestamp", '', false, false, $extra_fields);
 		WP_Filesystem($credentials);
 		if ( $wp_filesystem->errors->get_error_code() ) { 
 			foreach ( $wp_filesystem->errors->get_error_messages() as $message ) show_message($message); 
