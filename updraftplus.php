@@ -386,7 +386,7 @@ class UpdraftPlus {
 		# Clean out old job data
 		if ($older_than >10000) {
 			global $wpdb;
-			$all_jobs = $wpdb->get_results("SELECT option_name, option_value FROM $wpdb->options WHERE option_name LIKE 'updraft_jobdata_%' LIMIT 1", ARRAY_A);
+			$all_jobs = $wpdb->get_results("SELECT option_name, option_value FROM $wpdb->options WHERE option_name LIKE 'updraft_jobdata_%'", ARRAY_A);
 			foreach ($all_jobs as $job) {
 				$val = maybe_unserialize($job['option_value']);
 				if (!empty($val['backup_time_ms']) && time() > $val['backup_time_ms'] + 86400) {
