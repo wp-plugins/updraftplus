@@ -106,7 +106,7 @@ class UpdraftPlus_BackupModule_googledrive {
 						UpdraftPlus_Options::update_updraft_option('updraftplus_tmp_googledrive_access_token', $json_values['access_token']);
 
 						// We do this to clear the GET parameters, otherwise WordPress sticks them in the _wp_referer in the form and brings them back, leading to confusion + errors
-						header('Location: '.UpdraftPlus_Options::admin_page_url().'page=updraftplus&action=updraftmethod-googledrive-auth&state=success');
+						header('Location: '.UpdraftPlus_Options::admin_page_url().'?page=updraftplus&action=updraftmethod-googledrive-auth&state=success');
 
 					}
 
