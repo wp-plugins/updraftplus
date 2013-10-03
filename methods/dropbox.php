@@ -386,7 +386,7 @@ class UpdraftPlus_BackupModule_dropbox {
 		$sec = UpdraftPlus_Options::get_updraft_option('updraft_dropbox_appkey');
 
 		// Set the callback URL
-		$callback = admin_url('options-general.php?page=updraftplus&action=updraftmethod-dropbox-auth');
+		$callback = UpdraftPlus_Options::admin_page_url().'?page=updraftplus&action=updraftmethod-dropbox-auth';
 
 		// Instantiate the Encrypter and storage objects
 		$encrypter = new Dropbox_Encrypter('ThisOneDoesNotMatterBeyondLength');

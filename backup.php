@@ -763,6 +763,8 @@ class UpdraftPlus_Backup {
 						$where = '';
 					}
 
+					# TODO: If no check-in last time, then try the other method (but - any point in retrying slow method on large tables??)
+
 					# TODO: Lower this from 10,000 if the feedback is good
 					$bindump = (isset($rows) && $rows>10000 && is_string($binsqldump)) ? $this->backup_table_bindump($binsqldump, $table, $where) : false;
 					if (!$bindump) $this->backup_table($table, $where);

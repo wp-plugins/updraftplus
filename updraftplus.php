@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.7.27
+Version: 1.7.28
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -17,6 +17,7 @@ TODO - some of these are out of date/done, needs pruning
 // Upon database restore, remove all resumption jobs from the scheduler. And/or never save them.
 // Change migrate window: 1) Retain link to article 2) Have selector to choose which backup set to migrate - or a fresh one 3) Have option for FTP/SFTP/SCP despatch 4) Have big "Go" button. Have some indication of what happens next. Test the login first. Have the remote site auto-scan its directory + pick up new sets. Have a way of querying the remote site for its UD-dir. Have a way of saving the settings as a 'profile'. Or just save the last set of settings (since mostly will be just one place to send to). Implement an HTTP/JSON method for sending files too.
 // Change default setting of retain 1 backup set? (Auto-backup could replace it in that case... don't perform pruning when doing auto-backup?)
+// Add to admin bar (and make it something that can be turned off)
 // New reporting add-on: Multiple email addresses, send backup to 1st only, option to send email only on failure, include checksums (SHA1) in report (store these in job data immediately post-creation; then aggregate them into the backup history on job finish), option to include log file always, option to log to syslog
 // Strategy for what to do if the updraft_dir contains untracked backups. Automatically rescan?
 // MySQL manual: See Section 8.2.2.1, Speed of INSERT Statements.
@@ -26,7 +27,7 @@ TODO - some of these are out of date/done, needs pruning
 // Show 'Migrate' instead of 'Restore' on the button if relevant
 // Test with: http://wordpress.org/plugins/wp-db-driver/
 // Backup notes
-// The delete-em at the end needs to be made resumable
+// The delete-em at the end needs to be made resumable. And to only run on last run-through (i.e. no errors, or no resumption)
 // Incremental - can leverage some of the multi-zip work???
 // Put in a help link to explain what WordPress core (including any additions to your WordPress root directory) does (was asked for support)
 // Multiple files in more-files
@@ -515,7 +516,8 @@ class UpdraftPlus {
 			$this->log("Free space on disk containing Updraft's temporary directory: Unknown");
 		} else {
 			$this->log("Free space on disk containing Updraft's temporary directory: ".round($disk_free_space/1048576,1)." Mb");
-			if ($disk_free_space < 50*1048576) $this->log(sprintf(__('Your free disk space is very low - only %s Mb remain', 'updraftplus'), round($disk_free_space/1048576, 1)), 'warning');
+			$disk_free_mb = round($disk_free_space/1048576, 1);
+			if ($disk_free_space < 50*1048576) $this->log(sprintf(__('Your free disk space is very low - only %s Mb remain', 'updraftplus'), round($disk_free_space/1048576, 1)), 'warning', 'lowdiskspace'.$disk_free_mb);
 		}
 	}
 

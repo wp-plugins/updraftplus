@@ -137,6 +137,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FIX: Fix a JavaScript error in Internet Explorer 8
 * FIX: Remove bogus warning about W3TC object cache
 * FIX: Under very unusual circumstances, it was still possible for multiple backup jobs to occur
+* FIX: For non-English installs, the email indicating backup success sometimes failed to send
 * TWEAK: All multisite settings pages have now been moved to the network admin section
 * TWEAK: Internationalised the add-ons management page (Premium)
 * TWEAK: Switch zip engines from ZipArchive earlier if it appears to be broken
