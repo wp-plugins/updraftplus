@@ -17,6 +17,7 @@ TODO - some of these are out of date/done, needs pruning
 // Upon database restore, remove all resumption jobs from the scheduler. And/or never save them.
 // Change migrate window: 1) Retain link to article 2) Have selector to choose which backup set to migrate - or a fresh one 3) Have option for FTP/SFTP/SCP despatch 4) Have big "Go" button. Have some indication of what happens next. Test the login first. Have the remote site auto-scan its directory + pick up new sets. Have a way of querying the remote site for its UD-dir. Have a way of saving the settings as a 'profile'. Or just save the last set of settings (since mostly will be just one place to send to). Implement an HTTP/JSON method for sending files too.
 // Change default setting of retain 1 backup set? (Auto-backup could replace it in that case... don't perform pruning when doing auto-backup?)
+// Put a 'what do I get if I upgrade?' link into the mix
 // Add to admin bar (and make it something that can be turned off)
 // New reporting add-on: Multiple email addresses, send backup to 1st only, option to send email only on failure, include checksums (SHA1) in report (store these in job data immediately post-creation; then aggregate them into the backup history on job finish), option to include log file always, option to log to syslog
 // Strategy for what to do if the updraft_dir contains untracked backups. Automatically rescan?
@@ -256,8 +257,11 @@ class UpdraftPlus {
 		add_action('admin_init', array($this, 'admin_menu'), 9);
 		add_action('updraft_backup', array($this,'backup_files'));
 		add_action('updraft_backup_database', array($this,'backup_database'));
-		# backup_all is used by the manual "Backup Now" button
+		add_action('updraft_backupnow_backup', array($this,'backupnow_files'));
+		add_action('updraft_backupnow_backup_database', array($this,'backupnow_database'));
+		# backup_all as an action is legacy (Oct 2013) - there may be some people who wrote cron scripts to use it
 		add_action('updraft_backup_all', array($this,'backup_all'));
+		add_action('updraft_backupnow_backup_all', array($this,'backup_all'));
 		# this is our runs-after-backup event, whose purpose is to see if it succeeded or failed, and resume/mom-up etc.
 		add_action('updraft_backup_resume', array($this,'backup_resume'), 10, 3);
 		# http://codex.wordpress.org/Plugin_API/Filter_Reference/cron_schedules. Raised priority because some plugins wrongly over-write all prior schedule changes (including BackupBuddy!)
@@ -606,6 +610,9 @@ class UpdraftPlus {
 		// Touch the original file, which helps prevent overlapping runs
 		if ($file_path) touch($file_path);
 
+		// What this means in effect is that at least one of the files touched during the run must reach this percentage (so lapping round from 100 is OK)
+		if ($percent > 0.7 * ($this->current_resumption - 9)) $this->something_useful_happened();
+
 		// Log it
 		global $updraftplus_backup;
 		$log = ucfirst($updraftplus_backup->current_service)." chunked upload: $percent % uploaded";
@@ -615,11 +622,6 @@ class UpdraftPlus {
 		// Our definition of meaningful is that we must maintain an overall average of at least 0.7% per run, after allowing 9 runs for everything else to get going
 		// i.e. Max 100/.7 + 9 = 150 runs = 760 minutes = 12 hrs 40, if spaced at 5 minute intervals. However, our algorithm now decreases the intervals if it can, so this should not really come into play
 		// If they get 2 minutes on each run, and the file is 1Gb, then that equals 10.2Mb/120s = minimum 59Kb/s upload speed required
-
-		// What this means in effect is that at least one of the files touched during the run must reach this percentage (so lapping round from 100 is OK)
-		if ($percent > 0.7 * ( $this->current_resumption - 9)) {
-			$this->something_useful_happened();
-		}
 
 		$upload_status = $this->jobdata_get('uploading_substatus');
 		if (is_array($upload_status)) {
@@ -1200,17 +1202,25 @@ class UpdraftPlus {
 	}
 
 	function backup_all() {
-		$this->boot_backup(true,true);
+		$this->boot_backup(1, 1);
 	}
 	
 	function backup_files() {
 		# Note that the "false" for database gets over-ridden automatically if they turn out to have the same schedules
-		$this->boot_backup(true,false);
+		$this->boot_backup(true, false);
 	}
 	
 	function backup_database() {
 		# Note that nothing will happen if the file backup had the same schedule
-		$this->boot_backup(false,true);
+		$this->boot_backup(false, true);
+	}
+
+	function backupnow_files() {
+		$this->boot_backup(1, 0);
+	}
+	
+	function backupnow_database() {
+		$this->boot_backup(0, 1);
 	}
 
 	public function jobdata_getarray($non) {
@@ -1267,6 +1277,7 @@ class UpdraftPlus {
 	}
 
 	// This procedure initiates a backup run
+	// $backup_files/$backup_database: true/false = yes/no (over-write allowed); 1/0 = yes/no (force)
 	public function boot_backup($backup_files, $backup_database, $restrict_files_to_override = false, $one_shot = false, $service = false) {
 
 		@ignore_user_abort(true);
@@ -1292,7 +1303,7 @@ class UpdraftPlus {
 		// Log some information that may be helpful
 		$this->log("Tasks: Backup files: $backup_files (schedule: ".UpdraftPlus_Options::get_updraft_option('updraft_interval', 'unset').") Backup DB: $backup_database (schedule: ".UpdraftPlus_Options::get_updraft_option('updraft_interval_database', 'unset').")");
 
-		if (false === $one_shot) {
+		if (false === $one_shot && is_bool($backup_database)) {
 			# If the files and database schedules are the same, and if this the file one, then we rope in database too.
 			# On the other hand, if the schedules were the same and this was the database run, then there is nothing to do.
 			if ('manual' != UpdraftPlus_Options::get_updraft_option('updraft_interval') && (UpdraftPlus_Options::get_updraft_option('updraft_interval') == UpdraftPlus_Options::get_updraft_option('updraft_interval_database') || UpdraftPlus_Options::get_updraft_option('updraft_interval_database', 'xyz') == 'xyz' )) {

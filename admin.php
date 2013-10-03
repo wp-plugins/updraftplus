@@ -717,7 +717,7 @@ class UpdraftPlus_Admin {
 			phpinfo(INFO_ALL ^ (INFO_CREDITS | INFO_LICENSE));
 		} elseif ('backupnow' == $_REQUEST['subaction']) {
 			echo '<strong>',__('Schedule backup','updraftplus').':</strong> ';
-			$event = (!empty($_REQUEST['backupnow_nofiles'])) ? 'updraft_backup_database' : ((!empty($_REQUEST['backupnow_nodb'])) ? 'updraft_backup' : 'updraft_backup_all');
+			$event = (!empty($_REQUEST['backupnow_nofiles'])) ? 'updraft_backupnow_backup_database' : ((!empty($_REQUEST['backupnow_nodb'])) ? 'updraft_backupnow_backup' : 'updraft_backupnow_backup_all');
 			if (wp_schedule_single_event(time()+5, $event) === false) {
 				$updraftplus->log("A backup run failed to schedule");
 				echo __("Failed.",'updraftplus')."</div>";
