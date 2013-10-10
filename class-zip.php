@@ -72,7 +72,7 @@ class UpdraftPlus_BinZip extends UpdraftPlus_PclZip {
 
 		# If there are no files to add, but there are empty directories, then we need to make sure the directories actually get added
 		if (0 == count($this->addfiles) && 0 < count($this->adddirs)) {
-			$dir = dirname(realpath($updraftplus_backup->make_zipfile_source));
+			$dir = realpath($updraftplus_backup->make_zipfile_source);
 			$this->addfiles[$dir] = '././.';
 		}
 

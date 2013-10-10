@@ -1243,7 +1243,8 @@ class UpdraftPlus_Backup {
 		$backupable_entities = $updraftplus->get_backupable_file_entities(true, false);
 
 		# This is only used by one corner-case in BinZip
-		$this->make_zipfile_source = (isset($backupable_entities[$whichone])) ? $backupable_entities[$whichone] : $source;
+		#$this->make_zipfile_source = (isset($backupable_entities[$whichone])) ? $backupable_entities[$whichone] : $source;
+		$this->make_zipfile_source = (is_array($source) && isset($backupable_entities[$whichone])) ? $backupable_entities[$whichone] : dirname($source);
 
 		$this->existing_files = array();
 		# Used for tracking compression ratios
