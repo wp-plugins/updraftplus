@@ -167,7 +167,7 @@ class UpdraftPlus_Semaphore {
 			UPDATE $wpdb->options
 			   SET option_value = %s
 			 WHERE option_name = 'updraftplus_last_lock_time_".$this->lock_name."'
-			   AND option_value <= DATE_SUB(%s, INTERVAL 1 MINUTE)
+			   AND option_value <= DATE_SUB(%s, INTERVAL 3 MINUTE)
 		", $current_time, $current_time));
 
 		if ($affected == '1') {

@@ -75,6 +75,7 @@ We hang out in the WordPress support forum for this plugin - http://wordpress.or
 
 <a href="http://updraftplus.com/download/">Please go here for full instructions for installing this plugin.</a>
 
+
 == Frequently Asked Questions ==
 
 <a href="http://updraftplus.com/support/frequently-asked-questions/"><strong>Please go here for the full FAQs - there are many more than below.</strong></a> Below are just a handful which particularly apply to the free wordpress.org version, or which bear repeating.
