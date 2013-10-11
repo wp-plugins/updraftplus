@@ -666,7 +666,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		$this->last_error = '';
 		$random_table_name = 'updraft_tmp_'.rand(0,9999999).md5(microtime(true));
-		if ($use_wpdb) {
+		if ($this->use_wpdb) {
 			$req = $wpdb->query("CREATE TABLE $random_table_name");
 			if (!$req) $this->last_error = $wpdb->last_error;
 			$this->last_error_no = false;
