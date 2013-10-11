@@ -491,9 +491,10 @@ class UpdraftPlus {
 
 		$safe_mode = $this->detect_safe_mode();
 
+		$memory_limit = ini_get('memory_limit');
 		$memory_usage = round(@memory_get_usage(false)/1048576, 1);
 		$memory_usage2 = round(@memory_get_usage(true)/1048576, 1);
-		$logline = "UpdraftPlus WordPress backup plugin (http://updraftplus.com): ".$this->version." WP: ".$wp_version." PHP: ".phpversion()." (".php_uname().") MySQL: $mysql_version Server: ".$_SERVER["SERVER_SOFTWARE"]." safe_mode: $safe_mode max_execution_time: ".@ini_get("max_execution_time")." memory_limit: ".ini_get('memory_limit')." (used: ${memory_usage}M | ${memory_usage2}M) mcrypt: ".((function_exists('mcrypt_encrypt')) ? '1' : '0')." ZipArchive::addFile: ";
+		$logline = "UpdraftPlus WordPress backup plugin (http://updraftplus.com): ".$this->version." WP: ".$wp_version." PHP: ".phpversion()." (".php_uname().") MySQL: $mysql_version Server: ".$_SERVER["SERVER_SOFTWARE"]." safe_mode: $safe_mode max_execution_time: ".@ini_get("max_execution_time")." memory_limit: $memory_limit (used: ${memory_usage}M | ${memory_usage2}M) mcrypt: ".((function_exists('mcrypt_encrypt')) ? '1' : '0')." ZipArchive::addFile: ";
 
 		// method_exists causes some faulty PHP installations to segfault, leading to support requests
 		if (version_compare(phpversion(), '5.2.0', '>=') && extension_loaded('zip')) {
@@ -504,6 +505,10 @@ class UpdraftPlus {
 
 		$w3oc = 'N';
 		if (0 === $this->current_resumption) {
+			$memlim = $this->memory_check_current();
+			if ($memlim<65) {
+				$this->log(sprintf(__('The amount of memory (RAM) allowed for PHP is very low (%s Mb) - you should increase it to avoid failures due to insufficient memory (consult your web hosting company for more help)', 'updraftplus'), round($memlim, 1)), 'warning', 'lowram');
+			}
 			if (defined('W3TC') && W3TC == true && function_exists('w3_instance')) {
 				$modules = w3_instance('W3_ModuleStatus');
 				if ($modules->is_enabled('objectcache')) {
@@ -1969,9 +1974,17 @@ class UpdraftPlus {
 		if ($memory_limit == false) $memory_limit = ini_get('memory_limit');
 		$memory_limit = rtrim($memory_limit);
 		$memory_unit = $memory_limit[strlen($memory_limit)-1];
-		$memory_limit = substr($memory_limit,0,strlen($memory_limit)-1);
+		if ((int)$memory_unit == 0 && $memory_unit !== '0') {
+			$memory_limit = substr($memory_limit,0,strlen($memory_limit)-1);
+		} else {
+			$memory_unit = '';
+		}
 		switch($memory_unit) {
+			case '':
+				$memory_limit = floor($memory_limit/1048576);
+			break;
 			case 'K':
+			case 'k':
 				$memory_limit = floor($memory_limit/1024);
 			break;
 			case 'G':
