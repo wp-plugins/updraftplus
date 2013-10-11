@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.7.29
+Version: 1.7.30
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -448,10 +448,10 @@ class UpdraftPlus {
 		}
 	}
 
-	public function backup_time_nonce() {
+	public function backup_time_nonce($nonce = false) {
 		$this->job_time_ms = microtime(true);
 		$this->backup_time = time();
-		$nonce = substr(md5(time().rand()), 20);
+		if (false === $nonse) $nonce = substr(md5(time().rand()), 20);
 		$this->nonce = $nonce;
 	}
 
@@ -571,7 +571,6 @@ class UpdraftPlus {
 				// The values of the POST array were checked before
 				$findex = (!empty($_POST['findex'])) ? $_POST['findex'] : 0;
 
-				$this->nonce = $_POST['timestamp'];
 				$this->jobdata_set('dlmessage_'.$_POST['timestamp'].'_'.$_POST['type'].'_'.$findex, $line);
 
 				break;

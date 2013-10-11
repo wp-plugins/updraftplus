@@ -38,16 +38,24 @@ var lastlog_sdata = {
 };
 
 function updraft_activejobs_update(repeat) {
-	jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'activejobs_list', nonce: updraft_credentialtest_nonce }, function(response) {
+	var downloaders = '';
+	jQuery('#ud_downloadstatus .updraftplus_downloader, #ud_downloadstatus2 .updraftplus_downloader').each(function(x,y){
+		var dat = jQuery(y).data('downloaderfor');
+		if (typeof dat == 'object') {
+			if (downloaders != '') { downloaders = downloaders + ':'; }
+			downloaders = downloaders + dat.base + ',' + dat.nonce + ',' + dat.what + ',' + dat.index;
+		}
+	});
+	jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'activejobs_list', nonce: updraft_credentialtest_nonce, downloaders: downloaders }, function(response) {
 		try {
 			resp = jQuery.parseJSON(response);
-			nexttimer = 1500;
+			nexttimer = 1400;
 			if (lastlog_lastdata == response) { nexttimer = 4500; }
 			if (repeat) { setTimeout(function(){updraft_activejobs_update(true);}, nexttimer);}
 			lastlog_lastdata = response;
 			if (resp.l != null) { jQuery('#updraft_lastlogcontainer').html(resp.l); }
 			jQuery('#updraft_activejobs').html(resp.j);
-			if (resp.j != null && resp.j != '') {
+			if (resp.j != null && resp.j != '') {Un
 				jQuery('#updraft_activejobsrow').show();
 			} else {
 				if (!jQuery('#updraft_activejobsrow').is(':hidden')) {
@@ -55,8 +63,18 @@ function updraft_activejobs_update(repeat) {
 					jQuery('#updraft_activejobsrow').hide();
 				}
 			}
+			// Download status
+			if (resp.ds != null && resp.ds != '') {
+				jQuery(resp.ds).each(function(x, dstatus){
+					if (dstatus.base != '') {
+//trycatch
+						updraft_downloader_status_update(dstatus.base, dstatus.timestamp, dstatus.what, dstatus.findex, dstatus, response);
+					}
+				});
+			}
 		} catch(err) {
 			console.log(updraftlion.unexpectedresponse+' '+response);
+			console.log(err);
 		}
 	});
 }
@@ -221,10 +239,11 @@ function updraft_downloader(base, nonce, what, whicharea, set_contents, prettyda
 		if (!jQuery('#'+stid).length) {
 			var prdate = (prettydate) ? prettydate : nonce;
 			jQuery(whicharea).append('<div style="clear:left; border: 1px solid; padding: 8px; margin-top: 4px; max-width:840px;" id="'+stid+'" class="updraftplus_downloader"><button onclick="jQuery(\'#'+stid+'\').fadeOut().remove();" type="button" style="float:right; margin-bottom: 8px;">X</button><strong>Download '+what+itext+' ('+prdate+')</strong>:<div class="raw">'+updraftlion.begunlooking+'</div><div class="file" id="'+stid+'_st"><div class="dlfileprogress" style="width: 0;"></div></div>');
-			// <b><span class="dlname">??</span></b> (<span class="dlsofar">?? KB</span>/<span class="dlsize">??</span> KB)
-			(function(base, nonce, what, i) {
-				setTimeout(function(){updraft_downloader_status(base, nonce, what, i);}, 300);
-			})(base, nonce, what, set_contents[i]);
+			jQuery('#'+stid).data('downloaderfor', { base: base, nonce: nonce, what: what, index: i });
+			// Legacy: set up watcher
+			//(function(base, nonce, what, i) {
+			//	setTimeout(function(){updraft_downloader_status(base, nonce, what, i);}, 300);
+			//})(base, nonce, what, set_contents[i]);
 		}
 		// Now send the actual request to kick it all off
 		jQuery.post(ajaxurl, jQuery('#uddownloadform_'+what+'_'+nonce+'_'+set_contents[i]).serialize());
@@ -301,6 +320,9 @@ var dlstatus_sdata = {
 };
 dlstatus_lastlog = '';
 function updraft_downloader_status(base, nonce, what, findex) {
+// Short-circuit
+return;
+
 	if (findex == null || findex == 0 || findex == '') { findex='0'; }
 	// Get the DOM id of the status div (add _st for the id of the file itself)
 	var stid = base+nonce+'_'+what+'_'+findex;
@@ -317,31 +339,7 @@ function updraft_downloader_status(base, nonce, what, findex) {
 		if (dlstatus_lastlog == response) { nexttimer = 3000; }
 		try {
 			var resp = jQuery.parseJSON(response);
-			var cancel_repeat = 0;
-			if (resp.e != null) {
-				jQuery('#'+stid+' .raw').html('<strong>'+updraftlion.error+'</strong> '+resp.e);
-				console.log(resp);
-			} else if (resp.p != null) {
-				jQuery('#'+stid+'_st .dlfileprogress').width(resp.p+'%');
-				//jQuery('#'+stid+'_st .dlsofar').html(Math.round(resp.s/1024));
-				//jQuery('#'+stid+'_st .dlsize').html(Math.round(resp.t/1024));
-				if (resp.m != null) {
-					if (resp.p >=100 && base == 'udrestoredlstatus_') {
-						jQuery('#'+stid+' .raw').html(resp.m);
-						jQuery('#'+stid).fadeOut('slow', function() { jQuery(this).remove(); updraft_restorer_checkstage2(0);});
-					} else if (resp.p < 100 || base != 'uddlstatus_') {
-						jQuery('#'+stid+' .raw').html(resp.m);
-					} else {
-						jQuery('#'+stid+' .raw').html(updraftlion.fileready+' '+ updraftlion.youshould+' <button type="button" onclick="updraftplus_downloadstage2(\''+nonce+'\', \''+what+'\', \''+findex+'\')\">'+updraftlion.downloadtocomputer+'</button> '+updraftlion.andthen+' <button id="uddownloaddelete_'+nonce+'_'+what+'" type="button" onclick="updraftplus_deletefromserver(\''+nonce+'\', \''+what+'\', \''+findex+'\')\">'+updraftlion.deletefromserver+'</button>');
-					}
-				}
-				dlstatus_lastlog = response;
-			} else if (resp.m != null) {
-					jQuery('#'+stid+' .raw').html(resp.m);
-			} else {
-				alert(updraftlion.jsonnotunderstood+' ('+response+')');
-				cancel_repeat = 1;
-			}
+			var cancel_repeat = updraft_downloader_status_update(base, nonce, what, findex, resp, response);
 			if (cancel_repeat == 0) {
 				(function(base, nonce, what, findex) {
 					setTimeout(function(){updraft_downloader_status(base, nonce, what, findex)}, nexttimer);
@@ -351,6 +349,36 @@ function updraft_downloader_status(base, nonce, what, findex) {
 			alert(updraftlion.notunderstood+' '+updraftlion.error+' '+err);
 		}
 	});
+}
+
+function updraft_downloader_status_update(base, nonce, what, findex, resp, response) {
+	var stid = base+nonce+'_'+what+'_'+findex;
+	var cancel_repeat = 0;
+	if (resp.e != null) {
+		jQuery('#'+stid+' .raw').html('<strong>'+updraftlion.error+'</strong> '+resp.e);
+		console.log(resp);
+	} else if (resp.p != null) {
+		jQuery('#'+stid+'_st .dlfileprogress').width(resp.p+'%');
+		//jQuery('#'+stid+'_st .dlsofar').html(Math.round(resp.s/1024));
+		//jQuery('#'+stid+'_st .dlsize').html(Math.round(resp.t/1024));
+		if (resp.m != null) {
+			if (resp.p >=100 && base == 'udrestoredlstatus_') {
+				jQuery('#'+stid+' .raw').html(resp.m);
+				jQuery('#'+stid).fadeOut('slow', function() { jQuery(this).remove(); updraft_restorer_checkstage2(0);});
+			} else if (resp.p < 100 || base != 'uddlstatus_') {
+				jQuery('#'+stid+' .raw').html(resp.m);
+			} else {
+				jQuery('#'+stid+' .raw').html(updraftlion.fileready+' '+ updraftlion.youshould+' <button type="button" onclick="updraftplus_downloadstage2(\''+nonce+'\', \''+what+'\', \''+findex+'\')\">'+updraftlion.downloadtocomputer+'</button> '+updraftlion.andthen+' <button id="uddownloaddelete_'+nonce+'_'+what+'" type="button" onclick="updraftplus_deletefromserver(\''+nonce+'\', \''+what+'\', \''+findex+'\')\">'+updraftlion.deletefromserver+'</button>');
+			}
+		}
+		dlstatus_lastlog = response;
+	} else if (resp.m != null) {
+			jQuery('#'+stid+' .raw').html(resp.m);
+	} else {
+		jQuery('#'+stid+' .raw').html(updraftlion.jsonnotunderstood+' ('+response+')');
+		cancel_repeat = 1;
+	}
+	return cancel_repeat;
 }
 
 jQuery(document).ready(function($){

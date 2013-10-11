@@ -67,7 +67,7 @@ class UpdraftPlus_Admin {
 
 		if (version_compare($wp_version, '3.2', '<')) add_action('all_admin_notices', array($this, 'show_admin_warning_wordpressversion'));
 
-		wp_enqueue_script('updraftplus-admin-ui', UPDRAFTPLUS_URL.'/includes/updraft-admin-ui.js', array('jquery', 'jquery-ui-dialog', 'plupload-all'));
+		wp_enqueue_script('updraftplus-admin-ui', UPDRAFTPLUS_URL.'/includes/updraft-admin-ui.js', array('jquery', 'jquery-ui-dialog', 'plupload-all'), '25');
 
 		wp_localize_script( 'updraftplus-admin-ui', 'updraftlion', array(
 			'rescanning' => __('Rescanning (looking for backups that you have uploaded manually into the internal backup store)...','updraftplus'),
@@ -358,7 +358,7 @@ class UpdraftPlus_Admin {
 		$timestamp = $_REQUEST['timestamp'];
 
 		// You need a nonce before you can set job data. And we certainly don't yet have one.
-		$updraftplus->backup_time_nonce();
+		$updraftplus->backup_time_nonce($timestamp);
 
 		$debug_mode = UpdraftPlus_Options::get_updraft_option('updraft_debug_mode');
 
@@ -498,6 +498,23 @@ class UpdraftPlus_Admin {
 		if (isset($_REQUEST['subaction']) && 'lastlog' == $_REQUEST['subaction']) {
 			echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', '('.__('Nothing yet logged', 'updraftplus').')'));
 		} elseif (isset($_GET['subaction']) && 'activejobs_list' == $_GET['subaction']) {
+			$download_status = array();
+			if (!empty($_GET['downloaders'])) {
+				foreach(explode(':', $_GET['downloaders']) as $downloader) {
+					# prefix, timestamp, entity, index
+					if (preg_match('/^([^,]+),(\d+),([a-z]+),(\d+)$/', $downloader, $matches)) {
+						$updraftplus->nonce = $matches[2];
+						$status = $this->download_status($matches[2], $matches[3], $matches[4]);
+						if (is_array($status)) {
+							$status['base'] = $matches[1];
+							$status['timestamp'] = $matches[2];
+							$status['what'] = $matches[3];
+							$status['findex'] = (empty($matches[4])) ? '0' : $matches[4];
+							$download_status[] = $status;
+						}
+					}
+				}
+			}
 			if (!empty($_GET['oneshot'])) {
 				$job_id = get_site_option('updraft_oneshotnonce', false);
 				$active_jobs = (false === $job_id) ? '' : $this->print_active_job($job_id, true);
@@ -506,7 +523,8 @@ class UpdraftPlus_Admin {
 			}
 			echo json_encode(array(
 				'l' => htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', '('.__('Nothing yet logged', 'updraftplus').')')),
-				'j' => $active_jobs
+				'j' => $active_jobs,
+				'ds' => $download_status
 			));
 		} elseif (isset($_REQUEST['subaction']) && 'dismissautobackup' == $_REQUEST['subaction']) {
 			UpdraftPlus_Options::update_updraft_option('updraftplus_dismissedautobackup', time() + 84*86400);
@@ -767,51 +785,11 @@ class UpdraftPlus_Admin {
 			echo json_encode(array('n' => sprintf(__('%d set(s) available', 'updraftplus'), count($backup_history)), 't' => $this->existing_backup_table($backup_history)));
 		} elseif (isset($_GET['subaction']) && 'downloadstatus' == $_GET['subaction'] && isset($_GET['timestamp']) && isset($_GET['type'])) {
 
-			$response = array();
 			$findex = (isset($_GET['findex'])) ? $_GET['findex'] : '0';
 			if (empty($findex)) $findex = '0';
-
 			$updraftplus->nonce = $_GET['timestamp'];
-			$response['m'] = $updraftplus->jobdata_get('dlmessage_'.$_GET['timestamp'].'_'.$_GET['type'].'_'.$findex).'<br>';
 
-			if ($file = $updraftplus->jobdata_get('dlfile_'.$_GET['timestamp'].'_'.$_GET['type'].'_'.$findex)) {
-				if ('failed' == $file) {
-					$response['e'] = __('Download failed','updraftplus').'<br>';
-					$errs = $updraftplus->jobdata_get('dlerrors_'.$_GET['timestamp'].'_'.$_GET['type'].'_'.$findex);
-					if (is_array($errs) && !empty($errs)) {
-						$response['e'] .= '<ul style="list-style: disc inside;">';
-						foreach ($errs as $err) {
-							if (is_array($err)) {
-								$response['e'] .= '<li>'.htmlspecialchars($err['message']).'</li>';
-							} else {
-								$response['e'] .= '<li>'.htmlspecialchars($err).'</li>';
-							}
-						}
-						$response['e'] .= '</ul>';
-					}
-				} elseif (preg_match('/^downloaded:(\d+):(.*)$/', $file, $matches) && file_exists($matches[2])) {
-					$response['p'] = 100;
-					$response['f'] = $matches[2];
-					$response['s'] = (int)$matches[1];
-					$response['t'] = (int)$matches[1];
-					$response['m'] = __('File ready.', 'updraftplus');
-				} elseif (preg_match('/^downloading:(\d+):(.*)$/', $file, $matches) && file_exists($matches[2])) {
-					// Convert to bytes
-					$response['f'] = $matches[2];
-					$total_size = (int)max($matches[1], 1);
-					$cur_size = filesize($matches[2]);
-					$response['s'] = $cur_size;
-					$response['t'] = $total_size;
-					$response['m'] .= __("Download in progress", 'updraftplus').' ('.round($cur_size/1024).' / '.round(($total_size/1024)).' Kb)';
-					$response['p'] = round(100*$cur_size/$total_size);
-				} else {
-					$response['m'] .= __('No local copy present.', 'updraftplus');
-					$response['p'] = 0;
-					$response['s'] = 0;
-					$response['t'] = 1;
-				}
-			}
-			echo json_encode($response);
+			echo json_encode($this->download_status($_GET['timestamp'], $_GET['type'], $findex));
 
 		} elseif (isset($_POST['subaction']) && $_POST['subaction'] == 'credentials_test') {
 			$method = (preg_match("/^[a-z0-9]+$/", $_POST['method'])) ? $_POST['method'] : "";
@@ -825,6 +803,52 @@ class UpdraftPlus_Admin {
 
 		die;
 
+	}
+
+	function download_status($timestamp, $type, $findex) {
+
+		global $updraftplus;
+
+		$response = array( 'm' => $updraftplus->jobdata_get('dlmessage_'.$timestamp.'_'.$type.'_'.$findex).'<br>' );
+
+		if ($file = $updraftplus->jobdata_get('dlfile_'.$timestamp.'_'.$type.'_'.$findex)) {
+			if ('failed' == $file) {
+				$response['e'] = __('Download failed','updraftplus').'<br>';
+				$errs = $updraftplus->jobdata_get('dlerrors_'.$timestamp.'_'.$type.'_'.$findex);
+				if (is_array($errs) && !empty($errs)) {
+					$response['e'] .= '<ul style="list-style: disc inside;">';
+					foreach ($errs as $err) {
+						if (is_array($err)) {
+							$response['e'] .= '<li>'.htmlspecialchars($err['message']).'</li>';
+						} else {
+							$response['e'] .= '<li>'.htmlspecialchars($err).'</li>';
+						}
+					}
+					$response['e'] .= '</ul>';
+				}
+			} elseif (preg_match('/^downloaded:(\d+):(.*)$/', $file, $matches) && file_exists($matches[2])) {
+				$response['p'] = 100;
+				$response['f'] = $matches[2];
+				$response['s'] = (int)$matches[1];
+				$response['t'] = (int)$matches[1];
+				$response['m'] = __('File ready.', 'updraftplus');
+			} elseif (preg_match('/^downloading:(\d+):(.*)$/', $file, $matches) && file_exists($matches[2])) {
+				// Convert to bytes
+				$response['f'] = $matches[2];
+				$total_size = (int)max($matches[1], 1);
+				$cur_size = filesize($matches[2]);
+				$response['s'] = $cur_size;
+				$response['t'] = $total_size;
+				$response['m'] .= __("Download in progress", 'updraftplus').' ('.round($cur_size/1024).' / '.round(($total_size/1024)).' Kb)';
+				$response['p'] = round(100*$cur_size/$total_size);
+			} else {
+				$response['m'] .= __('No local copy present.', 'updraftplus');
+				$response['p'] = 0;
+				$response['s'] = 0;
+				$response['t'] = 1;
+			}
+		}
+		return $response;
 	}
 
 	function analyse_db_file($timestamp, $res) {
