@@ -451,7 +451,7 @@ class UpdraftPlus {
 	public function backup_time_nonce($nonce = false) {
 		$this->job_time_ms = microtime(true);
 		$this->backup_time = time();
-		if (false === $nonse) $nonce = substr(md5(time().rand()), 20);
+		if (false === $nonce) $nonce = substr(md5(time().rand()), 20);
 		$this->nonce = $nonce;
 	}
 
