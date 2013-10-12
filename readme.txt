@@ -140,6 +140,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * FIX: Remove bogus warning about W3TC object cache
 * FIX: Under very unusual circumstances, it was still possible for multiple backup jobs to occur
 * FIX: For non-English installs, the email indicating backup success sometimes failed to send
+* FIX: Fix obscure table name error if WP was using bespoke database setup without delete access
 * TWEAK: Amazon S3 backend now can use WP proxy settings (if any)
 * TWEAK: All multisite settings pages have now been moved to the network admin section
 * TWEAK: Internationalised the add-ons management page (Premium)
