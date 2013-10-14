@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.7.31
+Version: 1.7.32
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -367,8 +367,8 @@ class UpdraftPlus {
 
 	public function get_table_prefix() {
 		global $wpdb;
-		if (!empty($wpdb->base_prefix)) return $wpdb->base_prefix;
-		return $wpdb->get_blog_prefix(0);
+		#if (!empty($wpdb->base_prefix)) return $wpdb->base_prefix;
+		return $wpdb->get_blog_prefix();
 	}
 
 	public function show_admin_warning_unreadablelog() {
@@ -672,7 +672,7 @@ class UpdraftPlus {
 
 		$updraft_dir = $this->backups_dir_location();
 		global $wpdb;
-		$table_name = $wpdb->base_prefix.'options';
+		$table_name = $wpdb->get_blog_prefix().'options';
 		$tmp_file = md5(time().rand()).".sqltest.tmp";
 		$pfile = md5(time().rand()).'.tmp';
 		file_put_contents($updraft_dir.'/'.$pfile, "[mysqldump]\npassword=".DB_PASSWORD."\n");
