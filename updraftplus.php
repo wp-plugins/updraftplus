@@ -248,11 +248,7 @@ class UpdraftPlus {
 		add_action('init', array($this, 'handle_url_actions'));
 		// Run earlier than default - hence earlier than other components
 		// admin_menu runs earlier, and we need it because options.php wants to use $updraftplus_admin before admin_init happens
-		if (is_multisite()) {
-			add_action('network_admin_menu', array($this, 'admin_menu'), 9);
-		} else {
-			add_action('admin_menu', array($this, 'admin_menu'), 9);
-		}
+		add_action(apply_filters('updraft_admin_menu_hook', 'admin_menu'), array($this, 'admin_menu'), 9);
 		# Not a mistake: admin-ajax.php calls only admin_init and not admin_menu
 		add_action('admin_init', array($this, 'admin_menu'), 9);
 		add_action('updraft_backup', array($this,'backup_files'));
