@@ -148,6 +148,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 * TWEAK: Now cleans up some previously un-caught temporary files if the backup aborted unexpectedly
 * TWEAK: Backup log file now includes SHA1 checksums
 * TWEAK: Make fewer HTTP requests when tracking download status
+* TWEAK: Improve detection of recent activity on resumptions when zips split
 * TWEAK: Remove the "that's a lot of rows" warning once the table successfully finishes being dumped
 * TWEAK: Cache the results of looking for a zip executable for the duration of the job
 * TWEAK: Some badly-written plugins place their own code on UD's settings page, and break the layout; overcome this
