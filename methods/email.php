@@ -15,7 +15,7 @@ class UpdraftPlus_BackupModule_email {
 
 		$admin_email= get_bloginfo('admin_email');
 		if ($updraftplus->have_addons < 10 && $email && $email != $admin_email) {
-			$updraftplus->log(sprintf(__("With the next release of UpdraftPlus, you will need an add-on to use a different email address to the site owner's (%s). See: %s", 'updraftplus'), $admin_email, 'http://updraftplus.com/updraftplus-1-7-18-released/#an'), 'warning', 'needpremiumforemail');
+			$updraftplus->log(sprintf(__("With the next release of UpdraftPlus, you will need an add-on to use a different email address to the site owner's (%s). See: %s", 'updraftplus'), $admin_email, 'http://updraftplus.com/next-updraftplus-release-ready-testing/'), 'warning', 'needpremiumforemail');
 		}
 
 		foreach ($backup_array as $type => $file) {
