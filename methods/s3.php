@@ -19,7 +19,25 @@ class UpdraftPlus_BackupModule_s3 {
 
 		if (!class_exists('S3')) require_once(UPDRAFTPLUS_DIR.'/includes/S3.php');
 
+		if (!class_exists('WP_HTTP_Proxy')) require_once(ABSPATH.'wp-includes/class-http.php');
+		$proxy = new WP_HTTP_Proxy();
 		$s3 = new S3($key, $secret);
+
+		if ( $proxy->is_enabled()) {
+			# WP_HTTP_Proxy returns empty strings where we want nulls
+			$user = $proxy->username();
+			if (empty($user)) {
+				$user = null;
+				$pass = null;
+			} else {
+				$pass = $proxy->password();
+				if (empty($pass)) $pass = null;
+			}
+			$port = (int)$proxy->port();
+			if (empty($port)) $port = 8080;
+			$s3->setProxy($proxy->host(), $user, $pass, CURLPROXY_HTTP, $port); 
+		}
+
 		if (!$nossl) {
 			$curl_version = (function_exists('curl_version')) ? curl_version() : array('features' => null);
 			$curl_ssl_supported= ($curl_version['features'] & CURL_VERSION_SSL);

@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.7.28
+Version: 1.7.34
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -14,9 +14,11 @@ Author URI: http://updraftplus.com
 /*
 TODO - some of these are out of date/done, needs pruning
 // After Oct 15 2013: Remove page(s) from websites discussing W3TC
-// Upon database restore, remove all resumption jobs from the scheduler. And/or never save them.
 // Change migrate window: 1) Retain link to article 2) Have selector to choose which backup set to migrate - or a fresh one 3) Have option for FTP/SFTP/SCP despatch 4) Have big "Go" button. Have some indication of what happens next. Test the login first. Have the remote site auto-scan its directory + pick up new sets. Have a way of querying the remote site for its UD-dir. Have a way of saving the settings as a 'profile'. Or just save the last set of settings (since mostly will be just one place to send to). Implement an HTTP/JSON method for sending files too.
+// Log Cpanel quota
+// Detect low-memory VPSes, and don't use BinZip
 // Change default setting of retain 1 backup set? (Auto-backup could replace it in that case... don't perform pruning when doing auto-backup?)
+// Change add-ons screen, to be less confusing for people who haven't yet updated but have connected
 // Put a 'what do I get if I upgrade?' link into the mix
 // Add to admin bar (and make it something that can be turned off)
 // New reporting add-on: Multiple email addresses, send backup to 1st only, option to send email only on failure, include checksums (SHA1) in report (store these in job data immediately post-creation; then aggregate them into the backup history on job finish), option to include log file always, option to log to syslog
@@ -248,11 +250,7 @@ class UpdraftPlus {
 		add_action('init', array($this, 'handle_url_actions'));
 		// Run earlier than default - hence earlier than other components
 		// admin_menu runs earlier, and we need it because options.php wants to use $updraftplus_admin before admin_init happens
-		if (is_multisite()) {
-			add_action('network_admin_menu', array($this, 'admin_menu'), 9);
-		} else {
-			add_action('admin_menu', array($this, 'admin_menu'), 9);
-		}
+		add_action(apply_filters('updraft_admin_menu_hook', 'admin_menu'), array($this, 'admin_menu'), 9);
 		# Not a mistake: admin-ajax.php calls only admin_init and not admin_menu
 		add_action('admin_init', array($this, 'admin_menu'), 9);
 		add_action('updraft_backup', array($this,'backup_files'));
@@ -367,8 +365,8 @@ class UpdraftPlus {
 
 	public function get_table_prefix() {
 		global $wpdb;
-		if (!empty($wpdb->base_prefix)) return $wpdb->base_prefix;
-		return $wpdb->get_blog_prefix(0);
+		#if (!empty($wpdb->base_prefix)) return $wpdb->base_prefix;
+		return $wpdb->get_blog_prefix();
 	}
 
 	public function show_admin_warning_unreadablelog() {
@@ -448,10 +446,10 @@ class UpdraftPlus {
 		}
 	}
 
-	public function backup_time_nonce() {
+	public function backup_time_nonce($nonce = false) {
 		$this->job_time_ms = microtime(true);
 		$this->backup_time = time();
-		$nonce = substr(md5(time().rand()), 20);
+		if (false === $nonce) $nonce = substr(md5(time().rand()), 20);
 		$this->nonce = $nonce;
 	}
 
@@ -491,9 +489,15 @@ class UpdraftPlus {
 
 		$safe_mode = $this->detect_safe_mode();
 
+		$memory_limit = ini_get('memory_limit');
 		$memory_usage = round(@memory_get_usage(false)/1048576, 1);
 		$memory_usage2 = round(@memory_get_usage(true)/1048576, 1);
-		$logline = "UpdraftPlus WordPress backup plugin (http://updraftplus.com): ".$this->version." WP: ".$wp_version." PHP: ".phpversion()." (".php_uname().") MySQL: $mysql_version Server: ".$_SERVER["SERVER_SOFTWARE"]." safe_mode: $safe_mode max_execution_time: ".@ini_get("max_execution_time")." memory_limit: ".ini_get('memory_limit')." (used: ${memory_usage}M | ${memory_usage2}M) mcrypt: ".((function_exists('mcrypt_encrypt')) ? '1' : '0')." ZipArchive::addFile: ";
+
+		# Attempt to raise limit to avoid false positives
+		@set_time_limit(900);
+		$max_execution_time = (int)@ini_get("max_execution_time");
+
+		$logline = "UpdraftPlus WordPress backup plugin (http://updraftplus.com): ".$this->version." WP: ".$wp_version." PHP: ".phpversion()." (".php_uname().") MySQL: $mysql_version Server: ".$_SERVER["SERVER_SOFTWARE"]." safe_mode: $safe_mode max_execution_time: $max_execution_time memory_limit: $memory_limit (used: ${memory_usage}M | ${memory_usage2}M) multisite: ".((is_multisite()) ? 'Y' : 'N')." mcrypt: ".((function_exists('mcrypt_encrypt')) ? 'Y' : 'N')." ZipArchive::addFile: ";
 
 		// method_exists causes some faulty PHP installations to segfault, leading to support requests
 		if (version_compare(phpversion(), '5.2.0', '>=') && extension_loaded('zip')) {
@@ -504,6 +508,13 @@ class UpdraftPlus {
 
 		$w3oc = 'N';
 		if (0 === $this->current_resumption) {
+			$memlim = $this->memory_check_current();
+			if ($memlim<65) {
+				$this->log(sprintf(__('The amount of memory (RAM) allowed for PHP is very low (%s Mb) - you should increase it to avoid failures due to insufficient memory (consult your web hosting company for more help)', 'updraftplus'), round($memlim, 1)), 'warning', 'lowram');
+			}
+			if ($max_execution_time>0 && $max_execution_time<20) {
+				$this->log(sprintf(__('The amount of time allowed for WordPress plugins to run is very low (%s seconds) - you should increase it to avoid backup failures due to time-outs (consult your web hosting company for more help - it is the max_execution_time PHP setting; the recommmended value is %s seconds or more)', 'updraftplus'), $max_execution_time, 90), 'warning', 'lowmaxexecutiontime');
+			}
 			if (defined('W3TC') && W3TC == true && function_exists('w3_instance')) {
 				$modules = w3_instance('W3_ModuleStatus');
 				if ($modules->is_enabled('objectcache')) {
@@ -566,7 +577,6 @@ class UpdraftPlus {
 				// The values of the POST array were checked before
 				$findex = (!empty($_POST['findex'])) ? $_POST['findex'] : 0;
 
-				$this->nonce = $_POST['timestamp'];
 				$this->jobdata_set('dlmessage_'.$_POST['timestamp'].'_'.$_POST['type'].'_'.$findex, $line);
 
 				break;
@@ -574,7 +584,7 @@ class UpdraftPlus {
 				#if ('debug' != $level) echo $line."\n";
 				break;
 			default:
-				if ('debug' != $level) UpdraftPlus_Options::update_updraft_option('updraft_lastmessage', $line." (".date_i18n('M d H:i:s').")");
+				if ('debug' != $level) UpdraftPlus_Options::update_updraft_option('updraft_lastmessage', $line." (".date_i18n('M d H:i:s').")", false);
 				break;
 		}
 
@@ -668,7 +678,7 @@ class UpdraftPlus {
 
 		$updraft_dir = $this->backups_dir_location();
 		global $wpdb;
-		$table_name = $wpdb->base_prefix.'options';
+		$table_name = $wpdb->get_blog_prefix().'options';
 		$tmp_file = md5(time().rand()).".sqltest.tmp";
 		$pfile = md5(time().rand()).'.tmp';
 		file_put_contents($updraft_dir.'/'.$pfile, "[mysqldump]\npassword=".DB_PASSWORD."\n");
@@ -784,7 +794,7 @@ class UpdraftPlus {
 							
 							while (!feof($pipes[2])) {
 								$last_error = fgets($pipes[2]);
-								if (!empty($last_error) && $logit) $this->log("Error output: ".trim($w));
+								if (!empty($last_error) && $logit) $this->log("Stderr output: ".trim($w));
 							}
 							fclose($pipes[2]);
 
@@ -958,7 +968,15 @@ class UpdraftPlus {
 			} else {
 				$this->job_time_ms = $this->jobdata_get('job_time_ms');
 			}
+			# Get the warnings before opening the log file, as opening the log file may generate new ones (which then leads to $this->errors having duplicate entries when they are copied over below)
+			$warnings = $this->jobdata_get('warnings');
 			$this->logfile_open($bnonce);
+			// Import existing warnings. The purpose of this is so that when save_backup_history() is called, it has a complete set - because job data expires quickly, whilst the warnings of the last backup run need to persist
+			if (is_array($warnings)) {
+				foreach ($warnings as $warning) {
+					$this->errors[] = array('level' => 'warning', 'message' => $warning);
+				}
+			}
 
 			$runs_started = $this->jobdata_get('runs_started');
 			if (!is_array($runs_started)) $runs_started=array();
@@ -981,14 +999,6 @@ class UpdraftPlus {
 
 		$runs_started[$resumption_no] = $time_now;
 		if (!empty($this->backup_time)) $this->jobdata_set('runs_started', $runs_started);
-
-		// Import existing warnings. The purpose of this is so that when save_backup_history() is called, it has a complete set - because job data expires quickly, whilst the warnings of the last backup run need to persist
-		$warnings = $this->jobdata_get('warnings');
-		if (is_array($warnings)) {
-			foreach ($warnings as $warning) {
-				$this->errors[] = array('level' => 'warning', 'message' => $warning);
-			}
-		}
 
 		// Schedule again, to run in 5 minutes again, in case we again fail
 		// The actual interval can be increased (for future resumptions) by other code, if it detects apparent overlapping
@@ -1524,10 +1534,8 @@ class UpdraftPlus {
 
 	function save_last_backup($backup_array) {
 		$success = ($this->error_count() == 0) ? 1 : 0;
-
 		$last_backup = array('backup_time'=>$this->backup_time, 'backup_array'=>$backup_array, 'success'=>$success, 'errors'=>$this->errors, 'backup_nonce' => $this->nonce);
-
-		UpdraftPlus_Options::update_updraft_option('updraft_last_backup', $last_backup);
+		UpdraftPlus_Options::update_updraft_option('updraft_last_backup', $last_backup, false);
 	}
 
 	// This should be called whenever a file is successfully uploaded
@@ -1557,7 +1565,7 @@ class UpdraftPlus {
 		if ($id) {
 			$ids = UpdraftPlus_Options::get_updraft_option('updraft_file_ids', array() );
 			$ids[$file] = $id;
-			UpdraftPlus_Options::update_updraft_option('updraft_file_ids',$ids);
+			UpdraftPlus_Options::update_updraft_option('updraft_file_ids', $ids, false);
 			$this->log("Stored file<->id correlation in database ($file <-> $id)");
 		}
 
@@ -1747,7 +1755,7 @@ class UpdraftPlus {
 			$backup_array['nonce'] = $this->nonce;
 			$backup_array['service'] = $this->jobdata_get('service');
 			$backup_history[$this->backup_time] = $backup_array;
-			UpdraftPlus_Options::update_updraft_option('updraft_backup_history', $backup_history);
+			UpdraftPlus_Options::update_updraft_option('updraft_backup_history', $backup_history, false);
 		} else {
 			$this->log('Could not save backup history because we have no backup array. Backup probably failed.');
 			$this->log(__('Could not save backup history because we have no backup array. Backup probably failed.','updraftplus'), 'error');
@@ -1969,9 +1977,17 @@ class UpdraftPlus {
 		if ($memory_limit == false) $memory_limit = ini_get('memory_limit');
 		$memory_limit = rtrim($memory_limit);
 		$memory_unit = $memory_limit[strlen($memory_limit)-1];
-		$memory_limit = substr($memory_limit,0,strlen($memory_limit)-1);
+		if ((int)$memory_unit == 0 && $memory_unit !== '0') {
+			$memory_limit = substr($memory_limit,0,strlen($memory_limit)-1);
+		} else {
+			$memory_unit = '';
+		}
 		switch($memory_unit) {
+			case '':
+				$memory_limit = floor($memory_limit/1048576);
+			break;
 			case 'K':
+			case 'k':
 				$memory_limit = floor($memory_limit/1024);
 			break;
 			case 'G':

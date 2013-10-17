@@ -54,14 +54,15 @@ Are you able to translate UpdraftPlus into another language? Are you ready to he
 
 Many thanks to the existing translators:
 
-* Français / French translation (fr_FR): ufo3D - http://ufo-3d.fr/ and Thomas Jacobsen - http://123informatique.ch/ - with help from Françoise Lhermitte - http://www.ajwan.net
+* Ελληνική  / Greek translation (el): Κώστας Θερμογιάννης (Kostas Thermoyiannis) - http://tovivlio.net
+* Français / French translation (fr_FR): ufo3D - http://ufo-3d.fr and Thomas Jacobsen - http://123informatique.ch - with help from Françoise Lhermitte - http://www.ajwan.net
 * Swedish / Svensk (sv_SE): Steve Sandström - http://www.brandicon.se
-* Español / Spanish (es_ES): Fernando Villasmil - villasmil.fernando at gmail.com
 * Polski / Polish (pl_PL): Bartosz Kaczmarek - barth.kaczmarek at gmail.com
 * Chinese (zh_CN): K L Wang - http://klwang.info
 * Italiano / Italian (it_IT): Francesco Carpana - f.carpana at gmail.com
 
 And to these (need updating or new translators; now less than 50% translated):
+* Español / Spanish (es_ES): Fernando Villasmil - villasmil.fernando at gmail.com
 * Deutsch / German (de_DE): Marcel Herrguth - mherrguth at mrgeneration.de
 * Magyar / Hungarian (hu_HU): Szépe Viktor - http://www.szepe.net
 * Nederlands / Dutch (nl_NL): Hans van der Vlist - hansvandervlist at gmail.com
@@ -128,25 +129,37 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= Development version: not yet released/supported =
+The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
+
+= 1.7.34 - 2013/10/18 =
 
 * FEATURE: Options in the "Backup Now" dialog to exclude files or database from the backup
 * FEATURE: Use binary mysqldump, if available, for much faster dumps of large tables
-* FEATURE: Restorer now handles hand-moved non-default WP site directories (where they differ from the website base directory)
-* FIX: Under certain conditions, the report email could wrongly state that files were included in a db-only backup
+* FEATURE: New Ελληνική / Greek translation (el): Κώστας Θερμογιάννης (Kostas Thermoyiannis) - http://tovivlio.net
 * FIX: Fix a JavaScript error in Internet Explorer 8
-* FIX: Remove bogus warning about W3TC object cache
 * FIX: Under very unusual circumstances, it was still possible for multiple backup jobs to occur
 * FIX: For non-English installs, the email indicating backup success sometimes failed to send
+* FIX: Fix obscure table name error if WP was using bespoke database setup without delete access
+* FIX: On multi-site installs, settings changes could be lost if they were made during an ongoing backup
+* TWEAK: Amazon S3 backend now can use WP proxy settings (if any)
 * TWEAK: All multisite settings pages have now been moved to the network admin section
+* TWEAK: Restorer now handles hand-moved non-default WP site directories (where they differ from the website base directory)
+* TWEAK: Migrator can now migrate sub-domain-based WPMU installs with no manual steps required
 * TWEAK: Internationalised the add-ons management page (Premium)
 * TWEAK: Switch zip engines from ZipArchive earlier if it appears to be broken
 * TWEAK: Now cleans up some previously un-caught temporary files if the backup aborted unexpectedly
+* TWEAK: Remove bogus warning about W3TC object cache
 * TWEAK: Backup log file now includes SHA1 checksums
+* TWEAK: Add warning for user if their max_execution_time is very low
+* TWEAK: Make fewer HTTP requests when tracking download status
+* TWEAK: Under certain conditions, the report email could wrongly state that files were included in a db-only backup
+* TWEAK: Improve detection of recent activity on resumptions when zips split
+* TWEAK: Prevent some warning messages from being shown twice
 * TWEAK: Remove the "that's a lot of rows" warning once the table successfully finishes being dumped
 * TWEAK: Cache the results of looking for a zip executable for the duration of the job
 * TWEAK: Some badly-written plugins place their own code on UD's settings page, and break the layout; overcome this
 * TWEAK: Add a warning for people using encryption without mcrypt installed (slow)
+* TWEAK: Suppress useless warning when using BinZip and only empty directories exist in 'others' backup
 
 = 1.7.20 - 2013/09/20 =
 * TWEAK: Add semaphore locking to prevent WP's cron system kicking off multiple jobs on overloaded systems

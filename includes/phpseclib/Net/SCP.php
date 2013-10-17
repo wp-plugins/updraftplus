@@ -261,6 +261,7 @@ class Net_SCP {
         $content = '';
         while ($size < $info['size']) {
             $data = $this->_receive();
+            if (strlen($data) + $size > $info['size']) $data = substr($data, 0, $info['size'] - $size);
             // SCP usually seems to split stuff out into 16k chunks
             $size+= strlen($data);
 

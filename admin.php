@@ -46,7 +46,7 @@ class UpdraftPlus_Admin {
 		if (UpdraftPlus_Options::user_can_manage() && $this->disk_space_check(1024*1024*35) === false) add_action('all_admin_notices', array($this, 'show_admin_warning_diskspace'));
 
 		// Next, the actions that only come on the UpdraftPlus page
-		if ($pagenow != UpdraftPlus_Options::admin_page() || !isset($_REQUEST['page']) || 'updraftplus' != $_REQUEST['page']) return;
+		if ($pagenow != UpdraftPlus_Options::admin_page() || empty($_REQUEST['page']) || 'updraftplus' != $_REQUEST['page']) return;
 
 		if (UpdraftPlus_Options::user_can_manage() && defined('DISABLE_WP_CRON') && DISABLE_WP_CRON == true) {
 			add_action('all_admin_notices', array($this, 'show_admin_warning_disabledcron'));
@@ -58,6 +58,13 @@ class UpdraftPlus_Admin {
 			add_action('all_admin_notices', array($this, 'show_admin_debug_warning'));
 		}
 
+		# Avoid false positives, by attempting to raise the limit (as happens when we actually do a backup)
+		@set_time_limit(900);
+		$max_execution_time = (int)@ini_get('max_execution_time');
+		if ($max_execution_time>0 && $max_execution_time<20) {
+			add_action('all_admin_notices', array($this, 'show_admin_warning_execution_time'));
+		}
+
 		// LiteSpeed has a generic problem with terminating cron jobs
 		if (isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'LiteSpeed') !== false) {
 			if (!is_file(ABSPATH.'.htaccess') || !preg_match('/noabort/i', file_get_contents(ABSPATH.'.htaccess'))) {
@@ -67,7 +74,7 @@ class UpdraftPlus_Admin {
 
 		if (version_compare($wp_version, '3.2', '<')) add_action('all_admin_notices', array($this, 'show_admin_warning_wordpressversion'));
 
-		wp_enqueue_script('updraftplus-admin-ui', UPDRAFTPLUS_URL.'/includes/updraft-admin-ui.js', array('jquery', 'jquery-ui-dialog', 'plupload-all'));
+		wp_enqueue_script('updraftplus-admin-ui', UPDRAFTPLUS_URL.'/includes/updraft-admin-ui.js', array('jquery', 'jquery-ui-dialog', 'plupload-all'), '25');
 
 		wp_localize_script( 'updraftplus-admin-ui', 'updraftlion', array(
 			'rescanning' => __('Rescanning (looking for backups that you have uploaded manually into the internal backup store)...','updraftplus'),
@@ -285,6 +292,10 @@ class UpdraftPlus_Admin {
 		echo '<div class="updraftmessage '.$class.' fade">'."<p>$message</p></div>";
 	}
 
+	public function show_admin_warning_execution_time() {
+		$this->show_admin_warning('<strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__('The amount of time allowed for WordPress plugins to run is very low (%s seconds) - you should increase it to avoid backup failures due to time-outs (consult your web hosting company for more help - it is the max_execution_time PHP setting; the recommmended value is %s seconds or more)', 'updraftplus'), (int)@ini_get('max_execution_time'), 90));
+	}
+
 	function show_admin_warning_disabledcron() {
 		$this->show_admin_warning('<strong>'.__('Warning','updraftplus').':</strong> '.__('The scheduler is disabled in your WordPress install, via the DISABLE_WP_CRON setting. No backups can run (even &quot;Backup Now&quot;) unless either you have set up a facility to call the scheduler manually, or until it is enabled.','updraftplus').' <a href="http://updraftplus.com/faqs/my-scheduled-backups-and-pressing-backup-now-does-nothing-however-pressing-debug-backup-does-produce-a-backup/#disablewpcron">'.__('Go here for more information.','updraftplus').'</a>');
 	}
@@ -358,7 +369,7 @@ class UpdraftPlus_Admin {
 		$timestamp = $_REQUEST['timestamp'];
 
 		// You need a nonce before you can set job data. And we certainly don't yet have one.
-		$updraftplus->backup_time_nonce();
+		$updraftplus->backup_time_nonce($timestamp);
 
 		$debug_mode = UpdraftPlus_Options::get_updraft_option('updraft_debug_mode');
 
@@ -498,6 +509,23 @@ class UpdraftPlus_Admin {
 		if (isset($_REQUEST['subaction']) && 'lastlog' == $_REQUEST['subaction']) {
 			echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', '('.__('Nothing yet logged', 'updraftplus').')'));
 		} elseif (isset($_GET['subaction']) && 'activejobs_list' == $_GET['subaction']) {
+			$download_status = array();
+			if (!empty($_GET['downloaders'])) {
+				foreach(explode(':', $_GET['downloaders']) as $downloader) {
+					# prefix, timestamp, entity, index
+					if (preg_match('/^([^,]+),(\d+),([a-z]+),(\d+)$/', $downloader, $matches)) {
+						$updraftplus->nonce = $matches[2];
+						$status = $this->download_status($matches[2], $matches[3], $matches[4]);
+						if (is_array($status)) {
+							$status['base'] = $matches[1];
+							$status['timestamp'] = $matches[2];
+							$status['what'] = $matches[3];
+							$status['findex'] = (empty($matches[4])) ? '0' : $matches[4];
+							$download_status[] = $status;
+						}
+					}
+				}
+			}
 			if (!empty($_GET['oneshot'])) {
 				$job_id = get_site_option('updraft_oneshotnonce', false);
 				$active_jobs = (false === $job_id) ? '' : $this->print_active_job($job_id, true);
@@ -506,7 +534,8 @@ class UpdraftPlus_Admin {
 			}
 			echo json_encode(array(
 				'l' => htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', '('.__('Nothing yet logged', 'updraftplus').')')),
-				'j' => $active_jobs
+				'j' => $active_jobs,
+				'ds' => $download_status
 			));
 		} elseif (isset($_REQUEST['subaction']) && 'dismissautobackup' == $_REQUEST['subaction']) {
 			UpdraftPlus_Options::update_updraft_option('updraftplus_dismissedautobackup', time() + 84*86400);
@@ -767,51 +796,11 @@ class UpdraftPlus_Admin {
 			echo json_encode(array('n' => sprintf(__('%d set(s) available', 'updraftplus'), count($backup_history)), 't' => $this->existing_backup_table($backup_history)));
 		} elseif (isset($_GET['subaction']) && 'downloadstatus' == $_GET['subaction'] && isset($_GET['timestamp']) && isset($_GET['type'])) {
 
-			$response = array();
 			$findex = (isset($_GET['findex'])) ? $_GET['findex'] : '0';
 			if (empty($findex)) $findex = '0';
-
 			$updraftplus->nonce = $_GET['timestamp'];
-			$response['m'] = $updraftplus->jobdata_get('dlmessage_'.$_GET['timestamp'].'_'.$_GET['type'].'_'.$findex).'<br>';
 
-			if ($file = $updraftplus->jobdata_get('dlfile_'.$_GET['timestamp'].'_'.$_GET['type'].'_'.$findex)) {
-				if ('failed' == $file) {
-					$response['e'] = __('Download failed','updraftplus').'<br>';
-					$errs = $updraftplus->jobdata_get('dlerrors_'.$_GET['timestamp'].'_'.$_GET['type'].'_'.$findex);
-					if (is_array($errs) && !empty($errs)) {
-						$response['e'] .= '<ul style="list-style: disc inside;">';
-						foreach ($errs as $err) {
-							if (is_array($err)) {
-								$response['e'] .= '<li>'.htmlspecialchars($err['message']).'</li>';
-							} else {
-								$response['e'] .= '<li>'.htmlspecialchars($err).'</li>';
-							}
-						}
-						$response['e'] .= '</ul>';
-					}
-				} elseif (preg_match('/^downloaded:(\d+):(.*)$/', $file, $matches) && file_exists($matches[2])) {
-					$response['p'] = 100;
-					$response['f'] = $matches[2];
-					$response['s'] = (int)$matches[1];
-					$response['t'] = (int)$matches[1];
-					$response['m'] = __('File ready.', 'updraftplus');
-				} elseif (preg_match('/^downloading:(\d+):(.*)$/', $file, $matches) && file_exists($matches[2])) {
-					// Convert to bytes
-					$response['f'] = $matches[2];
-					$total_size = (int)max($matches[1], 1);
-					$cur_size = filesize($matches[2]);
-					$response['s'] = $cur_size;
-					$response['t'] = $total_size;
-					$response['m'] .= __("Download in progress", 'updraftplus').' ('.round($cur_size/1024).' / '.round(($total_size/1024)).' Kb)';
-					$response['p'] = round(100*$cur_size/$total_size);
-				} else {
-					$response['m'] .= __('No local copy present.', 'updraftplus');
-					$response['p'] = 0;
-					$response['s'] = 0;
-					$response['t'] = 1;
-				}
-			}
-			echo json_encode($response);
+			echo json_encode($this->download_status($_GET['timestamp'], $_GET['type'], $findex));
 
 		} elseif (isset($_POST['subaction']) && $_POST['subaction'] == 'credentials_test') {
 			$method = (preg_match("/^[a-z0-9]+$/", $_POST['method'])) ? $_POST['method'] : "";
@@ -825,6 +814,52 @@ class UpdraftPlus_Admin {
 
 		die;
 
+	}
+
+	function download_status($timestamp, $type, $findex) {
+
+		global $updraftplus;
+
+		$response = array( 'm' => $updraftplus->jobdata_get('dlmessage_'.$timestamp.'_'.$type.'_'.$findex).'<br>' );
+
+		if ($file = $updraftplus->jobdata_get('dlfile_'.$timestamp.'_'.$type.'_'.$findex)) {
+			if ('failed' == $file) {
+				$response['e'] = __('Download failed','updraftplus').'<br>';
+				$errs = $updraftplus->jobdata_get('dlerrors_'.$timestamp.'_'.$type.'_'.$findex);
+				if (is_array($errs) && !empty($errs)) {
+					$response['e'] .= '<ul style="list-style: disc inside;">';
+					foreach ($errs as $err) {
+						if (is_array($err)) {
+							$response['e'] .= '<li>'.htmlspecialchars($err['message']).'</li>';
+						} else {
+							$response['e'] .= '<li>'.htmlspecialchars($err).'</li>';
+						}
+					}
+					$response['e'] .= '</ul>';
+				}
+			} elseif (preg_match('/^downloaded:(\d+):(.*)$/', $file, $matches) && file_exists($matches[2])) {
+				$response['p'] = 100;
+				$response['f'] = $matches[2];
+				$response['s'] = (int)$matches[1];
+				$response['t'] = (int)$matches[1];
+				$response['m'] = __('File ready.', 'updraftplus');
+			} elseif (preg_match('/^downloading:(\d+):(.*)$/', $file, $matches) && file_exists($matches[2])) {
+				// Convert to bytes
+				$response['f'] = $matches[2];
+				$total_size = (int)max($matches[1], 1);
+				$cur_size = filesize($matches[2]);
+				$response['s'] = $cur_size;
+				$response['t'] = $total_size;
+				$response['m'] .= __("Download in progress", 'updraftplus').' ('.round($cur_size/1024).' / '.round(($total_size/1024)).' Kb)';
+				$response['p'] = round(100*$cur_size/$total_size);
+			} else {
+				$response['m'] .= __('No local copy present.', 'updraftplus');
+				$response['p'] = 0;
+				$response['s'] = 0;
+				$response['t'] = 1;
+			}
+		}
+		return $response;
 	}
 
 	function analyse_db_file($timestamp, $res) {
@@ -1950,11 +1985,6 @@ CREATE TABLE $wpdb->signups (
 		}
 
 		return true;
-	}
-
-	function execution_time_check($time) {
-		$setting = ini_get('max_execution_time');
-		return ( $setting==0 || $setting >= $time) ? true : false;
 	}
 
 	//scans the content dir to see if any -old dirs are present
