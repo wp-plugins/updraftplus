@@ -135,7 +135,6 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 
 * FEATURE: Options in the "Backup Now" dialog to exclude files or database from the backup
 * FEATURE: Use binary mysqldump, if available, for much faster dumps of large tables
-* FEATURE: Restorer now handles hand-moved non-default WP site directories (where they differ from the website base directory)
 * FEATURE: New Ελληνική / Greek translation (el): Κώστας Θερμογιάννης (Kostas Thermoyiannis) - http://tovivlio.net
 * FIX: Fix a JavaScript error in Internet Explorer 8
 * FIX: Under very unusual circumstances, it was still possible for multiple backup jobs to occur
@@ -144,6 +143,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * FIX: On multi-site installs, settings changes could be lost if they were made during an ongoing backup
 * TWEAK: Amazon S3 backend now can use WP proxy settings (if any)
 * TWEAK: All multisite settings pages have now been moved to the network admin section
+* TWEAK: Restorer now handles hand-moved non-default WP site directories (where they differ from the website base directory)
 * TWEAK: Migrator can now migrate sub-domain-based WPMU installs with no manual steps required
 * TWEAK: Internationalised the add-ons management page (Premium)
 * TWEAK: Switch zip engines from ZipArchive earlier if it appears to be broken
