@@ -2126,7 +2126,7 @@ CREATE TABLE $wpdb->signups (
 					}
 				}
 			?>
-				<p><?php echo apply_filters('updraftplus_admin_directories_description', __('The above directories are everything, except for WordPress core itself which you can download afresh from WordPress.org.', 'updraftplus').' <a href="http://updraftplus.com/shop/">'.htmlspecialchars(__('Or, get the "More Files" add-on from our shop.', 'updraftplus'))); ?></a> <a href="http://wordshell.net"></p><p>(<?php echo __('Use WordShell for automatic backup, version control and patching', 'updraftplus');?></a>).</p></td>
+				<p><?php echo apply_filters('updraftplus_admin_directories_description', __('The above directories are everything, except for WordPress core itself which you can download afresh from WordPress.org.', 'updraftplus').' <a href="http://updraftplus.com/shop/">'.htmlspecialchars(__('See also the "More Files" add-on from our shop.', 'updraftplus'))); ?></a> <a href="http://wordshell.net"></p><p>(<?php echo __('Use WordShell for automatic backup, version control and patching', 'updraftplus');?></a>).</p></td>
 				</td>
 			</tr>
 			<tr>

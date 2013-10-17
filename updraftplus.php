@@ -653,7 +653,7 @@ class UpdraftPlus {
 			$this->log(sprintf(__('Your web-server does not have the %s module installed.', 'updraftplus'), 'mcrypt').' '.__('Without it, encryption will be a lot slower.', 'updraftplus'), 'warning', 'nomcrypt');
 		}
 		if ($this->have_addons < 10) {
-			$this->log(__("A future release of UpdraftPlus will move the encryption feature into an add-on (and add more features to it).", 'updraftplus'), 'warning', 'needpremiumforcrypt');
+			$this->log(__("A future release of UpdraftPlus will move the encryption feature into an add-on (and add more features to it).", 'updraftplus').' '.sprintf(__('See: %s', 'updraftplus'), 'http://updraftplus.com/next-updraftplus-release-ready-testing/'), 'warning', 'needpremiumforcrypt');
 		}
 		$this->ensure_phpseclib('Crypt_Rijndael', 'Crypt/Rijndael');
 		$rijndael = new Crypt_Rijndael();
