@@ -131,7 +131,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
-= 1.7.34 - not yet released/supported =
+= 1.7.34 - 2013/10/18 =
 
 * FEATURE: Options in the "Backup Now" dialog to exclude files or database from the backup
 * FEATURE: Use binary mysqldump, if available, for much faster dumps of large tables
