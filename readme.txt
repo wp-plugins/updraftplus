@@ -133,7 +133,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 
 = 1.7.34 - 2013/10/18 =
 
-* FEATURE: Options in the "Backup Now" dialog to exclude files or database from the backup
+* FEATURE: Options in the "Backup Now" dialog to exclude files or database from the backup (http://updraftplus.com/more-flexibility-in-backup-now/)
 * FEATURE: Use binary mysqldump, if available, for much faster dumps of large tables
 * FEATURE: New Ελληνική / Greek translation (el): Κώστας Θερμογιάννης (Kostas Thermoyiannis) - http://tovivlio.net
 * FIX: Fix a JavaScript error in Internet Explorer 8
@@ -141,6 +141,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * FIX: For non-English installs, the email indicating backup success sometimes failed to send
 * FIX: Fix obscure table name error if WP was using bespoke database setup without delete access
 * FIX: On multi-site installs, settings changes could be lost if they were made during an ongoing backup
+* TWEAK: Detect available disk quota in CPanel account (if relevant), log, and warn if low
 * TWEAK: Amazon S3 backend now can use WP proxy settings (if any)
 * TWEAK: All multisite settings pages have now been moved to the network admin section
 * TWEAK: Restorer now handles hand-moved non-default WP site directories (where they differ from the website base directory)
@@ -625,6 +626,7 @@ We recognise and thank the following for code and/or libraries used and/or modif
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 Furthermore, reliance upon any non-English translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
+
 
 == Upgrade Notice ==
 * 1.7.3: Fix 3 bugs - recommended upgrade for all

@@ -276,6 +276,32 @@ class UpdraftPlus {
 		if ($class_path) require_once(UPDRAFTPLUS_DIR.'/includes/phpseclib/'.$class_path.'.php');
 	}
 
+	// Returns the number of bytes free, if it can be detected; otherwise, false
+	// Presently, we only detect CPanel. If you know of others, then feel free to contribute!
+	public function get_hosting_disk_quota_free() {
+		if (!is_dir('/usr/local/cpanel') || $this->detect_safe_mode() || !function_exists('popen') || (!is_executable('/usr/local/bin/perl') && !is_executable('/usr/local/cpanel/3rdparty/bin/perl'))) return false;
+
+		$perl = (is_executable('/usr/local/cpanel/3rdparty/bin/perl')) ? '/usr/local/cpanel/3rdparty/bin/perl' : '/usr/local/bin/perl';
+
+		$exec = "UPDRAFTPLUSKEY=updraftplus $perl ".UPDRAFTPLUS_DIR."/includes/get-cpanel-quota-usage.pl";
+
+		$handle = popen($exec, 'r');
+		if (false === $handle) return false;
+
+		$found = false;
+		while (false === $found && !feof($handle)) {
+			$w = fgets($handle);
+			# Used, limit, remain
+			if (preg_match('/RESULT: (\d+) (\d+) (\d+) /', $w, $matches)) { $found = true; }
+		}
+		$ret = pclose($handle);
+		if (false === $found ||$ret != 0) return false;
+
+		if ((int)$matches[2]<100 || ($matches[1] + $matches[3] != $matches[2])) return false;
+
+		return $matches;
+	}
+
 	// This function may get called multiple times, so write accordingly
 	public function admin_menu() {
 		// We are in the admin area: now load all that code
@@ -526,14 +552,27 @@ class UpdraftPlus {
 
 		$this->log($logline);
 
+		$hosting_bytes_free = $this->get_hosting_disk_quota_free();
+		if (is_array($hosting_bytes_free)) {
+			$perc = round(100*$hosting_bytes_free[1]/(max($hosting_bytes_free[2], 1)), 1);
+			$quota_free = ' / '.sprintf('Free disk space in account: %s (%s used)', round($hosting_bytes_free[3]/1048576, 1)." Mb", "$perc %");
+			if ($hosting_bytes_free[3] < 1048576*50) {
+				$quota_free_mb = round($hosting_bytes_free[3]/1048576, 1);
+				$this->log(sprintf(__('Your free space in your hosting account is very low - only %s Mb remain', 'updraftplus'), $quota_free_mb), 'warning', 'lowaccountspace'.$quota_free_mb);
+			}
+		} else {
+			$quota_free = '';
+		}
+
 		$disk_free_space = @disk_free_space($updraft_dir);
 		if ($disk_free_space === false) {
-			$this->log("Free space on disk containing Updraft's temporary directory: Unknown");
+			$this->log("Free space on disk containing Updraft's temporary directory: Unknown".$quota_free);
 		} else {
-			$this->log("Free space on disk containing Updraft's temporary directory: ".round($disk_free_space/1048576,1)." Mb");
+			$this->log("Free space on disk containing Updraft's temporary directory: ".round($disk_free_space/1048576,1)." Mb".$quota_free);
 			$disk_free_mb = round($disk_free_space/1048576, 1);
 			if ($disk_free_space < 50*1048576) $this->log(sprintf(__('Your free disk space is very low - only %s Mb remain', 'updraftplus'), round($disk_free_space/1048576, 1)), 'warning', 'lowdiskspace'.$disk_free_mb);
 		}
+
 	}
 
 	/* Logs the given line, adding (relative) time stamp and newline
@@ -1176,6 +1215,9 @@ class UpdraftPlus {
 
 		# Save again (now that we have checksums)
 		$this->save_backup_history($our_files);
+
+		// We finished; so, low memory was not a problem
+		$this->log_removewarning('lowram');
 
 		if (count($undone_files) == 0) {
 			$this->log("Resume backup ($bnonce, $resumption_no): finish run");

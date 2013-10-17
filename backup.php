@@ -148,6 +148,8 @@ class UpdraftPlus_Backup {
 			return $files_existing;
 		}
 
+		$this->log_account_space();
+
 		$this->zip_microtime_start = microtime(true);
 		# The paths in the zip should then begin with '$whichone', having removed WP_CONTENT_DIR from the front
 		$zipcode = $this->make_zipfile($create_from_dir, $backup_file_basename, $whichone);
@@ -478,6 +480,17 @@ class UpdraftPlus_Backup {
 		if (in_array($na, $core_tables) && !in_array($nb, $core_tables)) return -1;
 		if (!in_array($na, $core_tables) && in_array($nb, $core_tables)) return 1;
 		return strcmp($a, $b);
+	}
+
+	private function log_account_space() {
+		# Don't waste time if space is huge
+		if (!empty($this->account_space_oodles)) return;
+		global $updraftplus;
+		$hosting_bytes_free = $updraftplus->get_hosting_disk_quota_free();
+		if (is_array($hosting_bytes_free)) {
+			$perc = round(100*$hosting_bytes_free[1]/(max($hosting_bytes_free[2], 1)), 1);
+			$updraftplus->log(sprintf('Free disk space in account: %s (%s used)', round($hosting_bytes_free[3]/1048576, 1)." Mb", "$perc %"));
+		}
 	}
 
 	// This function is resumable
