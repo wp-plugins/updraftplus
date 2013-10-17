@@ -144,7 +144,7 @@ class UpdraftPlus_Backup {
 
 		if (isset($files_existing)) {
 			# Because of zip-splitting, the mere fact that files exist is not enough to indicate that the entity is finished. For that, we need to also see that no subsequent file has been started.
-			# Q. What if the previous runner died in between zips, and it is our job to start the next one? A. The next temporary file is created before finishing the former zip, so we are safe.
+			# Q. What if the previous runner died in between zips, and it is our job to start the next one? A. The next temporary file is created before finishing the former zip, so we are safe (and we are also safe-guarded by the updated value of the index being stored in the database).
 			return $files_existing;
 		}
 
@@ -371,7 +371,7 @@ class UpdraftPlus_Backup {
 			}
 		}
 		$updraftplus->log("Retain: saving new backup history (sets now: ".count($backup_history).") and finishing retain operation");
-		UpdraftPlus_Options::update_updraft_option('updraft_backup_history',$backup_history);
+		UpdraftPlus_Options::update_updraft_option('updraft_backup_history', $backup_history, false);
 	}
 
 	private function prune_file($service, $dofiles, $method_object = null, $object_passback = null ) {

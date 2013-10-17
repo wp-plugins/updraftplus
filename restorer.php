@@ -1035,12 +1035,10 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		}
 
-		do_action('updraftplus_restored_db_table', $table);
+		do_action('updraftplus_restored_db_table', $table, $import_table_prefix);
 
 		// Re-generate permalinks. Do this last - i.e. make sure everything else is fixed up first.
-		if ($table == $import_table_prefix.'options') {
-			$this->flush_rewrite_rules();
-		}
+		if ($table == $import_table_prefix.'options') $this->flush_rewrite_rules();
 
 	}
 

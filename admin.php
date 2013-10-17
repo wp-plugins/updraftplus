@@ -46,7 +46,7 @@ class UpdraftPlus_Admin {
 		if (UpdraftPlus_Options::user_can_manage() && $this->disk_space_check(1024*1024*35) === false) add_action('all_admin_notices', array($this, 'show_admin_warning_diskspace'));
 
 		// Next, the actions that only come on the UpdraftPlus page
-		if ($pagenow != UpdraftPlus_Options::admin_page() || !isset($_REQUEST['page']) || 'updraftplus' != $_REQUEST['page']) return;
+		if ($pagenow != UpdraftPlus_Options::admin_page() || empty($_REQUEST['page']) || 'updraftplus' != $_REQUEST['page']) return;
 
 		if (UpdraftPlus_Options::user_can_manage() && defined('DISABLE_WP_CRON') && DISABLE_WP_CRON == true) {
 			add_action('all_admin_notices', array($this, 'show_admin_warning_disabledcron'));
@@ -56,6 +56,13 @@ class UpdraftPlus_Admin {
 			@ini_set('display_errors',1);
 			@error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 			add_action('all_admin_notices', array($this, 'show_admin_debug_warning'));
+		}
+
+		# Avoid false positives, by attempting to raise the limit (as happens when we actually do a backup)
+		@set_time_limit(900);
+		$max_execution_time = (int)@ini_get('max_execution_time');
+		if ($max_execution_time>0 && $max_execution_time<20) {
+			add_action('all_admin_notices', array($this, 'show_admin_warning_execution_time'));
 		}
 
 		// LiteSpeed has a generic problem with terminating cron jobs
@@ -283,6 +290,10 @@ class UpdraftPlus_Admin {
 
 	function show_admin_warning($message, $class = "updated") {
 		echo '<div class="updraftmessage '.$class.' fade">'."<p>$message</p></div>";
+	}
+
+	public function show_admin_warning_execution_time() {
+		$this->show_admin_warning('<strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__('The amount of time allowed for WordPress plugins to run is very low (%s seconds) - you should increase it to avoid backup failures due to time-outs (consult your web hosting company for more help - it is the max_execution_time PHP setting; the recommmended value is %s seconds or more)', 'updraftplus'), (int)@ini_get('max_execution_time'), 90));
 	}
 
 	function show_admin_warning_disabledcron() {
@@ -1974,11 +1985,6 @@ CREATE TABLE $wpdb->signups (
 		}
 
 		return true;
-	}
-
-	function execution_time_check($time) {
-		$setting = ini_get('max_execution_time');
-		return ( $setting==0 || $setting >= $time) ? true : false;
 	}
 
 	//scans the content dir to see if any -old dirs are present

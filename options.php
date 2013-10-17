@@ -21,7 +21,7 @@ class UpdraftPlus_Options {
 		return get_option($option, $default);
 	}
 
-	public static function update_updraft_option($option, $value) {
+	public static function update_updraft_option($option, $value, $use_cache = true) {
 		update_option($option, $value);
 	}
 
