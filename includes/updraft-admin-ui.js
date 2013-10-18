@@ -228,7 +228,7 @@ function updraftplus_deletefromserver(timestamp, type, findex) {
 function updraftplus_downloadstage2(timestamp, type, findex) {
 	location.href=ajaxurl+'?_wpnonce='+updraft_download_nonce+'&timestamp='+timestamp+'&type='+type+'&stage=2&findex='+findex+'&action=updraft_download_backup';
 }
-function updraft_downloader(base, nonce, what, whicharea, set_contents, prettydate) {
+function updraft_downloader(base, nonce, what, whicharea, set_contents, prettydate, async) {
 	if (typeof set_contents !== "string") set_contents=set_contents.toString();
 	var set_contents = set_contents.split(',');
 	for (var i=0;i<set_contents.length; i++) {
@@ -246,7 +246,13 @@ function updraft_downloader(base, nonce, what, whicharea, set_contents, prettyda
 			//})(base, nonce, what, set_contents[i]);
 		}
 		// Now send the actual request to kick it all off
-		jQuery.post(ajaxurl, jQuery('#uddownloadform_'+what+'_'+nonce+'_'+set_contents[i]).serialize());
+		jQuery.ajax({
+			url: ajaxurl,
+			timeout: 10000,
+			type: 'POST',
+			async: async,
+			data: jQuery('#uddownloadform_'+what+'_'+nonce+'_'+set_contents[i]).serialize()
+		});
 	}
 	// We don't want the form to submit as that replaces the document
 	return false;
@@ -449,9 +455,11 @@ jQuery(document).ready(function($){
 				updraft_restore_stage = 2;
 				var pretty_date = jQuery('.updraft_restore_date').first().text();
 				// Create the downloader active widgets
+
 				for (var i=0; i<whichselected.length; i++) {
-					updraft_downloader('udrestoredlstatus_', jQuery('#updraft_restore_timestamp').val(), whichselected[i][0], '#ud_downloadstatus2', whichselected[i][1], pretty_date);
+					updraft_downloader('udrestoredlstatus_', jQuery('#updraft_restore_timestamp').val(), whichselected[i][0], '#ud_downloadstatus2', whichselected[i][1], pretty_date, false);
 				}
+
 				// Make sure all are downloaded
 			} else if (updraft_restore_stage == 2) {
 				updraft_restorer_checkstage2(1);
@@ -695,9 +703,6 @@ jQuery(document).ready(function($){
 				alert(updraftlion.uploaderror+" "+response.response.substring(6));
 			} else if (response.response.substring(0,3) == 'OK:') {
 				bkey = response.response.substring(3);
-// 				$('#' + file.id + " .fileprogress").width("100%");
-// 				$('#' + file.id + " span").append('<button type="button" onclick="updraftplus_downloadstage2(\'db\', \'db\'">Download to your computer</button>');
-				// 				$('#' + file.id + " span").append('<form action="admin-ajax.php" onsubmit="return updraft_downloader(\'+bkey+''\', \'db\')" method="post"><input type="hidden" name="_wpnonce" value="'+updraft_downloader_nonce+'"><input type="hidden" name="action" value="updraft_download_backup" /><input type="hidden" name="type" value="db" /><input type="hidden" name="timestamp" value="'+bkey+'" /><input type="submit" value="Download" /></form>');
 				$('#' + file.id + " .fileprogress").hide();
 				$('#' + file.id).append(updraftlion.uploaded+' <a href="?page=updraftplus&action=downloadfile&updraftplus_file='+bkey+'&decrypt_key='+$('#updraftplus_db_decrypt').val()+'">'+updraftlion.followlink+'</a> '+updraftlion.thiskey+' '+$('#updraftplus_db_decrypt').val().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"));
 			} else {
