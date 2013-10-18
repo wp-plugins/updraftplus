@@ -74,7 +74,7 @@ class UpdraftPlus_Admin {
 
 		if (version_compare($wp_version, '3.2', '<')) add_action('all_admin_notices', array($this, 'show_admin_warning_wordpressversion'));
 
-		wp_enqueue_script('updraftplus-admin-ui', UPDRAFTPLUS_URL.'/includes/updraft-admin-ui.js', array('jquery', 'jquery-ui-dialog', 'plupload-all'), '25');
+		wp_enqueue_script('updraftplus-admin-ui', UPDRAFTPLUS_URL.'/includes/updraft-admin-ui.js', array('jquery', 'jquery-ui-dialog', 'plupload-all'), '26');
 
 		wp_localize_script( 'updraftplus-admin-ui', 'updraftlion', array(
 			'rescanning' => __('Rescanning (looking for backups that you have uploaded manually into the internal backup store)...','updraftplus'),
@@ -1675,7 +1675,6 @@ CREATE TABLE $wpdb->signups (
 
 				echo '<a href="admin-ajax.php?page=updraftplus&action=updraft_ajax&subaction=backuphistoryraw&nonce='.wp_create_nonce('updraftplus-credentialtest-nonce').'" id="updraftplus-rawbackuphistory">'.__('Show raw backup and file list', 'updraftplus').'</a><br/>';
 
-
 				echo '<h3>'.__('Total (uncompressed) on-disk data:','updraftplus').'</h3>';
 				echo '<p style="clear: left; max-width: 600px;"><em>'.__('N.B. This count is based upon what was, or was not, excluded the last time you saved the options.', 'updraftplus').'</em></p>';
 
@@ -1890,7 +1889,7 @@ CREATE TABLE $wpdb->signups (
 	//deletes the -old directories that are created when a backup is restored.
 	function delete_old_dirs() {
 		global $wp_filesystem;
-		$credentials = request_filesystem_credentials(wp_nonce_url(UpdraftPlus_Options::admin_page_url()."&action=updraft_delete_old_dirs", 'updraft_delete_old_dirs')); 
+		$credentials = request_filesystem_credentials(wp_nonce_url(UpdraftPlus_Options::admin_page_url()."?page=updraftplus&action=updraft_delete_old_dirs", 'updraft_delete_old_dirs')); 
 		WP_Filesystem($credentials);
 		if ( $wp_filesystem->errors->get_error_code() ) { 
 			foreach ( $wp_filesystem->errors->get_error_messages() as $message )
@@ -1950,7 +1949,7 @@ CREATE TABLE $wpdb->signups (
 
 		if ( ! WP_Filesystem($credentials) ) {
 			// our credentials were no good, ask the user for them again
-			request_filesystem_credentials(UpdraftPlus_Options::admin_page().'&action=updraft_create_backup_dir&nonce='.wp_create_nonce('create_backup_dir'), '', true);
+			request_filesystem_credentials(UpdraftPlus_Options::admin_page().'?page=updraftplus&action=updraft_create_backup_dir&nonce='.wp_create_nonce('create_backup_dir'), '', true);
 			return false;
 		}
 
@@ -2507,7 +2506,7 @@ ENDHERE;
 				$nf = wp_nonce_field('updraftplus_download', '_wpnonce', true, false);
 				$dbt = __('Database','updraftplus');
 				$ret .= <<<ENDHERE
-				<form id="uddownloadform_db_${key}_0" action="admin-ajax.php" onsubmit="return updraft_downloader('uddlstatus_', $key, 'db', '#ud_downloadstatus', '0', '$esc_pretty_date')" method="post">
+				<form id="uddownloadform_db_${key}_0" action="admin-ajax.php" onsubmit="return updraft_downloader('uddlstatus_', $key, 'db', '#ud_downloadstatus', '0', '$esc_pretty_date', true)" method="post">
 					$nf
 					<input type="hidden" name="action" value="updraft_download_backup" />
 					<input type="hidden" name="type" value="db" />
@@ -2555,7 +2554,7 @@ ENDHERE;
 							$ide .= ' '.__('You appear to be missing one or more archives from this multi-archive set.', 'updraftplus');
 						}
 						$ret .= <<<ENDHERE
-					<form id="uddownloadform_${type}_${key}_${findex}" action="admin-ajax.php" onsubmit="return updraft_downloader('uddlstatus_', '$key', '$type', '#ud_downloadstatus', '$set_contents', '$esc_pretty_date')" method="post">
+					<form id="uddownloadform_${type}_${key}_${findex}" action="admin-ajax.php" onsubmit="return updraft_downloader('uddlstatus_', '$key', '$type', '#ud_downloadstatus', '$set_contents', '$esc_pretty_date', true)" method="post">
 						$nf
 						<input type="hidden" name="action" value="updraft_download_backup" />
 						<input type="hidden" name="type" value="$type" />
@@ -2709,7 +2708,7 @@ ENDHERE;
 			if (0 === strpos($key, 'updraft_restorer_')) $extra_fields[] = $key;
 		}
 
-		$credentials = request_filesystem_credentials(UpdraftPlus_Options::admin_page()."&action=updraft_restore&backup_timestamp=$timestamp", '', false, false, $extra_fields);
+		$credentials = request_filesystem_credentials(UpdraftPlus_Options::admin_page()."?page=updraftplus&action=updraft_restore&backup_timestamp=$timestamp", '', false, false, $extra_fields);
 		WP_Filesystem($credentials);
 		if ( $wp_filesystem->errors->get_error_code() ) { 
 			foreach ( $wp_filesystem->errors->get_error_messages() as $message ) show_message($message); 
