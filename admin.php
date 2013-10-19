@@ -74,7 +74,7 @@ class UpdraftPlus_Admin {
 
 		if (version_compare($wp_version, '3.2', '<')) add_action('all_admin_notices', array($this, 'show_admin_warning_wordpressversion'));
 
-		wp_enqueue_script('updraftplus-admin-ui', UPDRAFTPLUS_URL.'/includes/updraft-admin-ui.js', array('jquery', 'jquery-ui-dialog', 'plupload-all'), '26');
+		wp_enqueue_script('updraftplus-admin-ui', UPDRAFTPLUS_URL.'/includes/updraft-admin-ui.js', array('jquery', 'jquery-ui-dialog', 'plupload-all'), '27');
 
 		wp_localize_script( 'updraftplus-admin-ui', 'updraftlion', array(
 			'rescanning' => __('Rescanning (looking for backups that you have uploaded manually into the internal backup store)...','updraftplus'),
@@ -751,7 +751,7 @@ class UpdraftPlus_Admin {
 				$updraftplus->log("A backup run failed to schedule");
 				echo __("Failed.",'updraftplus')."</div>";
 			} else {
-				echo htmlspecialchars(__('OK. You should soon see activity in the "Last log message" field below.','updraftplus'))." <a href=\"http://updraftplus.com/faqs/my-scheduled-backups-and-pressing-backup-now-does-nothing-however-pressing-debug-backup-does-produce-a-backup/\">".__('Nothing happening? Follow this link for help.','updraftplus')."</a></div>";
+				echo htmlspecialchars(__('OK. You should soon see activity in the "Last log message" field below.','updraftplus'))." <a href=\"http://updraftplus.com/faqs/my-scheduled-backups-and-pressing-backup-now-does-nothing-however-pressing-debug-backup-does-produce-a-backup/\"><br>".__('Nothing happening? Follow this link for help.','updraftplus')."</a></div>";
 				$updraftplus->log("A backup run has been scheduled");
 			}
 
@@ -1294,7 +1294,7 @@ CREATE TABLE $wpdb->signups (
 			echo '<b>'.__('Actions','updraftplus').':</b> <a href="'.UpdraftPlus_Options::admin_page_url().'">'.__('Return to UpdraftPlus Configuration','updraftplus').'</a>';
 			return;
 		}
-		
+
 		echo '<div id="updraft_backup_started" class="updated fade" style="display:none; max-width: 800px; font-size:140%; line-height: 140%; padding:14px; clear:left;"></div>';
 
 		// updraft_file_ids is not deleted
@@ -1360,7 +1360,8 @@ CREATE TABLE $wpdb->signups (
 			?>
 
 			<h2 style="clear:left;"><?php _e('Existing Schedule And Backups','updraftplus');?></h2>
-			<table class="form-table" style="float:left; clear: both; width:545px;">
+
+			<table class="form-table" style="float:left; clear: both; width:605px;">
 				<noscript>
 				<tr>
 					<th><?php _e('JavaScript warning','updraftplus');?>:</th>
@@ -1401,16 +1402,19 @@ CREATE TABLE $wpdb->signups (
 
 					?>
 
-				<script>
-					var lastbackup_laststatus = '<?php echo esc_js($last_backup_html);?>';
-				</script>
+				<script>var lastbackup_laststatus = '<?php echo esc_js($last_backup_html);?>';</script>
 
 				<tr>
 					<th><span title="<?php _e('All the times shown in this section are using WordPress\'s configured time zone, which you can set in Settings -> General', 'updraftplus'); ?>"><?php _e('Next scheduled backups','updraftplus');?>:</span></th>
 					<td>
-						<div style="width: 76px; float:left;"><?php _e('Files','updraftplus'); ?>:</div><div style="color:blue; float:left;"><?php echo $next_scheduled_backup?></div>
-						<div style="width: 76px; clear: left; float:left;"><?php _e('Database','updraftplus');?>: </div><div style="color:blue; float:left;"><?php echo $next_scheduled_backup_database?></div>
-						<div style="width: 76px; clear: left; float:left;"><?php _e('Time now','updraftplus');?>: </div><div style="color:blue; float:left;"><?php echo $current_time?></div>
+						<table style="border: 0px; padding: 0px; margin: 0 10px 0 0;">
+						<tr>
+						<td style="width: 124px; vertical-align:top; margin: 0px; padding: 0px;"><?php _e('Files','updraftplus'); ?>:</td><td style="color:blue;  margin: 0px; padding: 0px;"><?php echo $next_scheduled_backup?></td>
+						</tr><tr>
+						<td style="width: 124px; vertical-align:top; margin: 0px; padding: 0px;"><?php _e('Database','updraftplus');?>: </td><td style="color:blue;  margin: 0px; padding: 0px;"><?php echo $next_scheduled_backup_database?></td>
+						</tr><tr>
+						<td style="width: 124px; vertical-align:top; margin: 0px; padding: 0px;"><?php _e('Time now','updraftplus');?>: </td><td style="color:blue; margin: 0px; padding: 0px;"><?php echo $current_time?></td>
+						</table>
 					</td>
 				</tr>
 				<tr>
@@ -1418,24 +1422,31 @@ CREATE TABLE $wpdb->signups (
 					<td id="updraft_last_backup"><?php echo $last_backup_html ?></td>
 				</tr>
 			</table>
+
 			<div style="float:left; width:200px; margin-top: <?php echo (class_exists('UpdraftPlus_Addons_Migrator')) ? "20" : "0" ?>px;">
 				<div style="margin-bottom: 10px;">
-					<button type="button" <?php echo $backup_disabled ?> class="button-primary" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px; min-width: 170px;" onclick="jQuery('#updraft-backupnow-modal').dialog('open');"><?php _e('Backup Now','updraftplus');?></button>
+					<button type="button" <?php echo $backup_disabled ?> class="button-primary updraft-bigbutton" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px; min-width: 180px;" onclick="jQuery('#updraft-backupnow-modal').dialog('open');"><?php _e('Backup Now','updraftplus');?></button>
 				</div>
 				<div style="margin-bottom: 10px;">
 					<?php
 						$backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
 						$backup_history = (is_array($backup_history))?$backup_history:array();
 					?>
-					<input type="button" class="button-primary" value="<?php _e('Restore','updraftplus');?>" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px;  min-width: 170px;" onclick="jQuery('.download-backups').slideDown(); updraft_historytimertoggle(1); jQuery('html,body').animate({scrollTop: jQuery('#updraft_lastlogcontainer').offset().top},'slow');">
+					<input type="button" class="button-primary updraft-bigbutton" value="<?php _e('Restore','updraftplus');?>" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px;  min-width: 180px;" onclick="jQuery('.download-backups').slideDown(); updraft_historytimertoggle(1); jQuery('html,body').animate({scrollTop: jQuery('#updraft_lastlogcontainer').offset().top},'slow');">
 				</div>
 				<div>
-					<button type="button" class="button-primary" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px;  min-width: 170px;" onclick="jQuery('#updraft-migrate-modal').dialog('open');"><?php _e('Clone/Migrate','updraftplus');?></button>
+					<button type="button" class="button-primary updraft-bigbutton" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px; min-width: 180px;" onclick="jQuery('#updraft-migrate-modal').dialog('open');"><?php _e('Clone/Migrate','updraftplus');?></button>
 				</div>
 			</div>
+
 			<br style="clear:both" />
 			<table class="form-table">
 
+				<?php $active_jobs = $this->print_active_jobs();?>
+				<tr id="updraft_activejobsrow" style="<?php if (!$active_jobs) echo 'display:none;'; ?>">
+					<th><?php _e('Backups in progress:', 'updraftplus');?></th>
+					<td id="updraft_activejobs"><?php echo $active_jobs;?></td>
+				</tr>
 
 				<tr id="updraft_lastlogmessagerow">
 					<th><?php _e('Last log message','updraftplus');?>:</th>
@@ -1443,12 +1454,6 @@ CREATE TABLE $wpdb->signups (
 						<span id="updraft_lastlogcontainer"><?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', __('(Nothing yet logged)','updraftplus'))); ?></span><br>
 						<a href="?page=updraftplus&action=downloadlatestmodlog&wpnonce=<?php echo wp_create_nonce('updraftplus_download') ?>"><?php _e('Download most recently modified log file','updraftplus');?></a>
 					</td>
-				</tr>
-
-				<?php $active_jobs = $this->print_active_jobs();?>
-				<tr id="updraft_activejobsrow" style="<?php if (!$active_jobs) echo 'display:none;'; ?>">
-					<th><?php _e('Backups in progress:', 'updraftplus');?></th>
-					<td id="updraft_activejobs"><?php echo $active_jobs;?></td>
 				</tr>
 
 				<tr>

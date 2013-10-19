@@ -28,14 +28,11 @@ function updraft_restore_setoptions(entities) {
 	jQuery('#updraft-restore-modal').dialog("option", "height", height);
 }
 
-
 var updraft_restore_stage = 1;
 var lastlog_lastmessage = "";
 var lastlog_lastdata = "";
-var lastlog_sdata = {
-	action: 'updraft_ajax',
-	subaction: 'lastlog',
-};
+var lastlog_jobs = "";
+var lastlog_sdata = { action: 'updraft_ajax', subaction: 'lastlog' };
 
 function updraft_activejobs_update(repeat) {
 	var downloaders = '';
@@ -47,7 +44,7 @@ function updraft_activejobs_update(repeat) {
 		}
 	});
 	jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'activejobs_list', nonce: updraft_credentialtest_nonce, downloaders: downloaders }, function(response) {
-		try {
+ 		try {
 			resp = jQuery.parseJSON(response);
 			nexttimer = 1400;
 			if (lastlog_lastdata == response) { nexttimer = 4500; }
@@ -57,12 +54,16 @@ function updraft_activejobs_update(repeat) {
 			jQuery('#updraft_activejobs').html(resp.j);
 			if (resp.j != null && resp.j != '') {
 				jQuery('#updraft_activejobsrow').show();
+				if ('' == lastlog_jobs) {
+					setTimeout(function(){jQuery('#updraft_backup_started').slideUp();}, 3500);
+				}
 			} else {
 				if (!jQuery('#updraft_activejobsrow').is(':hidden')) {
 					if (typeof lastbackup_laststatus != 'undefined') { updraft_showlastbackup(); }
 					jQuery('#updraft_activejobsrow').hide();
 				}
 			}
+			lastlog_jobs = resp.j;
 			// Download status
 			if (resp.ds != null && resp.ds != '') {
 				jQuery(resp.ds).each(function(x, dstatus){
@@ -388,6 +389,13 @@ function updraft_downloader_status_update(base, nonce, what, findex, resp, respo
 }
 
 jQuery(document).ready(function($){
+
+	var bigbutton_width = 180;
+	jQuery('.updraft-bigbutton').each(function(x,y){
+		var bwid = jQuery(y).width();
+		if (bwid > bigbutton_width) bigbutton_width = bwid;
+	});
+	if (bigbutton_width > 180) jQuery('.updraft-bigbutton').width(bigbutton_width);
 	
 	//setTimeout(function(){updraft_showlastlog(true);}, 1200);
 	setTimeout(function() {updraft_activejobs_update(true);}, 1200);
