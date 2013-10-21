@@ -2,7 +2,7 @@
 Contributors: Backup with UpdraftPlus, DavidAnderson
 Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, s3 compatible, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp, ftps, scp, migrate, duplicate, copy, updraft, schedule, database backup, wordpress backup, full backup
 Requires at least: 3.2
-Tested up to: 3.6.1
+Tested up to: 3.7
 Stable tag: 1.7.34
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
@@ -141,6 +141,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * FIX: For non-English installs, the email indicating backup success sometimes failed to send
 * FIX: Fix obscure table name error if WP was using bespoke database setup without delete access
 * FIX: On multi-site installs, settings changes could be lost if they were made during an ongoing backup
+* TWEAK: Now marked as WordPress 3.7 compatible
 * TWEAK: Detect available disk quota in CPanel account (if relevant), log, and warn if low
 * TWEAK: Amazon S3 backend now can use WP proxy settings (if any)
 * TWEAK: All multisite settings pages have now been moved to the network admin section
