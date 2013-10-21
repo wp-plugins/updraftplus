@@ -401,6 +401,13 @@ class UpdraftPlus_Backup {
 
 		$sendmail_to = UpdraftPlus_Options::get_updraft_option('updraft_email');
 
+		$admin_email= get_bloginfo('admin_email');
+		foreach (explode(',', $sendmail_to) as $sendmail_addr) {
+			if ($updraftplus->have_addons < 10 && $sendmail_addr != $admin_email) {
+				$updraftplus->log(sprintf(__("With the next release of UpdraftPlus, you will need an add-on to use a different email address to the site owner's (%s). See: %s", 'updraftplus'), $admin_email, 'http://updraftplus.com/next-updraftplus-release-ready-testing/'), 'warning', 'needpremiumforemail');
+			}
+		}
+
 		$backup_files = $updraftplus->jobdata_get('backup_files');
 		$backup_db = $updraftplus->jobdata_get('backup_database');
 
@@ -448,6 +455,7 @@ class UpdraftPlus_Backup {
 
 		// We have to use the action in order to set the MIME type on the attachment - by default, WordPress just puts application/octet-stream
 		if (count($attachments)>0) add_action('phpmailer_init', array($this, 'phpmailer_init'));
+
 		foreach (explode(',', $sendmail_to) as $sendmail_addr) {
 
 			wp_mail(trim($sendmail_addr), __('Backed up', 'updraftplus').': '.get_bloginfo('name').' (UpdraftPlus '.$updraftplus->version.') '.get_date_from_gmt(gmdate('Y-m-d H:i:s', time()), 'Y-m-d H:i'),'Site: '.site_url()."\r\nUpdraftPlus: ".__('WordPress backup is complete','updraftplus').".\r\n".__('Backup contains','updraftplus').': '.$backup_contains."\r\n".__('Latest status', 'updraftplus').": $final_message\r\n\r\n".$updraftplus->wordshell_random_advert(0)."\r\n".$append_log);
