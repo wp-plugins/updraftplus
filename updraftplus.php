@@ -20,6 +20,7 @@ TODO - some of these are out of date/done, needs pruning
 // Warn/prevent if trying to migrate between sub-domain/sub-folder based multisites
 // Detect low-memory VPSes, and don't use BinZip
 // Change default setting of retain 1 backup set? (Auto-backup could replace it in that case... don't perform pruning when doing auto-backup?)
+// Update updates checker so that it checks for updates on a sliding-scale: those who've not updated in last X only end up checking every Y
 // Change add-ons screen, to be less confusing for people who haven't yet updated but have connected
 // Put a 'what do I get if I upgrade?' link into the mix
 // Add to admin bar (and make it something that can be turned off)
