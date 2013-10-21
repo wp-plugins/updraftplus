@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the UpdraftPlus package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2013-10-21 10:07:52+0000\n"
+"PO-Revision-Date: 2013-10-21 20:35:07+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,27 +12,27 @@ msgstr ""
 
 #: admin.php:2135
 msgid "See also the \"More Files\" add-on from our shop."
-msgstr ""
+msgstr "Δείτε επίσης το πρόσθετο \"More Files\" στο κατάστημά μας."
 
 #: admin.php:1673
 msgid "Free disk space in account: %s (%s used)"
-msgstr ""
+msgstr "Ελεύθερος χώρος στον λογαριασμός σας: %s (%s χρησιμοποιείται)"
 
 #: updraftplus.php:561
 msgid "Your free space in your hosting account is very low - only %s Mb remain"
-msgstr ""
+msgstr "Ο ελεύθερος χώρος στο λογαριασμό σας είναι πολύ λίγος - μόνο %s Mb απομένουν"
 
 #: updraftplus.php:695
 msgid "See: %s"
-msgstr ""
+msgstr "Δείτε: %s"
 
 #: updraftplus.php:539
 msgid "The amount of memory (RAM) allowed for PHP is very low (%s Mb) - you should increase it to avoid failures due to insufficient memory (consult your web hosting company for more help)"
-msgstr ""
+msgstr "Το επιτρεπόμενο ποσό της μνήμης (RAM) για την PHP είναι πολύ μικρό (%s Mb) - θα πρέπει να το αυξήσετε για να αποφευχθούν δυσλειτουργίες εξαιτίας της ανεπαρκούς μνήμης (συμβουλευτείτε την εταιρεία που σας παρέχει τον διακομιστή σας για περισσότερη βοήθεια)"
 
 #: updraftplus.php:542 admin.php:296
 msgid "The amount of time allowed for WordPress plugins to run is very low (%s seconds) - you should increase it to avoid backup failures due to time-outs (consult your web hosting company for more help - it is the max_execution_time PHP setting; the recommmended value is %s seconds or more)"
-msgstr ""
+msgstr "Ο χρόνος που επιτρέπεται στα πρόσθετα του WordPress για να εκτελέσουν τις λειτουργίες τους είναι πολύ μικρός (%s δευτερόλεπτα) - θα πρέπει να το αυξήσετε για να αποφευχθούν δυσλειτουργίες κατά τη λήψη των αντιγράφων ασφαλείας εξαιτίας πιθανόν time-outs (συμβουλευτείτε την εταιρεία που σας παρέχει τον διακομιστή σας για περισσότερη βοήθεια - αφορά τη ρύθμιση max_execution_time PHP setting; η προτεινόμενη τιμή είναι %s δευτερόλεπτα ή περισσότερο)"
 
 #: methods/email.php:49
 msgid "The email address entered above will be used. If choosing \"E-Mail\", then <strong>be aware</strong> that mail servers tend to have size limits; typically around 10-20Mb; backups larger than any limits will not arrive."
@@ -1906,7 +1906,7 @@ msgstr "Ο λογαριασμός δεν είναι πιστοποιημένος
 
 #: methods/googledrive.php:442 methods/cloudfiles.php:384
 msgid "%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your site is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts."
-msgstr "Το %s είναι μια εξαιρετική επιλογή, διότι το UpdraftPlus υποστηρίζει κατατμημένες μεταφορτώσεις - δεν έχει σημασία πόσο μεγάλη είναι η ιστοσελίδας σας, το UpdraftPlus μπορεί να την ανεβάσει σε λίγο χρόνο χωρίς να εξουδετερώνεται από χρονικά όρια."
+msgstr "Το %s είναι μια εξαιρετική επιλογή, διότι το UpdraftPlus υποστηρίζει κατατμημένες μεταφορτώσεις - δεν έχει σημασία πόσο μεγάλη είναι η ιστοσελίδα σας, το UpdraftPlus μπορεί να την ανεβάσει σε λίγο χρόνο χωρίς να εξουδετερώνεται από χρονικά όρια."
 
 #: restorer.php:858
 msgid "will restore as:"
