@@ -16,6 +16,8 @@ TODO - some of these are out of date/done, needs pruning
 // After Oct 15 2013: Remove page(s) from websites discussing W3TC
 // Change migrate window: 1) Retain link to article 2) Have selector to choose which backup set to migrate - or a fresh one 3) Have option for FTP/SFTP/SCP despatch 4) Have big "Go" button. Have some indication of what happens next. Test the login first. Have the remote site auto-scan its directory + pick up new sets. Have a way of querying the remote site for its UD-dir. Have a way of saving the settings as a 'profile'. Or just save the last set of settings (since mostly will be just one place to send to). Implement an HTTP/JSON method for sending files too.
 // Log Cpanel quota
+// Place in maintenance mode during restore - ?
+// Warn/prevent if trying to migrate between sub-domain/sub-folder based multisites
 // Detect low-memory VPSes, and don't use BinZip
 // Change default setting of retain 1 backup set? (Auto-backup could replace it in that case... don't perform pruning when doing auto-backup?)
 // Change add-ons screen, to be less confusing for people who haven't yet updated but have connected
