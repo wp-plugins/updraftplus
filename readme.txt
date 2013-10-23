@@ -131,6 +131,9 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
+= Development version - not yet released/supported =
+* FIX: Work around http://bugs.mysql.com/62077 (could cause permanently stuck lock on databases with wrong collocations - if you have this problem, then no backups happen)
+
 = 1.7.34 - 2013/10/21 =
 
 * FEATURE: Options in the "Backup Now" dialog to exclude files or database from the backup (http://updraftplus.com/more-flexibility-in-backup-now/)
