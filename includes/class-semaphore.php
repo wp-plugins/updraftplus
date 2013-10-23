@@ -163,12 +163,14 @@ class UpdraftPlus_Semaphore {
 		}
 
 		$current_time = current_time('mysql', 1);
+		$three_minutes_before = gmdate('Y-m-d H:i:s', time()-180);
+
 		$affected = $wpdb->query($wpdb->prepare("
 			UPDATE $wpdb->options
 			   SET option_value = %s
 			 WHERE option_name = 'updraftplus_last_lock_time_".$this->lock_name."'
-			   AND option_value <= DATE_SUB(%s, INTERVAL 3 MINUTE)
-		", $current_time, $current_time));
+			   AND option_value <= %s
+		", $current_time, $three_minutes_before));
 
 		if ('1' == $affected) {
 			$updraftplus->log('Semaphore ('.$this->lock_name.') was stuck, set lock time to '.$current_time);

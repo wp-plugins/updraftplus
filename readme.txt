@@ -142,6 +142,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * FIX: Fix obscure table name error if WP was using bespoke database setup without delete access
 * FIX: On multi-site installs, settings changes could be lost if they were made during an ongoing backup
 * TWEAK: Now marked as WordPress 3.7 compatible
+* TWEAK: Raw files list in expert section now makes log files directly downloadable
 * TWEAK: Detect available disk quota in CPanel account (if relevant), log, and warn if low
 * TWEAK: Amazon S3 backend now can use WP proxy settings (if any)
 * TWEAK: All multisite settings pages have now been moved to the network admin section

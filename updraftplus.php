@@ -15,7 +15,6 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // After Oct 15 2013: Remove page(s) from websites discussing W3TC
 // Change migrate window: 1) Retain link to article 2) Have selector to choose which backup set to migrate - or a fresh one 3) Have option for FTP/SFTP/SCP despatch 4) Have big "Go" button. Have some indication of what happens next. Test the login first. Have the remote site auto-scan its directory + pick up new sets. Have a way of querying the remote site for its UD-dir. Have a way of saving the settings as a 'profile'. Or just save the last set of settings (since mostly will be just one place to send to). Implement an HTTP/JSON method for sending files too.
-// Log Cpanel quota
 // Place in maintenance mode during restore - ?
 // Warn/prevent if trying to migrate between sub-domain/sub-folder based multisites
 // Detect low-memory VPSes, and don't use BinZip
@@ -25,6 +24,7 @@ TODO - some of these are out of date/done, needs pruning
 // Put a 'what do I get if I upgrade?' link into the mix
 // Add to admin bar (and make it something that can be turned off)
 // New reporting add-on: Multiple email addresses, send backup to 1st only, option to send email only on failure, include checksums (SHA1) in report (store these in job data immediately post-creation; then aggregate them into the backup history on job finish), option to include log file always, option to log to syslog
+// If migrated database from somewhere else, then add note about revising UD settings
 // Strategy for what to do if the updraft_dir contains untracked backups. Automatically rescan?
 // MySQL manual: See Section 8.2.2.1, Speed of INSERT Statements.
 // Exempt UD itself from a plugins restore? (will options be out-of-sync? exempt options too?)

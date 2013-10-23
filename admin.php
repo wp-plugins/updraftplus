@@ -719,20 +719,25 @@ class UpdraftPlus_Admin {
 			echo '</pre>';
 			echo '<h3>Files</h3><pre>';
 			$updraft_dir = $updraftplus->backups_dir_location();
+			$raw_output = array();
 			$d = dir($updraft_dir);
 			while (false !== ($entry = $d->read())) {
 				$fp = $updraft_dir.'/'.$entry;
+				$mtime = filemtime($fp);
 				if (is_dir($fp)) {
 					$size = '       d';
 				} elseif (is_link($fp)) {
 					$size = '       l';
 				} elseif (is_file($fp)) {
-					$size = sprintf("%8.1f", round(filesize($fp)/1024, 1));
+					$size = sprintf("%8.1f", round(filesize($fp)/1024, 1)).' '.gmdate('r', $mtime);
 				} else {
 					$size = '       ?';
 				}
-				printf("%s %s \n", $size, $entry);
+				if (preg_match('/^log\.(.*)\.txt$/', $entry, $lmatch)) $entry = '<a target="_top" href="?action=downloadlog&page=updraftplus&updraftplus_backup_nonce='.htmlspecialchars($lmatch[1]).'">'.$entry.'</a>';
+				$raw_output[$mtime] = empty($raw_output[$mtime]) ? sprintf("%s %s\n", $size, $entry) : $raw_output[$mtime].sprintf("%s %s\n", $size, $entry);
 			}
+			krsort($raw_output, SORT_NUMERIC);
+			foreach ($raw_output as $line) echo $line;
 			echo '</pre>';
 			@$d->close();
 		} elseif ('countbackups' == $_REQUEST['subaction']) {
@@ -1626,7 +1631,7 @@ CREATE TABLE $wpdb->signups (
 		<input type="checkbox" id="backupnow_nofiles"> <label for="backupnow_nofiles"><?php _e("Don't include any files in the backup", 'updraftplus'); ?></label>
 	</p>
 
-	<p><?php _e('Does nothing happen when you attempt backups?','updraftplus');?> <a href="http://updraftplus.com/faqs/my-scheduled-backups-and-pressing-backup-now-does-nothing-however-pressing-debug-backup-does-produce-a-backup/"><?php _e('Go here for help.','updraft');?></a></p>
+	<p><?php _e('Does nothing happen when you attempt backups?','updraftplus');?> <a href="http://updraftplus.com/faqs/my-scheduled-backups-and-pressing-backup-now-does-nothing-however-pressing-debug-backup-does-produce-a-backup/"><?php _e('Go here for help.', 'updraftplus');?></a></p>
 </div>
 
 			<?php
