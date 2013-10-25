@@ -179,15 +179,19 @@ class UpdraftPlus_Backup {
 			$itext = (empty($this->index)) ? '' : ($this->index+1);
 			$full_path = $this->updraft_dir.'/'.$backup_file_basename.'-'.$whichone.$itext.'.zip';
 			if (file_exists($full_path.'.tmp')) {
-				$sha = sha1_file($full_path.'.tmp');
-				$updraftplus->jobdata_set('sha1-'.$whichone.$this->index, $sha);
-				@rename($full_path.'.tmp', $full_path);
-				$timetaken = max(microtime(true)-$this->zip_microtime_start, 0.000001);
-				$kbsize = filesize($full_path)/1024;
-				$rate = round($kbsize/$timetaken, 1);
-				$updraftplus->log("Created $whichone zip (".$this->index.") - ".round($kbsize,1)." Kb in ".round($timetaken,1)." s ($rate Kb/s) (SHA1 checksum: $sha)");
-				// We can now remove any left-over temporary files from this job
-				
+				if (@filesize($full_path.'.tmp') === 0) {
+					$updraftplus->log("Did not create $whichone zip (".$this->index.") - not needed");
+					@unlink($full_path.'.tmp');
+				} else {
+					$sha = sha1_file($full_path.'.tmp');
+					$updraftplus->jobdata_set('sha1-'.$whichone.$this->index, $sha);
+					@rename($full_path.'.tmp', $full_path);
+					$timetaken = max(microtime(true)-$this->zip_microtime_start, 0.000001);
+					$kbsize = filesize($full_path)/1024;
+					$rate = round($kbsize/$timetaken, 1);
+					$updraftplus->log("Created $whichone zip (".$this->index.") - ".round($kbsize,1)." Kb in ".round($timetaken,1)." s ($rate Kb/s) (SHA1 checksum: $sha)");
+					// We can now remove any left-over temporary files from this job
+				}
 			} elseif ($this->index > $original_index) {
 				$updraftplus->log("Did not create $whichone zip (".$this->index.") - not needed");
 			} else {
