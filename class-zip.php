@@ -192,15 +192,12 @@ class UpdraftPlus_PclZip {
 	}
 
 	public function statIndex($i) {
-
 		if (empty($this->statindex[$i])) return array('name' => null, 'size' => 0);
-
 		return array('name' => $this->statindex[$i]['filename'], 'size' => $this->statindex[$i]['size']);
-
 	}
 
 	public function open($path, $flags = 0) {
-		if(!class_exists('PclZip')) require_once(ABSPATH.'/wp-admin/includes/class-pclzip.php');
+		if(!class_exists('PclZip')) include_once(ABSPATH.'/wp-admin/includes/class-pclzip.php');
 		if(!class_exists('PclZip')) {
 			$this->last_error = "No PclZip class was found";
 			return false;

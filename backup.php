@@ -43,8 +43,23 @@ class UpdraftPlus_Backup {
 		$this->debug = UpdraftPlus_Options::get_updraft_option('updraft_debug_mode');
 		$this->updraft_dir = $updraftplus->backups_dir_location();
 
+		if (@file_exists('/proc/meminfo') && @is_readable('/proc/meminfo')) {
+			$meminfo = @file_get_contents('/proc/meminfo', false, null, -1, 200);
+			if (is_string($meminfo) && preg_match('/MemTotal:\s+(\d+) kB/', $meminfo, $matches)) {
+				$memory_mb = $matches[1]/1024;
+				# If the report is of a large amount, then we're probably getting the total memory on the hypervisor (this has been observed), and don't really know the VPS's memory
+				$vz_log = "OpenVZ; reported memory: ".round($memory_mb, 1)." Mb";
+				if ($memory_mb < 1024 || $memory_mb > 8192) {
+					$openvz_lowmem = true;
+					$vz_log .= " (will not use BinZip)";
+				}
+				$updraftplus->log($vz_log);
+			}
+		}
+
 		// false means 'tried + failed'; whereas 0 means 'not yet tried'
-		if ($this->binzip === 0 && (!defined('UPDRAFTPLUS_PREFERPCLZIP') || UPDRAFTPLUS_PREFERPCLZIP != true) && (!defined('UPDRAFTPLUS_NO_BINZIP') || !UPDRAFTPLUS_NO_BINZIP) && $updraftplus->current_resumption <9) {
+		// Disallow binzip on OpenVZ
+		if ($this->binzip === 0 && (!defined('UPDRAFTPLUS_PREFERPCLZIP') || UPDRAFTPLUS_PREFERPCLZIP != true) && (!defined('UPDRAFTPLUS_NO_BINZIP') || !UPDRAFTPLUS_NO_BINZIP) && $updraftplus->current_resumption <9 && !isset($openvz_lowmem)) {
 			$updraftplus->log('Checking if we have a zip executable available');
 			$binzip = $updraftplus->find_working_bin_zip();
 			if (is_string($binzip)) {

@@ -280,9 +280,9 @@ class UpdraftPlus {
 	// Returns the number of bytes free, if it can be detected; otherwise, false
 	// Presently, we only detect CPanel. If you know of others, then feel free to contribute!
 	public function get_hosting_disk_quota_free() {
-		if (!is_dir('/usr/local/cpanel') || $this->detect_safe_mode() || !function_exists('popen') || (!is_executable('/usr/local/bin/perl') && !is_executable('/usr/local/cpanel/3rdparty/bin/perl'))) return false;
+		if (!@is_dir('/usr/local/cpanel') || $this->detect_safe_mode() || !function_exists('popen') || (!@is_executable('/usr/local/bin/perl') && !@is_executable('/usr/local/cpanel/3rdparty/bin/perl'))) return false;
 
-		$perl = (is_executable('/usr/local/cpanel/3rdparty/bin/perl')) ? '/usr/local/cpanel/3rdparty/bin/perl' : '/usr/local/bin/perl';
+		$perl = (@is_executable('/usr/local/cpanel/3rdparty/bin/perl')) ? '/usr/local/cpanel/3rdparty/bin/perl' : '/usr/local/bin/perl';
 
 		$exec = "UPDRAFTPLUSKEY=updraftplus $perl ".UPDRAFTPLUS_DIR."/includes/get-cpanel-quota-usage.pl";
 
