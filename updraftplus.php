@@ -393,7 +393,7 @@ class UpdraftPlus {
 	public function get_table_prefix() {
 		global $wpdb;
 		#if (!empty($wpdb->base_prefix)) return $wpdb->base_prefix;
-		return $wpdb->get_blog_prefix();
+		return $wpdb->get_blog_prefix(0);
 	}
 
 	public function show_admin_warning_unreadablelog() {
