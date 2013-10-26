@@ -1619,7 +1619,7 @@ class UpdraftPlus {
 	}
 
 	function is_uploaded($file, $service = '') {
-		$hash = $service.'-'.md5($file);
+		$hash = $service.(('' == $service) ? '' : '-').md5($file);
 		return ($this->jobdata_get("uploaded_$hash") === "yes") ? true : false;
 	}
 
