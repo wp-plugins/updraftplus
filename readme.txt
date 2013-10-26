@@ -136,6 +136,8 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * FIX: Fix potential problem whereby some tables could be missed from the backup on WPMU (WP multisite) installs. Strongly recommended that all WPMU users update and take a fresh backup.
 * FIX: Work around http://bugs.mysql.com/62077 (could cause permanently stuck lock on databases with wrong collocations - if you have this problem, then no backups happen)
 * TWEAK: Don't use binzip method on OpenVZ with low memory
+* TWEAK: Suppress a couple of spurious messages in the log
+* TWEAK: Add facility to quickly download log files in the 'expert settings' section
 
 = 1.7.34 - 2013/10/21 =
 
