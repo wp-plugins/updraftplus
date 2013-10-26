@@ -157,9 +157,9 @@ class S3
 	* @param constant $type CURL proxy type
 	* @return void
 	*/
-	public static function setProxy($host, $user = null, $pass = null, $type = CURLPROXY_SOCKS5)
+	public static function setProxy($host, $user = null, $pass = null, $type = CURLPROXY_SOCKS5, $port = null)
 	{
-		self::$proxy = array('host' => $host, 'type' => $type, 'user' => null, 'pass' => 'null');
+		self::$proxy = array('host' => $host, 'type' => $type, 'user' => $user, 'pass' => $pass, 'port' => $port);
 	}
 
 
@@ -2011,12 +2011,17 @@ final class S3Request
 
 		curl_setopt($curl, CURLOPT_URL, $url);
 
-		if (S3::$proxy != null && isset(S3::$proxy['host']))
+		$wp_proxy = new WP_HTTP_Proxy(); 
+
+		if (S3::$proxy != null && isset(S3::$proxy['host']) && $wp_proxy->send_through_proxy($url))
 		{
 			curl_setopt($curl, CURLOPT_PROXY, S3::$proxy['host']);
 			curl_setopt($curl, CURLOPT_PROXYTYPE, S3::$proxy['type']);
-			if (isset(S3::$proxy['user'], S3::$proxy['pass']) && S3::$proxy['user'] != null && S3::$proxy['pass'] != null)
+			if (!empty(S3::$proxy['port'])) curl_setopt($curl,CURLOPT_PROXYPORT, S3::$proxy['port']);
+			if (isset(S3::$proxy['user'], S3::$proxy['pass']) && S3::$proxy['user'] != null && S3::$proxy['pass'] != null) {
+				curl_setopt($curl, CURLOPT_PROXYAUTH, CURLAUTH_ANY);
 				curl_setopt($curl, CURLOPT_PROXYUSERPWD, sprintf('%s:%s', S3::$proxy['user'], S3::$proxy['pass']));
+			}
 		}
 
 		// Headers

@@ -19,7 +19,7 @@ class UpdraftPlus_BackupModule_googledrive {
 	}
 
 	// Get a Google account access token using the refresh token
-	function access_token( $token, $client_id, $client_secret ) {
+	function access_token($token, $client_id, $client_secret) {
 
 		global $updraftplus;
 		$updraftplus->log("Google Drive: requesting access token: client_id=$client_id");
@@ -284,10 +284,10 @@ class UpdraftPlus_BackupModule_googledrive {
 		$possible_location = $updraftplus->jobdata_get($transkey);
 
 		if ( empty( $possible_location ) ) {
-			$updraftplus->log("$file: Attempting to upload file to Google Drive.");
+			$updraftplus->log(basename($file).": Attempting to upload file to Google Drive.");
 			$location = $gdocs_object->prepare_upload( $file, $title, $parent );
 		} else {
-			$updraftplus->log("$file: Attempting to resume upload.");
+			$updraftplus->log(basename($file).": Attempting to resume upload.");
 			$location = $gdocs_object->resume_upload( $file, $possible_location );
 		}
 

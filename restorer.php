@@ -661,7 +661,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		$this->last_error = '';
 		$random_table_name = 'updraft_tmp_'.rand(0,9999999).md5(microtime(true));
-		if ($use_wpdb) {
+		if ($this->use_wpdb) {
 			$req = $wpdb->query("CREATE TABLE $random_table_name");
 			if (!$req) $this->last_error = $wpdb->last_error;
 			$this->last_error_no = false;
@@ -684,7 +684,7 @@ class Updraft_Restorer extends WP_Upgrader {
 				if (!$req) $this->last_error = $wpdb->last_error;
 				$this->last_error_no = false;
 			} else {
-				$req = mysql_unbuffered_query("DROP TABLE $random_table_name", $this->mysql_dbh );
+				$req = mysql_unbuffered_query("DROP TABLE $random_table_name", $this->mysql_dbh);
 				if (!$req) {
 					$this->last_error = mysql_error($this->mysql_dbh);
 					$this->last_error_no = mysql_errno($this->mysql_dbh);
@@ -782,11 +782,15 @@ class Updraft_Restorer extends WP_Upgrader {
 				}
 
 				$this->table_name = $matches[1];
+				
 				// Legacy, less reliable - in case it was not caught before
 				if ($old_table_prefix == '' && preg_match('/^([a-z0-9]+)_.*$/i', $this->table_name, $tmatches)) {
 					$old_table_prefix = $tmatches[1].'_';
 					echo '<strong>'.__('Old table prefix:', 'updraftplus').'</strong> '.htmlspecialchars($old_table_prefix).'<br>';
 				}
+
+				$this->new_table_name = ($old_table_prefix) ? $updraftplus->str_replace_once($old_table_prefix, $import_table_prefix, $this->table_name) : $this->table_name;
+
 				if ('' != $old_table_prefix && $import_table_prefix != $old_table_prefix) {
 					$sql_line = $updraftplus->str_replace_once($old_table_prefix, $import_table_prefix, $sql_line);
 				}
@@ -896,14 +900,16 @@ class Updraft_Restorer extends WP_Upgrader {
 // 		echo "Memory usage (Mb): ".round(memory_get_usage(false)/1048576, 1)." : ".round(memory_get_usage(true)/1048576, 1)."<br>";
 
 		global $wpdb, $updraftplus;
+			$ignore_errors = false;
 
 		if ($sql_type == 2 && $this->create_forbidden) {
-			echo sprintf(__('Cannot create new tables, so skipping this command (%s)', 'updraftplus'), htmlspecialchars("CREATE TABLE ".$this->table_name))."<br>";
+			echo sprintf(__('Cannot create new tables, so skipping this command (%s)', 'updraftplus'), htmlspecialchars($sql_line))."<br>";
 			$req = true;
 		} else {
 			if ($sql_type == 1 && $this->drop_forbidden) {
-				$sql_line = "DELETE FROM ".$updraftplus->backquote($this->table_name);
+				$sql_line = "DELETE FROM ".$updraftplus->backquote($this->new_table_name);
 				echo sprintf(__('Cannot drop tables, so deleting instead (%s)', 'updraftplus'), $sql_line)."<br>";
+				$ignore_errors = true;
 			}
 // 				echo substr($sql_line, 0, 50)." (".strlen($sql_line).")<br>";
 			if ($this->use_wpdb) {
@@ -917,7 +923,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		}
 
 		if (!$req) {
-			$this->errors++;
+			if (!$ignore_errors) $this->errors++;
 			echo sprintf(_x('An error (%s) occured:', 'The user is being told the number of times an error has happened, e.g. An error (27) occurred', 'updraftplus'), $this->errors)." - ".htmlspecialchars($this->last_error)." - ".__('the database query being run was:','updraftplus').' '.htmlspecialchars($sql_line).'<br>';
 			// First command is expected to be DROP TABLE
 			if (1 == $this->errors && 2 == $sql_type && 0 == $this->tables_created) {
@@ -1029,12 +1035,10 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		}
 
-		do_action('updraftplus_restored_db_table', $table);
+		do_action('updraftplus_restored_db_table', $table, $import_table_prefix);
 
 		// Re-generate permalinks. Do this last - i.e. make sure everything else is fixed up first.
-		if ($table == $import_table_prefix.'options') {
-			$this->flush_rewrite_rules();
-		}
+		if ($table == $import_table_prefix.'options') $this->flush_rewrite_rules();
 
 	}
 
