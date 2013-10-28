@@ -15,6 +15,7 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // After Oct 15 2013: Remove page(s) from websites discussing W3TC
 // Change migrate window: 1) Retain link to article 2) Have selector to choose which backup set to migrate - or a fresh one 3) Have option for FTP/SFTP/SCP despatch 4) Have big "Go" button. Have some indication of what happens next. Test the login first. Have the remote site auto-scan its directory + pick up new sets. Have a way of querying the remote site for its UD-dir. Have a way of saving the settings as a 'profile'. Or just save the last set of settings (since mostly will be just one place to send to). Implement an HTTP/JSON method for sending files too.
+// Pre-check file permissions on restore
 // Place in maintenance mode during restore - ?
 // Add more info to email - e.g. names + sizes + checksums of uploads + locations. Make the report beautiful!
 // Warn/prevent if trying to migrate between sub-domain/sub-folder based multisites
@@ -1000,6 +1001,8 @@ class UpdraftPlus {
 
 		// Restore state
 		$resumption_extralog = '';
+		$prev_resumption = $resumption_no - 1;
+
 		if ($resumption_no > 0) {
 			$this->nonce = $bnonce;
 			$this->backup_time = $this->jobdata_get('backup_time');
@@ -1030,7 +1033,6 @@ class UpdraftPlus {
 				}
 			}
 
-			$prev_resumption = $resumption_no - 1;
 			if (isset($time_passed[$prev_resumption])) {
 				$resumption_extralog = ", previous check-in=".round($time_passed[$prev_resumption], 1)."s";
 			} else {
@@ -1064,9 +1066,11 @@ class UpdraftPlus {
 
 		if ($resumption_no > 0 && isset($runs_started[$prev_resumption])) {
 			$our_expected_start = $runs_started[$prev_resumption] + $resume_interval;
+			# If the previous run increased the resumption time, then it is timed from the end of the previous run, not the start
+			if (isset($time_passed[$prev_resumption]) && $time_passed[$prev_resumption]>0) $our_expected_start += $time_passed[$prev_resumption];
 			# More than 12 minutes late?
 			if ($time_now > $our_expected_start + 720) {
-				$this->log('Long time past since expected resumption time: approx expected= '.round($our_expected_start,1).", now=".round($time_now, 1).", diff=".round($time_now-$our_expected_start,1));
+				$this->log('Long time past since expected resumption time: approx expected='.round($our_expected_start,1).", now=".round($time_now, 1).", diff=".round($time_now-$our_expected_start,1));
 				$this->log(__('Your website is visited infrequently and UpdraftPlus is not getting the resources it hoped for; please read this page:', 'updraftplus').' http://updraftplus.com/faqs/why-am-i-getting-warnings-about-my-site-not-having-enough-visitors/', 'warning', 'infrequentvisits');
 			}
 		}

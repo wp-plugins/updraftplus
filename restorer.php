@@ -280,6 +280,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			$rand_file = 'testfile_'.rand(0,9999999).md5(microtime(true)).'.txt';
 			if ($wp_filesystem->put_contents($upgrade_folder.$rand_file, 'testing...')) {
 				@$wp_filesystem->delete($upgrade_folder.$rand_file);
+				$this->pre_restore_updatedir_writable = true;
 			} else {
 				return new WP_Error('no_file', sprintf(__('UpdraftPlus needed to create a %s in your content directory, but failed - please check your file permissions and enable the access (%s)', 'updraftplus'), __('file', 'updraftplus'), $upgrade_folder.$rand_file));
 			}
@@ -296,6 +297,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			if ($wp_filesystem->exists($wp_filesystem_dir.'-old')) {
 				return new WP_Error('already_exists', sprintf(__('An existing unremoved backup from a previous restore exists: %s', 'updraftplus'), $wp_filesystem_dir.'-old'));
 			}
+			# TODO: Put in a test here for moving the directory
 		}
 
 		return true;

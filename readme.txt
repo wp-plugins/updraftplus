@@ -131,6 +131,10 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
+= Development version - not yet released/supported =
+
+* TWEAK: Suppress a spurious 'insufficient visitors' warning for some sites with long-running backups
+
 = 1.7.35 - 2013/10/26 =
 
 * FIX: Fix potential problem whereby some tables could be missed from the backup on WPMU (WP multisite) installs. Strongly recommended that all WPMU users update and take a fresh backup.
