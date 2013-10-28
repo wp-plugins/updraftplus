@@ -1000,6 +1000,8 @@ class UpdraftPlus {
 
 		// Restore state
 		$resumption_extralog = '';
+		$prev_resumption = $resumption_no - 1;
+
 		if ($resumption_no > 0) {
 			$this->nonce = $bnonce;
 			$this->backup_time = $this->jobdata_get('backup_time');
@@ -1030,7 +1032,6 @@ class UpdraftPlus {
 				}
 			}
 
-			$prev_resumption = $resumption_no - 1;
 			if (isset($time_passed[$prev_resumption])) {
 				$resumption_extralog = ", previous check-in=".round($time_passed[$prev_resumption], 1)."s";
 			} else {
@@ -1064,9 +1065,11 @@ class UpdraftPlus {
 
 		if ($resumption_no > 0 && isset($runs_started[$prev_resumption])) {
 			$our_expected_start = $runs_started[$prev_resumption] + $resume_interval;
+			# If the previous run increased the resumption time, then it is timed from the end of the previous run, not the start
+			if (isset($time_passed[$prev_resumption]) && $time_passed[$prev_resumption]>0) $our_expected_start += $time_passed[$prev_resumption];
 			# More than 12 minutes late?
 			if ($time_now > $our_expected_start + 720) {
-				$this->log('Long time past since expected resumption time: approx expected= '.round($our_expected_start,1).", now=".round($time_now, 1).", diff=".round($time_now-$our_expected_start,1));
+				$this->log('Long time past since expected resumption time: approx expected='.round($our_expected_start,1).", now=".round($time_now, 1).", diff=".round($time_now-$our_expected_start,1));
 				$this->log(__('Your website is visited infrequently and UpdraftPlus is not getting the resources it hoped for; please read this page:', 'updraftplus').' http://updraftplus.com/faqs/why-am-i-getting-warnings-about-my-site-not-having-enough-visitors/', 'warning', 'infrequentvisits');
 			}
 		}
