@@ -133,6 +133,9 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 
 = Development version - not yet released/supported =
 
+* FIX: Correct calculation of which old backups to delete when automatic pre-plugin/theme backups run
+* TWEAK: Change default number of backups to retain from 1 to 2
+* TWEAK: Add extra file permissions check before restoring (prevent unexpected aborts)
 * TWEAK: Suppress a spurious 'insufficient visitors' warning for some sites with long-running backups
 
 = 1.7.35 - 2013/10/26 =

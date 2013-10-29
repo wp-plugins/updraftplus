@@ -28,8 +28,8 @@ class Updraft_Restorer extends WP_Upgrader {
 		$this->strings['moving_backup'] = __('Moving unpacked backup into place...','updraftplus');
 		$this->strings['restore_database'] = __('Restoring the database (on a large site this can take a long time - if it times out (which can happen if your web hosting company has configured your hosting to limit resources) then you should use a different method, such as phpMyAdmin)...','updraftplus');
 		$this->strings['cleaning_up'] = __('Cleaning up rubbish...','updraftplus');
-		$this->strings['old_delete_failed'] = __('Could not move old directory out of the way. Perhaps you already have -old directories that need deleting first?','updraftplus');
-		$this->strings['old_move_failed'] = __('Could not delete old directory.','updraftplus');
+		$this->strings['old_move_failed'] = __('Could not move old directory out of the way.','updraftplus').' '.__('You should check the file permissions in your WordPress installation', 'updraftplus');
+		$this->strings['old_delete_failed'] = __('Could not delete old directory.','updraftplus');
 		$this->strings['new_move_failed'] = __('Could not move new directory into place. Check your wp-content/upgrade folder.','updraftplus');
 		$this->strings['delete_failed'] = __('Failed to delete working directory after restoring.','updraftplus');
 		$this->strings['multisite_error'] = __('You are running on WordPress multisite - but your backup is not of a multisite site.', 'updraftplus');
@@ -293,14 +293,29 @@ class Updraft_Restorer extends WP_Upgrader {
 		if ($wp_filesystem_dir === false) return false;
 
 		global $updraftplus_addons_migrator;
-		if ('plugins' == $type || 'uploads' == $type || 'themes' == $type && (!is_multisite() || $this->ud_backup_is_multisite !== 0 || ('uploads' != $type || empty($updraftplus_addons_migrator->new_blogid )))) {
+
+		$this->maintenance_mode(true);
+
+		echo __('Testing file permissions...', 'updraftplus')."<br>";
+
+		$ret_val = true;
+
+		if (('plugins' == $type || 'uploads' == $type || 'themes' == $type) && (!is_multisite() || $this->ud_backup_is_multisite !== 0 || ('uploads' != $type || empty($updraftplus_addons_migrator->new_blogid )))) {
 			if ($wp_filesystem->exists($wp_filesystem_dir.'-old')) {
-				return new WP_Error('already_exists', sprintf(__('An existing unremoved backup from a previous restore exists: %s', 'updraftplus'), $wp_filesystem_dir.'-old'));
+				$ret_val = new WP_Error('already_exists', sprintf(__('An existing unremoved backup from a previous restore exists: %s', 'updraftplus'), $wp_filesystem_dir.'-old'));
+			} else {
+				# File permissions test; see if we can move the directory back and forth
+				if (!$wp_filesystem->move($wp_filesystem_dir, $wp_filesystem_dir."-old", false)) {
+					$ret_val = new WP_Error('old_move_failed', $this->strings['old_move_failed']);
+				} else {
+					$wp_filesystem->move($wp_filesystem_dir."-old", $wp_filesystem_dir, false);
+				}
 			}
-			# TODO: Put in a test here for moving the directory
 		}
 
-		return true;
+		$this->maintenance_mode(false);
+
+		return $ret_val;
 	}
 
 	function get_wp_filesystem_dir($path) {
