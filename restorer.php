@@ -523,7 +523,7 @@ class Updraft_Restorer extends WP_Upgrader {
 				@$wp_filesystem->chmod($wp_filesystem_dir, 0775, true);
 			break;
 			case 'db':
-				do_action('updraftplus_restored_db', array('expected_oldsiteurl' => $old_siteurl, 'expected_oldhome' => $old_home), $import_table_prefix);
+				do_action('updraftplus_restored_db', array('expected_oldsiteurl' => $old_siteurl, 'expected_oldhome' => $old_home, 'expected_oldcontent' => $old_content), $import_table_prefix);
 				$this->flush_rewrite_rules();
 			break;
 			default:
@@ -669,6 +669,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		$old_wpversion = '';
 		$old_siteurl = '';
 		$old_home = '';
+		$old_content = '';
 		$old_table_prefix = '';
 		$old_siteinfo = array();
 		$gathering_siteinfo = true;
@@ -730,6 +731,10 @@ class Updraft_Restorer extends WP_Upgrader {
 					$old_home = $matches[1];
 					if ($old_siteurl && $old_home != $old_siteurl) echo '<strong>'.__('Site home:', 'updraftplus').'</strong> '.htmlspecialchars($old_home).'<br>';
 					do_action('updraftplus_restore_db_record_old_home', $old_home);
+				} elseif ('' == $old_content && preg_match('/^\# Content URL: (http(.*))$/', $buffer, $matches)) {
+					$old_content = $matches[1];
+					echo '<strong>'.__('Content URL:', 'updraftplus').'</strong> '.htmlspecialchars($old_content).'<br>';
+					do_action('updraftplus_restore_db_record_old_content', $old_content);
 				} elseif ('' == $old_table_prefix && preg_match('/^\# Table prefix: (\S+)$/', $buffer, $matches)) {
 					$old_table_prefix = $matches[1];
 					echo '<strong>'.__('Old table prefix:', 'updraftplus').'</strong> '.htmlspecialchars($old_table_prefix).'<br>';
@@ -829,7 +834,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 					// After restoring the options table, we can set old_siteurl if on legacy (i.e. not already set)
 					if ($restoring_table == $import_table_prefix.'options') {
-						if ('' == $old_siteurl || '' == $old_home) {
+						if ('' == $old_siteurl || '' == $old_home || '' == $old_content) {
 							global $updraftplus_addons_migrator;
 							if (isset($updraftplus_addons_migrator->new_blogid)) switch_to_blog($updraftplus_addons_migrator->new_blogid);
 
@@ -841,6 +846,10 @@ class Updraft_Restorer extends WP_Upgrader {
 								$old_home = $wpdb->get_row("SELECT option_value FROM $wpdb->options WHERE option_name='home'")->option_value;
 								do_action('updraftplus_restore_db_record_old_home', $old_home);
 							}
+							if ('' == $old_content) {
+								$old_content = $old_siteurl.'/wp-content';
+								do_action('updraftplus_restore_db_record_old_content', $old_content);
+							}							
 							if (isset($updraftplus_addons_migrator->new_blogid)) restore_current_blog();
 						}
 					}
