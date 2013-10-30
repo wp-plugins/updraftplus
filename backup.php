@@ -1176,6 +1176,7 @@ class UpdraftPlus_Backup {
 		$this->stow("# WordPress Version: $wp_version, running on PHP ".phpversion()." (".$_SERVER["SERVER_SOFTWARE"]."), MySQL $mysql_version\n");
 		$this->stow("# Backup of: ".site_url()."\n");
 		$this->stow("# Home URL: ".home_url()."\n");
+		$this->stow("# Content URL: ".content_url()."\n");
 		$this->stow("# Table prefix: ".$this->table_prefix."\n");
 		$this->stow("# Site info: multisite=".(is_multisite() ? '1' : '0')."\n");
 		$this->stow("# Site info: end\n");
