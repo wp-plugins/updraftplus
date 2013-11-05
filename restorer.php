@@ -369,7 +369,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		@set_time_limit(1800);
 
 		// We copy the variable because we may be importing with a different prefix (e.g. on multisite imports of individual blog data)
-		$import_table_prefix = $updraftplus->get_table_prefix();
+		$import_table_prefix = $updraftplus->get_table_prefix(false);
 
 		if (is_multisite() && $this->ud_backup_is_multisite === 0 && ( ( 'plugins' == $type || 'themes' == $type )  || ( 'uploads' == $type && !empty($updraftplus_addons_migrator->new_blogid)) )) {
 
@@ -613,7 +613,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		// There is a file backup.db.gz inside the working directory
 
 		# The 'off' check is for badly configured setups - http://wordpress.org/support/topic/plugin-wp-super-cache-warning-php-safe-mode-enabled-but-safe-mode-is-off
-		if (@ini_get('safe_mode') && strtolower(@ini_get('safe_mode')) != "off") {
+		if (@ini_get('safe_mode') && 'off' != strtolower(@ini_get('safe_mode'))) {
 			echo "<p>".__('Warning: PHP safe_mode is active on your server. Timeouts are much more likely. If these happen, then you will need to manually restore the file via phpMyAdmin or another method.', 'updraftplus')."</p><br/>";
 			return false;
 		}

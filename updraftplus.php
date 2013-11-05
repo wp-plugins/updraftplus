@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.7.36
+Version: 1.7.37
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -17,10 +17,12 @@ TODO - some of these are out of date/done, needs pruning
 // Change add-ons screen, to be less confusing for people who haven't yet updated but have connected
 // Change migrate window: 1) Retain link to article 2) Have selector to choose which backup set to migrate - or a fresh one 3) Have option for FTP/SFTP/SCP despatch 4) Have big "Go" button. Have some indication of what happens next. Test the login first. Have the remote site auto-scan its directory + pick up new sets. Have a way of querying the remote site for its UD-dir. Have a way of saving the settings as a 'profile'. Or just save the last set of settings (since mostly will be just one place to send to). Implement an HTTP/JSON method for sending files too.
 // Place in maintenance mode during restore - ?
+// Spurious MySQL warnings - see backup file from TosLa
 // Add more info to email - e.g. names + sizes + checksums of uploads + locations. Make the report beautiful!
 // Warn/prevent if trying to migrate between sub-domain/sub-folder based multisites
 // Don't perform pruning when doing auto-backup?
 // Update updates checker so that it checks for updates on a sliding-scale: those who've not updated in last X only end up checking every Y
+// Can some tables be omitted from the search/replace on a migrate? i.e. Special knowledge?
 // Put a 'what do I get if I upgrade?' link into the mix
 // Add to admin bar (and make it something that can be turned off)
 // New reporting add-on: Multiple email addresses, send backup to 1st only, option to send email only on failure, include checksums (SHA1) in report (store these in job data immediately post-creation; then aggregate them into the backup history on job finish), option to include log file always, option to log to syslog
@@ -389,10 +391,10 @@ class UpdraftPlus {
 		}
 	}
 
-	public function get_table_prefix() {
+	public function get_table_prefix($allow_override = false) {
 		global $wpdb;
 		#if (!empty($wpdb->base_prefix)) return $wpdb->base_prefix;
-		return $wpdb->get_blog_prefix(0);
+		return ($allow_override) ? apply_filters('updraftplus_get_table_prefix', $wpdb->get_blog_prefix(0)) : $wpdb->get_blog_prefix(0);
 	}
 
 	public function show_admin_warning_unreadablelog() {

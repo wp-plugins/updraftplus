@@ -508,14 +508,16 @@ class UpdraftPlus_Backup {
 	// The purpose of this function is to make sure that the options table is put in the database first, then the users table, then the usermeta table; and after that the core WP tables - so that when restoring we restore the core tables first
 	private function backup_db_sorttables($a, $b) {
 		global $updraftplus, $wpdb;
-		$our_table_prefix = $this->table_prefix;
 		if ($a == $b) return 0;
+		$our_table_prefix = $this->table_prefix;
 		if ($a == $our_table_prefix.'options') return -1;
 		if ($b ==  $our_table_prefix.'options') return 1;
 		if ($a == $our_table_prefix.'users') return -1;
 		if ($b ==  $our_table_prefix.'users') return 1;
 		if ($a == $our_table_prefix.'usermeta') return -1;
 		if ($b ==  $our_table_prefix.'usermeta') return 1;
+
+		if (empty($our_table_prefix)) return strcmp($a, $b);
 
 		try {
 			$core_tables = array_merge($wpdb->tables, $wpdb->global_tables, $wpdb->ms_global_tables);
@@ -710,7 +712,7 @@ class UpdraftPlus_Backup {
 			$updraftplus->jobdata_set('jobstatus', 'filescreated');
 		} else {
 			# This is not necessarily a backup run which is meant to contain files at all
-			$updraftplus->log("This backup run is not intended for files - skipping");
+			$updraftplus->log('This backup run is not intended for files - skipping');
 			return array();
 		}
 
@@ -746,11 +748,12 @@ class UpdraftPlus_Backup {
 	- When the writing finishes, it is renamed to ($final_filename).table
 	- When all tables are finished, they are concatenated into the final file
 	*/
-	public function backup_db($already_done = "begun") {
+	public function backup_db($already_done = 'begun') {
 
 		global $updraftplus, $wpdb;
 
-		$this->table_prefix = $updraftplus->get_table_prefix();
+		$this->table_prefix = $updraftplus->get_table_prefix(true);
+		$this->table_prefix_raw = $updraftplus->get_table_prefix(false);
 
 		$errors = 0;
 
@@ -801,14 +804,17 @@ class UpdraftPlus_Backup {
 			$table_file_prefix = $file_base.'-db-table-'.$table.'.table';
 			if (file_exists($this->updraft_dir.'/'.$table_file_prefix.'.gz')) {
 				$updraftplus->log("Table $table: corresponding file already exists; moving on");
+				$stitch_files[] = $table_file_prefix;
 			} else {
-				// Open file, store the handle
-				$opened = $this->backup_db_open($this->updraft_dir.'/'.$table_file_prefix.'.tmp.gz', true);
-				if (false === $opened) return false;
 				# === is needed, otherwise 'false' matches (i.e. prefix does not match)
-				if ( strpos($table, $this->table_prefix) === 0 ) {
+				if (empty($this->table_prefix) || strpos($table, $this->table_prefix) === 0 ) {
+
+					// Open file, store the handle
+					$opened = $this->backup_db_open($this->updraft_dir.'/'.$table_file_prefix.'.tmp.gz', true);
+					if (false === $opened) return false;
+
 					// Create the SQL statements
-					$this->stow("# " . sprintf(__('Table: %s','wp-db-backup'),$updraftplus->backquote($table)) . "\n");
+					$this->stow("# " . sprintf('Table: %s' ,$updraftplus->backquote($table)) . "\n");
 					$updraftplus->jobdata_set('dbcreating_substatus', array('t' => $table, 'i' => $total_tables, 'a' => $how_many_tables));
 
 					$table_status = $wpdb->get_row("SHOW TABLE STATUS WHERE Name='$table'");
@@ -823,9 +829,9 @@ class UpdraftPlus_Backup {
 					}
 
 					# Don't include the job data for any backups - so that when the database is restored, it doesn't continue an apparently incomplete backup
-					if  ($this->table_prefix.'sitemeta' == $table) {
+					if  (!empty($this->table_prefix) && $this->table_prefix.'sitemeta' == $table) {
 						$where = 'meta_key NOT LIKE "updraft_jobdata_%"';
-					} elseif ($this->table_prefix.'options' == $table) {
+					} elseif (!empty($this->table_prefix) && $this->table_prefix.'options' == $table) {
 						$where = 'option_name NOT LIKE "updraft_jobdata_%"';
 					} else {
 						$where = '';
@@ -839,16 +845,18 @@ class UpdraftPlus_Backup {
 
 					if (!empty($manyrows_warning)) $updraftplus->log_removewarning('manyrows_'.$table);
 
+					// Close file
+					$updraftplus->log("Table $table: finishing file (${table_file_prefix}.gz - ".round(filesize($this->updraft_dir.'/'.$table_file_prefix.'.tmp.gz')/1024,1)." Kb)");
+					rename($this->updraft_dir.'/'.$table_file_prefix.'.tmp.gz', $this->updraft_dir.'/'.$table_file_prefix.'.gz');
+					$updraftplus->something_useful_happened();
+					$this->close($this->dbhandle);
+					$stitch_files[] = $table_file_prefix;
+
 				} else {
-					$this->stow("# " . sprintf(__('Skipping table (lacks our prefix): %s','wp-db-backup'),$updraftplus->backquote($table)) . "\n");
+					$updraftplus->log("Skipping table (lacks our prefix): $table");
 				}
-				// Close file
-				$this->close($this->dbhandle);
-				$updraftplus->log("Table $table: finishing file (${table_file_prefix}.gz)");
-				rename($this->updraft_dir.'/'.$table_file_prefix.'.tmp.gz', $this->updraft_dir.'/'.$table_file_prefix.'.gz');
-				$updraftplus->something_useful_happened();
+				
 			}
-			$stitch_files[] = $table_file_prefix;
 		}
 
 		// Race detection - with zip files now being resumable, these can more easily occur, with two running side-by-side
@@ -1177,7 +1185,7 @@ class UpdraftPlus_Backup {
 		$this->stow("# Backup of: ".site_url()."\n");
 		$this->stow("# Home URL: ".home_url()."\n");
 		$this->stow("# Content URL: ".content_url()."\n");
-		$this->stow("# Table prefix: ".$this->table_prefix."\n");
+		$this->stow("# Table prefix: ".$this->table_prefix_raw."\n");
 		$this->stow("# Site info: multisite=".(is_multisite() ? '1' : '0')."\n");
 		$this->stow("# Site info: end\n");
 
