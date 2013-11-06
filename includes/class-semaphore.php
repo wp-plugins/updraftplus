@@ -163,7 +163,7 @@ class UpdraftPlus_Semaphore {
 		}
 
 		$current_time = current_time('mysql', 1);
-		$three_minutes_before = gmdate('Y-m-d H:i:s', time()-180);
+		$three_minutes_before = gmdate('Y-m-d H:i:s', time()-(defined('UPDRAFTPLUS_SEMAPHORE_LOCK_WAIT') ? UPDRAFTPLUS_SEMAPHORE_LOCK_WAIT : 180));
 
 		$affected = $wpdb->query($wpdb->prepare("
 			UPDATE $wpdb->options
