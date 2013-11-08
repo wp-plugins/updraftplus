@@ -782,7 +782,7 @@ class UpdraftPlus_Backup {
 		if (!$updraftplus->really_is_writable($this->updraft_dir)) {
 			$updraftplus->log("The backup directory (".$this->updraft_dir.") is not writable.");
 			$updraftplus->log($this->updraft_dir.": ".__('The backup directory is not writable - the database backup is expected to shortly fail.','updraftplus'), 'warning');
-			# Why not just fail now? We saw a bizarre case when the results of really_is_writable() changed during the run.
+			# Why not just fail now? We saw a case when the results of really_is_writable() changed during the run. Probably caused by disk space issues.
 		}
 
 		$stitch_files = array();
@@ -807,7 +807,7 @@ class UpdraftPlus_Backup {
 				# === is needed, otherwise 'false' matches (i.e. prefix does not match)
 				if ( strpos($table, $this->table_prefix) === 0 ) {
 					// Create the SQL statements
-					$this->stow("# " . sprintf(__('Table: %s','wp-db-backup'),$updraftplus->backquote($table)) . "\n");
+					$this->stow("# ".sprintf('Table: %s', $updraftplus->backquote($table))."\n");
 					$updraftplus->jobdata_set('dbcreating_substatus', array('t' => $table, 'i' => $total_tables, 'a' => $how_many_tables));
 
 					$table_status = $wpdb->get_row("SHOW TABLE STATUS WHERE Name='$table'");
