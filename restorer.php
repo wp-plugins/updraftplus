@@ -432,7 +432,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			$rdb = $this->restore_backup_db($working_dir, $working_dir_localpath, $import_table_prefix);
 			if (false === $rdb || is_wp_error($rdb)) return $rdb;
 
-		} elseif ($type == 'others') {
+		} elseif ('others' == $type) {
 
 			$dirname = basename($info['path']);
 
@@ -454,7 +454,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			// A filter, to allow add-ons to perform the install of non-standard entities, or to indicate that it's not possible
 			if (false === $movedin) {
 				show_message($this->strings['not_possible']);
-			} elseif ($movedin !== true) {
+			} elseif (true !== $movedin) {
 
 				# On the first time, move the existing data to -old
 				if (!isset($this->been_restored[$type])) {
@@ -1023,7 +1023,10 @@ class Updraft_Restorer extends WP_Upgrader {
 			if (!empty($new_upload_path) && $new_upload_path != $this->prior_upload_path && strpos($new_upload_path, '/') === 0) {
 				if (!file_exists($new_upload_path)) {
 					echo sprintf(__("Uploads path (%s) does not exist - resetting (%s)",'updraftplus'), $new_upload_path, $this->prior_upload_path)."<br>";
-					update_option('upload_path', $this->prior_upload_path);
+					if (false === $wpdb->query("UPDATE $wpdb->options SET option_value='".esc_sql($this->prior_upload_path)."' WHERE option_name='upload_path' LIMIT 1")) {
+						echo __('Error','updraftplus');
+					}
+					#update_option('upload_path', $this->prior_upload_path);
 				}
 			}
 
@@ -1049,7 +1052,7 @@ class Updraft_Restorer extends WP_Upgrader {
 					SET meta_key='".$new_meta_key."' 
 					WHERE umeta_id=".$meta_key->umeta_id;
 
-				if (false === $wpdb->query($query)) $errors_occurred = true;			
+				if (false === $wpdb->query($query)) $errors_occurred = true;
 			}
 
 			if ($errors_occurred) {

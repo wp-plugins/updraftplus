@@ -262,7 +262,7 @@ function updraft_downloader(base, nonce, what, whicharea, set_contents, prettyda
 // Catch HTTP errors if the download status check returns them
 jQuery(document).ajaxError(function( event, jqxhr, settings, exception ) {
 	if (exception == null || exception == '') return;
-	if (jxqhr.responseText == null || jxqhr.responseText == '') return;
+	if (jqxhr.responseText == null || jqxhr.responseText == '') return;
 	console.log("Error caught by UpdraftPlus ajaxError handler (follows)");
 	console.log(exception);
 	if (settings.url.search(ajaxurl) == 0) {
