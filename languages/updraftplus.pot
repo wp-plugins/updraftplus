@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: UpdraftPlus\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-26 09:16+0100\n"
-"PO-Revision-Date: 2013-10-26 09:16+0100\n"
+"POT-Creation-Date: 2013-11-08 12:43+0100\n"
+"PO-Revision-Date: 2013-11-08 12:43+0100\n"
 "Last-Translator: David Anderson <contact@updraftplus.com>\n"
 "Language-Team:  <contact@updraftplus.com>\n"
 "Language: \n"
@@ -18,186 +18,186 @@ msgstr ""
 msgid "UpdraftPlus Backups"
 msgstr ""
 
-#: updraftplus.php:401
-#: updraftplus.php:406
-#: updraftplus.php:411
-#: admin.php:325
-#: admin.php:329
+#: updraftplus.php:405
+#: updraftplus.php:410
+#: updraftplus.php:415
+#: admin.php:327
+#: admin.php:331
 msgid "UpdraftPlus notice:"
 msgstr ""
 
-#: updraftplus.php:401
+#: updraftplus.php:405
 msgid "The log file could not be read."
 msgstr ""
 
-#: updraftplus.php:406
+#: updraftplus.php:410
 msgid "No log files were found."
 msgstr ""
 
-#: updraftplus.php:411
+#: updraftplus.php:415
 msgid "The given file could not be read."
 msgstr ""
 
-#: updraftplus.php:540
+#: updraftplus.php:544
 #, php-format
 msgid "The amount of memory (RAM) allowed for PHP is very low (%s Mb) - you should increase it to avoid failures due to insufficient memory (consult your web hosting company for more help)"
 msgstr ""
 
-#: updraftplus.php:543
-#: admin.php:296
+#: updraftplus.php:547
+#: admin.php:298
 #, php-format
 msgid "The amount of time allowed for WordPress plugins to run is very low (%s seconds) - you should increase it to avoid backup failures due to time-outs (consult your web hosting company for more help - it is the max_execution_time PHP setting; the recommmended value is %s seconds or more)"
 msgstr ""
 
-#: updraftplus.php:562
+#: updraftplus.php:566
 #, php-format
 msgid "Your free space in your hosting account is very low - only %s Mb remain"
 msgstr ""
 
-#: updraftplus.php:574
+#: updraftplus.php:578
 #, php-format
 msgid "Your free disk space is very low - only %s Mb remain"
 msgstr ""
 
-#: updraftplus.php:693
-#: admin.php:2192
+#: updraftplus.php:697
+#: admin.php:2171
 #, php-format
 msgid "Your web-server does not have the %s module installed."
 msgstr ""
 
-#: updraftplus.php:693
-#: admin.php:2192
+#: updraftplus.php:697
+#: admin.php:2171
 msgid "Without it, encryption will be a lot slower."
 msgstr ""
 
-#: updraftplus.php:696
+#: updraftplus.php:700
 msgid "A future release of UpdraftPlus will move the encryption feature into an add-on (and add more features to it)."
 msgstr ""
 
-#: updraftplus.php:696
+#: updraftplus.php:700
 #, php-format
 msgid "See: %s"
 msgstr ""
 
-#: updraftplus.php:948
+#: updraftplus.php:952
 msgid "Plugins"
 msgstr ""
 
-#: updraftplus.php:949
+#: updraftplus.php:953
 msgid "Themes"
 msgstr ""
 
-#: updraftplus.php:950
+#: updraftplus.php:954
 msgid "Uploads"
 msgstr ""
 
-#: updraftplus.php:965
+#: updraftplus.php:969
 msgid "Others"
 msgstr ""
 
-#: updraftplus.php:1070
+#: updraftplus.php:1077
 msgid "Your website is visited infrequently and UpdraftPlus is not getting the resources it hoped for; please read this page:"
 msgstr ""
 
-#: updraftplus.php:1350
+#: updraftplus.php:1357
 msgid "Could not create files in the backup directory. Backup aborted - check your UpdraftPlus settings."
 msgstr ""
 
-#: updraftplus.php:1506
+#: updraftplus.php:1513
 msgid "The backup apparently succeeded and is now complete"
 msgstr ""
 
-#: updraftplus.php:1512
+#: updraftplus.php:1519
 msgid "The backup apparently succeeded (with warnings) and is now complete"
 msgstr ""
 
-#: updraftplus.php:1519
+#: updraftplus.php:1526
 msgid "The backup attempt has finished, apparently unsuccessfully"
 msgstr ""
 
-#: updraftplus.php:1522
+#: updraftplus.php:1529
 msgid "The backup has not finished; a resumption is scheduled"
 msgstr ""
 
-#: updraftplus.php:1789
+#: updraftplus.php:1796
 msgid "Could not read the directory"
 msgstr ""
 
-#: updraftplus.php:1806
+#: updraftplus.php:1813
 msgid "Could not save backup history because we have no backup array. Backup probably failed."
 msgstr ""
 
-#: updraftplus.php:1977
+#: updraftplus.php:1984
 #: restorer.php:87
-#: admin.php:904
+#: admin.php:906
 msgid "Decryption failed. The database file is encrypted, but you have no encryption key entered."
 msgstr ""
 
-#: updraftplus.php:1987
+#: updraftplus.php:1994
 #: restorer.php:97
-#: admin.php:918
+#: admin.php:920
 msgid "Decryption failed. The most likely cause is that you used the wrong key."
 msgstr ""
 
-#: updraftplus.php:1987
+#: updraftplus.php:1994
 msgid "The decryption key used:"
 msgstr ""
 
-#: updraftplus.php:2005
+#: updraftplus.php:2012
 msgid "File not found"
 msgstr ""
 
-#: updraftplus.php:2066
+#: updraftplus.php:2073
 msgid "Want more features or paid, guaranteed support? Check out UpdraftPlus.Com"
 msgstr ""
 
-#: updraftplus.php:2070
+#: updraftplus.php:2077
 msgid "Can you translate? Want to improve UpdraftPlus for speakers of your language?"
 msgstr ""
 
-#: updraftplus.php:2072
-#: updraftplus.php:2078
+#: updraftplus.php:2079
+#: updraftplus.php:2085
 msgid "Like UpdraftPlus and can spare one minute?"
 msgstr ""
 
-#: updraftplus.php:2072
-#: updraftplus.php:2078
+#: updraftplus.php:2079
+#: updraftplus.php:2085
 msgid "Please help UpdraftPlus by giving a positive review at wordpress.org"
 msgstr ""
 
-#: updraftplus.php:2075
+#: updraftplus.php:2082
 msgid "Check out WordShell"
 msgstr ""
 
-#: updraftplus.php:2075
+#: updraftplus.php:2082
 msgid "manage WordPress from the command line - huge time-saver"
 msgstr ""
 
-#: updraftplus.php:2085
+#: updraftplus.php:2092
 msgid "Need even more features and support? Check out UpdraftPlus Premium"
 msgstr ""
 
-#: updraftplus.php:2092
+#: updraftplus.php:2099
 msgid "Subscribe to the UpdraftPlus blog to get up-to-date news and offers"
 msgstr ""
 
-#: updraftplus.php:2092
+#: updraftplus.php:2099
 msgid "Blog link"
 msgstr ""
 
-#: updraftplus.php:2092
+#: updraftplus.php:2099
 msgid "RSS link"
 msgstr ""
 
-#: updraftplus.php:2095
+#: updraftplus.php:2102
 msgid "Check out UpdraftPlus.Com for help, add-ons and support"
 msgstr ""
 
-#: updraftplus.php:2098
+#: updraftplus.php:2105
 msgid "Want to say thank-you for UpdraftPlus?"
 msgstr ""
 
-#: updraftplus.php:2098
+#: updraftplus.php:2105
 msgid "Please buy our very cheap 'no adverts' add-on."
 msgstr ""
 
@@ -211,139 +211,129 @@ msgstr ""
 msgid "Could not create %s zip. Consult the log file for more information."
 msgstr ""
 
-#: backup.php:428
+#: backup.php:448
 #, php-format
 msgid "With the next release of UpdraftPlus, you will need an add-on to use a different email address to the site owner's (%s). See: %s"
 msgstr ""
 
-#: backup.php:450
+#: backup.php:470
 msgid "Errors encountered:"
 msgstr ""
 
-#: backup.php:467
+#: backup.php:487
 msgid "Warnings encountered:"
 msgstr ""
 
-#: backup.php:482
+#: backup.php:502
 msgid "Backed up"
 msgstr ""
 
-#: backup.php:482
+#: backup.php:502
 msgid "WordPress backup is complete"
 msgstr ""
 
-#: backup.php:482
+#: backup.php:502
 msgid "Backup contains"
 msgstr ""
 
-#: backup.php:482
+#: backup.php:502
 msgid "Latest status"
 msgstr ""
 
-#: backup.php:561
+#: backup.php:583
 #, php-format
 msgid "Backup directory (%s) is not writable, or does not exist."
 msgstr ""
 
-#: backup.php:765
+#: backup.php:788
 msgid "The backup directory is not writable - the database backup is expected to shortly fail."
 msgstr ""
 
-#: backup.php:791
-#, php-format
-msgid "Table: %s"
-msgstr ""
-
-#: backup.php:801
+#: backup.php:827
 #, php-format
 msgid "Table %s has very many rows (%s) - we hope your web hosting company gives you enough resources to dump out that table in the backup"
 msgstr ""
 
-#: backup.php:823
-#, php-format
-msgid "Skipping table (lacks our prefix): %s"
-msgstr ""
-
-#: backup.php:872
+#: backup.php:900
 msgid "An error occurred whilst closing the final database file"
 msgstr ""
 
-#: backup.php:964
+#: backup.php:992
 #, php-format
 msgid "Delete any existing table %s"
 msgstr ""
 
-#: backup.php:970
+#: backup.php:998
 #, php-format
 msgid "Table structure of table %s"
 msgstr ""
 
-#: backup.php:974
+#: backup.php:1002
 #, php-format
 msgid "Error with SHOW CREATE TABLE for %s."
 msgstr ""
 
-#: backup.php:1066
+#: backup.php:1094
 #, php-format
 msgid "End of data contents of table %s"
 msgstr ""
 
-#: backup.php:1101
+#: backup.php:1129
 msgid "Encryption error occurred when encrypting database. Encryption aborted."
 msgstr ""
 
-#: backup.php:1129
+#: backup.php:1157
 msgid "Could not open the backup file for writing"
 msgstr ""
 
-#: backup.php:1164
+#: backup.php:1193
 #, php-format
 msgid "Generated: %s"
 msgstr ""
 
-#: backup.php:1165
+#: backup.php:1194
 #, php-format
 msgid "Hostname: %s"
 msgstr ""
 
-#: backup.php:1166
+#: backup.php:1195
 #, php-format
 msgid "Database: %s"
 msgstr ""
 
-#: backup.php:1197
+#: backup.php:1226
 msgid "Infinite recursion: consult your log for more information"
 msgstr ""
 
-#: backup.php:1209
+#: backup.php:1238
 #, php-format
 msgid "%s: unreadable file - could not be backed up (check the file permissions)"
 msgstr ""
 
-#: backup.php:1215
+#: backup.php:1244
 #, php-format
 msgid "Failed to open directory (check the file permissions): %s"
 msgstr ""
 
-#: backup.php:1229
-#: backup.php:1241
+#: backup.php:1258
+#: backup.php:1270
 #, php-format
 msgid "%s: unreadable file - could not be backed up"
 msgstr ""
 
-#: backup.php:1478
-#: backup.php:1714
+#: backup.php:1507
+#: backup.php:1743
 #, php-format
 msgid "Failed to open the zip file (%s) - %s"
 msgstr ""
 
-#: backup.php:1492
+#: backup.php:1521
 #, php-format
 msgid "A very large file was encountered: %s (size: %s Mb)"
 msgstr ""
 
-#: backup.php:1531
-#: backup.php:1724
+#: backup.php:1560
+#: backup.php:1753
 msgid "A zip error occurred - check your log for more details."
 msgstr ""
 
@@ -388,7 +378,11 @@ msgid "Cleaning up rubbish..."
 msgstr ""
 
 #: restorer.php:31
-msgid "Could not move old directory out of the way. Perhaps you already have -old directories that need deleting first?"
+msgid "Could not move old directory out of the way."
+msgstr ""
+
+#: restorer.php:31
+msgid "You should check the file permissions in your WordPress installation"
 msgstr ""
 
 #: restorer.php:32
@@ -404,7 +398,7 @@ msgid "Failed to delete working directory after restoring."
 msgstr ""
 
 #: restorer.php:35
-#: admin.php:993
+#: admin.php:995
 msgid "You are running on WordPress multisite - but your backup is not of a multisite site."
 msgstr ""
 
@@ -435,7 +429,7 @@ msgid "Failed to move directory (check your file permissions and disk quota): %s
 msgstr ""
 
 #: restorer.php:278
-#: restorer.php:284
+#: restorer.php:285
 #, php-format
 msgid "UpdraftPlus needed to create a %s in your content directory, but failed - please check your file permissions and enable the access (%s)"
 msgstr ""
@@ -444,1797 +438,1873 @@ msgstr ""
 msgid "folder"
 msgstr ""
 
-#: restorer.php:284
+#: restorer.php:285
 msgid "file"
 msgstr ""
 
-#: restorer.php:297
+#: restorer.php:299
+msgid "Testing file permissions..."
+msgstr ""
+
+#: restorer.php:305
 #, php-format
 msgid "An existing unremoved backup from a previous restore exists: %s"
 msgstr ""
 
-#: restorer.php:446
+#: restorer.php:463
 msgid "This directory already exists, and will be replaced"
 msgstr ""
 
-#: restorer.php:483
-#: admin.php:904
-#: admin.php:993
-#: admin.php:998
-#: admin.php:1149
-#: admin.php:1156
+#: restorer.php:500
+#: admin.php:906
+#: admin.php:995
+#: admin.php:1000
+#: admin.php:1151
+#: admin.php:1158
 #, php-format
 msgid "Error: %s"
 msgstr ""
 
-#: restorer.php:489
+#: restorer.php:506
 msgid "Files found:"
 msgstr ""
 
-#: restorer.php:495
+#: restorer.php:512
 msgid "Unable to enumerate files in that directory."
 msgstr ""
 
-#: restorer.php:537
+#: restorer.php:554
 #, php-format
 msgid "Using directory from backup: %s"
 msgstr ""
 
-#: restorer.php:553
+#: restorer.php:570
 msgid "Please supply the requested information, and then continue."
 msgstr ""
 
-#: restorer.php:556
-#: admin.php:93
-#: admin.php:2848
+#: restorer.php:573
+#: admin.php:95
 #: admin.php:2866
+#: admin.php:2884
 msgid "Error:"
 msgstr ""
 
-#: restorer.php:560
+#: restorer.php:577
 msgid "New table prefix:"
 msgstr ""
 
-#: restorer.php:600
+#: restorer.php:617
 msgid "Warning: PHP safe_mode is active on your server. Timeouts are much more likely. If these happen, then you will need to manually restore the file via phpMyAdmin or another method."
 msgstr ""
 
-#: restorer.php:605
+#: restorer.php:622
 msgid "Failed to find database file"
 msgstr ""
 
-#: restorer.php:611
+#: restorer.php:628
 msgid "Failed to open database file"
 msgstr ""
 
-#: restorer.php:635
+#: restorer.php:652
 msgid "Database access: Direct MySQL access is not available, so we are falling back to wpdb (this will be considerably slower)"
 msgstr ""
 
-#: restorer.php:680
-#: restorer.php:695
-#: admin.php:1343
+#: restorer.php:698
+#: restorer.php:713
+#: admin.php:1345
 msgid "Warning:"
 msgstr ""
 
-#: restorer.php:680
+#: restorer.php:698
 msgid "Your database user does not have permission to create tables. We will attempt to restore by simply emptying the tables; this should work as long as a) you are restoring from a WordPress version with the same database structure, and b) Your imported database does not contain any tables which are not already present on the importing site."
 msgstr ""
 
-#: restorer.php:695
+#: restorer.php:713
 msgid "Your database user does not have permission to drop tables. We will attempt to restore by simply emptying the tables; this should work as long as you are restoring from a WordPress version with the same database structure"
 msgstr ""
 
-#: restorer.php:710
-#: admin.php:962
+#: restorer.php:728
+#: admin.php:964
 msgid "Backup of:"
 msgstr ""
 
-#: restorer.php:714
+#: restorer.php:732
 msgid "Site home:"
 msgstr ""
 
-#: restorer.php:718
-#: restorer.php:789
+#: restorer.php:736
+msgid "Content URL:"
+msgstr ""
+
+#: restorer.php:740
+#: restorer.php:811
 msgid "Old table prefix:"
 msgstr ""
 
-#: restorer.php:730
-#: admin.php:998
+#: restorer.php:752
+#: admin.php:1000
 msgid "To import an ordinary WordPress site into a multisite installation requires both the multisite and migrator add-ons."
 msgstr ""
 
-#: restorer.php:736
-#: admin.php:1006
+#: restorer.php:758
+#: admin.php:1008
 msgid "Site information:"
 msgstr ""
 
-#: restorer.php:844
+#: restorer.php:870
 #, php-format
 msgid "Requested table engine (%s) is not present - changing to MyISAM."
 msgstr ""
 
-#: restorer.php:855
+#: restorer.php:881
 #, php-format
 msgid "Restoring table (%s)"
 msgstr ""
 
-#: restorer.php:858
+#: restorer.php:884
 msgid "will restore as:"
 msgstr ""
 
-#: restorer.php:884
+#: restorer.php:910
 #, php-format
 msgid "Finished: lines processed: %d in %.2f seconds"
 msgstr ""
 
-#: restorer.php:906
+#: restorer.php:932
 #, php-format
 msgid "Cannot create new tables, so skipping this command (%s)"
 msgstr ""
 
-#: restorer.php:911
+#: restorer.php:937
 #, php-format
 msgid "Cannot drop tables, so deleting instead (%s)"
 msgstr ""
 
-#: restorer.php:927
+#: restorer.php:953
 #, php-format
 msgid "An error (%s) occured:"
 msgstr ""
 
-#: restorer.php:927
+#: restorer.php:953
 msgid "the database query being run was:"
 msgstr ""
 
-#: restorer.php:930
+#: restorer.php:956
 msgid "An error occured on the first CREATE TABLE command - aborting run"
 msgstr ""
 
-#: restorer.php:933
+#: restorer.php:959
 msgid "Too many database errors have occurred - aborting restoration (you will need to restore manually)"
 msgstr ""
 
-#: restorer.php:941
+#: restorer.php:967
 #, php-format
 msgid "Database lines processed: %d in %.2f seconds"
 msgstr ""
 
-#: restorer.php:985
-#: restorer.php:1006
+#: restorer.php:1011
+#: restorer.php:1035
 #, php-format
 msgid "Table prefix has changed: changing %s table field(s) accordingly:"
 msgstr ""
 
-#: restorer.php:987
-#: restorer.php:1030
-#: admin.php:805
-#: admin.php:2831
+#: restorer.php:1013
+#: restorer.php:1027
+#: restorer.php:1059
+#: admin.php:807
+#: admin.php:2849
 msgid "Error"
 msgstr ""
 
-#: restorer.php:989
-#: restorer.php:1032
-#: admin.php:1931
-#: admin.php:1955
-#: admin.php:2833
-#: admin.php:2846
+#: restorer.php:1015
+#: restorer.php:1061
+#: admin.php:1933
+#: admin.php:1957
+#: admin.php:2851
+#: admin.php:2864
 msgid "OK"
 msgstr ""
 
-#: restorer.php:999
+#: restorer.php:1025
 #, php-format
 msgid "Uploads path (%s) does not exist - resetting (%s)"
 msgstr ""
 
 #: admin.php:80
-msgid "Rescanning (looking for backups that you have uploaded manually into the internal backup store)..."
+msgid "Send a report only when there are warnings/errors"
 msgstr ""
 
 #: admin.php:81
-msgid "If you exclude both the database and the files, then you have excluded everything!"
+msgid "Send entire backup to this address"
 msgstr ""
 
 #: admin.php:82
-msgid "The restore operation has begun. Do not press stop or close your browser until it reports itself as having finished."
+msgid "Rescanning (looking for backups that you have uploaded manually into the internal backup store)..."
 msgstr ""
 
 #: admin.php:83
-msgid "Unexpected response:"
+msgid "If you exclude both the database and the files, then you have excluded everything!"
 msgstr ""
 
 #: admin.php:84
-msgid "The web server returned an error code (try again, or check your web server logs)"
+msgid "The restore operation has begun. Do not press stop or close your browser until it reports itself as having finished."
 msgstr ""
 
 #: admin.php:85
-msgid "calculating..."
+msgid "Unexpected response:"
 msgstr ""
 
 #: admin.php:86
-msgid "Begun looking for this entity"
+msgid "The web server returned an error code (try again, or check your web server logs)"
 msgstr ""
 
 #: admin.php:87
-msgid "Some files are still downloading or being processed - please wait."
+msgid "calculating..."
 msgstr ""
 
 #: admin.php:88
-msgid "Processing files - please wait..."
+msgid "Begun looking for this entity"
 msgstr ""
 
 #: admin.php:89
-msgid "Error: the server sent an empty response."
+msgid "Some files are still downloading or being processed - please wait."
 msgstr ""
 
 #: admin.php:90
-msgid "Warnings:"
+msgid "Processing files - please wait..."
 msgstr ""
 
 #: admin.php:91
-msgid "Errors:"
+msgid "Error: the server sent an empty response."
 msgstr ""
 
 #: admin.php:92
-msgid "Error: the server sent us a response (JSON) which we did not understand."
+msgid "Warnings:"
+msgstr ""
+
+#: admin.php:93
+msgid "Errors:"
 msgstr ""
 
 #: admin.php:94
-#: admin.php:862
-msgid "File ready."
-msgstr ""
-
-#: admin.php:95
-msgid "You should:"
+msgid "Error: the server sent us a response (JSON) which we did not understand."
 msgstr ""
 
 #: admin.php:96
-msgid "Delete from your web server"
+#: admin.php:864
+msgid "File ready."
 msgstr ""
 
 #: admin.php:97
-msgid "Download to your computer"
+msgid "You should:"
 msgstr ""
 
 #: admin.php:98
-msgid "and then, if you wish,"
+msgid "Delete from your web server"
 msgstr ""
 
 #: admin.php:99
-msgid "Download error: the server sent us a response which we did not understand."
+msgid "Download to your computer"
 msgstr ""
 
 #: admin.php:100
-msgid "Requesting start of backup..."
+msgid "and then, if you wish,"
 msgstr ""
 
 #: admin.php:101
-msgid "PHP information"
+msgid "Download error: the server sent us a response which we did not understand."
 msgstr ""
 
 #: admin.php:102
-msgid "Raw backup history"
+msgid "Requesting start of backup..."
 msgstr ""
 
 #: admin.php:103
-msgid "This file does not appear to be an UpdraftPlus backup archive (such files are .zip or .gz files which have a name like: backup_(time)_(site name)_(code)_(type).(zip|gz)). However, UpdraftPlus archives are standard zip/SQL files - so if you are sure that your file has the right format, then you can rename it to match that pattern."
+msgid "PHP information"
 msgstr ""
 
 #: admin.php:104
-msgid "(make sure that you were trying to upload a zip file previously created by UpdraftPlus)"
+msgid "Raw backup history"
 msgstr ""
 
 #: admin.php:105
-msgid "Upload error:"
+msgid "This file does not appear to be an UpdraftPlus backup archive (such files are .zip or .gz files which have a name like: backup_(time)_(site name)_(code)_(type).(zip|gz)). However, UpdraftPlus archives are standard zip/SQL files - so if you are sure that your file has the right format, then you can rename it to match that pattern."
 msgstr ""
 
 #: admin.php:106
-msgid "This file does not appear to be an UpdraftPlus encrypted database archive (such files are .gz.crypt files which have a name like: backup_(time)_(site name)_(code)_db.crypt.gz)."
+msgid "(make sure that you were trying to upload a zip file previously created by UpdraftPlus)"
 msgstr ""
 
 #: admin.php:107
-msgid "Upload error"
+msgid "Upload error:"
 msgstr ""
 
 #: admin.php:108
-msgid "Follow this link to attempt decryption and download the database file to your computer."
+msgid "This file does not appear to be an UpdraftPlus encrypted database archive (such files are .gz.crypt files which have a name like: backup_(time)_(site name)_(code)_db.crypt.gz)."
 msgstr ""
 
 #: admin.php:109
-msgid "This decryption key will be attempted:"
+msgid "Upload error"
 msgstr ""
 
 #: admin.php:110
-msgid "Unknown server response:"
+msgid "Follow this link to attempt decryption and download the database file to your computer."
 msgstr ""
 
 #: admin.php:111
-msgid "Unknown server response status:"
+msgid "This decryption key will be attempted:"
 msgstr ""
 
 #: admin.php:112
-msgid "The file was uploaded."
+msgid "Unknown server response:"
 msgstr ""
 
 #: admin.php:113
-#: admin.php:1444
-msgid "Backup Now"
+msgid "Unknown server response status:"
 msgstr ""
 
 #: admin.php:114
-msgid "Cancel"
+msgid "The file was uploaded."
 msgstr ""
 
 #: admin.php:115
-#: admin.php:1925
-#: admin.php:1950
-msgid "Delete"
+#: admin.php:1446
+msgid "Backup Now"
 msgstr ""
 
 #: admin.php:116
-msgid "Close"
+msgid "Cancel"
 msgstr ""
 
 #: admin.php:117
-#: admin.php:1451
-#: admin.php:2623
+#: admin.php:1927
+#: admin.php:1952
+msgid "Delete"
+msgstr ""
+
+#: admin.php:118
+msgid "Close"
+msgstr ""
+
+#: admin.php:119
+#: admin.php:1453
+#: admin.php:2641
 msgid "Restore"
 msgstr ""
 
-#: admin.php:133
-#: admin.php:283
+#: admin.php:135
+#: admin.php:285
 #, php-format
 msgid "Dismiss (for %s weeks)"
 msgstr ""
 
-#: admin.php:134
-#: admin.php:284
+#: admin.php:136
+#: admin.php:286
 msgid "Be safe with an automatic backup"
 msgstr ""
 
-#: admin.php:135
-#: admin.php:285
+#: admin.php:137
+#: admin.php:287
 msgid "UpdraftPlus Premium can  <strong>automatically</strong> take a backup of your plugins or themes and database before you update."
 msgstr ""
 
-#: admin.php:135
-#: admin.php:285
+#: admin.php:137
+#: admin.php:287
 msgid "Be safe every time, without needing to remember - follow this link to learn more."
 msgstr ""
 
-#: admin.php:164
-#: admin.php:186
+#: admin.php:166
+#: admin.php:188
 msgid "Allowed Files"
 msgstr ""
 
-#: admin.php:249
+#: admin.php:251
 msgid "Settings"
 msgstr ""
 
-#: admin.php:253
+#: admin.php:255
 msgid "Add-Ons / Pro Support"
 msgstr ""
 
-#: admin.php:270
+#: admin.php:272
 msgid "Update Plugin"
 msgstr ""
 
-#: admin.php:274
+#: admin.php:276
 msgid "Update Theme"
 msgstr ""
 
-#: admin.php:296
-#: admin.php:300
-#: admin.php:304
-#: admin.php:308
-#: admin.php:312
-#: admin.php:321
-#: admin.php:1495
-#: admin.php:2416
-#: admin.php:2423
-#: admin.php:2425
+#: admin.php:298
+#: admin.php:302
+#: admin.php:306
+#: admin.php:310
+#: admin.php:314
+#: admin.php:323
+#: admin.php:1497
+#: admin.php:2434
+#: admin.php:2441
+#: admin.php:2443
 msgid "Warning"
 msgstr ""
 
-#: admin.php:300
+#: admin.php:302
 msgid "The scheduler is disabled in your WordPress install, via the DISABLE_WP_CRON setting. No backups can run (even &quot;Backup Now&quot;) unless either you have set up a facility to call the scheduler manually, or until it is enabled."
 msgstr ""
 
-#: admin.php:300
-#: admin.php:1343
+#: admin.php:302
+#: admin.php:1345
 msgid "Go here for more information."
 msgstr ""
 
-#: admin.php:304
+#: admin.php:306
 #, php-format
 msgid "You have less than %s of free disk space on the disk which UpdraftPlus is configured to use to create backups. UpdraftPlus could well run out of space. Contact your the operator of your server (e.g. your web hosting company) to resolve this issue."
 msgstr ""
 
-#: admin.php:308
+#: admin.php:310
 #, php-format
 msgid "UpdraftPlus does not officially support versions of WordPress before %s. It may work for you, but if it does not, then please be aware that no support is available until you upgrade WordPress."
 msgstr ""
 
-#: admin.php:312
+#: admin.php:314
 #, php-format
 msgid "Your website is hosted using the %s web server."
 msgstr ""
 
-#: admin.php:312
+#: admin.php:314
 msgid "Please consult this FAQ if you have problems backing up."
 msgstr ""
 
-#: admin.php:316
+#: admin.php:318
 msgid "Notice"
 msgstr ""
 
-#: admin.php:316
+#: admin.php:318
 msgid "UpdraftPlus's debug mode is on. You may see debugging notices on this page not just from UpdraftPlus, but from any other plugin installed. Please try to make sure that the notice you are seeing is from UpdraftPlus before you raise a support request."
 msgstr ""
 
-#: admin.php:321
+#: admin.php:323
 msgid "W3 Total Cache's object cache is active. This is known to have a bug that messes with all scheduled tasks (including backup jobs)."
 msgstr ""
 
-#: admin.php:321
+#: admin.php:323
 msgid "Go here to turn it off."
 msgstr ""
 
-#: admin.php:321
+#: admin.php:323
 #, php-format
 msgid "<a href=\"%s\">Go here</a> for more information."
 msgstr ""
 
-#: admin.php:325
-#: admin.php:329
+#: admin.php:327
+#: admin.php:331
 #, php-format
 msgid "Click here to authenticate your %s account (you will not be able to back up to %s without it)."
 msgstr ""
 
-#: admin.php:496
+#: admin.php:498
 #, php-format
 msgid "The backup archive for this file could not be found. The remote storage method in use (%s) does not allow us to retrieve files. To perform any restoration using UpdraftPlus, you will need to obtain a copy of this file and place it inside UpdraftPlus's working folder"
 msgstr ""
 
-#: admin.php:510
-#: admin.php:536
+#: admin.php:512
+#: admin.php:538
 msgid "Nothing yet logged"
 msgstr ""
 
-#: admin.php:549
+#: admin.php:551
 msgid "No such backup set exists"
 msgstr ""
 
-#: admin.php:572
-#: admin.php:1430
-#: admin.php:1593
-#: admin.php:1596
-#: admin.php:2526
-#: admin.php:2528
-#: admin.php:2889
+#: admin.php:574
+#: admin.php:1432
+#: admin.php:1595
+#: admin.php:1598
+#: admin.php:2544
+#: admin.php:2546
+#: admin.php:2907
 msgid "Database"
-msgstr ""
-
-#: admin.php:587
-#, php-format
-msgid "File not found (you need to upload it): %s"
 msgstr ""
 
 #: admin.php:589
 #, php-format
+msgid "File not found (you need to upload it): %s"
+msgstr ""
+
+#: admin.php:591
+#, php-format
 msgid "File was found, but is zero-sized (you need to re-upload it): %s"
 msgstr ""
 
-#: admin.php:593
+#: admin.php:595
 #, php-format
 msgid "File (%s) was found, but has a different size (%s) from what was expected (%s) - it may be corrupt."
 msgstr ""
 
-#: admin.php:607
+#: admin.php:609
 #, php-format
 msgid "This multi-archive backup set appears to have the following archives missing: %s"
 msgstr ""
 
-#: admin.php:612
+#: admin.php:614
 msgid "The backup archive files have been successfully processed. Now press Restore again to proceed."
 msgstr ""
 
-#: admin.php:614
+#: admin.php:616
 msgid "The backup archive files have been processed, but with some warnings. If all is well, then now press Restore again to proceed. Otherwise, cancel and correct any problems first."
 msgstr ""
 
-#: admin.php:616
+#: admin.php:618
 msgid "The backup archive files have been processed, but with some errors. You will need to cancel and correct any problems before retrying."
 msgstr ""
 
-#: admin.php:626
+#: admin.php:628
 msgid "Backup set not found"
 msgstr ""
 
-#: admin.php:707
+#: admin.php:709
 msgid "The backup set has been removed."
 msgstr ""
 
-#: admin.php:708
+#: admin.php:710
 #, php-format
 msgid "Local archives deleted: %d"
 msgstr ""
 
-#: admin.php:709
+#: admin.php:711
 #, php-format
 msgid "Remote archives deleted: %d"
 msgstr ""
 
-#: admin.php:717
+#: admin.php:719
 msgid "Known backups (raw)"
 msgstr ""
 
-#: admin.php:745
+#: admin.php:747
 msgid "Options (raw)"
 msgstr ""
 
-#: admin.php:758
-#: admin.php:813
-#: admin.php:1477
+#: admin.php:760
+#: admin.php:815
+#: admin.php:1479
 #, php-format
 msgid "%d set(s) available"
 msgstr ""
 
-#: admin.php:765
+#: admin.php:767
 msgid "Schedule backup"
 msgstr ""
 
-#: admin.php:769
+#: admin.php:771
 msgid "Failed."
 msgstr ""
 
-#: admin.php:771
+#: admin.php:773
 msgid "OK. You should soon see activity in the \"Last log message\" field below."
 msgstr ""
 
-#: admin.php:771
+#: admin.php:773
 msgid "Nothing happening? Follow this link for help."
 msgstr ""
 
-#: admin.php:787
+#: admin.php:789
 msgid "Job deleted"
 msgstr ""
 
-#: admin.php:794
+#: admin.php:796
 msgid "Could not find that job - perhaps it has already finished?"
 msgstr ""
 
-#: admin.php:844
+#: admin.php:846
 msgid "Download failed"
 msgstr ""
 
-#: admin.php:870
+#: admin.php:872
 msgid "Download in progress"
 msgstr ""
 
-#: admin.php:873
+#: admin.php:875
 msgid "No local copy present."
 msgstr ""
 
-#: admin.php:913
+#: admin.php:915
 msgid "Failed to write out the decrypted database to the filesystem."
 msgstr ""
 
-#: admin.php:925
+#: admin.php:927
 #, php-format
 msgid "The database is too small to be a valid WordPress database (size: %s Kb)."
 msgstr ""
 
-#: admin.php:931
+#: admin.php:933
 msgid "Failed to open database file."
 msgstr ""
 
-#: admin.php:966
-#: admin.php:974
-#: admin.php:1894
-#: admin.php:2047
+#: admin.php:968
+#: admin.php:976
+#: admin.php:1896
+#: admin.php:2049
 #, php-format
 msgid "Warning: %s"
 msgstr ""
 
-#: admin.php:966
-#: admin.php:974
+#: admin.php:968
+#: admin.php:976
 msgid "This backup set is from a different site - this is not a restoration, but a migration. You need the Migrator add-on in order to make this work."
 msgstr ""
 
-#: admin.php:980
+#: admin.php:982
 #, php-format
 msgid "%s version: %s"
 msgstr ""
 
-#: admin.php:981
+#: admin.php:983
 #, php-format
 msgid "You are importing from a newer version of WordPress (%s) into an older one (%s). There are no guarantees that WordPress can handle this."
 msgstr ""
 
-#: admin.php:1055
+#: admin.php:1057
 #, php-format
 msgid "This database backup is missing core WordPress tables: %s"
 msgstr ""
 
-#: admin.php:1058
+#: admin.php:1060
 msgid "UpdraftPlus was unable to find the table prefix when scanning the database backup."
 msgstr ""
 
-#: admin.php:1149
+#: admin.php:1151
 msgid "Bad filename format - this does not look like a file created by UpdraftPlus"
 msgstr ""
 
-#: admin.php:1156
+#: admin.php:1158
 #, php-format
 msgid "This looks like a file created by UpdraftPlus, but this install does not know about this type of object: %s. Perhaps you need to install an add-on?"
 msgstr ""
 
-#: admin.php:1236
+#: admin.php:1238
 msgid "Bad filename format - this does not look like an encrypted database file created by UpdraftPlus"
 msgstr ""
 
-#: admin.php:1265
+#: admin.php:1267
 msgid "Restore successful!"
 msgstr ""
 
-#: admin.php:1266
-#: admin.php:1292
-#: admin.php:1311
+#: admin.php:1268
+#: admin.php:1294
+#: admin.php:1313
 msgid "Actions"
 msgstr ""
 
-#: admin.php:1266
-#: admin.php:1271
-#: admin.php:1292
-#: admin.php:1311
+#: admin.php:1268
+#: admin.php:1273
+#: admin.php:1294
+#: admin.php:1313
 msgid "Return to UpdraftPlus Configuration"
 msgstr ""
 
-#: admin.php:1281
+#: admin.php:1283
 msgid "Remove old directories"
 msgstr ""
 
-#: admin.php:1287
+#: admin.php:1289
 msgid "Old directories successfully removed."
 msgstr ""
 
-#: admin.php:1290
+#: admin.php:1292
 msgid "Old directory removal failed for some reason. You may want to do this manually."
 msgstr ""
 
-#: admin.php:1302
+#: admin.php:1304
 msgid "Backup directory could not be created"
 msgstr ""
 
-#: admin.php:1309
+#: admin.php:1311
 msgid "Backup directory successfully created."
 msgstr ""
 
-#: admin.php:1332
+#: admin.php:1334
 msgid "Your settings have been wiped."
 msgstr ""
 
-#: admin.php:1339
+#: admin.php:1341
 msgid "By UpdraftPlus.Com"
 msgstr ""
 
-#: admin.php:1339
+#: admin.php:1341
 msgid "News"
 msgstr ""
 
-#: admin.php:1339
+#: admin.php:1341
 msgid "Premium"
 msgstr ""
 
-#: admin.php:1339
+#: admin.php:1341
 msgid "Support"
 msgstr ""
 
-#: admin.php:1339
+#: admin.php:1341
 msgid "Lead developer's homepage"
 msgstr ""
 
-#: admin.php:1339
+#: admin.php:1341
 msgid "Donate"
 msgstr ""
 
-#: admin.php:1339
+#: admin.php:1341
 msgid "More plugins"
 msgstr ""
 
-#: admin.php:1339
+#: admin.php:1341
 msgid "Version"
 msgstr ""
 
-#: admin.php:1343
+#: admin.php:1345
 msgid "If you can still read these words after the page finishes loading, then there is a JavaScript or jQuery problem in the site."
 msgstr ""
 
-#: admin.php:1349
+#: admin.php:1351
 msgid "Your backup has been restored."
 msgstr ""
 
-#: admin.php:1349
+#: admin.php:1351
 msgid "If your restore included files, then your old (themes, uploads, plugins, whatever) directories have been retained with \"-old\" appended to their name. Remove them when you are satisfied that the backup worked properly."
 msgstr ""
 
-#: admin.php:1355
+#: admin.php:1357
 msgid "Old directories successfully deleted."
 msgstr ""
 
-#: admin.php:1358
+#: admin.php:1360
 msgid "Your PHP memory limit (set by your web hosting company) is very low. UpdraftPlus attempted to raise it but was unsuccessful. This plugin may struggle with a memory limit of less than 64 Mb  - especially if you have very large files uploaded (though on the other hand, many sites will be successful with a 32Mb limit - your experience may vary)."
 msgstr ""
 
-#: admin.php:1358
+#: admin.php:1360
 msgid "Current limit is:"
 msgstr ""
 
-#: admin.php:1362
+#: admin.php:1364
 msgid "Your WordPress install has old directories from its state before you restored/migrated (technical information: these are suffixed with -old). Use this button to delete them (if you have verified that the restoration worked)."
 msgstr ""
 
-#: admin.php:1366
+#: admin.php:1368
 msgid "Delete Old Directories"
 msgstr ""
 
-#: admin.php:1378
+#: admin.php:1380
 msgid "Existing Schedule And Backups"
 msgstr ""
 
-#: admin.php:1383
+#: admin.php:1385
 msgid "JavaScript warning"
 msgstr ""
 
-#: admin.php:1384
+#: admin.php:1386
 msgid "This admin interface uses JavaScript heavily. You either need to activate it within your browser, or to use a JavaScript-capable browser."
 msgstr ""
 
-#: admin.php:1397
-#: admin.php:1410
+#: admin.php:1399
+#: admin.php:1412
 msgid "Nothing currently scheduled"
 msgstr ""
 
-#: admin.php:1402
+#: admin.php:1404
 msgid "At the same time as the files backup"
 msgstr ""
 
-#: admin.php:1424
+#: admin.php:1426
 msgid "All the times shown in this section are using WordPress's configured time zone, which you can set in Settings -> General"
 msgstr ""
 
-#: admin.php:1424
+#: admin.php:1426
 msgid "Next scheduled backups"
 msgstr ""
 
-#: admin.php:1428
+#: admin.php:1430
 msgid "Files"
 msgstr ""
 
-#: admin.php:1432
+#: admin.php:1434
 msgid "Time now"
 msgstr ""
 
-#: admin.php:1437
+#: admin.php:1439
 msgid "Last backup job run:"
 msgstr ""
 
-#: admin.php:1454
+#: admin.php:1456
 msgid "Clone/Migrate"
 msgstr ""
 
-#: admin.php:1463
+#: admin.php:1465
 msgid "Backups in progress:"
 msgstr ""
 
-#: admin.php:1468
+#: admin.php:1470
 msgid "Last log message"
 msgstr ""
 
-#: admin.php:1470
+#: admin.php:1472
 msgid "(Nothing yet logged)"
 msgstr ""
 
-#: admin.php:1471
+#: admin.php:1473
 msgid "Download most recently modified log file"
 msgstr ""
 
-#: admin.php:1476
+#: admin.php:1478
 msgid "Backups, logs & restoring"
 msgstr ""
 
-#: admin.php:1477
+#: admin.php:1479
 msgid "Press to see available backups"
 msgstr ""
 
-#: admin.php:1483
+#: admin.php:1485
 msgid "Latest UpdraftPlus.com news:"
 msgstr ""
 
-#: admin.php:1493
+#: admin.php:1495
 msgid "Downloading and restoring"
 msgstr ""
 
-#: admin.php:1495
+#: admin.php:1497
 msgid "Your WordPress installation has a problem with outputting extra whitespace. This can corrupt backups that you download from here."
 msgstr ""
 
-#: admin.php:1495
+#: admin.php:1497
 msgid "Please consult this FAQ for help on what to do about it."
 msgstr ""
 
-#: admin.php:1498
+#: admin.php:1500
 msgid "Downloading"
 msgstr ""
 
-#: admin.php:1498
+#: admin.php:1500
 msgid "Pressing a button for Database/Plugins/Themes/Uploads/Others will make UpdraftPlus try to bring the backup file back from the remote storage (if any - e.g. Amazon S3, Dropbox, Google Drive, FTP) to your webserver. Then you will be allowed to download it to your computer. If the fetch from the remote storage stops progressing (wait 30 seconds to make sure), then press again to resume. Remember that you can also visit the cloud storage vendor's website directly."
 msgstr ""
 
-#: admin.php:1499
+#: admin.php:1501
 msgid "Restoring:"
 msgstr ""
 
-#: admin.php:1499
+#: admin.php:1501
 msgid "Press the Restore button next to the chosen backup set."
 msgstr ""
 
-#: admin.php:1499
+#: admin.php:1501
 msgid "More tasks:"
 msgstr ""
 
-#: admin.php:1499
+#: admin.php:1501
 msgid "upload backup files"
 msgstr ""
 
-#: admin.php:1499
+#: admin.php:1501
 msgid "Press here to look inside your UpdraftPlus directory (in your web hosting space) for any new backup sets that you have uploaded. The location of this directory is set in the expert settings, below."
 msgstr ""
 
-#: admin.php:1499
+#: admin.php:1501
 msgid "rescan folder for new backup sets"
 msgstr ""
 
-#: admin.php:1500
+#: admin.php:1502
 msgid "Opera web browser"
 msgstr ""
 
-#: admin.php:1500
+#: admin.php:1502
 msgid "If you are using this, then turn Turbo/Road mode off."
 msgstr ""
 
-#: admin.php:1505
+#: admin.php:1507
 msgid "Google Drive"
 msgstr ""
 
-#: admin.php:1505
+#: admin.php:1507
 msgid "Google changed their permissions setup recently (April 2013). To download or restore from Google Drive, you <strong>must</strong> first re-authenticate (using the link in the Google Drive configuration section)."
 msgstr ""
 
-#: admin.php:1508
+#: admin.php:1510
 msgid "This is a count of the contents of your Updraft directory"
 msgstr ""
 
-#: admin.php:1508
+#: admin.php:1510
 msgid "Web-server disk space in use by UpdraftPlus"
 msgstr ""
 
-#: admin.php:1508
+#: admin.php:1510
 msgid "refresh"
 msgstr ""
 
-#: admin.php:1510
+#: admin.php:1512
 msgid "UpdraftPlus - Upload backup files"
 msgstr ""
 
-#: admin.php:1511
+#: admin.php:1513
 msgid "Upload files into UpdraftPlus. Use this to import backups made on a different WordPress installation."
 msgstr ""
 
-#: admin.php:1511
+#: admin.php:1513
 msgid "Or, you can place them manually into your UpdraftPlus directory (usually wp-content/updraft), e.g. via FTP, and then use the \"rescan\" link above."
 msgstr ""
 
-#: admin.php:1515
+#: admin.php:1517
 msgid "Drop backup files here"
 msgstr ""
 
-#: admin.php:1516
-#: admin.php:2211
+#: admin.php:1518
+#: admin.php:2190
 msgid "or"
 msgstr ""
 
-#: admin.php:1536
+#: admin.php:1538
 msgid "Delete backup set"
 msgstr ""
 
-#: admin.php:1539
+#: admin.php:1541
 msgid "Are you sure that you wish to delete this backup set?"
 msgstr ""
 
-#: admin.php:1547
+#: admin.php:1549
 msgid "Also delete from remote storage"
 msgstr ""
 
-#: admin.php:1548
+#: admin.php:1550
 msgid "Deleting... please allow time for the communications with the remote storage to complete."
 msgstr ""
 
-#: admin.php:1554
+#: admin.php:1556
 msgid "Restore backup"
 msgstr ""
 
-#: admin.php:1555
+#: admin.php:1557
 msgid "Restore backup from"
 msgstr ""
 
-#: admin.php:1559
+#: admin.php:1561
 msgid "Downloading / preparing backup files..."
 msgstr ""
 
-#: admin.php:1567
+#: admin.php:1569
 msgid "Restoring will replace this site's themes, plugins, uploads, database and/or other content directories (according to what is contained in the backup set, and your selection)."
 msgstr ""
 
-#: admin.php:1567
+#: admin.php:1569
 msgid "Choose the components to restore"
 msgstr ""
 
-#: admin.php:1576
+#: admin.php:1578
 msgid "Your web server has PHP's so-called safe_mode active."
 msgstr ""
 
-#: admin.php:1576
+#: admin.php:1578
 msgid "This makes time-outs much more likely. You are recommended to turn safe_mode off, or to restore only one entity at a time, <a href=\"http://updraftplus.com/faqs/i-want-to-restore-but-have-either-cannot-or-have-failed-to-do-so-from-the-wp-admin-console/\">or to restore manually</a>."
 msgstr ""
 
-#: admin.php:1589
+#: admin.php:1591
 #, php-format
 msgid "The following entity cannot be restored automatically: \"%s\"."
 msgstr ""
 
-#: admin.php:1589
+#: admin.php:1591
 msgid "You will need to restore it manually."
 msgstr ""
 
-#: admin.php:1596
+#: admin.php:1598
 #, php-format
 msgid "%s restoration options:"
 msgstr ""
 
-#: admin.php:1604
+#: admin.php:1606
 msgid "You can search and replace your database (for migrating a website to a new location/URL) with the Migrator add-on - follow this link for more information"
 msgstr ""
 
-#: admin.php:1615
+#: admin.php:1617
 msgid "Do read this helpful article of useful things to know before restoring."
 msgstr ""
 
-#: admin.php:1620
+#: admin.php:1622
 msgid "Migrate Site"
 msgstr ""
 
-#: admin.php:1624
+#: admin.php:1626
 msgid "Migration of data from another site happens through the \"Restore\" button. A \"migration\" is ultimately the same as a restoration - but using backup archives that you import from another site. UpdraftPlus modifies the restoration operation appropriately, to fit the backup data to the new site."
 msgstr ""
 
-#: admin.php:1624
+#: admin.php:1626
 #, php-format
 msgid "<a href=\"%s\">Read this article to see step-by-step how it's done.</a>"
 msgstr ""
 
-#: admin.php:1626
+#: admin.php:1628
 msgid "Do you want to migrate or clone/duplicate a site?"
 msgstr ""
 
-#: admin.php:1626
+#: admin.php:1628
 msgid "Then, try out our \"Migrator\" add-on. After using it once, you'll have saved the purchase price compared to the time needed to copy a site by hand."
 msgstr ""
 
-#: admin.php:1626
+#: admin.php:1628
 msgid "Get it here."
 msgstr ""
 
-#: admin.php:1637
+#: admin.php:1639
 msgid "Perform a one-time backup"
 msgstr ""
 
-#: admin.php:1638
+#: admin.php:1640
 msgid "To proceed, press 'Backup Now'. Then, watch the 'Last Log Message' field for activity after about 10 seconds. WordPress should start the backup running in the background."
 msgstr ""
 
-#: admin.php:1641
+#: admin.php:1643
 msgid "Don't include the database in the backup"
 msgstr ""
 
-#: admin.php:1642
+#: admin.php:1644
 msgid "Don't include any files in the backup"
 msgstr ""
 
-#: admin.php:1645
+#: admin.php:1647
 msgid "Does nothing happen when you attempt backups?"
 msgstr ""
 
-#: admin.php:1645
+#: admin.php:1647
 msgid "Go here for help."
 msgstr ""
 
-#: admin.php:1651
+#: admin.php:1653
 msgid "Multisite"
 msgstr ""
 
-#: admin.php:1655
+#: admin.php:1657
 msgid "Do you need WordPress Multisite support?"
 msgstr ""
 
-#: admin.php:1655
+#: admin.php:1657
 msgid "Please check out UpdraftPlus Premium, or the stand-alone Multisite add-on."
 msgstr ""
 
-#: admin.php:1660
+#: admin.php:1662
 msgid "Configure Backup Contents And Schedule"
 msgstr ""
 
-#: admin.php:1666
+#: admin.php:1668
 msgid "Debug Information And Expert Options"
 msgstr ""
 
-#: admin.php:1669
+#: admin.php:1671
 msgid "Web server:"
 msgstr ""
 
-#: admin.php:1672
+#: admin.php:1674
 msgid "Peak memory usage"
 msgstr ""
 
-#: admin.php:1673
+#: admin.php:1675
 msgid "Current memory usage"
 msgstr ""
 
-#: admin.php:1674
+#: admin.php:1676
 msgid "PHP memory limit"
 msgstr ""
 
-#: admin.php:1675
 #: admin.php:1677
+#: admin.php:1679
 #, php-format
 msgid "%s version:"
 msgstr ""
 
-#: admin.php:1676
+#: admin.php:1678
 msgid "show PHP information (phpinfo)"
 msgstr ""
 
-#: admin.php:1680
 #: admin.php:1682
-#: admin.php:1689
+#: admin.php:1684
+#: admin.php:1691
 msgid "Yes"
 msgstr ""
 
-#: admin.php:1682
-#: admin.php:1689
+#: admin.php:1684
+#: admin.php:1691
 msgid "No"
 msgstr ""
 
-#: admin.php:1685
+#: admin.php:1687
 msgid "PHP has support for ZipArchive::addFile:"
 msgstr ""
 
-#: admin.php:1689
+#: admin.php:1691
 msgid "zip executable found:"
 msgstr ""
 
-#: admin.php:1694
+#: admin.php:1696
 #, php-format
 msgid "Free disk space in account: %s (%s used)"
 msgstr ""
 
-#: admin.php:1697
+#: admin.php:1699
 msgid "Show raw backup and file list"
 msgstr ""
 
-#: admin.php:1699
+#: admin.php:1701
 msgid "Total (uncompressed) on-disk data:"
 msgstr ""
 
-#: admin.php:1700
+#: admin.php:1702
 msgid "N.B. This count is based upon what was, or was not, excluded the last time you saved the options."
 msgstr ""
 
-#: admin.php:1707
+#: admin.php:1709
 msgid "count"
 msgstr ""
 
-#: admin.php:1713
+#: admin.php:1715
 msgid "The buttons below will immediately execute a backup run, independently of WordPress's scheduler. If these work whilst your scheduled backups and the \"Backup Now\" button do absolutely nothing (i.e. not even produce a log file), then it means that your scheduler is broken. You should then disable all your other plugins, and try the \"Backup Now\" button. If that fails, then contact your web hosting company and ask them if they have disabled wp-cron. If it succeeds, then re-activate your other plugins one-by-one, and find the one that is the problem and report a bug to them."
 msgstr ""
 
-#: admin.php:1721
+#: admin.php:1723
 msgid "Debug Full Backup"
 msgstr ""
 
-#: admin.php:1721
+#: admin.php:1723
 msgid "This will cause an immediate backup. The page will stall loading until it finishes (ie, unscheduled)."
 msgstr ""
 
-#: admin.php:1726
+#: admin.php:1728
 msgid "Debug Database Backup"
 msgstr ""
 
-#: admin.php:1726
+#: admin.php:1728
 msgid "This will cause an immediate DB backup. The page will stall loading until it finishes (ie, unscheduled). The backup may well run out of time; really this button is only helpful for checking that the backup is able to get through the initial stages, or for small WordPress sites.."
 msgstr ""
 
-#: admin.php:1732
+#: admin.php:1734
 msgid "Wipe Settings"
 msgstr ""
 
-#: admin.php:1733
+#: admin.php:1735
 msgid "This button will delete all UpdraftPlus settings (but not any of your existing backups from your cloud storage). You will then need to enter all your settings again. You can also do this before deactivating/deinstalling UpdraftPlus if you wish."
 msgstr ""
 
-#: admin.php:1736
+#: admin.php:1738
 msgid "Wipe All Settings"
 msgstr ""
 
-#: admin.php:1736
+#: admin.php:1738
 msgid "This will delete all your UpdraftPlus settings - are you sure you want to do this?"
 msgstr ""
 
-#: admin.php:1785
+#: admin.php:1787
 msgid "Backup begun"
 msgstr ""
 
-#: admin.php:1790
+#: admin.php:1792
 msgid "Creating file backup zips"
 msgstr ""
 
-#: admin.php:1803
+#: admin.php:1805
 msgid "Created file backup zips"
 msgstr ""
 
-#: admin.php:1808
+#: admin.php:1810
 msgid "Creating database backup"
 msgstr ""
 
-#: admin.php:1810
+#: admin.php:1812
 #, php-format
 msgid "table: %s"
 msgstr ""
 
-#: admin.php:1818
+#: admin.php:1820
 msgid "Created database backup"
 msgstr ""
 
-#: admin.php:1823
+#: admin.php:1825
 msgid "Encrypting database"
 msgstr ""
 
-#: admin.php:1827
+#: admin.php:1829
 msgid "Encrypted database"
 msgstr ""
 
-#: admin.php:1832
+#: admin.php:1834
 msgid "Uploading files to remote storage"
 msgstr ""
 
-#: admin.php:1839
+#: admin.php:1841
 #, php-format
 msgid "(%s%%, file %s of %s)"
 msgstr ""
 
-#: admin.php:1844
+#: admin.php:1846
 msgid "Pruning old backup sets"
 msgstr ""
 
-#: admin.php:1848
+#: admin.php:1850
 msgid "Waiting until scheduled time to retry because of errors"
 msgstr ""
 
-#: admin.php:1853
+#: admin.php:1855
 msgid "Backup finished"
 msgstr ""
 
-#: admin.php:1856
+#: admin.php:1858
 msgid "Unknown"
 msgstr ""
 
-#: admin.php:1872
+#: admin.php:1874
 #, php-format
 msgid "next resumption: %d (after %ss)"
 msgstr ""
 
-#: admin.php:1873
+#: admin.php:1875
 #, php-format
 msgid "last activity: %ss ago"
 msgstr ""
 
-#: admin.php:1883
+#: admin.php:1885
 #, php-format
 msgid "Job ID: %s"
 msgstr ""
 
-#: admin.php:1887
+#: admin.php:1889
 msgid "show log"
 msgstr ""
 
-#: admin.php:1889
+#: admin.php:1891
 msgid "Note: the progress bar below is based on stages, NOT time. Do not stop the backup simply because it seems to have remained in the same place for a while - that is normal."
 msgstr ""
 
-#: admin.php:1889
+#: admin.php:1891
 msgid "delete schedule"
 msgstr ""
 
-#: admin.php:1928
-#: admin.php:1953
+#: admin.php:1930
+#: admin.php:1955
 msgid "Failed"
 msgstr ""
 
-#: admin.php:1991
+#: admin.php:1993
 msgid "The request to the filesystem to create the directory failed."
 msgstr ""
 
-#: admin.php:2005
+#: admin.php:2007
 msgid "The folder was created, but we had to change its file permissions to 777 (world-writable) to be able to write to it. You should check with your hosting provider that this will not cause any problems"
 msgstr ""
 
-#: admin.php:2009
+#: admin.php:2011
 msgid "The folder exists, but your webserver does not have permission to write to it."
 msgstr ""
 
-#: admin.php:2009
+#: admin.php:2011
 msgid "You will need to consult with your web hosting provider to find out to set permissions for a WordPress plugin to write to the directory."
 msgstr ""
 
-#: admin.php:2063
+#: admin.php:2065
 msgid "Download log file"
 msgstr ""
 
-#: admin.php:2067
+#: admin.php:2069
 msgid "No backup has been completed."
 msgstr ""
 
-#: admin.php:2083
+#: admin.php:2085
 msgid "File backup intervals"
 msgstr ""
 
-#: admin.php:2086
+#: admin.php:2088
 msgid "Manual"
 msgstr ""
 
-#: admin.php:2086
+#: admin.php:2088
 msgid "Every 4 hours"
 msgstr ""
 
-#: admin.php:2086
+#: admin.php:2088
 msgid "Every 8 hours"
 msgstr ""
 
-#: admin.php:2086
+#: admin.php:2088
 msgid "Every 12 hours"
 msgstr ""
 
-#: admin.php:2086
+#: admin.php:2088
 msgid "Daily"
 msgstr ""
 
-#: admin.php:2086
+#: admin.php:2088
 msgid "Weekly"
 msgstr ""
 
-#: admin.php:2086
+#: admin.php:2088
 msgid "Fortnightly"
 msgstr ""
 
-#: admin.php:2086
+#: admin.php:2088
 msgid "Monthly"
 msgstr ""
 
-#: admin.php:2095
-#: admin.php:2113
+#: admin.php:2097
+#: admin.php:2115
 msgid "and retain this many backups"
 msgstr ""
 
-#: admin.php:2102
+#: admin.php:2104
 msgid "Database backup intervals"
 msgstr ""
 
-#: admin.php:2120
+#: admin.php:2122
 msgid "If you would like to automatically schedule backups, choose schedules from the dropdowns above. Backups will occur at the intervals specified. If the two schedules are the same, then the two backups will take place together. If you choose \"manual\" then you must click the \"Backup Now\" button whenever you wish a backup to occur."
 msgstr ""
 
-#: admin.php:2121
+#: admin.php:2123
 msgid "To fix the time at which a backup should take place,"
 msgstr ""
 
-#: admin.php:2121
+#: admin.php:2123
 msgid "e.g. if your server is busy at day and you want to run overnight"
 msgstr ""
 
-#: admin.php:2121
+#: admin.php:2123
 msgid "use the \"Fix Time\" add-on"
 msgstr ""
 
-#: admin.php:2125
+#: admin.php:2127
 msgid "Include in files backup"
 msgstr ""
 
-#: admin.php:2135
+#: admin.php:2137
 #, php-format
 msgid "Your wp-content directory server path: %s"
 msgstr ""
 
-#: admin.php:2135
+#: admin.php:2137
 msgid "Any other directories found inside wp-content"
 msgstr ""
 
-#: admin.php:2141
+#: admin.php:2143
 msgid "Exclude these:"
 msgstr ""
 
-#: admin.php:2143
+#: admin.php:2145
 msgid "If entering multiple files/directories, then separate them with commas. You can use a * at the end of any entry as a wildcard."
 msgstr ""
 
-#: admin.php:2155
+#: admin.php:2157
 msgid "The above directories are everything, except for WordPress core itself which you can download afresh from WordPress.org."
 msgstr ""
 
-#: admin.php:2155
+#: admin.php:2157
 msgid "See also the \"More Files\" add-on from our shop."
 msgstr ""
 
-#: admin.php:2155
+#: admin.php:2157
 msgid "Use WordShell for automatic backup, version control and patching"
 msgstr ""
 
-#: admin.php:2159
-#: udaddons/options.php:95
+#: admin.php:2162
+msgid "Database encryption phrase"
+msgstr ""
+
+#: admin.php:2173
+msgid "If you enter text here, it is used to encrypt backups (Rijndael). <strong>Do make a separate record of it and do not lose it, or all your backups <em>will</em> be useless.</strong> Presently, only the database file is encrypted. This is also the key used to decrypt backups from this admin interface (so if you change it, then automatic decryption will not work until you change it back)."
+msgstr ""
+
+#: admin.php:2173
+msgid "You can also decrypt a database manually here."
+msgstr ""
+
+#: admin.php:2177
+msgid "A future release of UpdraftPlus will move the encryption feature into an add-on, and add the capability to encrypt files also."
+msgstr ""
+
+#: admin.php:2185
+msgid "Manually decrypt a database backup file"
+msgstr ""
+
+#: admin.php:2189
+msgid "Drop encrypted database files (db.gz.crypt files) here to upload them for decryption"
+msgstr ""
+
+#: admin.php:2192
+msgid "Use decryption key"
+msgstr ""
+
+#: admin.php:2208
+msgid "Reporting"
+msgstr ""
+
+#: admin.php:2220
+#: udaddons/options.php:111
 msgid "Email"
 msgstr ""
 
-#: admin.php:2164
+#: admin.php:2225
 msgid "To send to more than one address, separate each address with a comma."
 msgstr ""
 
-#: admin.php:2164
+#: admin.php:2225
 msgid "Enter an address here to have a report sent (and the whole backup, if you choose) to it."
 msgstr ""
 
-#: admin.php:2172
+#: admin.php:2232
 #, php-format
 msgid "With the next release of UpdraftPlus, you will need an add-on to use a different email address to the site owner's (%s)."
 msgstr ""
 
-#: admin.php:2183
-msgid "Database encryption phrase"
-msgstr ""
-
-#: admin.php:2194
-msgid "If you enter text here, it is used to encrypt backups (Rijndael). <strong>Do make a separate record of it and do not lose it, or all your backups <em>will</em> be useless.</strong> Presently, only the database file is encrypted. This is also the key used to decrypt backups from this admin interface (so if you change it, then automatic decryption will not work until you change it back)."
-msgstr ""
-
-#: admin.php:2194
-msgid "You can also decrypt a database manually here."
-msgstr ""
-
-#: admin.php:2198
-msgid "A future release of UpdraftPlus will move the encryption feature into an add-on, and add the capability to encrypt files also."
-msgstr ""
-
-#: admin.php:2206
-msgid "Manually decrypt a database backup file"
-msgstr ""
-
-#: admin.php:2210
-msgid "Drop encrypted database files (db.gz.crypt files) here to upload them for decryption"
-msgstr ""
-
-#: admin.php:2213
-msgid "Use decryption key"
-msgstr ""
-
-#: admin.php:2227
+#: admin.php:2245
 msgid "Copying Your Backup To Remote Storage"
 msgstr ""
 
-#: admin.php:2237
+#: admin.php:2255
 msgid "Choose your remote storage"
 msgstr ""
 
-#: admin.php:2246
+#: admin.php:2264
 msgid "None"
 msgstr ""
 
-#: admin.php:2257
+#: admin.php:2275
 msgid "You can send a backup to more than one destination with an add-on."
 msgstr ""
 
-#: admin.php:2304
+#: admin.php:2322
 msgid "Advanced / Debugging Settings"
 msgstr ""
 
-#: admin.php:2307
+#: admin.php:2325
 msgid "Debug mode"
 msgstr ""
 
-#: admin.php:2308
+#: admin.php:2326
 msgid "Check this to receive more information and emails on the backup process - useful if something is going wrong. You <strong>must</strong> send us this log if you are filing a bug report."
 msgstr ""
 
-#: admin.php:2311
+#: admin.php:2329
 msgid "Expert settings"
 msgstr ""
 
-#: admin.php:2312
+#: admin.php:2330
 msgid "Show expert settings"
 msgstr ""
 
-#: admin.php:2312
+#: admin.php:2330
 msgid "click this to show some further options; don't bother with this unless you have a problem or are curious."
 msgstr ""
 
-#: admin.php:2322
+#: admin.php:2340
 msgid "Split archives every:"
 msgstr ""
 
-#: admin.php:2323
+#: admin.php:2341
 msgid "UpdraftPlus will split up backup archives when they exceed this file size. The default value is 800 megabytes. Be careful to leave some margin if your web-server has a hard size limit (e.g. the 2 Gb / 2048 Mb limit on some 32-bit servers/file systems)."
 msgstr ""
 
-#: admin.php:2327
+#: admin.php:2345
 msgid "Delete local backup"
 msgstr ""
 
-#: admin.php:2328
+#: admin.php:2346
 msgid "Check this to delete any superfluous backup files from your server after the backup run finishes (i.e. if you uncheck, then any files despatched remotely will also remain locally, and any files being kept locally will not be subject to the retention limits)."
 msgstr ""
 
-#: admin.php:2332
+#: admin.php:2350
 msgid "Backup directory"
 msgstr ""
 
-#: admin.php:2339
+#: admin.php:2357
 msgid "Backup directory specified is writable, which is good."
 msgstr ""
 
-#: admin.php:2343
+#: admin.php:2361
 msgid "Backup directory specified does <b>not</b> exist."
 msgstr ""
 
-#: admin.php:2345
+#: admin.php:2363
 msgid "Backup directory specified exists, but is <b>not</b> writable."
 msgstr ""
 
-#: admin.php:2347
+#: admin.php:2365
 msgid "Click here to attempt to create the directory and set the permissions"
 msgstr ""
 
-#: admin.php:2347
+#: admin.php:2365
 msgid "or, to reset this option"
 msgstr ""
 
-#: admin.php:2347
+#: admin.php:2365
 msgid "click here"
 msgstr ""
 
-#: admin.php:2347
+#: admin.php:2365
 msgid "If that is unsuccessful check the permissions on your server or change it to another directory that is writable by your web server process."
 msgstr ""
 
-#: admin.php:2350
+#: admin.php:2368
 msgid "This is where UpdraftPlus will write the zip files it creates initially.  This directory must be writable by your web server. It is relative to your content directory (which by default is called wp-content)."
 msgstr ""
 
-#: admin.php:2350
+#: admin.php:2368
 msgid "<b>Do not</b> place it inside your uploads or plugins directory, as that will cause recursion (backups of backups of backups of...)."
 msgstr ""
 
-#: admin.php:2354
+#: admin.php:2372
 msgid "Use the server's SSL certificates"
 msgstr ""
 
-#: admin.php:2355
+#: admin.php:2373
 msgid "By default UpdraftPlus uses its own store of SSL certificates to verify the identity of remote sites (i.e. to make sure it is talking to the real Dropbox, Amazon S3, etc., and not an attacker). We keep these up to date. However, if you get an SSL error, then choosing this option (which causes UpdraftPlus to use your web server's collection instead) may help."
 msgstr ""
 
-#: admin.php:2359
+#: admin.php:2377
 msgid "Do not verify SSL certificates"
 msgstr ""
 
-#: admin.php:2360
+#: admin.php:2378
 msgid "Choosing this option lowers your security by stopping UpdraftPlus from verifying the identity of encrypted sites that it connects to (e.g. Dropbox, Google Drive). It means that UpdraftPlus will be using SSL only for encryption of traffic, and not for authentication."
 msgstr ""
 
-#: admin.php:2360
+#: admin.php:2378
 msgid "Note that not all cloud backup methods are necessarily using SSL authentication."
 msgstr ""
 
-#: admin.php:2364
+#: admin.php:2382
 msgid "Disable SSL entirely where possible"
 msgstr ""
 
-#: admin.php:2365
+#: admin.php:2383
 msgid "Choosing this option lowers your security by stopping UpdraftPlus from using SSL for authentication and encrypted transport at all, where possible. Note that some cloud storage providers do not allow this (e.g. Dropbox), so with those providers this setting will have no effect."
 msgstr ""
 
-#: admin.php:2389
+#: admin.php:2407
 msgid "Save Changes"
 msgstr ""
 
-#: admin.php:2416
+#: admin.php:2434
 #, php-format
 msgid "Your web server's PHP installation does not included a <strong>required</strong> (for %s) module (%s). Please contact your web hosting provider's support and ask for them to enable it."
 msgstr ""
 
-#: admin.php:2416
+#: admin.php:2434
 #, php-format
 msgid "Your options are 1) Install/enable %s or 2) Change web hosting companies - %s is a standard PHP component, and required by all cloud backup plugins that we know of."
 msgstr ""
 
-#: admin.php:2423
+#: admin.php:2441
 #, php-format
 msgid "Your web server's PHP/Curl installation does not support https access. Communications with %s will be unencrypted. ask your web host to install Curl/SSL in order to gain the ability for encryption (via an add-on)."
 msgstr ""
 
-#: admin.php:2425
+#: admin.php:2443
 #, php-format
 msgid "Your web server's PHP/Curl installation does not support https access. We cannot access %s without this support. Please contact your web hosting provider's support. %s <strong>requires</strong> Curl+https. Please do not file any support requests; there is no alternative."
 msgstr ""
 
-#: admin.php:2428
+#: admin.php:2446
 #, php-format
 msgid "Good news: Your site's communications with %s can be encrypted. If you see any errors to do with encryption, then look in the 'Expert Settings' for more help."
 msgstr ""
 
-#: admin.php:2511
+#: admin.php:2529
 msgid "Delete this backup set"
 msgstr ""
 
-#: admin.php:2520
+#: admin.php:2538
 msgid "If you are seeing more backups than you expect, then it is probably because the deletion of old backup sets does not happen until a fresh backup completes."
 msgstr ""
 
-#: admin.php:2520
+#: admin.php:2538
 msgid "(Not finished)"
 msgstr ""
 
-#: admin.php:2539
-#: admin.php:2594
+#: admin.php:2557
+#: admin.php:2612
 #, php-format
 msgid "(No %s)"
 msgstr ""
 
-#: admin.php:2539
+#: admin.php:2557
 msgid "database"
 msgstr ""
 
-#: admin.php:2566
+#: admin.php:2584
 msgid "Press here to download"
 msgstr ""
 
-#: admin.php:2572
+#: admin.php:2590
 #, php-format
 msgid "(%d archive(s) in set)."
 msgstr ""
 
-#: admin.php:2575
+#: admin.php:2593
 msgid "You appear to be missing one or more archives from this multi-archive set."
 msgstr ""
 
-#: admin.php:2602
+#: admin.php:2620
 msgid "Backup Log"
 msgstr ""
 
-#: admin.php:2623
+#: admin.php:2641
 msgid "After pressing this button, you will be given the option to choose which components you wish to restore"
 msgstr ""
 
-#: admin.php:2714
+#: admin.php:2732
 msgid "This backup does not exist in the backup history - restoration aborted. Timestamp:"
 msgstr ""
 
-#: admin.php:2749
+#: admin.php:2767
 msgid "UpdraftPlus Restoration: Progress"
 msgstr ""
 
-#: admin.php:2776
+#: admin.php:2794
 msgid "ABORT: Could not find the information on which entities to restore."
 msgstr ""
 
-#: admin.php:2777
+#: admin.php:2795
 msgid "If making a request for support, please include this information:"
 msgstr ""
 
-#: admin.php:2799
+#: admin.php:2817
 msgid "Final checks"
 msgstr ""
 
-#: admin.php:2811
+#: admin.php:2829
 msgid "Skipping restoration of WordPress core when importing a single site into a multisite installation. If you had anything necessary in your WordPress directory then you will need to re-add it manually from the zip file."
 msgstr ""
 
-#: admin.php:2822
+#: admin.php:2840
 #, php-format
 msgid "Looking for %s archive: file name: %s"
 msgstr ""
 
-#: admin.php:2827
+#: admin.php:2845
 msgid "File is not locally present - needs retrieving from remote storage"
 msgstr ""
 
-#: admin.php:2843
+#: admin.php:2861
 msgid "Archive is expected to be size:"
 msgstr ""
 
-#: admin.php:2848
+#: admin.php:2866
 msgid "file is size:"
 msgstr ""
 
-#: admin.php:2851
+#: admin.php:2869
 msgid "The backup records do not contain information about the proper size of this file."
 msgstr ""
 
-#: admin.php:2854
-#: admin.php:2855
+#: admin.php:2872
+#: admin.php:2873
 msgid "Could not find one of the files for restoration"
 msgstr ""
 
-#: admin.php:2879
+#: admin.php:2897
 msgid "Will not delete any archives after unpacking them, because there was no cloud storage for this backup"
 msgstr ""
 
-#: admin.php:2898
+#: admin.php:2916
 msgid "Error message"
 msgstr ""
 
-#: udaddons/options.php:56
+#: udaddons/updraftplus-addons.php:437
+msgid "We failed to successfully connect to UpdraftPlus.Com"
+msgstr ""
+
+#: udaddons/updraftplus-addons.php:439
+msgid "UpdraftPlus.Com responded, but we did not understand the response"
+msgstr ""
+
+#: udaddons/updraftplus-addons.php:472
+#, php-format
+msgid "UpdraftPlus.Com returned a response which we could not understand (data: %s)"
+msgstr ""
+
+#: udaddons/updraftplus-addons.php:495
+msgid "Your email address and password were not recognised by UpdraftPlus.Com"
+msgstr ""
+
+#: udaddons/updraftplus-addons.php:500
+msgid "UpdraftPlus.Com returned a response, but we could not understand it"
+msgstr ""
+
+#: udaddons/options.php:68
+msgid "An update is available for UpdraftPlus - please follow this link to get it."
+msgstr ""
+
+#: udaddons/options.php:72
 msgid "You have not yet connected with your UpdraftPlus.Com account, to enable you to list your purchased add-ons."
 msgstr ""
 
-#: udaddons/options.php:56
+#: udaddons/options.php:72
 msgid "Go here to connect."
 msgstr ""
 
-#: udaddons/options.php:62
+#: udaddons/options.php:78
 msgid "UpdraftPlus is not yet activated."
 msgstr ""
 
-#: udaddons/options.php:63
+#: udaddons/options.php:79
 msgid "Go here to activate it."
 msgstr ""
 
-#: udaddons/options.php:66
+#: udaddons/options.php:82
 msgid "UpdraftPlus is not yet installed."
 msgstr ""
 
-#: udaddons/options.php:66
+#: udaddons/options.php:82
 msgid "Go here to begin installing it."
 msgstr ""
 
-#: udaddons/options.php:67
+#: udaddons/options.php:83
 msgid "You do seem to have the obsolete Updraft plugin installed - perhaps you got them confused?"
 msgstr ""
 
-#: udaddons/options.php:73
+#: udaddons/options.php:89
 msgid "Your web server's version of PHP is too old ("
 msgstr ""
 
-#: udaddons/options.php:93
+#: udaddons/options.php:109
 msgid "Connect with your UpdraftPlus.Com account"
 msgstr ""
 
-#: udaddons/options.php:97
+#: udaddons/options.php:113
 msgid "Password"
 msgstr ""
 
-#: udaddons/options.php:118
+#: udaddons/options.php:134
 msgid "Not yet got an account (it's free)? Go get one!"
 msgstr ""
 
-#: udaddons/options.php:128
+#: udaddons/options.php:144
 msgid "Forgotten your details?"
 msgstr ""
 
-#: udaddons/options.php:153
+#: udaddons/options.php:169
 msgid "You do not have permission to access this page."
 msgstr ""
 
-#: udaddons/options.php:174
+#: udaddons/options.php:190
 msgid "You do not have sufficient permissions to access this page."
 msgstr ""
 
-#: udaddons/options.php:201
+#: udaddons/options.php:217
 msgid "Interested in knowing about your UpdraftPlus.Com password security? Read about it here."
 msgstr ""
 
-#: udaddons/options.php:221
+#: udaddons/options.php:237
 msgid "An unknown error occured when trying to connect to UpdraftPlus.Com"
 msgstr ""
 
-#: udaddons/options.php:227
+#: udaddons/options.php:243
 msgid "You are presently <strong>connected</strong> to an UpdraftPlus.Com account."
 msgstr ""
 
-#: udaddons/options.php:228
+#: udaddons/options.php:244
 msgid "If you bought new add-ons, then follow this link to refresh your connection"
 msgstr ""
 
-#: udaddons/options.php:230
+#: udaddons/options.php:246
 msgid "You are presently <strong>not connected</strong> to an UpdraftPlus.Com account."
 msgstr ""
 
-#: udaddons/options.php:236
+#: udaddons/options.php:252
 msgid "Errors occurred when trying to connect to UpdraftPlus.Com:"
 msgstr ""
 
-#: udaddons/options.php:277
+#: udaddons/options.php:293
 msgid "Please wait whilst we make the claim..."
 msgstr ""
 
-#: udaddons/options.php:278
+#: udaddons/options.php:294
 msgid "Claim not granted - perhaps you have already used this purchase somewhere else?"
 msgstr ""
 
-#: udaddons/options.php:279
+#: udaddons/options.php:295
 msgid "Claim not granted - your account login details were wrong"
 msgstr ""
 
-#: udaddons/options.php:280
+#: udaddons/options.php:296
 msgid "An unknown response was received. Response was:"
 msgstr ""
 
-#: udaddons/options.php:321
+#: udaddons/options.php:326
+msgid "UpdraftPlus Addons"
+msgstr ""
+
+#: udaddons/options.php:337
+msgid "An update containing your addons is available for UpdraftPlus - please follow this link to get it."
+msgstr ""
+
+#: udaddons/options.php:363
 msgid "An error occurred when trying to retrieve your add-ons."
 msgstr ""
 
-#: udaddons/options.php:335
+#: udaddons/options.php:379
+msgid "UpdraftPlus Support"
+msgstr ""
+
+#: udaddons/options.php:381
 msgid "Need to get support?"
 msgstr ""
 
-#: udaddons/options.php:335
+#: udaddons/options.php:381
 msgid "Go here"
 msgstr ""
 
-#: udaddons/options.php:360
-msgid "(apparently a pre-release or withdrawn release)"
+#: udaddons/options.php:398
+msgid "You've got it"
 msgstr ""
 
-#: udaddons/options.php:366
-msgid "Available for this site (via your all-addons purchase)"
-msgstr ""
-
-#: udaddons/options.php:366
-msgid "please update the plugin in order to get it"
-msgstr ""
-
-#: udaddons/options.php:369
-msgid "Assigned to this site"
-msgstr ""
-
-#: udaddons/options.php:369
-msgid "please update the plugin in order to activate it"
-msgstr ""
-
-#: udaddons/options.php:375
-msgid "You have an inactive purchase"
-msgstr ""
-
-#: udaddons/options.php:375
-msgid "activate it on this site"
-msgstr ""
-
-#: udaddons/options.php:378
-msgid "Get it from the UpdraftPlus.Com Store"
-msgstr ""
-
-#: udaddons/options.php:379
-msgid "Buy It"
+#: udaddons/options.php:400
+#, php-format
+msgid "Your version: %s"
 msgstr ""
 
 #: udaddons/options.php:402
+#: udaddons/options.php:404
+msgid "latest"
+msgstr ""
+
+#: udaddons/options.php:406
+msgid "(apparently a pre-release or withdrawn release)"
+msgstr ""
+
+#: udaddons/options.php:412
+msgid "Available for this site (via your all-addons purchase)"
+msgstr ""
+
+#: udaddons/options.php:412
+msgid "please follow this link to update the plugin in order to get it"
+msgstr ""
+
+#: udaddons/options.php:415
+msgid "Assigned to this site"
+msgstr ""
+
+#: udaddons/options.php:415
+msgid "please  follow this link to update the plugin in order to activate it"
+msgstr ""
+
+#: udaddons/options.php:422
+msgid "You have an inactive purchase"
+msgstr ""
+
+#: udaddons/options.php:422
+msgid "activate it on this site"
+msgstr ""
+
+#: udaddons/options.php:425
+msgid "Get it from the UpdraftPlus.Com Store"
+msgstr ""
+
+#: udaddons/options.php:425
+msgid "(or connect using the form on this page if you have already purchased it)"
+msgstr ""
+
+#: udaddons/options.php:426
+msgid "Buy It"
+msgstr ""
+
+#: udaddons/options.php:449
 msgid "Manage Addons"
 msgstr ""
 
@@ -2590,7 +2660,7 @@ msgid "Note:"
 msgstr ""
 
 #: methods/email.php:44
-msgid "The email address entered above will be used. If choosing \"E-Mail\", then <strong>be aware</strong> that mail servers tend to have size limits; typically around 10-20Mb; backups larger than any limits will not arrive."
+msgid "The email address entered above will be used. If choosing \"E-Mail\", then <strong>be aware</strong> that mail servers tend to have size limits; typically around 10-20Mb; <strong>backups larger than any limits will not arrive.</strong>"
 msgstr ""
 
 #: methods/s3.php:172
@@ -3108,17 +3178,17 @@ msgid "The time zone used is that from your WordPress settings, in Settings -> G
 msgstr ""
 
 #: addons/autobackup.php:29
-#: addons/autobackup.php:298
+#: addons/autobackup.php:302
 msgid "Automatically backup (where relevant) plugins, themes and the WordPress database with UpdraftPlus before updating"
 msgstr ""
 
 #: addons/autobackup.php:29
-#: addons/autobackup.php:298
+#: addons/autobackup.php:302
 msgid "Remember this choice for next time (you will still have the chance to change it)"
 msgstr ""
 
 #: addons/autobackup.php:29
-#: addons/autobackup.php:298
+#: addons/autobackup.php:302
 msgid "Read more about how this works..."
 msgstr ""
 
@@ -3154,8 +3224,8 @@ msgid "Creating database backup with UpdraftPlus..."
 msgstr ""
 
 #: addons/autobackup.php:157
-#: addons/autobackup.php:244
-#: addons/autobackup.php:282
+#: addons/autobackup.php:247
+#: addons/autobackup.php:286
 msgid "Automatic Backup"
 msgstr ""
 
@@ -3175,15 +3245,15 @@ msgstr ""
 msgid "Backup succeeded <a href=\"#updraftplus-autobackup-log\" onclick=\"var s = document.getElementById('updraftplus-autobackup-log'); s.style.display = 'block';\">(view log...)</a> - now proceeding with the updates..."
 msgstr ""
 
-#: addons/autobackup.php:294
+#: addons/autobackup.php:298
 msgid "UpdraftPlus Automatic Backups"
 msgstr ""
 
-#: addons/autobackup.php:299
+#: addons/autobackup.php:303
 msgid "Do not abort after pressing Proceed below - wait for the backup to complete."
 msgstr ""
 
-#: addons/autobackup.php:300
+#: addons/autobackup.php:304
 msgid "Proceed with update"
 msgstr ""
 
@@ -3203,148 +3273,149 @@ msgstr ""
 msgid "Remote Storage Options"
 msgstr ""
 
-#: addons/migrator.php:44
+#: addons/migrator.php:45
 msgid "This looks like a migration (the backup is from a site with a different address/URL), but you did not check the option to search-and-replace the database. That is usually a mistake."
 msgstr ""
 
-#: addons/migrator.php:48
+#: addons/migrator.php:49
 msgid "Processed plugin:"
 msgstr ""
 
-#: addons/migrator.php:56
+#: addons/migrator.php:57
 msgid "Network activating theme:"
 msgstr ""
 
-#: addons/migrator.php:89
+#: addons/migrator.php:90
 msgid "Information needed to continue:"
 msgstr ""
 
-#: addons/migrator.php:90
+#: addons/migrator.php:91
 msgid "Please supply the following information:"
 msgstr ""
 
-#: addons/migrator.php:93
+#: addons/migrator.php:94
 msgid "Enter details for where this new site is to live within your multisite install:"
 msgstr ""
 
-#: addons/migrator.php:102
+#: addons/migrator.php:103
 msgid "Site Name:"
 msgstr ""
 
-#: addons/migrator.php:104
+#: addons/migrator.php:105
 msgid "Site Domain:"
 msgstr ""
 
-#: addons/migrator.php:121
+#: addons/migrator.php:122
 msgid "Migrated site (from UpdraftPlus)"
 msgstr ""
 
-#: addons/migrator.php:150
+#: addons/migrator.php:151
 msgid "<strong>ERROR</strong>: Site URL already taken."
 msgstr ""
 
-#: addons/migrator.php:157
+#: addons/migrator.php:158
 msgid "New site:"
 msgstr ""
 
-#: addons/migrator.php:174
+#: addons/migrator.php:175
 #, php-format
 msgid "All references to the site location in the database will be replaced with your current site URL, which is: %s"
 msgstr ""
 
-#: addons/migrator.php:174
+#: addons/migrator.php:175
 msgid "Search and replace site location in the database (migrate)"
 msgstr ""
 
-#: addons/migrator.php:174
+#: addons/migrator.php:175
 msgid "(learn more)"
 msgstr ""
 
-#: addons/migrator.php:270
-#: addons/migrator.php:434
+#: addons/migrator.php:279
+#: addons/migrator.php:467
 #, php-format
 msgid "Failed: the %s operation was not able to start."
 msgstr ""
 
-#: addons/migrator.php:272
-#: addons/migrator.php:436
+#: addons/migrator.php:281
+#: addons/migrator.php:469
 #, php-format
 msgid "Failed: we did not understand the result returned by the %s operation."
 msgstr ""
 
-#: addons/migrator.php:319
+#: addons/migrator.php:341
 msgid "Database: search and replace site URL"
 msgstr ""
 
-#: addons/migrator.php:322
+#: addons/migrator.php:344
 msgid "This option was not selected."
 msgstr ""
 
-#: addons/migrator.php:345
-#: addons/migrator.php:349
-#: addons/migrator.php:354
-#: addons/migrator.php:358
+#: addons/migrator.php:372
+#: addons/migrator.php:376
+#: addons/migrator.php:380
+#: addons/migrator.php:385
+#: addons/migrator.php:389
+#: addons/migrator.php:393
 #, php-format
 msgid "Error: unexpected empty parameter (%s, %s)"
 msgstr ""
 
-#: addons/migrator.php:363
+#: addons/migrator.php:398
 #, php-format
 msgid "Nothing to do: the site URL is already: %s"
 msgstr ""
 
-#: addons/migrator.php:368
-#: addons/migrator.php:371
+#: addons/migrator.php:403
+#: addons/migrator.php:406
 #, php-format
 msgid "Warning: the database's site URL (%s) is different to what we expected (%s)"
 msgstr ""
 
-#: addons/migrator.php:378
-#: addons/migrator.php:381
+#: addons/migrator.php:416
 #, php-format
 msgid "Database search and replace: replace %s in backup dump with %s"
 msgstr ""
 
-#: addons/migrator.php:399
+#: addons/migrator.php:434
 msgid "Could not get list of tables"
 msgstr ""
 
-#: addons/migrator.php:410
+#: addons/migrator.php:445
 #, php-format
 msgid "<strong>Search and replacing table:</strong> %s: already done"
 msgstr ""
 
-#: addons/migrator.php:452
+#: addons/migrator.php:485
 msgid "Tables examined:"
 msgstr ""
 
-#: addons/migrator.php:453
+#: addons/migrator.php:486
 msgid "Rows examined:"
 msgstr ""
 
-#: addons/migrator.php:454
+#: addons/migrator.php:487
 msgid "Changes made:"
 msgstr ""
 
-#: addons/migrator.php:455
+#: addons/migrator.php:488
 msgid "SQL update commands run:"
 msgstr ""
 
-#: addons/migrator.php:457
+#: addons/migrator.php:490
 msgid "Time taken (seconds):"
 msgstr ""
 
-#: addons/migrator.php:516
+#: addons/migrator.php:549
 #, php-format
 msgid "<strong>Search and replacing table:</strong> %s"
 msgstr ""
 
-#: addons/migrator.php:545
+#: addons/migrator.php:578
 #, php-format
 msgid "rows: %d"
 msgstr ""
 
-#: addons/migrator.php:648
+#: addons/migrator.php:681
 #, php-format
 msgid "\"%s\" has no primary key, manual change needed on row %s."
 msgstr ""

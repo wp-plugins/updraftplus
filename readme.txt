@@ -136,10 +136,12 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * FIX: Correct calculation of which old backups to delete when automatic pre-plugin/theme backups run
 * FIX: Binzip could block if the zip binary produced a lot of unexpected output
 * FIX: Fix a corner-case where a setting needed manual updating post-migration on WP 3.4+earlier sites with custom uploads path
+* TWEAK: Removed a couple of clicks from the install procedure for add-ons
 * TWEAK: Handle migration URL rewrites where content directory location has been manually altered
 * TWEAK: Change default number of backups to retain on new installs from 1 to 2
 * TWEAK: Add extra file permissions check before restoring (prevent unexpected aborts)
 * TWEAK: Suppress a spurious 'insufficient visitors' warning for some sites with long-running backups
+* TWEAK: Catch some more untranslated strings
 
 = 1.7.35 - 2013/10/26 =
 
