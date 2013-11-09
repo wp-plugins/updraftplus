@@ -441,6 +441,7 @@ class UpdraftPlus_Backup {
 		$debug_mode = UpdraftPlus_Options::get_updraft_option('updraft_debug_mode');
 
 		$sendmail_to = UpdraftPlus_Options::get_updraft_option('updraft_email');
+		if (is_array($sendmail_to)) $sendmail_to = implode(',', $sendmail_to);
 
 		$admin_email= get_bloginfo('admin_email');
 		foreach (explode(',', $sendmail_to) as $sendmail_addr) {
