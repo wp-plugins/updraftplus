@@ -142,6 +142,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Change default number of backups to retain on new installs from 1 to 2
 * TWEAK: Add extra file permissions check before restoring (prevent unexpected aborts)
 * TWEAK: Suppress a spurious 'insufficient visitors' warning for some sites with long-running backups
+* TWEAK: Prevent spurious message about unexpected SQL if restoring a backup with very large tables produced by mysqldump
 * TWEAK: Catch some more untranslated strings
 
 = 1.7.35 - 2013/10/26 =

@@ -19,9 +19,7 @@ TODO - some of these are out of date/done, needs pruning
 // Place in maintenance mode during restore - ?
 // http://www.phpclasses.org/package/8269-PHP-Send-MySQL-database-backup-files-to-Ubuntu-One.html
 // The active jobs updater needs to not rely on re-scheduling itself (because when connection breaks, that's it until page reload)
-// https://developers.google.com/accounts/docs/OAuth2UserAgent
-// Add lang to system info
-// Spurious MySQL warnings - see backup file from TosLa
+// Test restores via cloud service for small $??? (Relevant: http://browshot.com/features)
 // Add more info to email - e.g. names + sizes + checksums of uploads + locations. Make the report beautiful!
 // Warn/prevent if trying to migrate between sub-domain/sub-folder based multisites
 // Don't perform pruning when doing auto-backup?

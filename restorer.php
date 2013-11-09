@@ -806,7 +806,7 @@ class Updraft_Restorer extends WP_Upgrader {
 				$this->table_name = $matches[1];
 				
 				// Legacy, less reliable - in case it was not caught before
-				if ($old_table_prefix == '' && preg_match('/^([a-z0-9]+)_.*$/i', $this->table_name, $tmatches)) {
+				if ('' == $old_table_prefix && preg_match('/^([a-z0-9]+)_.*$/i', $this->table_name, $tmatches)) {
 					$old_table_prefix = $tmatches[1].'_';
 					echo '<strong>'.__('Old table prefix:', 'updraftplus').'</strong> '.htmlspecialchars($old_table_prefix).'<br>';
 				}
@@ -892,6 +892,10 @@ class Updraft_Restorer extends WP_Upgrader {
 
 			} elseif (preg_match('/^\s*(insert into \`?([^\`]*)\`?\s+values)/i', $sql_line, $matches)) {
 				$sql_type = 3;
+				if ('' != $old_table_prefix && $import_table_prefix != $old_table_prefix) $sql_line = $updraftplus->str_replace_once($old_table_prefix, $import_table_prefix, $sql_line);
+			} elseif (preg_match('/^\s*(\/\*\!40000 alter|lock) tables? \`?([^\`\(]*)\`?\s+(write|disable|enable)/i', $sql_line, $matches)) {
+				# Only binary mysqldump produces this pattern (LOCK TABLES `table` WRITE, ALTER TABLE `table` (DISABLE|ENABLE) KEYS)
+				$sql_type = 4;
 				if ('' != $old_table_prefix && $import_table_prefix != $old_table_prefix) $sql_line = $updraftplus->str_replace_once($old_table_prefix, $import_table_prefix, $sql_line);
 			}
 
