@@ -136,6 +136,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * FIX: Correct calculation of which old backups to delete when automatic pre-plugin/theme backups run
 * FIX: Binzip could block if the zip binary produced a lot of unexpected output
 * FIX: Fix a corner-case where a setting needed manual updating post-migration on WP 3.4+earlier sites with custom uploads path
+* TWEAK: For reasons unknown, Google's new cloud console removes parameters after the first from the redirect_uri; this breaks new Google Drive authentications. To work around this, we have adjusted our redirect_uri to use only one parameter.
 * TWEAK: Removed a couple of clicks from the install procedure for add-ons
 * TWEAK: Handle migration URL rewrites where content directory location has been manually altered
 * TWEAK: Change default number of backups to retain on new installs from 1 to 2

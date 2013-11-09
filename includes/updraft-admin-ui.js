@@ -514,7 +514,7 @@ jQuery(document).ready(function($){
 					jQuery(this).fadeIn('slow');
 				});
 			}, 3200);
-				setTimeout(function() {jQuery('#updraft_backup_started').fadeOut('slow');}, 60000);
+				setTimeout(function() {jQuery('#updraft_backup_started').fadeOut('slow');}, 75000);
 				// Should be redundant (because of the polling for the last log line), but harmless (invokes page load)
 		});
 	};
