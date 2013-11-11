@@ -37,6 +37,7 @@ TODO - some of these are out of date/done, needs pruning
 // Show 'Migrate' instead of 'Restore' on the button if relevant
 // Test with: http://wordpress.org/plugins/wp-db-driver/
 // Backup notes
+// Exclude by default: uploads/wp-clone
 // Switch zip engines earlier if no progress - see log.cfd793337563_hostingfails.txt
 // The delete-em at the end needs to be made resumable. And to only run on last run-through (i.e. no errors, or no resumption)
 // Incremental - can leverage some of the multi-zip work???

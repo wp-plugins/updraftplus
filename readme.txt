@@ -651,6 +651,5 @@ We recognise and thank the following for code and/or libraries used and/or modif
 
 Furthermore, reliance upon any non-English translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
 
-
 == Upgrade Notice ==
 * 1.7.35: Fix bug that could cause tables to be missed from backup on WPMU (multisite) installs
