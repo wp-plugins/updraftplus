@@ -13,11 +13,6 @@ class UpdraftPlus_BackupModule_email {
 		$email = UpdraftPlus_Options::get_updraft_option('updraft_email');
 		if (is_array($email)) $email = implode(',', $email);
 
-		$admin_email= get_bloginfo('admin_email');
-		if ($updraftplus->have_addons < 10 && $email && $email != $admin_email) {
-			$updraftplus->log(sprintf(__("With the next release of UpdraftPlus, you will need an add-on to use a different email address to the site owner's (%s). See: %s", 'updraftplus'), $admin_email, 'http://updraftplus.com/updraftplus-1-7-18-released/#an'), 'warning', 'needpremiumforemail');
-		}
-
 		foreach ($backup_array as $type => $file) {
 
 			$descrip_type = (preg_match('/^(.*)\d+$/', $type, $matches)) ? $matches[1] : $type;
@@ -46,7 +41,7 @@ class UpdraftPlus_BackupModule_email {
 		?>
 		<tr class="updraftplusmethod email">
 			<th><?php _e('Note:','updraftplus');?></th>
-			<td><?php echo str_replace('&gt;','>', str_replace('&lt;','<',htmlspecialchars(__('The email address entered above will be used. If choosing "E-Mail", then <strong>be aware</strong> that mail servers tend to have size limits; typically around 10-20Mb; backups larger than any limits will not arrive.','updraftplus'))));?></td>
+			<td><?php echo str_replace('&gt;','>', str_replace('&lt;','<',htmlspecialchars(__('The email address entered above will be used. If choosing "E-Mail", then <strong>be aware</strong> that mail servers tend to have size limits; typically around 10-20Mb; <strong>backups larger than any limits will not arrive.</strong>','updraftplus'))));?></td>
 		</tr>
 		<?php
 	}

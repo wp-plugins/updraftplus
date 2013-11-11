@@ -72,7 +72,7 @@ class UpdraftPlus_BinZip extends UpdraftPlus_PclZip {
 
 		# If there are no files to add, but there are empty directories, then we need to make sure the directories actually get added
 		if (0 == count($this->addfiles) && 0 < count($this->adddirs)) {
-			$dir = dirname(realpath($updraftplus_backup->make_zipfile_source));
+			$dir = realpath($updraftplus_backup->make_zipfile_source);
 			$this->addfiles[$dir] = '././.';
 		}
 
@@ -95,43 +95,61 @@ class UpdraftPlus_BinZip extends UpdraftPlus_PclZip {
 				$added_dirs_yet=true;
 			}
 
-			if (is_array($files)) {
-				foreach ($files as $file) {
+			$read = array($pipes[1], $pipes[2]);
+			$except = null;
+
+			if (!is_array($files) || 0 == count($files)) {
+				fclose($pipes[0]);
+				$write = array();
+			} else {
+				$write = array($pipes[0]);
+			}
+
+			while ((!feof($pipes[1]) || !feof($pipes[2]) || (is_array($files) && count($files)>0)) && false !== ($changes = stream_select($read, $write, $except, 0, 100))) {
+
+				if (in_array($pipes[0], $write) && is_array($files) && count($files)>0) {
+					$file = array_pop($files);
 					// Send the list of files on stdin
 					fwrite($pipes[0], $file."\n");
+					if (0 == count($files)) fclose($pipes[0]);
 				}
-			}
-			fclose($pipes[0]);
 
-			while (!feof($pipes[1])) {
-				$w = fgets($pipes[1], 1024);
-				// Logging all this really slows things down; use debug to mitigate
-				if ($w && $updraftplus_backup->debug) $updraftplus->log("Output from zip: ".trim($w), 'debug');
-				if (time() > $last_recorded_alive + 5) {
-					$updraftplus->record_still_alive();
-					$last_recorded_alive = time();
-				}
-				if (file_exists($this->path)) {
-					$new_size = @filesize($this->path);
-					if (!$something_useful_happened && $new_size > $orig_size + 20) {
-						$updraftplus->something_useful_happened();
-						$something_useful_happened = true;
+				if (in_array($pipes[1], $read)) {
+					$w = fgets($pipes[1]);
+					// Logging all this really slows things down; use debug to mitigate
+					if ($w && $updraftplus_backup->debug) $updraftplus->log("Output from zip: ".trim($w), 'debug');
+					if (time() > $last_recorded_alive + 5) {
+						$updraftplus->record_still_alive();
+						$last_recorded_alive = time();
 					}
-					clearstatcache();
-					# Log when 20% bigger or at least every 50Mb
-					if ($new_size > $last_size*1.2 || $new_size > $last_size + 52428800) {
-						$updraftplus->log(basename($this->path).sprintf(": size is now: %.2f Mb", round($new_size/1048576,1)));
-						$last_size = $new_size;
+					if (file_exists($this->path)) {
+						$new_size = @filesize($this->path);
+						if (!$something_useful_happened && $new_size > $orig_size + 20) {
+							$updraftplus->something_useful_happened();
+							$something_useful_happened = true;
+						}
+						clearstatcache();
+						# Log when 20% bigger or at least every 50Mb
+						if ($new_size > $last_size*1.2 || $new_size > $last_size + 52428800) {
+							$updraftplus->log(basename($this->path).sprintf(": size is now: %.2f Mb", round($new_size/1048576,1)));
+							$last_size = $new_size;
+						}
 					}
 				}
+
+				if (in_array($pipes[2], $read)) {
+					$last_error = fgets($pipes[2]);
+					if (!empty($last_error)) $this->last_error = rtrim($last_error);
+				}
+
+				// Re-set
+				$read = array($pipes[1], $pipes[2]);
+				$write = (is_array($files) && count($files) >0) ? array($pipes[0]) : array();
+				$except = null;
+
 			}
 
 			fclose($pipes[1]);
-
-			while (!feof($pipes[2])) {
-				$last_error = fgets($pipes[2]);
-				if (!empty($last_error)) $this->last_error = rtrim($last_error);
-			}
 			fclose($pipes[2]);
 
 			$ret = proc_close($process);
@@ -192,15 +210,12 @@ class UpdraftPlus_PclZip {
 	}
 
 	public function statIndex($i) {
-
 		if (empty($this->statindex[$i])) return array('name' => null, 'size' => 0);
-
 		return array('name' => $this->statindex[$i]['filename'], 'size' => $this->statindex[$i]['size']);
-
 	}
 
 	public function open($path, $flags = 0) {
-		if(!class_exists('PclZip')) require_once(ABSPATH.'/wp-admin/includes/class-pclzip.php');
+		if(!class_exists('PclZip')) include_once(ABSPATH.'/wp-admin/includes/class-pclzip.php');
 		if(!class_exists('PclZip')) {
 			$this->last_error = "No PclZip class was found";
 			return false;
