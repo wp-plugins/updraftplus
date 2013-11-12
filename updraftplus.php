@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.7.39
+Version: 1.7.40
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -19,11 +19,12 @@ TODO - some of these are out of date/done, needs pruning
 // Place in maintenance mode during restore - ?
 // http://www.phpclasses.org/package/8269-PHP-Send-MySQL-database-backup-files-to-Ubuntu-One.html
 // The active jobs updater needs to not rely on re-scheduling itself (because when connection breaks, that's it until page reload)
-// Test restores via cloud service for small $??? (Relevant: http://browshot.com/features)
+// Test restores via cloud service for small $??? (Relevant: http://browshot.com/features) (per-day? per-install?)
 // Add more info to email - e.g. names + sizes + checksums of uploads + locations. Make the report beautiful!
 // Warn/prevent if trying to migrate between sub-domain/sub-folder based multisites
 // Don't perform pruning when doing auto-backup?
 // Update updates checker so that it checks for updates on a sliding-scale: those who've not updated in last X only end up checking every Y
+// Pre-check the search/replace box if migration detected
 // Can some tables be omitted from the search/replace on a migrate? i.e. Special knowledge?
 // Put a 'what do I get if I upgrade?' link into the mix
 // Add to admin bar (and make it something that can be turned off)
