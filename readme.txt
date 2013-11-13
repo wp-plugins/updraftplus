@@ -145,7 +145,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Suppress a spurious 'insufficient visitors' warning for some sites with long-running backups
 * TWEAK: Prevent spurious message about unexpected SQL if restoring a backup with very large tables produced by mysqldump
 * TWEAK: Catch some more untranslated strings
-* TRANSLATION: Updated German translation
+* TRANSLATIONS: New Russian translation; updated German and Polish translations
 
 = 1.7.35 - 2013/10/26 =
 
