@@ -105,7 +105,7 @@ class UpdraftPlus_BinZip extends UpdraftPlus_PclZip {
 				$write = array($pipes[0]);
 			}
 
-			while ((!feof($pipes[1]) || !feof($pipes[2]) || (is_array($files) && count($files)>0)) && false !== ($changes = stream_select($read, $write, $except, 0, 100))) {
+			while ((!feof($pipes[1]) || !feof($pipes[2]) || (is_array($files) && count($files)>0)) && false !== ($changes = @stream_select($read, $write, $except, 0, 200000))) {
 
 				if (in_array($pipes[0], $write) && is_array($files) && count($files)>0) {
 					$file = array_pop($files);

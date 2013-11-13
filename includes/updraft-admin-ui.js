@@ -33,8 +33,12 @@ var lastlog_lastmessage = "";
 var lastlog_lastdata = "";
 var lastlog_jobs = "";
 var lastlog_sdata = { action: 'updraft_ajax', subaction: 'lastlog' };
+var updraft_activejobs_nextupdate = (new Date).getTime() + 1000;
 
-function updraft_activejobs_update(repeat) {
+function updraft_activejobs_update(force) {
+	var timenow = (new Date).getTime();
+	if (false == force && timenow < updraft_activejobs_nextupdate) { return; }
+	updraft_activejobs_nextupdate = timenow + 5500;
 	var downloaders = '';
 	jQuery('#ud_downloadstatus .updraftplus_downloader, #ud_downloadstatus2 .updraftplus_downloader').each(function(x,y){
 		var dat = jQuery(y).data('downloaderfor');
@@ -46,9 +50,13 @@ function updraft_activejobs_update(repeat) {
 	jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'activejobs_list', nonce: updraft_credentialtest_nonce, downloaders: downloaders }, function(response) {
  		try {
 			resp = jQuery.parseJSON(response);
-			nexttimer = 1400;
-			if (lastlog_lastdata == response) { nexttimer = 4500; }
-			if (repeat) { setTimeout(function(){updraft_activejobs_update(true);}, nexttimer);}
+			timenow = (new Date).getTime();
+			if (lastlog_lastdata == response) {
+				updraft_activejobs_nextupdate = timenow + 4500;
+			} else {
+				updraft_activejobs_nextupdate = timenow + 1200;
+			}
+			//if (repeat) { setTimeout(function(){updraft_activejobs_update(true);}, nexttimer);}
 			lastlog_lastdata = response;
 			if (resp.l != null) { jQuery('#updraft_lastlogcontainer').html(resp.l); }
 			jQuery('#updraft_activejobs').html(resp.j);
@@ -396,9 +404,9 @@ jQuery(document).ready(function($){
 		if (bwid > bigbutton_width) bigbutton_width = bwid;
 	});
 	if (bigbutton_width > 180) jQuery('.updraft-bigbutton').width(bigbutton_width);
-	
+
 	//setTimeout(function(){updraft_showlastlog(true);}, 1200);
-	setTimeout(function() {updraft_activejobs_update(true);}, 1200);
+	setInterval(function() {updraft_activejobs_update(false);}, 1200);
 	
 	jQuery('.updraftplusmethod').hide();
 	
@@ -508,7 +516,7 @@ jQuery(document).ready(function($){
 			setTimeout(function() {jQuery.get(updraft_siteurl);}, 5100);
 			setTimeout(function() {jQuery.get(updraft_siteurl+'/wp-cron.php');}, 13500);
 			//setTimeout(function() {updraft_showlastlog();}, 6000);
-			setTimeout(function() {updraft_activejobs_update();}, 6000);
+			setTimeout(function() {updraft_activejobs_update(true);}, 6000);
 			setTimeout(function() {
 				jQuery('#updraft_lastlogmessagerow').fadeOut('slow', function() {
 					jQuery(this).fadeIn('slow');
@@ -534,7 +542,6 @@ jQuery(document).ready(function($){
 
 	jQuery('#enableexpertmode').click(function() {
 		jQuery('.expertmode').fadeIn();
-		updraft_activejobs_update();
 		jQuery('#enableexpertmode').off('click'); 
 		return false;
 	});
