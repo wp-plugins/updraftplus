@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the UpdraftPlus package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2013-11-11 08:32:07+0000\n"
+"PO-Revision-Date: 2013-11-13 11:42:21+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,99 +12,99 @@ msgstr ""
 
 #: methods/email.php:44
 msgid "The email address entered above will be used. If choosing \"E-Mail\", then <strong>be aware</strong> that mail servers tend to have size limits; typically around 10-20Mb; <strong>backups larger than any limits will not arrive.</strong>"
-msgstr ""
+msgstr "Użyty zostanie adres e-mail podany powyżej. Wybierając \"E-Mail\", <strong>pamiętaj</strong>, że serwery pocztowe często ograniczają wielkość wiadomości (na ogół do 10-20MB), <strong>kopie zapasowe o rozmiarze przekraczającym te limity nie zostaną dostarczone.</strong>"
 
 #: udaddons/options.php:425
 msgid "(or connect using the form on this page if you have already purchased it)"
-msgstr ""
+msgstr "(lub połącz się używając formularza na tej stronie, jeżeli już kupiłeś)"
 
 #: udaddons/options.php:398
 msgid "You've got it"
-msgstr ""
+msgstr "Już to masz"
 
 #: udaddons/options.php:400
 msgid "Your version: %s"
-msgstr ""
+msgstr "Twoja wersja: %s"
 
 #: udaddons/options.php:402 udaddons/options.php:404
 msgid "latest"
-msgstr ""
+msgstr "ostatnie"
 
 #: udaddons/options.php:412
 msgid "please follow this link to update the plugin in order to get it"
-msgstr ""
+msgstr "kliknij, proszę, w ten link, aby zaktualizować wtyczkę i pobrać jej najnowszą wersje"
 
 #: udaddons/options.php:415
 msgid "please  follow this link to update the plugin in order to activate it"
-msgstr ""
+msgstr "kliknij, proszę, w ten link, aby zaktualizować wtyczkę i ją aktywować"
 
 #: udaddons/options.php:326
 msgid "UpdraftPlus Addons"
-msgstr ""
+msgstr "Dodatki UpdraftPlus"
 
 #: udaddons/options.php:337
 msgid "An update containing your addons is available for UpdraftPlus - please follow this link to get it."
-msgstr ""
+msgstr "Aktualizacja zawierająca Twoje dodatki jest dostępna dla UpdraftPlus - proszę kliknąć ten link aby ją zainstalować."
 
 #: udaddons/options.php:379
 msgid "UpdraftPlus Support"
-msgstr ""
+msgstr "Wsparcie UpdraftPlus"
 
 #: udaddons/updraftplus-addons.php:439
 msgid "UpdraftPlus.Com responded, but we did not understand the response"
-msgstr ""
+msgstr "Witryna UpdraftPlus.com odpowiedziała, ale odpowiedź nie została zrozumiana."
 
 #: udaddons/updraftplus-addons.php:472
 msgid "UpdraftPlus.Com returned a response which we could not understand (data: %s)"
-msgstr ""
+msgstr "Witryna UpdraftPlus.com zwróciła odpowiedź, której nie zrozumiano (dane: %s)"
 
 #: udaddons/updraftplus-addons.php:495
 msgid "Your email address and password were not recognised by UpdraftPlus.Com"
-msgstr ""
+msgstr "Twój adres e-mail oraz hasło nie zostały rozpoznane przez UpdraftPlus.Com"
 
 #: udaddons/updraftplus-addons.php:500
 msgid "UpdraftPlus.Com returned a response, but we could not understand it"
-msgstr ""
+msgstr "Witryna UpdraftPlus.com zwróciła odpowiedź, która nie została zrozumiana."
 
 #: udaddons/options.php:68
 msgid "An update is available for UpdraftPlus - please follow this link to get it."
-msgstr ""
+msgstr "Aktualizacja UpdraftPlus jest dostępna - kliknij ten link aby ją zainstalować."
 
 #: udaddons/updraftplus-addons.php:437
 msgid "We failed to successfully connect to UpdraftPlus.Com"
-msgstr ""
+msgstr "Nie udało się połączyć z UpdraftPlus.Com"
 
 #: admin.php:2208
 msgid "Reporting"
-msgstr ""
+msgstr "Raportowanie"
 
 #: admin.php:747
 msgid "Options (raw)"
-msgstr ""
+msgstr "Opcje (surowe)"
 
 #: admin.php:80
 msgid "Send a report only when there are warnings/errors"
-msgstr ""
+msgstr "Wyślij raport wyłącznie w przypadku wystąpienia błędów / ostrzeżeń"
 
 #: admin.php:81
 msgid "Send entire backup to this address"
-msgstr ""
+msgstr "Wyślij całą kopię zapasową na ten adres"
 
 #: restorer.php:736
 msgid "Content URL:"
-msgstr ""
+msgstr "URL z zawartością:"
 
 #: restorer.php:299
 msgid "Testing file permissions..."
-msgstr ""
+msgstr "Testowanie uprawnień do plików..."
 
 #: restorer.php:31
 msgid "Could not move old directory out of the way."
-msgstr ""
+msgstr "Nie udało się usunąć poprzedniego katalogu."
 
 #: restorer.php:31
 msgid "You should check the file permissions in your WordPress installation"
-msgstr ""
+msgstr "Powinieneś sprawdzić uprawnienia do plików w swojej instalacji WordPress"
 
 #: admin.php:2157
 msgid "See also the \"More Files\" add-on from our shop."

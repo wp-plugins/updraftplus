@@ -136,6 +136,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * FIX: Correct calculation of which old backups to delete when automatic pre-plugin/theme backups run
 * FIX: Binzip could block if the zip binary produced a lot of unexpected output
 * FIX: Fix a corner-case where a setting needed manual updating post-migration on WP 3.4+earlier sites with custom uploads path
+* FIX: Prevent the settings page needing a refresh if the server temporarily goes away
 * TWEAK: For reasons unknown, Google's new cloud console removes parameters after the first from the redirect_uri; this breaks new Google Drive authentications. To work around this, we have adjusted our redirect_uri to use only one parameter.
 * TWEAK: Removed a couple of clicks from the install procedure for add-ons
 * TWEAK: Handle migration URL rewrites where content directory location has been manually altered
@@ -144,7 +145,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Suppress a spurious 'insufficient visitors' warning for some sites with long-running backups
 * TWEAK: Prevent spurious message about unexpected SQL if restoring a backup with very large tables produced by mysqldump
 * TWEAK: Catch some more untranslated strings
-* TRANSLATION: Updated German translation
+* TRANSLATIONS: New Russian translation; updated German and Polish translations
 
 = 1.7.35 - 2013/10/26 =
 
@@ -631,6 +632,7 @@ We recognise and thank the following for code and/or libraries used and/or modif
 * Rackspace US, Inc., https://github.com/rackerlabs/php-cloudfiles
 * Jim Wigginton, http://phpseclib.sourceforge.net
 * Dave Coveney, https://github.com/interconnectit/Search-Replace-DB/
+
 
 == License ==
 
