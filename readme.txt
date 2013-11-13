@@ -54,6 +54,7 @@ Are you able to translate UpdraftPlus into another language? Are you ready to he
 
 Many thanks to the existing translators:
 
+* русский / Russian (ru_RU):
 * Ελληνική  / Greek translation (el): Κώστας Θερμογιάννης (Kostas Thermoyiannis) - http://tovivlio.net
 * Français / French translation (fr_FR): ufo3D - http://ufo-3d.fr and Thomas Jacobsen - http://123informatique.ch - with help from Françoise Lhermitte - http://www.ajwan.net
 * Swedish / Svensk (sv_SE): Steve Sandström - http://www.brandicon.se
