@@ -18,12 +18,14 @@ TODO - some of these are out of date/done, needs pruning
 // Change migrate window: 1) Retain link to article 2) Have selector to choose which backup set to migrate - or a fresh one 3) Have option for FTP/SFTP/SCP despatch 4) Have big "Go" button. Have some indication of what happens next. Test the login first. Have the remote site auto-scan its directory + pick up new sets. Have a way of querying the remote site for its UD-dir. Have a way of saving the settings as a 'profile'. Or just save the last set of settings (since mostly will be just one place to send to). Implement an HTTP/JSON method for sending files too.
 // Place in maintenance mode during restore - ?
 // http://www.phpclasses.org/package/8269-PHP-Send-MySQL-database-backup-files-to-Ubuntu-One.html
-// The active jobs updater needs to not rely on re-scheduling itself (because when connection breaks, that's it until page reload)
+// Put the -old directories in updraft_dir instead of present location. Prevents file perms issues, and also will be automatically excluded from backups.
+// Backup to Dropbox; delete in Dropbox; try to download in UD: doesn't tell you the file isn't there.
+// Update updates checker so that it checks for updates on a sliding-scale: those who've not updated in last X only end up checking every Y : https://github.com/YahnisElsts/plugin-update-checker/issues/9
+// Add feature in Backup Now to skip cloud despatch for this backup
 // Test restores via cloud service for small $??? (Relevant: http://browshot.com/features) (per-day? per-install?)
 // Add more info to email - e.g. names + sizes + checksums of uploads + locations. Make the report beautiful!
 // Warn/prevent if trying to migrate between sub-domain/sub-folder based multisites
 // Don't perform pruning when doing auto-backup?
-// Update updates checker so that it checks for updates on a sliding-scale: those who've not updated in last X only end up checking every Y
 // Pre-check the search/replace box if migration detected
 // Can some tables be omitted from the search/replace on a migrate? i.e. Special knowledge?
 // Put a 'what do I get if I upgrade?' link into the mix

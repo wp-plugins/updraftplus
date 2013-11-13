@@ -74,7 +74,7 @@ class UpdraftPlus_Admin {
 
 		if (version_compare($wp_version, '3.2', '<')) add_action('all_admin_notices', array($this, 'show_admin_warning_wordpressversion'));
 
-		wp_enqueue_script('updraftplus-admin-ui', UPDRAFTPLUS_URL.'/includes/updraft-admin-ui.js', array('jquery', 'jquery-ui-dialog', 'plupload-all'), '28');
+		wp_enqueue_script('updraftplus-admin-ui', UPDRAFTPLUS_URL.'/includes/updraft-admin-ui.js', array('jquery', 'jquery-ui-dialog', 'plupload-all'), '29');
 
 		wp_localize_script( 'updraftplus-admin-ui', 'updraftlion', array(
 			'sendonlyonwarnings' => __('Send a report only when there are warnings/errors', 'updraftplus'),
@@ -961,7 +961,7 @@ class UpdraftPlus_Admin {
 
 				if ('' == $old_siteurl && preg_match('/^\# Backup of: (http(.*))$/', $buffer, $matches)) {
 					$old_siteurl = $matches[1];
-					$mess[] = __('Backup of:', 'updraftplus').' '.htmlspecialchars($old_siteurl);
+					$mess[] = __('Backup of:', 'updraftplus').' '.htmlspecialchars($old_siteurl).((!empty($old_wp_version)) ? ' '.sprintf(__('(version: %s)', 'updraftplus'), $old_wp_version) : '');
 					// Check for should-be migration
 					if (!$migration_warning && $old_siteurl != site_url()) {
 						$migration_warning = true;
@@ -979,7 +979,7 @@ class UpdraftPlus_Admin {
 				} elseif ('' == $old_wp_version && preg_match('/^\# WordPress Version: ([0-9]+(\.[0-9]+)+)/', $buffer, $matches)) {
 					$old_wp_version = $matches[1];
 					if (version_compare($old_wp_version, $wp_version, '>')) {
-						$mess[] = sprintf(__('%s version: %s', 'updraftplus'), 'WordPress', $old_wp_version);
+						//$mess[] = sprintf(__('%s version: %s', 'updraftplus'), 'WordPress', $old_wp_version);
 						$warn[] = sprintf(__('You are importing from a newer version of WordPress (%s) into an older one (%s). There are no guarantees that WordPress can handle this.', 'updraftplus'), $old_wp_version, $wp_version);
 					}
 				} elseif ('' == $old_table_prefix && preg_match('/^\# Table prefix: (\S+)$/', $buffer, $matches)) {
