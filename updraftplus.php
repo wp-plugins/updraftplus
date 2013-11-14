@@ -995,7 +995,46 @@ class UpdraftPlus {
 		return false;
 	}
 
+	public function php_error($errno, $errstr, $errfile, $errline) {
+
+		if (0 == error_reporting()) return true;
+
+		switch ($errno) {
+			case 1:     $e_type = 'E_ERROR'; break;
+			case 2:     $e_type = 'E_WARNING'; break;
+			case 4:     $e_type = 'E_PARSE'; break;
+			case 8:     $e_type = 'E_NOTICE'; break;
+			case 16:    $e_type = 'E_CORE_ERROR'; break;
+			case 32:    $e_type = 'E_CORE_WARNING'; break;
+			case 64:    $e_type = 'E_COMPILE_ERROR'; break;
+			case 128:   $e_type = 'E_COMPILE_WARNING'; break;
+			case 256:   $e_type = 'E_USER_ERROR'; break;
+			case 512:   $e_type = 'E_USER_WARNING'; break;
+			case 1024:  $e_type = 'E_USER_NOTICE'; break;
+			case 2048:  $e_type = 'E_STRICT'; break;
+			case 4096:  $e_type = 'E_RECOVERABLE_ERROR'; break;
+			case 8192:  $e_type = 'E_DEPRECATED'; break;
+			case 16384: $e_type = 'E_USER_DEPRECATED'; break;
+			case 30719: $e_type = 'E_ALL'; break;
+			default:    $e_type = "E_UNKNOWN ($errno)"; break;
+		}
+
+		if (!is_string($errstr)) $errstr = serialize($errstr);
+
+		if (0 === strpos($errfile, ABSPATH)) $errfile = substr($errfile, strlen(ABSPATH));
+
+		$logline = "PHP event: code $e_type: $errstr (line $errline, $errfile)";
+
+		$this->log($logline);
+
+		# Pass it up the chain
+		return false;
+
+	}
+
 	public function backup_resume($resumption_no, $bnonce) {
+
+		set_error_handler(array($this, 'php_error'), E_ALL | E_STRICT);
 
 		$this->current_resumption = $resumption_no;
 
@@ -1251,6 +1290,8 @@ class UpdraftPlus {
 		$this->log("Resume backup ($bnonce, $resumption_no): finish run");
 		if (is_array($our_files)) $this->save_last_backup($our_files);
 		$this->backup_finish($next_resumption, true, true, $resumption_no);
+
+		restore_error_handler();
 
 	}
 

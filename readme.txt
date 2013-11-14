@@ -132,6 +132,10 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
+= Development branch - not yet supported/released =
+
+* TWEAK: Log PHP notices in the log file
+
 = 1.7.39 - 2013/11/11 =
 
 * FIX: Correct calculation of which old backups to delete when automatic pre-plugin/theme backups run
