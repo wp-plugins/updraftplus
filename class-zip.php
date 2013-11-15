@@ -64,7 +64,7 @@ class UpdraftPlus_BinZip extends UpdraftPlus_PclZip {
 		$exec = $this->binzip." -v -@ ".escapeshellarg($this->path);
 		$last_recorded_alive = time();
 		$something_useful_happened = $updraftplus->something_useful_happened;
-		$orig_size = file_exists($destination) ? filesize($destination) : 0;
+		$orig_size = file_exists($this->path) ? filesize($this->path) : 0;
 		$last_size = $orig_size;
 		clearstatcache();
 
