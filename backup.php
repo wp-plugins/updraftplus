@@ -848,9 +848,9 @@ class UpdraftPlus_Backup {
 
 					// Close file
 					$updraftplus->log("Table $table: finishing file (${table_file_prefix}.gz - ".round(filesize($this->updraft_dir.'/'.$table_file_prefix.'.tmp.gz')/1024,1)." Kb)");
+					$this->close($this->dbhandle);
 					rename($this->updraft_dir.'/'.$table_file_prefix.'.tmp.gz', $this->updraft_dir.'/'.$table_file_prefix.'.gz');
 					$updraftplus->something_useful_happened();
-					$this->close($this->dbhandle);
 					$stitch_files[] = $table_file_prefix;
 
 				} else {

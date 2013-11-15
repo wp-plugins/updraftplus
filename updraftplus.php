@@ -737,13 +737,13 @@ class UpdraftPlus {
 		$pfile = md5(time().rand()).'.tmp';
 		file_put_contents($updraft_dir.'/'.$pfile, "[mysqldump]\npassword=".DB_PASSWORD."\n");
 
+		$result = false;
 		foreach (explode(',', UPDRAFTPLUS_MYSQLDUMP_EXECUTABLE) as $potsql) {
 			if (!@is_executable($potsql)) continue;
 			if ($logit) $this->log("Testing: $potsql");
 
 			$exec = "cd ".escapeshellarg($updraft_dir)."; $potsql  --defaults-file=$pfile --max_allowed_packet=1M --quote-names --add-drop-table --skip-comments --skip-set-charset --allow-keywords --dump-date --extended-insert --where=option_name=\\'siteurl\\' --user=".escapeshellarg(DB_USER)." --host=".escapeshellarg(DB_HOST)." ".DB_NAME." ".escapeshellarg($table_name)." >$tmp_file";
 
-			$result = false;
 			$handle = popen($exec, "r");
 			if ($handle) {
 				while (!feof($handle)) {
@@ -1034,7 +1034,7 @@ class UpdraftPlus {
 
 	public function backup_resume($resumption_no, $bnonce) {
 
-		set_error_handler(array($this, 'php_error'), E_ALL | E_STRICT);
+		set_error_handler(array($this, 'php_error'), E_ALL & ~E_STRICT);
 
 		$this->current_resumption = $resumption_no;
 
