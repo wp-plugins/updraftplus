@@ -2,35 +2,38 @@
 
 class UpdraftPlus_BackupModule_googledrive {
 
-	var $gdocs;
+	public $gdocs;
 
 	public static function action_auth() {
 		if ( isset( $_GET['state'] ) ) {
-			if ( $_GET['state'] == 'success') {
+			if ('success' == $_GET['state']) {
 				add_action('all_admin_notices', array('UpdraftPlus_BackupModule_googledrive', 'show_authed_admin_success') );
 			}
-			elseif ( $_GET['state'] == 'token' )
-				self::gdrive_auth_token();
-			elseif ( $_GET['state'] == 'revoke' )
-				self::gdrive_auth_revoke();
+			elseif ('token' == $_GET['state']) self::gdrive_auth_token();
+			elseif ('revoke' == $_GET['state']) self::gdrive_auth_revoke();
 		} elseif (isset($_GET['updraftplus_googleauth'])) {
 			self::gdrive_auth_request();
 		}
 	}
 
 	// Get a Google account access token using the refresh token
-	function access_token( $token, $client_id, $client_secret ) {
+	function access_token($token, $client_id, $client_secret) {
 
 		global $updraftplus;
 		$updraftplus->log("Google Drive: requesting access token: client_id=$client_id");
 
-		$query_body = array( 'refresh_token' => $token, 'client_id' => $client_id, 'client_secret' => $client_secret, 'grant_type' => 'refresh_token' );
+		$query_body = array(
+			'refresh_token' => $token,
+			'client_id' => $client_id,
+			'client_secret' => $client_secret,
+			'grant_type' => 'refresh_token'
+		);
 
 		$result = wp_remote_post('https://accounts.google.com/o/oauth2/token', array('timeout' => '15', 'method' => 'POST', 'body' => $query_body) );
 
 		if (is_wp_error($result)) {
 			$updraftplus->log("Google Drive error when requesting access token");
-			foreach ($result->get_error_messages() as $msg) { $updraftplus->log("Error message: $msg"); }
+			foreach ($result->get_error_messages() as $msg) $updraftplus->log("Error message: $msg");
 			return false;
 		} else {
 			$json_values = json_decode( $result['body'], true );
@@ -52,7 +55,7 @@ class UpdraftPlus_BackupModule_googledrive {
 		$params = array(
 			'response_type' => 'code',
 			'client_id' => UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid'),
-			'redirect_uri' => UpdraftPlus_Options::admin_page_url().'?page=updraftplus&action=updraftmethod-googledrive-auth',
+			'redirect_uri' => UpdraftPlus_Options::admin_page_url().'?action=updraftmethod-googledrive-auth',
 			'scope' => 'https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/drive.file https://docs.google.com/feeds/ https://docs.googleusercontent.com/ https://spreadsheets.google.com/feeds/',
 			'state' => 'token',
 			'access_type' => 'offline',
@@ -80,7 +83,7 @@ class UpdraftPlus_BackupModule_googledrive {
 				'code' => $_GET['code'],
 				'client_id' => UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid'),
 				'client_secret' => UpdraftPlus_Options::get_updraft_option('updraft_googledrive_secret'),
-				'redirect_uri' => UpdraftPlus_Options::admin_page_url().'?page=updraftplus&action=updraftmethod-googledrive-auth',
+				'redirect_uri' => UpdraftPlus_Options::admin_page_url().'?action=updraftmethod-googledrive-auth',
 				'grant_type' => 'authorization_code'
 			);
 
@@ -91,7 +94,7 @@ class UpdraftPlus_BackupModule_googledrive {
 				foreach ( $result->get_error_messages() as $message ) {
 					global $updraftplus;
 					$updraftplus->log("Google Drive authentication error: ".$message);
-					$add_to_url .= "$message. ";
+					$add_to_url .= $message.". ";
 				}
 				header('Location: '.UpdraftPlus_Options::admin_page_url().'?page=updraftplus&error='.urlencode($add_to_url));
 			} else {
@@ -106,7 +109,7 @@ class UpdraftPlus_BackupModule_googledrive {
 						UpdraftPlus_Options::update_updraft_option('updraftplus_tmp_googledrive_access_token', $json_values['access_token']);
 
 						// We do this to clear the GET parameters, otherwise WordPress sticks them in the _wp_referer in the form and brings them back, leading to confusion + errors
-						header('Location: '.UpdraftPlus_Options::admin_page_url().'?page=updraftplus&action=updraftmethod-googledrive-auth&state=success');
+						header('Location: '.UpdraftPlus_Options::admin_page_url().'?action=updraftmethod-googledrive-auth&page=updraftplus&state=success');
 
 					}
 
@@ -284,10 +287,10 @@ class UpdraftPlus_BackupModule_googledrive {
 		$possible_location = $updraftplus->jobdata_get($transkey);
 
 		if ( empty( $possible_location ) ) {
-			$updraftplus->log("$file: Attempting to upload file to Google Drive.");
+			$updraftplus->log(basename($file).": Attempting to upload file to Google Drive.");
 			$location = $gdocs_object->prepare_upload( $file, $title, $parent );
 		} else {
-			$updraftplus->log("$file: Attempting to resume upload.");
+			$updraftplus->log(basename($file).": Attempting to resume upload.");
 			$location = $gdocs_object->resume_upload( $file, $possible_location );
 		}
 
@@ -460,7 +463,7 @@ class UpdraftPlus_BackupModule_googledrive {
 			<th>Google Drive:</th>
 			<td>
 			<p><a href="http://updraftplus.com/support/configuring-google-drive-api-access-in-updraftplus/"><strong><?php _e('For longer help, including screenshots, follow this link. The description below is sufficient for more expert users.','updraftplus');?></strong></a></p>
-			<p><a href="https://code.google.com/apis/console/"><?php _e('Follow this link to your Google API Console, and there create a Client ID in the API Access section.','updraftplus');?></a> <?php _e("Select 'Web Application' as the application type.",'updraftplus');?></p><p><?php echo htmlspecialchars(__('You must add the following as the authorised redirect URI (under "More Options") when asked','updraftplus'));?>: <kbd><?php echo UpdraftPlus_Options::admin_page_url().'?page=updraftplus&action=updraftmethod-googledrive-auth'; ?></kbd> <?php _e('N.B. If you install UpdraftPlus on several WordPress sites, then you cannot re-use your client ID; you must create a new one from your Google API console for each site.','updraftplus');?>
+			<p><a href="https://code.google.com/apis/console/"><?php _e('Follow this link to your Google API Console, and there create a Client ID in the API Access section.','updraftplus');?></a> <?php _e("Select 'Web Application' as the application type.",'updraftplus');?></p><p><?php echo htmlspecialchars(__('You must add the following as the authorised redirect URI (under "More Options") when asked','updraftplus'));?>: <kbd><?php echo UpdraftPlus_Options::admin_page_url().'?action=updraftmethod-googledrive-auth'; ?></kbd> <?php _e('N.B. If you install UpdraftPlus on several WordPress sites, then you cannot re-use your client ID; you must create a new one from your Google API console for each site.','updraftplus');?>
 
 			<?php
 				if (!class_exists('SimpleXMLElement')) { echo "<b>",__('Warning','updraftplus').':</b> '.__("You do not have the SimpleXMLElement installed. Google Drive backups will <b>not</b> work until you do.",'updraftplus'); }
@@ -483,7 +486,7 @@ class UpdraftPlus_BackupModule_googledrive {
 			</tr>
 			<tr class="updraftplusmethod googledrive">
 				<th><?php _e('Authenticate with Google');?>:</th>
-				<td><p><?php if ('' != UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token')) echo __("<strong>(You appear to be already authenticated,</strong> though you can authenticate again to refresh your access if you've had a problem).",'updraftplus'); ?> <a href="<?php echo UpdraftPlus_Options::admin_page_url();?>?page=updraftplus&action=updraftmethod-googledrive-auth&updraftplus_googleauth=doit"><?php print __('<strong>After</strong> you have saved your settings (by clicking \'Save Changes\' below), then come back here once and click this link to complete authentication with Google.','updraftplus');?></a>
+				<td><p><?php if ('' != UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token')) echo __("<strong>(You appear to be already authenticated,</strong> though you can authenticate again to refresh your access if you've had a problem).",'updraftplus'); ?> <a href="<?php echo UpdraftPlus_Options::admin_page_url();?>?action=updraftmethod-googledrive-auth&page=updraftplus&updraftplus_googleauth=doit"><?php print __('<strong>After</strong> you have saved your settings (by clicking \'Save Changes\' below), then come back here once and click this link to complete authentication with Google.','updraftplus');?></a>
 				</p>
 				</td>
 			</tr>

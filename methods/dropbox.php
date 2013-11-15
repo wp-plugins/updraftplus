@@ -122,7 +122,12 @@ class UpdraftPlus_BackupModule_dropbox {
 			$updraftplus->log("Dropbox: Attempt to upload: $file to: $ufile");
 
 			try {
-				$dropbox->chunkedUpload($updraft_dir.'/'.$file, '', $ufile, true, $offset, $upload_id, array($ourself, 'chunked_callback'));
+				$response = $dropbox->chunkedUpload($updraft_dir.'/'.$file, '', $ufile, true, $offset, $upload_id, array($ourself, 'chunked_callback'));
+				if (empty($response['code']) || "200" != $response['code']) {
+					$updraftplus->log('Unexpected HTTP code returned from Dropbox: '.$response['code']." (".serialize($response).")");
+					$updraftplus->log(sprintf(__('%s did not return the expected response - check your log file for more details', 'updraftplus'), 'Dropbox'), 'warning');
+				}
+
 			} catch (Exception $e) {
 				$updraftplus->log("Dropbox chunked upload exception: ".$e->getMessage());
 				if (preg_match("/Submitted input out of alignment: got \[(\d+)\] expected \[(\d+)\]/i", $e->getMessage(), $matches)) {
@@ -333,7 +338,7 @@ class UpdraftPlus_BackupModule_dropbox {
 
 		$message = "<strong>".__('Success','updraftplus').'</strong>: '.sprintf(__('you have authenticated your %s account','updraftplus'),'Dropbox');
 
-		if ($accountInfo['code'] != "200") {
+		if (empty($accountInfo['code']) || "200" != $accountInfo['code']) {
 			$message .= " (".__('though part of the returned information was not as expected - your mileage may vary','updraftplus').")". $accountInfo['code'];
 		} else {
 			$body = $accountInfo['body'];
