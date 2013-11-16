@@ -21,7 +21,7 @@ class UpdraftPlus_Options {
 		return get_option($option, $default);
 	}
 
-	public static function update_updraft_option($option, $value) {
+	public static function update_updraft_option($option, $value, $use_cache = true) {
 		update_option($option, $value);
 	}
 
@@ -35,7 +35,9 @@ class UpdraftPlus_Options {
 	}
 
 	public static function options_form_begin($settings_fields = 'updraft-options-group', $allow_autocomplete = true) {
-		echo '<form method="post" action="options.php"';
+		global $pagenow;
+		echo '<form method="post" ';
+		if ($pagenow == 'options-general.php') echo 'action="options.php"';
 		if (!$allow_autocomplete) echo ' autocomplete="off"';
 		echo '>';
 		if ($settings_fields) settings_fields('updraft-options-group');

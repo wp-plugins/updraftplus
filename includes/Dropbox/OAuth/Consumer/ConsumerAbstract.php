@@ -145,7 +145,7 @@ abstract class Dropbox_ConsumerAbstract
     {
         if (!$token = $this->storage->get('access_token')) {
             if (!$token = $this->storage->get('request_token')) {
-                $token = new \stdClass();
+                $token = new stdClass();
                 $token->oauth_token = null;
                 $token->oauth_token_secret = null;
             }
@@ -297,7 +297,7 @@ abstract class Dropbox_ConsumerAbstract
     private function parseTokenString($response)
     {
         $parts = explode('&', $response);
-        $token = new \stdClass();
+        $token = new stdClass();
         foreach ($parts as $part) {
             list($k, $v) = explode('=', $part, 2);
             $k = strtolower($k);

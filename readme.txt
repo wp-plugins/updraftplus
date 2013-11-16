@@ -1,9 +1,9 @@
 === UpdraftPlus - WordPress Backup and Restoration ===
 Contributors: Backup with UpdraftPlus, DavidAnderson
-Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, s3 compatible, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp, ftps, scp, migrate, duplicate, copy, updraft, schedule, database backup, wordpress backup, full backup
+Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, s3 compatible, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, ftp backup, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp, ftps, scp, migrate, duplicate, copy, updraft, schedule, mysql backup, database backup, db backup, website backup, wordpress backup, full backup
 Requires at least: 3.2
-Tested up to: 3.6.1
-Stable tag: 1.7.20
+Tested up to: 3.7.1
+Stable tag: 1.7.41
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -16,7 +16,7 @@ Easy and complete backups + restoration. Manual or automated backups (backup to 
 
 <strong>Top-quality:</strong> UpdraftPlus is the <a href="http://rankwp.com/plugins/updraftplus">highest-ranking backup plugin on rankwp.com</a> (ranks 16th out of 28,000 WordPress plugins for quality on rankwp.com - last checked 28th September 2013).
 
-<strong>Tens of thousands of users:</strong> widely tested and reliable (over 300,000 downloads). Ranks in the top 100 most used of all WordPress plugins on rankwp.com. Millions of backups completed!
+<strong>Tens of thousands of users:</strong> widely tested and reliable (over 400,000 downloads). Ranks in the top 100 most used of all WordPress plugins on rankwp.com. Millions of backups completed!
 
 * Supports WordPress backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP and email. Also (via an add-on) FTP over SSL, SFTP, SCP and WebDAV. (Note: Microsoft forbid SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
 * Quick restore (both file and database backups)
@@ -54,14 +54,16 @@ Are you able to translate UpdraftPlus into another language? Are you ready to he
 
 Many thanks to the existing translators:
 
-* Français / French translation (fr_FR): ufo3D - http://ufo-3d.fr/ and Thomas Jacobsen - http://123informatique.ch/ - with help from Françoise Lhermitte - http://www.ajwan.net
+* русский / Russian (ru_RU): Илья Худолей (Ilya Khudoley) - ironman_c at icloud.com and Igor Ocheretny (http://wpsells.com)
+* Ελληνική  / Greek translation (el): Κώστας Θερμογιάννης (Kostas Thermoyiannis) - http://tovivlio.net
+* Français / French translation (fr_FR): ufo3D - http://ufo-3d.fr and Thomas Jacobsen - http://123informatique.ch - with help from Françoise Lhermitte - http://www.ajwan.net
 * Swedish / Svensk (sv_SE): Steve Sandström - http://www.brandicon.se
-* Español / Spanish (es_ES): Fernando Villasmil - villasmil.fernando at gmail.com
 * Polski / Polish (pl_PL): Bartosz Kaczmarek - barth.kaczmarek at gmail.com
 * Chinese (zh_CN): K L Wang - http://klwang.info
 * Italiano / Italian (it_IT): Francesco Carpana - f.carpana at gmail.com
 
 And to these (need updating or new translators; now less than 50% translated):
+* Español / Spanish (es_ES): Fernando Villasmil - villasmil.fernando at gmail.com
 * Deutsch / German (de_DE): Marcel Herrguth - mherrguth at mrgeneration.de
 * Magyar / Hungarian (hu_HU): Szépe Viktor - http://www.szepe.net
 * Nederlands / Dutch (nl_NL): Hans van der Vlist - hansvandervlist at gmail.com
@@ -128,25 +130,71 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-= Development version: not yet released/supported =
+The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
-* FEATURE: Options in the "Backup Now" dialog to exclude files or database from the backup
+= 1.7.41 - 2013/11/16 =
+
+* FIX: Work around bug in some old PHP versions on Windows when creating database dump
+* FIX: If binary mysqldump failed, then retry
+* TWEAK: Log PHP notices in the log file
+* TWEAK: Allow primitive exclusion based on filename suffixes
+
+= 1.7.39 - 2013/11/11 =
+
+* FIX: Correct calculation of which old backups to delete when automatic pre-plugin/theme backups run
+* FIX: Binzip could block if the zip binary produced a lot of unexpected output
+* FIX: Fix a corner-case where a setting needed manual updating post-migration on WP 3.4+earlier sites with custom uploads path
+* FIX: Prevent the settings page needing a refresh if the server temporarily goes away
+* TWEAK: For reasons unknown, Google's new cloud console removes parameters after the first from the redirect_uri; this breaks new Google Drive authentications. To work around this, we have adjusted our redirect_uri to use only one parameter.
+* TWEAK: Removed a couple of clicks from the install procedure for add-ons
+* TWEAK: Handle migration URL rewrites where content directory location has been manually altered
+* TWEAK: Change default number of backups to retain on new installs from 1 to 2
+* TWEAK: Add extra file permissions check before restoring (prevent unexpected aborts)
+* TWEAK: Suppress a spurious 'insufficient visitors' warning for some sites with long-running backups
+* TWEAK: Prevent spurious message about unexpected SQL if restoring a backup with very large tables produced by mysqldump
+* TWEAK: Catch some more untranslated strings
+* TRANSLATIONS: New Russian translation; updated German and Polish translations
+
+= 1.7.35 - 2013/10/26 =
+
+* FIX: Fix potential problem whereby some tables could be missed from the backup on WPMU (WP multisite) installs. Strongly recommended that all WPMU users update and take a fresh backup.
+* FIX: Work around http://bugs.mysql.com/62077 (could cause permanently stuck lock on databases with wrong collocations - if you have this problem, then no backups happen)
+* TWEAK: Don't use binzip method on OpenVZ with low memory
+* TWEAK: Suppress a couple of spurious messages in the log
+* TWEAK: Add facility to quickly download log files in the 'expert settings' section
+
+= 1.7.34 - 2013/10/21 =
+
+* FEATURE: Options in the "Backup Now" dialog to exclude files or database from the backup (http://updraftplus.com/more-flexibility-in-backup-now/)
 * FEATURE: Use binary mysqldump, if available, for much faster dumps of large tables
-* FEATURE: Restorer now handles hand-moved non-default WP site directories (where they differ from the website base directory)
-* FIX: Under certain conditions, the report email could wrongly state that files were included in a db-only backup
+* FEATURE: New Ελληνική / Greek translation (el): Κώστας Θερμογιάννης (Kostas Thermoyiannis) - http://tovivlio.net
 * FIX: Fix a JavaScript error in Internet Explorer 8
-* FIX: Remove bogus warning about W3TC object cache
 * FIX: Under very unusual circumstances, it was still possible for multiple backup jobs to occur
 * FIX: For non-English installs, the email indicating backup success sometimes failed to send
+* FIX: Fix obscure table name error if WP was using bespoke database setup without delete access
+* FIX: On multi-site installs, settings changes could be lost if they were made during an ongoing backup
+* TWEAK: Now marked as WordPress 3.7 compatible
+* TWEAK: Raw files list in expert section now makes log files directly downloadable
+* TWEAK: Detect available disk quota in CPanel account (if relevant), log, and warn if low
+* TWEAK: Amazon S3 backend now can use WP proxy settings (if any)
 * TWEAK: All multisite settings pages have now been moved to the network admin section
+* TWEAK: Restorer now handles hand-moved non-default WP site directories (where they differ from the website base directory)
+* TWEAK: Migrator can now migrate sub-domain-based WPMU installs with no manual steps required
 * TWEAK: Internationalised the add-ons management page (Premium)
 * TWEAK: Switch zip engines from ZipArchive earlier if it appears to be broken
 * TWEAK: Now cleans up some previously un-caught temporary files if the backup aborted unexpectedly
+* TWEAK: Remove bogus warning about W3TC object cache
 * TWEAK: Backup log file now includes SHA1 checksums
+* TWEAK: Add warning for user if their max_execution_time is very low
+* TWEAK: Make fewer HTTP requests when tracking download status
+* TWEAK: Under certain conditions, the report email could wrongly state that files were included in a db-only backup
+* TWEAK: Improve detection of recent activity on resumptions when zips split
+* TWEAK: Prevent some warning messages from being shown twice
 * TWEAK: Remove the "that's a lot of rows" warning once the table successfully finishes being dumped
 * TWEAK: Cache the results of looking for a zip executable for the duration of the job
 * TWEAK: Some badly-written plugins place their own code on UD's settings page, and break the layout; overcome this
 * TWEAK: Add a warning for people using encryption without mcrypt installed (slow)
+* TWEAK: Suppress useless warning when using BinZip and only empty directories exist in 'others' backup
 
 = 1.7.20 - 2013/09/20 =
 * TWEAK: Add semaphore locking to prevent WP's cron system kicking off multiple jobs on overloaded systems
@@ -593,6 +641,7 @@ We recognise and thank the following for code and/or libraries used and/or modif
 * Jim Wigginton, http://phpseclib.sourceforge.net
 * Dave Coveney, https://github.com/interconnectit/Search-Replace-DB/
 
+
 == License ==
 
     Copyright 2011-3 David Anderson
@@ -614,4 +663,4 @@ We recognise and thank the following for code and/or libraries used and/or modif
 Furthermore, reliance upon any non-English translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
 
 == Upgrade Notice ==
-* 1.7.3: Fix 3 bugs - recommended upgrade for all
+* 1.7.41: Work around two bugs in mysqldump and in old PHP versions on Windows when creating database dump

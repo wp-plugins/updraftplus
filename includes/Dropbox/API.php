@@ -557,7 +557,7 @@ class Dropbox_API
     private function getMimeType($data, $isFilename = false)
     {
         if (extension_loaded('fileinfo')) {
-            $finfo = new \finfo(FILEINFO_MIME);
+            $finfo = new finfo(FILEINFO_MIME);
             if ($isFilename !== false) {
                 return $finfo->file($data);
             }
