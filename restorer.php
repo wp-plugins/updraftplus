@@ -132,6 +132,8 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		foreach ( $upgrade_files as $file => $filestruc ) {
 
+			if (empty($file)) continue;
+
 			// Correctly restore files in 'others' in no directory that were wrongly backed up in versions 1.4.0 - 1.4.48
 			if (('others' == $type || 'wpcore' == $type ) && preg_match('/^([\-_A-Za-z0-9]+\.php)$/', $file, $matches) && $wp_filesystem->exists($working_dir . "/$file/$file")) {
 				if ('others' == $type) {

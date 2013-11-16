@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the UpdraftPlus package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2013-11-15 07:56:12+0000\n"
+"PO-Revision-Date: 2013-11-16 01:27:35+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -128,7 +128,7 @@ msgstr "Die zulässige Speichernutzung (RAM) für PHP ist sehr gering (%s MB) - 
 
 #: updraftplus.php:547 admin.php:298
 msgid "The amount of time allowed for WordPress plugins to run is very low (%s seconds) - you should increase it to avoid backup failures due to time-outs (consult your web hosting company for more help - it is the max_execution_time PHP setting; the recommmended value is %s seconds or more)"
-msgstr ""
+msgstr "Die erlaubte Ausführzeit von WordPress Plugins ist sehr gering (%s Sekunden) - du solltest diesen Wert erhöhen, um fehlschlagende Sicherungen durch Time-Outs zu vermeiden (kontaktiere deinen Webhoster für Hilfe - es geht um die PHP-Einstellung max_execution_time; der empfohlene Wert beträgt %s Sekunden oder mehr)"
 
 #: udaddons/options.php:422
 msgid "You have an inactive purchase"
@@ -152,7 +152,7 @@ msgstr "Add-Ons verwalten"
 
 #: backup.php:448
 msgid "With the next release of UpdraftPlus, you will need an add-on to use a different email address to the site owner's (%s). See: %s"
-msgstr ""
+msgstr "Mit der nächsten Version von UpdraftPlus benötigst du ein Add-On, um eine andere E-Mail-Adresse als die des Seitenbesitzers (%s) anzugeben. Siehe: %s"
 
 #: udaddons/options.php:296
 msgid "An unknown response was received. Response was:"
@@ -172,7 +172,7 @@ msgstr "Gehe hierhin"
 
 #: udaddons/options.php:406
 msgid "(apparently a pre-release or withdrawn release)"
-msgstr ""
+msgstr "(anscheinend eine Vor-Version oder eine zurückgezogene Version)"
 
 #: udaddons/options.php:412
 msgid "Available for this site (via your all-addons purchase)"
@@ -432,11 +432,11 @@ msgstr "Hier schreibt UpdraftPlus seine Archive hinein. Das Verzeichnis muss fü
 
 #: admin.php:2368
 msgid "<b>Do not</b> place it inside your uploads or plugins directory, as that will cause recursion (backups of backups of backups of...)."
-msgstr ""
+msgstr "Platziere es <b>auf keinen Fall</b> in dein upload- oder plugin-Verzeichnis, da dies Schleifen bewirken würde (Sicherungen von Sicherungen..)."
 
 #: admin.php:2341
 msgid "UpdraftPlus will split up backup archives when they exceed this file size. The default value is 800 megabytes. Be careful to leave some margin if your web-server has a hard size limit (e.g. the 2 Gb / 2048 Mb limit on some 32-bit servers/file systems)."
-msgstr ""
+msgstr "UpdraftPlus wird alle Sicherungsarchive aufteilen, wenn diese eine vorgegebene Größe überschreiten. Der Standardwert ist 800 Megabyte. Sei vorsichtig und lasse eine Lücke, wenn dein Server Größen-Limits hat (z.B. 2GB/2048 MB Limitierungen auf 32-Bit Systemen oder Dateisystemen)."
 
 #: admin.php:1850
 msgid "Waiting until scheduled time to retry because of errors"
@@ -508,11 +508,11 @@ msgstr "Sicherungen in Bearbeitung:"
 
 #: admin.php:302
 msgid "The scheduler is disabled in your WordPress install, via the DISABLE_WP_CRON setting. No backups can run (even &quot;Backup Now&quot;) unless either you have set up a facility to call the scheduler manually, or until it is enabled."
-msgstr ""
+msgstr "In deiner WordPress-Installation ist der Planner deaktiviert (via DISABLE_WP_CRON Einstellung). Es können keine Sicherungen durchgeführt werden (auch &quot;Jetzt sichern&quot; nicht), so lange du keine Möglichkeit hast, den Planner manuell auszuführen oder ihn wieder zu aktivieren."
 
 #: restorer.php:278 restorer.php:285
 msgid "UpdraftPlus needed to create a %s in your content directory, but failed - please check your file permissions and enable the access (%s)"
-msgstr ""
+msgstr "UpdraftPlus musste ein(e) %s in deinem content-Verzeichnis erstellen, schlug aber fehl - überprüfe deine Dateiberechtigungen und aktiviere den Zugang (%s)"
 
 #: restorer.php:278
 msgid "folder"
@@ -540,20 +540,20 @@ msgstr "Deine Webseite wird unregelmäßig besucht und UpdraftPlus bekommt nicht
 
 #: methods/googledrive.php:482
 msgid "<strong>This is NOT a folder name</strong>. To get a folder's ID navigate to that folder in Google Drive in your web browser and copy the ID from your browser's address bar. It is the part that comes after <kbd>#folders/</kbd>. Leave empty to use your root folder."
-msgstr ""
+msgstr "<strong>Das ist KEIN Verzeichnisname</strong>. Um die ID des Verzeichnisses zu bekommen, gehe im Browser zu Google Drive und kopiere die ID aus der Adressleiste deines Browsers. Es ist der Part, der nach <kbd>#folders/</kbd> kommt. Leer lassen, um das Wurzelverzeichnis zu nutzen."
 
 #: includes/Dropbox/OAuth/Consumer/ConsumerAbstract.php:88
 #: methods/googledrive.php:63
 msgid "The %s authentication could not go ahead, because something else on your site is breaking it. Try disabling your other plugins and switching to a default theme. (Specifically, you are looking for the component that sends output (most likely PHP warnings/errors) before the page begins. Turning off any debugging settings may also help)."
-msgstr ""
+msgstr "Die %s Authentifizierung konnte nicht weiterarbeiten, weil etwas anderes auf deine Seite dies behindert. Versuche deine anderen Plugins testweise zu deaktivieren und schalte auf ein Standardtheme um. (Um es genauer auszudrücken: Du suchst nach einer Komponente, die Ausgaben sendet (meist PHP Warnungen/Fehler), bevor die Seite beginnt. Das Ausschalten der Debugging-Einstellungen kann auch helfen)."
 
 #: admin.php:1360
 msgid "Your PHP memory limit (set by your web hosting company) is very low. UpdraftPlus attempted to raise it but was unsuccessful. This plugin may struggle with a memory limit of less than 64 Mb  - especially if you have very large files uploaded (though on the other hand, many sites will be successful with a 32Mb limit - your experience may vary)."
-msgstr ""
+msgstr "Dein PHP memory limit (eingestellt von deinem Webhoster) ist sehr gering. UpdraftPlus hat erfolglos versucht diesen Wert zu erhöhen. Dieses Plugin kann probleme mit einem memory limit unter 64MB haben - besonders, wenn du sehr große Dateien hochgeladen hast (womal es auch Seiten gibt, die mit 32MB auskommen - die Erfahrungen können schwanken)."
 
 #: addons/autobackup.php:221
 msgid "Backup succeeded <a href=\"#updraftplus-autobackup-log\" onclick=\"var s = document.getElementById('updraftplus-autobackup-log'); s.style.display = 'block';\">(view log...)</a> - now proceeding with the updates..."
-msgstr ""
+msgstr "Sicherung erfolgt <a href=\"#updraftplus-autobackup-log\" onclick=\"var s = document.getElementById('updraftplus-autobackup-log'); s.style.display = 'block';\">(Log ansehen...)</a> - fahre nun mit Aktualisierungen fort..."
 
 #: addons/autobackup.php:298
 msgid "UpdraftPlus Automatic Backups"
@@ -602,11 +602,11 @@ msgstr "Fehler sind aufgetreten:"
 
 #: addons/autobackup.php:219
 msgid "Backup succeeded <a href=\"#updraftplus-autobackup-log\" onclick=\"jQuery('#updraftplus-autobackup-log').slideToggle();\">(view log...)</a> - now proceeding with the updates..."
-msgstr ""
+msgstr "Sicherung ist erfolgt <a href=\"#updraftplus-autobackup-log\" onclick=\"jQuery('updraftplus-autobackup-log').slideToggle();\">(Log ansehen...)</a> - fahre nun mit Aktualisierungen fort ..."
 
 #: addons/autobackup.php:29 addons/autobackup.php:302
 msgid "Automatically backup (where relevant) plugins, themes and the WordPress database with UpdraftPlus before updating"
-msgstr ""
+msgstr "Automatische Sicherungen (wenn notwendig) von Plugins, Themes und der WordPress-Datenbank mit UpdraftPlus anlegen, vor dem Aktualisieren"
 
 #: addons/autobackup.php:64
 msgid "Creating %s and database backup with UpdraftPlus..."
@@ -614,11 +614,11 @@ msgstr "Erstelle %s und Datenbank Sicherung mit UpdraftPlus ..."
 
 #: addons/morefiles.php:94
 msgid "Unable to read zip file (%s) - could not pre-scan it to check its integrity."
-msgstr ""
+msgstr "Konnte ZIP-Datei (%s) nicht lesen - konnte nicht Vorscannen, um die Integrität zu prüfen."
 
 #: addons/morefiles.php:99
 msgid "Unable to open zip file (%s) - could not pre-scan it to check its integrity."
-msgstr ""
+msgstr "Konnte ZIP-Datei (%s) nicht öffnen - konnte nicht Vorscannen, um die Integrität zu prüfen."
 
 #: addons/morefiles.php:118 addons/morefiles.php:119
 msgid "This does not look like a valid WordPress core backup - the file %s was missing."
@@ -662,7 +662,7 @@ msgstr "UpdraftPlus Premium kann <strong>automatisch</strong> eine Sicherung dei
 
 #: admin.php:137 admin.php:287
 msgid "Be safe every time, without needing to remember - follow this link to learn more."
-msgstr ""
+msgstr "Sei jeder Zeit sicher, ohne dich erinnern zu müssen - folge diesen Link um mehr zu erfahren."
 
 #: admin.php:272
 msgid "Update Plugin"
@@ -686,11 +686,11 @@ msgstr "Uploadpfad (%s) existiert nicht - setze zurück (%s)"
 
 #: admin.php:1345
 msgid "If you can still read these words after the page finishes loading, then there is a JavaScript or jQuery problem in the site."
-msgstr ""
+msgstr "Wenn du diese Worte nach dem Fertigladen dieser Seite noch lesen kannst, liegt ein JavaScript oder jQuery Problem auf dieser Seite vor."
 
 #: admin.php:110
 msgid "Follow this link to attempt decryption and download the database file to your computer."
-msgstr ""
+msgstr "Folge diesem Link um zu versuchen die Datenbank zu entschlüsseln und herunterzuladen."
 
 #: admin.php:111
 msgid "This decryption key will be attempted:"
@@ -710,11 +710,11 @@ msgstr "Die Datei wurde hochgeladen."
 
 #: admin.php:105
 msgid "This file does not appear to be an UpdraftPlus backup archive (such files are .zip or .gz files which have a name like: backup_(time)_(site name)_(code)_(type).(zip|gz)). However, UpdraftPlus archives are standard zip/SQL files - so if you are sure that your file has the right format, then you can rename it to match that pattern."
-msgstr ""
+msgstr "Diese Datei scheint kein UpdraftPlus Sicherungs-Archiv zu sein (Dateien als .zip oder .gz, die folgendes Format haben: backup_(zeit)_(seitenname)_(code)_(type).(zip|gz)). Wie dem auch sei, UpdraftPlus-Archive sind normale zip-/SQL-Dateien, wenn du dir also sicher bist, dass die Datei im richtigen Format ist, kannst du es passend dem angegebenen Format umbennenen."
 
 #: admin.php:106
 msgid "(make sure that you were trying to upload a zip file previously created by UpdraftPlus)"
-msgstr ""
+msgstr "(stelle sicher, dass du eine ZIP-Datei hochladen wolltest, die von UpdradftPlus erzeugt wurde)"
 
 #: admin.php:107
 msgid "Upload error:"
@@ -722,7 +722,7 @@ msgstr "Fehler beim Hochladen:"
 
 #: admin.php:108
 msgid "This file does not appear to be an UpdraftPlus encrypted database archive (such files are .gz.crypt files which have a name like: backup_(time)_(site name)_(code)_db.crypt.gz)."
-msgstr ""
+msgstr "DIese Datei scheint keine von UpdraftPlus verschlüsseltes Datenbank-Archiv zu sein (Dateiendung lautet .gz.crypt, Dateien haben folgendes Format: backup_(zeit)_seitenname)_(code)_db.crypt.gz))."
 
 #: admin.php:109
 msgid "Upload error"
@@ -1137,7 +1137,7 @@ msgstr ""
 
 #: addons/sftp.php:27
 msgid "Some servers advertise encrypted FTP as available, but then time-out (after a long time) when you attempt to use it. If you find this happenning, then go into the \"Expert Options\" (below) and turn off SSL there."
-msgstr ""
+msgstr "Manche Server geben verschlüsseltes FTP als unterstützt an, laufen jedoch in einen Time-Out beim Versuch dieses zu nutzen. Wenn dir das Passwort, die in \"Experten Einstellungen\" (unten) und schalte SSL dort aus."
 
 #: addons/sftp.php:64
 msgid "Check your file permissions: Could not successfully create and enter directory:"
@@ -1145,7 +1145,7 @@ msgstr "Überprüfe deine Dateisystemberechtigungen: Konnte kein Verzeichnis ers
 
 #: methods/dropbox.php:273
 msgid "Your web server's PHP installation does not included a required module (%s). Please contact your web hosting provider's support and ask for them to enable it."
-msgstr ""
+msgstr "Die PHP-Installation deines Webservers beinhaltet das Modul (%s) nicht. Kontakte deinen Webhoster und frage nach der Aktivierung davon."
 
 #: methods/s3.php:537
 msgid "Please check your access credentials."
@@ -1169,7 +1169,7 @@ msgstr "DROP der Tabellen nicht möglich, lösche stattdessen (%s)"
 
 #: restorer.php:752 admin.php:1000
 msgid "To import an ordinary WordPress site into a multisite installation requires both the multisite and migrator add-ons."
-msgstr ""
+msgstr "Um eine normale WordPress-Seite in eine Multisite-Installation zu importieren, sind die Add-Ons multisite und migrator notwendig."
 
 #: restorer.php:758 admin.php:1008
 msgid "Site information:"
@@ -1185,11 +1185,11 @@ msgstr "Warnung:"
 
 #: restorer.php:698
 msgid "Your database user does not have permission to create tables. We will attempt to restore by simply emptying the tables; this should work as long as a) you are restoring from a WordPress version with the same database structure, and b) Your imported database does not contain any tables which are not already present on the importing site."
-msgstr ""
+msgstr "Dein Datenbankbenutzer hat nicht das Recht Tabellen zu erzeugen. Wir versuchen eine Wiederherstellung durch leeren deiner Tabellen; das sollte funktionieren, solange a) beide WordPress-Versionen gleich sind und die gleiche Datenbankstruktur haben und b) Deine importierte Datenbank nicht Tabellen enthält, die nicht schon vorhanden sind."
 
 #: restorer.php:713
 msgid "Your database user does not have permission to drop tables. We will attempt to restore by simply emptying the tables; this should work as long as you are restoring from a WordPress version with the same database structure"
-msgstr ""
+msgstr "Dein Datenbankbenutzer hat nicht das Recht Tabellen zu löschen. Wir werden versuchen die Tabellen einfach zu leeren; das sollte funktionieren, sofern die WordPress-Version und Datenbankstruktur die gleiche sind."
 
 #: restorer.php:35 admin.php:995
 msgid "You are running on WordPress multisite - but your backup is not of a multisite site."

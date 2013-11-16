@@ -163,7 +163,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 define('UPDRAFTPLUS_DIR', dirname(__FILE__));
 define('UPDRAFTPLUS_URL', plugins_url('', __FILE__));
-define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,backup*');
+define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,backup*,*backups');
 
 # The following can go in your wp-config.php
 if (!defined('UPDRAFTPLUS_ZIP_EXECUTABLE')) define('UPDRAFTPLUS_ZIP_EXECUTABLE', "/usr/bin/zip,/bin/zip,/usr/local/bin/zip,/usr/sfw/bin/zip,/usr/xdg4/bin/zip,/opt/bin/zip");
@@ -1824,10 +1824,15 @@ class UpdraftPlus {
 						$this->log("finding files: $entry: skipping: excluded by options");
 					} else {
 						$add_to_list = true;
-						// Now deal with entries in $skip_these_dirs ending in *
+						// Now deal with entries in $skip_these_dirs ending in * or starting with *
 						foreach ($skip_these_dirs as $skip => $sind) {
-							if ('*' == substr($skip, -1, 1)) {
+							if ('*' == substr($skip, -1, 1) && strlen($skip) > 1) {
 								if (substr($entry, 0, strlen($skip)-1) == substr($skip, 0, strlen($skip)-1)) {
+									$this->log("finding files: $entry: skipping: excluded by options (glob)");
+									$add_to_list = false;
+								}
+							} elseif ('*' == substr($skip, 0, 1) && strlen($skip) > 1) {
+								if (strlen($entry) >= strlen($skip)-1 && substr($entry, (strlen($skip)-1)*-1) == substr($skip, 1)) {
 									$this->log("finding files: $entry: skipping: excluded by options (glob)");
 									$add_to_list = false;
 								}

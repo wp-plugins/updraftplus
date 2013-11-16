@@ -842,7 +842,7 @@ class UpdraftPlus_Backup {
 
 					# TODO: Lower this from 10,000 if the feedback is good
 					$bindump = (isset($rows) && $rows>10000 && is_string($binsqldump)) ? $this->backup_table_bindump($binsqldump, $table, $where) : false;
-					if (!$bindump) $this->backup_table($table, $where);
+					if (true !== $bindump) $this->backup_table($table, $where);
 
 					if (!empty($manyrows_warning)) $updraftplus->log_removewarning('manyrows_'.$table);
 
