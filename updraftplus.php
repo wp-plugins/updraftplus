@@ -20,6 +20,8 @@ TODO - some of these are out of date/done, needs pruning
 // Exclude backwpup stuff from backup (in wp-content/uploads/backwpup*)
 // Dates in the progress box are apparently untranslated
 // Add-on descriptions are not internationalised
+// Add PHP error reporting logging to other job kinds too
+// Take a look at logfile-to-examine.txt (stored), and the pattern of detection of zipfile contents
 // http://www.phpclasses.org/package/8269-PHP-Send-MySQL-database-backup-files-to-Ubuntu-One.html
 // Put the -old directories in updraft_dir instead of present location. Prevents file perms issues, and also will be automatically excluded from backups.
 // Backup to Dropbox; delete in Dropbox; try to download in UD: doesn't tell you the file isn't there.
@@ -1127,16 +1129,22 @@ class UpdraftPlus {
 		}
 
 		// We just do this once, as we don't want to be in permanent conflict with the overlap detector
-		if ($resumption_no == 8) {
+		if ($resumption_no >= 8 && $resumption_no < 15 && $resume_interval >= 300) {
+
 			// $time_passed is set earlier
-			list($max_time, $timings_string, $run_times_known) = $this->max_time_passed($time_passed, 7);
-			$this->log("Time passed on previous resumptions: $timings_string (known: $run_times_known, max: $max_time)");
-			// Remember that 30 seconds is used as the 'perhaps something is still running' detection threshold, and that 45 seconds is used as the 'the next resumption is approaching - reschedule!' interval
-			if ($run_times_known >= 6 && ($max_time + 52 < $resume_interval)) {
-				$resume_interval = round($max_time + 52);
-				$this->log("Based on the available data, we are bringing the resumption interval down to: $resume_interval seconds");
-				$this->jobdata_set('resume_interval', $resume_interval);
+			list($max_time, $timings_string, $run_times_known) = $this->max_time_passed($time_passed, $resumption_no - 1);
+
+			# Do this on resumption 8, or the first time that we have 6 data points
+			if ((8 == $resumption_no && $run_times_known >= 6) || (6 == $run_times_known && !empty($time_passed[$prev_resumption]))) {
+				$this->log("Time passed on previous resumptions: $timings_string (known: $run_times_known, max: $max_time)");
+				// Remember that 30 seconds is used as the 'perhaps something is still running' detection threshold, and that 45 seconds is used as the 'the next resumption is approaching - reschedule!' interval
+				if ($max_time + 52 < $resume_interval) {
+					$resume_interval = round($max_time + 52);
+					$this->log("Based on the available data, we are bringing the resumption interval down to: $resume_interval seconds");
+					$this->jobdata_set('resume_interval', $resume_interval);
+				}
 			}
+
 		}
 
 		// A different argument than before is needed otherwise the event is ignored

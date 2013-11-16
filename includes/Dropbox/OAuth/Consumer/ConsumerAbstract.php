@@ -93,7 +93,7 @@ abstract class Dropbox_ConsumerAbstract
         }
         global $updraftplus;
         $updraftplus->log('Dropbox reauthorisation needed; but we are running from cron or the CLI, so this is not possible');
-        UpdraftPlus_Options::update_updraft_option("updraft_dropboxtk_request_token",'');
+        UpdraftPlus_Options::update_updraft_option("updraft_dropboxtk_request_token", '');
         $updraftplus->log(sprintf(__('You need to re-authenticate with %s, as your existing credentials are not working.', 'updraftplus'), 'Dropbox'), 'error');
         exit;
     }
@@ -193,7 +193,8 @@ abstract class Dropbox_ConsumerAbstract
                 // If the value is a file upload (prefixed with @), replace it with
                 // the destination filename, the file path will be sent in POSTFIELDS
                 if (isset($value[0]) && $value[0] === '@') $value = $params['filename'];
-                $encoded[] = $this->encode($param) . '=' . $this->encode($value);
+                # Prevent spurious PHP warning by only doing non-arrays
+                if (!is_array($value)) $encoded[] = $this->encode($param) . '=' . $this->encode($value);
             } else {
                 unset($params[$param]);
             }
