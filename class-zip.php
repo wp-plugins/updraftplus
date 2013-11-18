@@ -107,14 +107,14 @@ class UpdraftPlus_BinZip extends UpdraftPlus_PclZip {
 
 			while ((!feof($pipes[1]) || !feof($pipes[2]) || (is_array($files) && count($files)>0)) && false !== ($changes = @stream_select($read, $write, $except, 0, 200000))) {
 
-				if (in_array($pipes[0], $write) && is_array($files) && count($files)>0) {
+				if (is_array($write) && in_array($pipes[0], $write) && is_array($files) && count($files)>0) {
 					$file = array_pop($files);
 					// Send the list of files on stdin
 					fwrite($pipes[0], $file."\n");
 					if (0 == count($files)) fclose($pipes[0]);
 				}
 
-				if (in_array($pipes[1], $read)) {
+				if (is_array($read) && in_array($pipes[1], $read)) {
 					$w = fgets($pipes[1]);
 					// Logging all this really slows things down; use debug to mitigate
 					if ($w && $updraftplus_backup->debug) $updraftplus->log("Output from zip: ".trim($w), 'debug');
@@ -137,7 +137,7 @@ class UpdraftPlus_BinZip extends UpdraftPlus_PclZip {
 					}
 				}
 
-				if (in_array($pipes[2], $read)) {
+				if (is_array($read) && in_array($pipes[2], $read)) {
 					$last_error = fgets($pipes[2]);
 					if (!empty($last_error)) $this->last_error = rtrim($last_error);
 				}
