@@ -130,6 +130,8 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		if (empty($upgrade_files)) return true;
 
+		$wpcore_config_moved = false;
+
 		foreach ( $upgrade_files as $file => $filestruc ) {
 
 			if (empty($file)) continue;
@@ -149,15 +151,19 @@ class Updraft_Restorer extends WP_Upgrader {
 				$wp_filesystem->rmdir($working_dir . "/$tmp_file", false);
 			}
 
-			if ('wpcore' == $type && 'wp-config.php' == $file) {
+			if ('wp-config.php' == $file && 'wpcore' == $type) {
 				if (empty($_POST['updraft_restorer_wpcore_includewpconfig'])) {
 					_e('wp-config.php from backup: will restore as wp-config-backup.php', 'updraftplus');
 					$wp_filesystem->move($working_dir . "/$file", $working_dir . "/wp-config-backup.php", true);
 					$file = "wp-config-backup.php";
+					$wpcore_config_moved = true;
 				} else {
 					_e('wp-config.php from backup: restoring (as per user\'s request)', 'updraftplus');
 				}
 				echo '<br>';
+			} elseif ('wpcore' == $type && 'wp-config-backup.php' == $file && $wpcore_config_moved) {
+				# The file is already gone; nothing to do
+				continue;
 			}
 
 			# Sanity check (should not be possible as these were excluded at backup time)

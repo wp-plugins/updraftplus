@@ -132,6 +132,11 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
+= Development branch - 2013/11/18 =
+
+* FIX: Fix bug in restore of wpcore (Premium) with certain options when backup set was from a previously restored backup with the same certain options
+* TWEAK: Remove various spurious PHP notices caught by the post-1.7.41 extra logging
+
 = 1.7.41 - 2013/11/16 =
 
 * FIX: Work around bug in some old PHP versions on Windows when creating database dump
