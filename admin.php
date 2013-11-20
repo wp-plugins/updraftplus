@@ -1348,6 +1348,7 @@ CREATE TABLE $wpdb->signups (
 
 			<?php
 			if(isset($_GET['updraft_restore_success'])) {
+
 				echo "<div class=\"updated fade\" style=\"padding:8px;\"><strong>".__('Your backup has been restored.','updraftplus').'</strong> '.__('If your restore included files, then your old (themes, uploads, plugins, whatever) directories have been retained with "-old" appended to their name. Remove them when you are satisfied that the backup worked properly.')."</div>";
 			}
 
@@ -2925,6 +2926,7 @@ ENDHERE;
 		}
 
 		echo '</div>'; //close the updraft_restore_progress div
+
 		return true;
 	}
 

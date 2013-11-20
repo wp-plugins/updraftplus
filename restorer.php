@@ -991,8 +991,6 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		// We have to deal with the fact that the procedures used call get_option, which could be looking at the wrong table prefix, or have the wrong thing cached
 
-// 		add_filter('all', array($this, 'option_filter'));
-
 		global $updraftplus_addons_migrator;
 		if (!empty($updraftplus_addons_migrator->new_blogid)) switch_to_blog($updraftplus_addons_migrator->new_blogid);
 
@@ -1002,15 +1000,19 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		global $wp_rewrite;
 		$wp_rewrite->init();
-		flush_rewrite_rules(true);
+		// Don't do this: it will cause rules created by plugins that weren't active at the start of the restore run to be lost
+		# flush_rewrite_rules(true);
+
+		if ( function_exists( 'save_mod_rewrite_rules' ) )
+			save_mod_rewrite_rules();
+		if ( function_exists( 'iis7_save_url_rewrite_rules' ) )
+			iis7_save_url_rewrite_rules();
 
 		foreach (array('permalink_structure', 'rewrite_rules', 'page_on_front') as $opt) {
 			remove_filter('pre_option_'.$opt, array($this, 'option_filter_'.$opt));
 		}
 
 		if (!empty($updraftplus_addons_migrator->new_blogid)) restore_current_blog();
-
-// 		remove_filter('all', array($this, 'option_filter'));
 
 	}
 
