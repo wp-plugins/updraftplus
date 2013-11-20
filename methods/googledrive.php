@@ -253,7 +253,7 @@ class UpdraftPlus_BackupModule_googledrive {
 				continue;
 			}
 
-			$del == $this->gdocs->delete_resource($ids[$file]);
+			$del = $this->gdocs->delete_resource($ids[$file]);
 			if (is_wp_error($del)) {
 				foreach ($del->get_error_messages() as $msg) $updraftplus->log("$file: Deletion failed: $msg");
 				$ret = false;
