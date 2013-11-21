@@ -18,6 +18,8 @@ TODO - some of these are out of date/done, needs pruning
 // Change migrate window: 1) Retain link to article 2) Have selector to choose which backup set to migrate - or a fresh one 3) Have option for FTP/SFTP/SCP despatch 4) Have big "Go" button. Have some indication of what happens next. Test the login first. Have the remote site auto-scan its directory + pick up new sets. Have a way of querying the remote site for its UD-dir. Have a way of saving the settings as a 'profile'. Or just save the last set of settings (since mostly will be just one place to send to). Implement an HTTP/JSON method for sending files too.
 // Place in maintenance mode during restore - ?
 // Don't delete backup set post-restore
+// Free/premium comparison page
+// Detect, and show prominent error in admin area, if the slug is not updraftplus/updraftplus.php (one Mac user in the wild managed to upload as updraftplus-2).
 // Exclude backwpup stuff from backup (in wp-content/uploads/backwpup*)
 // Dates in the progress box are apparently untranslated
 // Add-on descriptions are not internationalised
@@ -126,8 +128,9 @@ TODO - some of these are out of date/done, needs pruning
 //Do an automated test periodically for the success of loop-back connections
 //When a manual backup is run, use a timer to update the 'Download backups and logs' section, just like 'Last finished backup run'. Beware of over-writing anything that's in there from a resumable downloader.
 //Change DB encryption to not require whole gzip in memory (twice)
-//Add YouSendIt, Box.Net, SugarSync, Me.Ga support??
+//Add YouSendIt/Hightail, Copy.Com, Box.Net, SugarSync, Me.Ga support??
 //Make it easier to find add-ons
+// On restore, move in data, not the whole directory (gives more flexibility on file permissions)
 // Move the inclusion, cloud and retention data into the backup job (i.e. don't read current config, make it an attribute of each job). In fact, everything should be. So audit all code for where get_option is called inside a backup run: it shouldn't happen.
 // Should we resume if the only errors were upon deletion (i.e. the backup itself was fine?) Presently we do, but it displays errors for the user to confuse them. Perhaps better to make pruning a separate scheuled task??
 // Create a "Want Support?" button/console, that leads them through what is needed, and performs some basic tests...

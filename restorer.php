@@ -732,15 +732,15 @@ class Updraft_Restorer extends WP_Upgrader {
 			// Discard comments
 			if (empty($buffer) || substr($buffer, 0, 1) == '#') {
 				if ('' == $old_siteurl && preg_match('/^\# Backup of: (http(.*))$/', $buffer, $matches)) {
-					$old_siteurl = $matches[1];
+					$old_siteurl = untrailingslashit($matches[1]);
 					echo '<strong>'.__('Backup of:', 'updraftplus').'</strong> '.htmlspecialchars($old_siteurl).'<br>';
 					do_action('updraftplus_restore_db_record_old_siteurl', $old_siteurl);
 				} elseif ('' == $old_home && preg_match('/^\# Home URL: (http(.*))$/', $buffer, $matches)) {
-					$old_home = $matches[1];
+					$old_home = untrailingslashit($matches[1]);
 					if ($old_siteurl && $old_home != $old_siteurl) echo '<strong>'.__('Site home:', 'updraftplus').'</strong> '.htmlspecialchars($old_home).'<br>';
 					do_action('updraftplus_restore_db_record_old_home', $old_home);
 				} elseif ('' == $old_content && preg_match('/^\# Content URL: (http(.*))$/', $buffer, $matches)) {
-					$old_content = $matches[1];
+					$old_content = untrailingslashit($matches[1]);
 					echo '<strong>'.__('Content URL:', 'updraftplus').'</strong> '.htmlspecialchars($old_content).'<br>';
 					do_action('updraftplus_restore_db_record_old_content', $old_content);
 				} elseif ('' == $old_table_prefix && preg_match('/^\# Table prefix: (\S+)$/', $buffer, $matches)) {
@@ -847,17 +847,17 @@ class Updraft_Restorer extends WP_Upgrader {
 							if (isset($updraftplus_addons_migrator->new_blogid)) switch_to_blog($updraftplus_addons_migrator->new_blogid);
 
 							if ('' == $old_siteurl) {
-								$old_siteurl = $wpdb->get_row("SELECT option_value FROM $wpdb->options WHERE option_name='siteurl'")->option_value;
+								$old_siteurl = untrailingslashit($wpdb->get_row("SELECT option_value FROM $wpdb->options WHERE option_name='siteurl'")->option_value);
 								do_action('updraftplus_restore_db_record_old_siteurl', $old_siteurl);
 							}
 							if ('' == $old_home) {
-								$old_home = $wpdb->get_row("SELECT option_value FROM $wpdb->options WHERE option_name='home'")->option_value;
+								$old_home = untrailingslashit($wpdb->get_row("SELECT option_value FROM $wpdb->options WHERE option_name='home'")->option_value);
 								do_action('updraftplus_restore_db_record_old_home', $old_home);
 							}
 							if ('' == $old_content) {
 								$old_content = $old_siteurl.'/wp-content';
 								do_action('updraftplus_restore_db_record_old_content', $old_content);
-							}							
+							}
 							if (isset($updraftplus_addons_migrator->new_blogid)) restore_current_blog();
 						}
 					}

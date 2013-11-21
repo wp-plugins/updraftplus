@@ -135,8 +135,9 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 = Development branch - 2013/11/18 =
 
 * FIX: Fix bug in restore of wpcore (Premium) with certain options when backup set was from a previously restored backup with the same certain options
-* FIX: Change how permalinks are flushed post-restore. This spares the user from having to manually visit the permalinks page if they had plugins that altered their permalink structure (e.g. WooCommerce).
+* TWEAK: Change how permalinks are flushed post-restore. This spares the user from having to manually visit the permalinks page if they had plugins that altered their permalink structure (e.g. WooCommerce).
 * TWEAK: Remove various spurious PHP notices caught by the post-1.7.41 extra logging
+* TWEAK: Work around sites with site/home URL settings in the WP DB that erroneously have a trailing slash
 
 = 1.7.41 - 2013/11/16 =
 

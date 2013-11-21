@@ -952,6 +952,9 @@ class UpdraftPlus_Admin {
 
 		$migration_warning = false;
 
+		# Don't set too high - we want a timely response returned to the browser
+		@set_time_limit(90);
+
 		while (!gzeof($dbhandle) && ($line<100 || count($wanted_tables)>0)) {
 			$line++;
 			// Up to 1Mb
@@ -960,16 +963,16 @@ class UpdraftPlus_Admin {
 			if (substr($buffer, 0, 1) == '#') {
 
 				if ('' == $old_siteurl && preg_match('/^\# Backup of: (http(.*))$/', $buffer, $matches)) {
-					$old_siteurl = $matches[1];
+					$old_siteurl = untrailingslashit($matches[1]);
 					$mess[] = __('Backup of:', 'updraftplus').' '.htmlspecialchars($old_siteurl).((!empty($old_wp_version)) ? ' '.sprintf(__('(version: %s)', 'updraftplus'), $old_wp_version) : '');
 					// Check for should-be migration
-					if (!$migration_warning && $old_siteurl != site_url()) {
+					if (!$migration_warning && $old_siteurl != untrailingslashit(site_url())) {
 						$migration_warning = true;
 						$powarn = apply_filters('updraftplus_dbscan_urlchange', sprintf(__('Warning: %s', 'updraftplus'), '<a href="http://updraftplus.com/shop/migrator/">'.__('This backup set is from a different site - this is not a restoration, but a migration. You need the Migrator add-on in order to make this work.', 'updraftplus').'</a>'), $old_siteurl, $res);
 						if (!empty($powarn)) $warn[] = $powarn;
 					}
 				} elseif ('' == $old_home && preg_match('/^\# Home URL: (http(.*))$/', $buffer, $matches)) {
-					$old_home = $matches[1];
+					$old_home = untrailingslashit($matches[1]);
 					// Check for should-be migration
 					if (!$migration_warning && $old_home != home_url()) {
 						$migration_warning = true;

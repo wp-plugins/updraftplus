@@ -324,6 +324,7 @@ function updraft_restorer_checkstage2(doalert) {
 			}
 			jQuery('#updraft-restore-modal-stage2a').html(report);
 		} catch(err) {
+			console.log(data);
 			console.log(err);
 			jQuery('#updraft-restore-modal-stage2a').html(updraftlion.jsonnotunderstood);
 		}
