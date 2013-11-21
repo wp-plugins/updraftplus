@@ -18,6 +18,7 @@ TODO - some of these are out of date/done, needs pruning
 // Change migrate window: 1) Retain link to article 2) Have selector to choose which backup set to migrate - or a fresh one 3) Have option for FTP/SFTP/SCP despatch 4) Have big "Go" button. Have some indication of what happens next. Test the login first. Have the remote site auto-scan its directory + pick up new sets. Have a way of querying the remote site for its UD-dir. Have a way of saving the settings as a 'profile'. Or just save the last set of settings (since mostly will be just one place to send to). Implement an HTTP/JSON method for sending files too.
 // Place in maintenance mode during restore - ?
 // Don't delete backup set post-restore
+// Implement code in the premium updater to auto-back-off (reduce load)
 // Free/premium comparison page
 // Detect, and show prominent error in admin area, if the slug is not updraftplus/updraftplus.php (one Mac user in the wild managed to upload as updraftplus-2).
 // Exclude backwpup stuff from backup (in wp-content/uploads/backwpup*)
@@ -109,6 +110,7 @@ TODO - some of these are out of date/done, needs pruning
 // If migrating, warn about consequences of over-writing wp-config.php
 // Produce a command-line version of the restorer (so that people with shell access are immune from server-enforced timeouts)
 // Restorations should be logged also
+// Log the restore operation
 // Migrator - list+download from remote, kick-off backup remotely
 // April 20, 2015: This is the date when the Google Documents API is likely to stop working (https://developers.google.com/google-apps/documents-list/terms)
 // Search for other TODO-s in the code
@@ -277,9 +279,9 @@ class UpdraftPlus {
 		add_action('updraft_backup_database', array($this,'backup_database'));
 		add_action('updraft_backupnow_backup', array($this,'backupnow_files'));
 		add_action('updraft_backupnow_backup_database', array($this,'backupnow_database'));
+		add_action('updraft_backupnow_backup_all', array($this,'backup_all'));
 		# backup_all as an action is legacy (Oct 2013) - there may be some people who wrote cron scripts to use it
 		add_action('updraft_backup_all', array($this,'backup_all'));
-		add_action('updraft_backupnow_backup_all', array($this,'backup_all'));
 		# this is our runs-after-backup event, whose purpose is to see if it succeeded or failed, and resume/mom-up etc.
 		add_action('updraft_backup_resume', array($this,'backup_resume'), 10, 3);
 		# http://codex.wordpress.org/Plugin_API/Filter_Reference/cron_schedules. Raised priority because some plugins wrongly over-write all prior schedule changes (including BackupBuddy!)
@@ -1326,8 +1328,8 @@ class UpdraftPlus {
 		return array($max_time, $timings_string, $run_times_known);
 	}
 
-	function backup_all() {
-		$this->boot_backup(1, 1);
+	function backup_all($skip_cloud) {
+		$this->boot_backup(1, 1, false, false, ($skip_cloud) ? 'none' : false);
 	}
 	
 	function backup_files() {
@@ -1340,12 +1342,12 @@ class UpdraftPlus {
 		$this->boot_backup(false, true);
 	}
 
-	function backupnow_files() {
-		$this->boot_backup(1, 0);
+	function backupnow_files($skip_cloud) {
+		$this->boot_backup(1, 0, false, false, ($skip_cloud) ? 'none' : false);
 	}
 	
-	function backupnow_database() {
-		$this->boot_backup(0, 1);
+	function backupnow_database($skip_cloud) {
+		$this->boot_backup(0, 1, false, false, ($skip_cloud) ? 'none' : false);
 	}
 
 	public function jobdata_getarray($non) {
