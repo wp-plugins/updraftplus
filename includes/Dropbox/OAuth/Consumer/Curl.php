@@ -105,6 +105,7 @@ class Dropbox_Curl extends Dropbox_ConsumerAbstract
         // Execute, get any error and close
         $response = curl_exec($handle);
         $error = curl_error($handle);
+        $getinfo = curl_getinfo($handle);
 
         curl_close($handle);
         
