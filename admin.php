@@ -447,12 +447,14 @@ class UpdraftPlus_Admin {
 			$is_downloaded = false;
 			foreach ($services as $service) {
 				if ($is_downloaded) continue;
-				$this->download_file($file, $service);
-				if (is_readable($fullpath)) {
+				$download = $this->download_file($file, $service);
+				if (is_readable($fullpath) && $download !== false) {
 					clearstatcache();
 					$updraftplus->log('Remote fetch was successful (file size: '.round(filesize($fullpath)/1024,1).' Kb)');
 					$is_downloaded = true;
 				} else {
+					clearstatcache();
+					if (0 === filesize($fullpath)) @unlink($fullpath);
 					$updraftplus->log('Remote fetch failed');
 				}
 			}
@@ -492,10 +494,11 @@ class UpdraftPlus_Admin {
 		$objname = "UpdraftPlus_BackupModule_${service}";
 		if (method_exists($objname, "download")) {
 			$remote_obj = new $objname;
-			$remote_obj->download($file);
+			return $remote_obj->download($file);
 		} else {
 			$updraftplus->log("Automatic backup restoration is not available with the method: $service.");
 			$updraftplus->log("$file: ".sprintf(__("The backup archive for this file could not be found. The remote storage method in use (%s) does not allow us to retrieve files. To perform any restoration using UpdraftPlus, you will need to obtain a copy of this file and place it inside UpdraftPlus's working folder", 'updraftplus'), $service)." (".$this->prune_updraft_dir_prefix($updraftplus->backups_dir_location()).")", 'error');
+			return false;
 		}
 
 	}

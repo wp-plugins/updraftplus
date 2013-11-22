@@ -14,12 +14,14 @@ Author URI: http://updraftplus.com
 /*
 TODO - some of these are out of date/done, needs pruning
 // After Oct 15 2013: Remove page(s) from websites discussing W3TC
+// Backup to Dropbox; delete in Dropbox; try to download in UD: doesn't tell you the file isn't there.
 // Change add-ons screen, to be less confusing for people who haven't yet updated but have connected
 // Change migrate window: 1) Retain link to article 2) Have selector to choose which backup set to migrate - or a fresh one 3) Have option for FTP/SFTP/SCP despatch 4) Have big "Go" button. Have some indication of what happens next. Test the login first. Have the remote site auto-scan its directory + pick up new sets. Have a way of querying the remote site for its UD-dir. Have a way of saving the settings as a 'profile'. Or just save the last set of settings (since mostly will be just one place to send to). Implement an HTTP/JSON method for sending files too.
 // Place in maintenance mode during restore - ?
-// Don't delete backup set post-restore
 // Implement code in the premium updater to auto-back-off (reduce load)
 // Free/premium comparison page
+// Check - all storage download() methods should return false on failure (and log an appropriate message)
+// Pruner assumes storage is same as current - ?
 // Detect, and show prominent error in admin area, if the slug is not updraftplus/updraftplus.php (one Mac user in the wild managed to upload as updraftplus-2).
 // Exclude backwpup stuff from backup (in wp-content/uploads/backwpup*)
 // Dates in the progress box are apparently untranslated
@@ -28,7 +30,6 @@ TODO - some of these are out of date/done, needs pruning
 // Take a look at logfile-to-examine.txt (stored), and the pattern of detection of zipfile contents
 // http://www.phpclasses.org/package/8269-PHP-Send-MySQL-database-backup-files-to-Ubuntu-One.html
 // Put the -old directories in updraft_dir instead of present location. Prevents file perms issues, and also will be automatically excluded from backups.
-// Backup to Dropbox; delete in Dropbox; try to download in UD: doesn't tell you the file isn't there.
 // Update updates checker so that it checks for updates on a sliding-scale: those who've not updated in last X only end up checking every Y : https://github.com/YahnisElsts/plugin-update-checker/issues/9
 // Add feature in Backup Now to skip cloud despatch for this backup
 // Test restores via cloud service for small $??? (Relevant: http://browshot.com/features) (per-day? per-install?)

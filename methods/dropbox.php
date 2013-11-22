@@ -22,7 +22,6 @@ class UpdraftPlus_BackupModule_dropbox {
 			// This act is done by record_uploaded_chunk, and helps prevent overlapping runs
 			touch($fullpath);
 		}
-
 	}
 
 	function backup($backup_array) {
@@ -239,6 +238,7 @@ class UpdraftPlus_BackupModule_dropbox {
 			$try_the_other_one = true;
 			$possible_error = $e->getMessage();
 			$updraftplus->log('Dropbox error: '.$e);
+			$get = false;
 		}
 
 		// TODO: Remove this October 2013 (we stored files in the wrong place for a while...)
@@ -252,13 +252,15 @@ class UpdraftPlus_BackupModule_dropbox {
 			}  catch (Exception $e) {
 				$updraftplus->log($possible_error, 'error');
 				$updraftplus->log($e->getMessage(), 'error');
+				$get = false;
 			}
 		}
+
+		return $get;
 
 	}
 
 	public static function config_print() {
-
 		?>
 			<tr class="updraftplusmethod dropbox">
 				<td></td>

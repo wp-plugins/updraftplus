@@ -84,6 +84,7 @@ class Dropbox_Curl extends Dropbox_ConsumerAbstract
             $options[CURLOPT_HEADER] = false;
             $options[CURLOPT_FILE] = $this->outFile;
             $options[CURLOPT_BINARYTRANSFER] = true;
+            $options[CURLOPT_FAILONERROR] = true;
             if (isset($additional['headers'])) $options[CURLOPT_HTTPHEADER] = $additional['headers'];
             $this->outFile = null;
         } elseif ($method == 'POST') { // POST
@@ -97,13 +98,14 @@ class Dropbox_Curl extends Dropbox_ConsumerAbstract
             fseek($this->inFile, 0);
             $this->inFile = null;
         }
-        
+
         // Set the cURL options at once
         curl_setopt_array($handle, $options);
         
         // Execute, get any error and close
         $response = curl_exec($handle);
         $error = curl_error($handle);
+
         curl_close($handle);
         
         //Check if a cURL error has occured
@@ -117,10 +119,12 @@ class Dropbox_Curl extends Dropbox_ConsumerAbstract
             
             // Set the last response
             $this->lastResponse = $response;
+
+            $code = (!empty($response['code'])) ? $response['code'] : $getinfo['http_code'];
             
             // The API doesn't return an error message for the 304 status code...
             // 304's are only returned when the path supplied during metadata calls has not been modified
-            if ($response['code'] == 304) {
+            if ($code == 304) {
                 $response['body'] = new stdClass;
                 $response['body']->error = 'The folder contents have not changed';
             }
@@ -136,7 +140,7 @@ class Dropbox_Curl extends Dropbox_ConsumerAbstract
                 }
                      
                 // Throw an Exception with the appropriate with the appropriate message and code
-                switch ($response['code']) {
+                switch ($code) {
                     case 304:
                         throw new Dropbox_NotModifiedException($message, 304);
                     case 400:
@@ -148,7 +152,7 @@ class Dropbox_Curl extends Dropbox_ConsumerAbstract
                     case 415:
                         throw new Dropbox_UnsupportedMediaTypeException($message, 415);
                     default:
-                        throw new Dropbox_Exception($message, $response['code']);
+                        throw new Dropbox_Exception($message, $code);
                 }
             }
                 
