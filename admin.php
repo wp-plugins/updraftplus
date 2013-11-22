@@ -899,7 +899,7 @@ class UpdraftPlus_Admin {
 
 		$db_file = (is_string($backup['db'])) ? $updraft_dir.'/'.$backup['db'] : $updraft_dir.'/'.$backup['db'][0];
 
-		if (!is_readable($db_file)) return;
+		if (!is_readable($db_file)) return array($mess, $warn, $err);
 
 		// Encrypted - decrypt it
 		if ($updraftplus->is_db_encrypted($db_file)) {
