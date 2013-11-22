@@ -67,7 +67,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		$upgrade_files = $wp_filesystem->dirlist($upgrade_folder);
 		if ( !empty($upgrade_files) ) {
 			foreach ( $upgrade_files as $file )
-				$wp_filesystem->delete($upgrade_folder . $file['name'], true);
+				$wp_filesystem->delete($upgrade_folder.$file['name'], true);
 		}
 
 		//We need a working directory
@@ -75,8 +75,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		# $working_dir_localpath = WP_CONTENT_DIR.'/upgrade/'. basename($package, '.crypt');
 
 		// Clean up working directory
-		if ( $wp_filesystem->is_dir($working_dir) )
-			$wp_filesystem->delete($working_dir, true);
+		if ($wp_filesystem->is_dir($working_dir)) $wp_filesystem->delete($working_dir, true);
 
 		if (!$wp_filesystem->mkdir($working_dir, 0775)) return new WP_Error('mkdir_failed', __('Failed to create a temporary directory','updraftplus').' ('.$working_dir.')');
 
@@ -108,8 +107,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		}
 
 		// Once extracted, delete the package if required (non-recursive, is a file)
-		if ( $delete_package )
-			$wp_filesystem->delete($backup_dir.$package, false, true);
+		if ($delete_package) $wp_filesystem->delete($backup_dir.$package, false, true);
 
 		return $working_dir;
 

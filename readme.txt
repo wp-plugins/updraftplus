@@ -132,8 +132,9 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
-= Development branch - 2013/11/18 =
+= Development branch - Not yet supported/released =
 
+* FEATURE: Add option to 'Backup Now' dialog to not despatch this backup to the cloud
 * FIX: Fix bug in restore of wpcore (Premium) with certain options when backup set was from a previously restored backup with the same certain options
 * TWEAK: Change how permalinks are flushed post-restore. This spares the user from having to manually visit the permalinks page if they had plugins that altered their permalink structure (e.g. WooCommerce).
 * TWEAK: Remove various spurious PHP notices caught by the post-1.7.41 extra logging
