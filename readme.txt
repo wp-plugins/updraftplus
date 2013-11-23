@@ -139,6 +139,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * FIX: After restoring a site, only delete the backup set from local storage if it was also stored in the cloud (prevents the user having to upload the backup set twice if they want to re-run the restore)
 * TWEAK: Change how permalinks are flushed post-restore. This spares the user from having to manually visit the permalinks page if they had plugins that altered their permalink structure (e.g. WooCommerce).
 * TWEAK: Remove various spurious PHP notices caught by the post-1.7.41 extra logging
+* TWEAK: Make sure some potential error messages from Dropbox are displayed properly
 * TWEAK: Work around sites with site/home URL settings in the WP DB that erroneously have a trailing slash
 
 = 1.7.41 - 2013/11/16 =

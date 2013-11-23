@@ -265,7 +265,7 @@ class UpdraftPlus_BackupModule_dropbox {
 			<tr class="updraftplusmethod dropbox">
 				<td></td>
 				<td>
-				<img alt="Dropbox logo" src="<?php echo UPDRAFTPLUS_URL.'/images/dropbox-logo.png' ?>">
+				<img alt="<?php _e(sprintf(__('%s logo', 'updraftplus'), 'Dropbox')); ?>" src="<?php echo UPDRAFTPLUS_URL.'/images/dropbox-logo.png' ?>">
 				<p><em><?php printf(__('%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your site is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.','updraftplus'),'Dropbox');?></em></p>
 				</td>
 			</tr>
@@ -325,10 +325,15 @@ class UpdraftPlus_BackupModule_dropbox {
 		} elseif (isset($_GET['updraftplus_dropboxauth'])) {
 			// Clear out the existing credentials
 			if ('doit' == $_GET['updraftplus_dropboxauth']) {
-				UpdraftPlus_Options::update_updraft_option("updraft_dropboxtk_request_token",'');
-				UpdraftPlus_Options::update_updraft_option("updraft_dropboxtk_access_token",'');
+				UpdraftPlus_Options::update_updraft_option('updraft_dropboxtk_request_token', '');
+				UpdraftPlus_Options::update_updraft_option('updraft_dropboxtk_access_token', '');
 			}
-			self::auth_request();
+			try {
+				self::auth_request();
+			} catch (Exception $e) {
+				global $updraftplus;
+				$updraftplus->log(sprintf(__("%s error: %s", 'updraftplus'), sprintf(__("%s authentication", 'updraftplus'), 'Dropbox'), $e->getMessage()), 'error');
+			}
 		}
 	}
 
@@ -412,8 +417,8 @@ class UpdraftPlus_BackupModule_dropbox {
 			$OAuth = new Dropbox_Curl($sec, $key, $storage, $callback);
 		} catch (Exception $e) {
 			global $updraftplus;
-			$updraftplus->log("Dropbox Curl Error: ".$e->getMessage());
-			$updraftplus->log("Dropbox Curl Error: ".$e->getMessage(), 'error');
+			$updraftplus->log("Dropbox Curl error: ".$e->getMessage());
+			$updraftplus->log(sprintf(__("%s error: %s", 'updraftplus'), "Dropbox/Curl", $e->getMessage()), 'error');
 			return false;
 		}
 		return new Dropbox_API($OAuth);
