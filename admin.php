@@ -123,7 +123,7 @@ class UpdraftPlus_Admin {
 
 	function core_upgrade_preamble() {
 		if (!class_exists('UpdraftPlus_Addon_Autobackup')) {
-			if (defined('UPDRAFTPLUS_NOADS3')) return;
+			if (defined('UPDRAFTPLUS_NOADS_A')) return;
 			# TODO: Remove legacy/wrong use of transient any time from 1 Jun 2014
 			if (true == get_transient('updraftplus_dismissedautobackup')) return;
 			$dismissed_until = UpdraftPlus_Options::get_updraft_option('updraftplus_dismissedautobackup', 0);
@@ -260,7 +260,7 @@ class UpdraftPlus_Admin {
 
 	function admin_action_upgrade_pluginortheme() {
 
-		if (isset($_GET['action']) && ($_GET['action'] == 'upgrade-plugin' || $_GET['action'] == 'upgrade-theme') && !class_exists('UpdraftPlus_Addon_Autobackup') && !defined('UPDRAFTPLUS_NOADS3')) {
+		if (isset($_GET['action']) && ($_GET['action'] == 'upgrade-plugin' || $_GET['action'] == 'upgrade-theme') && !class_exists('UpdraftPlus_Addon_Autobackup') && !defined('UPDRAFTPLUS_NOADS_A')) {
 
 			# TODO: Remove legacy/erroneous use of transient any time after 1 Jun 2014
 			$dismissed = get_transient('updraftplus_dismissedautobackup');
@@ -364,7 +364,7 @@ class UpdraftPlus_Admin {
 			if ($_REQUEST['type'] == $type) $type_match = true;
 		}
 
-		if (!$type_match && $_REQUEST['type'] != 'db') exit;
+		if (!$type_match && 'db' != $_REQUEST['type']) exit;
 
 		// Get the information on what is wanted
 		$type = $_REQUEST['type'];
@@ -405,6 +405,8 @@ class UpdraftPlus_Admin {
 		// TODO: FIXME: Failed downloads may leave log files forever (though they are small)
 		// Note that log() assumes that the data is in _POST, not _GET
 		if ($debug_mode) $updraftplus->logfile_open($updraftplus->nonce);
+
+		set_error_handler(array($updraftplus, 'php_error'), E_ALL & ~E_STRICT);
 
 		$updraftplus->log("Requested to obtain file: timestamp=$timestamp, type=$type, index=$findex");
 
@@ -472,8 +474,10 @@ class UpdraftPlus_Admin {
 			$updraftplus->log('Remote fetch failed. File '.$fullpath.' did not exist or was unreadable. If you delete local backups then remote retrieval may have failed.');
 		}
 
+		restore_error_handler();
+
 		@fclose($updraftplus->logfile_handle);
-  		if (!$debug_mode) @unlink($updraftplus->logfile_name);
+		if (!$debug_mode) @unlink($updraftplus->logfile_name);
 
 		exit;
 
@@ -638,7 +642,10 @@ class UpdraftPlus_Admin {
 			$updraftplus->jobdata_set('job_type', 'delete');
 			$updraftplus->jobdata_set('job_time_ms', $updraftplus->job_time_ms);
 
-			if (UpdraftPlus_Options::get_updraft_option('updraft_debug_mode')) $updraftplus->logfile_open($updraftplus->nonce);
+			if (UpdraftPlus_Options::get_updraft_option('updraft_debug_mode')) {
+				$updraftplus->logfile_open($updraftplus->nonce);
+				set_error_handler(array($updraftplus, 'php_error'), E_ALL & ~E_STRICT);
+			}
 
 			$updraft_dir = $updraftplus->backups_dir_location();
 			$backupable_entities = $updraftplus->get_backupable_file_entities(true, true);
@@ -717,6 +724,11 @@ class UpdraftPlus_Admin {
 			$updraftplus->log("Remote archives deleted: ".$remote_deleted);
 
 			print json_encode(array('result' => 'success', 'message' => $message));
+
+			if (UpdraftPlus_Options::get_updraft_option('updraft_debug_mode')) {
+				restore_error_handler();
+			}
+
 
 		} elseif ('rawbackuphistory' == $_REQUEST['subaction']) {
 			echo '<h3>'.__('Known backups (raw)', 'updraftplus').'</h3><pre>';
@@ -1344,7 +1356,7 @@ CREATE TABLE $wpdb->signups (
 		<div class="wrap">
 			<h1><?php echo $updraftplus->plugin_title; ?></h1>
 
-			<?php _e('By UpdraftPlus.Com','updraftplus')?> ( <a href="http://updraftplus.com">UpdraftPlus.Com</a> | <a href="http://updraftplus.com/news/"><?php _e('News','updraftplus');?></a> | <?php if (!defined('UPDRAFTPLUS_NOADS3')) { ?><a href="http://updraftplus.com/shop/"><?php _e("Premium",'updraftplus');?></a>  | <?php } ?><a href="http://updraftplus.com/support/"><?php _e("Support",'updraftplus');?></a> | <a href="http://david.dw-perspective.org.uk"><?php _e("Lead developer's homepage",'updraftplus');?></a> | <?php if (1==0 && !defined('UPDRAFTPLUS_NOADS3')) { ?><a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate"><?php _e('Donate','updraftplus');?></a> | <?php } ?><a href="http://updraftplus.com/support/frequently-asked-questions/">FAQs</a> | <a href="http://profiles.wordpress.org/davidanderson/"><?php _e('More plugins','updraftplus');?></a> ) <?php _e('Version','updraftplus');?>: <?php echo $updraftplus->version; ?>
+			<?php _e('By UpdraftPlus.Com','updraftplus')?> ( <a href="http://updraftplus.com">UpdraftPlus.Com</a> | <a href="http://updraftplus.com/news/"><?php _e('News','updraftplus');?></a> | <?php if (!defined('UPDRAFTPLUS_NOADS_A')) { ?><a href="http://updraftplus.com/shop/"><?php _e("Premium",'updraftplus');?></a>  | <?php } ?><a href="http://updraftplus.com/support/"><?php _e("Support",'updraftplus');?></a> | <a href="http://david.dw-perspective.org.uk"><?php _e("Lead developer's homepage",'updraftplus');?></a> | <?php if (1==0 && !defined('UPDRAFTPLUS_NOADS_A')) { ?><a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate"><?php _e('Donate','updraftplus');?></a> | <?php } ?><a href="http://updraftplus.com/support/frequently-asked-questions/">FAQs</a> | <a href="http://profiles.wordpress.org/davidanderson/"><?php _e('More plugins','updraftplus');?></a> ) <?php _e('Version','updraftplus');?>: <?php echo $updraftplus->version; ?>
 			<br>
 
 			<div id="updraft-hidethis">
@@ -2225,23 +2237,14 @@ CREATE TABLE $wpdb->signups (
 			?>
 
 			<tr>
-				<th><?php _e('Email','updraftplus'); ?>:</th>
+				<th><?php _e('Email', 'updraftplus'); ?>:</th>
 				<td>
 					<?php
 						$updraft_email = UpdraftPlus_Options::get_updraft_option('updraft_email');
 					?>
-					<input type="text" title="<?php _e('To send to more than one address, separate each address with a comma.', 'updraftplus'); ?>" style="width:260px" name="updraft_email" value="<?php esc_attr_e($updraft_email); ?>" /> <br><?php _e('Enter an address here to have a report sent (and the whole backup, if you choose) to it.','updraftplus'); ?>
+					<input type="checkbox" name="updraft_email" value="<?php esc_attr_e(get_bloginfo('admin_email')); ?>"<?php if (!empty($updraft_email)) echo ' checked="checked"';?> > <br><?php echo sprintf(__("Check this box to have a basic report sent (and the whole backup, if you choose) to your site's admin address (%s).",'updraftplus'), htmlspecialchars(get_bloginfo('admin_email'))); ?>
 					<?php
-						$admin_email= get_bloginfo('admin_email');
-						if ($updraftplus->have_addons <10) {
-							if ($updraft_email && $updraft_email != $admin_email) {
-								echo '<strong>';
-							}
-							echo ' '.apply_filters('updraft_reportingemailnotice', sprintf(__("With the next release of UpdraftPlus, you will need an add-on to use a different email address to the site owner's (%s).", 'updraftplus'), $admin_email));
-							if ($updraft_email && $updraft_email != $admin_email) {
-								echo '</strong>';
-							}
-						}
+						if (!class_exists('UpdraftPlus_Addon_Reporting')) echo '<a href="http://updraftplus.com/shop/reporting/">'.__('For more reporting features, use the Reporting add-on.', 'updraftplus').'</a>';
 					?>
 				</td>
 			</tr>
@@ -2767,6 +2770,7 @@ ENDHERE;
 		$updraftplus->jobdata_set('job_type', 'restore');
 		$updraftplus->jobdata_set('job_time_ms', $updraftplus->job_time_ms);
 		$updraftplus->logfile_open($updraftplus->nonce);
+
 		# TODO: Provide download link for the log file
 		# TODO: Automatic purging of old log files
 		# TODO: Provide option to auto-email the log file
@@ -2798,11 +2802,13 @@ ENDHERE;
 
 		$updraftplus->log("Restore job started. Entities to restore: $entities_log");
 
-		if (count($_POST['updraft_restore']) == 0) {
+		if (0 == count($_POST['updraft_restore'])) {
 			echo '<p>'.__('ABORT: Could not find the information on which entities to restore.', 'updraftplus').'</p>';
 			echo '<p>'.__('If making a request for support, please include this information:','updraftplus').' '.count($_POST).' : '.htmlspecialchars(serialize($_POST)).'</p>';
 			return new WP_Error('missing_info', 'Backup information not found');
 		}
+
+		set_error_handler(array($updraftplus, 'php_error'), E_ALL & ~E_STRICT);
 
 		/*
 		$_POST['updraft_restore'] is typically something like: array( 0=>'db', 1=>'plugins', 2=>'themes'), etc.
@@ -2880,6 +2886,7 @@ ENDHERE;
 					echo __('Could not find one of the files for restoration', 'updraftplus')." ($file)<br>";
 					$updraftplus->log("$file: ".__('Could not find one of the files for restoration', 'updraftplus'), 'error');
 					echo '</div>';
+					restore_error_handler();
 					return false;
 				}
 			}
@@ -2892,9 +2899,11 @@ ENDHERE;
 					echo '<strong>'.__('Error:',  'updraftplus').'</strong> '.htmlspecialchars($msg).'<br>';
 				}
 				echo '</div>'; //close the updraft_restore_progress div even if we error
+				restore_error_handler();
 				return $val;
 			} elseif (false === $val) {
 				echo '</div>'; //close the updraft_restore_progress div even if we error
+				restore_error_handler();
 				return false;
 			}
 
@@ -2924,9 +2933,11 @@ ENDHERE;
 						echo '<strong>'.__('Error message',  'updraftplus').':</strong> '.htmlspecialchars($msg).'<br>';
 					}
 					echo '</div>'; //close the updraft_restore_progress div even if we error
+					restore_error_handler();
 					return $val;
 				} elseif (false === $val) {
 					echo '</div>'; //close the updraft_restore_progress div even if we error
+					restore_error_handler();
 					return false;
 				}
 			}
@@ -2934,20 +2945,25 @@ ENDHERE;
 
 		echo '</div>'; //close the updraft_restore_progress div
 
+		restore_error_handler();
 		return true;
 	}
 
 	function sort_restoration_entities($a, $b) {
 		if ($a == $b) return 0;
 		# Put the database first
-		if ($a == 'db') return -1;
-		if ($b == 'db') return 1;
+		if ('db' == $a) return -1;
+		if ('db' == $b) return 1;
 		return strcmp($a, $b);
 	}
 
+	function return_array($input) {
+		if (!is_array($input)) $input = array();
+		return $input;
+	}
+
 	function get_settings_keys() {
-		return array('updraft_autobackup_default', 'updraftplus_tmp_googledrive_access_token', 'updraftplus_dismissedautobackup', 'updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_wpcore', 'updraft_include_wpcore_exclude', 'updraft_include_more', 
-			'updraft_include_blogs', 'updraft_include_mu-plugins', 'updraft_include_others_exclude', 'updraft_lastmessage', 'updraft_googledrive_token', 'updraft_dropboxtk_request_token', 'updraft_dropboxtk_access_token', 'updraft_dropbox_folder', 'updraft_last_backup', 'updraft_starttime_files', 'updraft_starttime_db', 'updraft_startday_db', 'updraft_startday_files', 'updraft_sftp_settings', 'updraft_s3generic_login', 'updraft_s3generic_pass', 'updraft_s3generic_remote_path', 'updraft_s3generic_endpoint', 'updraft_webdav_settings', 'updraft_disable_ping', 'updraft_cloudfiles_user', 'updraft_cloudfiles_apikey', 'updraft_cloudfiles_path', 'updraft_cloudfiles_authurl', 'updraft_ssl_useservercerts', 'updraft_ssl_disableverify', 'updraft_s3_login', 'updraft_s3_pass', 'updraft_s3_remote_path', 'updraft_dreamobjects_login', 'updraft_dreamobjects_pass', 'updraft_dreamobjects_remote_path');
+		return array('updraft_autobackup_default', 'updraftplus_tmp_googledrive_access_token', 'updraftplus_dismissedautobackup', 'updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_wpcore', 'updraft_include_wpcore_exclude', 'updraft_include_more', 'updraft_include_blogs', 'updraft_include_mu-plugins', 'updraft_include_others_exclude', 'updraft_lastmessage', 'updraft_googledrive_token', 'updraft_dropboxtk_request_token', 'updraft_dropboxtk_access_token', 'updraft_dropbox_folder', 'updraft_last_backup', 'updraft_starttime_files', 'updraft_starttime_db', 'updraft_startday_db', 'updraft_startday_files', 'updraft_sftp_settings', 'updraft_s3generic_login', 'updraft_s3generic_pass', 'updraft_s3generic_remote_path', 'updraft_s3generic_endpoint', 'updraft_webdav_settings', 'updraft_disable_ping', 'updraft_cloudfiles_user', 'updraft_cloudfiles_apikey', 'updraft_cloudfiles_path', 'updraft_cloudfiles_authurl', 'updraft_ssl_useservercerts', 'updraft_ssl_disableverify', 'updraft_s3_login', 'updraft_s3_pass', 'updraft_s3_remote_path', 'updraft_dreamobjects_login', 'updraft_dreamobjects_pass', 'updraft_dreamobjects_remote_path', 'updraft_report_warningsonly', 'updraft_report_wholebackup');
 	}
 
 }

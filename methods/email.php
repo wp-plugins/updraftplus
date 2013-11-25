@@ -10,8 +10,9 @@ class UpdraftPlus_BackupModule_email {
 
 		$updraft_dir = trailingslashit($updraftplus->backups_dir_location());
 
-		$email = UpdraftPlus_Options::get_updraft_option('updraft_email');
-		if (is_array($email)) $email = implode(',', $email);
+		$email = $updraftplus->just_one_email(UpdraftPlus_Options::get_updraft_option('updraft_email'), true);
+
+		if (!is_array($email)) $email = array($email);
 
 		foreach ($backup_array as $type => $file) {
 
@@ -20,12 +21,17 @@ class UpdraftPlus_BackupModule_email {
 			$fullpath = $updraft_dir.$file;
 			#if (file_exists($fullpath) && filesize($fullpath) > ...
 			$any_sent = false;
-			foreach (explode(',', $email) as $sendmail_addr) {
-				$send_short = (strlen($sendmail_addr)>5) ? substr($sendmail_addr, 0, 5).'...' : $sendmail_addr;
-				$updraftplus->log("$file: email to: $send_short");
+			foreach ($email as $ind => $addr) {
 
-				$sent = wp_mail(trim($sendmail_addr), __("WordPress Backup",'updraftplus')." ".get_date_from_gmt(gmdate('Y-m-d H:i:s', $updraftplus->backup_time), 'Y-m-d H:i'), sprintf(__("Backup is of: %s.",'updraftplus'), $descrip_type).' '.__('Be wary; email backups may fail because of file size limitations on mail servers.','updraftplus'), null, array($fullpath));
-				if ($sent) $any_sent = true;
+				if (!apply_filters('updraftplus_email_wholebackup', true, $addr, $ind)) continue;
+
+				foreach (explode(',', $addr) as $sendmail_addr) {
+					$send_short = (strlen($sendmail_addr)>5) ? substr($sendmail_addr, 0, 5).'...' : $sendmail_addr;
+					$updraftplus->log("$file: email to: $send_short");
+
+					$sent = wp_mail(trim($sendmail_addr), __("WordPress Backup", 'updraftplus')." ".get_date_from_gmt(gmdate('Y-m-d H:i:s', $updraftplus->backup_time), 'Y-m-d H:i'), sprintf(__("Backup is of: %s.",'updraftplus'), $descrip_type).' '.__('Be wary; email backups may fail because of file size limitations on mail servers.','updraftplus'), null, array($fullpath));
+					if ($sent) $any_sent = true;
+				}
 			}
 			if ($any_sent) {
 				$updraftplus->uploaded_file($file);
@@ -40,13 +46,17 @@ class UpdraftPlus_BackupModule_email {
 	public static function config_print() {
 		?>
 		<tr class="updraftplusmethod email">
-			<th><?php _e('Note:','updraftplus');?></th>
-			<td><?php echo str_replace('&gt;','>', str_replace('&lt;','<',htmlspecialchars(__('The email address entered above will be used. If choosing "E-Mail", then <strong>be aware</strong> that mail servers tend to have size limits; typically around 10-20Mb; <strong>backups larger than any limits will not arrive.</strong>','updraftplus'))));?></td>
+			<th><?php _e('Note:', 'updraftplus');?></th>
+			<td><?php
+				$used = apply_filters('updraftplus_email_whichaddresses', sprintf(__("Your site's admin email address (%s) will be used.", 'updraftplus'), get_bloginfo('admin_email')));
+				echo str_replace('&gt;','>', str_replace('&lt;','<',htmlspecialchars($used.' '.__('<strong>Be aware</strong> that mail servers tend to have size limits; typically around 10-20Mb; <strong>backups larger than any limits will likely not arrive.</strong>','updraftplus'))));?>
+			</td>
 		</tr>
 		<?php
 	}
 
 	public function delete($files) {
+		return true;
 	}
 
 }

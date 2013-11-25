@@ -141,6 +141,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Remove various spurious PHP notices caught by the post-1.7.41 extra logging
 * TWEAK: Make sure some potential error messages from Dropbox are displayed properly
 * TWEAK: Work around sites with site/home URL settings in the WP DB that erroneously have a trailing slash
+* TWEAK: Log PHP notices for all job types
 
 = 1.7.41 - 2013/11/16 =
 

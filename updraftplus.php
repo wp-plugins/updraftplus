@@ -13,20 +13,19 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
+// Check - all storage download() methods should return false on failure (and log an appropriate message)
 // After Oct 15 2013: Remove page(s) from websites discussing W3TC
-// Backup to Dropbox; delete in Dropbox; try to download in UD: doesn't tell you the file isn't there.
 // Change add-ons screen, to be less confusing for people who haven't yet updated but have connected
 // Change migrate window: 1) Retain link to article 2) Have selector to choose which backup set to migrate - or a fresh one 3) Have option for FTP/SFTP/SCP despatch 4) Have big "Go" button. Have some indication of what happens next. Test the login first. Have the remote site auto-scan its directory + pick up new sets. Have a way of querying the remote site for its UD-dir. Have a way of saving the settings as a 'profile'. Or just save the last set of settings (since mostly will be just one place to send to). Implement an HTTP/JSON method for sending files too.
 // Place in maintenance mode during restore - ?
 // Implement code in the premium updater to auto-back-off (reduce load)
 // Free/premium comparison page
-// Check - all storage download() methods should return false on failure (and log an appropriate message)
+// Bring down interval if we are already in upload time (since zip delays are no longer possible). See: options-general-11-23.txt
 // Pruner assumes storage is same as current - ?
 // Detect, and show prominent error in admin area, if the slug is not updraftplus/updraftplus.php (one Mac user in the wild managed to upload as updraftplus-2).
 // Exclude backwpup stuff from backup (in wp-content/uploads/backwpup*)
 // Dates in the progress box are apparently untranslated
 // Add-on descriptions are not internationalised
-// Add PHP error reporting logging to other job kinds too
 // Take a look at logfile-to-examine.txt (stored), and the pattern of detection of zipfile contents
 // http://www.phpclasses.org/package/8269-PHP-Send-MySQL-database-backup-files-to-Ubuntu-One.html
 // Put the -old directories in updraft_dir instead of present location. Prevents file perms issues, and also will be automatically excluded from backups.
@@ -1011,23 +1010,23 @@ class UpdraftPlus {
 		if (0 == error_reporting()) return true;
 
 		switch ($errno) {
-			case 1:     $e_type = 'E_ERROR'; break;
-			case 2:     $e_type = 'E_WARNING'; break;
-			case 4:     $e_type = 'E_PARSE'; break;
-			case 8:     $e_type = 'E_NOTICE'; break;
-			case 16:    $e_type = 'E_CORE_ERROR'; break;
-			case 32:    $e_type = 'E_CORE_WARNING'; break;
-			case 64:    $e_type = 'E_COMPILE_ERROR'; break;
-			case 128:   $e_type = 'E_COMPILE_WARNING'; break;
-			case 256:   $e_type = 'E_USER_ERROR'; break;
-			case 512:   $e_type = 'E_USER_WARNING'; break;
-			case 1024:  $e_type = 'E_USER_NOTICE'; break;
-			case 2048:  $e_type = 'E_STRICT'; break;
-			case 4096:  $e_type = 'E_RECOVERABLE_ERROR'; break;
-			case 8192:  $e_type = 'E_DEPRECATED'; break;
-			case 16384: $e_type = 'E_USER_DEPRECATED'; break;
-			case 30719: $e_type = 'E_ALL'; break;
-			default:    $e_type = "E_UNKNOWN ($errno)"; break;
+			case 1:		$e_type = 'E_ERROR'; break;
+			case 2:		$e_type = 'E_WARNING'; break;
+			case 4:		$e_type = 'E_PARSE'; break;
+			case 8:		$e_type = 'E_NOTICE'; break;
+			case 16:		$e_type = 'E_CORE_ERROR'; break;
+			case 32:		$e_type = 'E_CORE_WARNING'; break;
+			case 64:		$e_type = 'E_COMPILE_ERROR'; break;
+			case 128:		$e_type = 'E_COMPILE_WARNING'; break;
+			case 256:		$e_type = 'E_USER_ERROR'; break;
+			case 512:		$e_type = 'E_USER_WARNING'; break;
+			case 1024:	$e_type = 'E_USER_NOTICE'; break;
+			case 2048:	$e_type = 'E_STRICT'; break;
+			case 4096:	$e_type = 'E_RECOVERABLE_ERROR'; break;
+			case 8192:	$e_type = 'E_DEPRECATED'; break;
+			case 16384:	$e_type = 'E_USER_DEPRECATED'; break;
+			case 30719:	$e_type = 'E_ALL'; break;
+			default:		$e_type = "E_UNKNOWN ($errno)"; break;
 		}
 
 		if (!is_string($errstr)) $errstr = serialize($errstr);
@@ -2089,10 +2088,15 @@ class UpdraftPlus {
 		return  ($input > 0 && $input < 3650) ? $input : 1;
 	}
 
-	public function just_one($input) {
+	public function just_one_email($input, $required = false) {
+		return $this->just_one($input, 'saveemails', (empty($input) && false === $required) ? '' : get_bloginfo('admin_email'));
+	}
+
+	public function just_one($input, $filter = 'savestorage', $rinput = false) {
+		if (false === $rinput) $rinput = (is_array($input)) ? array_pop($input) : $input;
+		if (false !== strpos($rinput, ',')) $rinput = substr($rinput, 0, strpos($rinput, ','));
 		$oinput = $input;
-		$rinput = (is_array($input)) ? array_pop($input) : $input;
-		return apply_filters('updraftplus_savestorage', $rinput, $oinput);
+		return apply_filters('updraftplus_'.$filter, $rinput, $oinput);
 	}
 
 	function memory_check_current($memory_limit = false) {
@@ -2137,7 +2141,7 @@ class UpdraftPlus {
 	}
 
 	public function wordshell_random_advert($urls) {
-		if (defined('UPDRAFTPLUS_NOADS3')) return "";
+		if (defined('UPDRAFTPLUS_NOADS_A')) return "";
 		$rad = rand(0,8);
 		switch ($rad) {
 		case 0:
@@ -2159,7 +2163,7 @@ class UpdraftPlus {
 			return $this->url_start($urls,'www.simbahosting.co.uk')."Need high-quality WordPress hosting from WordPress specialists? (Including automatic backups and 1-click installer). Get it from the creators of UpdraftPlus.".$this->url_end($urls,'www.simbahosting.co.uk');
 			break;
 		case 5:
-			if (!defined('UPDRAFTPLUS_NOADS3')) {
+			if (!defined('UPDRAFTPLUS_NOADS_A')) {
 				return $this->url_start($urls,'updraftplus.com').__("Need even more features and support? Check out UpdraftPlus Premium",'updraftplus').$this->url_end($urls,'updraftplus.com');
 			} else {
 				return "Thanks for being an UpdraftPlus premium user. Keep visiting ".$this->url_start($urls,'updraftplus.com')."updraftplus.com".$this->url_end($urls,'updraftplus.com')." to see what's going on.";
