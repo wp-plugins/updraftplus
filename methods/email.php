@@ -48,7 +48,7 @@ class UpdraftPlus_BackupModule_email {
 		<tr class="updraftplusmethod email">
 			<th><?php _e('Note:', 'updraftplus');?></th>
 			<td><?php
-				$used = apply_filters('updraftplus_email_whichaddresses', sprintf(__("Your site's admin email address (%s) will be used.", 'updraftplus'), get_bloginfo('admin_email')));
+				$used = apply_filters('updraftplus_email_whichaddresses', sprintf(__("Your site's admin email address (%s) will be used.", 'updraftplus'), get_bloginfo('admin_email')).' <a href="http://updraftplus.com/shop/reporting/">'.sprintf(__('For more options, use the "%s" add-on.', 'updraftplus'), __('Reporting', 'updraftplus')).'</a>');
 				echo str_replace('&gt;','>', str_replace('&lt;','<',htmlspecialchars($used.' '.__('<strong>Be aware</strong> that mail servers tend to have size limits; typically around 10-20Mb; <strong>backups larger than any limits will likely not arrive.</strong>','updraftplus'))));?>
 			</td>
 		</tr>

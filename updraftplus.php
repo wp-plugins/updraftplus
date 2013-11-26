@@ -20,6 +20,7 @@ TODO - some of these are out of date/done, needs pruning
 // Place in maintenance mode during restore - ?
 // Implement code in the premium updater to auto-back-off (reduce load)
 // Free/premium comparison page
+// Deal with missing plugins/themes/uploads directory when installing
 // Bring down interval if we are already in upload time (since zip delays are no longer possible). See: options-general-11-23.txt
 // Pruner assumes storage is same as current - ?
 // Detect, and show prominent error in admin area, if the slug is not updraftplus/updraftplus.php (one Mac user in the wild managed to upload as updraftplus-2).
