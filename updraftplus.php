@@ -1296,6 +1296,7 @@ class UpdraftPlus {
 
 		# Save again (now that we have checksums)
 		$this->save_backup_history($our_files);
+		do_action('updraft_final_backup_history', $our_files);
 
 		// We finished; so, low memory was not a problem
 		$this->log_removewarning('lowram');
@@ -1305,6 +1306,7 @@ class UpdraftPlus {
 			$this->log("There were no more files that needed uploading; backup job is complete");
 			// No email, as the user probably already got one if something else completed the run
 			$this->backup_finish($next_resumption, true, false, $resumption_no);
+			restore_error_handler();
 			return;
 		} else {
 			$this->log("Requesting upload of the files that have not yet been successfully uploaded (".count($undone_files).")");
@@ -2159,7 +2161,7 @@ class UpdraftPlus {
 
 	public function wordshell_random_advert($urls) {
 		if (defined('UPDRAFTPLUS_NOADS_A')) return "";
-		$rad = rand(0,8);
+		$rad = rand(0, 8);
 		switch ($rad) {
 		case 0:
 			return $this->url_start($urls,'updraftplus.com').__("Want more features or paid, guaranteed support? Check out UpdraftPlus.Com", 'updraftplus').$this->url_end($urls,'updraftplus.com');

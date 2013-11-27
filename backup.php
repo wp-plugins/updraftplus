@@ -499,20 +499,21 @@ class UpdraftPlus_Backup {
 
 		$subject = apply_filters('updraft_report_subject', sprintf(__('Backed up: %s', 'updraftplus'), get_bloginfo('name')).' (UpdraftPlus '.$updraftplus->version.') '.get_date_from_gmt(gmdate('Y-m-d H:i:s', time()), 'Y-m-d H:i'), $error_count, count($warnings));
 
-		$body = sprintf(__('Site: %s'), site_url())."\r\nUpdraftPlus: ".__('WordPress backup is complete','updraftplus').".\r\n".sprintf(__('Backup contains: %s','updraftplus'), $backup_contains)."\r\n".sprintf(__('Latest status: %s', 'updraftplus'),  $final_message)."\r\n\r\n".$updraftplus->wordshell_random_advert(0)."\r\n".$append_log;
+		$body = apply_filters('updraft_report_body', __('Backup of:').' '.site_url()."\r\nUpdraftPlus: ".__('WordPress backup is complete','updraftplus').".\r\n".__('Backup contains:','updraftplus'). $backup_contains."\r\n".__('Latest status:', 'updraftplus').' '.$final_message."\r\n\r\n".$updraftplus->wordshell_random_advert(0)."\r\n".$append_log, $final_message, $backup_contains, $updraftplus->errors, $warnings);
+
+		$attachments = apply_filters('updraft_report_attachments', $attachments);
 
 		foreach ($sendmail_to as $ind => $mailto) {
 
 			if (false === apply_filters('updraft_report_sendto', true, $mailto, $error_count, count($warnings), $ind)) continue;
 
 			foreach (explode(',', $mailto) as $sendmail_addr) {
-
 				$updraftplus->log("Sending email ('$backup_contains') report to: ".substr($sendmail_addr, 0, 5)."...");
 				wp_mail(trim($sendmail_addr), $subject, $body);
-
 			}
 		}
 
+		do_action('updraft_report_finished');
 		if (count($attachments)>0) remove_action('phpmailer_init', array($this, 'phpmailer_init'));
 
 	}
