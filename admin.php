@@ -81,6 +81,7 @@ class UpdraftPlus_Admin {
 			'wholebackup' => __('When the Email storage method is enabled, also send the entire backup', 'updraftplus'),
 			'emailsizelimits' => esc_attr(sprintf(__('Be aware that mail servers tend to have size limits; typically around %s Mb; backups larger than any limits will likely not arrive.','updraftplus'), '10-20')),
 			'rescanning' => __('Rescanning (looking for backups that you have uploaded manually into the internal backup store)...','updraftplus'),
+			'enteremailhere' => esc_attr(__('To send to more than one address, separate each address with a comma.', 'updraftplus')),
 			'excludedeverything' => __('If you exclude both the database and the files, then you have excluded everything!', 'updraftplus'),
 			'restoreproceeding' => __('The restore operation has begun. Do not press stop or close your browser until it reports itself as having finished.', 'updraftplus'),
 			'unexpectedresponse' => __('Unexpected response:','updraftplus'),
@@ -2243,7 +2244,7 @@ CREATE TABLE $wpdb->signups (
 					<?php
 						$updraft_email = UpdraftPlus_Options::get_updraft_option('updraft_email');
 					?>
-					<input type="checkbox" name="updraft_email" value="<?php esc_attr_e(get_bloginfo('admin_email')); ?>"<?php if (!empty($updraft_email)) echo ' checked="checked"';?> > <br><?php echo sprintf(__("Check this box to have a basic report sent (and the whole backup, if you choose) to your site's admin address (%s).",'updraftplus'), htmlspecialchars(get_bloginfo('admin_email'))); ?>
+					<input type="checkbox" name="updraft_email" value="<?php esc_attr_e(get_bloginfo('admin_email')); ?>"<?php if (!empty($updraft_email)) echo ' checked="checked"';?> > <br><?php echo sprintf(__("Check this box to have a basic report sent to your site's admin address (%s).",'updraftplus'), htmlspecialchars(get_bloginfo('admin_email'))); ?>
 					<?php
 						if (!class_exists('UpdraftPlus_Addon_Reporting')) echo '<a href="http://updraftplus.com/shop/reporting/">'.__('For more reporting features, use the Reporting add-on.', 'updraftplus').'</a>';
 					?>

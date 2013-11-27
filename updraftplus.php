@@ -26,10 +26,12 @@ TODO - some of these are out of date/done, needs pruning
 // Deal with missing plugins/themes/uploads directory when installing
 // Bring down interval if we are already in upload time (since zip delays are no longer possible). See: options-general-11-23.txt
 // Pruner assumes storage is same as current - ?
+// Include blog feed in basic email report
 // Detect, and show prominent error in admin area, if the slug is not updraftplus/updraftplus.php (one Mac user in the wild managed to upload as updraftplus-2).
 // Exclude backwpup stuff from backup (in wp-content/uploads/backwpup*)
 // Dates in the progress box are apparently untranslated
 // Add-on descriptions are not internationalised
+// Nicer in-dashboard log: show log + option to download; also (if 'reporting' add-on available) show the HTML report from that
 // Take a look at logfile-to-examine.txt (stored), and the pattern of detection of zipfile contents
 // http://www.phpclasses.org/package/8269-PHP-Send-MySQL-database-backup-files-to-Ubuntu-One.html
 // Put the -old directories in updraft_dir instead of present location. Prevents file perms issues, and also will be automatically excluded from backups.
@@ -1621,15 +1623,13 @@ class UpdraftPlus {
 			$this->log("No email will/can be sent - the user has not configured an email address.");
 		}
 
-		$this->log($final_message);
-
 		global $updraftplus_backup;
 		if ($send_an_email) $updraftplus_backup->send_results_email($final_message);
 
-		@fclose($this->logfile_handle);
+		# Make sure this is the final message logged (so it remains on the dashboard)
+		$this->log($final_message);
 
-		// Don't delete the log file now; delete it upon rotation
- 		//if (!UpdraftPlus_Options::get_updraft_option('updraft_debug_mode')) @unlink($this->logfile_name);
+		@fclose($this->logfile_handle);
 
 		// This is left until last for the benefit of the front-end UI, which then gets maximum chance to display the 'finished' status
 		if ($delete_jobdata) delete_site_option('updraft_jobdata_'.$this->nonce);
@@ -2107,6 +2107,7 @@ class UpdraftPlus {
 			foreach ($x as $ind => $val) {
 				if (empty($val)) unset($x[$ind]);
 			}
+			if (empty($x)) $x = '';
 		}
 		return $x;
 	}

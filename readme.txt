@@ -134,6 +134,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 
 = Development branch - Not yet supported/released =
 
+* FEATURE: New "Reporting" add-on - more sophisticated/flexible backup reports (http://updraftplus.com/shop/reporting/)
 * FEATURE: Add option to 'Backup Now' dialog to not despatch this backup to the cloud
 * FIX: Fix bug in restore of wpcore (Premium) with certain options when backup set was from a previously restored backup with the same certain options
 * FIX: After restoring a site, only delete the backup set from local storage if it was also stored in the cloud (prevents the user having to upload the backup set twice if they want to re-run the restore)

@@ -477,7 +477,7 @@ class UpdraftPlus_Backup {
 				}
 				$error_count++;
 			}
-			$append_log.="\n";
+			$append_log.="\r\n";
 		}
 		$warnings = $updraftplus->jobdata_get('warnings');
 		if (is_array($warnings) && count($warnings) >0) {
@@ -486,7 +486,7 @@ class UpdraftPlus_Backup {
 			foreach ($warnings as $err) {
 				$append_log .= "* ".rtrim($err)."\r\n";
 			}
-			$append_log.="\n";
+			$append_log.="\r\n";
 		}
 
 		if ($debug_mode && '' != $updraftplus->logfile_name && !in_array($updraftplus->logfile_name, $attachments)) {
@@ -495,13 +495,14 @@ class UpdraftPlus_Backup {
 		}
 
 		// We have to use the action in order to set the MIME type on the attachment - by default, WordPress just puts application/octet-stream
-		if (count($attachments)>0) add_action('phpmailer_init', array($this, 'phpmailer_init'));
 
 		$subject = apply_filters('updraft_report_subject', sprintf(__('Backed up: %s', 'updraftplus'), get_bloginfo('name')).' (UpdraftPlus '.$updraftplus->version.') '.get_date_from_gmt(gmdate('Y-m-d H:i:s', time()), 'Y-m-d H:i'), $error_count, count($warnings));
 
-		$body = apply_filters('updraft_report_body', __('Backup of:').' '.site_url()."\r\nUpdraftPlus: ".__('WordPress backup is complete','updraftplus').".\r\n".__('Backup contains:','updraftplus'). $backup_contains."\r\n".__('Latest status:', 'updraftplus').' '.$final_message."\r\n\r\n".$updraftplus->wordshell_random_advert(0)."\r\n".$append_log, $final_message, $backup_contains, $updraftplus->errors, $warnings);
+		$body = apply_filters('updraft_report_body', __('Backup of:').' '.site_url()."\r\nUpdraftPlus ".__('WordPress backup is complete','updraftplus').".\r\n".__('Backup contains:','updraftplus').' '.$backup_contains."\r\n".__('Latest status:', 'updraftplus').' '.$final_message."\r\n\r\n".$updraftplus->wordshell_random_advert(0)."\r\n".$append_log, $final_message, $backup_contains, $updraftplus->errors, $warnings);
 
 		$attachments = apply_filters('updraft_report_attachments', $attachments);
+
+		if (count($attachments)>0) add_action('phpmailer_init', array($this, 'phpmailer_init'));
 
 		foreach ($sendmail_to as $ind => $mailto) {
 
