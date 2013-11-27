@@ -1,13 +1,9 @@
 <?php
 
-if (!defined ('ABSPATH')) die('No direct access allowed');
-
+if (!defined('UPDRAFTPLUS_DIR')) die('No direct access allowed');
 if (!class_exists('UpdraftPlus_PclZip')) require(UPDRAFTPLUS_DIR.'/class-zip.php');
 
 // This file contains functions that are only needed/loaded when a backup is running (reduces memory usage on other site pages)
-
-global $updraftplus_backup;
-$updraftplus_backup = new UpdraftPlus_Backup();
 
 class UpdraftPlus_Backup {
 
@@ -34,7 +30,7 @@ class UpdraftPlus_Backup {
 	private $updraft_dir;
 	private $job_file_entities = array();
 
-	public function __construct() {
+	public function __construct($backup_files) {
 
 		global $updraftplus;
 
@@ -42,6 +38,11 @@ class UpdraftPlus_Backup {
 
 		$this->debug = UpdraftPlus_Options::get_updraft_option('updraft_debug_mode');
 		$this->updraft_dir = $updraftplus->backups_dir_location();
+
+		if ('no' === $backup_files) {
+			$this->use_zip_object = 'UpdraftPlus_PclZip';
+			return;
+		}
 
 		// false means 'tried + failed'; whereas 0 means 'not yet tried'
 		// Disallow binzip on OpenVZ when we're not sure there's plenty of memory
@@ -436,41 +437,31 @@ class UpdraftPlus_Backup {
 
 	public function send_results_email($final_message) {
 
-		# TODO: Bring up to speed with new reporting funtionality
-
 		global $updraftplus;
 
 		$debug_mode = UpdraftPlus_Options::get_updraft_option('updraft_debug_mode');
 
-		$sendmail_to = UpdraftPlus_Options::get_updraft_option('updraft_email');
-		if (!is_array($sendmail_to)) $sendmail_to = array($sendmail_to);
-
-		$admin_email= get_bloginfo('admin_email');
-		foreach ($sendmail_to as $mailto) {
-			foreach (explode(',', $mailto) as $sendmail_addr) {
-				if ($updraftplus->have_addons < 10 && $sendmail_addr != $admin_email) {
-					$updraftplus->log(sprintf(__("With the next release of UpdraftPlus, you will need an add-on to use a different email address to the site owner's (%s). See: %s", 'updraftplus'), $admin_email, 'http://updraftplus.com/next-updraftplus-release-ready-testing/'), 'warning', 'needpremiumforemail');
-				}
-			}
-		}
+		$sendmail_to = $updraftplus->just_one_email(UpdraftPlus_Options::get_updraft_option('updraft_email'));
+		if (is_string($sendmail_to)) $sendmail_to = array($sendmail_to);
 
 		$backup_files = $updraftplus->jobdata_get('backup_files');
 		$backup_db = $updraftplus->jobdata_get('backup_database');
 
-		if ($backup_files == 'finished' && ( $backup_db == 'finished' || $backup_db == 'encrypted' ) ) {
-			$backup_contains = "Files and database";
-		} elseif ($backup_files == 'finished') {
-			$backup_contains = ($backup_db == "begun") ? "Files (database backup has not completed)" : "Files only (database was not part of this particular schedule)";
+		if ('finished' == $backup_files && ('finished' == $backup_db || 'encrypted' == $backup_db)) {
+			$backup_contains = __("Files and database", 'updraftplus');
+		} elseif ('finished' == $backup_files) {
+			$backup_contains = ($backup_db == "begun") ? __("Files (database backup has not completed)", 'updraftplus') : __("Files only (database was not part of this particular schedule)", 'updraftplus');
 		} elseif ($backup_db == 'finished' || $backup_db == 'encrypted') {
-			$backup_contains = ($backup_files == "begun") ? "Database (files backup has not completed)" : "Database only (files were not part of this particular schedule)";
+			$backup_contains = ($backup_files == "begun") ? __("Database (files backup has not completed)", 'updraftplus') : __("Database only (files were not part of this particular schedule)", 'updraftplus');
 		} else {
-			$backup_contains = "Unknown/unexpected error - please raise a support request";
+			$backup_contains = __("Unknown/unexpected error - please raise a support request", 'updraftplus');
 		}
-
-		$updraftplus->log("Sending email ('$backup_contains') report to: ".substr($sendmail_to, 0, 5)."...");
 
 		$append_log = '';
 		$attachments = array();
+
+		$error_count = 0;
+
 		if ($updraftplus->error_count() > 0) {
 			$append_log .= __('Errors encountered:', 'updraftplus')."\r\n";
 			$attachments[0] = $updraftplus->logfile_name;
@@ -484,6 +475,7 @@ class UpdraftPlus_Backup {
 				} elseif (is_string($err)) {
 					$append_log .= "* ".rtrim($err)."\r\n";
 				}
+				$error_count++;
 			}
 			$append_log.="\n";
 		}
@@ -497,14 +489,27 @@ class UpdraftPlus_Backup {
 			$append_log.="\n";
 		}
 
-		$append_log .= ($debug_mode && $updraftplus->logfile_name != "") ? "\r\nLog contents:\r\n".file_get_contents($updraftplus->logfile_name) : "" ;
+		if ($debug_mode && '' != $updraftplus->logfile_name && !in_array($updraftplus->logfile_name, $attachments)) {
+			$append_log .= "\r\n".__('The log file has been attached to this email.', 'updraftplus');
+			$attachments[0] = $updraftplus->logfile_name;
+		}
 
 		// We have to use the action in order to set the MIME type on the attachment - by default, WordPress just puts application/octet-stream
 		if (count($attachments)>0) add_action('phpmailer_init', array($this, 'phpmailer_init'));
 
-		foreach ($sendmail_to as $mailto) {
+		$subject = apply_filters('updraft_report_subject', sprintf(__('Backed up: %s', 'updraftplus'), get_bloginfo('name')).' (UpdraftPlus '.$updraftplus->version.') '.get_date_from_gmt(gmdate('Y-m-d H:i:s', time()), 'Y-m-d H:i'), $error_count, count($warnings));
+
+		$body = sprintf(__('Site: %s'), site_url())."\r\nUpdraftPlus: ".__('WordPress backup is complete','updraftplus').".\r\n".sprintf(__('Backup contains: %s','updraftplus'), $backup_contains)."\r\n".sprintf(__('Latest status: %s', 'updraftplus'),  $final_message)."\r\n\r\n".$updraftplus->wordshell_random_advert(0)."\r\n".$append_log;
+
+		foreach ($sendmail_to as $ind => $mailto) {
+
+			if (false === apply_filters('updraft_report_sendto', true, $mailto, $error_count, count($warnings), $ind)) continue;
+
 			foreach (explode(',', $mailto) as $sendmail_addr) {
-				wp_mail(trim($sendmail_addr), __('Backed up', 'updraftplus').': '.get_bloginfo('name').' (UpdraftPlus '.$updraftplus->version.') '.get_date_from_gmt(gmdate('Y-m-d H:i:s', time()), 'Y-m-d H:i'),'Site: '.site_url()."\r\nUpdraftPlus: ".__('WordPress backup is complete','updraftplus').".\r\n".__('Backup contains','updraftplus').': '.$backup_contains."\r\n".__('Latest status', 'updraftplus').": $final_message\r\n\r\n".$updraftplus->wordshell_random_advert(0)."\r\n".$append_log);
+
+				$updraftplus->log("Sending email ('$backup_contains') report to: ".substr($sendmail_addr, 0, 5)."...");
+				wp_mail(trim($sendmail_addr), $subject, $body);
+
 			}
 		}
 

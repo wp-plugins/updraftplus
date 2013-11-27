@@ -20,6 +20,9 @@ TODO - some of these are out of date/done, needs pruning
 // Place in maintenance mode during restore - ?
 // Implement code in the premium updater to auto-back-off (reduce load)
 // Free/premium comparison page
+// Add note to support page requesting that non-English be translated
+// More locking: lock the resumptions too (will need to manage keys to make sure junk data is not left behind)
+// See: ftp-logins.log - would help if we retry FTP logins after 10 second delay (not on testing), to lessen chances of 'too many users - try again later' being terminal. Also, can we log the login error?
 // Deal with missing plugins/themes/uploads directory when installing
 // Bring down interval if we are already in upload time (since zip delays are no longer possible). See: options-general-11-23.txt
 // Pruner assumes storage is same as current - ?
@@ -1188,11 +1191,15 @@ class UpdraftPlus {
 			$this->newresumption_scheduled = $schedule_for;
 		}
 
+		$backup_files = $this->jobdata_get('backup_files');
+
 		global $updraftplus_backup;
 		// Bring in all the backup routines
-		if (!is_a($updraftplus_backup, 'UpdraftPlus_Backup')) require_once(UPDRAFTPLUS_DIR.'/backup.php');
+		if (!is_a($updraftplus_backup, 'UpdraftPlus_Backup')) {
+			require_once(UPDRAFTPLUS_DIR.'/backup.php');
+			$updraftplus_backup = new UpdraftPlus_Backup($backup_files);
+		}
 
-		$backup_files = $this->jobdata_get('backup_files');
 		if ('no' == $backup_files) {
 
 			$this->log("This backup run is not intended for files - skipping");
@@ -1573,7 +1580,7 @@ class UpdraftPlus {
 		$send_an_email = false;
 
 		// Make sure that the final status is shown
-		if ($this->error_count() == 0) {
+		if (0 == $this->error_count()) {
 			$send_an_email = true;
 			if ($this->error_count('warning') == 0) {
 				$final_message = __('The backup apparently succeeded and is now complete','updraftplus');
@@ -1587,7 +1594,7 @@ class UpdraftPlus {
 					$this->log('The backup apparently succeeded (with warnings) and is now complete');
 				}
 			}
-		} elseif ($this->newresumption_scheduled == false) {
+		} elseif (false == $this->newresumption_scheduled) {
 			$send_an_email = true;
 			$final_message = __('The backup attempt has finished, apparently unsuccessfully', 'updraftplus');
 		} else {
@@ -1600,19 +1607,22 @@ class UpdraftPlus {
 			$send_an_email = true;
 			$this->log("An email has been scheduled for this job, because we are in debug mode");
 		}
+
+		$email = UpdraftPlus_Options::get_updraft_option('updraft_email');
+
 		// If there's no email address, or the set was empty, that is the final over-ride: don't send
 		if (!$allow_email) {
 			$send_an_email = false;
 			$this->log("No email will be sent - this backup set was empty.");
-		} elseif (UpdraftPlus_Options::get_updraft_option('updraft_email') == '') {
+		} elseif (empty($email)) {
 			$send_an_email = false;
 			$this->log("No email will/can be sent - the user has not configured an email address.");
 		}
 
+		$this->log($final_message);
+
 		global $updraftplus_backup;
 		if ($send_an_email) $updraftplus_backup->send_results_email($final_message);
-
-		$this->log($final_message);
 
 		@fclose($this->logfile_handle);
 
@@ -2090,13 +2100,19 @@ class UpdraftPlus {
 	}
 
 	public function just_one_email($input, $required = false) {
-		return $this->just_one($input, 'saveemails', (empty($input) && false === $required) ? '' : get_bloginfo('admin_email'));
+		$x = $this->just_one($input, 'saveemails', (empty($input) && false === $required) ? '' : get_bloginfo('admin_email'));
+		if (is_array($x)) {
+			foreach ($x as $ind => $val) {
+				if (empty($val)) unset($x[$ind]);
+			}
+		}
+		return $x;
 	}
 
 	public function just_one($input, $filter = 'savestorage', $rinput = false) {
-		if (false === $rinput) $rinput = (is_array($input)) ? array_pop($input) : $input;
-		if (false !== strpos($rinput, ',')) $rinput = substr($rinput, 0, strpos($rinput, ','));
 		$oinput = $input;
+		if (false === $rinput) $rinput = (is_array($input)) ? array_pop($input) : $input;
+		if (is_string($rinput) && false !== strpos($rinput, ',')) $rinput = substr($rinput, 0, strpos($rinput, ','));
 		return apply_filters('updraftplus_'.$filter, $rinput, $oinput);
 	}
 

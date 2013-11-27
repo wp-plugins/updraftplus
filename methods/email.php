@@ -20,14 +20,17 @@ class UpdraftPlus_BackupModule_email {
 
 			$fullpath = $updraft_dir.$file;
 			#if (file_exists($fullpath) && filesize($fullpath) > ...
+			$any_attempted = false;
 			$any_sent = false;
 			foreach ($email as $ind => $addr) {
 
 				if (!apply_filters('updraftplus_email_wholebackup', true, $addr, $ind)) continue;
 
 				foreach (explode(',', $addr) as $sendmail_addr) {
+
 					$send_short = (strlen($sendmail_addr)>5) ? substr($sendmail_addr, 0, 5).'...' : $sendmail_addr;
 					$updraftplus->log("$file: email to: $send_short");
+					$any_attempted = true;
 
 					$sent = wp_mail(trim($sendmail_addr), __("WordPress Backup", 'updraftplus')." ".get_date_from_gmt(gmdate('Y-m-d H:i:s', $updraftplus->backup_time), 'Y-m-d H:i'), sprintf(__("Backup is of: %s.",'updraftplus'), $descrip_type).' '.__('Be wary; email backups may fail because of file size limitations on mail servers.','updraftplus'), null, array($fullpath));
 					if ($sent) $any_sent = true;
@@ -35,9 +38,11 @@ class UpdraftPlus_BackupModule_email {
 			}
 			if ($any_sent) {
 				$updraftplus->uploaded_file($file);
-			} else {
+			} elseif ($any_attempted) {
 				$updraftplus->log('Mails were not sent successfully');
 				$updraftplus->log(__('The attempt to send the backup via email failed (probably the backup was too large for this method)', 'updraftplus'), 'error');
+			} else {
+				$updraftplus->log('No email addresses were configured to send to');
 			}
 		}
 		return null;
@@ -49,7 +54,7 @@ class UpdraftPlus_BackupModule_email {
 			<th><?php _e('Note:', 'updraftplus');?></th>
 			<td><?php
 				$used = apply_filters('updraftplus_email_whichaddresses', sprintf(__("Your site's admin email address (%s) will be used.", 'updraftplus'), get_bloginfo('admin_email')).' <a href="http://updraftplus.com/shop/reporting/">'.sprintf(__('For more options, use the "%s" add-on.', 'updraftplus'), __('Reporting', 'updraftplus')).'</a>');
-				echo str_replace('&gt;','>', str_replace('&lt;','<',htmlspecialchars($used.' '.__('<strong>Be aware</strong> that mail servers tend to have size limits; typically around 10-20Mb; <strong>backups larger than any limits will likely not arrive.</strong>','updraftplus'))));?>
+				echo str_replace('&gt;','>', str_replace('&lt;','<',htmlspecialchars($used.' '.sprintf(__('Be aware that mail servers tend to have size limits; typically around %s Mb; backups larger than any limits will likely not arrive.','updraftplus'), '10-20'))));?>
 			</td>
 		</tr>
 		<?php
