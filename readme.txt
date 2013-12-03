@@ -138,10 +138,11 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * FEATURE: Add option to 'Backup Now' dialog to not despatch this backup to the cloud
 * FIX: Fix bug in restore of wpcore (Premium) with certain options when backup set was from a previously restored backup with the same certain options
 * FIX: After restoring a site, only delete the backup set from local storage if it was also stored in the cloud (prevents the user having to upload the backup set twice if they want to re-run the restore)
-* FIX: Improve detection of extremely long-running/slow jobs\
+* FIX: Improve detection of extremely long-running/slow jobs
 * FIX: Fix issue with Rackspace Cloudfiles on WPMU installs
 * TWEAK: Change how permalinks are flushed post-restore. This spares the user from having to manually visit the permalinks page if they had plugins that altered their permalink structure (e.g. WooCommerce).
 * TWEAK: Remove various spurious PHP notices caught by the post-1.7.41 extra logging
+* TWEAK: Compress the log file before emailing it, if it is over 6Mb
 * TWEAK: Make sure some potential error messages from Dropbox are displayed properly
 * TWEAK: Work around sites with site/home URL settings in the WP DB that erroneously have a trailing slash
 * TWEAK: Log PHP notices for all job types

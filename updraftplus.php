@@ -13,19 +13,16 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
-// Check - all storage download() methods should return false on failure (and log an appropriate message)
 // After Oct 15 2013: Remove page(s) from websites discussing W3TC
 // Change add-ons screen, to be less confusing for people who haven't yet updated but have connected
 // Change migrate window: 1) Retain link to article 2) Have selector to choose which backup set to migrate - or a fresh one 3) Have option for FTP/SFTP/SCP despatch 4) Have big "Go" button. Have some indication of what happens next. Test the login first. Have the remote site auto-scan its directory + pick up new sets. Have a way of querying the remote site for its UD-dir. Have a way of saving the settings as a 'profile'. Or just save the last set of settings (since mostly will be just one place to send to). Implement an HTTP/JSON method for sending files too.
 // Place in maintenance mode during restore - ?
-// Implement code in the premium updater to auto-back-off (reduce load)
 // Free/premium comparison page
 // Add note to support page requesting that non-English be translated
 // More locking: lock the resumptions too (will need to manage keys to make sure junk data is not left behind)
 // See: ftp-logins.log - would help if we retry FTP logins after 10 second delay (not on testing), to lessen chances of 'too many users - try again later' being terminal. Also, can we log the login error?
 // Deal with missing plugins/themes/uploads directory when installing
 // Bring down interval if we are already in upload time (since zip delays are no longer possible). See: options-general-11-23.txt
-// Gzip the log file if it is over 8Mb
 // Add FAQ - can I get it to save automatically to my computer?
 // Pruner assumes storage is same as current - ?
 // Include blog feed in basic email report
@@ -477,7 +474,8 @@ class UpdraftPlus {
 				$binzip_match = preg_match("/^zi([A-Za-z0-9]){6}$/", $entry);
 				# Temporary files from the database dump process - not needed, as is caught by the catch-all
 				# $table_match = preg_match("/${match}-table-(.*)\.table(\.tmp)?\.gz$/i", $entry);
-				if ((preg_match("/$match\.(tmp|table)(\.gz)?$/i", $entry) || $ziparchive_match || $binzip_match) && is_file($updraft_dir.'/'.$entry)) {
+				# The gz goes in with the txt, because we *don't* want to reap the raw .txt files
+				if ((preg_match("/$match\.(tmp|table|txt\.gz)(\.gz)?$/i", $entry) || $ziparchive_match || $binzip_match) && is_file($updraft_dir.'/'.$entry)) {
 					// We delete if a parameter was specified (and either it is a ZipArchive match or an order to delete of whatever age), or if over 12 hours old
 					if (($match && ($ziparchive_match || $binzip_match || 0 == $older_than) && $now_time-filemtime($updraft_dir.'/'.$entry) >= $older_than) || $now_time-filemtime($updraft_dir.'/'.$entry)>43200) {
 						$this->log("Deleting old temporary file: $entry");

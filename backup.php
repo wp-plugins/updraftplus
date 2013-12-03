@@ -500,12 +500,36 @@ class UpdraftPlus_Backup {
 
 		$body = apply_filters('updraft_report_body', __('Backup of:').' '.site_url()."\r\nUpdraftPlus ".__('WordPress backup is complete','updraftplus').".\r\n".__('Backup contains:','updraftplus').' '.$backup_contains."\r\n".__('Latest status:', 'updraftplus').' '.$final_message."\r\n\r\n".$updraftplus->wordshell_random_advert(0)."\r\n".$append_log, $final_message, $backup_contains, $updraftplus->errors, $warnings);
 
-		$attachments = apply_filters('updraft_report_attachments', $attachments);
+		$this->attachments = apply_filters('updraft_report_attachments', $attachments);
 
-		if (count($attachments)>0) add_action('phpmailer_init', array($this, 'phpmailer_init'));
+		if (count($this->attachments)>0) add_action('phpmailer_init', array($this, 'phpmailer_init'));
 
 		$attach_size = 0;
-		foreach ($attachments as $attach) { $attach_size += filesize($attach); }
+		$unlink_files = array();
+
+		foreach ($this->attachments as $ind => $attach) {
+			if ($attach == $updraftplus->logfile_name && filesize($attach) > 6*1048576) {
+				
+				$updraftplus->log("Log file is large (".round(filesize($attach)/1024, 1)." Kb): will compress before e-mailing");
+
+				if (!$handle = fopen($attach, "r")) {
+					$updraftplus->log("Error: Failed to open log file for reading: ".$attach);
+				} else {
+					if (!$whandle = gzopen($attach.'.gz', 'w')) {
+						$updraftplus->log("Error: Failed to open log file for reading: ".$attach.".gz");
+					} else {
+						while (false !== ($line = @stream_get_line($handle, 2048, "\n"))) {
+							@gzwrite($whandle, $line."\n");
+						}
+						fclose($handle);
+						gzclose($whandle);
+						$this->attachments[$ind] = $attach.'.gz';
+						$unlink_files[] = $attach.'.gz';
+					}
+				}
+			}
+			$attach_size += filesize($this->attachments[$ind]);
+		}
 
 		foreach ($sendmail_to as $ind => $mailto) {
 
@@ -517,8 +541,10 @@ class UpdraftPlus_Backup {
 			}
 		}
 
+		foreach ($unlink_files as $file) @unlink($file);
+
 		do_action('updraft_report_finished');
-		if (count($attachments)>0) remove_action('phpmailer_init', array($this, 'phpmailer_init'));
+		if (count($this->attachments)>0) remove_action('phpmailer_init', array($this, 'phpmailer_init'));
 
 	}
 
@@ -1223,7 +1249,11 @@ class UpdraftPlus_Backup {
 
 	public function phpmailer_init($phpmailer) {
 		global $updraftplus;
-		$phpmailer->AddAttachment($updraftplus->logfile_name, '', 'base64', 'text/plain');
+		if (empty($this->attachments) || !is_array($this->attachments)) return;
+		foreach ($this->attachments as $attach) {
+			$mime_type = (preg_match('/\.gz$/', $attach)) ? 'application/x-gzip' : 'text/plain';
+			$phpmailer->AddAttachment($attach, '', 'base64', $mime_type);
+		}
 	}
 
 	// This function recursively packs the zip, dereferencing symlinks but packing into a single-parent tree for universal unpacking

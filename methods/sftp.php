@@ -48,7 +48,7 @@ class UpdraftPlus_BackupModule_sftp {
 			return false;
 		}
 
-		do_action('updraft_sftp_download_file', $file);
+		return apply_filters('updraft_sftp_download_file', false, $file);
 
 	}
 

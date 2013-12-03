@@ -51,7 +51,7 @@ class UpdraftPlus_BackupModule_webdav {
 			return false;
 		}
 
-		do_action('updraft_webdav_download_file', $file);
+		return apply_filters('updraft_webdav_download_file', false, $file);
 
 	}
 

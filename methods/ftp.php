@@ -139,7 +139,7 @@ class UpdraftPlus_BackupModule_ftp {
 			$updraftplus->log("File already exists locally; will resume: size: ".filesize($fullpath));
 		}
 
-		$ftp->get($fullpath, $ftp_remote_path.$file, FTP_BINARY, $resume, $updraftplus);
+		return $ftp->get($fullpath, $ftp_remote_path.$file, FTP_BINARY, $resume, $updraftplus);
 	}
 
 	public static function config_print_javascript_onready() {

@@ -374,7 +374,7 @@ class UpdraftPlus_BackupModule_googledrive {
 		$ids = UpdraftPlus_Options::get_updraft_option('updraft_file_ids', array());
 		if (!isset($ids[$file])) {
 			$updraftplus->log(sprintf(__("Google Drive error: %d: could not download: could not find a record of the Google Drive file ID for this file",'updraftplus'),$file), 'error');
-			return;
+			return false;
 		} else {
 			$content_link = $gdocs_object->get_content_link( $ids[$file], $file );
 			if (is_wp_error($content_link)) {
@@ -396,9 +396,7 @@ class UpdraftPlus_BackupModule_googledrive {
 			}
 
 		}
-
-		return;
-
+		return false;
 	}
 
 	// This function modified from wordpress.org/extend/plugins/backup, by Sorin Iclanzan, under the GPLv3 or later at your choice

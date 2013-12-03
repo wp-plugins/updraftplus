@@ -333,11 +333,14 @@ class UpdraftPlus_BackupModule_s3 {
 			if (!$s3->getObject($bucket_name, $bucket_path.$file, $fullpath, true)) {
 				$updraftplus->log("$whoweare Error: Failed to download $file. Check your permissions and credentials.");
 				$updraftplus->log(sprintf(__('%s Error: Failed to download %s. Check your permissions and credentials.','updraftplus'),$whoweare, $file), 'error');
+				return false;
 			}
 		} else {
 			$updraftplus->log("$whoweare Error: Failed to access bucket $bucket_name. Check your permissions and credentials.");
 			$updraftplus->log(sprintf(__('%s Error: Failed to access bucket %s. Check your permissions and credentials.','updraftplus'),$whoweare, $bucket_name), 'error');
+			return false;
 		}
+		return true;
 
 	}
 

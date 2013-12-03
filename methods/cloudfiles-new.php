@@ -2,6 +2,8 @@
 
 if (!defined('UPDRAFTPLUS_DIR')) die('No direct access allowed.');
 
+# TODO: Regions
+
 # SDK uses namespacing - requires PHP 5.3
 use OpenCloud\Rackspace;
 
