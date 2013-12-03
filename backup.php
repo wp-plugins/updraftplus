@@ -504,12 +504,15 @@ class UpdraftPlus_Backup {
 
 		if (count($attachments)>0) add_action('phpmailer_init', array($this, 'phpmailer_init'));
 
+		$attach_size = 0;
+		foreach ($attachments as $attach) { $attach_size += filesize($attach); }
+
 		foreach ($sendmail_to as $ind => $mailto) {
 
 			if (false === apply_filters('updraft_report_sendto', true, $mailto, $error_count, count($warnings), $ind)) continue;
 
 			foreach (explode(',', $mailto) as $sendmail_addr) {
-				$updraftplus->log("Sending email ('$backup_contains') report to: ".substr($sendmail_addr, 0, 5)."...");
+				$updraftplus->log("Sending email ('$backup_contains') report (attachments: ".count($attachments).", size: ".round($attach_size/1024, 1)." Kb) to: ".substr($sendmail_addr, 0, 5)."...");
 				wp_mail(trim($sendmail_addr), $subject, $body);
 			}
 		}

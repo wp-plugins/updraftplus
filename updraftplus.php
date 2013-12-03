@@ -25,6 +25,8 @@ TODO - some of these are out of date/done, needs pruning
 // See: ftp-logins.log - would help if we retry FTP logins after 10 second delay (not on testing), to lessen chances of 'too many users - try again later' being terminal. Also, can we log the login error?
 // Deal with missing plugins/themes/uploads directory when installing
 // Bring down interval if we are already in upload time (since zip delays are no longer possible). See: options-general-11-23.txt
+// Gzip the log file if it is over 8Mb
+// Add FAQ - can I get it to save automatically to my computer?
 // Pruner assumes storage is same as current - ?
 // Include blog feed in basic email report
 // Detect, and show prominent error in admin area, if the slug is not updraftplus/updraftplus.php (one Mac user in the wild managed to upload as updraftplus-2).
@@ -38,7 +40,6 @@ TODO - some of these are out of date/done, needs pruning
 // Update updates checker so that it checks for updates on a sliding-scale: those who've not updated in last X only end up checking every Y : https://github.com/YahnisElsts/plugin-update-checker/issues/9
 // Add feature in Backup Now to skip cloud despatch for this backup
 // Test restores via cloud service for small $??? (Relevant: http://browshot.com/features) (per-day? per-install?)
-// Add more info to email - e.g. names + sizes + checksums of uploads + locations. Make the report beautiful!
 // Warn/prevent if trying to migrate between sub-domain/sub-folder based multisites
 // Don't perform pruning when doing auto-backup?
 // Post-migrate, notify the user if on Apache but without mod_rewrite (has been seen in the wild)
@@ -46,7 +47,7 @@ TODO - some of these are out of date/done, needs pruning
 // Can some tables be omitted from the search/replace on a migrate? i.e. Special knowledge?
 // Put a 'what do I get if I upgrade?' link into the mix
 // Add to admin bar (and make it something that can be turned off)
-// New reporting add-on: Multiple email addresses, send backup to 1st only, option to send email only on failure, include checksums (SHA1) in report (store these in job data immediately post-creation; then aggregate them into the backup history on job finish), option to include log file always, option to log to syslog
+// Option to log to syslog
 // If migrated database from somewhere else, then add note about revising UD settings
 // Strategy for what to do if the updraft_dir contains untracked backups. Automatically rescan?
 // MySQL manual: See Section 8.2.2.1, Speed of INSERT Statements.
@@ -689,7 +690,7 @@ class UpdraftPlus {
 		if ($file_path) touch($file_path);
 
 		// What this means in effect is that at least one of the files touched during the run must reach this percentage (so lapping round from 100 is OK)
-		if ($percent > 0.7 * ($this->current_resumption - 9)) $this->something_useful_happened();
+		if ($percent > 0.7 * ($this->current_resumption - max($this->jobdata_get('uploaded_lastreset'), 9))) $this->something_useful_happened();
 
 		// Log it
 		global $updraftplus_backup;
@@ -1532,6 +1533,7 @@ class UpdraftPlus {
 			'maxzipbatch', 26214400, #25Mb
 			'job_file_entities', $job_file_entities,
 			'option_cache', $option_cache,
+			'uploaded_lastreset', 9,
 			'one_shot', $one_shot
 		);
 
@@ -1680,6 +1682,7 @@ class UpdraftPlus {
 		if ($force || $updraftplus_backup->last_service) {
 			$hash = md5($file);
 			$this->log("Recording as successfully uploaded: $file ($hash)");
+			$this->jobdata_set('uploaded_lastreset', $this->resumption_no);
 			$this->jobdata_set("uploaded_".$hash, 'yes');
 		} else {
 			$this->log("Recording as successfully uploaded: $file (".$updraftplus_backup->current_service.", more services to follow)");
@@ -1713,10 +1716,12 @@ class UpdraftPlus {
 
 	function delete_local($file) {
 		if(UpdraftPlus_Options::get_updraft_option('updraft_delete_local')) {
-			$this->log("Deleting local file: $file");
+			$log = "Deleting local file: $file: ";
 		//need error checking so we don't delete what isn't successfully uploaded?
 			$fullpath = $this->backups_dir_location().'/'.$file;
-			return unlink($fullpath);
+			$deleted = unlink($fullpath);
+			$this->log($log.(($deleted) ? 'OK' : 'failed'));
+			return $deleted;
 		}
 		return true;
 	}
@@ -2090,7 +2095,6 @@ class UpdraftPlus {
 				@ob_end_flush();
 				readfile($fullpath);
 			}
-// 			$this->delete_local($file);
 		} else {
 			echo __('File not found', 'updraftplus');
 		}

@@ -240,7 +240,7 @@ function updraftplus_downloadstage2(timestamp, type, findex) {
 function updraft_downloader(base, nonce, what, whicharea, set_contents, prettydate, async) {
 	if (typeof set_contents !== "string") set_contents=set_contents.toString();
 	var set_contents = set_contents.split(',');
-	for (var i=0;i<set_contents.length; i++) {
+	for (var i=0; i<set_contents.length; i++) {
 		// Create somewhere for the status to be found
 		var stid = base+nonce+'_'+what+'_'+set_contents[i];
 		var show_index = parseInt(set_contents[i]); show_index++;
