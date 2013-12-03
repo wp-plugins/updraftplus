@@ -421,6 +421,13 @@ jQuery(document).ready(function($){
 
 	updraft_check_same_times();
 
+	var updraft_message_modal_buttons = {};
+	updraft_message_modal_buttons[updraftlion.close] = function() { jQuery(this).dialog("close"); };
+	jQuery( "#updraft-message-modal" ).dialog({
+		autoOpen: false, height: 200, width: 460, modal: true,
+		buttons: updraft_message_modal_buttons
+	});
+	
 	var updraft_delete_modal_buttons = {};
 	updraft_delete_modal_buttons[updraftlion.deletebutton] = function() {
 		jQuery('#updraft-delete-waitwarning').slideDown();

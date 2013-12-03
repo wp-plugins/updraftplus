@@ -1481,9 +1481,7 @@ class UpdraftPlus {
 			if (method_exists($cclass, 'get_credentials')) {
 				$opts = $obj->get_credentials();
 				if (is_array($opts)) {
-					foreach ($opts as $opt) {
-						$option_cache[$opt] = UpdraftPlus_Options::get_updraft_option($opt);
-					}
+					foreach ($opts as $opt) $option_cache[$opt] = UpdraftPlus_Options::get_updraft_option($opt);
 				}
 			}
 		}
@@ -1682,7 +1680,7 @@ class UpdraftPlus {
 		if ($force || $updraftplus_backup->last_service) {
 			$hash = md5($file);
 			$this->log("Recording as successfully uploaded: $file ($hash)");
-			$this->jobdata_set('uploaded_lastreset', $this->resumption_no);
+			$this->jobdata_set('uploaded_lastreset', $this->current_resumption);
 			$this->jobdata_set("uploaded_".$hash, 'yes');
 		} else {
 			$this->log("Recording as successfully uploaded: $file (".$updraftplus_backup->current_service.", more services to follow)");
