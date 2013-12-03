@@ -271,7 +271,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 			return;
 		}
 
-		$path = untrailingslashit(get_option('updraft_cloudfiles_path'));
+		$path = untrailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_path'));
 
 // 		if (preg_match("#^([^/]+)/(.*)$#", $path, $bmatches)) {
 // 			$container = $bmatches[1];
