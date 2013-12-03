@@ -364,7 +364,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 				user: jQuery('#updraft_cloudfiles_user').val(),
 				path: jQuery('#updraft_cloudfiles_path').val(),
 				authurl: jQuery('#updraft_cloudfiles_authurl').val(),
-				useservercerts: jQuery('#updraft_cloudfiles_useservercerts').val(),
+				useservercerts: jQuery('#updraft_ssl_useservercerts').val(),
 				disableverify: jQuery('#updraft_ssl_disableverify').val()
 			};
 			jQuery.post(ajaxurl, data, function(response) {

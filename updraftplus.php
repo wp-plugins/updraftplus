@@ -1282,6 +1282,7 @@ class UpdraftPlus {
 			$this->log("There were no more files that needed uploading; backup job is complete");
 			// No email, as the user probably already got one if something else completed the run
 			$this->backup_finish($next_resumption, true, false, $resumption_no);
+			restore_error_handler();
 			return;
 		} else {
 			$this->log("Requesting upload of the files that have not yet been successfully uploaded (".count($undone_files).")");
