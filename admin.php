@@ -74,7 +74,7 @@ class UpdraftPlus_Admin {
 
 		if (version_compare($wp_version, '3.2', '<')) add_action('all_admin_notices', array($this, 'show_admin_warning_wordpressversion'));
 
-		wp_enqueue_script('updraftplus-admin-ui', UPDRAFTPLUS_URL.'/includes/updraft-admin-ui.js', array('jquery', 'jquery-ui-dialog', 'plupload-all'), '29');
+		wp_enqueue_script('updraftplus-admin-ui', UPDRAFTPLUS_URL.'/includes/updraft-admin-ui.js', array('jquery', 'jquery-ui-dialog', 'plupload-all'), '30');
 
 		wp_localize_script( 'updraftplus-admin-ui', 'updraftlion', array(
 			'sendonlyonwarnings' => __('Send a report only when there are warnings/errors', 'updraftplus'),
@@ -103,6 +103,7 @@ class UpdraftPlus_Admin {
 			'notunderstood' => __('Download error: the server sent us a response which we did not understand.', 'updraftplus'),
 			'requeststart' => __('Requesting start of backup...', 'updraftplus'),
 			'phpinfo' => __('PHP information', 'updraftplus'),
+			'delete_old_dirs' => __('Delete Old Directories', 'updraftplus'),
 			'raw' => __('Raw backup history', 'updraftplus'),
 			'notarchive' => __('This file does not appear to be an UpdraftPlus backup archive (such files are .zip or .gz files which have a name like: backup_(time)_(site name)_(code)_(type).(zip|gz)). However, UpdraftPlus archives are standard zip/SQL files - so if you are sure that your file has the right format, then you can rename it to match that pattern.','updraftplus'),
 			'makesure' => __('(make sure that you were trying to upload a zip file previously created by UpdraftPlus)','updraftplus'),
@@ -778,6 +779,8 @@ class UpdraftPlus_Admin {
 		} elseif ('ping' == $_REQUEST['subaction']) {
 			// The purpose of this is to detect brokenness caused by extra line feeds in plugins/themes - before it breaks other AJAX operations and leads to support requests
 			echo 'pong';
+		} elseif ('delete_old_dirs' == $_REQUEST['subaction']) {
+			$this->delete_old_dirs_go(false);
 		} elseif ('phpinfo' == $_REQUEST['subaction']) {
 			phpinfo(INFO_ALL ^ (INFO_CREDITS | INFO_LICENSE));
 		} elseif ('backupnow' == $_REQUEST['subaction']) {
@@ -1285,10 +1288,13 @@ CREATE TABLE $wpdb->signups (
 				// If we restored the database, then that will have out-of-date information which may confuse the user - so automatically re-scan for them.
 				$this->rebuild_backup_history();
 				echo '<p><strong>'.__('Restore successful!','updraftplus').'</strong></p>';
+				$updraftplus->log("Restore successful");
 				echo '<b>'.__('Actions','updraftplus').':</b> <a href="'.UpdraftPlus_Options::admin_page_url().'?page=updraftplus&updraft_restore_success=true">'.__('Return to UpdraftPlus Configuration','updraftplus').'</a>';
 				return;
 			} elseif (is_wp_error($backup_success)) {
 				echo '<p>Restore failed...</p>';
+				$updraftplus->log_wp_error($backup_success);
+				$updraftplus->log("Restore failed");
 				$updraftplus->list_errors();
 				echo '<b>Actions:</b> <a href="'.UpdraftPlus_Options::admin_page_url().'?page=updraftplus">'.__('Return to UpdraftPlus Configuration','updraftplus').'</a>';
 				return;
@@ -1297,21 +1303,11 @@ CREATE TABLE $wpdb->signups (
 				return;
 			}
 		}
-		$deleted_old_dirs = false;
-		if(isset($_REQUEST['action']) && $_REQUEST['action'] == 'updraft_delete_old_dirs') {
-			
-			echo '<h1>UpdraftPlus - '.__('Remove old directories','updraftplus').'</h1>';
 
+		if(isset($_REQUEST['action']) && 'updraft_delete_old_dirs' == $_REQUEST['action']) {
 			$nonce = (empty($_REQUEST['_wpnonce'])) ? "" : $_REQUEST['_wpnonce'];
-			if (!wp_verify_nonce($nonce, 'updraft_delete_old_dirs')) die('Security check');
-
-			if($this->delete_old_dirs()) {
-				echo '<p>'.__('Old directories successfully removed.','updraftplus').'</p><br/>';
-				$deleted_old_dirs = true;
-			} else {
-				echo '<p>',__('Old directory removal failed for some reason. You may want to do this manually.','updraftplus').'</p><br/>';
-			}
-			echo '<b>'.__('Actions','updraftplus').':</b> <a href="'.UpdraftPlus_Options::admin_page_url().'?page=updraftplus">'.__('Return to UpdraftPlus Configuration','updraftplus').'</a>';
+			if (!wp_verify_nonce($nonce, 'updraftplus-credentialtest-nonce')) die('Security check');
+			$this->delete_old_dirs_go();
 			return;
 		}
 		
@@ -1375,18 +1371,16 @@ CREATE TABLE $wpdb->signups (
 			$ws_advert = $updraftplus->wordshell_random_advert(1);
 			if ($ws_advert) { echo '<div class="updated fade" style="max-width: 800px; font-size:140%; line-height: 140%; padding:14px; clear:left;">'.$ws_advert.'</div>'; }
 
-			if($deleted_old_dirs) echo '<div style="color:blue" class=\"updated fade\">'.__('Old directories successfully deleted.','updraftplus').'</div>';
-
 			if(!$updraftplus->memory_check(64)) {?>
-				<div class="updated fade" style="padding:8px;"><?php _e("Your PHP memory limit (set by your web hosting company) is very low. UpdraftPlus attempted to raise it but was unsuccessful. This plugin may struggle with a memory limit of less than 64 Mb  - especially if you have very large files uploaded (though on the other hand, many sites will be successful with a 32Mb limit - your experience may vary).",'updraftplus');?> <?php _e('Current limit is:','updraftplus');?> <?php echo $updraftplus->memory_check_current(); ?> Mb</div>
+				<div class="updated" style="padding:8px;"><?php _e("Your PHP memory limit (set by your web hosting company) is very low. UpdraftPlus attempted to raise it but was unsuccessful. This plugin may struggle with a memory limit of less than 64 Mb  - especially if you have very large files uploaded (though on the other hand, many sites will be successful with a 32Mb limit - your experience may vary).",'updraftplus');?> <?php _e('Current limit is:','updraftplus');?> <?php echo $updraftplus->memory_check_current(); ?> Mb</div>
 			<?php
 			}
 			if($this->scan_old_dirs()) {?>
-				<div class="updated fade" style="padding:8px;"><?php _e('Your WordPress install has old directories from its state before you restored/migrated (technical information: these are suffixed with -old). Use this button to delete them (if you have verified that the restoration worked).','updraftplus');?>
-				<form method="post" action="<?php echo remove_query_arg(array('updraft_restore_success','action')) ?>">
-					<?php wp_nonce_field('updraft_delete_old_dirs'); ?>
+				<div id="updraft_delete_old_dirs_pagediv" class="updated" style="padding:8px;"><p><?php _e('Your WordPress install has old directories from its state before you restored/migrated (technical information: these are suffixed with -old). You should press this button to delete them as soon as you have verified that the restoration worked.','updraftplus');?></p>
+				<form method="post" onsubmit="return updraft_delete_old_dirs();" action="<?php echo remove_query_arg(array('updraft_restore_success','action')) ?>">
+					<?php wp_nonce_field('updraftplus-credentialtest-nonce'); ?>
 					<input type="hidden" name="action" value="updraft_delete_old_dirs" />
-					<input type="submit" class="button-primary" value="<?php _e('Delete Old Directories','updraftplus');?>"  />
+					<input type="submit" class="button-primary" value="<?php echo esc_attr(__('Delete Old Directories', 'updraftplus'));?>"  />
 				</form>
 				</div>
 			<?php
@@ -1464,7 +1458,7 @@ CREATE TABLE $wpdb->signups (
 
 			<div style="float:left; width:200px; margin-top: <?php echo (class_exists('UpdraftPlus_Addons_Migrator')) ? "20" : "0" ?>px;">
 				<div style="margin-bottom: 10px;">
-					<button type="button" <?php echo $backup_disabled ?> class="button-primary updraft-bigbutton" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px; min-width: 180px;" onclick="jQuery('#updraft-backupnow-modal').dialog('open');"><?php _e('Backup Now','updraftplus');?></button>
+					<button type="button" <?php echo $backup_disabled ?> class="button-primary updraft-bigbutton" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px; min-width: 180px;" <?php if ($backup_disabled) echo 'title="'.esc_attr(__('This button is disabled because your backup directory is not writable (see the setting futher down the page).', 'updraftplus')).'" ';?> onclick="jQuery('#updraft-backupnow-modal').dialog('open');"><?php _e('Backup Now', 'updraftplus');?></button>
 				</div>
 				<div style="margin-bottom: 10px;">
 					<?php
@@ -1936,18 +1930,37 @@ CREATE TABLE $wpdb->signups (
 
 	}
 
+	function delete_old_dirs_go($show_return = true) {
+		echo ($show_return) ? '<h1>UpdraftPlus - '.__('Remove old directories', 'updraftplus').'</h1>' : '<h2>'.__('Remove old directories', 'updraftplus').'</h2>';
+
+		if($this->delete_old_dirs()) {
+			echo '<p>'.__('Old directories successfully removed.','updraftplus').'</p><br/>';
+		} else {
+			echo '<p>',__('Old directory removal failed for some reason. You may want to do this manually.','updraftplus').'</p><br/>';
+		}
+		if ($show_return) echo '<b>'.__('Actions','updraftplus').':</b> <a href="'.UpdraftPlus_Options::admin_page_url().'?page=updraftplus">'.__('Return to UpdraftPlus Configuration','updraftplus').'</a>';
+	}
+
 	//deletes the -old directories that are created when a backup is restored.
 	function delete_old_dirs() {
-		global $wp_filesystem;
-		$credentials = request_filesystem_credentials(wp_nonce_url(UpdraftPlus_Options::admin_page_url()."?page=updraftplus&action=updraft_delete_old_dirs", 'updraft_delete_old_dirs')); 
+		global $wp_filesystem, $updraftplus;
+		$credentials = request_filesystem_credentials(wp_nonce_url(UpdraftPlus_Options::admin_page_url()."?page=updraftplus&action=updraft_delete_old_dirs", 'updraftplus-credentialtest-nonce')); 
 		WP_Filesystem($credentials);
-		if ( $wp_filesystem->errors->get_error_code() ) { 
-			foreach ( $wp_filesystem->errors->get_error_messages() as $message )
+		if ($wp_filesystem->errors->get_error_code()) { 
+			foreach ($wp_filesystem->errors->get_error_messages() as $message)
 				show_message($message); 
 			exit; 
 		}
 		// From WP_CONTENT_DIR - which contains 'themes'
 		$ret = $this->delete_old_dirs_dir($wp_filesystem->wp_content_dir());
+
+		$updraft_dir = $updraftplus->backups_dir_location();
+		if ($updraft_dir) {
+			$ret4 = ($updraft_dir) ? $this->delete_old_dirs_dir($updraft_dir, false) : true;
+		} else {
+			$ret4 = true;
+		}
+
 // 		$ret2 = $this->delete_old_dirs_dir($wp_filesystem->abspath());
 		$plugs = untrailingslashit($wp_filesystem->wp_plugins_dir());
 		if ($wp_filesystem->is_dir($plugs.'-old')) {
@@ -1963,25 +1976,43 @@ CREATE TABLE $wpdb->signups (
 			$ret3 = true;
 		}
 
-		return ($ret && $ret3) ? true : false;
+		return $ret && $ret3 && $ret4;
 	}
 
-	function delete_old_dirs_dir($dir) {
+	function delete_old_dirs_dir($dir, $wpfs = true) {
 
-		global $wp_filesystem;
-		$list = $wp_filesystem->dirlist($dir);
+		$dir = trailingslashit($dir);
+
+		global $wp_filesystem, $updraftplus;
+
+		if ($wpfs) {
+			$list = $wp_filesystem->dirlist($dir);
+		} else {
+			$list = scandir($dir);
+		}
 		if (!is_array($list)) return false;
 
 		$ret = true;
 		foreach ($list as $item) {
-			if (substr($item['name'], -4, 4) == "-old") {
+			$name = (is_array($item)) ? $item['name'] : $item;
+			if ("-old" == substr($name, -4, 4)) {
 				//recursively delete
-				print "<strong>".__('Delete','updraftplus').": </strong>".htmlspecialchars($item['name']).": ";
-				if(!$wp_filesystem->delete($dir.$item['name'], true)) {
-					$ret = false;
-					print "<strong>".__('Failed', 'updraftplus')."</strong><br>";
+				print "<strong>".__('Delete','updraftplus').": </strong>".htmlspecialchars($name).": ";
+
+				if ($wpfs) {
+					if(!$wp_filesystem->delete($dir.$name, true)) {
+						$ret = false;
+						echo "<strong>".__('Failed', 'updraftplus')."</strong><br>";
+					} else {
+						echo "<strong>".__('OK', 'updraftplus')."</strong><br>";
+					}
 				} else {
-					print "<strong>".__('OK', 'updraftplus')."</strong><br>";
+					if ($updraftplus->remove_local_directory($dir.$name)) {
+						echo "<strong>".__('OK', 'updraftplus')."</strong><br>";
+					} else {
+						$ret = false;
+						echo "<strong>".__('Failed', 'updraftplus')."</strong><br>";
+					}
 				}
 			}
 		}
@@ -2044,13 +2075,14 @@ CREATE TABLE $wpdb->signups (
 
 	//scans the content dir to see if any -old dirs are present
 	function scan_old_dirs() {
-		$dirArr = scandir(untrailingslashit(WP_CONTENT_DIR));
-		foreach($dirArr as $dir) {
-			if (preg_match('/-old$/', $dir)) return true;
-		}
+		global $updraftplus;
+		$dirs = scandir(untrailingslashit(WP_CONTENT_DIR));
+		if (!is_array($dirs)) $dirs = array();
+		$dirs_u = scandir($updraftplus->backups_dir_location());
+		if (!is_array($dirs_u)) $dirs_u = array();
+		foreach (array_merge($dirs, $dirs_u) as $dir) { if (preg_match('/-old$/', $dir)) return true; }
 		# No need to scan ABSPATH - we don't backup there
-		$plugdir = untrailingslashit(WP_PLUGIN_DIR);
-		if (is_dir($plugdir.'-old')) return true;
+		if (is_dir(untrailingslashit(WP_PLUGIN_DIR).'-old')) return true;
 		return false;
 	}
 
@@ -2748,7 +2780,7 @@ ENDHERE;
 		$backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
 		if(!is_array($backup_history[$timestamp])) {
 			echo '<p>'.__('This backup does not exist in the backup history - restoration aborted. Timestamp:','updraftplus')." $timestamp</p><br/>";
-			return new WP_Error('does_not_exist', 'Backup does not exist in the backup history');
+			return new WP_Error('does_not_exist', __('Backup does not exist in the backup history', 'updraftplus'));
 		}
 
 		// request_filesystem_credentials passes on fields just via hidden name/value pairs.
@@ -2831,7 +2863,7 @@ ENDHERE;
 		require_once(UPDRAFTPLUS_DIR.'/restorer.php');
 
 		global $updraftplus_restorer;
-		$updraftplus_restorer = new Updraft_Restorer();
+		$updraftplus_restorer = new Updraft_Restorer(new Updraft_Restorer_Skin);
 
 		$second_loop = array();
 
@@ -2902,6 +2934,7 @@ ENDHERE;
 
 			$val = $updraftplus_restorer->pre_restore_backup($files, $type, $info);
 			if (is_wp_error($val)) {
+				$updraftplus->log_wp_error($val);
 				foreach ($val->get_error_messages() as $msg) {
 					echo '<strong>'.__('Error:',  'updraftplus').'</strong> '.htmlspecialchars($msg).'<br>';
 				}
@@ -2918,7 +2951,7 @@ ENDHERE;
 		}
 		$updraftplus_restorer->delete = (UpdraftPlus_Options::get_updraft_option('updraft_delete_local')) ? true : false;
 		if ('none' === $service || empty($service) || (is_array($service) && 1 == count($service) && (in_array('none', $service) || in_array('', $service)))) {
-			if ($updraftplus_restorer->delete) _e('Will not delete any archives after unpacking them, because there was no cloud storage for this backup','updraftplus').'<br>';
+			if ($updraftplus_restorer->delete) $updraftplus->log_e('Will not delete any archives after unpacking them, because there was no cloud storage for this backup');
 			$updraftplus_restorer->delete = false;
 		}
 
@@ -2929,15 +2962,25 @@ ENDHERE;
 			$info = (isset($backupable_entities[$type])) ? $backupable_entities[$type] : array();
 
 			echo ('db' == $type) ? "<h2>".__('Database','updraftplus')."</h2>" : "<h2>".$info['description']."</h2>";
-
+			$updraftplus->log("Entity: ".$type);
 
 			if (is_string($files)) $files = array($files);
 			foreach ($files as $file) {
 				$val = $updraftplus_restorer->restore_backup($file, $type, $info);
 
 				if(is_wp_error($val)) {
+					$updraftplus->log_e($val);
 					foreach ($val->get_error_messages() as $msg) {
 						echo '<strong>'.__('Error message',  'updraftplus').':</strong> '.htmlspecialchars($msg).'<br>';
+					}
+					$codes = $val->get_error_codes();
+					if (is_array($codes)) {
+						foreach ($codes as $code) {
+							$data = $val->get_error_data($code);
+							if (!empty($data)) {
+								echo '<strong>'.__('Error data:', 'updraftplus').'</strong> '.htmlspecialchars(serialize($data)).'<br>';
+							}
+						}
 					}
 					echo '</div>'; //close the updraft_restore_progress div even if we error
 					restore_error_handler();

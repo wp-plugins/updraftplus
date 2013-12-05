@@ -9,6 +9,12 @@ function updraft_delete(key, nonce, showremote) {
 	jQuery('#updraft-delete-modal').dialog('open');
 }
 
+function updraft_delete_old_dirs() {
+	//jQuery('#updraft_delete_old_dirs_pagediv').slideUp().remove();
+	//updraft_iframe_modal('delete_old_dirs', updraftlion.delete_old_dirs);
+	return true;
+}
+
 function updraft_restore_setoptions(entities) {
 	var howmany = 0;
 	jQuery('input[name="updraft_restore[]"]').each(function(x,y){

@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.7.42
+Version: 1.7.43
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -13,11 +13,15 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
+// Log all output of restore
+// On plugins restore, don't let UD over-write itself
+// Exclude backwpup stuff from backup (in wp-content/uploads/backwpup*)
 // After Oct 15 2013: Remove page(s) from websites discussing W3TC
 // Change add-ons screen, to be less confusing for people who haven't yet updated but have connected
 // Change migrate window: 1) Retain link to article 2) Have selector to choose which backup set to migrate - or a fresh one 3) Have option for FTP/SFTP/SCP despatch 4) Have big "Go" button. Have some indication of what happens next. Test the login first. Have the remote site auto-scan its directory + pick up new sets. Have a way of querying the remote site for its UD-dir. Have a way of saving the settings as a 'profile'. Or just save the last set of settings (since mostly will be just one place to send to). Implement an HTTP/JSON method for sending files too.
 // Place in maintenance mode during restore - ?
 // Free/premium comparison page
+// Complete the tweak to bring the delete-old-dirs within a dialog (just needed to deal wtih case of needing credentials more elegantly).
 // Add note to support page requesting that non-English be translated
 // More locking: lock the resumptions too (will need to manage keys to make sure junk data is not left behind)
 // See: ftp-logins.log - would help if we retry FTP logins after 10 second delay (not on testing), to lessen chances of 'too many users - try again later' being terminal. Also, can we log the login error?
@@ -27,7 +31,7 @@ TODO - some of these are out of date/done, needs pruning
 // Pruner assumes storage is same as current - ?
 // Include blog feed in basic email report
 // Detect, and show prominent error in admin area, if the slug is not updraftplus/updraftplus.php (one Mac user in the wild managed to upload as updraftplus-2).
-// Exclude backwpup stuff from backup (in wp-content/uploads/backwpup*)
+// Pre-schedule future resumptions that we know will be scheduled; helps deal with WP's dodgy scheduler skipping some. (Then need to un-schedule if job finishes).
 // Dates in the progress box are apparently untranslated
 // Add-on descriptions are not internationalised
 // Nicer in-dashboard log: show log + option to download; also (if 'reporting' add-on available) show the HTML report from that
@@ -667,6 +671,23 @@ class UpdraftPlus {
 		unset($this->errors[$uniq_id]);
 	}
 
+	public function log_wp_error($err, $echo = false) {
+		foreach ($err->get_error_messages() as $msg) {
+			$this->log("Error message: $msg");
+			if ($echo) echo sprintf(__('Error: %s', 'updraftplus'), htmlspecialchars($msg))."<br>";
+		}
+		$codes = $err->get_error_codes();
+		if (is_array($codes)) {
+			foreach ($codes as $code) {
+				$data = $err->get_error_data($code);
+				if (!empty($data)) {
+					$ll = (is_string($data)) ? $data : serialize($data);
+					$this->log("Error data: ".$ll);
+				}
+			}
+		}
+	}
+
 	# Q. Why is this abstracted into a separate function? A. To allow poedit and other parsers to pick up the need to translate strings passed to it (and not pick up all of those passed to log()).
 	# 1st argument = the line to be logged (obligatory)
 	# Further arguments = parameters for sprintf()
@@ -674,11 +695,10 @@ class UpdraftPlus {
 		$args = func_get_args();
 		# Get first argument
 		$pre_line = array_shift($args);
-		# Now run sprintf on it, using any remaining arguments
-		# TODO: Does not work - the line below passes an array; that's not right
-		$line = sprintf(__($pre_line, 'updraftplus'), $args);
-		echo $line.'<br>';
-		$this->log($line);
+		# Log it whilst still in English
+		$this->log(vsprintf($pre_line, $args));
+		# Now run (v)sprintf on it, using any remaining arguments. vsprintf = sprintf but takes an array instead of individual arguments
+		echo vsprintf(__($pre_line, 'updraftplus'), $args).'<br>';
 	}
 
 	// This function is used by cloud methods to provide standardised logging, but more importantly to help us detect that meaningful activity took place during a resumption run, so that we can schedule further resumptions if it is worthwhile
@@ -2004,6 +2024,13 @@ class UpdraftPlus {
 		$schedules['every4hours'] = array( 'interval' => 14400, 'display' => 'Every 4 hours' );
 		$schedules['every8hours'] = array( 'interval' => 28800, 'display' => 'Every 8 hours' );
 		return $schedules;
+	}
+
+	public function remove_local_directory($dir) {
+		foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST) as $path) {
+			$path->isFile() ? unlink($path->getPathname()) : rmdir($path->getPathname());
+		}
+		return rmdir($dir);
 	}
 
 	// Returns without any trailing slash
