@@ -99,7 +99,7 @@ class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 		} catch (Exception $e) {
 			$updraftplus->log('Cloud Files error - failed to create and access the container ('.$e->getMessage().')');
 			$updraftplus->log(__('Cloud Files error - failed to create and access the container', 'updraftplus').' ('.$e->getMessage().')', 'error');
-			return;
+			return false;
 		}
 
 		$chunk_size = 5*1024*1024;
@@ -224,7 +224,7 @@ class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 
 	}
 
-	function delete($files, $cloudfilesarr = false) {
+	public function delete($files, $cloudfilesarr = false) {
 
 		global $updraftplus;
 		if (is_string($files)) $files=array($files);
@@ -281,7 +281,7 @@ class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 		return $ret;
 	}
 
-	function download($file) {
+	public function download($file) {
 
 		global $updraftplus;
 		$updraft_dir = $updraftplus->backups_dir_location();
@@ -301,7 +301,7 @@ class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 		} catch (Exception $e) {
 			$updraftplus->log('Cloud Files error - failed to create and access the container ('.$e->getMessage().')');
 			$updraftplus->log(__('Cloud Files error - failed to create and access the container', 'updraftplus').' ('.$e->getMessage().')', 'error');
-			return;
+			return false;
 		}
 
 		$path = untrailingslashit($opts['path']);
@@ -381,6 +381,8 @@ class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 			$updraftplus->log(sprintf(__('Error - failed to download the file from %s','updraftplus'),'Cloud Files').' ('.$e->getMessage().')' ,'error');
 			return false;
 		}
+
+		return true;
 
 	}
 

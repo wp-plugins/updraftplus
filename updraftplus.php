@@ -13,13 +13,14 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
-// Log all output of restore
 // On plugins restore, don't let UD over-write itself
 // Exclude backwpup stuff from backup (in wp-content/uploads/backwpup*)
+// Pre-schedule resumptions that we know will be scheduled later
 // After Oct 15 2013: Remove page(s) from websites discussing W3TC
 // Change add-ons screen, to be less confusing for people who haven't yet updated but have connected
 // Change migrate window: 1) Retain link to article 2) Have selector to choose which backup set to migrate - or a fresh one 3) Have option for FTP/SFTP/SCP despatch 4) Have big "Go" button. Have some indication of what happens next. Test the login first. Have the remote site auto-scan its directory + pick up new sets. Have a way of querying the remote site for its UD-dir. Have a way of saving the settings as a 'profile'. Or just save the last set of settings (since mostly will be just one place to send to). Implement an HTTP/JSON method for sending files too.
 // Place in maintenance mode during restore - ?
+// Log all output of restore - include Migrator
 // Free/premium comparison page
 // Complete the tweak to bring the delete-old-dirs within a dialog (just needed to deal wtih case of needing credentials more elegantly).
 // Add note to support page requesting that non-English be translated
@@ -728,6 +729,58 @@ class UpdraftPlus {
 
 	}
 
+	function chunked_download($file, $method, $remote_size, $manually_break_up = false, $passback = null) {
+
+		try {
+
+			$fullpath = $this->backups_dir_location().'/'.$file;
+			$start_offset = (file_exists($fullpath)) ? filesize($fullpath): 0;
+
+			if ($start_offset >= $remote_size) {
+				$this->log("Cloud Files: file is already completely downloaded ($start_offset/$remote_size)");
+				return true;
+			}
+
+			// Some more remains to download - so let's do it
+			if (!$fh = fopen($fullpath, 'a')) {
+				$this->log("Error opening local file: $fullpath");
+				$this->log($file.": ".__("Error",'updraftplus').": ".__('Error opening local file: Failed to download','updraftplus'), 'error');
+				return false;
+			}
+
+			$last_byte = ($manually_break_up) ? min($remote_size, $start_offset + 1048576) : $remote_size;
+
+			while ($start_offset < $remote_size) {
+				$headers = array();
+				// If resuming, then move to the end of the file
+				$this->log("$file: local file is status: $start_offset/$remote_size bytes; requesting next ".($last_byte-$start_offset)." bytes");
+				if ($start_offset >0 || $last_byte<$remote_size) {
+					fseek($fh, $start_offset);
+					$headers['Range'] = "bytes=$start_offset-$last_byte";
+				}
+
+				$ret = $method->chunked_download($file, $headers, $passback);
+				if (false === $ret) return false;
+
+				if (!fwrite($fh, $ret)) throw new Exception('Write failure');
+
+				clearstatcache();
+				$start_offset = ftell($fh);
+				$last_byte = ($manually_break_up) ? min($remote_size, $start_offset + 1048576) : $remote_size;
+
+			}
+
+		} catch(Exception $e) {
+			$updraftplus->log('Cloud Files error ('.get_class($e).') - failed to download the file ('.$e->getMessage().')');
+			$updraftplus->log(sprintf(__('Error - failed to download the file from %s','updraftplus'),'Cloud Files').' ('.$e->getMessage().')' ,'error');
+			return false;
+		}
+
+		fclose($fh);
+
+		return true;
+	}
+
 	function decrypt($fullpath, $key, $ciphertext = false) {
 		$this->ensure_phpseclib('Crypt_Rijndael', 'Crypt/Rijndael');
 		$rijndael = new Crypt_Rijndael();
@@ -1419,7 +1472,7 @@ class UpdraftPlus {
 
 	public function get_job_option($opt) {
 		// These are meant to be read-only
-		if (!is_array($this->jobdata['option_cache'])) {
+		if (empty($this->jobdata['option_cache']) || !is_array($this->jobdata['option_cache'])) {
 			if (!is_array($this->jobdata)) $this->jobdata = get_site_option("updraft_jobdata_".$this->nonce, array());
 			$this->jobdata['option_cache'] = array();
 		}
