@@ -14,7 +14,7 @@ use OpenCloud\Rackspace;
 # Extends the oldsdk: only in that we re-use a few small functions
 class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 
-	const CHUNK_SIZE = 1048576;
+	const CHUNK_SIZE = 5242880;
 
 	public function get_service($user, $apikey, $authurl, $useservercerts = false, $disablesslverify = null) {
 
