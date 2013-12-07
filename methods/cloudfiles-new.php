@@ -14,6 +14,8 @@ use OpenCloud\Rackspace;
 # Extends the oldsdk: only in that we re-use a few small functions
 class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 
+	const CHUNK_SIZE = 1048576;
+
 	public function get_service($user, $apikey, $authurl, $useservercerts = false, $disablesslverify = null) {
 
 		require_once(UPDRAFTPLUS_DIR.'/includes/php-opencloud/autoload.php');
@@ -82,7 +84,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 			$uploaded_size = $this->get_remote_size($file);
 
 			try {
-				if (1 === $updraftplus->chunked_upload($this, $file, "cloudfiles://".$this->container."/$file", 'Cloud Files', 5*1024*1024, $uploaded_size)) {
+				if (1 === $updraftplus->chunked_upload($this, $file, "cloudfiles://".$this->container."/$file", 'Cloud Files', self::CHUNK_SIZE, $uploaded_size)) {
 					try {
 						if (false !== ($data = fopen($updraftplus->backups_dir_location().'/'.$file, 'r+'))) {
 							$this->container_object->uploadObject($file, $data);
@@ -118,19 +120,16 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 		}
 	}
 
-	# TODO: Does not work
 	function chunked_upload_finish($file) {
 
 		$chunk_path = 'chunk-do-not-delete-'.$file;
-
 		try {
 
 			$headers = array(
 				'Content-Length'    => 0,
-				'X-Object-Manifest' => sprintf('%s/%s/%s/', 
+				'X-Object-Manifest' => sprintf('%s/%s', 
 					$this->container,
-					$file, 
-					$chunk_path
+					$chunk_path.'_'
 				)
 			);
 			
