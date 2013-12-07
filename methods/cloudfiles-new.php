@@ -289,7 +289,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 			return false;
 		}
 
-		return (is_numeric($remote_size)) ? $updraftplus->chunked_download($file, $this, $remote_size, true, $container_object) : false;
+		return (is_numeric($remote_size)) ? $updraftplus->chunked_download($file, $this, $remote_size, true, $this->container_object) : false;
 
 	}
 
