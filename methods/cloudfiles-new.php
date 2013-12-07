@@ -275,7 +275,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 
 		# Get the container
 		try {
-			$container_object = $service->getContainer($container);
+			$this->container_object = $service->getContainer($container);
 		} catch (Exception $e) {
 			$updraftplus->log('Could not access Cloud Files container ('.get_class($e).', '.$e->getMessage().')');
 			$updraftplus->log(__('Could not access Cloud Files container', 'updraftplus').' ('.get_class($e).', '.$e->getMessage().')', 'error');
