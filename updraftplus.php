@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.7.43
+Version: 1.7.44
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -1701,8 +1701,12 @@ class UpdraftPlus {
 			if ($do_cleanup) {
 				$this->log("There were no errors in the uploads, so the 'resume' event ($cancel_event) is being unscheduled");
 				# This apparently-worthless setting of metadata before deleting it is for the benefit of a WP install seen where wp_clear_scheduled_hook() and delete_transient() apparently did nothing (probably a faulty cache)
-				wp_clear_scheduled_hook('updraft_backup_resume', array($cancel_event, $this->nonce));
 				$this->jobdata_set('jobstatus', 'finished');
+				wp_clear_scheduled_hook('updraft_backup_resume', array($cancel_event, $this->nonce));
+				# This should be unnecessary - even if it does resume, all should be detected as finished; but I saw one very strange case where it restarted, and repeated everything; so, this will help
+				wp_clear_scheduled_hook('updraft_backup_resume', array($cancel_event+1, $this->nonce));
+				wp_clear_scheduled_hook('updraft_backup_resume', array($cancel_event+2, $this->nonce));
+				wp_clear_scheduled_hook('updraft_backup_resume', array($cancel_event+3, $this->nonce));
 				$delete_jobdata = true;
 			}
 		} else {

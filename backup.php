@@ -153,7 +153,7 @@ class UpdraftPlus_Backup {
 			if ('.' == $e || '..' == $e || !is_file($this->updraft_dir.'/'.$e)) continue;
 			$ziparchive_match = preg_match("/$match([0-9]+)?\.zip\.tmp\.([A-Za-z0-9]){6}?$/i", $e);
 			$binzip_match = preg_match("/^zi([A-Za-z0-9]){6}$/", $e);
-			if ($time_now-filemtime($this->updraft_dir.'/'.$e) < 30 && ($ziparchive_match || $binzip_match)) {
+			if ($time_now-filemtime($this->updraft_dir.'/'.$e) < 30 && ($ziparchive_match || (0 != $updraftplus->current_resumption && $binzip_match))) {
 				$updraftplus->terminate_due_to_activity($this->updraft_dir.'/'.$e, $time_now, filemtime($this->updraft_dir.'/'.$e));
 			}
 		}
@@ -741,7 +741,6 @@ class UpdraftPlus_Backup {
 				if (!is_array($files)) $files=array($files);
 				foreach ($files as $file) $updraftplus->check_recent_modification($this->updraft_dir.'/'.$file);
 			}
-
 		} elseif ('begun' == $bfiles_status) {
 			if ($resumption_no>0) {
 				$updraftplus->log("Creation of backups of directories: had begun; will resume");
@@ -836,6 +835,8 @@ class UpdraftPlus_Backup {
 
 		$how_many_tables = count($all_tables);
 
+		$found_options_table = false;
+
 		foreach ($all_tables as $table) {
 
 			$manyrows_warning = false;
@@ -845,6 +846,9 @@ class UpdraftPlus_Backup {
 			@set_time_limit(900);
 			// The table file may already exist if we have produced it on a previous run
 			$table_file_prefix = $file_base.'-db-table-'.$table.'.table';
+
+			if ($this->table_prefix.'options' == $table) $found_options_table = true;
+
 			if (file_exists($this->updraft_dir.'/'.$table_file_prefix.'.gz')) {
 				$updraftplus->log("Table $table: corresponding file already exists; moving on");
 				$stitch_files[] = $table_file_prefix;
@@ -902,6 +906,12 @@ class UpdraftPlus_Backup {
 			}
 		}
 
+		if (!$found_options_table) {
+			$updraftplus->log(__('The database backup appears to have failed - the options table was not found', 'updraftplus'), 'warning', 'optstablenotfound');
+		} else {
+			$updraftplus->log_removewarning('optstablenotfound');
+		}
+
 		// Race detection - with zip files now being resumable, these can more easily occur, with two running side-by-side
 		$backup_final_file_name = $backup_file_base.'-db.gz';
 		$time_now = time();
@@ -920,8 +930,9 @@ class UpdraftPlus_Backup {
 		// We delay the unlinking because if two runs go concurrently and fail to detect each other (should not happen, but there's no harm in assuming the detection failed) then that leads to files missing from the db dump
 		$unlink_files = array();
 
+		$sind = 1;
 		foreach ($stitch_files as $table_file) {
-			$updraftplus->log("{$table_file}.gz: adding to final database dump");
+			$updraftplus->log("{$table_file}.gz ($sind/$how_many_tables): adding to final database dump");
 			if (!$handle = gzopen($this->updraft_dir.'/'.$table_file.'.gz', "r")) {
 				$updraftplus->log("Error: Failed to open database file for reading: ${table_file}.gz");
 				$updraftplus->log("Failed to open database file for reading: ${table_file}.gz", 'error');
@@ -931,6 +942,7 @@ class UpdraftPlus_Backup {
 				gzclose($handle);
 				$unlink_files[] = $this->updraft_dir.'/'.$table_file.'.gz';
 			}
+			$sind++;
 		}
 
 		if (defined("DB_CHARSET")) {
@@ -1314,7 +1326,7 @@ class UpdraftPlus_Backup {
 							#@touch($zipfile);
 						} else {
 							$updraftplus->log("$fullpath/$e: unreadable file");
-							$updraftplus->log(sprintf(__("%s: unreadable file - could not be backed up", 'updraftplus'), $use_path_when_storing.'/'.$e), 'warning');
+							$updraftplus->log(sprintf(__("%s: unreadable file - could not be backed up", 'updraftplus'), $use_path_when_storing.'/'.$e), 'warning', "unrfile-$e");
 						}
 					} elseif (is_dir($fullpath.'/'.$e)) {
 						// no need to addEmptyDir here, as it gets done when we recurse
