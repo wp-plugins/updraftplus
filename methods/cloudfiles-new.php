@@ -118,6 +118,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 		}
 	}
 
+	# TODO: Does not work
 	function chunked_upload_finish($file) {
 
 		$chunk_path = 'chunk-do-not-delete-'.$file;
@@ -283,13 +284,14 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 		}
 
 		# Get information about the object within the container
-		if (false === ($remote_size = $this->get_remote_size($file))) {
+		$remote_size = $this->get_remote_size($file);
+		if (false === $remote_size) {
 			$updraftplus->log('Could not access Cloud Files object ('.get_class($e).', '.$e->getMessage().')');
 			$updraftplus->log(__('Could not access Cloud Files object', 'updraftplus').' ('.get_class($e).', '.$e->getMessage().')', 'error');
 			return false;
 		}
 
-		return (is_numeric($remote_size)) ? $updraftplus->chunked_download($file, $this, $remote_size, true, $this->container_object) : false;
+		return (!is_bool($remote_size)) ? $updraftplus->chunked_download($file, $this, $remote_size, true, $this->container_object) : false;
 
 	}
 
