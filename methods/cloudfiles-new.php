@@ -86,8 +86,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 					try {
 						if (false !== ($data = fopen($updraftplus->backups_dir_location().'/'.$file, 'r+'))) {
 							$this->container_object->uploadObject($file, $data);
-							fclose($data);
-							$updraftplus->log("$logname regular upload: success");
+							$updraftplus->log("Cloud Files regular upload: success");
 							$updraftplus->uploaded_file($file);
 						} else {
 							throw new Exception('uploadObject failed: fopen failed');
