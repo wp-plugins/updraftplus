@@ -85,7 +85,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 				if (1 === $updraftplus->chunked_upload($this, $file, "cloudfiles://".$this->container."/$file", 'Cloud Files', 5*1024*1024, $uploaded_size)) {
 					try {
 						if (false !== ($data = fopen($updraftplus->backups_dir_location().'/'.$file, 'r+'))) {
-							$container_object->uploadObject($file, $data);
+							$this->container_object->uploadObject($file, $data);
 							fclose($data);
 							$updraftplus->log("$logname regular upload: success");
 							$updraftplus->uploaded_file($file);
