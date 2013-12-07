@@ -49,6 +49,85 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 
 	}
 
+	# TODO: Make sure this returns what delete() is expecting to receive
+	public function new_backup($backup_array) {
+	}
+
+	# TODO: This works - needs activating once the backup() method is done (since it passed the object along)
+	public function new_delete($files, $data = false) {
+
+		global $updraftplus;
+		if (is_string($files)) $files = array($files);
+
+		if (is_array($data)) {
+			$container_object = $data['cloudfiles_object'];
+			$container = $data['cloudfiles_container'];
+			$path = $data['cloudfiles_orig_path'];
+		} else {
+			$opts = $this->get_opts();
+			$container = $opts['path'];
+			$path = $container;
+			try {
+				$service = $this->get_service($opts['user'], $opts['apikey'], $opts['authurl'], UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'));
+			} catch(AuthenticationError $e) {
+				$updraftplus->log('Cloud Files authentication failed ('.$e->getMessage().')');
+				$updraftplus->log(__('Cloud Files authentication failed', 'updraftplus').' ('.$e->getMessage().')', 'error');
+				return false;
+			} catch (Exception $e) {
+				$updraftplus->log('Cloud Files error - failed to access the container ('.$e->getMessage().')');
+				$updraftplus->log(__('Cloud Files error - failed to access the container', 'updraftplus').' ('.$e->getMessage().')', 'error');
+				return false;
+			}
+			# Get the container
+			try {
+				$container_object = $service->getContainer($container);
+			} catch (Exception $e) {
+				$updraftplus->log('Could not access Cloud Files container ('.get_class($e).', '.$e->getMessage().')');
+				$updraftplus->log(__('Could not access Cloud Files container', 'updraftplus').' ('.get_class($e).', '.$e->getMessage().')', 'error');
+				return false;
+			}
+
+		}
+
+		$ret = true;
+		foreach ($files as $file) {
+
+			$updraftplus->log("Cloud Files: Delete remote: container=$container, path=$file");
+
+			// We need to search for chunks
+			$chunk_path = "chunk-do-not-delete-".$file;
+
+			try {
+				$objects = $container_object->objectList(array('prefix' => $chunk_path));
+				$index = 0;
+				while (false !== ($chunk = $objects->offsetGet($index)) && !empty($chunk)) {
+					try {
+						$name = $chunk->name;
+						$updraftplus->log('Cloud Files: Chunk to delete: '.$name);
+						#$chunk->delete();
+						$container_object->dataObject()->setName($name)->delete();
+						$updraftplus->log('Cloud Files: Chunk deleted: '.$name);
+					} catch (Exception $e) {
+						$updraftplus->log('Cloud Files chunk delete failed: '.$e->getMessage());
+					}
+					$index++;
+				}
+			} catch (Exception $e) {
+				$updraftplus->log('Cloud Files chunk delete failed: '.$e->getMessage());
+			}
+
+			# Finally, delete the object itself
+			try {
+				$container_object->dataObject()->setName($file)->delete();
+				$updraftplus->log('Cloud Files: Deleted: '.$file);
+			} catch (Exception $e) {
+				$updraftplus->log('Cloud Files delete failed: '.$e->getMessage());
+				$ret = false;
+			}
+		}
+		return $ret;
+	}
+
 	function download($file) {
 
 		global $updraftplus;
