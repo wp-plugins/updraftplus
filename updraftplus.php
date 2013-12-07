@@ -14,6 +14,7 @@ Author URI: http://updraftplus.com
 /*
 TODO - some of these are out of date/done, needs pruning
 // On plugins restore, don't let UD over-write itself
+// Test on 3.8. Test Rackspace old+new. Test database restore.
 // Exclude backwpup stuff from backup (in wp-content/uploads/backwpup*)
 // Pre-schedule resumptions that we know will be scheduled later
 // After Oct 15 2013: Remove page(s) from websites discussing W3TC
@@ -727,6 +728,71 @@ class UpdraftPlus {
 			$this->jobdata_set('uploading_substatus', $upload_status);
 		}
 
+	}
+
+	function chunked_upload($caller, $file, $cloudpath, $logname, $chunk_size, $uploaded_size) {
+
+		$fullpath = $this->backups_dir_location().'/'.$file;
+		$orig_file_size = filesize($fullpath);
+		if ($uploaded_size >= $orig_file_size) return true;
+
+		$fp = @fopen($fullpath, 'rb');
+		if (!$fp) {
+			$this->log("$logname: failed to open file: $fullpath");
+			$this->log("$file: ".sprintf(__('%s Error: Failed to open local file','updraftplus'), $logname), 'error');
+			return false;
+		}
+
+		$chunks = floor($orig_file_size / $chunk_size);
+		// There will be a remnant unless the file size was exactly on a 5Mb boundary
+		if ($orig_file_size % $chunk_size > 0 ) $chunks++;
+
+		$this->log("$logname upload: $file (chunks: $chunks) -> $cloudpath ($uploaded_size)");
+
+		if ($chunks < 2) {
+			return 1;
+		} else {
+			$errors_so_far = 0;
+			for ($i = 1 ; $i <= $chunks; $i++) {
+
+				$upload_start = ($i-1)*$chunk_size;
+				// The file size -1 equals the byte offset of the final byte
+				$upload_end = min($i*$chunk_size-1, $orig_file_size-1);
+				// Don't forget the +1; otherwise the last byte is omitted
+				$upload_size = $upload_end - $upload_start + 1;
+
+				fseek($fp, $upload_start);
+
+				$uploaded = $caller->chunked_upload($file, $fp, $i, $upload_size, $upload_start, $upload_end);
+
+				if ($uploaded) {
+					$perc = round(100*((($i-1) * $chunk_size) + $upload_size)/max($orig_file_size, 1), 1);
+					# $perc = round(100*$i/$chunks,1); # Takes no notice of last chunk likely being smaller
+					$this->record_uploaded_chunk($perc, $i, $fullpath);
+				} else {
+					$errors_so_far++;
+					if ($errors_so_far>=3) return false;
+				}
+			}
+			if ($errors_so_far) return false;
+
+			// All chunks are uploaded - now combine the chunks
+			$ret = true;
+			if (method_exists($caller, 'chunked_upload_finish')) {
+				$ret = $caller->chunked_upload_finish($file);
+				if (!$ret) {
+					$this->log("$logname - failed to re-assemble chunks (".$e->getMessage().')');
+					$this->log(sprintf(__('%s error - failed to re-assemble chunks', 'updraftplus'), $logname).' ('.$e->getMessage().')', 'error');
+				}
+			}
+			if ($ret) {
+				$this->log("$logname upload: success");
+				$this->uploaded_file($file);
+			}
+
+			return $ret;
+
+		}
 	}
 
 	function chunked_download($file, $method, $remote_size, $manually_break_up = false, $passback = null) {

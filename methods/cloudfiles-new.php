@@ -9,7 +9,6 @@ if (!defined('UPDRAFTPLUS_DIR')) die('No direct access allowed.');
 use OpenCloud\Rackspace;
 
 # New SDK - https://github.com/rackspace/php-opencloud and http://docs.rackspace.com/sdks/guide/content/php.html
-
 # Uploading: https://github.com/rackspace/php-opencloud/blob/master/docs/userguide/ObjectStore/Storage/Object.md
 
 # Extends the oldsdk: only in that we re-use a few small functions
@@ -49,12 +48,140 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 
 	}
 
-	# TODO: Make sure this returns what delete() is expecting to receive
-	public function new_backup($backup_array) {
+	public function backup($backup_array) {
+
+		global $updraftplus, $updraftplus_backup;
+
+		$opts = $this->get_opts();
+
+		$this->container = $opts['path'];
+
+		try {
+			$service = $this->get_service($opts['user'], $opts['apikey'], $opts['authurl'], UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'));
+		} catch(AuthenticationError $e) {
+			$updraftplus->log('Cloud Files authentication failed ('.$e->getMessage().')');
+			$updraftplus->log(__('Cloud Files authentication failed', 'updraftplus').' ('.$e->getMessage().')', 'error');
+			return false;
+		} catch (Exception $e) {
+			$updraftplus->log('Cloud Files error - failed to access the container ('.$e->getMessage().') (line: '.$e->getLine().', file: '.$e->getFile().')');
+			$updraftplus->log(__('Cloud Files error - failed to access the container', 'updraftplus').' ('.$e->getMessage().')', 'error');
+			return false;
+		}
+		# Get the container
+		try {
+			$this->container_object = $service->getContainer($this->container);
+		} catch (Exception $e) {
+			$updraftplus->log('Could not access Cloud Files container ('.get_class($e).', '.$e->getMessage().') (line: '.$e->getLine().', file: '.$e->getFile().')');
+			$updraftplus->log(__('Could not access Cloud Files container', 'updraftplus').' ('.get_class($e).', '.$e->getMessage().')', 'error');
+			return false;
+		}
+
+		foreach ($backup_array as $key => $file) {
+
+			# First, see the object's existing size (if any)
+			$uploaded_size = $this->get_remote_size($file);
+
+			try {
+				if (1 === $updraftplus->chunked_upload($this, $file, "cloudfiles://".$this->container."/$file", 'Cloud Files', 5*1024*1024, $uploaded_size)) {
+					try {
+						if (false !== ($data = fopen($updraftplus->backups_dir_location().'/'.$file, 'r+'))) {
+							$container_object->uploadObject($file, $data);
+							fclose($data);
+							$updraftplus->log("$logname regular upload: success");
+							$updraftplus->uploaded_file($file);
+						} else {
+							throw new Exception('uploadObject failed: fopen failed');
+						}
+					} catch (Exception $e) {
+						$this->log("$logname regular upload: failed ($file) (".$e->getMessage().")");
+						$this->log("$file: ".sprintf(__('%s Error: Failed to upload','updraftplus'),$logname), 'error');
+					}
+				}
+			} catch (Exception $e) {
+				$updraftplus->log(__('Cloud Files error - failed to upload file', 'updraftplus').' ('.$e->getMessage().') (line: '.$e->getLine().', file: '.$e->getFile().')');
+				$updraftplus->log(sprintf(__('%s error - failed to upload file', 'updraftplus'),'Cloud Files').' ('.$e->getMessage().')', 'error');
+				return false;
+			}
+		}
+
+		return array('cloudfiles_object' => $this->container_object, 'cloudfiles_orig_path' => $opts['path'], 'cloudfiles_container' => $this->container);
+
 	}
 
-	# TODO: This works - needs activating once the backup() method is done (since it passed the object along)
-	public function new_delete($files, $data = false) {
+	function get_remote_size($file) {
+		try {
+			$response = $this->container_object->getClient()->head($this->container_object->getUrl($file))->send();
+			$response_object = $this->container_object->dataObject()->populateFromResponse($response)->setName($file);;
+			return $response_object->getContentLength();
+		} catch (Exception $e) {
+			# Allow caller to distinguish between zero-sized and not-found
+			return false;
+		}
+	}
+
+	function chunked_upload_finish($file) {
+
+		$chunk_path = 'chunk-do-not-delete-'.$file;
+
+		try {
+
+			$headers = array(
+				'Content-Length'    => 0,
+				'X-Object-Manifest' => sprintf('%s/%s/%s/', 
+					$this->container,
+					$file, 
+					$chunk_path
+				)
+			);
+			
+			$url = $this->container_object->getUrl($file);
+			$this->container_object->getClient()->put($url, $headers)->send();
+			return true;
+
+		} catch (Exception $e) {
+			return false;
+		}
+	}
+
+	function chunked_upload($file, $fp, $i, $upload_size, $upload_start, $upload_end) {
+
+		global $updraftplus;
+
+		$upload_remotepath = 'chunk-do-not-delete-'.$file.'_'.$i;
+
+		$remote_size = $this->get_remote_size($upload_remotepath);
+
+		// Without this, some versions of Curl add Expect: 100-continue, which results in Curl then giving this back: curl error: 55) select/poll returned error
+		// Didn't make the difference - instead we just check below for actual success even when Curl reports an error
+		// $chunk_object->headers = array('Expect' => '');
+
+		if ($remote_size >= $upload_size) {
+			$updraftplus->log("Cloud Files: Chunk $i ($upload_start - $upload_end): already uploaded");
+		} else {
+			$updraftplus->log("Cloud Files: Chunk $i ($upload_start - $upload_end): begin upload");
+			// Upload the chunk
+			try {
+				$data = fread($fp, $upload_size);
+				$this->container_object->uploadObject($upload_remotepath, $data);
+			} catch (Exception $e) {
+				$updraftplus->log("Cloud Files chunk upload: error: ($file / $i) (".$e->getMessage().") (line: ".$e->getLine().', file: '.$e->getFile().')');
+				// Experience shows that Curl sometimes returns a select/poll error (curl error 55) even when everything succeeded. Google seems to indicate that this is a known bug.
+				
+				$remote_size = $this->get_remote_size($upload_remotepath);
+
+				if ($remote_size >= $upload_size) {
+					$updraftplus->log("$file: Chunk now exists; ignoring error (presuming it was an apparently known curl bug)");
+				} else {
+					$updraftplus->log("$file: ".sprintf(__('%s Error: Failed to upload','updraftplus'),'Cloud Files'), 'error');
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+
+	public function delete($files, $data = false) {
 
 		global $updraftplus;
 		if (is_string($files)) $files = array($files);
@@ -103,12 +230,10 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 				while (false !== ($chunk = $objects->offsetGet($index)) && !empty($chunk)) {
 					try {
 						$name = $chunk->name;
-						$updraftplus->log('Cloud Files: Chunk to delete: '.$name);
-						#$chunk->delete();
 						$container_object->dataObject()->setName($name)->delete();
 						$updraftplus->log('Cloud Files: Chunk deleted: '.$name);
 					} catch (Exception $e) {
-						$updraftplus->log('Cloud Files chunk delete failed: '.$e->getMessage());
+						$updraftplus->log("Cloud Files chunk delete failed: $name: ".$e->getMessage());
 					}
 					$index++;
 				}
@@ -159,12 +284,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 		}
 
 		# Get information about the object within the container
-		try {
-			# The SDK doesn't natively give us a method to get the object meta-data without downloading the entire object - into memory!
-			$response = $container_object->getClient()->head($container_object->getUrl($file))->send();
-			$response_object = $container_object->dataObject()->populateFromResponse($response)->setName($file);;
-			$remote_size = $response_object->getContentLength();
-		} catch (Exception $e) {
+		if (false === ($remote_size = $this->get_remote_size($file))) {
 			$updraftplus->log('Could not access Cloud Files object ('.get_class($e).', '.$e->getMessage().')');
 			$updraftplus->log(__('Could not access Cloud Files object', 'updraftplus').' ('.get_class($e).', '.$e->getMessage().')', 'error');
 			return false;
@@ -261,4 +381,3 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 	}
 
 }
-

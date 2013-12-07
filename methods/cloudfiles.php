@@ -74,8 +74,6 @@ class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 
 		$updraft_dir = $updraftplus->backups_dir_location().'/';
 
-		$authurl = (empty($opts['authurl'])) ? 'https://auth.api.rackspacecloud.com' : $opts['authurl'];
-
 // 		if (preg_match("#^([^/]+)/(.*)$#", $path, $bmatches)) {
 // 			$container = $bmatches[1];
 // 			$path = $bmatches[2];
@@ -86,7 +84,7 @@ class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 		$container = $opts['path'];
 
 		try {
-			$conn = $this->getCF($opts['user'], $opts['apikey'], $authurl, UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'));
+			$conn = $this->getCF($opts['user'], $opts['apikey'], $opts['authurl'], UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'));
 			$container_object = $conn->create_container($container);
 		} catch(AuthenticationException $e) {
 			$updraftplus->log('Cloud Files authentication failed ('.$e->getMessage().')');
