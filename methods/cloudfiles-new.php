@@ -13,6 +13,8 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 
 	const CHUNK_SIZE = 5242880;
 
+	public $client;
+
 	public function get_service($user, $apikey, $authurl, $useservercerts = false, $disablesslverify = null, $region = null) {
 
 		require_once(UPDRAFTPLUS_DIR.'/includes/php-opencloud/autoload.php');
@@ -20,7 +22,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 		global $updraftplus;
 
 		# The new authentication APIs don't match the values we were storing before
-		$new_authurl = ('https://lon.auth.api.rackspacecloud.com' == $authurl) ? Rackspace::UK_IDENTITY_ENDPOINT : Rackspace::US_IDENTITY_ENDPOINT;
+		$new_authurl = ('https://lon.auth.api.rackspacecloud.com' == $authurl || 'uk' == $authurl) ? Rackspace::UK_IDENTITY_ENDPOINT : Rackspace::US_IDENTITY_ENDPOINT;
 
 		if (null === $disablesslverify) $disablesslverify = UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify');
 
@@ -30,6 +32,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 			'username' => $user,
 			'apiKey' => $apikey
 		));
+		$this->client = $client;
 
 		if ($disablesslverify) {
 			$client->setSslVerification(false);
@@ -41,9 +44,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 			}
 		}
 
-		$service = $client->objectStoreService('cloudFiles', $region);
-
-		return $service;
+		return $client->objectStoreService('cloudFiles', $region);
 
 	}
 
@@ -109,7 +110,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 	function get_remote_size($file) {
 		try {
 			$response = $this->container_object->getClient()->head($this->container_object->getUrl($file))->send();
-			$response_object = $this->container_object->dataObject()->populateFromResponse($response)->setName($file);;
+			$response_object = $this->container_object->dataObject()->populateFromResponse($response)->setName($file);
 			return $response_object->getContentLength();
 		} catch (Exception $e) {
 			# Allow caller to distinguish between zero-sized and not-found
@@ -337,7 +338,8 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 		}
 
 		try {
-			$service = self::get_service($user, $key, $authurl, $useservercerts, $disableverify, $region);
+			$method = new UpdraftPlus_BackupModule_cloudfiles_opencloudsdk;
+			$service = $method->get_service($user, $key, $authurl, $useservercerts, $disableverify, $region);
 		} catch(AuthenticationError $e) {
 			echo __('Cloud Files authentication failed', 'updraftplus').' ('.$e->getMessage().')';
 			die;
@@ -378,7 +380,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 
 	}
 
-public static function config_print() {
+	public static function config_print() {
 
 		$opts = self::get_opts();
 
@@ -445,11 +447,16 @@ public static function config_print() {
 
 		<tr class="updraftplusmethod cloudfiles">
 			<th><?php _e('Cloud Files Username','updraftplus');?>:</th>
-			<td><input type="text" autocomplete="off" style="width: 282px" id="updraft_cloudfiles_user" name="updraft_cloudfiles_user" value="<?php echo htmlspecialchars($opts['user']) ?>" /></td>
+			<td><input type="text" autocomplete="off" style="width: 282px" id="updraft_cloudfiles_user" name="updraft_cloudfiles_user" value="<?php echo htmlspecialchars($opts['user']) ?>" />
+			<div style="clear:both;">
+			<?php echo apply_filters('updraft_cloudfiles_apikeysetting', '<a href="http://updraftplus.com/shop/cloudfiles-enhanced/"><em>'.__('To create a new Rackspace API sub-user and API key that has access only to this Rackspace container, use this add-on.', 'updraftplus')).'</em></a>'; ?>
+			</div>
+			</td>
 		</tr>
 		<tr class="updraftplusmethod cloudfiles">
 			<th><?php _e('Cloud Files API Key','updraftplus');?>:</th>
-			<td><input type="<?php echo apply_filters('updraftplus_admin_secret_field_type', 'text'); ?>" autocomplete="off" style="width: 282px" id="updraft_cloudfiles_apikey" name="updraft_cloudfiles_apikey" value="<?php echo htmlspecialchars($opts['apikey']); ?>" /></td>
+			<td><input type="<?php echo apply_filters('updraftplus_admin_secret_field_type', 'text'); ?>" autocomplete="off" style="width: 282px" id="updraft_cloudfiles_apikey" name="updraft_cloudfiles_apikey" value="<?php echo htmlspecialchars($opts['apikey']); ?>" />
+			</td>
 		</tr>
 		<tr class="updraftplusmethod cloudfiles">
 			<th><?php echo apply_filters('updraftplus_cloudfiles_location_description',__('Cloud Files Container','updraftplus'));?>:</th>

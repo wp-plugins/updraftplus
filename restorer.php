@@ -1045,11 +1045,11 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		if (!$req) {
 			if (!$ignore_errors) $this->errors++;
-			echo sprintf(_x('An error (%s) occured:', 'The user is being told the number of times an error has happened, e.g. An error (27) occurred', 'updraftplus'), $this->errors)." - ".htmlspecialchars($this->last_error)." - ".__('the database query being run was:','updraftplus').' '.htmlspecialchars($sql_line).'<br>';
+			echo sprintf(_x('An error (%s) occurred:', 'The user is being told the number of times an error has happened, e.g. An error (27) occurred', 'updraftplus'), $this->errors)." - ".htmlspecialchars($this->last_error)." - ".__('the database query being run was:','updraftplus').' '.htmlspecialchars($sql_line).'<br>';
 			$updraftplus->log("An error (".$this->errors.") occurred: ".$this->last_error." - SQL query was: ".$sql_line);
 			// First command is expected to be DROP TABLE
 			if (1 == $this->errors && 2 == $sql_type && 0 == $this->tables_created) {
-				return new WP_Error('initial_db_error', __('An error occured on the first CREATE TABLE command - aborting run','updraftplus'));
+				return new WP_Error('initial_db_error', __('An error occurred on the first CREATE TABLE command - aborting run','updraftplus'));
 			}
 			if ($this->errors>49) {
 				return new WP_Error('too_many_db_errors', __('Too many database errors have occurred - aborting restoration (you will need to restore manually)','updraftplus'));

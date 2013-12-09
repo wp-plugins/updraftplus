@@ -1434,7 +1434,7 @@ class UpdraftPlus_Backup {
 
 		$this->zip_basename = $this->updraft_dir.'/'.$backup_file_basename.'-'.$whichone;
 
-		$error_occured = false;
+		$error_occurred = false;
 
 		# Store this in its original form
 		$this->source = $source;
@@ -1444,7 +1444,7 @@ class UpdraftPlus_Backup {
 		if (!is_array($source)) $source=array($source);
 		foreach ($source as $element) {
 			$add_them = $this->makezip_recursive_add($element, basename($element), $element);
-			if (is_wp_error($add_them) || false === $add_them) $error_occured = true;
+			if (is_wp_error($add_them) || false === $add_them) $error_occurred = true;
 		}
 
 		// Any not yet dispatched? Under our present scheme, at this point nothing has yet been despatched. And since the enumerating of all files can take a while, we can at this point do a further modification check to reduce the chance of overlaps.
@@ -1460,10 +1460,10 @@ class UpdraftPlus_Backup {
 				foreach ($add_them->get_error_messages() as $msg) {
 					$updraftplus->log("Error returned from makezip_addfiles: ".$msg);
 				}
-				$error_occured = true;
+				$error_occurred = true;
 			} elseif (false === $add_them) {
 				$updraftplus->log("Error: makezip_addfiles returned false");
-				$error_occured = true;
+				$error_occurred = true;
 			}
 		}
 
@@ -1473,7 +1473,7 @@ class UpdraftPlus_Backup {
 		$destination_base = $backup_file_basename.'-'.$whichone.$itext.'.zip.tmp';
 		$destination = $this->updraft_dir.'/'.$destination_base;
 
-		if ($this->zipfiles_added > 0 || $error_occured == false) {
+		if ($this->zipfiles_added > 0 || $error_occurred == false) {
 			// ZipArchive::addFile sometimes fails
 			if ((file_exists($destination) || $this->index == $original_index) && @filesize($destination) < 90 && 'UpdraftPlus_ZipArchive' == $this->use_zip_object) {
 				$updraftplus->log("makezip_addfiles(ZipArchive) apparently failed (file=".basename($destination).", type=$whichone, size=".filesize($destination).") - retrying with PclZip");

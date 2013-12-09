@@ -7,7 +7,7 @@ if (!defined('UPDRAFTPLUS_DIR')) die('No direct access.');
 
 # New SDK code is not yet in use - always use old
 if (version_compare(phpversion(), '5.3.3', '>=') && (!defined('UPDRAFTPLUS_CLOUDFILES_USEOLDSDK') || UPDRAFTPLUS_CLOUDFILES_USEOLDSDK != true)) {
-	require(UPDRAFTPLUS_DIR.'/methods/cloudfiles-new.php');
+	require_once(UPDRAFTPLUS_DIR.'/methods/cloudfiles-new.php');
 	class UpdraftPlus_BackupModule_cloudfiles extends UpdraftPlus_BackupModule_cloudfiles_opencloudsdk { }
 } else {
 	class UpdraftPlus_BackupModule_cloudfiles extends UpdraftPlus_BackupModule_cloudfiles_oldsdk { }
