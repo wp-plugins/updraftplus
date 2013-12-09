@@ -2,10 +2,7 @@
 
 if (!defined('UPDRAFTPLUS_DIR')) die('No direct access allowed.');
 
-# TODO: Regions
-# TODO: Test alternative credentials
-
-# SDK uses namespacing - requires PHP 5.3
+# SDK uses namespacing - requires PHP 5.3 (actually the SDK states its requirements as 5.3.3)
 use OpenCloud\Rackspace;
 
 # New SDK - https://github.com/rackspace/php-opencloud and http://docs.rackspace.com/sdks/guide/content/php.html
@@ -16,7 +13,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 
 	const CHUNK_SIZE = 5242880;
 
-	public function get_service($user, $apikey, $authurl, $useservercerts = false, $disablesslverify = null) {
+	public function get_service($user, $apikey, $authurl, $useservercerts = false, $disablesslverify = null, $region = null) {
 
 		require_once(UPDRAFTPLUS_DIR.'/includes/php-opencloud/autoload.php');
 
@@ -44,7 +41,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 			}
 		}
 
-		$service = $client->objectStoreService('cloudFiles');
+		$service = $client->objectStoreService('cloudFiles', $region);
 
 		return $service;
 
@@ -59,7 +56,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 		$this->container = $opts['path'];
 
 		try {
-			$service = $this->get_service($opts['user'], $opts['apikey'], $opts['authurl'], UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'));
+			$service = $this->get_service($opts['user'], $opts['apikey'], $opts['authurl'], UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify'), $opts['region']);
 		} catch(AuthenticationError $e) {
 			$updraftplus->log('Cloud Files authentication failed ('.$e->getMessage().')');
 			$updraftplus->log(__('Cloud Files authentication failed', 'updraftplus').' ('.$e->getMessage().')', 'error');
@@ -194,7 +191,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 			$container = $opts['path'];
 			$path = $container;
 			try {
-				$service = $this->get_service($opts['user'], $opts['apikey'], $opts['authurl'], UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'));
+				$service = $this->get_service($opts['user'], $opts['apikey'], $opts['authurl'], UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify'), $opts['region']);
 			} catch(AuthenticationError $e) {
 				$updraftplus->log('Cloud Files authentication failed ('.$e->getMessage().')');
 				$updraftplus->log(__('Cloud Files authentication failed', 'updraftplus').' ('.$e->getMessage().')', 'error');
@@ -259,7 +256,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 		$opts = $this->get_opts();
 
 		try {
-			$service = $this->get_service($opts['user'], $opts['apikey'], $opts['authurl'], UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'));
+			$service = $this->get_service($opts['user'], $opts['apikey'], $opts['authurl'], UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify'), $opts['region']);
 		} catch(AuthenticationError $e) {
 			$updraftplus->log('Cloud Files authentication failed ('.$e->getMessage().')');
 			$updraftplus->log(__('Cloud Files authentication failed', 'updraftplus').' ('.$e->getMessage().')', 'error');
@@ -324,6 +321,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 		$authurl = $_POST['authurl'];
 		$useservercerts = $_POST['useservercerts'];
 		$disableverify = $_POST['disableverify'];
+		$region = (empty($_POST['region'])) ? null : $_POST['region'];
 
 		if (preg_match("#^([^/]+)/(.*)$#", $path, $bmatches)) {
 			$container = $bmatches[1];
@@ -339,7 +337,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 		}
 
 		try {
-			$service = self::get_service($user, $key, $authurl, $useservercerts, $disableverify);
+			$service = self::get_service($user, $key, $authurl, $useservercerts, $disableverify, $region);
 		} catch(AuthenticationError $e) {
 			echo __('Cloud Files authentication failed', 'updraftplus').' ('.$e->getMessage().')';
 			die;
@@ -378,6 +376,91 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 		} catch (Exception $e) {
 		}
 
+	}
+
+public static function config_print() {
+
+		$opts = self::get_opts();
+
+		?>
+		<tr class="updraftplusmethod cloudfiles">
+			<td></td>
+			<td><img alt="Rackspace Cloud Files" src="<?php echo UPDRAFTPLUS_URL.'/images/rackspacecloud-logo.png' ?>">
+				<p><em><?php printf(__('%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your site is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts.','updraftplus'),'Rackspace Cloud Files');?></em></p></td>
+		</tr>
+
+		<tr class="updraftplusmethod cloudfiles">
+			<th></th>
+			<td>
+			<?php
+			// Check requirements.
+			global $updraftplus_admin;
+			if (!function_exists('mb_substr')) {
+				$updraftplus_admin->show_double_warning('<strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__('Your web server\'s PHP installation does not included a required module (%s). Please contact your web hosting provider\'s support.', 'updraftplus'), 'mbstring').' '.sprintf(__("UpdraftPlus's %s module <strong>requires</strong> %s. Please do not file any support requests; there is no alternative.",'updraftplus'),'Cloud Files', 'mbstring'), 'cloudfiles');
+			}
+			$updraftplus_admin->curl_check('Rackspace Cloud Files', false, 'cloudfiles');
+			?>
+			</td>
+		</tr>
+
+		<tr class="updraftplusmethod cloudfiles">
+		<th></th>
+			<td>
+				<p><?php _e('Get your API key <a href="https://mycloud.rackspace.com/">from your Rackspace Cloud console</a> (read instructions <a href="http://www.rackspace.com/knowledge_center/article/rackspace-cloud-essentials-1-generating-your-api-key">here</a>), then pick a container name to use for storage. This container will be created for you if it does not already exist.','updraftplus');?> <a href="http://updraftplus.com/faqs/there-appear-to-be-lots-of-extra-files-in-my-rackspace-cloud-files-container/"><?php _e('Also, you should read this important FAQ.', 'updraftplus'); ?></a></p>
+			</td>
+		</tr>
+		<tr class="updraftplusmethod cloudfiles">
+			<th title="<?php _e('Accounts created at rackspacecloud.com are US accounts; accounts created at rackspace.co.uk are UK accounts.', 'updraftplus');?>"><?php _e('US or UK-based Rackspace Account','updraftplus');?>:</th>
+			<td>
+				<select id="updraft_cloudfiles_authurl" name="updraft_cloudfiles_authurl" title="<?php _e('Accounts created at rackspacecloud.com are US-accounts; accounts created at rackspace.co.uk are UK-based', 'updraftplus');?>">
+					<option <?php if ($opts['authurl'] != 'https://lon.auth.api.rackspacecloud.com') echo 'selected="selected"'; ?> value="https://auth.api.rackspacecloud.com"><?php _e('US (default)','updraftplus'); ?></option>
+					<option <?php if ($opts['authurl'] =='https://lon.auth.api.rackspacecloud.com') echo 'selected="selected"'; ?> value="https://lon.auth.api.rackspacecloud.com"><?php _e('UK', 'updraftplus'); ?></option>
+				</select>
+			</td>
+		</tr>
+
+		<tr class="updraftplusmethod cloudfiles">
+			<th><?php _e('Cloud Files Storage Region','updraftplus');?>:</th>
+			<td>
+				<select id="updraft_cloudfiles_region" name="updraft_cloudfiles_region">
+					<?php
+						$regions = array(
+							'DFW' => __('Dallas (DFW) (default)', 'updraftplus'),
+							'SYD' => __('Sydney (SYD)', 'updraftplus'),
+							'ORD' => __('Chicago (ORD)', 'updraftplus'),
+							'IAD' => __('Northern Virginia (IAD)', 'updraftplus'),
+							'HKG' => __('Hong Kong (HKG)', 'updraftplus'),
+						);
+						// 'LON' => __('London (LON)', 'updraftplus')
+						$selregion = (empty($opts['region'])) ? 'DFW' : $selregion;
+						foreach ($regions as $reg => $desc) {
+							?>
+							<option <?php if ($selregion == $reg) echo 'selected="selected"'; ?> value="<?php echo $reg;?>"><?php echo htmlspecialchars($desc); ?></option>
+							<?php
+						}
+					?>
+				</select>
+			</td>
+		</tr>
+
+		<tr class="updraftplusmethod cloudfiles">
+			<th><?php _e('Cloud Files Username','updraftplus');?>:</th>
+			<td><input type="text" autocomplete="off" style="width: 282px" id="updraft_cloudfiles_user" name="updraft_cloudfiles_user" value="<?php echo htmlspecialchars($opts['user']) ?>" /></td>
+		</tr>
+		<tr class="updraftplusmethod cloudfiles">
+			<th><?php _e('Cloud Files API Key','updraftplus');?>:</th>
+			<td><input type="<?php echo apply_filters('updraftplus_admin_secret_field_type', 'text'); ?>" autocomplete="off" style="width: 282px" id="updraft_cloudfiles_apikey" name="updraft_cloudfiles_apikey" value="<?php echo htmlspecialchars($opts['apikey']); ?>" /></td>
+		</tr>
+		<tr class="updraftplusmethod cloudfiles">
+			<th><?php echo apply_filters('updraftplus_cloudfiles_location_description',__('Cloud Files Container','updraftplus'));?>:</th>
+			<td><input type="text" style="width: 282px" name="updraft_cloudfiles_path" id="updraft_cloudfiles_path" value="<?php echo htmlspecialchars($opts['path']); ?>" /></td>
+		</tr>
+
+		<tr class="updraftplusmethod cloudfiles">
+		<th></th>
+		<td><p><button id="updraft-cloudfiles-test" type="button" class="button-primary" style="font-size:18px !important"><?php echo sprintf(__('Test %s Settings','updraftplus'),'Cloud Files');?></button></p></td>
+		</tr>
+	<?php
 	}
 
 }

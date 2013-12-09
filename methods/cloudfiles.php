@@ -63,6 +63,7 @@ class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 		$opts = $updraftplus->get_job_option('updraft_cloudfiles');
 		if (!is_array($opts)) $opts = array('user' => '', 'authurl' => 'https://auth.api.rackspacecloud.com', 'apikey' => '', 'path' => '');
 		if (empty($opts['authurl'])) $opts['authurl'] = 'https://auth.api.rackspacecloud.com';
+		if (empty($opts['region'])) $opts['region'] = null;
 		return $opts;
 	}
 
@@ -397,6 +398,7 @@ class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 				user: jQuery('#updraft_cloudfiles_user').val(),
 				path: jQuery('#updraft_cloudfiles_path').val(),
 				authurl: jQuery('#updraft_cloudfiles_authurl').val(),
+				region: jQuery('#updraft_cloudfiles_region').val(),
 				useservercerts: jQuery('#updraft_ssl_useservercerts').val(),
 				disableverify: jQuery('#updraft_ssl_disableverify').val()
 			};
@@ -450,6 +452,17 @@ class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 				</select>
 			</td>
 		</tr>
+		
+		<input type="hidden" name="updraft_cloudfiles_region" value="">
+		<?php /*
+		// Can put a message here if someone asks why region storage is not available (only available on new SDK)
+		<tr class="updraftplusmethod cloudfiles">
+			<th><?php _e('Rackspace Storage Region','updraftplus');?>:</th>
+			<td>
+				
+			</td>
+		</tr> */ ?>
+
 		<tr class="updraftplusmethod cloudfiles">
 			<th><?php _e('Cloud Files username','updraftplus');?>:</th>
 			<td><input type="text" autocomplete="off" style="width: 282px" id="updraft_cloudfiles_user" name="updraft_cloudfiles_user" value="<?php echo htmlspecialchars($opts['user']) ?>" /></td>
