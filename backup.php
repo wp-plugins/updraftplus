@@ -908,6 +908,13 @@ class UpdraftPlus_Backup {
 
 		if (!$found_options_table) {
 			$updraftplus->log(__('The database backup appears to have failed - the options table was not found', 'updraftplus'), 'warning', 'optstablenotfound');
+			$time_this_run = time()-$updraftplus->opened_log_time;
+			if ($time_this_run > 2000) {
+				# Have seen this happen; not sure how, but it was apparently deterministic; if the current process had been running for a long time, then apparently all database commands silently failed.
+				$updraftplus->log("Have been running very long, and it seems the database went away; terminating");
+				$updraftplus->record_still_alive();
+				die;
+			}
 		} else {
 			$updraftplus->log_removewarning('optstablenotfound');
 		}

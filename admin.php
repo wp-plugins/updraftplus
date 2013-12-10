@@ -48,8 +48,6 @@ class UpdraftPlus_Admin {
 		// Next, the actions that only come on the UpdraftPlus page
 		if ($pagenow != UpdraftPlus_Options::admin_page() || empty($_REQUEST['page']) || 'updraftplus' != $_REQUEST['page']) return;
 
-		do_action('updraftplus_admin_page_init');
-
 		if (UpdraftPlus_Options::user_can_manage() && defined('DISABLE_WP_CRON') && DISABLE_WP_CRON == true) {
 			add_action('all_admin_notices', array($this, 'show_admin_warning_disabledcron'));
 		}
@@ -1281,6 +1279,8 @@ CREATE TABLE $wpdb->signups (
 	function settings_output() {
 
 		global $updraftplus;
+
+		do_action('updraftplus_settings_page_init');
 
 		wp_enqueue_style('jquery-ui', UPDRAFTPLUS_URL.'/includes/jquery-ui-1.8.22.custom.css'); 
 

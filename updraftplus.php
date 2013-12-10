@@ -15,6 +15,7 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // On plugins restore, don't let UD over-write itself
 // Test on 3.8. Test Rackspace old+new. Test database restore.
+// Add a link on the restore page to the log file
 // Exclude backwpup stuff from backup (in wp-content/uploads/backwpup*)
 // Pre-schedule resumptions that we know will be scheduled later
 // After Oct 15 2013: Remove page(s) from websites discussing W3TC
@@ -1707,6 +1708,7 @@ class UpdraftPlus {
 				wp_clear_scheduled_hook('updraft_backup_resume', array($cancel_event+1, $this->nonce));
 				wp_clear_scheduled_hook('updraft_backup_resume', array($cancel_event+2, $this->nonce));
 				wp_clear_scheduled_hook('updraft_backup_resume', array($cancel_event+3, $this->nonce));
+				wp_clear_scheduled_hook('updraft_backup_resume', array($cancel_event+4, $this->nonce));
 				$delete_jobdata = true;
 			}
 		} else {
@@ -1818,7 +1820,7 @@ class UpdraftPlus {
 		$shash = $service.'-'.md5($file);
 		$this->jobdata_set("uploaded_".$shash, 'yes');
 	
-		if ($force || $updraftplus_backup->last_service) {
+		if ($force || !empty($updraftplus_backup->last_service)) {
 			$hash = md5($file);
 			$this->log("Recording as successfully uploaded: $file ($hash)");
 			$this->jobdata_set('uploaded_lastreset', $this->current_resumption);
@@ -1843,7 +1845,7 @@ class UpdraftPlus {
 
 		// Delete local files immediately if the option is set
 		// Where we are only backing up locally, only the "prune" function should do deleting
-		if ($updraftplus_backup->last_service && ($this->jobdata_get('service') !== '' && ((is_array($this->jobdata_get('service')) && count($this->jobdata_get('service')) >0) || (is_string($this->jobdata_get('service')) && $this->jobdata_get('service') !== 'none')))) {
+		if (!empty($updraftplus_backup->last_service) && ($this->jobdata_get('service') !== '' && ((is_array($this->jobdata_get('service')) && count($this->jobdata_get('service')) >0) || (is_string($this->jobdata_get('service')) && $this->jobdata_get('service') !== 'none')))) {
 			$this->delete_local($file);
 		}
 	}
