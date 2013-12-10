@@ -14,7 +14,6 @@ Author URI: http://updraftplus.com
 /*
 TODO - some of these are out of date/done, needs pruning
 // On plugins restore, don't let UD over-write itself
-// Test on 3.8. Test Rackspace old+new. Test database restore.
 // Add a link on the restore page to the log file
 // Exclude backwpup stuff from backup (in wp-content/uploads/backwpup*)
 // Pre-schedule resumptions that we know will be scheduled later
@@ -22,7 +21,7 @@ TODO - some of these are out of date/done, needs pruning
 // Change add-ons screen, to be less confusing for people who haven't yet updated but have connected
 // Change migrate window: 1) Retain link to article 2) Have selector to choose which backup set to migrate - or a fresh one 3) Have option for FTP/SFTP/SCP despatch 4) Have big "Go" button. Have some indication of what happens next. Test the login first. Have the remote site auto-scan its directory + pick up new sets. Have a way of querying the remote site for its UD-dir. Have a way of saving the settings as a 'profile'. Or just save the last set of settings (since mostly will be just one place to send to). Implement an HTTP/JSON method for sending files too.
 // Place in maintenance mode during restore - ?
-// Log all output of restore - include Migrator
+// Log all output of restore; include Migrator
 // Free/premium comparison page
 // Complete the tweak to bring the delete-old-dirs within a dialog (just needed to deal wtih case of needing credentials more elegantly).
 // Add note to support page requesting that non-English be translated

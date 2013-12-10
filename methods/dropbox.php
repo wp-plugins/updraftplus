@@ -295,7 +295,7 @@ class UpdraftPlus_BackupModule_dropbox {
 
 			<tr class="updraftplusmethod dropbox">
 				<th><?php _e('Authenticate with Dropbox','updraftplus');?>:</th>
-				<td><p><?php if (UpdraftPlus_Options::get_updraft_option('updraft_dropboxtk_request_token','xyz') != 'xyz') echo "<strong>".__('(You appear to be already authenticated)','updraftplus').".</strong>"; ?> <a href="?page=updraftplus&action=updraftmethod-dropbox-auth&updraftplus_dropboxauth=doit"><?php echo __('<strong>After</strong> you have saved your settings (by clicking \'Save Changes\' below), then come back here once and click this link to complete authentication with Dropbox.','updraftplus');?></a>
+				<td><p><?php if (UpdraftPlus_Options::get_updraft_option('updraft_dropboxtk_request_token','') != '') echo "<strong>".__('(You appear to be already authenticated)','updraftplus').".</strong>"; ?> <a href="?page=updraftplus&action=updraftmethod-dropbox-auth&updraftplus_dropboxauth=doit"><?php echo __('<strong>After</strong> you have saved your settings (by clicking \'Save Changes\' below), then come back here once and click this link to complete authentication with Dropbox.','updraftplus');?></a>
 				</p>
 				</td>
 			</tr>
@@ -368,10 +368,10 @@ class UpdraftPlus_BackupModule_dropbox {
 	}
 
 	public static function auth_token() {
-		$previous_token = UpdraftPlus_Options::get_updraft_option("updraft_dropboxtk_request_token","xyz");
+		$previous_token = UpdraftPlus_Options::get_updraft_option('updraft_dropboxtk_request_token', '');
 		self::bootstrap();
-		$new_token = UpdraftPlus_Options::get_updraft_option("updraft_dropboxtk_request_token","xyz");
-		if ($new_token && $new_token != "xyz") {
+		$new_token = UpdraftPlus_Options::get_updraft_option("updraft_dropboxtk_request_token", '');
+		if ($new_token) {
 			add_action('all_admin_notices', array('UpdraftPlus_BackupModule_dropbox', 'show_authed_admin_warning') );
 		}
 	}

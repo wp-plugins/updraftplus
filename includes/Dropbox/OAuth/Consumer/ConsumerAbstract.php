@@ -49,7 +49,7 @@ abstract class Dropbox_ConsumerAbstract
                 $this->getAccessToken();
             } catch(Dropbox_Exception $e) {
                 global $updraftplus;
-                $updraftplus->log($e->getMessage().' - need to reauthenticate this site with Dropbox (if this fails, then you can also try wiping your settings from the Expert Settings section');
+                $updraftplus->log($e->getMessage().' - need to reauthenticate this site with Dropbox (if this fails, then you can also try wiping your settings from the Expert Settings section)');
                 $this->getRequestToken();
                 $this->authorise();
             }
@@ -95,7 +95,7 @@ abstract class Dropbox_ConsumerAbstract
         $updraftplus->log('Dropbox reauthorisation needed; but we are running from cron or the CLI, so this is not possible');
         UpdraftPlus_Options::update_updraft_option("updraft_dropboxtk_request_token", '');
         $updraftplus->log(sprintf(__('You need to re-authenticate with %s, as your existing credentials are not working.', 'updraftplus'), 'Dropbox'), 'error');
-        exit;
+        return false;
     }
     
     /**
