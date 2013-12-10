@@ -1,6 +1,35 @@
 <?php
 
-class UpdraftPlus_BackupModule_cloudfiles {
+if (!defined('UPDRAFTPLUS_DIR')) die('No direct access.');
+
+# Converted to job_options: yes
+# Converted to array options: yes
+
+# New SDK code is not yet in use - always use old
+if (version_compare(phpversion(), '5.3.3', '>=') && (!defined('UPDRAFTPLUS_CLOUDFILES_USEOLDSDK') || UPDRAFTPLUS_CLOUDFILES_USEOLDSDK != true)) {
+	require_once(UPDRAFTPLUS_DIR.'/methods/cloudfiles-new.php');
+	class UpdraftPlus_BackupModule_cloudfiles extends UpdraftPlus_BackupModule_cloudfiles_opencloudsdk { }
+} else {
+	class UpdraftPlus_BackupModule_cloudfiles extends UpdraftPlus_BackupModule_cloudfiles_oldsdk { }
+}
+
+# Migrate options to new-style storage - Dec 2013
+if (!is_array(UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles')) && '' != UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_user', '')) {
+	$opts = array(
+		'user' => UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_user'),
+		'apikey' => UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_apikey'),
+		'path' => UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_path'),
+		'authurl' => UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_authurl')
+	);
+	UpdraftPlus_Options::update_updraft_option('updraft_cloudfiles', $opts);
+	UpdraftPlus_Options::delete_updraft_option('updraft_cloudfiles_user');
+	UpdraftPlus_Options::delete_updraft_option('updraft_cloudfiles_apikey');
+	UpdraftPlus_Options::delete_updraft_option('updraft_cloudfiles_path');
+	UpdraftPlus_Options::delete_updraft_option('updraft_cloudfiles_authurl');
+}
+
+# Old SDK
+class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 
 	// This function does not catch any exceptions - that should be done by the caller
 	function getCF($user, $apikey, $authurl, $useservercerts = false) {
@@ -25,13 +54,26 @@ class UpdraftPlus_BackupModule_cloudfiles {
 
 	}
 
-	function backup($backup_array) {
+	public function get_credentials() {
+		return array('updraft_cloudfiles');
+	}
+
+	protected function get_opts() {
+		global $updraftplus;
+		$opts = $updraftplus->get_job_option('updraft_cloudfiles');
+		if (!is_array($opts)) $opts = array('user' => '', 'authurl' => 'https://auth.api.rackspacecloud.com', 'apikey' => '', 'path' => '');
+		if (empty($opts['authurl'])) $opts['authurl'] = 'https://auth.api.rackspacecloud.com';
+		if (empty($opts['region'])) $opts['region'] = null;
+		return $opts;
+	}
+
+	public function backup($backup_array) {
 
 		global $updraftplus, $updraftplus_backup;
 
+		$opts = $this->get_opts();
+
 		$updraft_dir = $updraftplus->backups_dir_location().'/';
-		$path = untrailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_path'));
-		$authurl = UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_authurl', 'https://auth.api.rackspacecloud.com');
 
 // 		if (preg_match("#^([^/]+)/(.*)$#", $path, $bmatches)) {
 // 			$container = $bmatches[1];
@@ -40,14 +82,11 @@ class UpdraftPlus_BackupModule_cloudfiles {
 // 			$container = $path;
 // 			$path = "";
 // 		}
-		$container = $path;
-
-		$user = UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_user');
-		$apikey = UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_apikey');
+		$container = $opts['path'];
 
 		try {
-			$conn = $this->getCF($user, $apikey, $authurl, UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'));
-			$cont_obj = $conn->create_container($container);
+			$conn = $this->getCF($opts['user'], $opts['apikey'], $opts['authurl'], UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'));
+			$container_object = $conn->create_container($container);
 		} catch(AuthenticationException $e) {
 			$updraftplus->log('Cloud Files authentication failed ('.$e->getMessage().')');
 			$updraftplus->log(sprintf(__('%s authentication failed','updraftplus'),'Cloud Files').' ('.$e->getMessage().')', 'error');
@@ -59,7 +98,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 		} catch (Exception $e) {
 			$updraftplus->log('Cloud Files error - failed to create and access the container ('.$e->getMessage().')');
 			$updraftplus->log(__('Cloud Files error - failed to create and access the container', 'updraftplus').' ('.$e->getMessage().')', 'error');
-			return;
+			return false;
 		}
 
 		$chunk_size = 5*1024*1024;
@@ -75,7 +114,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 			$chunk_path = "chunk-do-not-delete-$file";
 
 			try {
-				$object = new UpdraftPlus_CF_Object($cont_obj, $cfpath);
+				$object = new UpdraftPlus_CF_Object($container_object, $cfpath);
 				$object->content_type = "application/zip";
 
 				$uploaded_size = (isset($object->content_length)) ? $object->content_length : 0;
@@ -113,7 +152,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 							$upload_remotepath = $chunk_path."_$i";
 							// Don't forget the +1; otherwise the last byte is omitted
 							$upload_size = $upload_end - $upload_start + 1;
-							$chunk_object = new UpdraftPlus_CF_Object($cont_obj, $upload_remotepath);
+							$chunk_object = new UpdraftPlus_CF_Object($container_object, $upload_remotepath);
 							$chunk_object->content_type = "application/zip";
 							// Without this, some versions of Curl add Expect: 100-continue, which results in Curl then giving this back: curl error: 55) select/poll returned error
 							// Didn't make the difference - instead we just check below for actual success even when Curl reports an error
@@ -134,7 +173,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 									$updraftplus->log("Cloud Files chunk upload: error: ($file / $i) (".$e->getMessage().")");
 									// Experience shows that Curl sometimes returns a select/poll error (curl error 55) even when everything succeeded. Google seems to indicate that this is a known bug.
 									
-									$chunk_object = new UpdraftPlus_CF_Object($cont_obj, $upload_remotepath);
+									$chunk_object = new UpdraftPlus_CF_Object($container_object, $upload_remotepath);
 									$chunk_object->content_type = "application/zip";
 									$remote_size = (isset($chunk_object->content_length)) ? $chunk_object->content_length : 0;
 									
@@ -170,9 +209,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 							return false;
 						}
 					}
-
 				}
-
 
 			} catch (Exception $e) {
 				$updraftplus->log(__('Cloud Files error - failed to upload file', 'updraftplus').' ('.$e->getMessage().')');
@@ -182,28 +219,25 @@ class UpdraftPlus_BackupModule_cloudfiles {
 
 		}
 
-		return array('cloudfiles_object' => $cont_obj, 'cloudfiles_orig_path' => $path, 'cloudfiles_container' => $container);
+		return array('cloudfiles_object' => $container_object, 'cloudfiles_orig_path' => $opts['path'], 'cloudfiles_container' => $container);
 
 	}
 
-	function delete($files, $cloudfilesarr = false) {
+	public function delete($files, $cloudfilesarr = false) {
 
 		global $updraftplus;
 		if (is_string($files)) $files=array($files);
 
 		if ($cloudfilesarr) {
-			$cont_obj = $cloudfilesarr['cloudfiles_object'];
+			$container_object = $cloudfilesarr['cloudfiles_object'];
 			$container = $cloudfilesarr['cloudfiles_container'];
 			$path = $cloudfilesarr['cloudfiles_orig_path'];
 		} else {
 			try {
-				$user = UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_user');
-				$apikey = UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_apikey');
-				$path = untrailingslashit(UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_path'));
-				$container = $path;
-				$authurl = UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_authurl', 'https://auth.api.rackspacecloud.com');
-				$conn = $this->getCF($user, $apikey, $authurl, UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'));
-				$cont_obj = $conn->create_container($container);
+				$opts = $this->get_opts();
+				$container = $opts['path'];
+				$conn = $this->getCF($opts['user'], $opts['apikey'], $opts['authurl'], UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'));
+				$container_object = $conn->create_container($container);
 			} catch(Exception $e) {
 				$updraftplus->log('Cloud Files authentication failed ('.$e->getMessage().')');
 				$updraftplus->log(sprintf(__('%s authentication failed','updraftplus'), 'Cloud Files').' ('.$e->getMessage().')', 'error');
@@ -225,10 +259,10 @@ class UpdraftPlus_BackupModule_cloudfiles {
 			$chunk_path = "chunk-do-not-delete-$file";
 
 			try {
-				$objects = $cont_obj->list_objects(0, NULL, $chunk_path.'_');
+				$objects = $container_object->list_objects(0, NULL, $chunk_path.'_');
 				foreach ($objects as $chunk) {
 					$updraftplus->log('Cloud Files: Chunk to delete: '.$chunk);
-					$cont_obj->delete_object($chunk);
+					$container_object->delete_object($chunk);
 					$updraftplus->log('Cloud Files: Chunk deleted: '.$chunk);
 				}
 			} catch (Exception $e) {
@@ -236,7 +270,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 			}
 
 			try {
-				$cont_obj->delete_object($fpath);
+				$container_object->delete_object($fpath);
 				$updraftplus->log('Cloud Files: Deleted: '.$fpath);
 			} catch (Exception $e) {
 				$updraftplus->log('Cloud Files delete failed: '.$e->getMessage());
@@ -246,17 +280,15 @@ class UpdraftPlus_BackupModule_cloudfiles {
 		return $ret;
 	}
 
-	function download($file) {
+	public function download($file) {
 
 		global $updraftplus;
 		$updraft_dir = $updraftplus->backups_dir_location();
 
-		$user = UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_user');
-		$apikey = UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_apikey');
-		$authurl = UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_authurl');
+		$opts = $this->get_opts();
 
 		try {
-			$conn = $this->getCF($user, $apikey, $authurl, UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'));
+			$conn = $this->getCF($opts['user'], $opts['apikey'], $opts['authurl'], UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'));
 		} catch(AuthenticationException $e) {
 			$updraftplus->log('Cloud Files authentication failed ('.$e->getMessage().')');
 			$updraftplus->log(sprintf(__('%s authentication failed','updraftplus'), 'Cloud Files').' ('.$e->getMessage().')', 'error');
@@ -268,10 +300,10 @@ class UpdraftPlus_BackupModule_cloudfiles {
 		} catch (Exception $e) {
 			$updraftplus->log('Cloud Files error - failed to create and access the container ('.$e->getMessage().')');
 			$updraftplus->log(__('Cloud Files error - failed to create and access the container', 'updraftplus').' ('.$e->getMessage().')', 'error');
-			return;
+			return false;
 		}
 
-		$path = untrailingslashit(get_option('updraft_cloudfiles_path'));
+		$path = untrailingslashit($opts['path']);
 
 // 		if (preg_match("#^([^/]+)/(.*)$#", $path, $bmatches)) {
 // 			$container = $bmatches[1];
@@ -283,7 +315,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 		$container = $path;
 
 		try {
-			$cont_obj = $conn->create_container($container);
+			$container_object = $conn->create_container($container);
 		} catch(Exception $e) {
 			$updraftplus->log('Cloud Files error - failed to create and access the container ('.$e->getMessage().')');
 			$updraftplus->log(__('Cloud Files error - failed to create and access the container','updraftplus').' ('.$e->getMessage().')', 'error');
@@ -297,7 +329,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 
 		try {
 			// The third parameter causes an exception to be thrown if the object does not exist remotely
-			$object = new UpdraftPlus_CF_Object($cont_obj, $path, true);
+			$object = new UpdraftPlus_CF_Object($container_object, $path, true);
 			
 			$fullpath = $updraft_dir.'/'.$file;
 
@@ -349,6 +381,8 @@ class UpdraftPlus_BackupModule_cloudfiles {
 			return false;
 		}
 
+		return true;
+
 	}
 
 	public static function config_print_javascript_onready() {
@@ -364,11 +398,14 @@ class UpdraftPlus_BackupModule_cloudfiles {
 				user: jQuery('#updraft_cloudfiles_user').val(),
 				path: jQuery('#updraft_cloudfiles_path').val(),
 				authurl: jQuery('#updraft_cloudfiles_authurl').val(),
-				useservercerts: jQuery('#updraft_cloudfiles_useservercerts').val(),
+				region: jQuery('#updraft_cloudfiles_region').val(),
+				useservercerts: jQuery('#updraft_ssl_useservercerts').val(),
 				disableverify: jQuery('#updraft_ssl_disableverify').val()
 			};
 			jQuery.post(ajaxurl, data, function(response) {
 				jQuery('#updraft-cloudfiles-test').html('<?php echo esc_js(sprintf(__('Test %s Settings','updraftplus'),'Cloud Files'));?>');
+				//jQuery('#updraft-message-modal-innards').html('<?php echo esc_js(sprintf(__('%s settings test result:', 'updraftplus'), 'Cloud Files'));?> ' + response);
+				//jQuery('#updraft-message-modal').dialog('open');
 				alert('<?php echo esc_js(sprintf(__('%s settings test result:', 'updraftplus'), 'Cloud Files'));?> ' + response);
 			});
 		});
@@ -376,6 +413,8 @@ class UpdraftPlus_BackupModule_cloudfiles {
 	}
 
 	public static function config_print() {
+
+		$opts = self::get_opts();
 
 		?>
 		<tr class="updraftplusmethod cloudfiles">
@@ -407,26 +446,34 @@ class UpdraftPlus_BackupModule_cloudfiles {
 		<tr class="updraftplusmethod cloudfiles">
 			<th><?php _e('US or UK Cloud','updraftplus');?>:</th>
 			<td>
-				<?php
-					$authurl = UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_authurl');
-				?>
 				<select id="updraft_cloudfiles_authurl" name="updraft_cloudfiles_authurl">
-					<option <?php if ($authurl !='https://lon.auth.api.rackspacecloud.com') echo 'selected="selected"'; ?> value="https://auth.api.rackspacecloud.com"><?php _e('US (default)','updraftplus'); ?></option>
-					<option <?php if ($authurl =='https://lon.auth.api.rackspacecloud.com') echo 'selected="selected"'; ?> value="https://lon.auth.api.rackspacecloud.com"><?php _e('UK', 'updraftplus'); ?></option>
+					<option <?php if ($opts['authurl'] != 'https://lon.auth.api.rackspacecloud.com') echo 'selected="selected"'; ?> value="https://auth.api.rackspacecloud.com"><?php _e('US (default)','updraftplus'); ?></option>
+					<option <?php if ($opts['authurl'] =='https://lon.auth.api.rackspacecloud.com') echo 'selected="selected"'; ?> value="https://lon.auth.api.rackspacecloud.com"><?php _e('UK', 'updraftplus'); ?></option>
 				</select>
 			</td>
 		</tr>
+		
+		<input type="hidden" name="updraft_cloudfiles_region" value="">
+		<?php /*
+		// Can put a message here if someone asks why region storage is not available (only available on new SDK)
+		<tr class="updraftplusmethod cloudfiles">
+			<th><?php _e('Rackspace Storage Region','updraftplus');?>:</th>
+			<td>
+				
+			</td>
+		</tr> */ ?>
+
 		<tr class="updraftplusmethod cloudfiles">
 			<th><?php _e('Cloud Files username','updraftplus');?>:</th>
-			<td><input type="text" autocomplete="off" style="width: 252px" id="updraft_cloudfiles_user" name="updraft_cloudfiles_user" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_user')) ?>" /></td>
+			<td><input type="text" autocomplete="off" style="width: 282px" id="updraft_cloudfiles_user" name="updraft_cloudfiles_user" value="<?php echo htmlspecialchars($opts['user']) ?>" /></td>
 		</tr>
 		<tr class="updraftplusmethod cloudfiles">
 			<th><?php _e('Cloud Files API key','updraftplus');?>:</th>
-			<td><input type="<?php echo apply_filters('updraftplus_admin_secret_field_type', 'text'); ?>" autocomplete="off" style="width: 252px" id="updraft_cloudfiles_apikey" name="updraft_cloudfiles_apikey" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_apikey')); ?>" /></td>
+			<td><input type="<?php echo apply_filters('updraftplus_admin_secret_field_type', 'text'); ?>" autocomplete="off" style="width: 282px" id="updraft_cloudfiles_apikey" name="updraft_cloudfiles_apikey" value="<?php echo htmlspecialchars($opts['apikey']); ?>" /></td>
 		</tr>
 		<tr class="updraftplusmethod cloudfiles">
 			<th><?php echo apply_filters('updraftplus_cloudfiles_location_description',__('Cloud Files container','updraftplus'));?>:</th>
-			<td><input type="text" style="width: 252px" name="updraft_cloudfiles_path" id="updraft_cloudfiles_path" value="<?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_path')); ?>" /></td>
+			<td><input type="text" style="width: 282px" name="updraft_cloudfiles_path" id="updraft_cloudfiles_path" value="<?php echo htmlspecialchars($opts['path']); ?>" /></td>
 		</tr>
 
 		<tr class="updraftplusmethod cloudfiles">
@@ -472,7 +519,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 
 		try {
 			$conn = self::getCF($user, $key, $authurl, $useservercerts);
-			$cont_obj = $conn->create_container($container);
+			$container_object = $conn->create_container($container);
 		} catch(AuthenticationException $e) {
 			echo __('Cloud Files authentication failed','updraftplus').' ('.$e->getMessage().')';
 			die;
@@ -487,7 +534,7 @@ class UpdraftPlus_BackupModule_cloudfiles {
 		$try_file = md5(rand()).'.txt';
 
 		try {
-			$object = $cont_obj->create_object($try_file);
+			$object = $container_object->create_object($try_file);
 			$object->content_type = "text/plain";
 			$object->write('UpdraftPlus test file');
 		} catch (Exception $e) {
@@ -495,9 +542,9 @@ class UpdraftPlus_BackupModule_cloudfiles {
 			return;
 		}
 
-		echo  __('Success','updraftplus').": ${container_verb}".__('We accessed the container, and were able to create files within it.','updraftplus');
+		echo __('Success','updraftplus').": ${container_verb}".__('We accessed the container, and were able to create files within it.','updraftplus');
 
-		@$cont_obj->delete_object($try_file);
+		@$container_object->delete_object($try_file);
 	}
 
 }

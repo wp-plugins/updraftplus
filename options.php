@@ -21,7 +21,7 @@ class UpdraftPlus_Options {
 		return get_option($option, $default);
 	}
 
-	public static function update_updraft_option($option, $value) {
+	public static function update_updraft_option($option, $value, $use_cache = true) {
 		update_option($option, $value);
 	}
 
@@ -35,7 +35,9 @@ class UpdraftPlus_Options {
 	}
 
 	public static function options_form_begin($settings_fields = 'updraft-options-group', $allow_autocomplete = true) {
-		echo '<form method="post" action="options.php"';
+		global $pagenow;
+		echo '<form method="post" ';
+		if ($pagenow == 'options-general.php') echo 'action="options.php"';
 		if (!$allow_autocomplete) echo ' autocomplete="off"';
 		echo '>';
 		if ($settings_fields) settings_fields('updraft-options-group');
@@ -92,9 +94,14 @@ class UpdraftPlus_Options {
 
 		register_setting('updraft-options-group', 'updraft_server_address' );
 		register_setting('updraft-options-group', 'updraft_dir', array($updraftplus_admin, 'prune_updraft_dir_prefix') );
-		register_setting('updraft-options-group', 'updraft_email');
+		register_setting('updraft-options-group', 'updraft_email', array($updraftplus, 'just_one_email'));
+
+		register_setting('updraft-options-group', 'updraft_report_warningsonly', array($updraftplus_admin, 'return_array'));
+		register_setting('updraft-options-group', 'updraft_report_wholebackup', array($updraftplus_admin, 'return_array'));
+
 		register_setting('updraft-options-group', 'updraft_delete_local', 'absint' );
 		register_setting('updraft-options-group', 'updraft_debug_mode', 'absint' );
+
 		register_setting('updraft-options-group', 'updraft_include_plugins', 'absint' );
 		register_setting('updraft-options-group', 'updraft_include_themes', 'absint' );
 		register_setting('updraft-options-group', 'updraft_include_uploads', 'absint' );
@@ -115,11 +122,6 @@ class UpdraftPlus_Options {
 		if (is_multisite() && $pagenow == 'options-general.php' && isset($_REQUEST['page']) && 'updraftplus' == substr($_REQUEST['page'], 0, 11)) {
 			add_action('all_admin_notices', array('UpdraftPlus_Options', 'show_admin_warning_multisite') );
 		}
-
-	}
-
-	public static function pingfilter($disable) {
-		return apply_filters('updraftplus_pingfilter', $disable);
 	}
 
 	public static function hourminute($pot) {
@@ -129,15 +131,13 @@ class UpdraftPlus_Options {
 	}
 
 	public static function weekday($pot) {
-		$pot=absint($pot);
+		$pot = absint($pot);
 		return ($pot>6) ? 0 : $pot;
 	}
 
 	public static function show_admin_warning_multisite() {
-
 		global $updraftplus_admin;
-		$updraftplus_admin->show_admin_warning('<strong>UpdraftPlus warning:</strong> This is a WordPress multi-site (a.k.a. network) installation. <a href="http://updraftplus.com">WordPress Multisite is supported, with extra features, by UpdraftPlus Premium, or the Multisite add-on</a>. Without upgrading, UpdraftPlus allows <strong>every</strong> blog admin who can modify plugin settings to back up (and hence access the data, including passwords, from) and restore (including with customised modifications, e.g. changed passwords) <strong>the entire network</strong>. (This applies to all WordPress backup plugins unless they have been explicitly coded for multisite compatibility).', "error");
-
+		$updraftplus_admin->show_admin_warning('<strong>'.__('UpdraftPlus warning:', 'updraftplus').'</strong> '.__('This is a WordPress multi-site (a.k.a. network) installation.', 'updraftplus').' <a href="http://updraftplus.com">'.__('WordPress Multisite is supported, with extra features, by UpdraftPlus Premium, or the Multisite add-on.', 'updraftplus').'</a> '.__('Without upgrading, UpdraftPlus allows <strong>every</strong> blog admin who can modify plugin settings to back up (and hence access the data, including passwords, from) and restore (including with customised modifications, e.g. changed passwords) <strong>the entire network</strong>.', 'updraftplus').' '.__('(This applies to all WordPress backup plugins unless they have been explicitly coded for multisite compatibility).', 'updraftplus'), 'error');
 	}
 
 }

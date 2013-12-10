@@ -19,7 +19,25 @@ class UpdraftPlus_BackupModule_s3 {
 
 		if (!class_exists('S3')) require_once(UPDRAFTPLUS_DIR.'/includes/S3.php');
 
+		if (!class_exists('WP_HTTP_Proxy')) require_once(ABSPATH.'wp-includes/class-http.php');
+		$proxy = new WP_HTTP_Proxy();
 		$s3 = new S3($key, $secret);
+
+		if ( $proxy->is_enabled()) {
+			# WP_HTTP_Proxy returns empty strings where we want nulls
+			$user = $proxy->username();
+			if (empty($user)) {
+				$user = null;
+				$pass = null;
+			} else {
+				$pass = $proxy->password();
+				if (empty($pass)) $pass = null;
+			}
+			$port = (int)$proxy->port();
+			if (empty($port)) $port = 8080;
+			$s3->setProxy($proxy->host(), $user, $pass, CURLPROXY_HTTP, $port); 
+		}
+
 		if (!$nossl) {
 			$curl_version = (function_exists('curl_version')) ? curl_version() : array('features' => null);
 			$curl_ssl_supported= ($curl_version['features'] & CURL_VERSION_SSL);
@@ -315,11 +333,14 @@ class UpdraftPlus_BackupModule_s3 {
 			if (!$s3->getObject($bucket_name, $bucket_path.$file, $fullpath, true)) {
 				$updraftplus->log("$whoweare Error: Failed to download $file. Check your permissions and credentials.");
 				$updraftplus->log(sprintf(__('%s Error: Failed to download %s. Check your permissions and credentials.','updraftplus'),$whoweare, $file), 'error');
+				return false;
 			}
 		} else {
 			$updraftplus->log("$whoweare Error: Failed to access bucket $bucket_name. Check your permissions and credentials.");
 			$updraftplus->log(sprintf(__('%s Error: Failed to access bucket %s. Check your permissions and credentials.','updraftplus'),$whoweare, $bucket_name), 'error');
+			return false;
 		}
+		return true;
 
 	}
 
@@ -354,7 +375,8 @@ class UpdraftPlus_BackupModule_s3 {
 
 	public static function config_print() {
 	
-		self::config_print_engine('s3', 'S3', 'Amazon S3', 'AWS', 'http://aws.amazon.com/console/', '<img src="https://d36cz9buwru1tt.cloudfront.net/Powered-by-Amazon-Web-Services.jpg" alt="Amazon Web Services">');
+		# White: https://d36cz9buwru1tt.cloudfront.net/Powered-by-Amazon-Web-Services.jpg
+		self::config_print_engine('s3', 'S3', 'Amazon S3', 'AWS', 'http://aws.amazon.com/console/', '<img src="http://awsmedia.s3.amazonaws.com/AWS_logo_poweredby_black_127px.png" alt="Amazon Web Services">');
 		
 	}
 

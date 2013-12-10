@@ -49,7 +49,7 @@ abstract class Dropbox_ConsumerAbstract
                 $this->getAccessToken();
             } catch(Dropbox_Exception $e) {
                 global $updraftplus;
-                $updraftplus->log($e->getMessage().' - need to reauthenticate this site with Dropbox (if this fails, then you can also try wiping your settings from the Expert Settings section');
+                $updraftplus->log($e->getMessage().' - need to reauthenticate this site with Dropbox (if this fails, then you can also try wiping your settings from the Expert Settings section)');
                 $this->getRequestToken();
                 $this->authorise();
             }
@@ -80,22 +80,23 @@ abstract class Dropbox_ConsumerAbstract
     private function authorise()
     {
         // Only redirect if not using CLI
-        if (PHP_SAPI !== 'cli' && (!defined('DOING_CRON') || !DOING_CRON)) {
+        if (PHP_SAPI !== 'cli' && (!defined('DOING_CRON') || !DOING_CRON) && (!defined('DOING_AJAX') || !DOING_AJAX)) {
             $url = $this->getAuthoriseUrl();
             if (!headers_sent()) {
                 header('Location: ' . $url);
+                exit;
             } else {
                 throw new Dropbox_Exception(sprintf(__('The %s authentication could not go ahead, because something else on your site is breaking it. Try disabling your other plugins and switching to a default theme. (Specifically, you are looking for the component that sends output (most likely PHP warnings/errors) before the page begins. Turning off any debugging settings may also help).', ''), 'Dropbox'));
             }
-            exit;
             ?><?php
-            return;
+            return false;
         }
         global $updraftplus;
-        $updraftplus->log('Dropbox reauthorisation needed; but we are running from cron or the CLI, so this is not possible');
-        UpdraftPlus_Options::update_updraft_option("updraft_dropboxtk_request_token",'');
-        $updraftplus->log(sprintf(__('You need to re-authenticate with %s, as your existing credentials are not working.', 'updraftplus'), 'Dropbox'), 'error');
-        exit;
+        $updraftplus->log('Dropbox reauthorisation needed; but we are running from cron, AJAX or the CLI, so this is not possible');
+        UpdraftPlus_Options::update_updraft_option("updraft_dropboxtk_request_token", '');
+        throw new Dropbox_Exception(sprintf(__('You need to re-authenticate with %s, as your existing credentials are not working.', 'updraftplus'), 'Dropbox'));
+        #$updraftplus->log(sprintf(__('You need to re-authenticate with %s, as your existing credentials are not working.', 'updraftplus'), 'Dropbox'), 'error');
+        return false;
     }
     
     /**
@@ -145,7 +146,7 @@ abstract class Dropbox_ConsumerAbstract
     {
         if (!$token = $this->storage->get('access_token')) {
             if (!$token = $this->storage->get('request_token')) {
-                $token = new \stdClass();
+                $token = new stdClass();
                 $token->oauth_token = null;
                 $token->oauth_token_secret = null;
             }
@@ -193,7 +194,8 @@ abstract class Dropbox_ConsumerAbstract
                 // If the value is a file upload (prefixed with @), replace it with
                 // the destination filename, the file path will be sent in POSTFIELDS
                 if (isset($value[0]) && $value[0] === '@') $value = $params['filename'];
-                $encoded[] = $this->encode($param) . '=' . $this->encode($value);
+                # Prevent spurious PHP warning by only doing non-arrays
+                if (!is_array($value)) $encoded[] = $this->encode($param) . '=' . $this->encode($value);
             } else {
                 unset($params[$param]);
             }
@@ -297,7 +299,7 @@ abstract class Dropbox_ConsumerAbstract
     private function parseTokenString($response)
     {
         $parts = explode('&', $response);
-        $token = new \stdClass();
+        $token = new stdClass();
         foreach ($parts as $part) {
             list($k, $v) = explode('=', $part, 2);
             $k = strtolower($k);
