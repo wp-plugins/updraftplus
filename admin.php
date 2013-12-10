@@ -88,6 +88,7 @@ class UpdraftPlus_Admin {
 			'restoreproceeding' => __('The restore operation has begun. Do not press stop or close your browser until it reports itself as having finished.', 'updraftplus'),
 			'unexpectedresponse' => __('Unexpected response:','updraftplus'),
 			'servererrorcode' => __('The web server returned an error code (try again, or check your web server logs)', 'updraftplus'),
+			'newuserpass' => __("The new user's RackSpace console password is (this will not be shown again):", 'updraftplus'),
 			'trying' => __('Trying...', 'updraftplus'),
 			'calculating' => __('calculating...','updraftplus'),
 			'begunlooking' => __('Begun looking for this entity','updraftplus'),

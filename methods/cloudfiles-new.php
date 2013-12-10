@@ -340,6 +340,16 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 		try {
 			$method = new UpdraftPlus_BackupModule_cloudfiles_opencloudsdk;
 			$service = $method->get_service($user, $key, $authurl, $useservercerts, $disableverify, $region);
+		} catch(Guzzle\Http\Exception\ClientErrorResponseException $e) {
+			$response = $e->getResponse();
+			$code = $response->getStatusCode();
+			$reason = $response->getReasonPhrase();
+			if (401 == $code && 'Unauthorized' == $reason) {
+				echo __('Authorisation failed (check your credentials)', 'updraftplus');
+			} else {
+				echo __('Authorisation failed (check your credentials)', 'updraftplus')." ($code:$reason)";
+			}
+			die;
 		} catch(AuthenticationError $e) {
 			echo __('Cloud Files authentication failed', 'updraftplus').' ('.$e->getMessage().')';
 			die;
@@ -351,7 +361,15 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 		try {
 			$container_object = $service->getContainer($container);
 		} catch(Guzzle\Http\Exception\ClientErrorResponseException $e) {
-			$container_object = $service->createContainer($container);
+			$response = $e->getResponse();
+			$code = $response->getStatusCode();
+			$reason = $response->getReasonPhrase();
+			if (404 == $code) {
+				$container_object = $service->createContainer($container);
+			} else {
+				echo __('Authorisation failed (check your credentials)', 'updraftplus')." ($code:$reason)";
+				die;
+			}
 		} catch (Exception $e) {
 			echo __('Cloud Files authentication failed', 'updraftplus').' ('.get_class($e).', '.$e->getMessage().')';
 			die;
@@ -432,8 +450,8 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 							'ORD' => __('Chicago (ORD)', 'updraftplus'),
 							'IAD' => __('Northern Virginia (IAD)', 'updraftplus'),
 							'HKG' => __('Hong Kong (HKG)', 'updraftplus'),
+							'LON' => __('London (LON)', 'updraftplus')
 						);
-						// 'LON' => __('London (LON)', 'updraftplus')
 						$selregion = (empty($opts['region'])) ? 'DFW' : $selregion;
 						foreach ($regions as $reg => $desc) {
 							?>
