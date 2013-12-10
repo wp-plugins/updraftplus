@@ -132,7 +132,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
-= Development branch - Not yet supported/released =
+= 1.8.1 - 2013/12/10 =
 
 * FEATURE: New "Reporting" add-on - more sophisticated/flexible backup reports (http://updraftplus.com/shop/reporting/)
 * FEATURE: New enhanced add-on for Rackspace Cloud Files users, allowing them to create a new sub-user with exclusive access to the backup container (http://updraftplus.com/shop/cloudfiles-enhanced/) (PHP 5.3.3+ required for this feature)
@@ -142,7 +142,9 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * FIX: After restoring a site, only delete the backup set from local storage if it was also stored in the cloud (prevents the user having to upload the backup set twice if they want to re-run the restore)
 * FIX: Improve detection of extremely long-running/slow jobs
 * FIX: Fix issue with Rackspace Cloudfiles on WPMU installs
+* TWEAK: Mark as tested up to WordPress 3.8
 * TWEAK: Restore operations are now logged
+* TWEAK: Detect the database connection dropping and recover (seen on a very slow site where PHP ran continuously for 30 mins)
 * TWEAK: Change how permalinks are flushed post-restore. This spares the user from having to manually visit the permalinks page if they had plugins that altered their permalink structure (e.g. WooCommerce).
 * TWEAK: Require fewer file permissions when restoring/migrating
 * TWEAK: Remove various spurious PHP notices caught by the post-1.7.41 extra logging

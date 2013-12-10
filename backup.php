@@ -242,12 +242,14 @@ class UpdraftPlus_Backup {
 			if (1 == ($updraftplus->current_resumption % 2) && count($services)>2) array_push($services, array_shift($services));
 		}
 
+		$errors_before_uploads = $updraftplus->error_count();
+
 		foreach ($services as $ind => $service) {
 
 			# Used for logging by record_upload_chunk()
 			$this->current_service = $service;
 			# Used when deciding whether to delete the local file
-			$this->last_service = ($ind+1 >= count($services)) ? true : false;
+			$this->last_service = ($ind+1 >= count($services) && $errors_before_uploads == $updraftplus->error_count()) ? true : false;
 
 			$updraftplus->log("Cloud backup selection: ".$service);
 			@set_time_limit(900);
@@ -900,6 +902,7 @@ class UpdraftPlus_Backup {
 					$stitch_files[] = $table_file_prefix;
 
 				} else {
+					$total_tables--;
 					$updraftplus->log("Skipping table (lacks our prefix): $table");
 				}
 				
@@ -911,6 +914,8 @@ class UpdraftPlus_Backup {
 			$time_this_run = time()-$updraftplus->opened_log_time;
 			if ($time_this_run > 2000) {
 				# Have seen this happen; not sure how, but it was apparently deterministic; if the current process had been running for a long time, then apparently all database commands silently failed.
+				# If we have been running that long, then the resumption may be far off; bring it closer
+				$updraftplus->reschedule(60);
 				$updraftplus->log("Have been running very long, and it seems the database went away; terminating");
 				$updraftplus->record_still_alive();
 				die;

@@ -28,6 +28,8 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 
 		$updraftplus->log("Cloud Files authentication URL: ".$new_authurl);
 
+		if (empty($user) || empty($apikey)) throw new Exception(__('Authorisation failed (check your credentials)', 'updraftplus'));
+
 		$client = new Rackspace($new_authurl, array(
 			'username' => $user,
 			'apiKey' => $apikey
