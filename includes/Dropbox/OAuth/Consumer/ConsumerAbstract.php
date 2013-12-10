@@ -80,21 +80,22 @@ abstract class Dropbox_ConsumerAbstract
     private function authorise()
     {
         // Only redirect if not using CLI
-        if (PHP_SAPI !== 'cli' && (!defined('DOING_CRON') || !DOING_CRON)) {
+        if (PHP_SAPI !== 'cli' && (!defined('DOING_CRON') || !DOING_CRON) && (!defined('DOING_AJAX') || !DOING_AJAX)) {
             $url = $this->getAuthoriseUrl();
             if (!headers_sent()) {
                 header('Location: ' . $url);
+                exit;
             } else {
                 throw new Dropbox_Exception(sprintf(__('The %s authentication could not go ahead, because something else on your site is breaking it. Try disabling your other plugins and switching to a default theme. (Specifically, you are looking for the component that sends output (most likely PHP warnings/errors) before the page begins. Turning off any debugging settings may also help).', ''), 'Dropbox'));
             }
-            exit;
             ?><?php
-            return;
+            return false;
         }
         global $updraftplus;
-        $updraftplus->log('Dropbox reauthorisation needed; but we are running from cron or the CLI, so this is not possible');
+        $updraftplus->log('Dropbox reauthorisation needed; but we are running from cron, AJAX or the CLI, so this is not possible');
         UpdraftPlus_Options::update_updraft_option("updraft_dropboxtk_request_token", '');
-        $updraftplus->log(sprintf(__('You need to re-authenticate with %s, as your existing credentials are not working.', 'updraftplus'), 'Dropbox'), 'error');
+        throw new Dropbox_Exception(sprintf(__('You need to re-authenticate with %s, as your existing credentials are not working.', 'updraftplus'), 'Dropbox'));
+        #$updraftplus->log(sprintf(__('You need to re-authenticate with %s, as your existing credentials are not working.', 'updraftplus'), 'Dropbox'), 'error');
         return false;
     }
     

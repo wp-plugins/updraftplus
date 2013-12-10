@@ -35,7 +35,7 @@ class UpdraftPlus_BackupModule_dropbox {
 			return false;
 		}
 
-		if (UpdraftPlus_Options::get_updraft_option('updraft_dropboxtk_request_token', 'xyz') == 'xyz') {
+		if (UpdraftPlus_Options::get_updraft_option('updraft_dropboxtk_request_token', '') == '') {
 			$updraftplus->log('You do not appear to be authenticated with Dropbox');
 			$updraftplus->log(__('You do not appear to be authenticated with Dropbox','updraftplus'), 'error');
 			return false;
@@ -43,6 +43,7 @@ class UpdraftPlus_BackupModule_dropbox {
 
 		try {
 			$dropbox = $this->bootstrap();
+			if (false === $dropbox) throw new Exception(__('You do not appear to be authenticated with Dropbox', 'updraftplus'));
 			$updraftplus->log("Dropbox: access gained");
 			$dropbox->setChunkSize(524288); // 512Kb
 		} catch (Exception $e) {
@@ -185,6 +186,7 @@ class UpdraftPlus_BackupModule_dropbox {
 			$updraftplus->log(sprintf(__('Failed to access %s when deleting (see log file for more)', 'updraftplus'), 'Dropbox'), 'warning');
 			return false;
 		}
+		if (false === $dropbox) return false;
 
 		foreach ($files as $file) {
 			$ufile = apply_filters('updraftplus_dropbox_modpath', $file);
@@ -223,6 +225,7 @@ class UpdraftPlus_BackupModule_dropbox {
 			$updraftplus->log('Dropbox error: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')', 'error');
 			return false;
 		}
+		if (false === $dropbox) return false;
 
 		$updraft_dir = $updraftplus->backups_dir_location();
 		$microtime = microtime(true);
@@ -341,6 +344,7 @@ class UpdraftPlus_BackupModule_dropbox {
 		global $updraftplus_admin;
 
 		$dropbox = self::bootstrap();
+		if (false === $dropbox) return false;
 		$accountInfo = $dropbox->accountInfo();
 
 		$message = "<strong>".__('Success','updraftplus').'</strong>: '.sprintf(__('you have authenticated your %s account','updraftplus'),'Dropbox');

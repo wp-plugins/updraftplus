@@ -462,7 +462,7 @@ class UpdraftPlus_Admin {
 					$is_downloaded = true;
 				} else {
 					clearstatcache();
-					if (0 === filesize($fullpath)) @unlink($fullpath);
+					if (0 === @filesize($fullpath)) @unlink($fullpath);
 					$updraftplus->log('Remote fetch failed');
 				}
 			}
@@ -1280,8 +1280,6 @@ CREATE TABLE $wpdb->signups (
 
 		global $updraftplus;
 
-		do_action('updraftplus_settings_page_init');
-
 		wp_enqueue_style('jquery-ui', UPDRAFTPLUS_URL.'/includes/jquery-ui-1.8.22.custom.css'); 
 
 		/*
@@ -1336,6 +1334,8 @@ CREATE TABLE $wpdb->signups (
 			echo '<b>'.__('Actions','updraftplus').':</b> <a href="'.UpdraftPlus_Options::admin_page_url().'?page=updraftplus">'.__('Return to UpdraftPlus Configuration','updraftplus').'</a>';
 			return;
 		}
+
+		do_action('updraftplus_settings_page_init');
 
 		echo '<div id="updraft_backup_started" class="updated fade" style="display:none; max-width: 800px; font-size:140%; line-height: 140%; padding:14px; clear:left;"></div>';
 

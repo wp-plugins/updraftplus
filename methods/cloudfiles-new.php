@@ -285,8 +285,8 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 		# Get information about the object within the container
 		$remote_size = $this->get_remote_size($file);
 		if (false === $remote_size) {
-			$updraftplus->log('Could not access Cloud Files object ('.get_class($e).', '.$e->getMessage().')');
-			$updraftplus->log(__('Could not access Cloud Files object', 'updraftplus').' ('.get_class($e).', '.$e->getMessage().')', 'error');
+			$updraftplus->log('Could not access Cloud Files object');
+			$updraftplus->log(__('The Cloud Files object was not found', 'error'));
 			return false;
 		}
 
