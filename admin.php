@@ -196,6 +196,9 @@ class UpdraftPlus_Admin {
 		var updraft_downloader_nonce = '<?php wp_create_nonce("updraftplus_download"); ?>'
 		</script>
 		<style type="text/css">
+		#updraft-wrap .form-table th {
+			width: 230px;
+		}
 		.updraftplus-remove a {
 			color: red;
 		}
@@ -1358,7 +1361,7 @@ CREATE TABLE $wpdb->signups (
 		}
 
 		?>
-		<div class="wrap">
+		<div class="wrap" id="updraft-wrap">
 			<h1><?php echo $updraftplus->plugin_title; ?></h1>
 
 			<?php _e('By UpdraftPlus.Com','updraftplus')?> ( <a href="http://updraftplus.com">UpdraftPlus.Com</a> | <a href="http://updraftplus.com/news/"><?php _e('News','updraftplus');?></a> | <?php if (!defined('UPDRAFTPLUS_NOADS_A')) { ?><a href="http://updraftplus.com/shop/"><?php _e("Premium",'updraftplus');?></a>  | <?php } ?><a href="http://updraftplus.com/support/"><?php _e("Support",'updraftplus');?></a> | <a href="http://david.dw-perspective.org.uk"><?php _e("Lead developer's homepage",'updraftplus');?></a> | <?php if (1==0 && !defined('UPDRAFTPLUS_NOADS_A')) { ?><a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate"><?php _e('Donate','updraftplus');?></a> | <?php } ?><a href="http://updraftplus.com/support/frequently-asked-questions/">FAQs</a> | <a href="http://profiles.wordpress.org/davidanderson/"><?php _e('More plugins','updraftplus');?></a> ) <?php _e('Version','updraftplus');?>: <?php echo $updraftplus->version; ?>
