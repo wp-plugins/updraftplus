@@ -321,7 +321,7 @@ class UpdraftPlus {
 
 		$exec = "UPDRAFTPLUSKEY=updraftplus $perl ".UPDRAFTPLUS_DIR."/includes/get-cpanel-quota-usage.pl";
 
-		$handle = popen($exec, 'r');
+		$handle = @popen($exec, 'r');
 		if (false === $handle) return false;
 
 		$found = false;
