@@ -204,8 +204,12 @@ $updraftplus_have_addons = 0;
 if (is_dir(UPDRAFTPLUS_DIR.'/addons') && $dir_handle = opendir(UPDRAFTPLUS_DIR.'/addons')) {
 	while (false !== ($e = readdir($dir_handle))) {
 		if (is_file(UPDRAFTPLUS_DIR.'/addons/'.$e) && preg_match('/\.php$/', $e)) {
-			$updraftplus_have_addons++;
-			include_once(UPDRAFTPLUS_DIR.'/addons/'.$e);
+			$header = file_get_contents(UPDRAFTPLUS_DIR.'/addons/'.$e, false, null, -1, 1024);
+			$phprequires = (preg_match("/RequiresPHP: (\d[\d\.]+)/", $header, $matches)) ? $matches[1] : false;
+			if (false === $phprequires || version_compare(PHP_VERSION, $phprequires, '>=')) {
+				$updraftplus_have_addons++;
+				include_once(UPDRAFTPLUS_DIR.'/addons/'.$e);
+			}
 		}
 	}
 	@closedir($dir_handle);

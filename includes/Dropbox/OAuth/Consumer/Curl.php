@@ -133,7 +133,7 @@ class Dropbox_Curl extends Dropbox_ConsumerAbstract
             // Check if an error occurred and throw an Exception
             if (!empty($response['body']->error)) {
                 // Dropbox returns error messages inconsistently...
-                if ($response['body']->error instanceof \stdClass) {
+                if ($response['body']->error instanceof stdClass) {
                     $array = array_values((array) $response['body']->error);
                     $message = $array[0];
                 } else {
