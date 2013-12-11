@@ -66,10 +66,7 @@ class UpdraftPlus_Options {
 		register_setting('updraft-options-group', 'updraft_s3generic_remote_path' );
 		register_setting('updraft-options-group', 'updraft_s3generic_endpoint' );
 
-		register_setting('updraft-options-group', 'updraft_cloudfiles_authurl' );
-		register_setting('updraft-options-group', 'updraft_cloudfiles_user' );
-		register_setting('updraft-options-group', 'updraft_cloudfiles_apikey' );
-		register_setting('updraft-options-group', 'updraft_cloudfiles_path' );
+		register_setting('updraft-options-group', 'updraft_cloudfiles' );
 
 		register_setting('updraft-options-group', 'updraft_sftp_settings' );
 		register_setting('updraft-options-group', 'updraft_webdav_settings' );

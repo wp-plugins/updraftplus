@@ -19,13 +19,15 @@ if (!is_array(UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles')) && 
 		'user' => UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_user'),
 		'apikey' => UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_apikey'),
 		'path' => UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_path'),
-		'authurl' => UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_authurl')
+		'authurl' => UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_authurl'),
+		'region' => UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles_region')
 	);
 	UpdraftPlus_Options::update_updraft_option('updraft_cloudfiles', $opts);
 	UpdraftPlus_Options::delete_updraft_option('updraft_cloudfiles_user');
 	UpdraftPlus_Options::delete_updraft_option('updraft_cloudfiles_apikey');
 	UpdraftPlus_Options::delete_updraft_option('updraft_cloudfiles_path');
 	UpdraftPlus_Options::delete_updraft_option('updraft_cloudfiles_authurl');
+	UpdraftPlus_Options::delete_updraft_option('updraft_cloudfiles_region');
 }
 
 # Old SDK
@@ -446,14 +448,14 @@ class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 		<tr class="updraftplusmethod cloudfiles">
 			<th><?php _e('US or UK Cloud','updraftplus');?>:</th>
 			<td>
-				<select id="updraft_cloudfiles_authurl" name="updraft_cloudfiles_authurl">
+				<select id="updraft_cloudfiles_authurl" name="updraft_cloudfiles[authurl]">
 					<option <?php if ($opts['authurl'] != 'https://lon.auth.api.rackspacecloud.com') echo 'selected="selected"'; ?> value="https://auth.api.rackspacecloud.com"><?php _e('US (default)','updraftplus'); ?></option>
 					<option <?php if ($opts['authurl'] =='https://lon.auth.api.rackspacecloud.com') echo 'selected="selected"'; ?> value="https://lon.auth.api.rackspacecloud.com"><?php _e('UK', 'updraftplus'); ?></option>
 				</select>
 			</td>
 		</tr>
 		
-		<input type="hidden" name="updraft_cloudfiles_region" value="">
+		<input type="hidden" name="updraft_cloudfiles[region]" value="">
 		<?php /*
 		// Can put a message here if someone asks why region storage is not available (only available on new SDK)
 		<tr class="updraftplusmethod cloudfiles">
@@ -465,15 +467,15 @@ class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 
 		<tr class="updraftplusmethod cloudfiles">
 			<th><?php _e('Cloud Files username','updraftplus');?>:</th>
-			<td><input type="text" autocomplete="off" style="width: 282px" id="updraft_cloudfiles_user" name="updraft_cloudfiles_user" value="<?php echo htmlspecialchars($opts['user']) ?>" /></td>
+			<td><input type="text" autocomplete="off" style="width: 282px" id="updraft_cloudfiles_user" name="updraft_cloudfiles[user]" value="<?php echo htmlspecialchars($opts['user']) ?>" /></td>
 		</tr>
 		<tr class="updraftplusmethod cloudfiles">
 			<th><?php _e('Cloud Files API key','updraftplus');?>:</th>
-			<td><input type="<?php echo apply_filters('updraftplus_admin_secret_field_type', 'text'); ?>" autocomplete="off" style="width: 282px" id="updraft_cloudfiles_apikey" name="updraft_cloudfiles_apikey" value="<?php echo htmlspecialchars($opts['apikey']); ?>" /></td>
+			<td><input type="<?php echo apply_filters('updraftplus_admin_secret_field_type', 'text'); ?>" autocomplete="off" style="width: 282px" id="updraft_cloudfiles_apikey" name="updraft_cloudfiles[apikey]" value="<?php echo htmlspecialchars($opts['apikey']); ?>" /></td>
 		</tr>
 		<tr class="updraftplusmethod cloudfiles">
 			<th><?php echo apply_filters('updraftplus_cloudfiles_location_description',__('Cloud Files container','updraftplus'));?>:</th>
-			<td><input type="text" style="width: 282px" name="updraft_cloudfiles_path" id="updraft_cloudfiles_path" value="<?php echo htmlspecialchars($opts['path']); ?>" /></td>
+			<td><input type="text" style="width: 282px" name="updraft_cloudfiles[path]" id="updraft_cloudfiles_path" value="<?php echo htmlspecialchars($opts['path']); ?>" /></td>
 		</tr>
 
 		<tr class="updraftplusmethod cloudfiles">
