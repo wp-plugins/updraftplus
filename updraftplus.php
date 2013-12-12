@@ -707,14 +707,14 @@ class UpdraftPlus {
 			echo '<ul>';
 			foreach ($pre_line->get_error_messages() as $msg) {
 				$this->log("Error: $msg");
-				echo '<li>'.__('Error:', 'updraftplus').' '.vsprintf(__($pre_line, 'updraftplus'), $args).'</li>';
+				echo '<li>'.__('Error:', 'updraftplus').' '.$pre_line.'</li>';
 			}
 			echo '</ul>';
 		} else {
+			# Now run (v)sprintf on it, using any remaining arguments. vsprintf = sprintf but takes an array instead of individual arguments
 			$this->log(vsprintf($pre_line, $args));
 			echo vsprintf(__($pre_line, 'updraftplus'), $args).'<br>';
 		}
-		# Now run (v)sprintf on it, using any remaining arguments. vsprintf = sprintf but takes an array instead of individual arguments
 	}
 
 	// This function is used by cloud methods to provide standardised logging, but more importantly to help us detect that meaningful activity took place during a resumption run, so that we can schedule further resumptions if it is worthwhile
