@@ -702,7 +702,13 @@ class UpdraftPlus {
 		# Get first argument
 		$pre_line = array_shift($args);
 		# Log it whilst still in English
-		$this->log(vsprintf($pre_line, $args));
+		if (is_wp_error($pre_line)) {
+			foreach ($pre_line->get_error_messages() as $msg) {
+				$this->log("Error: $msg");
+			}
+		} else {
+			$this->log(vsprintf($pre_line, $args));
+		}
 		# Now run (v)sprintf on it, using any remaining arguments. vsprintf = sprintf but takes an array instead of individual arguments
 		echo vsprintf(__($pre_line, 'updraftplus'), $args).'<br>';
 	}
