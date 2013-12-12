@@ -204,8 +204,12 @@ $updraftplus_have_addons = 0;
 if (is_dir(UPDRAFTPLUS_DIR.'/addons') && $dir_handle = opendir(UPDRAFTPLUS_DIR.'/addons')) {
 	while (false !== ($e = readdir($dir_handle))) {
 		if (is_file(UPDRAFTPLUS_DIR.'/addons/'.$e) && preg_match('/\.php$/', $e)) {
-			$updraftplus_have_addons++;
-			include_once(UPDRAFTPLUS_DIR.'/addons/'.$e);
+			$header = file_get_contents(UPDRAFTPLUS_DIR.'/addons/'.$e, false, null, -1, 1024);
+			$phprequires = (preg_match("/RequiresPHP: (\d[\d\.]+)/", $header, $matches)) ? $matches[1] : false;
+			if (false === $phprequires || version_compare(PHP_VERSION, $phprequires, '>=')) {
+				$updraftplus_have_addons++;
+				include_once(UPDRAFTPLUS_DIR.'/addons/'.$e);
+			}
 		}
 	}
 	@closedir($dir_handle);
@@ -317,7 +321,7 @@ class UpdraftPlus {
 
 		$exec = "UPDRAFTPLUSKEY=updraftplus $perl ".UPDRAFTPLUS_DIR."/includes/get-cpanel-quota-usage.pl";
 
-		$handle = popen($exec, 'r');
+		$handle = @popen($exec, 'r');
 		if (false === $handle) return false;
 
 		$found = false;
@@ -698,7 +702,13 @@ class UpdraftPlus {
 		# Get first argument
 		$pre_line = array_shift($args);
 		# Log it whilst still in English
-		$this->log(vsprintf($pre_line, $args));
+		if (is_wp_error($pre_line)) {
+			foreach ($pre_line->get_error_messages() as $msg) {
+				$this->log("Error: $msg");
+			}
+		} else {
+			$this->log(vsprintf($pre_line, $args));
+		}
 		# Now run (v)sprintf on it, using any remaining arguments. vsprintf = sprintf but takes an array instead of individual arguments
 		echo vsprintf(__($pre_line, 'updraftplus'), $args).'<br>';
 	}
