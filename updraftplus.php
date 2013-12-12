@@ -14,6 +14,7 @@ Author URI: http://updraftplus.com
 /*
 TODO - some of these are out of date/done, needs pruning
 // On plugins restore, don't let UD over-write itself
+// Schedule a task to report on failure
 // Add a link on the restore page to the log file
 // Exclude backwpup stuff from backup (in wp-content/uploads/backwpup*)
 // Pre-schedule resumptions that we know will be scheduled later
@@ -703,14 +704,17 @@ class UpdraftPlus {
 		$pre_line = array_shift($args);
 		# Log it whilst still in English
 		if (is_wp_error($pre_line)) {
+			echo '<ul>';
 			foreach ($pre_line->get_error_messages() as $msg) {
 				$this->log("Error: $msg");
+				echo '<li>'.vsprintf(__($pre_line, 'updraftplus'), $args).'</li>';
 			}
+			echo '</ul>';
 		} else {
 			$this->log(vsprintf($pre_line, $args));
+			echo vsprintf(__($pre_line, 'updraftplus'), $args).'<br>';
 		}
 		# Now run (v)sprintf on it, using any remaining arguments. vsprintf = sprintf but takes an array instead of individual arguments
-		echo vsprintf(__($pre_line, 'updraftplus'), $args).'<br>';
 	}
 
 	// This function is used by cloud methods to provide standardised logging, but more importantly to help us detect that meaningful activity took place during a resumption run, so that we can schedule further resumptions if it is worthwhile
