@@ -132,6 +132,11 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
+= Development version (not yet released/supported) =
+
+* FIX: Various small fixes to the initial release of 1.8.1 (if you installed 1.8.1 after the first day of its release then you already have these fixes)
+
+
 = 1.8.1 - 2013/12/10 =
 
 * FEATURE: New "Reporting" add-on - more sophisticated/flexible backup reports (http://updraftplus.com/shop/reporting/)

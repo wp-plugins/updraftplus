@@ -24,6 +24,7 @@ TODO - some of these are out of date/done, needs pruning
 // Place in maintenance mode during restore - ?
 // Log all output of restore; include Migrator
 // Free/premium comparison page
+// Limited auto-rescan... on settings page load, if we have no known files, and if some exist, then add them
 // Complete the tweak to bring the delete-old-dirs within a dialog (just needed to deal wtih case of needing credentials more elegantly).
 // Add note to support page requesting that non-English be translated
 // More locking: lock the resumptions too (will need to manage keys to make sure junk data is not left behind)
@@ -704,12 +705,7 @@ class UpdraftPlus {
 		$pre_line = array_shift($args);
 		# Log it whilst still in English
 		if (is_wp_error($pre_line)) {
-			echo '<ul>';
-			foreach ($pre_line->get_error_messages() as $msg) {
-				$this->log("Error: $msg");
-				echo '<li>'.__('Error:', 'updraftplus').' '.$pre_line.'</li>';
-			}
-			echo '</ul>';
+			$this->log_wp_error($pre_line);
 		} else {
 			# Now run (v)sprintf on it, using any remaining arguments. vsprintf = sprintf but takes an array instead of individual arguments
 			$this->log(vsprintf($pre_line, $args));
