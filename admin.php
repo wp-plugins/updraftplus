@@ -917,6 +917,9 @@ class UpdraftPlus_Admin {
 		global $updraftplus, $wp_version;
 		include(ABSPATH.'wp-includes/version.php');
 
+		# This attempts to raise the maximum packet size. This can't be done within the session, only globally. Therefore, it has to be done before the session starts; in our case, during the pre-analysis.
+		$updraftplus->get_max_packet_size();
+
 		$backup = $updraftplus->get_backup_history($timestamp);
 		if (!isset($backup['nonce']) || !isset($backup['db'])) return array($mess, $warn, $err);
 
@@ -1295,16 +1298,20 @@ CREATE TABLE $wpdb->signups (
 			if(empty($updraftplus->errors) && $backup_success === true) {
 				// If we restored the database, then that will have out-of-date information which may confuse the user - so automatically re-scan for them.
 				$this->rebuild_backup_history();
-				echo '<p><strong>'.__('Restore successful!','updraftplus').'</strong></p>';
+				echo '<p><strong>';
+				$updraftplus->log_e('Restore successful!');
+				echo '</strong></p>';
 				$updraftplus->log("Restore successful");
-				echo '<b>'.__('Actions','updraftplus').':</b> <a href="'.UpdraftPlus_Options::admin_page_url().'?page=updraftplus&updraft_restore_success=true">'.__('Return to UpdraftPlus Configuration','updraftplus').'</a>';
+				echo '<strong>'.__('Actions','updraftplus').':</strong> <a href="'.UpdraftPlus_Options::admin_page_url().'?page=updraftplus&updraft_restore_success=true">'.__('Return to UpdraftPlus Configuration','updraftplus').'</a>';
 				return;
 			} elseif (is_wp_error($backup_success)) {
-				echo '<p>Restore failed...</p>';
+				echo '<p>';
+				$updraftplus->log_e('Restore failed...');
+				echo '</p>';
 				$updraftplus->log_wp_error($backup_success);
 				$updraftplus->log("Restore failed");
 				$updraftplus->list_errors();
-				echo '<b>Actions:</b> <a href="'.UpdraftPlus_Options::admin_page_url().'?page=updraftplus">'.__('Return to UpdraftPlus Configuration','updraftplus').'</a>';
+				echo '<strong>'.__('Actions','updraftplus').':</strong> <a href="'.UpdraftPlus_Options::admin_page_url().'?page=updraftplus">'.__('Return to UpdraftPlus Configuration','updraftplus').'</a>';
 				return;
 			} elseif (false === $backup_success) {
 				# This means, "not yet - but stay on the page because we may be able to do it later, e.g. if the user types in the requested information"
@@ -3003,11 +3010,35 @@ ENDHERE;
 			}
 		}
 
+		
+
+		foreach (array('template', 'stylesheet', 'template_root', 'stylesheet_root') as $opt) {
+			add_filter('pre_option_'.$opt, array($this, 'option_filter_'.$opt));
+		}
+		if (!function_exists('validate_current_theme')) require_once(ABSPATH.'wp-includes/themes');
+		if (!validate_current_theme()) {
+			global $updraftplus;
+			echo '<strong>';
+			$updraftplus->log_e("The current theme was not found; to prevent this stopping the site from loading, your theme has been reverted to the default theme");
+			echo '</strong>';
+		}
+		#foreach (array('template', 'stylesheet', 'template_root', 'stylesheet_root') as $opt) {
+		#	remove_filter('pre_option_'.$opt, array($this, 'option_filter_'.$opt));
+		#}
+
 		echo '</div>'; //close the updraft_restore_progress div
 
 		restore_error_handler();
 		return true;
 	}
+
+	function option_filter_template($val) { global $updraftplus; return $updraftplus->option_filter_get('template'); }
+
+	function option_filter_stylesheet($val) { global $updraftplus; return $updraftplus->option_filter_get('stylesheet'); }
+
+	function option_filter_template_root($val) { global $updraftplus; return $updraftplus->option_filter_get('template_root'); }
+
+	function option_filter_stylesheet_root($val) { global $updraftplus; return $updraftplus->option_filter_get('stylesheet_root'); }
 
 	function sort_restoration_entities($a, $b) {
 		if ($a == $b) return 0;

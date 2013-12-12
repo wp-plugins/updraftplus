@@ -135,7 +135,8 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 = Development version (not yet released/supported) =
 
 * FIX: Various small fixes to the initial release of 1.8.1 (if you installed 1.8.1 after the first day of its release then you already have these fixes)
-
+* TWEAK: Restorer now switches theme if database is restored to indicate a non-existent theme, and temporarily disables cacheing plugins
+* TWEAK: Improve handling of MySQL's maximum packet size - attempt to raise it, and leave some margin
 
 = 1.8.1 - 2013/12/10 =
 

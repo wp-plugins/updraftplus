@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.8.1
+Version: 1.8.2
 Donate link: htpt://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -14,6 +14,7 @@ Author URI: http://updraftplus.com
 /*
 TODO - some of these are out of date/done, needs pruning
 // On plugins restore, don't let UD over-write itself
+// Post restore, check if active theme is present (if not, reset and alert user)
 // Schedule a task to report on failure
 // Add a link on the restore page to the log file
 // Exclude backwpup stuff from backup (in wp-content/uploads/backwpup*)
@@ -696,6 +697,25 @@ class UpdraftPlus {
 		}
 	}
 
+	public function get_max_packet_size() {
+		global $wpdb, $updraftplus;
+		$mp = (int)$wpdb->get_var("SELECT @@session.max_allowed_packet");
+		# Default to 1Mb
+		$mp = (is_numeric($mp) && $mp > 0) ? $mp : 1048576;
+		# 32Mb
+		if ($mp < 33554432) {
+			$req = $wpdb->query("SET GLOBAL max_allowed_packet=33554432");
+			if (!$req) $updraftplus->log("Tried to raise max_allowed_packet from ".round($mp/1048576,1)." Mb to 32 Mb, but failed (".$wpdb->last_error.", ".serialize($req).")");
+			$mp = (int)$wpdb->get_var("SELECT @@session.max_allowed_packet");
+			# Default to 1Mb
+			$mp = (is_numeric($mp) && $mp > 0) ? $mp : 1048576;
+		}
+		$updraftplus->log("Max packet size: ".round($mp/1048576, 1)." Mb");
+		return $mp;
+	}
+
+
+
 	# Q. Why is this abstracted into a separate function? A. To allow poedit and other parsers to pick up the need to translate strings passed to it (and not pick up all of those passed to log()).
 	# 1st argument = the line to be logged (obligatory)
 	# Further arguments = parameters for sprintf()
@@ -1114,6 +1134,13 @@ class UpdraftPlus {
 		}
 	}
 
+	public function option_filter_get($which) {
+		global $wpdb;
+		$row = $wpdb->get_row($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", $which));
+		// Has to be get_row instead of get_var because of funkiness with 0, false, null values
+		return (is_object($row)) ? $row->option_value : false;
+	}
+
 	// This important function returns a list of file entities that can potentially be backed up (subject to users settings), and optionally further meta-data about them
 	function get_backupable_file_entities($include_others = true, $full_info = false) {
 
@@ -1330,7 +1357,7 @@ class UpdraftPlus {
 
 		// Sanity check
 		if (empty($this->backup_time)) {
-			$this->log('Abort this run: the backup_time parameter appears to be empty (this is either a one-time error caused by upgrading from a version earlier than 1.7.18 whilst a backup was in progress (which you can ignore), or caused by resuming an already-complete backup.');
+			$this->log('The backup_time parameter appears to be empty (usually caused by resuming an already-complete backup).');
 			return false;
 		}
 

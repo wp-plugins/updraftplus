@@ -36,13 +36,6 @@ class Updraft_Restorer extends WP_Upgrader {
 		$this->strings['multisite_error'] = __('You are running on WordPress multisite - but your backup is not of a multisite site.', 'updraftplus');
 	}
 
-	function get_max_packet_size() {
-		global $wpdb;
-		$mp = (int)$wpdb->get_var("SELECT @@session.max_allowed_packet");
-		# Default to 1Mb
-		return (is_numeric($mp) && $mp > 0) ? $mp : 1048576;
-	}
-
 	// This returns a wp_filesystem location (and we musn't change that, as we must retain compatibility with the class parent)
 	function unpack_package($package, $delete_package = true) {
 
@@ -174,6 +167,17 @@ class Updraft_Restorer extends WP_Upgrader {
 
 			# Sanity check (should not be possible as these were excluded at backup time)
 			if (in_array($file, $do_not_overwrite)) continue;
+
+			if (('object-cache.php' == $file || 'advanced-cache.php' == $file) && 'others' == $type) {
+				if (false == apply_filters('updraftplus_restorecachefiles', true, $file)) {
+					$nfile = preg_replace('/\.php$/', '-backup.php', $file);
+					$wpfs->move($working_dir . "/$file", $working_dir . "/".$nfile, true);
+					$file=$nfile;
+				}
+			} elseif (('object-cache-backup.php' == $file || 'advanced-cache-backup.php' == $file) && 'others' == $type) {
+				$wpfs->delete($working_dir."/".$file);
+				continue;
+			} 
 
 			# First, move the existing one, if necessary (may not be present)
 			if ($wpfs->exists($dest_dir.$file)) {
@@ -609,6 +613,8 @@ class Updraft_Restorer extends WP_Upgrader {
 			default:
 				@$wp_filesystem->chmod($wp_filesystem_dir, FS_CHMOD_DIR);
 		}
+		# db was already done
+		if ('db' != $type) do_action('updraftplus_restored_'.$type);
 
 		return true;
 
@@ -661,23 +667,19 @@ class Updraft_Restorer extends WP_Upgrader {
 
 	}
 
-	function option_filter_get($which) {
-		global $wpdb;
-		$row = $wpdb->get_row($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", $which));
-		// Has to be get_row instead of get_var because of funkiness with 0, false, null values
-		return (is_object($row)) ? $row->option_value : false;
-	}
-
 	function option_filter_permalink_structure($val) {
-		return $this->option_filter_get('permalink_structure');
+		global $updraftplus;
+		return $updraftplus->option_filter_get('permalink_structure');
 	}
 
 	function option_filter_page_on_front($val) {
-		return $this->option_filter_get('page_on_front');
+		global $updraftplus;
+		return $updraftplus->option_filter_get('page_on_front');
 	}
 
 	function option_filter_rewrite_rules($val) {
-		return $this->option_filter_get('rewrite_rules');
+		global $updraftplus;
+		return $updraftplus->option_filter_get('rewrite_rules');
 	}
 
 	// The pass-by-reference on $import_table_prefix is due to historical refactoring
@@ -796,7 +798,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		$restoring_table = '';
 		
-		$max_allowed_packet = $this->get_max_packet_size();
+		$max_allowed_packet = $updraftplus->get_max_packet_size();
 
 		while (!gzeof($dbhandle)) {
 			// Up to 1Mb
@@ -858,26 +860,39 @@ class Updraft_Restorer extends WP_Upgrader {
 			}
 
 			# Deal with case where adding this line will take us over the MySQL max_allowed_packet limit - must split, if we can (if it looks like consecutive rows)
-			if (3 == $sql_type && $sql_line && strlen($sql_line.$buffer) > $max_allowed_packet && preg_match('/,\s*$/', $sql_line) && preg_match('/^\s*\(/', $buffer)) {
+			# ALlow a 100-byte margin for error (including searching/replacing table prefix)
+			if (3 == $sql_type && $sql_line && strlen($sql_line.$buffer) > ($max_allowed_packet - 100) && preg_match('/,\s*$/', $sql_line) && preg_match('/^\s*\(/', $buffer)) {
 				// Remove the final comma; replace with semi-colon
 				$sql_line = substr(rtrim($sql_line), 0, strlen($sql_line)-1).';';
 				if ('' != $old_table_prefix && $import_table_prefix != $old_table_prefix) $sql_line = $updraftplus->str_replace_once($old_table_prefix, $import_table_prefix, $sql_line);
 				# Run the SQL command; then set up for the next one.
 				$this->line++;
-				echo __("Split line to avoid exceeding maximum packet size", 'updraftplus')." (".strlen($sql_line)." + ".strlen($buffer)." > $max_allowed_packet)";
-				$updraftplus->log("Split line to avoid exceeding maximum packet size (".strlen($sql_line)." + ".strlen($buffer)." > $max_allowed_packet)");
+				echo __("Split line to avoid exceeding maximum packet size", 'updraftplus')." (".strlen($sql_line)." + ".strlen($buffer)." : $max_allowed_packet)<br>";
+				$updraftplus->log("Split line to avoid exceeding maximum packet size (".strlen($sql_line)." + ".strlen($buffer)." : $max_allowed_packet)");
 				$do_exec = $this->sql_exec($sql_line, $sql_type);
-				if (is_wp_error($do_exec)) return $do_exec;
 				# Reset, then carry on
 				$sql_line = $insert_prefix." ";
+				if (is_wp_error($do_exec)) return $do_exec;
 			}
 
 			$sql_line .= $buffer;
-
 			# Do we have a complete line yet?
 			if (';' != substr($sql_line, -1, 1)) continue;
 
 			$this->line++;
+
+			# We now have a complete line - process it
+
+			if (3 == $sql_type && $sql_line && strlen($sql_line.$buffer) > $max_allowed_packet) {
+				$logit = substr($sql_line.$buffer, 0, 100);
+				$updraftplus->log(sprintf("An SQL line that is larger than the maximum packet size and cannot be split was found: %s", '('.strlen($sql_line).', '.strlen($buffer).', '.$logit.' ...)'));
+
+				echo '<strong>'.__('Warning:', 'updraftplus').'</strong> '.sprintf(__("An SQL line that is larger than the maximum packet size and cannot be split was found; this line will not be processed, but will be dropped: %s", 'updraftplus'), '('.strlen($sql_line).', '.strlen($buffer).', '.$logit.' ...)')."<br>";
+				# Reset
+				$sql_line = '';
+				$sql_type = -1;
+				continue;
+			}
 
 			# The timed overhead of this is negligible
 			if (preg_match('/^\s*drop table if exists \`?([^\`]*)\`?\s*;/i', $sql_line, $matches)) {
@@ -1021,8 +1036,7 @@ class Updraft_Restorer extends WP_Upgrader {
 // 		echo "Memory usage (Mb): ".round(memory_get_usage(false)/1048576, 1)." : ".round(memory_get_usage(true)/1048576, 1)."<br>";
 
 		global $wpdb, $updraftplus;
-			$ignore_errors = false;
-
+		$ignore_errors = false;
 		if ($sql_type == 2 && $this->create_forbidden) {
 			$updraftplus->log_e('Cannot create new tables, so skipping this command (%s)', htmlspecialchars($sql_line));
 			$req = true;
@@ -1033,6 +1047,7 @@ class Updraft_Restorer extends WP_Upgrader {
 				$ignore_errors = true;
 			}
 // 				echo substr($sql_line, 0, 50)." (".strlen($sql_line).")<br>";
+
 			if ($this->use_wpdb) {
 				$req = $wpdb->query($sql_line);
 				if (!$req) $this->last_error = $wpdb->last_error;
@@ -1065,7 +1080,6 @@ class Updraft_Restorer extends WP_Upgrader {
 			}
 		}
 	}
-
 
 // 	function option_filter($which) {
 // 		if (strpos($which, 'pre_option') !== false) { echo "OPT_FILT: $which<br>\n"; }
