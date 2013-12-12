@@ -707,7 +707,7 @@ class UpdraftPlus {
 			echo '<ul>';
 			foreach ($pre_line->get_error_messages() as $msg) {
 				$this->log("Error: $msg");
-				echo '<li>'.vsprintf(__($pre_line, 'updraftplus'), $args).'</li>';
+				echo '<li>'.__('Error:', 'updraftplus').' '.vsprintf(__($pre_line, 'updraftplus'), $args).'</li>';
 			}
 			echo '</ul>';
 		} else {
