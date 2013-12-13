@@ -55,7 +55,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		$this->skin->feedback('unpack_package');
 
 		$upgrade_folder = $wp_filesystem->wp_content_dir() . 'upgrade/';
-		@$wp_filesystem->mkdir($upgrade_folder, 0775);
+		@$wp_filesystem->mkdir($upgrade_folder, $this->calculate_additive_chmod_oct(FS_CHMOD_DIR, 0775));
 
 		//Clean up contents of upgrade directory beforehand.
 		$upgrade_files = $wp_filesystem->dirlist($upgrade_folder);
@@ -71,7 +71,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		// Clean up working directory
 		if ($wp_filesystem->is_dir($working_dir)) $wp_filesystem->delete($working_dir, true);
 
-		if (!$wp_filesystem->mkdir($working_dir, 0775)) return new WP_Error('mkdir_failed', __('Failed to create a temporary directory','updraftplus').' ('.$working_dir.')');
+		if (!$wp_filesystem->mkdir($working_dir, $this->calculate_additive_chmod_oct(FS_CHMOD_DIR, 0775))) return new WP_Error('mkdir_failed', __('Failed to create a temporary directory','updraftplus').' ('.$working_dir.')');
 
 		// Unpack package to working directory
 		if ($updraftplus->is_db_encrypted($package)) {
@@ -128,6 +128,15 @@ class Updraft_Restorer extends WP_Upgrader {
 		$upgrade_files = $wpfs->dirlist($working_dir, true, $recursive);
 
 		if (empty($upgrade_files)) return true;
+
+		if (!$wpfs->is_dir($dest_dir)) {
+			return new WP_Error('no_such_dir', __('The directory does not exist', 'updraftplus')." ($dest_dir)");
+// 			$updraftplus->log_e("The directory does not exist, so will be created (%s).", $dest_dir);
+// 			# Attempts to create the directory fail, as due to a core bug, $dest_dir will be the wrong value if it did not already exist (at least for themes - the value of it depends on an is_dir() check wrongly used to detect a relative path)
+// 			if (!$wpfs->mkdir($dest_dir)) {
+// 				return new WP_Error('create_failed', __('Failed to create directory', 'updraftplus')." ($dest_dir)");
+// 			}
+		}
 
 		$wpcore_config_moved = false;
 
@@ -199,8 +208,14 @@ class Updraft_Restorer extends WP_Upgrader {
 				# Something exists - no move. Remove it from the temporary directory - so that it will be clean later
 				@$wpfs->delete($working_dir.'/'.$file, true);
 			} elseif (3 != $preserve_existing || !$wpfs->exists($dest_dir.$file)) {
+				$is_dir = $wpfs->is_dir($working_dir."/".$file);
+				# This method is broken due to https://core.trac.wordpress.org/ticket/26598
+				#if (empty($chmod)) $chmod = $wpfs->getnumchmodfromh($wpfs->gethchmod($dest_dir));
+				if (empty($chmod)) $chmod = octdec(sprintf("%04d", $this->get_current_chmod($dest_dir, $wpfs)));
 				if ($wpfs->move($working_dir."/".$file, $dest_dir.$file, true) ) {
 					if ($send_actions) do_action('updraftplus_restored_'.$type.'_one', $file);
+					# Make sure permissions are at least as great as those of the parent
+					if ($is_dir && !empty($chmod)) $this->chmod_if_needed($dest_dir.$file, $chmod, false, $wpfs);
 				} else {
 					return new WP_Error('move_failed', $this->strings['move_failed']);
 				}
@@ -210,10 +225,14 @@ class Updraft_Restorer extends WP_Upgrader {
 				# First pass: create directory structure
 				# Get chmod value for the parent directory, and re-use it (instead of passing false)
 
-				$chmod = $wpfs->getnumchmodfromh($wpfs->gethchmod($dest_dir));
+				# This method is broken due to https://core.trac.wordpress.org/ticket/26598
+				#if (empty($chmod)) $chmod = $wpfs->getnumchmodfromh($wpfs->gethchmod($dest_dir));
+				if (empty($chmod)) $chmod = octdec(sprintf("%04d", $this->get_current_chmod($dest_dir, $wpfs)));
 				# Copy in the files. This also needs to make sure the directories exist, in case the zip file lacks entries
 				$delete_root = ('others' == $type || 'wpcore' == $type) ? false : true;
+
 				$copy_in = $this->copy_files_in($working_dir.'/'.$file, $dest_dir.$file, $filestruc['files'], $chmod, $delete_root);
+				if (!empty($chmod)) $this->chmod_if_needed($dest_dir.$file, $chmod, false, $wpfs);
 
 				if (is_wp_error($copy_in)) return $copy_in;
 				if (!$copy_in) return new WP_Error('move_failed', $this->strings['move_failed']);
@@ -293,7 +312,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		if (empty($this->pre_restore_updatedir_writable)) {
 			$upgrade_folder = $wp_filesystem->wp_content_dir() . 'upgrade/';
-			@$wp_filesystem->mkdir($upgrade_folder, 0775);
+			@$wp_filesystem->mkdir($upgrade_folder, $this->calculate_additive_chmod_oct(FS_CHMOD_DIR, 0775));
 			if (!$wp_filesystem->is_dir($upgrade_folder)) {
 				return new WP_Error('no_dir', sprintf(__('UpdraftPlus needed to create a %s in your content directory, but failed - please check your file permissions and enable the access (%s)', 'updraftplus'), __('folder', 'updraftplus'), $upgrade_folder));
 			}
@@ -343,7 +362,7 @@ class Updraft_Restorer extends WP_Upgrader {
 	function get_wp_filesystem_dir($path) {
 		global $wp_filesystem;
 		// Get the wp_filesystem location for the folder on the local install
-		switch ( $path ) {
+		switch ($path) {
 			case ABSPATH:
 			case '';
 				$wp_filesystem_dir = $wp_filesystem->abspath();
@@ -597,27 +616,87 @@ class Updraft_Restorer extends WP_Upgrader {
 			}
 		}
 
+		# Permissions changes (at the top level - i.e. this does not reply if using recursion) are now *additive* - i.e. there's no danger of permissions being removed from what's on-disk
 		switch($type) {
 			case 'wpcore':
-				@$wp_filesystem->chmod($wp_filesystem_dir, FS_CHMOD_DIR);
+				$this->chmod_if_needed($wp_filesystem_dir, FS_CHMOD_DIR, false, $wp_filesystem);
 				// In case we restored a .htaccess which is incorrect for the local setup
 				$this->flush_rewrite_rules();
 			break;
 			case 'uploads':
-				@$wp_filesystem->chmod($wp_filesystem_dir, 0775, true);
+				$this->chmod_if_needed($wp_filesystem_dir, FS_CHMOD_DIR, false, $wp_filesystem);
 			break;
 			case 'db':
 				do_action('updraftplus_restored_db', array('expected_oldsiteurl' => $this->old_siteurl, 'expected_oldhome' => $this->old_home, 'expected_oldcontent' => $this->old_content), $import_table_prefix);
 				$this->flush_rewrite_rules();
 			break;
 			default:
-				@$wp_filesystem->chmod($wp_filesystem_dir, FS_CHMOD_DIR);
+				$this->chmod_if_needed($wp_filesystem_dir, FS_CHMOD_DIR, false, $wp_filesystem);
 		}
 		# db was already done
 		if ('db' != $type) do_action('updraftplus_restored_'.$type);
 
 		return true;
 
+	}
+
+	# Returns an octal string (but not an octal number)
+	function get_current_chmod($file, $wpfs = false) {
+		if (false == $wpfs) {
+			global $wp_filesystem;
+			$wpfs = $wp_filesystem;
+		}
+		# getchmod() is broken at least as recently as WP3.8 - see: https://core.trac.wordpress.org/ticket/26598
+		return (is_a($wpfs, 'WP_Filesystem_Direct')) ? substr(sprintf("%06d", decoct(@fileperms($file))),3) : $wpfs->getchmod($file);
+	}
+
+	# Returns a string in octal format
+	# $new_chmod should be an octal, i.e. what you'd pass to chmod()
+	function calculate_additive_chmod_oct($old_chmod, $new_chmod) {
+		# chmod() expects octal form, which means a preceding zero - see http://php.net/chmod
+		$old_chmod = sprintf("%04d", $old_chmod);
+		$new_chmod = sprintf("%04d", decoct($new_chmod));
+
+		for ($i=1; $i<=3; $i++) {
+			$oldbit = substr($old_chmod, $i, 1);
+			$newbit = substr($new_chmod, $i, 1);
+			for ($j=0; $j<=2; $j++) {
+				if (($oldbit & (1<<$j)) && !($newbit & (1<<$j))) {
+					$newbit = (string)($newbit | 1<<$j);
+					$new_chmod = sprintf("%04d", substr($new_chmod, 0, $i).$newbit.substr($new_chmod, $i+1));
+				}
+			}
+		}
+
+		return $new_chmod;
+	}
+
+	# "If needed" means, "If the permissions are not already more permissive than this". i.e. This will not tighten permissions from what the user had before (we trust them)
+	# $chmod should be an octal - i.e. the same as you'd pass to chmod()
+	function chmod_if_needed($dir, $chmod, $recursive = false, $wpfs = false, $suppress = true) {
+
+		if (false == $wpfs) {
+			global $wp_filesystem;
+			$wpfs = $wp_filesystem;
+		}
+
+		$old_chmod = $this->get_current_chmod($dir, $wpfs);
+
+		# Sanity fcheck
+		if (strlen($old_chmod) < 3) return;
+
+		$new_chmod = $this->calculate_additive_chmod_oct($old_chmod, $chmod);
+
+		# Don't fix what isn't broken
+		if (!$recursive && $new_chmod == $old_chmod) return true;
+
+		$new_chmod = octdec($new_chmod);
+
+		if ($suppress) {
+			return @$wpfs->chmod($dir, $new_chmod, $recursive);
+		} else {
+			return $wpfs->chmod($dir, $new_chmod, $recursive);
+		}
 	}
 
 	// $dirnames: an array of preferred names

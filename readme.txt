@@ -135,6 +135,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 = Development version (not yet supported/released) =
 
 * TWEAK: Give more feedback to user when FTP login fails. Also, improve automatic switch to non-SSL FTP if SSL FTP fails to cover more situations.
+* TWEAK: Handle odd file permissions setups more skilfully when restoring/migrating
 
 = 1.8.2 - 2013/12/13 =
 
