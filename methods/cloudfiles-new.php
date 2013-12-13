@@ -17,7 +17,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 
 	public function get_service($user, $apikey, $authurl, $useservercerts = false, $disablesslverify = null, $region = null) {
 
-		require_once(UPDRAFTPLUS_DIR.'/includes/php-opencloud/autoload.php');
+		require_once(UPDRAFTPLUS_DIR.'/opencloud/autoload.php');
 
 		global $updraftplus;
 

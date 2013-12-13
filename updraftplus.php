@@ -16,6 +16,7 @@ TODO - some of these are out of date/done, needs pruning
 // On plugins restore, don't let UD over-write itself
 // Post restore, check if active theme is present (if not, reset and alert user)
 // Schedule a task to report on failure
+// Recognise known huge non-core tables on restore, and postpone them to the end (AJAX method?)
 // Add a link on the restore page to the log file
 // Exclude backwpup stuff from backup (in wp-content/uploads/backwpup*)
 // Pre-schedule resumptions that we know will be scheduled later
