@@ -3,7 +3,7 @@ Contributors: Backup with UpdraftPlus, DavidAnderson
 Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, s3 compatible, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, ftp backup, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp, ftps, scp, migrate, duplicate, copy, updraft, schedule, mysql backup, database backup, db backup, website backup, wordpress backup, full backup
 Requires at least: 3.2
 Tested up to: 3.8
-Stable tag: 1.8.1
+Stable tag: 1.8.2
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -135,7 +135,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 = 1.8.2 - 2013/12/13 =
 
 * FIX: Various small fixes to the initial release of 1.8.1
-* TWEAK: Restorer now switches theme if database is restored to indicate a non-existent theme, and temporarily disables cacheing plugins
+* TWEAK: Restorer now switches theme if database is restored to indicate a non-existent theme, and Migrator temporarily disables cacheing plugins during during Migration
 * TWEAK: Improve handling of MySQL's maximum packet size - attempt to raise it, and leave some margin
 * TWEAK: Move the Rackspace SDK around to prevent problems on systems with limited maximum pathname lengths
 
@@ -691,4 +691,4 @@ We recognise and thank the following for code and/or libraries used and/or modif
 Furthermore, reliance upon any non-English translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
 
 == Upgrade Notice ==
-* 1.8.1 : A mix of new features, tweaks and bug fixes
+* 1.8.2 : Various small tweaks and bugfixes
