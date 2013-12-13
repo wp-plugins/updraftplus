@@ -132,6 +132,10 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
+= Development version (not yet supported/released) =
+
+* TWEAK: Give more feedback to user when FTP login fails. Also, improve automatic switch to non-SSL FTP if SSL FTP fails to cover more situations.
+
 = 1.8.2 - 2013/12/13 =
 
 * FIX: Various small fixes to the initial release of 1.8.1

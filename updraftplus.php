@@ -19,6 +19,7 @@ TODO - some of these are out of date/done, needs pruning
 // Plugin causing modal problem to check out: The Events Calendar by Modern Tribe
 // Recognise known huge non-core tables on restore, and postpone them to the end (AJAX method?)
 // Add a link on the restore page to the log file
+// Don't set file permissions post-restore tighter than they were before
 // Exclude backwpup stuff from backup (in wp-content/uploads/backwpup*)
 // Pre-schedule resumptions that we know will be scheduled later
 // After Oct 15 2013: Remove page(s) from websites discussing W3TC
@@ -1188,10 +1189,7 @@ class UpdraftPlus {
 		return false;
 	}
 
-	public function php_error($errno, $errstr, $errfile, $errline) {
-
-		if (0 == error_reporting()) return true;
-
+	public function php_error_to_logline($errno, $errstr, $errfile, $errline) {
 		switch ($errno) {
 			case 1:		$e_type = 'E_ERROR'; break;
 			case 2:		$e_type = 'E_WARNING'; break;
@@ -1216,13 +1214,16 @@ class UpdraftPlus {
 
 		if (0 === strpos($errfile, ABSPATH)) $errfile = substr($errfile, strlen(ABSPATH));
 
-		$logline = "PHP event: code $e_type: $errstr (line $errline, $errfile)";
+		return "PHP event: code $e_type: $errstr (line $errline, $errfile)";
 
+	}
+
+	public function php_error($errno, $errstr, $errfile, $errline) {
+		if (0 == error_reporting()) return true;
+		$logline = $this->php_error_to_logline($errno, $errstr, $errfile, $errline);
 		$this->log($logline);
-
 		# Pass it up the chain
 		return false;
-
 	}
 
 	public function backup_resume($resumption_no, $bnonce) {

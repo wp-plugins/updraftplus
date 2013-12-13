@@ -855,13 +855,31 @@ class UpdraftPlus_Admin {
 
 			// Test the credentials, return a code
 			require_once(UPDRAFTPLUS_DIR."/methods/$method.php");
-
 			$objname = "UpdraftPlus_BackupModule_${method}";
-			if (method_exists($objname, "credentials_test")) call_user_func(array('UpdraftPlus_BackupModule_'.$method, 'credentials_test'));
+
+			$this->logged = array();
+			set_error_handler(array($this, 'get_php_errors'), E_ALL & ~E_STRICT);
+			if (method_exists($objname, "credentials_test")) call_user_func(array($objname, 'credentials_test'));
+			if (count($this->logged) >0) {
+				echo "\n\n".__('Messages:', 'updraftplus')."\n";
+				foreach ($this->logged as $err) {
+					echo "* $err\n";
+				}
+			}
+			restore_error_handler();
 		}
 
 		die;
 
+	}
+
+	public function get_php_errors($errno, $errstr, $errfile, $errline) {
+		global $updraftplus;
+		if (0 == error_reporting()) return true;
+		$logline = $updraftplus->php_error_to_logline($errno, $errstr, $errfile, $errline);
+		$this->logged[] = $logline;
+		# Don't pass it up the chain (since it's going to be output to the user always)
+		return true;
 	}
 
 	function download_status($timestamp, $type, $findex) {

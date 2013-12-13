@@ -6,7 +6,7 @@ class UpdraftPlus_ftp_wrapper {
 	private $username;
 	private $password;
 	private $port;
-	public  $timeout = 90;
+	public  $timeout = 60;
 	public  $passive = true;
 	public  $system_type = '';
 	public $ssl = false;
@@ -22,35 +22,29 @@ class UpdraftPlus_ftp_wrapper {
 		$this->port     = $port;
 	}
  
-	public function connect()
-	{
-		$this->conn_id = ftp_connect($this->host, $this->port, 30);
+	public function connect() {
 
-		if ($this->conn_id === false) return false;
+		$time_start = time();
+		$this->conn_id = ftp_connect($this->host, $this->port, 20);
+
+		if ($this->conn_id) $result = ftp_login($this->conn_id, $this->username, $this->password);
  
-		$result = ftp_login($this->conn_id, $this->username, $this->password);
- 
-		if ($result == true)
-		{
+		if (!empty($result)) {
 			ftp_set_option($this->conn_id, FTP_TIMEOUT_SEC, $this->timeout);
- 
-			if ($this->passive == true)
-			{
-				ftp_pasv($this->conn_id, true);
-			}
-			else
-			{
-				ftp_pasv($this->conn_id, false);
-			}
- 
+ 			ftp_pasv($this->conn_id, $this->passive);
 			$this->system_type = ftp_systype($this->conn_id);
- 
 			return true;
+		} elseif (time() - $time_start > 19) {
+			global $updraftplus_admin;
+			if (isset($updraftplus_admin->logged) && is_array($updraftplus_admin->logged)) {
+				$updraftplus_admin->logged[] = sprintf(__('The %s connection timed out; if you entered the server correctly, then this is usually caused by a firewall blocking the connection - you should check with your web hosting company.', 'updraftplus'), 'FTP');
+			} else {
+				global $updraftplus;
+				$updraftplus->log(sprintf(__('The %s connection timed out; if you entered the server correctly, then this is usually caused by a firewall blocking the connection - you should check with your web hosting company.', 'updraftplus'), 'FTP'), 'error');
+			}
 		}
-		else
-		{
-			return false;
-		}
+
+		return false;
 	}
  
 	public function put($local_file_path, $remote_file_path, $mode = FTP_BINARY, $resume = false, $updraftplus = false) {
