@@ -706,7 +706,9 @@ class UpdraftPlus {
 		$mp = (is_numeric($mp) && $mp > 0) ? $mp : 1048576;
 		# 32Mb
 		if ($mp < 33554432) {
-			$req = @$wpdb->query("SET GLOBAL max_allowed_packet=33554432");
+			$save = $wpdb->show_errors(false);
+			$req = $wpdb->query("SET GLOBAL max_allowed_packet=33554432");
+			$wpdb->show_errors($save);
 			if (!$req) $updraftplus->log("Tried to raise max_allowed_packet from ".round($mp/1048576,1)." Mb to 32 Mb, but failed (".$wpdb->last_error.", ".serialize($req).")");
 			$mp = (int)$wpdb->get_var("SELECT @@session.max_allowed_packet");
 			# Default to 1Mb
