@@ -719,6 +719,9 @@ class Updraft_Restorer extends WP_Upgrader {
 	# $chmod should be an octal - i.e. the same as you'd pass to chmod()
 	function chmod_if_needed($dir, $chmod, $recursive = false, $wpfs = false, $suppress = true) {
 
+		# Do nothing on Windows
+		if (strtoupper(substr(php_uname('s'), 0, 3)) === 'WIN') return true;
+
 		if (false == $wpfs) {
 			global $wp_filesystem;
 			$wpfs = $wp_filesystem;
