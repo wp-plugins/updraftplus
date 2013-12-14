@@ -36,6 +36,48 @@ class Updraft_Restorer extends WP_Upgrader {
 		$this->strings['multisite_error'] = __('You are running on WordPress multisite - but your backup is not of a multisite site.', 'updraftplus');
 	}
 
+	# This function is copied from class WP_Upgrader (WP 3.8 - no significant changes since 3.2 at least); we only had to fork it because it hard-codes using the basename of the zip file as its unpack directory; which can be long; and then combining that with long pathnames in the zip being unpacked can overflow a 256-character path limit (yes, they apparently still exist - amazing!)
+	function unpack_package_zip($package, $delete_package = true) {
+		global $wp_filesystem;
+
+		$this->skin->feedback('unpack_package');
+
+		$upgrade_folder = $wp_filesystem->wp_content_dir() . 'upgrade/';
+
+		//Clean up contents of upgrade directory beforehand.
+		$upgrade_files = $wp_filesystem->dirlist($upgrade_folder);
+		if ( !empty($upgrade_files) ) {
+			foreach ( $upgrade_files as $file )
+				$wp_filesystem->delete($upgrade_folder . $file['name'], true);
+		}
+
+		//We need a working directory
+		#This is the only change from the WP core version - minimise path length
+		#$working_dir = $upgrade_folder . basename($package, '.zip');
+		$working_dir = $upgrade_folder . substr(md5($package), 0, 8);
+
+		// Clean up working directory
+		if ( $wp_filesystem->is_dir($working_dir) )
+			$wp_filesystem->delete($working_dir, true);
+
+		// Unzip package to working directory
+		$result = unzip_file( $package, $working_dir );
+
+		// Once extracted, delete the package if required.
+		if ( $delete_package )
+			unlink($package);
+
+		if ( is_wp_error($result) ) {
+			$wp_filesystem->delete($working_dir, true);
+			if ( 'incompatible_archive' == $result->get_error_code() ) {
+				return new WP_Error( 'incompatible_archive', $this->strings['incompatible_archive'], $result->get_error_data() );
+			}
+			return $result;
+		}
+
+		return $working_dir;
+	}
+
 	// This returns a wp_filesystem location (and we musn't change that, as we must retain compatibility with the class parent)
 	function unpack_package($package, $delete_package = true) {
 
@@ -44,7 +86,8 @@ class Updraft_Restorer extends WP_Upgrader {
 		$updraft_dir = $updraftplus->backups_dir_location();
 
 		// If not database, then it is a zip - unpack in the usual way
-		if (!preg_match('/db\.gz(\.crypt)?$/i', $package)) return parent::unpack_package($updraft_dir.'/'.$package, $delete_package);
+		#if (!preg_match('/db\.gz(\.crypt)?$/i', $package)) return parent::unpack_package($updraft_dir.'/'.$package, $delete_package);
+		if (!preg_match('/db\.gz(\.crypt)?$/i', $package)) return $this->unpack_package_zip($updraft_dir.'/'.$package, $delete_package);
 
 		$backup_dir = $wp_filesystem->find_folder($updraft_dir);
 
@@ -406,6 +449,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		// This returns the wp_filesystem path
 		$working_dir = $this->unpack_package($backup_file, $this->delete);
+
 		if (is_wp_error($working_dir)) return $working_dir;
 
 		$working_dir_localpath = WP_CONTENT_DIR.'/upgrade/'.basename($working_dir);
