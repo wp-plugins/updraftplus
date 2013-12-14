@@ -300,7 +300,7 @@ class UpdraftPlus_Admin {
 	}
 
 	function show_admin_warning($message, $class = "updated") {
-		echo '<div class="updraftmessage '.$class.' fade">'."<p>$message</p></div>";
+		echo '<div class="updraftmessage '.$class.'">'."<p>$message</p></div>";
 	}
 
 	public function show_admin_warning_execution_time() {
@@ -577,6 +577,13 @@ class UpdraftPlus_Admin {
 
 				$warn = array();
 				$err = array();
+
+				@set_time_limit(900);
+				$max_execution_time = (int)@ini_get('max_execution_time');
+
+				if ($max_execution_time>0 && $max_execution_time<61) {
+					$warn[] = __('The PHP setup on this webserver allows only %s seconds for PHP to run, and does not allow this limit to be raised. If you have a lot of data to import, and if the restore operation times out, then you will need to ask your web hosting company for ways to raise this limit (or attempt the restoration piece-by-piece).', 'updraftplus');
+				}
 
 				if (isset($elements['db'])) {
 					// Analyse the header of the database file + display results
@@ -1498,6 +1505,10 @@ CREATE TABLE $wpdb->signups (
 				<div style="margin-bottom: 10px;">
 					<?php
 						$backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
+						if (empty($backup_history)) {
+							$this->rebuild_backup_history();
+							$backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
+						}
 						$backup_history = (is_array($backup_history))?$backup_history:array();
 					?>
 					<input type="button" class="button-primary updraft-bigbutton" value="<?php _e('Restore','updraftplus');?>" style="padding-top:2px;padding-bottom:2px;font-size:22px !important; min-height: 32px;  min-width: 180px;" onclick="jQuery('.download-backups').slideDown(); updraft_historytimertoggle(1); jQuery('html,body').animate({scrollTop: jQuery('#updraft_lastlogcontainer').offset().top},'slow');">
@@ -1735,9 +1746,9 @@ CREATE TABLE $wpdb->signups (
 				echo sprintf(__('%s version:','updraftplus'), 'MySQL').' '.((function_exists('mysql_get_server_info')) ? mysql_get_server_info() : '?').'<br>';
 
 				if (version_compare(phpversion(), '5.2.0', '>=') && extension_loaded('zip')) {
-					$ziparchive_exists .= __('Yes', 'updraftplus');
+					$ziparchive_exists = __('Yes', 'updraftplus');
 				} else {
-					$ziparchive_exists .= (method_exists('ZipArchive', 'addFile')) ? __('Yes', 'updraftplus') : __('No', 'updraftplus');
+					$ziparchive_exists = (method_exists('ZipArchive', 'addFile')) ? __('Yes', 'updraftplus') : __('No', 'updraftplus');
 				}
 
 				echo __('PHP has support for ZipArchive::addFile:', 'updraftplus').' '.$ziparchive_exists.'<br>';
@@ -2845,12 +2856,18 @@ ENDHERE;
 		$updraftplus->jobdata_set('job_time_ms', $updraftplus->job_time_ms);
 		$updraftplus->logfile_open($updraftplus->nonce);
 
-		# TODO: Provide download link for the log file
+		# Provide download link for the log file
+
+		#echo '<p><a target="_new" href="?action=downloadlog&page=updraftplus&updraftplus_backup_nonce='.htmlspecialchars($updraftplus->nonce).'">'.__('Follow this link to download the log file for this restoration.', 'updraftplus').'</a></p>';
+
 		# TODO: Automatic purging of old log files
 		# TODO: Provide option to auto-email the log file
 
 		//if we make it this far then WP_Filesystem has been instantiated and is functional (tested with ftpext, what about suPHP and other situations where direct may work?)
 		echo '<h1>'.__('UpdraftPlus Restoration: Progress', 'updraftplus').'</h1><div id="updraft-restore-progress">';
+
+		$this->show_admin_warning('<a target="_new" href="?action=downloadlog&page=updraftplus&updraftplus_backup_nonce='.htmlspecialchars($updraftplus->nonce).'">'.__('Follow this link to download the log file for this restoration (needed for any support requests).', 'updraftplus').'</a>');
+
 
 		$updraft_dir = trailingslashit($updraftplus->backups_dir_location());
 

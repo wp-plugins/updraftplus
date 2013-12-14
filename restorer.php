@@ -55,7 +55,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		$this->skin->feedback('unpack_package');
 
 		$upgrade_folder = $wp_filesystem->wp_content_dir() . 'upgrade/';
-		@$wp_filesystem->mkdir($upgrade_folder, $this->calculate_additive_chmod_oct(FS_CHMOD_DIR, 0775));
+		@$wp_filesystem->mkdir($upgrade_folder, octdec($this->calculate_additive_chmod_oct(FS_CHMOD_DIR, 0775)));
 
 		//Clean up contents of upgrade directory beforehand.
 		$upgrade_files = $wp_filesystem->dirlist($upgrade_folder);
@@ -71,7 +71,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		// Clean up working directory
 		if ($wp_filesystem->is_dir($working_dir)) $wp_filesystem->delete($working_dir, true);
 
-		if (!$wp_filesystem->mkdir($working_dir, $this->calculate_additive_chmod_oct(FS_CHMOD_DIR, 0775))) return new WP_Error('mkdir_failed', __('Failed to create a temporary directory','updraftplus').' ('.$working_dir.')');
+		if (!$wp_filesystem->mkdir($working_dir, octdec($this->calculate_additive_chmod_oct(FS_CHMOD_DIR, 0775)))) return new WP_Error('mkdir_failed', __('Failed to create a temporary directory','updraftplus').' ('.$working_dir.')');
 
 		// Unpack package to working directory
 		if ($updraftplus->is_db_encrypted($package)) {
@@ -312,7 +312,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		if (empty($this->pre_restore_updatedir_writable)) {
 			$upgrade_folder = $wp_filesystem->wp_content_dir() . 'upgrade/';
-			@$wp_filesystem->mkdir($upgrade_folder, $this->calculate_additive_chmod_oct(FS_CHMOD_DIR, 0775));
+			@$wp_filesystem->mkdir($upgrade_folder, octdec($this->calculate_additive_chmod_oct(FS_CHMOD_DIR, 0775)));
 			if (!$wp_filesystem->is_dir($upgrade_folder)) {
 				return new WP_Error('no_dir', sprintf(__('UpdraftPlus needed to create a %s in your content directory, but failed - please check your file permissions and enable the access (%s)', 'updraftplus'), __('folder', 'updraftplus'), $upgrade_folder));
 			}

@@ -60,7 +60,7 @@ class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 		return array('updraft_cloudfiles');
 	}
 
-	protected function get_opts() {
+	protected static function get_opts() {
 		global $updraftplus;
 		$opts = $updraftplus->get_job_option('updraft_cloudfiles');
 		if (!is_array($opts)) $opts = array('user' => '', 'authurl' => 'https://auth.api.rackspacecloud.com', 'apikey' => '', 'path' => '');

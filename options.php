@@ -26,7 +26,7 @@ class UpdraftPlus_Options {
 	}
 
 	public static function delete_updraft_option($option) {
-		delete_option($option, $value);
+		delete_option($option);
 	}
 
 	public static function add_admin_pages() {

@@ -136,6 +136,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 
 * TWEAK: Give more feedback to user when FTP login fails. Also, improve automatic switch to non-SSL FTP if SSL FTP fails to cover more situations.
 * TWEAK: Handle odd file permissions setups more skilfully when restoring/migrating
+* TWEAK: Automatically rescan for new backup sets if none were previously known (saves a click when manually importing)
 
 = 1.8.2 - 2013/12/13 =
 
@@ -143,6 +144,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Restorer now switches theme if database is restored to indicate a non-existent theme, and Migrator temporarily disables cacheing plugins during during Migration
 * TWEAK: Improve handling of MySQL's maximum packet size - attempt to raise it, and leave some margin
 * TWEAK: Move the Rackspace SDK around to prevent problems on systems with limited maximum pathname lengths
+* TWEAK: Provide a link to the log file at the top of the restoration page
 
 = 1.8.1 - 2013/12/10 =
 
