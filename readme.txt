@@ -137,6 +137,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Give more feedback to user when FTP login fails. Also, improve automatic switch to non-SSL FTP if SSL FTP fails to cover more situations.
 * TWEAK: Handle odd file permissions setups more skilfully when restoring/migrating
 * TWEAK: Automatically rescan for new backup sets if none were previously known (saves a click when manually importing)
+* TWEAK: Force a shorter pathname to be used when unpacking zip files (prevent maximum pathname limits being hit)
 
 = 1.8.2 - 2013/12/13 =
 
