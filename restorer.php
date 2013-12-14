@@ -260,7 +260,7 @@ class Updraft_Restorer extends WP_Upgrader {
 					# Make sure permissions are at least as great as those of the parent
 					if ($is_dir && !empty($chmod)) $this->chmod_if_needed($dest_dir.$file, $chmod, false, $wpfs);
 				} else {
-					return new WP_Error('move_failed', $this->strings['move_failed']);
+					return new WP_Error('move_failed', $this->strings['move_failed'], $working_dir."/".$file." -> ".$dest_dir.$file);
 				}
 			} elseif (3 == $preserve_existing && !empty($filestruc['files'])) {
 				# The directory ($dest_dir) already exists, and we've been requested to copy-in. We need to perform the recursive copy-in
@@ -278,7 +278,7 @@ class Updraft_Restorer extends WP_Upgrader {
 				if (!empty($chmod)) $this->chmod_if_needed($dest_dir.$file, $chmod, false, $wpfs);
 
 				if (is_wp_error($copy_in)) return $copy_in;
-				if (!$copy_in) return new WP_Error('move_failed', $this->strings['move_failed']);
+				if (!$copy_in) return new WP_Error('move_failed', $this->strings['move_failed'], "(2) ".$working_dir.'/'.$file." -> ".$dest_dir.$file);
 
 				$wpfs->rmdir($working_dir.'/'.$file);
 			} else {

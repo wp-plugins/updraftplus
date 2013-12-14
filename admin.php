@@ -3030,7 +3030,8 @@ ENDHERE;
 						foreach ($codes as $code) {
 							$data = $val->get_error_data($code);
 							if (!empty($data)) {
-								echo '<strong>'.__('Error data:', 'updraftplus').'</strong> '.htmlspecialchars(serialize($data)).'<br>';
+								$pdata = (is_string($data)) ? $data : serialize($data);
+								echo '<strong>'.__('Error data:', 'updraftplus').'</strong> '.htmlspecialchars($pdata).'<br>';
 							}
 						}
 					}
