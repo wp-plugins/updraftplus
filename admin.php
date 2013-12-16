@@ -1286,7 +1286,7 @@ CREATE TABLE $wpdb->signups (
 
 		global $updraftplus;
 
-		wp_enqueue_style('jquery-ui', UPDRAFTPLUS_URL.'/includes/jquery-ui-1.8.22.custom.css'); 
+		wp_enqueue_style('jquery-ui', UPDRAFTPLUS_URL.'/includes/jquery-ui-1.8.22.custom.css', array(), 1); 
 
 		/*
 		we use request here because the initial restore is triggered by a POSTed form. we then may need to obtain credentials 
