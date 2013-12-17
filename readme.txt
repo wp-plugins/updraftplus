@@ -134,6 +134,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 
 = Development version (not yet supported/released) =
 
+* FEATURE: Add option to exclude specified files from the 'uploads' backup. The default option will omit backing up backups created by at least 2 other backup plugins.
 * TWEAK: Give more feedback to user when FTP login fails. Also, improve automatic switch to non-SSL FTP if SSL FTP fails to cover more situations.
 * TWEAK: Handle odd file permissions setups more skilfully when restoring/migrating
 * TWEAK: Automatically rescan for new backup sets if none were previously known (saves a click when manually importing)
