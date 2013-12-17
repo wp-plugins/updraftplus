@@ -21,7 +21,7 @@ TODO - some of these are out of date/done, needs pruning
 // Add a link on the restore page to the log file
 // Add a cart notice if people have DBSF=quantity1
 // Don't set file permissions post-restore tighter than they were before
-// Exclude backwpup stuff from backup (in wp-content/uploads/backwpup*)
+// Exclude backwpup stuff from backup (in wp-content/uploads/backwpup* , and BB: wp-content/uploads/backupbuddy_backups)
 // Pre-schedule resumptions that we know will be scheduled later
 // After Oct 15 2013: Remove page(s) from websites discussing W3TC
 // Change add-ons screen, to be less confusing for people who haven't yet updated but have connected
@@ -193,6 +193,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 define('UPDRAFTPLUS_DIR', dirname(__FILE__));
 define('UPDRAFTPLUS_URL', plugins_url('', __FILE__));
 define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,backup*,*backups');
+define('UPDRAFT_DEFAULT_UPLOADS_EXCLUDE','backup*,*backups');
 
 # The following can go in your wp-config.php
 if (!defined('UPDRAFTPLUS_ZIP_EXECUTABLE')) define('UPDRAFTPLUS_ZIP_EXECUTABLE', "/usr/bin/zip,/bin/zip,/usr/local/bin/zip,/usr/sfw/bin/zip,/usr/xdg4/bin/zip,/opt/bin/zip");
@@ -1981,24 +1982,24 @@ class UpdraftPlus {
 		return ($ret > 0);
 	}
 
-	function backup_others_dirlist() {
+	function backup_uploads_dirlist() {
 		# Create an array of directories to be skipped
-		$others_skip = preg_split("/,/",UpdraftPlus_Options::get_updraft_option('updraft_include_others_exclude', UPDRAFT_DEFAULT_OTHERS_EXCLUDE));
 		# Make the values into the keys
-		$others_skip = array_flip($others_skip);
-
-		$possible_backups_dirs = array_flip($this->get_backupable_file_entities(false));
-
-		$other_dirlist = $this->compile_folder_list_for_backup(WP_CONTENT_DIR, $possible_backups_dirs, $others_skip);
-
-		return $other_dirlist;
-
+		$skip = array_flip(preg_split("/,/", UpdraftPlus_Options::get_updraft_option('updraft_include_uploads_exclude', UPDRAFT_DEFAULT_UPLOADS_EXCLUDE)));
+		$wp_upload_dir = wp_upload_dir();
+		$uploads_dir = $wp_upload_dir['basedir'];
+		return $this->compile_folder_list_for_backup($uploads_dir, array(), $skip);
 	}
 
-	/**
-	 * Add backquotes to tables and db-names in
-	 * SQL queries. Taken from phpMyAdmin.
-	 */
+	function backup_others_dirlist() {
+		# Create an array of directories to be skipped
+		# Make the values into the keys
+		$skip = array_flip(preg_split("/,/", UpdraftPlus_Options::get_updraft_option('updraft_include_others_exclude', UPDRAFT_DEFAULT_OTHERS_EXCLUDE)));
+		$possible_backups_dirs = array_flip($this->get_backupable_file_entities(false));
+		return $this->compile_folder_list_for_backup(WP_CONTENT_DIR, $possible_backups_dirs, $skip);
+	}
+
+	// Add backquotes to tables and db-names in SQL queries. Taken from phpMyAdmin.
 	public function backquote($a_name) {
 		if (!empty($a_name) && $a_name != '*') {
 			if (is_array($a_name)) {

@@ -544,7 +544,7 @@ class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 			return;
 		}
 
-		echo __('Success','updraftplus').": ${container_verb}".__('We accessed the container, and were able to create files within it.','updraftplus');
+		echo __('Success','updraftplus').": ".__('We accessed the container, and were able to create files within it.','updraftplus');
 
 		@$container_object->delete_object($try_file);
 	}

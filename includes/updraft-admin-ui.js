@@ -568,7 +568,15 @@ jQuery(document).ready(function($){
 			jQuery('#updraft_include_others_exclude').slideUp();
 		}
 	});
-
+	
+	jQuery('#updraft_include_uploads').click(function() {
+		if (jQuery('#updraft_include_uploads').is(':checked')) {
+			jQuery('#updraft_include_uploads_exclude').slideDown();
+		} else {
+			jQuery('#updraft_include_uploads_exclude').slideUp();
+		}
+	});
+	
 	jQuery('#updraft-service').change(function() {
 		jQuery('.updraftplusmethod').hide();
 		var active_class = jQuery(this).val();
