@@ -262,7 +262,7 @@
         ]
     },
     {
-        "name": "rs/php-opencloud",
+        "name": "rackspace/php-opencloud",
         "version": "dev-master",
         "version_normalized": "9999999-dev",
         "source": {
