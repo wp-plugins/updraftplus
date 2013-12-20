@@ -16,19 +16,22 @@ TODO - some of these are out of date/done, needs pruning
 // On plugins restore, don't let UD over-write itself
 // Schedule a task to report on failure
 // When doing AJAX pre-restore check capture all PHP notices and dump them in our 'warning' array (don't let them go to browser directly and break the JSON)
+// Tweak the display so that users seeing resumption messages don't think it's stuck
+// http://www.empsebiz.com/woocommerce/
 // Plugin causing modal problem to check out: The Events Calendar by Modern Tribe
 // Recognise known huge non-core tables on restore, and postpone them to the end (AJAX method?)
 // Add a link on the restore page to the log file
 // Add a cart notice if people have DBSF=quantity1
 // Don't set file permissions post-restore tighter than they were before
-// Exclude backwpup stuff from backup (in wp-content/uploads/backwpup* , and BB: wp-content/uploads/backupbuddy_backups)
 // Pre-schedule resumptions that we know will be scheduled later
+// If we're on the last resumption, zipping, and nothing's succeeded for a while, then auto-split
 // After Oct 15 2013: Remove page(s) from websites discussing W3TC
 // Change add-ons screen, to be less confusing for people who haven't yet updated but have connected
 // Change migrate window: 1) Retain link to article 2) Have selector to choose which backup set to migrate - or a fresh one 3) Have option for FTP/SFTP/SCP despatch 4) Have big "Go" button. Have some indication of what happens next. Test the login first. Have the remote site auto-scan its directory + pick up new sets. Have a way of querying the remote site for its UD-dir. Have a way of saving the settings as a 'profile'. Or just save the last set of settings (since mostly will be just one place to send to). Implement an HTTP/JSON method for sending files too.
 // Place in maintenance mode during restore - ?
 // Add FAQ about upgrades
 // Test Azure: https://blogs.technet.com/b/blainbar/archive/2013/08/07/article-create-a-wordpress-site-using-windows-azure-read-on.aspx?Redirected=true
+// Seen during autobackup on 1.8.2: Warning: Invalid argument supplied for foreach() in /home/infinite/public_html/new/wp-content/plugins/updraftplus/updraftplus.php on line 1652
 // Add some kind of automated scan for post content (e.g. images) that has the same URL base, but is not part of WP. There's an example of such a site in tmp-rich.
 // Log all output of restore; include Migrator
 // Free/premium comparison page
@@ -588,7 +591,7 @@ class UpdraftPlus {
 				$this->log(sprintf(__('The amount of memory (RAM) allowed for PHP is very low (%s Mb) - you should increase it to avoid failures due to insufficient memory (consult your web hosting company for more help)', 'updraftplus'), round($memlim, 1)), 'warning', 'lowram');
 			}
 			if ($max_execution_time>0 && $max_execution_time<20) {
-				$this->log(sprintf(__('The amount of time allowed for WordPress plugins to run is very low (%s seconds) - you should increase it to avoid backup failures due to time-outs (consult your web hosting company for more help - it is the max_execution_time PHP setting; the recommmended value is %s seconds or more)', 'updraftplus'), $max_execution_time, 90), 'warning', 'lowmaxexecutiontime');
+				$this->log(sprintf(__('The amount of time allowed for WordPress plugins to run is very low (%s seconds) - you should increase it to avoid backup failures due to time-outs (consult your web hosting company for more help - it is the max_execution_time PHP setting; the recommended value is %s seconds or more)', 'updraftplus'), $max_execution_time, 90), 'warning', 'lowmaxexecutiontime');
 			}
 			if (defined('W3TC') && W3TC == true && function_exists('w3_instance')) {
 				$modules = w3_instance('W3_ModuleStatus');
@@ -1239,9 +1242,7 @@ class UpdraftPlus {
 
 		// 15 minutes
 		@set_time_limit(900);
-
 		@ignore_user_abort(true);
-		// This is scheduled for 5 minutes after a backup job starts
 
 		$runs_started = array();
 		$time_now = microtime(true);
@@ -1286,6 +1287,12 @@ class UpdraftPlus {
 				$resumption_extralog = ", previous check-in=".round($time_passed[$prev_resumption], 1)."s";
 			} else {
 				$this->no_checkin_last_time = true;
+			}
+
+			# This is just a simple test to catch restorations of old backup sets where the backup includes a resumption of the backup job
+			if ($time_now - $this->backup_time > 172800) {
+				$this->log('This backup began over a 2 days ago: aborting');
+				die;
 			}
 
 		}
