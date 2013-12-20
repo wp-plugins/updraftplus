@@ -645,7 +645,7 @@ class UpdraftPlus_Admin {
 				}
 
 				if (count($this->logged) >0) {
-					foreach ($this->logged as $err) $warn[] = $err;
+					foreach ($this->logged as $lwarn) $warn[] = $lwarn;
 				}
 				restore_error_handler();
 
