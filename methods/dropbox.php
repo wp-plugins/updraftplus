@@ -94,12 +94,6 @@ class UpdraftPlus_BackupModule_dropbox {
 			$filesize = filesize($updraft_dir.'/'.$file);
 			$this->current_file_size = $filesize;
 
-			// We don't actually abort now - there's no harm in letting it try and then fail
-			if ($available_quota != -1 && $available_quota < $filesize) {
-				$updraftplus->log("File upload expected to fail: file ($file) size is $filesize b, whereas available quota is only $available_quota b");
-				$updraftplus->log(sprintf(__("Account full: your %s account has only %d bytes left, but the file to be uploaded is %d bytes",'updraftplus'),'Dropbox', $available_quota, $filesize), 'error');
-			}
-
 			// Into Kb
 			$filesize = $filesize/1024;
 			$microtime = microtime(true);
@@ -111,6 +105,12 @@ class UpdraftPlus_BackupModule_dropbox {
 			} else {
 				$offset = 0;
 				$upload_id = null;
+			}
+
+			// We don't actually abort now - there's no harm in letting it try and then fail
+			if ($available_quota != -1 && $available_quota < ($filesize-$offset)) {
+				$updraftplus->log("File upload expected to fail: file data remaining to upload ($file) size is ".($filesize-$offset)." b (overall file size; $filesize b), whereas available quota is only $available_quota b");
+				$updraftplus->log(sprintf(__("Account full: your %s account has only %d bytes left, but the file to be uploaded has %d bytes remaining (total size: %d bytes)",'updraftplus'),'Dropbox', $available_quota, $filesize-$offset, $filesize), 'error');
 			}
 
 			// Old-style, single file put: $put = $dropbox->putFile($updraft_dir.'/'.$file, $dropbox_folder.$file);

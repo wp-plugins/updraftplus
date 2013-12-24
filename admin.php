@@ -1425,16 +1425,7 @@ CREATE TABLE $wpdb->signups (
 				<div class="updated" style="padding:8px;"><?php _e("Your PHP memory limit (set by your web hosting company) is very low. UpdraftPlus attempted to raise it but was unsuccessful. This plugin may struggle with a memory limit of less than 64 Mb  - especially if you have very large files uploaded (though on the other hand, many sites will be successful with a 32Mb limit - your experience may vary).",'updraftplus');?> <?php _e('Current limit is:','updraftplus');?> <?php echo $updraftplus->memory_check_current(); ?> Mb</div>
 			<?php
 			}
-			if($this->scan_old_dirs()) {?>
-				<div id="updraft_delete_old_dirs_pagediv" class="updated" style="padding:8px;"><p><?php _e('Your WordPress install has old directories from its state before you restored/migrated (technical information: these are suffixed with -old). You should press this button to delete them as soon as you have verified that the restoration worked.','updraftplus');?></p>
-				<form method="post" onsubmit="return updraft_delete_old_dirs();" action="<?php echo remove_query_arg(array('updraft_restore_success','action')) ?>">
-					<?php wp_nonce_field('updraftplus-credentialtest-nonce'); ?>
-					<input type="hidden" name="action" value="updraft_delete_old_dirs" />
-					<input type="submit" class="button-primary" value="<?php echo esc_attr(__('Delete Old Directories', 'updraftplus'));?>"  />
-				</form>
-				</div>
-			<?php
-			}
+			if($this->scan_old_dirs()) $this->print_delete_old_dirs_form();
 			if(!empty($updraftplus->errors)) {
 				echo '<div class="error fade" style="padding:8px;">';
 				$updraftplus->list_errors();
@@ -1632,7 +1623,7 @@ CREATE TABLE $wpdb->signups (
 
 <div id="updraft-restore-modal-stage2">
 
-	<p><strong><?php _e('Downloading / preparing backup files...', 'updraftplus');?></strong></p>
+	<p><strong><?php _e('Retrieving (if necessary) and preparing backup files...', 'updraftplus');?></strong></p>
 	<div id="ud_downloadstatus2"></div>
 
 	<div id="updraft-restore-modal-stage2a"></div>
@@ -1744,6 +1735,9 @@ CREATE TABLE $wpdb->signups (
 				<p>
 				<?php
 				echo sprintf(__('Web server:','updraftplus'), 'PHP').' '.htmlspecialchars($_SERVER["SERVER_SOFTWARE"]).' ('.htmlspecialchars(php_uname()).')<br />';
+				echo 'ABSPATH: '.htmlspecialchars(ABSPATH).'<br/>';
+				echo 'WP_CONTENT_DIR: '.htmlspecialchars(WP_CONTENT_DIR).'<br/>';
+				echo 'WP_PLUGIN_DIR: '.htmlspecialchars(WP_PLUGIN_DIR).'<br/>';
 				$peak_memory_usage = memory_get_peak_usage(true)/1024/1024;
 				$memory_usage = memory_get_usage(true)/1024/1024;
 				echo __('Peak memory usage','updraftplus').': '.$peak_memory_usage.' MB<br/>';
@@ -1816,6 +1810,21 @@ CREATE TABLE $wpdb->signups (
 
 			<?php
 	}
+
+	function print_delete_old_dirs_form($include_blurb = true) {
+		?>
+			<?php if ($include_blurb) {
+			?>
+			<div id="updraft_delete_old_dirs_pagediv" class="updated" style="padding:8px;"><p> <?php _e('Your WordPress install has old directories from its state before you restored/migrated (technical information: these are suffixed with -old). You should press this button to delete them as soon as you have verified that the restoration worked.','updraftplus');?></p><?php } ?>
+			<form method="post" onsubmit="return updraft_delete_old_dirs();" action="<?php echo remove_query_arg(array('updraft_restore_success','action')) ?>">
+				<?php wp_nonce_field('updraftplus-credentialtest-nonce'); ?>
+				<input type="hidden" name="action" value="updraft_delete_old_dirs" />
+				<input type="submit" class="button-primary" value="<?php echo esc_attr(__('Delete Old Directories', 'updraftplus'));?>"  />
+			</form>
+		<?php
+			if ($include_blurb) echo '</div>';
+		}
+
 
 	function print_active_jobs() {
 		$cron = get_option('cron');
@@ -2385,6 +2394,11 @@ CREATE TABLE $wpdb->signups (
 
 					<?php } ?>
 
+					<tr class="updraftplusmethod none" style="display:none;">
+						<td></td>
+						<td><em><?php echo htmlspecialchars(__('If you choose no remote storage, then the backups remain on the web-server. This is not recommended (unless you plan to manually copy them to your computer), as losing the web-server would mean losing both your website and the backups in one event.', 'updraftplus'));?></em></td>
+					</tr>
+
 					<?php
 						foreach ($updraftplus->backup_methods as $method => $description) {
 							do_action('updraftplus_config_print_before_storage', $method);
@@ -2413,6 +2427,8 @@ CREATE TABLE $wpdb->signups (
 							} else {
 								echo "jQuery('.${active_service}').show();\n";
 							}
+						} else {
+							echo "jQuery('.none').show();\n";
 						}
 						foreach ($updraftplus->backup_methods as $method => $description) {
 							// already done: require_once(UPDRAFTPLUS_DIR.'/methods/'.$method.'.php');
@@ -3000,6 +3016,9 @@ ENDHERE;
 				foreach ($val->get_error_messages() as $msg) {
 					echo '<strong>'.__('Error:',  'updraftplus').'</strong> '.htmlspecialchars($msg).'<br>';
 				}
+				foreach ($val->get_error_codes() as $code) {
+ 					if ('already_exists' == $code) $this->print_delete_old_dirs_form(false);
+				}
 				echo '</div>'; //close the updraft_restore_progress div even if we error
 				restore_error_handler();
 				return $val;
@@ -3012,7 +3031,7 @@ ENDHERE;
 			$second_loop[$type] = $files;
 		}
 		$updraftplus_restorer->delete = (UpdraftPlus_Options::get_updraft_option('updraft_delete_local')) ? true : false;
-		if ('none' === $service || empty($service) || (is_array($service) && 1 == count($service) && (in_array('none', $service) || in_array('', $service)))) {
+		if ('none' === $service || 'email' === $service || empty($service) || (is_array($service) && 1 == count($service) && (in_array('none', $service) || in_array('', $service) || in_array('email', $service)))) {
 			if ($updraftplus_restorer->delete) $updraftplus->log_e('Will not delete any archives after unpacking them, because there was no cloud storage for this backup');
 			$updraftplus_restorer->delete = false;
 		}

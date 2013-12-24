@@ -54,17 +54,17 @@ Are you able to translate UpdraftPlus into another language? Are you ready to he
 
 Many thanks to the existing translators:
 
-* русский / Russian (ru_RU): Илья Худолей (Ilya Khudoley) - ironman_c at icloud.com and Igor Ocheretny (http://wpsells.com)
+* русский / Russian (ru_RU): Илья Худолей (Ilya Khudoley) - ironman_c at icloud.com and Igor Ocheretny (http://wpsells.com) - also see Igor's free training videos at: http://goodbackup.wpsells.com/
 * Ελληνική  / Greek translation (el): Κώστας Θερμογιάννης (Kostas Thermoyiannis) - http://tovivlio.net
 * Français / French translation (fr_FR): ufo3D - http://ufo-3d.fr and Thomas Jacobsen - http://123informatique.ch - with help from Françoise Lhermitte - http://www.ajwan.net
 * Swedish / Svensk (sv_SE): Steve Sandström - http://www.brandicon.se
 * Polski / Polish (pl_PL): Bartosz Kaczmarek - barth.kaczmarek at gmail.com
 * Chinese (zh_CN): K L Wang - http://klwang.info
 * Italiano / Italian (it_IT): Francesco Carpana - f.carpana at gmail.com
+* Deutsch / German (de_DE): Marcel Herrguth - mherrguth at mrgeneration.de
 
 And to these (need updating or new translators; now less than 50% translated):
 * Español / Spanish (es_ES): Fernando Villasmil - villasmil.fernando at gmail.com
-* Deutsch / German (de_DE): Marcel Herrguth - mherrguth at mrgeneration.de
 * Magyar / Hungarian (hu_HU): Szépe Viktor - http://www.szepe.net
 * Nederlands / Dutch (nl_NL): Hans van der Vlist - hansvandervlist at gmail.com
 
@@ -135,7 +135,10 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 = Development version (not yet supported/released) =
 
 * FEATURE: Add option to exclude specified files from the 'uploads' backup. The default option will omit backing up backups created by at least 2 other backup plugins.
+* FIX: When advising the user that his remaining Dropbox quota is insufficient, take into account parts of the file already uploaded
 * TWEAK: Give more feedback to user when FTP login fails. Also, improve automatic switch to non-SSL FTP if SSL FTP fails to cover more situations.
+* TWEAK: Add informational text about the implications of not choosing any remote storage method
+* TWEAK: Supply the "Delete Old Directories" button directly with the message advising users to press it
 * TWEAK: If using WP Slimstats, don't search/replace the slimstats table when migrating (referer data should be left intact); and this table is often gigantic, so this hugely speeds up restores/migrations
 * TWEAK: Handle odd file permissions setups more skilfully when restoring/migrating
 * TWEAK: Automatically rescan for new backup sets if none were previously known (saves a click when manually importing)
@@ -145,7 +148,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 = 1.8.2 - 2013/12/13 =
 
 * FIX: Various small fixes to the initial release of 1.8.1
-* TWEAK: Restorer now switches theme if database is restored to indicate a non-existent theme, and Migrator temporarily disables cacheing plugins during during Migration
+* TWEAK: Restorer now switches theme if database is restored to indicate a non-existent theme, and Migrator temporarily disables cacheing plugins during Migration
 * TWEAK: Improve handling of MySQL's maximum packet size - attempt to raise it, and leave some margin
 * TWEAK: Move the Rackspace SDK around to prevent problems on systems with limited maximum pathname lengths
 * TWEAK: Provide a link to the log file at the top of the restoration page

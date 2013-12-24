@@ -8,12 +8,13 @@ Version: 1.8.3
 Donate link: htpt://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
+Domain Path: /languages
 Author URI: http://updraftplus.com
 */
 
 /*
 TODO - some of these are out of date/done, needs pruning
-// On plugins restore, don't let UD over-write itself
+// On plugins restore, don't let UD over-write itself - because this usually means a down-grade. Since upgrades are db-compatible, there's no reason to downgrade.
 // Schedule a task to report on failure
 // When doing AJAX pre-restore check capture all PHP notices and dump them in our 'warning' array (don't let them go to browser directly and break the JSON)
 // Tweak the display so that users seeing resumption messages don't think it's stuck
@@ -24,10 +25,12 @@ TODO - some of these are out of date/done, needs pruning
 // Add a cart notice if people have DBSF=quantity1
 // Don't set file permissions post-restore tighter than they were before
 // Pre-schedule resumptions that we know will be scheduled later
+// Make SFTP chunked (there is a new stream wrapper)
 // If we're on the last resumption, zipping, and nothing's succeeded for a while, then auto-split
 // After Oct 15 2013: Remove page(s) from websites discussing W3TC
 // Change add-ons screen, to be less confusing for people who haven't yet updated but have connected
 // Change migrate window: 1) Retain link to article 2) Have selector to choose which backup set to migrate - or a fresh one 3) Have option for FTP/SFTP/SCP despatch 4) Have big "Go" button. Have some indication of what happens next. Test the login first. Have the remote site auto-scan its directory + pick up new sets. Have a way of querying the remote site for its UD-dir. Have a way of saving the settings as a 'profile'. Or just save the last set of settings (since mostly will be just one place to send to). Implement an HTTP/JSON method for sending files too.
+// Post restore, do an AJAX get for the site; if this results in a 500, then auto-turn-on WP_DEBUG
 // Place in maintenance mode during restore - ?
 // Add FAQ about upgrades
 // Test Azure: https://blogs.technet.com/b/blainbar/archive/2013/08/07/article-create-a-wordpress-site-using-windows-azure-read-on.aspx?Redirected=true

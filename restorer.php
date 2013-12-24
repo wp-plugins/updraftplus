@@ -351,7 +351,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		# Check upgrade directory is writable (instead of having non-obvious messages when we try to write)
 		# In theory, this is redundant (since we already checked for access to WP_CONTENT_DIR); but in practice, this extra check has been needed
 
-		global $wp_filesystem, $updraftplus, $updraftplus_addons_migrator;
+		global $wp_filesystem, $updraftplus, $updraftplus_admin, $updraftplus_addons_migrator;
 
 		if (empty($this->pre_restore_updatedir_writable)) {
 			$upgrade_folder = $wp_filesystem->wp_content_dir() . 'upgrade/';
@@ -385,7 +385,8 @@ class Updraft_Restorer extends WP_Upgrader {
 		if (('plugins' == $type || 'uploads' == $type || 'themes' == $type) && (!is_multisite() || $this->ud_backup_is_multisite !== 0 || ('uploads' != $type || empty($updraftplus_addons_migrator->new_blogid )))) {
 // 			if ($wp_filesystem->exists($wp_filesystem_dir.'-old')) {
 			if (file_exists($updraft_dir.'/'.basename($wp_filesystem_dir)."-old")) {
-				$ret_val = new WP_Error('already_exists', sprintf(__('An existing unremoved backup from a previous restore exists (please use the "Delete Old Directories" button to delete it before trying again): %s', 'updraftplus'), $wp_filesystem_dir.'-old'));
+				$ret_val = new WP_Error('already_exists', sprintf(__('Existing unremoved folders from a previous restore exist (please use the "Delete Old Directories" button to delete them before trying again): %s', 'updraftplus'), $wp_filesystem_dir.'-old'));
+
 			} else {
 				// No longer used - since we now do not move the directories themselves
 // 				# File permissions test; see if we can move the directory back and forth
