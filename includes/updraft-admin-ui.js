@@ -650,9 +650,7 @@ uploader.bind('UploadProgress', function(up, file) {
 });
 
 uploader.bind('Error', function(up, error) {
-	
 	alert(updraftlion.uploaderr+' (code '+error.code+') : '+error.message+' '+updraftlion.makesure);
-	
 });
 
 
