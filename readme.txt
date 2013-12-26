@@ -138,6 +138,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * FEATURE: Add option to exclude specified files from the 'uploads' backup. The default option will omit backing up backups created by at least 2 other backup plugins.
 * FEATURE: New Brazilian Portuguese translation - thanks to Lucien Raven and Tom Fonseca
 * FIX: When advising the user that his remaining Dropbox quota is insufficient, take into account parts of the file already uploaded
+* FIX: Delete Old Directories button in 1.8.2 was using a PHP 5.3+ feature: restore PHP 5.2 compatibility
 * TWEAK: Give more feedback to user when FTP login fails. Also, improve automatic switch to non-SSL FTP if SSL FTP fails to cover more situations.
 * TWEAK: Add informational text about the implications of not choosing any remote storage method
 * TWEAK: Supply the "Delete Old Directories" button directly with the message advising users to press it
