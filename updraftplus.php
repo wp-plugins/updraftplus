@@ -2190,10 +2190,22 @@ class UpdraftPlus {
 	}
 
 	public function remove_local_directory($dir) {
-		foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST) as $path) {
-			$path->isFile() ? unlink($path->getPathname()) : rmdir($path->getPathname());
+		//foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST) as $path) {
+		//	$path->isFile() ? unlink($path->getPathname()) : rmdir($path->getPathname());
+		//}
+		//return rmdir($dir);
+		$d = dir($dir);
+		while (false !== ($entry = $d->read())) {
+			if ('.' !== $entry && '..' !== $entry) {
+				if (is_dir($dir.'/'.$entry)) {
+					$this->remove_local_directory($dir.'/'.$entry, false);
+				} else {
+					@unlink($dir.'/'.$entry);
+				}
+			}
 		}
-		return rmdir($dir);
+		$d->close();
+		return ($contents_only) ? true : rmdir($dir);
 	}
 
 	// Returns without any trailing slash
