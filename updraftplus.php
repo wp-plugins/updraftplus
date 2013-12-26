@@ -330,7 +330,10 @@ class UpdraftPlus {
 		if (!is_resource($handle)) return false;
 
 		$found = false;
-		while (false === $found && !feof($handle)) {
+
+                $lines = 0;
+                while (false === $found && !feof($handle) && $lines<100) {
+                        $lines++;
 			$w = fgets($handle);
 			# Used, limit, remain
 			if (preg_match('/RESULT: (\d+) (\d+) (\d+) /', $w, $matches)) { $found = true; }
