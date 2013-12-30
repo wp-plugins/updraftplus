@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.8.3
+Version: 1.8.4
 Donate link: htpt://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -339,10 +339,12 @@ class UpdraftPlus {
 		$exec = "UPDRAFTPLUSKEY=updraftplus $perl ".UPDRAFTPLUS_DIR."/includes/get-cpanel-quota-usage.pl";
 
 		$handle = @popen($exec, 'r');
-		if (false === $handle) return false;
+		if (!is_resource($handle)) return false;
 
 		$found = false;
-		while (false === $found && !feof($handle)) {
+		$lines = 0;
+		while (false === $found && !feof($handle) && $lines<100) {
+			$lines++;
 			$w = fgets($handle);
 			# Used, limit, remain
 			if (preg_match('/RESULT: (\d+) (\d+) (\d+) /', $w, $matches)) { $found = true; }
