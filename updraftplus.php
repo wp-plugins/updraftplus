@@ -148,6 +148,7 @@ TODO - some of these are out of date/done, needs pruning
 // Save database encryption key inside backup history on per-db basis, so that if it changes we can still decrypt
 // Switch to Google Drive SDK. Google folders. https://developers.google.com/drive/folder
 // AJAX-ify restoration
+// Warn Premium users before de-activating not to update whilst inactive
 // Ability to re-scan existing cloud storage
 // Dropbox uses one mcrypt function - port to phpseclib for more portability
 // Store meta-data on which version of UD the backup was made with (will help if we ever introduce quirks that need ironing)

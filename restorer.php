@@ -1154,13 +1154,8 @@ class Updraft_Restorer extends WP_Upgrader {
 
 	}
 
-	function sql_exec($sql_line, $sql_type) {
-
-		// if (strlen($sql_line) > 100000) {
-		// echo "Length: ".strlen($sql_line)." Mem: ".round(memory_get_usage(true)/1048576, 1)." / ".round(memory_get_usage()/1048576, 1)."<br>";
-		// }
-
-// 		echo "Memory usage (Mb): ".round(memory_get_usage(false)/1048576, 1)." : ".round(memory_get_usage(true)/1048576, 1)."<br>";
+	# UPDATE is sql_type=5 (not used in the function, but used in Migrator and so noted for reference)
+	public function sql_exec($sql_line, $sql_type) {
 
 		global $wpdb, $updraftplus;
 		$ignore_errors = false;
@@ -1173,8 +1168,6 @@ class Updraft_Restorer extends WP_Upgrader {
 				$updraftplus->log_e('Cannot drop tables, so deleting instead (%s)', $sql_line);
 				$ignore_errors = true;
 			}
-// 				echo substr($sql_line, 0, 50)." (".strlen($sql_line).")<br>";
-
 			if ($this->use_wpdb) {
 				$req = $wpdb->query($sql_line);
 				if (!$req) $this->last_error = $wpdb->last_error;
@@ -1189,7 +1182,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			if (!$ignore_errors) $this->errors++;
 			$print_err = (strlen($sql_line) > 100) ? substr($sql_line, 0, 100).' ...' : $sql_line;
 			echo sprintf(_x('An error (%s) occurred:', 'The user is being told the number of times an error has happened, e.g. An error (27) occurred', 'updraftplus'), $this->errors)." - ".htmlspecialchars($this->last_error)." - ".__('the database query being run was:','updraftplus').' '.htmlspecialchars($print_err).'<br>';
-			$updraftplus->log("An error (".$this->errors.") occurred: ".$this->last_error." - SQL query was: ".$sql_line);
+			$updraftplus->log("An error (".$this->errors.") occurred: ".$this->last_error." - SQL query was: ".substr($sql_line, 0, 65536));
 			// First command is expected to be DROP TABLE
 			if (1 == $this->errors && 2 == $sql_type && 0 == $this->tables_created) {
 				return new WP_Error('initial_db_error', __('An error occurred on the first CREATE TABLE command - aborting run','updraftplus'));
@@ -1203,9 +1196,10 @@ class Updraft_Restorer extends WP_Upgrader {
 		if (($this->line)%50 == 0) {
 			if (($this->line)%250 == 0 || $this->line<250) {
 				$time_taken = microtime(true) - $this->start_time;
-				$updraftplus->log_e('Database lines processed: %d in %.2f seconds',$this->line, $time_taken);
+				$updraftplus->log_e('Database queries processed: %d in %.2f seconds',$this->line, $time_taken);
 			}
 		}
+		return $req;
 	}
 
 // 	function option_filter($which) {
