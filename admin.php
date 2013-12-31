@@ -1807,6 +1807,8 @@ CREATE TABLE $wpdb->signups (
 
 	function print_active_job($job_id, $is_oneshot = false, $time = false, $next_resumption = false) {
 
+		$ret = '';
+
 		global $updraftplus;
 		$backupable_entities = $updraftplus->get_backupable_file_entities(true, true);
 
