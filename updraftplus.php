@@ -17,15 +17,17 @@ TODO - some of these are out of date/done, needs pruning
 // On plugins restore, don't let UD over-write itself - because this usually means a down-grade. Since upgrades are db-compatible, there's no reason to downgrade.
 // Schedule a task to report on failure
 // When doing AJAX pre-restore check capture all PHP notices and dump them in our 'warning' array (don't let them go to browser directly and break the JSON)
+// When using FTP, verify that the FTP functions are not disabled (e.g. one.com disable them)
 // Tweak the display so that users seeing resumption messages don't think it's stuck
 // http://www.empsebiz.com/woocommerce/
-// Plugin causing modal problem to check out: The Events Calendar by Modern Tribe
+// Get checkout page to pre-select country by IP address? (Make as free plugin?)
 // Recognise known huge non-core tables on restore, and postpone them to the end (AJAX method?)
 // Add a link on the restore page to the log file
 // Add a cart notice if people have DBSF=quantity1
 // Don't set file permissions post-restore tighter than they were before
 // Pre-schedule resumptions that we know will be scheduled later
 // Make SFTP chunked (there is a new stream wrapper)
+// In WebDAV library, swap all error_log calls for trigger_error, and make sure they get up to the top layer
 // If we're on the last resumption, zipping, and nothing's succeeded for a while, then auto-split
 // After Oct 15 2013: Remove page(s) from websites discussing W3TC
 // Change add-ons screen, to be less confusing for people who haven't yet updated but have connected

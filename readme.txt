@@ -48,6 +48,10 @@ If you need WordPress multisite compatibility (you'll know if you do), <a href="
 
 UpdraftPlus is written by professional WordPress developers. If your site needs guaranteed support, then we are available. Just  <a href="http://updraftplus.com/shop/">go to our shop.</a>
 
+= More premium plugins =
+
+If you are in the market for other WordPress premium plugins (especially WooCommerce addons), then try our shop, here: https://www.simbahosting.co.uk/s3/shop/
+
 = Are you multi-lingual? Can you translate? =
 
 Are you able to translate UpdraftPlus into another language? Are you ready to help speakers of your language? UpdraftPlus itself is ready and waiting - the only work needed is the translating. The translation process is easy, and web-based - go here for instructions: <a href="http://updraftplus.com/translate/">http://updraftplus.com/translate/</a>. (Or if you're an expert WordPress translator already, then just pick out the .pot file from the wp-content/plugins/updraftplus/languages/ directory - if you scan for translatable strings manually, then you need to get these functions: _x(), __(), _e(), _ex(), log_e()).
@@ -137,8 +141,11 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 
 * FEATURE: Add option to exclude specified files from the 'uploads' backup. The default option will omit backing up backups created by at least 2 other backup plugins.
 * FEATURE: New Brazilian Portuguese translation - thanks to Lucien Raven and Tom Fonseca
+* FEATURE: Migrator search/replace now handles JSON and object-encoded data
 * FIX: When advising the user that his remaining Dropbox quota is insufficient, take into account parts of the file already uploaded
 * FIX: Delete Old Directories button in 1.8.2 was using a PHP 5.3+ feature: restore PHP 5.2 compatibility
+* FIX: Reporting add-on was incorrectly inflating the number displayed for the total error count if there were warnings
+* FIX: Prevent a bogus warning appearing when the user has filtered the base table prefix
 * TWEAK: Give more feedback to user when FTP login fails. Also, improve automatic switch to non-SSL FTP if SSL FTP fails to cover more situations.
 * TWEAK: Add informational text about the implications of not choosing any remote storage method
 * TWEAK: Supply the "Delete Old Directories" button directly with the message advising users to press it

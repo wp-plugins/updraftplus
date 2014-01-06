@@ -1946,8 +1946,8 @@ CREATE TABLE $wpdb->signups (
 			$curstage = __('Unknown', 'updraftplus');
 		}
 
-		$runs_started = $jobdata['runs_started'];
-		$time_passed = $jobdata['run_times'];
+		$runs_started = (empty($jobdata['runs_started'])) ? array() : $jobdata['runs_started'];
+		$time_passed = (empty($jobdata['run_times'])) ? array() : $jobdata['run_times'];
 		$last_checkin_ago = -1;
 		if (is_array($time_passed)) {
 			foreach ($time_passed as $run => $passed) {
