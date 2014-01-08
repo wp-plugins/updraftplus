@@ -3,7 +3,7 @@ Contributors: Backup with UpdraftPlus, DavidAnderson
 Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, s3 compatible, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, ftp backup, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp, ftps, scp, migrate, duplicate, copy, updraft, schedule, mysql backup, database backup, db backup, website backup, wordpress backup, full backup
 Requires at least: 3.2
 Tested up to: 3.8
-Stable tag: 1.8.2
+Stable tag: 1.8.5
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -14,9 +14,9 @@ Easy and complete backups + restoration. Manual or automated backups (backup to 
 
 <a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3 (or compatible), Dropbox, Google Drive, Rackspace Cloud, DreamObjects, FTP, SFTP, SCP, WebDAV and email) and restore with a single click. Backups of files and database can have separate schedules.
 
-<strong>Top-quality:</strong> UpdraftPlus is the <a href="http://rankwp.com/plugins/updraftplus">highest-ranking backup plugin on rankwp.com</a> (ranks 16th out of 28,000 WordPress plugins for quality on rankwp.com - last checked 28th September 2013).
+<strong>Top-quality:</strong> UpdraftPlus is the <a href="http://rankwp.com/plugins/updraftplus">highest-ranking backup plugin on rankwp.com</a> (ranks in the top 50 out of 28,000 WordPress plugins for quality on rankwp.com - last checked 8th January 2014).
 
-<strong>Tens of thousands of users:</strong> widely tested and reliable (over 460,000 downloads). Ranks in the top 100 most used of all WordPress plugins on rankwp.com. Millions of backups completed!
+<strong>Tens of thousands of users:</strong> widely tested and reliable (over 510,000 downloads). Ranks in the top 100 most used of all WordPress plugins on rankwp.com. Millions of backups completed!
 
 * Supports WordPress backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP and email. Also (via an add-on) FTP over SSL, SFTP, SCP and WebDAV. (Note: Microsoft forbid SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
 * Quick restore (both file and database backups)
@@ -69,6 +69,7 @@ Many thanks to the existing translators:
 * Deutsch / German (de_DE): Marcel Herrguth - mherrguth at mrgeneration.de
 
 And to these (need updating or new translators; now less than 50% translated):
+
 * Español / Spanish (es_ES): Fernando Villasmil - villasmil.fernando at gmail.com
 * Magyar / Hungarian (hu_HU): Szépe Viktor - http://www.szepe.net
 * Nederlands / Dutch (nl_NL): Hans van der Vlist - hansvandervlist at gmail.com
@@ -137,11 +138,12 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
-= Development version (not yet supported/released) =
+= 1.8.5 - 2014/01/09 =
 
 * FEATURE: Add option to exclude specified files from the 'uploads' backup. The default option will omit backing up backups created by at least 2 other backup plugins.
 * FEATURE: New Brazilian Portuguese translation - thanks to Lucien Raven and Tom Fonseca
 * FEATURE: Migrator search/replace now handles JSON and object-encoded data
+* UPDATED: Updated Swedish translation
 * FIX: When advising the user that his remaining Dropbox quota is insufficient, take into account parts of the file already uploaded
 * FIX: Delete Old Directories button in 1.8.2 was using a PHP 5.3+ feature: restore PHP 5.2 compatibility
 * FIX: Reporting add-on was incorrectly inflating the number displayed for the total error count if there were warnings
@@ -698,7 +700,7 @@ We recognise and thank the following for code and/or libraries used and/or modif
 
 == License ==
 
-    Copyright 2011-3 David Anderson
+    Copyright 2011-4 David Anderson
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -717,4 +719,4 @@ We recognise and thank the following for code and/or libraries used and/or modif
 Furthermore, reliance upon any non-English translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
 
 == Upgrade Notice ==
-* 1.8.2 : Various small tweaks and bugfixes
+* 1.8.5 : Various small tweaks and bugfixes
