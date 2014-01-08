@@ -202,7 +202,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 define('UPDRAFTPLUS_DIR', dirname(__FILE__));
 define('UPDRAFTPLUS_URL', plugins_url('', __FILE__));
 define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,backup*,*backups');
-define('UPDRAFT_DEFAULT_UPLOADS_EXCLUDE','backup*,*backups');
+define('UPDRAFT_DEFAULT_UPLOADS_EXCLUDE','backup*,*backups,backwpup*');
 
 # The following can go in your wp-config.php
 if (!defined('UPDRAFTPLUS_ZIP_EXECUTABLE')) define('UPDRAFTPLUS_ZIP_EXECUTABLE', "/usr/bin/zip,/bin/zip,/usr/local/bin/zip,/usr/sfw/bin/zip,/usr/xdg4/bin/zip,/opt/bin/zip");
