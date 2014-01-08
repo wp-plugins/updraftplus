@@ -288,7 +288,7 @@ class UpdraftPlus {
 
 	// Used to schedule resumption attempts beyond the tenth, if needed
 	public $current_resumption;
-	private $newresumption_scheduled = false;
+	public $newresumption_scheduled = false;
 
 	function __construct() {
 
