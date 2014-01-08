@@ -834,6 +834,12 @@ class UpdraftPlus_Backup {
 		$all_tables = $wpdb->get_results("SHOW TABLES", ARRAY_N);
 		$all_tables = array_map(create_function('$a', 'return $a[0];'), $all_tables);
 
+		if (0 == count($all_tables)) {
+			$updraftplus->log("Error: No database tables found (SHOW TABLES returned nothing)");
+			$updraftplus->log(__("No database tables found", 'updraftplus'), 'error');
+			return false;
+		}
+
 		// Put the options table first
 		usort($all_tables, array($this, 'backup_db_sorttables'));
 
@@ -957,7 +963,7 @@ class UpdraftPlus_Backup {
 			$updraftplus->log("{$table_file}.gz ($sind/$how_many_tables): adding to final database dump");
 			if (!$handle = gzopen($this->updraft_dir.'/'.$table_file.'.gz', "r")) {
 				$updraftplus->log("Error: Failed to open database file for reading: ${table_file}.gz");
-				$updraftplus->log("Failed to open database file for reading: ${table_file}.gz", 'error');
+				$updraftplus->log(__("Failed to open database file for reading:", 'updraftplus').' '.$table_file.'.gz', 'error');
 				$errors++;
 			} else {
 				while ($line = gzgets($handle, 2048)) { $this->stow($line); }

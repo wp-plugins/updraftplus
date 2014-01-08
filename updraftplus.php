@@ -645,7 +645,7 @@ class UpdraftPlus {
 	public function log($line, $level = 'notice', $uniq_id = false) {
 
 		if ('error' == $level || 'warning' == $level) {
-			if ('error' == $level && $this->error_count() == 0) $this->log("An error condition has occurred for the first time during this job");
+			if ('error' == $level && 0 == $this->error_count()) $this->log('An error condition has occurred for the first time during this job');
 			if ($uniq_id) {
 				$this->errors[$uniq_id] = array('level' => $level, 'message' => $line);
 			} else {
@@ -667,7 +667,7 @@ class UpdraftPlus {
 		if ($this->logfile_handle) {
 			# Record log file times relative to the backup start, if possible
 			$rtime = (!empty($this->job_time_ms)) ? microtime(true)-$this->job_time_ms : microtime(true)-$this->opened_log_time;
-			fwrite($this->logfile_handle, sprintf("%08.03f", round($rtime, 3))." (".$this->current_resumption.") $line\n");
+			fwrite($this->logfile_handle, sprintf("%08.03f", round($rtime, 3))." (".$this->current_resumption.") ".(('notice' != $level) ? '['.ucfirst($level).'] ' : '').$line."\n");
 		}
 
 		switch ($this->jobdata_get('job_type')) {
@@ -2321,6 +2321,11 @@ class UpdraftPlus {
 	public function retain_range($input) {
 		$input = (int)$input;
 		return  ($input > 0 && $input < 3650) ? $input : 1;
+	}
+
+	public function replace_http_with_webdav($input) {
+		if (!empty($input['url']) && 'http' == substr($input['url'], 0, 4)) $input['url'] = 'webdav'.substr($input['url'], 4);
+		return $input;
 	}
 
 	public function just_one_email($input, $required = false) {

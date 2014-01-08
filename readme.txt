@@ -138,6 +138,12 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
+= Development version: not yet released/supported =
+
+* TWEAK: Automatically change http(s):// to webdav(s):// in WebDAV URLs if the user overlooks the instructions
+* TWEAK: If SHOW TABLES returns no tables, then schedule a re-try later (presume the DB connection had been dropped)
+* TWEAK: Preceed warnings in the log file with [Warning]
+
 = 1.8.5 - 2014/01/09 =
 
 * FEATURE: Add option to exclude specified files from the 'uploads' backup. The default option will omit backing up backups created by at least 2 other backup plugins.
