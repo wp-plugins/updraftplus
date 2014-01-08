@@ -695,7 +695,17 @@ class UpdraftPlus_Backup {
 							A string containing a list of filename or dirname separated by a comma.
 						*/
 
-						$dirlist = ('others' == $youwhat) ? $updraftplus->backup_others_dirlist() : $whichdir;
+						if ('others' == $youwhat) {
+							$dirlist = $updraftplus->backup_others_dirlist();
+						} elseif ('uploads' == $youwhat) {
+							$dirlist = $updraftplus->backup_uploads_dirlist();
+							#create_zip($create_from_dir, $whichone, $backup_file_basename, $index) {
+							foreach ($dirlist as $dir) {
+							
+							}
+						} else {
+							$dirlist = $whichdir;
+						}
 
 						if (count($dirlist)>0) {
 							$created = $this->create_zip($dirlist, $youwhat, $backup_file_basename, $index);
@@ -849,7 +859,7 @@ class UpdraftPlus_Backup {
 			// The table file may already exist if we have produced it on a previous run
 			$table_file_prefix = $file_base.'-db-table-'.$table.'.table';
 
-			if ($this->table_prefix.'options' == $table) $found_options_table = true;
+			if ($this->table_prefix_raw.'options' == $table) $found_options_table = true;
 
 			if (file_exists($this->updraft_dir.'/'.$table_file_prefix.'.gz')) {
 				$updraftplus->log("Table $table: corresponding file already exists; moving on");
@@ -1281,7 +1291,7 @@ class UpdraftPlus_Backup {
 	}
 
 	// This function recursively packs the zip, dereferencing symlinks but packing into a single-parent tree for universal unpacking
-	private function makezip_recursive_add($fullpath, $use_path_when_storing, $original_fullpath) {
+	private function makezip_recursive_add($fullpath, $use_path_when_storing, $original_fullpath, $startlevels = 1) {
 
 		$zipfile = $this->zip_basename.(($this->index == 0) ? '' : ($this->index+1)).'.zip.tmp';
 
@@ -1292,7 +1302,7 @@ class UpdraftPlus_Backup {
 		$original_fullpath = realpath($original_fullpath);
 
 		// Is the place we've ended up above the original base? That leads to infinite recursion
-		if (($fullpath !== $original_fullpath && strpos($original_fullpath, $fullpath) === 0) || ($original_fullpath == $fullpath && strpos($use_path_when_storing, '/') !== false) ) {
+		if (($fullpath !== $original_fullpath && strpos($original_fullpath, $fullpath) === 0) || ($original_fullpath == $fullpath && ((1== $startlevels && strpos($use_path_when_storing, '/') !== false) || (2 == $startlevels && substr_count($use_path_when_storing, '/') >1)))) {
 			$updraftplus->log("Infinite recursion: symlink lead us to $fullpath, which is within $original_fullpath");
 			$updraftplus->log(__("Infinite recursion: consult your log for more information",'updraftplus'), 'error');
 			return false;
@@ -1329,7 +1339,7 @@ class UpdraftPlus_Backup {
 								$updraftplus->log(sprintf(__("%s: unreadable file - could not be backed up"), $deref), 'warning');
 							}
 						} elseif (is_dir($deref)) {
-							$this->makezip_recursive_add($deref, $use_path_when_storing.'/'.$e, $original_fullpath);
+							$this->makezip_recursive_add($deref, $use_path_when_storing.'/'.$e, $original_fullpath, $startlevels);
 						}
 					} elseif (is_file($fullpath.'/'.$e)) {
 						if (is_readable($fullpath.'/'.$e)) {
@@ -1342,7 +1352,7 @@ class UpdraftPlus_Backup {
 						}
 					} elseif (is_dir($fullpath.'/'.$e)) {
 						// no need to addEmptyDir here, as it gets done when we recurse
-						$this->makezip_recursive_add($fullpath.'/'.$e, $use_path_when_storing.'/'.$e, $original_fullpath);
+						$this->makezip_recursive_add($fullpath.'/'.$e, $use_path_when_storing.'/'.$e, $original_fullpath, $startlevels);
 					}
 				}
 			}
@@ -1455,7 +1465,13 @@ class UpdraftPlus_Backup {
 		$this->makezip_recursive_batchedbytes = 0;
 		if (!is_array($source)) $source=array($source);
 		foreach ($source as $element) {
-			$add_them = $this->makezip_recursive_add($element, basename($element), $element);
+			#makezip_recursive_add($fullpath, $use_path_when_storing, $original_fullpath, $startlevels = 1)
+			if ('uploads' == $whichone) {
+				$dirname = dirname($element);
+				$add_them = $this->makezip_recursive_add($element, basename($dirname).'/'.basename($element), $element, 2);
+			} else {
+				$add_them = $this->makezip_recursive_add($element, basename($element), $element);
+			}
 			if (is_wp_error($add_them) || false === $add_them) $error_occurred = true;
 		}
 

@@ -17,7 +17,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 
 	public function get_service($user, $apikey, $authurl, $useservercerts = false, $disablesslverify = null, $region = null) {
 
-		require_once(UPDRAFTPLUS_DIR.'/opencloud/autoload.php');
+		require_once(UPDRAFTPLUS_DIR.'/oc/autoload.php');
 
 		global $updraftplus;
 
@@ -391,7 +391,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 			return;
 		}
 
-		echo __('Success', 'updraftplus').": ${container_verb}".__('We accessed the container, and were able to create files within it.', 'updraftplus');
+		echo __('Success', 'updraftplus').": ".__('We accessed the container, and were able to create files within it.', 'updraftplus');
 
 		try {
 			if (!empty($object)) @$object->delete();
