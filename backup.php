@@ -835,9 +835,10 @@ class UpdraftPlus_Backup {
 		$all_tables = array_map(create_function('$a', 'return $a[0];'), $all_tables);
 
 		if (0 == count($all_tables)) {
-			$updraftplus->log("Error: No database tables found (SHOW TABLES returned nothing)");
-			$updraftplus->log(__("No database tables found", 'updraftplus'), 'error');
-			return false;
+			$extra = ($updraftplus->newresumption_scheduled) ? ' - '.__('please wait for the rescheduled attempt', 'updraftplus') : '';
+			$updraftplus->log("Error: No database tables found (SHOW TABLES returned nothing)".$extra);
+			$updraftplus->log(__("No database tables found", 'updraftplus').$extra, 'error');
+			die;
 		}
 
 		// Put the options table first
