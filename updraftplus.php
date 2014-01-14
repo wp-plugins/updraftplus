@@ -589,7 +589,7 @@ class UpdraftPlus {
 		if (version_compare(phpversion(), '5.2.0', '>=') && extension_loaded('zip')) {
 			$logline .= 'Y';
 		} else {
-			$logline .= (method_exists('ZipArchive', 'addFile')) ? "Y" : "N";
+			$logline .= (class_exists('ZipArchive') && method_exists('ZipArchive', 'addFile')) ? "Y" : "N";
 		}
 
 		$w3oc = 'N';
