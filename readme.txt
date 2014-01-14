@@ -134,6 +134,7 @@ Yes; especially before you submit any support requests.
 
 Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ .
 
+
 == Changelog ==
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
@@ -143,6 +144,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Automatically change http(s):// to webdav(s):// in WebDAV URLs if the user overlooks the instructions
 * TWEAK: If SHOW TABLES returns no tables, then schedule a re-try later (presume the DB connection had been dropped)
 * TWEAK: Preceed warnings in the log file with [Warning]
+* TWEAK: Prevent a very rare PHP segfault due to https://bugs.php.net/bug.php?id=51425
 
 = 1.8.5 - 2014/01/09 =
 
