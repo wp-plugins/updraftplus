@@ -40,7 +40,7 @@ class Updraft_Restorer extends WP_Upgrader {
 	function unpack_package_zip($package, $delete_package = true) {
 		global $wp_filesystem;
 
-		$this->skin->feedback('unpack_package');
+		$this->skin->feedback($this->strings['unpack_package'].' ('.basename($package).')');
 
 		$upgrade_folder = $wp_filesystem->wp_content_dir() . 'upgrade/';
 

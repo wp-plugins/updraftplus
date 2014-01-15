@@ -145,6 +145,8 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: If SHOW TABLES returns no tables, then schedule a re-try later (presume the DB connection had been dropped)
 * TWEAK: Preceed warnings in the log file with [Warning]
 * TWEAK: Prevent a very rare PHP segfault due to https://bugs.php.net/bug.php?id=51425
+* TWEAK: Show the filename being unpacked (helps with troubleshooting if there are very many zips)
+* TWEAK: Premium plugin now shows information about pending/past update/support expiries + links to renewal page
 
 = 1.8.5 - 2014/01/09 =
 

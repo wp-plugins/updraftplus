@@ -18,8 +18,10 @@ TODO - some of these are out of date/done, needs pruning
 // Schedule a task to report on failure
 // When doing AJAX pre-restore check capture all PHP notices and dump them in our 'warning' array (don't let them go to browser directly and break the JSON)
 // When using FTP, verify that the FTP functions are not disabled (e.g. one.com disable them)
+// Renewal warning is sending them to shop... instead, send them to a 'renewals' page which gives them instructions + the coupon
 // Tweak the display so that users seeing resumption messages don't think it's stuck
 // http://www.empsebiz.com/woocommerce/
+// Store/show current Dropbox account
 // Get checkout page to pre-select country by IP address? (Make as free plugin?)
 // Recognise known huge non-core tables on restore, and postpone them to the end (AJAX method?)
 // Add a link on the restore page to the log file
@@ -589,7 +591,7 @@ class UpdraftPlus {
 		if (version_compare(phpversion(), '5.2.0', '>=') && extension_loaded('zip')) {
 			$logline .= 'Y';
 		} else {
-			$logline .= (method_exists('ZipArchive', 'addFile')) ? "Y" : "N";
+			$logline .= (class_exists('ZipArchive') && method_exists('ZipArchive', 'addFile')) ? "Y" : "N";
 		}
 
 		$w3oc = 'N';
