@@ -920,7 +920,7 @@ class UpdraftPlus_Backup {
 
 				} else {
 					$total_tables--;
-					$updraftplus->log("Skipping table (lacks our prefix): $table");
+					$updraftplus->log("Skipping table (lacks our prefix (".$this->table_prefix.")): $table");
 				}
 				
 			}
