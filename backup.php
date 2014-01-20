@@ -699,10 +699,6 @@ class UpdraftPlus_Backup {
 							$dirlist = $updraftplus->backup_others_dirlist();
 						} elseif ('uploads' == $youwhat) {
 							$dirlist = $updraftplus->backup_uploads_dirlist();
-							#create_zip($create_from_dir, $whichone, $backup_file_basename, $index) {
-							foreach ($dirlist as $dir) {
-							
-							}
 						} else {
 							$dirlist = $whichdir;
 						}
@@ -920,7 +916,7 @@ class UpdraftPlus_Backup {
 
 				} else {
 					$total_tables--;
-					$updraftplus->log("Skipping table (lacks our prefix): $table");
+					$updraftplus->log("Skipping table (lacks our prefix (".$this->table_prefix.")): $table");
 				}
 				
 			}
@@ -1269,7 +1265,7 @@ class UpdraftPlus_Backup {
 		$this->stow("# Backup of: ".untrailingslashit(site_url())."\n");
 		$this->stow("# Home URL: ".untrailingslashit(home_url())."\n");
 		$this->stow("# Content URL: ".untrailingslashit(content_url())."\n");
-		$this->stow("# Table prefix: ".$this->table_prefix_raw."\n");
+		$this->stow("# Table prefix: ".$this->table_prefix_raw." (".$this->table_prefix.")\n");
 		$this->stow("# Site info: multisite=".(is_multisite() ? '1' : '0')."\n");
 		$this->stow("# Site info: end\n");
 

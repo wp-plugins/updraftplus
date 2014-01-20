@@ -213,7 +213,7 @@ function updraftplus_diskspace_entity(key) {
 }
 
 function updraft_iframe_modal(getwhat, title) {
-	jQuery('#updraft-iframe-modal-innards').html('<iframe width="100%" height="440px" src="'+ajaxurl+'?action=updraft_ajax&subaction='+getwhat+'&nonce='+updraft_credentialtest_nonce+'"></iframe>');
+	jQuery('#updraft-iframe-modal-innards').html('<iframe width="100%" height="430px" src="'+ajaxurl+'?action=updraft_ajax&subaction='+getwhat+'&nonce='+updraft_credentialtest_nonce+'"></iframe>');
 	jQuery('#updraft-iframe-modal').dialog('option', 'title', title).dialog('open');
 }
 
