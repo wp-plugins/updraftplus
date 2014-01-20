@@ -450,8 +450,13 @@ class UpdraftPlus {
 
 	public function get_table_prefix($allow_override = false) {
 		global $wpdb;
-		#if (!empty($wpdb->base_prefix)) return $wpdb->base_prefix;
-		return ($allow_override) ? apply_filters('updraftplus_get_table_prefix', $wpdb->get_blog_prefix(0)) : $wpdb->get_blog_prefix(0);
+		if (is_multisite() && !defined('MULTISITE')) {
+			# In this case (which should only be possible on installs upgraded from pre WP 3.0 WPMU), $wpdb->get_blog_prefix() cannot be made to return the right thing. $wpdb->base_prefix is not explicitly marked as public, so we prefer to use get_blog_prefix if we can, for future compatibility.
+			$prefix = $wpdb->base_prefix;
+		} else {
+			$prefix = $wpdb->get_blog_prefix(0);
+		}
+		return ($allow_override) ? apply_filters('updraftplus_get_table_prefix', $prefix) : $prefix;
 	}
 
 	public function show_admin_warning_unreadablelog() {
@@ -1299,7 +1304,7 @@ class UpdraftPlus {
 
 			# This is just a simple test to catch restorations of old backup sets where the backup includes a resumption of the backup job
 			if ($time_now - $this->backup_time > 172800) {
-				$this->log('This backup began over a 2 days ago: aborting');
+				$this->log('This backup began over 2 days ago: aborting');
 				die;
 			}
 
