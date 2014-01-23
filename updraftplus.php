@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.8.6
+Version: 1.8.7
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -19,13 +19,16 @@ TODO - some of these are out of date/done, needs pruning
 // When doing AJAX pre-restore check capture all PHP notices and dump them in our 'warning' array (don't let them go to browser directly and break the JSON)
 // When using FTP, verify that the FTP functions are not disabled (e.g. one.com disable them)
 // Renewal warning is sending them to shop... instead, send them to a 'renewals' page which gives them instructions + the coupon
+// Detect when the webserver has double-gzipped the db
 // Tweak the display so that users seeing resumption messages don't think it's stuck
 // http://www.empsebiz.com/woocommerce/
 // Store/show current Dropbox account
+// On restore, check for some 'standard' PHP modules (prevents support requests related to them) -e.g. GD, Curl
 // Get checkout page to pre-select country by IP address? (Make as free plugin?)
 // Recognise known huge non-core tables on restore, and postpone them to the end (AJAX method?)
 // Add a link on the restore page to the log file
 // Add a cart notice if people have DBSF=quantity1
+// Pre-restore actually unpack the zips if they are not insanely big (to prevent the restore crashing at this stage if there's a problem)
 // Don't set file permissions post-restore tighter than they were before
 // Pre-schedule resumptions that we know will be scheduled later
 // Make SFTP chunked (there is a new stream wrapper)
@@ -1981,7 +1984,7 @@ class UpdraftPlus {
 	}
 
 	// For detecting another run, and aborting if one was found
-	function check_recent_modification($file) {
+	public function check_recent_modification($file) {
 		if (file_exists($file)) {
 			$time_mod = (int)@filemtime($file);
 			$time_now = time();
@@ -2004,7 +2007,7 @@ class UpdraftPlus {
 		return ($ret > 0);
 	}
 
-	function backup_uploads_dirlist() {
+	public function backup_uploads_dirlist() {
 		# Create an array of directories to be skipped
 		# Make the values into the keys
 		$skip = array_flip(preg_split("/,/", UpdraftPlus_Options::get_updraft_option('updraft_include_uploads_exclude', UPDRAFT_DEFAULT_UPLOADS_EXCLUDE)));
@@ -2013,7 +2016,7 @@ class UpdraftPlus {
 		return $this->compile_folder_list_for_backup($uploads_dir, array(), $skip);
 	}
 
-	function backup_others_dirlist() {
+	public function backup_others_dirlist() {
 		# Create an array of directories to be skipped
 		# Make the values into the keys
 		$skip = array_flip(preg_split("/,/", UpdraftPlus_Options::get_updraft_option('updraft_include_others_exclude', UPDRAFT_DEFAULT_OTHERS_EXCLUDE)));
@@ -2039,7 +2042,7 @@ class UpdraftPlus {
 	}
 
 	// avoid_these_dirs and skip_these_dirs ultimately do the same thing; but avoid_these_dirs takes full paths whereas skip_these_dirs takes basenames; and they are logged differently (dirs in avoid are potentially dangerous to include; skip is just a user-level preference). They are allowed to overlap.
-	function compile_folder_list_for_backup($backup_from_inside_dir, $avoid_these_dirs, $skip_these_dirs) {
+	public function compile_folder_list_for_backup($backup_from_inside_dir, $avoid_these_dirs, $skip_these_dirs) {
 
 		// Entries in $skip_these_dirs are allowed to end in *, which means "and anything else as a suffix". It's not a full shell glob, but it covers what is needed to-date.
 
@@ -2126,7 +2129,7 @@ class UpdraftPlus {
 		return (isset($backup_history[$timestamp])) ? $backup_history[$timestamp] : array();
 	}
 
-	function terminate_due_to_activity($file, $time_now, $time_mod) {
+	public function terminate_due_to_activity($file, $time_now, $time_mod) {
 		# We check-in, to avoid 'no check in last time!' detectors firing
 		$this->record_still_alive();
 		$file_size = file_exists($file) ? round(filesize($file)/1024,1). 'Kb' : 'n/a';

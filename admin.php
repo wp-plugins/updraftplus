@@ -620,7 +620,9 @@ class UpdraftPlus_Admin {
 						} else {
 							$itext = (0 == $index) ? '' : $index;
 							if (!empty($backups[$timestamp][$type.$itext.'-size']) && $backups[$timestamp][$type.$itext.'-size'] != filesize($updraft_dir.'/'.$file)) {
-								$warn[] = sprintf(__('File (%s) was found, but has a different size (%s) from what was expected (%s) - it may be corrupt.', 'updraftplus'), $file, filesize($updraft_dir.'/'.$file), $backups[$timestamp][$type.$itext.'-size']);
+								if (empty($warn['doublecompressfixed'])) {
+									$warn[] = sprintf(__('File (%s) was found, but has a different size (%s) from what was expected (%s) - it may be corrupt.', 'updraftplus'), $file, filesize($updraft_dir.'/'.$file), $backups[$timestamp][$type.$itext.'-size']);
+								}
 							}
 							do_action_ref_array("updraftplus_checkzip_$type", array($updraft_dir.'/'.$file, &$mess, &$warn, &$err));
 						}
@@ -1007,8 +1009,8 @@ class UpdraftPlus_Admin {
 			return array($mess, $warn, $err);
 		}
 
-		$dbhandle = gzopen($db_file, 'r');
-		if (!$dbhandle) {
+		$dbhandle = $this->gzopen_for_read($db_file, $warn, $err);
+		if (!is_resource($dbhandle)) {
 			$err[] =  __('Failed to open database file.','updraftplus');
 			return array($mess, $warn, $err);
 		}
@@ -1145,7 +1147,65 @@ CREATE TABLE $wpdb->signups (
 
 	}
 
-	function upload_dir($uploads) {
+	private function gzopen_for_read($file, &$warn, &$err) {
+		if (false === ($dbhandle = gzopen($file, 'r'))) return false;
+		if (false === ($bytes = gzread($dbhandle, 3))) return false;
+		# Double-gzipped?
+		if ('H4sI' != base64_encode($bytes)) {
+			if (0 == gzseek($dbhandle, 0)) {
+				return $dbhandle;
+			} else {
+				@gzclose($dbhandle);
+				return gzopen($file, 'r');
+			}
+		}
+		# Yes, it's double-gzipped
+
+		$what_to_return = false;
+		$mess = __('The database file appears to have been compressed twice - probably the website you downloaded it from had a mis-configured webserver.', 'updraftplus');
+		$messkey = 'doublecompress';
+		$err_msg = '';
+
+		if (false === ($fnew = fopen($file.".tmp", 'w')) || !is_resource($fnew)) {
+
+			@gzclose($dbhandle);
+			$err_msg = __('The attempt to undo the double-compression failed.', 'updraftplus');
+
+		} else {
+
+			@fwrite($fnew, $bytes);
+			$emptimes = 0;
+			while (!gzeof($dbhandle)) {
+				$bytes = @gzread($dbhandle, 131072);
+				if (empty($bytes)) {
+					global $updraftplus;
+					$emptimes++;
+					$updraftplus->log("Got empty gzread ($emptimes times)");
+					if ($emptimes>2) break;
+				} else {
+					@fwrite($fnew, $bytes);
+				}
+			}
+
+			gzclose($dbhandle);
+			fclose($fnew);
+			# On some systems (all Windows?) you can't rename a gz file whilst it's gzopened
+			if (!rename($file.".tmp", $file)) {
+				$err_msg = __('The attempt to undo the double-compression failed.', 'updraftplus');
+			} else {
+				$mess .= ' '.__('The attempt to undo the double-compression succeeded.', 'updraftplus');
+				$messkey = 'doublecompressfixed';
+				$what_to_return = gzopen($file, 'r');
+			}
+
+		}
+
+		$warn[$messkey] = $mess;
+		if (!empty($err_msg)) $err[] = $err_msg;
+		return $what_to_return;
+	}
+
+	public function upload_dir($uploads) {
 		global $updraftplus;
 		$updraft_dir = $updraftplus->backups_dir_location();
 		if (is_writable($updraft_dir)) $uploads['path'] = $updraft_dir;
@@ -1153,16 +1213,16 @@ CREATE TABLE $wpdb->signups (
 	}
 
 	// We do actually want to over-write
-	function unique_filename_callback($dir, $name, $ext) {
+	public function unique_filename_callback($dir, $name, $ext) {
 		return $name.$ext;
 	}
 
-	function sanitize_file_name($filename) {
+	public function sanitize_file_name($filename) {
 		// WordPress 3.4.2 on multisite (at least) adds in an unwanted underscore
 		return preg_replace('/-db\.gz_\.crypt$/', '-db.gz.crypt', $filename);
 	}
 
-	function plupload_action() {
+	public function plupload_action() {
 		// check ajax nonce
 
 		global $updraftplus;
@@ -1247,7 +1307,7 @@ CREATE TABLE $wpdb->signups (
 		exit;
 	}
 
-	function plupload_action2() {
+	public function plupload_action2() {
 
 		@set_time_limit(900);
 		global $updraftplus;
@@ -1329,7 +1389,7 @@ CREATE TABLE $wpdb->signups (
 	}
 
 
-	function settings_output() {
+	public function settings_output() {
 
 		global $updraftplus;
 

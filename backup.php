@@ -520,7 +520,7 @@ class UpdraftPlus_Backup {
 					if (!$whandle = gzopen($attach.'.gz', 'w')) {
 						$updraftplus->log("Error: Failed to open log file for reading: ".$attach.".gz");
 					} else {
-						while (false !== ($line = @stream_get_line($handle, 2048, "\n"))) {
+						while (false !== ($line = @stream_get_line($handle, 131072, "\n"))) {
 							@gzwrite($whandle, $line."\n");
 						}
 						fclose($handle);
