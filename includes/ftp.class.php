@@ -14,8 +14,7 @@ class UpdraftPlus_ftp_wrapper {
 	public $disable_verify = true;
 	public $login_type = 'non-encrypted';
  
-	public function __construct($host, $username, $password, $port = 21)
-	{
+	public function __construct($host, $username, $password, $port = 21) {
 		$this->host     = $host;
 		$this->username = $username;
 		$this->password = $password;

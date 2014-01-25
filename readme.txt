@@ -150,6 +150,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Premium plugin now shows information about pending/past update/support expiries + links to renewal page
 * TWEAK: Show all defined constants in the debug dialog
 * TWEAK: Detect + deal with situations where the webserver double-gzipped the database file
+* TWEAK: Display a warning in the FTP configuration section if the hosting company disabled FTP functions
 
 = 1.8.5 - 2014/01/09 =
 

@@ -168,8 +168,41 @@ class UpdraftPlus_BackupModule_ftp {
 		<?php
 	}
 
+	private static function ftp_possible() {
+		$funcs_disabled = array();
+		foreach (array('ftp_connect', 'ftp_login', 'ftp_nb_fput') as $func) {
+			if (!function_exists($func)) $funcs_disabled['ftp'][] = $func;
+		}
+		$funcs_disabled = apply_filters('updraftplus_ftp_possible', $funcs_disabled);
+		return (0 == count($funcs_disabled)) ? true : $funcs_disabled;
+	}
+
 	public static function config_print() {
 		global $updraftplus;
+
+		$possible = self::ftp_possible();
+		if (is_array($possible)) {
+			?>
+			<tr class="updraftplusmethod ftp">
+			<th></th>
+			<td>
+			<?php
+				// Check requirements.
+				global $updraftplus_admin;
+				$trans = array(
+					'ftp' => __('regular non-encrypted FTP', 'updraftplus'),
+					'ftpsslimplicit' => __('encrypted FTP (implicit encryption)', 'updraftplus'),
+					'ftpsslexplicit' => __('encrypted FTP (explicit encryption)', 'updraftplus')
+				);
+				foreach ($possible as $type => $missing) {
+					$updraftplus_admin->show_double_warning('<strong>'.__('Warning','updraftplus').':</strong> '. sprintf(__("Your web server's PHP installation has these functions disabled: %s.", 'updraftplus'), implode(', ', $missing)).' '.sprintf(__('Your hosting company must enable these functions before %s can work.', 'updraftplus'), $trans[$type]), 'ftp');
+				}
+			?>
+			</td>
+			</tr>
+			<?php
+		}
+
 		?>
 
 		<tr class="updraftplusmethod ftp">

@@ -2007,19 +2007,23 @@ class UpdraftPlus {
 		return ($ret > 0);
 	}
 
-	public function backup_uploads_dirlist() {
+	public function backup_uploads_dirlist($logit = false) {
 		# Create an array of directories to be skipped
 		# Make the values into the keys
-		$skip = array_flip(preg_split("/,/", UpdraftPlus_Options::get_updraft_option('updraft_include_uploads_exclude', UPDRAFT_DEFAULT_UPLOADS_EXCLUDE)));
+		$exclude = UpdraftPlus_Options::get_updraft_option('updraft_include_uploads_exclude', UPDRAFT_DEFAULT_UPLOADS_EXCLUDE);
+		if ($logit) $this->log("Exclusion option setting (uploads): ".$exclude);
+		$skip = array_flip(preg_split("/,/", $exclude));
 		$wp_upload_dir = wp_upload_dir();
 		$uploads_dir = $wp_upload_dir['basedir'];
 		return $this->compile_folder_list_for_backup($uploads_dir, array(), $skip);
 	}
 
-	public function backup_others_dirlist() {
+	public function backup_others_dirlist($logit = false) {
 		# Create an array of directories to be skipped
 		# Make the values into the keys
-		$skip = array_flip(preg_split("/,/", UpdraftPlus_Options::get_updraft_option('updraft_include_others_exclude', UPDRAFT_DEFAULT_OTHERS_EXCLUDE)));
+		$exclude = UpdraftPlus_Options::get_updraft_option('updraft_include_others_exclude', UPDRAFT_DEFAULT_OTHERS_EXCLUDE);
+		if ($logit) $this->log("Exclusion option setting (others): ".$exclude);
+		$skip = array_flip(preg_split("/,/", $exclude));
 		$possible_backups_dirs = array_flip($this->get_backupable_file_entities(false));
 		return $this->compile_folder_list_for_backup(WP_CONTENT_DIR, $possible_backups_dirs, $skip);
 	}

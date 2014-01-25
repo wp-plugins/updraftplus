@@ -696,9 +696,9 @@ class UpdraftPlus_Backup {
 						*/
 
 						if ('others' == $youwhat) {
-							$dirlist = $updraftplus->backup_others_dirlist();
+							$dirlist = $updraftplus->backup_others_dirlist(true);
 						} elseif ('uploads' == $youwhat) {
-							$dirlist = $updraftplus->backup_uploads_dirlist();
+							$dirlist = $updraftplus->backup_uploads_dirlist(true);
 						} else {
 							$dirlist = $whichdir;
 						}
