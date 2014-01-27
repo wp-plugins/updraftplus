@@ -3,7 +3,7 @@ Contributors: Backup with UpdraftPlus, DavidAnderson
 Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, s3 compatible, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, ftp backup, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp, ftps, scp, migrate, duplicate, copy, updraft, schedule, mysql backup, database backup, db backup, website backup, wordpress backup, full backup
 Requires at least: 3.2
 Tested up to: 3.8.1
-Stable tag: 1.8.5
+Stable tag: 1.8.8
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -139,10 +139,12 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
-= Development version: not yet released/supported =
+= 1.8.8 - 2014/01/27 =
 
 * FIX: Correctly detect table prefix on some WPMU installs that had been upgraded from an earlier version than 3.0 (i.e. very old)
 * FIX: Files directly in wp-content/uploads (not in a sub-directory from a 1.8.5 backup) were being restored one directory too high
+* UPDATED: Updated Swedish, Portuguese and Dutch translations
+* UPDATED: Update root certificates to match latest CURL/Mozilla version
 * TWEAK: Automatically change http(s):// to webdav(s):// in WebDAV URLs if the user overlooks the instructions
 * TWEAK: If SHOW TABLES returns no tables, then schedule a re-try later (presume the DB connection had been dropped)
 * TWEAK: Preceed warnings in the log file with [Warning]
@@ -734,4 +736,4 @@ We recognise and thank the following for code and/or libraries used and/or modif
 Furthermore, reliance upon any non-English translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
 
 == Upgrade Notice ==
-* 1.8.5 : Various small tweaks and bugfixes
+* 1.8.8 : Various small tweaks
