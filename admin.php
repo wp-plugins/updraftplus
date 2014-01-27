@@ -1152,7 +1152,7 @@ CREATE TABLE $wpdb->signups (
 		if (false === ($bytes = gzread($dbhandle, 3))) return false;
 		# Double-gzipped?
 		if ('H4sI' != base64_encode($bytes)) {
-			if (0 == gzseek($dbhandle, 0)) {
+			if (0 === gzseek($dbhandle, 0)) {
 				return $dbhandle;
 			} else {
 				@gzclose($dbhandle);
@@ -1783,7 +1783,7 @@ CREATE TABLE $wpdb->signups (
 	<p>
 		<input type="checkbox" id="backupnow_nodb"> <label for="backupnow_nodb"><?php _e("Don't include the database in the backup", 'updraftplus'); ?></label><br>
 		<input type="checkbox" id="backupnow_nofiles"> <label for="backupnow_nofiles"><?php _e("Don't include any files in the backup", 'updraftplus'); ?></label><br>
-		<input type="checkbox" id="backupnow_nocloud"> <label for="backupnow_nocloud"><?php _e("Don't send this backup to cloud storage", 'updraftplus'); ?></label>
+		<input type="checkbox" id="backupnow_nocloud"> <label for="backupnow_nocloud"><?php _e("Don't send this backup to remote storage", 'updraftplus'); ?></label>
 	</p>
 
 	<p><?php _e('Does nothing happen when you attempt backups?','updraftplus');?> <a href="http://updraftplus.com/faqs/my-scheduled-backups-and-pressing-backup-now-does-nothing-however-pressing-debug-backup-does-produce-a-backup/"><?php _e('Go here for help.', 'updraftplus');?></a></p>

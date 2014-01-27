@@ -8,8 +8,9 @@ class Updraft_Restorer extends WP_Upgrader {
 
 	// This is just used so far for detecting whether we're on the second run for an entity or not.
 	public $been_restored = array();
-
 	public $delete = false;
+
+	private $created_by_version = false;
 
 	function __construct($skin = null) {
 		parent::__construct($skin);
@@ -188,7 +189,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			if (empty($file)) continue;
 
 			// Correctly restore files in 'others' in no directory that were wrongly backed up in versions 1.4.0 - 1.4.48
-			if (('others' == $type || 'wpcore' == $type ) && preg_match('/^([\-_A-Za-z0-9]+\.php)$/', $file, $matches) && $wpfs->exists($working_dir . "/$file/$file")) {
+			if (('others' == $type || 'wpcore' == $type) && preg_match('/^([\-_A-Za-z0-9]+\.php)$/', $file, $matches) && $wpfs->exists($working_dir . "/$file/$file")) {
 				if ('others' == $type) {
 					echo "Found file: $file/$file: presuming this is a backup with a known fault (backup made with versions 1.4.0 - 1.4.48, and sometimes up to 1.6.55 on some Windows servers); will rename to simply $file<br>";
 				} else {
@@ -588,7 +589,7 @@ class Updraft_Restorer extends WP_Upgrader {
 					$this->skin->feedback('moving_old');
 
 					# First, try direct filesystem method into updraft_dir
-					if (1 == $move_old_destination  % 2) {
+					if (1 == $move_old_destination % 2) {
 						# The final 'true' forces direct filesystem access
 						$move_old = @$this->move_backup_in($get_dir, $updraft_dir.'/'.$type.'-old/' , 3, array(), $type, false, true);
 						if (is_wp_error($move_old)) $updraftplus->log_wp_error($move_old);
@@ -629,7 +630,7 @@ class Updraft_Restorer extends WP_Upgrader {
 // 						return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
 // 					}
 // 				} else {
-					$move_in = $this->move_backup_in($move_from,  trailingslashit($wp_filesystem_dir), 3, array(), $type);
+					$move_in = $this->move_backup_in($move_from, trailingslashit($wp_filesystem_dir), 3, array(), $type);
 					if (is_wp_error($move_in)) return $move_in;
 					if (!$move_in) return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
 					$wp_filesystem->rmdir($move_from);
@@ -645,19 +646,32 @@ class Updraft_Restorer extends WP_Upgrader {
 		$this->skin->feedback('cleaning_up');
 
 		if (!$wp_filesystem->delete($working_dir) ) {
-			$updraftplus->log_e('Error: %s', 'updraftplus', $this->strings['delete_failed'].' ('.$working_dir.')');
-			# List contents
-			// No need to make this a restoration-aborting error condition - it's not
-			#return new WP_Error('delete_failed', $this->strings['delete_failed'].' ('.$working_dir.')');
-			$dirlist = $wp_filesystem->dirlist($working_dir, true, true);
-			if (is_array($dirlist)) {
-				echo __('Files found:', 'updraftplus').'<br><ul style="list-style: disc inside;">';
-				foreach ($dirlist as $name => $struc) {
-					echo "<li>".htmlspecialchars($name)."</li>";
+
+			# TODO: Can remove this after 1-Jan-2015; or at least, make it so that it requires the version number to be present.
+			$fixed_it_now = false;
+			# Deal with a corner-case in version 1.8.5
+			if ('uploads' == $type && (empty($this->created_by_version) || (version_compare($this->created_by_version, '1.8.5', '>=') && version_compare($this->created_by_version, '1.8.8', '<')))) {
+				$updraftplus->log("Clean-up failed with uploads: will attempt 1.8.5-1.8.7 fix (".$this->created_by_version.")");
+				$move_in = @$this->move_backup_in(dirname($move_from), trailingslashit($wp_filesystem_dir), 3, array(), $type);
+				$updraftplus->log("Result: ".serialize($move_in));
+				if ($wp_filesystem->delete($working_dir)) $fixed_it_now = true;
+			}
+
+			if (!$fixed_it_now) {
+				$updraftplus->log_e('Error: %s', $this->strings['delete_failed'].' ('.$working_dir.')');
+				# List contents
+				// No need to make this a restoration-aborting error condition - it's not
+				#return new WP_Error('delete_failed', $this->strings['delete_failed'].' ('.$working_dir.')');
+				$dirlist = $wp_filesystem->dirlist($working_dir, true, true);
+				if (is_array($dirlist)) {
+					echo __('Files found:', 'updraftplus').'<br><ul style="list-style: disc inside;">';
+					foreach ($dirlist as $name => $struc) {
+						echo "<li>".htmlspecialchars($name)."</li>";
+					}
+					echo '</ul>';
+				} else {
+					$updraftplus->log_e('Unable to enumerate files in that directory.');
 				}
-				echo '</ul>';
-			} else {
-				$updraftplus->log_e('Unable to enumerate files in that directory.');
 			}
 		}
 
@@ -751,10 +765,11 @@ class Updraft_Restorer extends WP_Upgrader {
 	function get_first_directory($working_dir, $dirnames) {
 		global $wp_filesystem, $updraftplus;
 		$fdirnames = array_flip($dirnames);
-		$dirlist = $wp_filesystem->dirlist($working_dir, true, true);
+		$dirlist = $wp_filesystem->dirlist($working_dir, true, false);
 		if (is_array($dirlist)) {
 			$move_from = false;
 			foreach ($dirlist as $name => $struc) {
+				if (isset($struc['type']) && 'd' != $struc['type']) continue;
 				if (false === $move_from) {
 					if (isset($fdirnames[$name])) {
 						$move_from = $working_dir . "/".$name;
@@ -769,7 +784,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			}
 		} else {
 			# That shouldn't happen. Fall back to default
-			$move_from = $working_dir . "/".$dirname[0];
+			$move_from = $working_dir."/".$dirname[0];
 		}
 		return $move_from;
 	}
@@ -924,7 +939,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		}
 
 		$restoring_table = '';
-		
+
 		$max_allowed_packet = $updraftplus->get_max_packet_size();
 
 		while (!gzeof($dbhandle)) {
@@ -936,6 +951,10 @@ class Updraft_Restorer extends WP_Upgrader {
 					$this->old_siteurl = untrailingslashit($matches[1]);
 					$updraftplus->log_e('<strong>Backup of:</strong> %s', htmlspecialchars($this->old_siteurl));
 					do_action('updraftplus_restore_db_record_old_siteurl', $this->old_siteurl);
+				} elseif (false === $this->created_by_version && preg_match('/^\# Created by UpdraftPlus version ([\d\.]+)/', $buffer, $matches)) {
+					$this->created_by_version = trim($matches[1]);
+					echo '<strong>'.__('Backup created by:', 'updraftplus').'</strong> '.htmlspecialchars($this->created_by_version).'<br>';
+					$updraftplus->log('Backup created by: '.$this->created_by_version);
 				} elseif ('' == $this->old_home && preg_match('/^\# Home URL: (http(.*))$/', $buffer, $matches)) {
 					$this->old_home = untrailingslashit($matches[1]);
 					if ($this->old_siteurl && $this->old_home != $this->old_siteurl) {

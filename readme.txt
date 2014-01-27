@@ -142,6 +142,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 = Development version: not yet released/supported =
 
 * FIX: Correctly detect table prefix on some WPMU installs that had been upgraded from an earlier version than 3.0 (i.e. very old)
+* FIX: Files directly in wp-content/uploads (not in a sub-directory from a 1.8.5 backup) were being restored one directory too high
 * TWEAK: Automatically change http(s):// to webdav(s):// in WebDAV URLs if the user overlooks the instructions
 * TWEAK: If SHOW TABLES returns no tables, then schedule a re-try later (presume the DB connection had been dropped)
 * TWEAK: Preceed warnings in the log file with [Warning]
