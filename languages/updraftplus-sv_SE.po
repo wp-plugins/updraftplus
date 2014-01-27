@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the UpdraftPlus package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-01-08 12:39:54+0000\n"
+"PO-Revision-Date: 2014-01-27 11:56:28+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,17 +10,121 @@ msgstr ""
 "X-Generator: GlotPress/0.1\n"
 "Project-Id-Version: UpdraftPlus\n"
 
+#: methods/ftp.php:195
+msgid "encrypted FTP (explicit encryption)"
+msgstr ""
+
+#: methods/ftp.php:198
+msgid "Your web server's PHP installation has these functions disabled: %s."
+msgstr ""
+
+#: methods/ftp.php:198
+msgid "Your hosting company must enable these functions before %s can work."
+msgstr ""
+
+#: admin.php:1786
+msgid "Don't send this backup to remote storage"
+msgstr ""
+
+#: methods/ftp.php:193
+msgid "regular non-encrypted FTP"
+msgstr ""
+
+#: methods/ftp.php:194
+msgid "encrypted FTP (implicit encryption)"
+msgstr ""
+
+#: restorer.php:956
+msgid "Backup created by:"
+msgstr ""
+
+#: udaddons/options.php:431
+msgid "Available to claim on this site"
+msgstr ""
+
+#: udaddons/updraftplus-addons.php:140
+msgid "To maintain your access to support, please renew."
+msgstr ""
+
+#: udaddons/updraftplus-addons.php:128
+msgid "Your paid access to UpdraftPlus updates for %s add-ons on this site has expired."
+msgstr ""
+
+#: udaddons/updraftplus-addons.php:132
+msgid "Your paid access to UpdraftPlus updates for %s of the %s add-ons on this site will soon expire."
+msgstr ""
+
+#: udaddons/updraftplus-addons.php:132 udaddons/updraftplus-addons.php:134
+msgid "To retain your access, and maintain access to updates (including future features and compatibility with future WordPress releases) and support, please renew."
+msgstr ""
+
+#: udaddons/updraftplus-addons.php:134
+msgid "Your paid access to UpdraftPlus updates for this site will soon expire."
+msgstr ""
+
+#: udaddons/updraftplus-addons.php:138
+msgid "Your paid access to UpdraftPlus support has expired."
+msgstr ""
+
+#: udaddons/updraftplus-addons.php:138
+msgid "To regain your access, please renew."
+msgstr ""
+
+#: udaddons/updraftplus-addons.php:140
+msgid "Your paid access to UpdraftPlus support will soon expire."
+msgstr ""
+
+#: udaddons/updraftplus-addons.php:113
+msgid "Dismiss from main dashboard (for %s weeks)"
+msgstr ""
+
+#: udaddons/updraftplus-addons.php:126
+msgid "Your paid access to UpdraftPlus updates for this site has expired. You will no longer receive updates to UpdraftPlus."
+msgstr ""
+
+#: udaddons/updraftplus-addons.php:126 udaddons/updraftplus-addons.php:128
+msgid "To regain access to updates (including future features and compatibility with future WordPress releases) and support, please renew."
+msgstr ""
+
+#: admin.php:1165
+msgid "The database file appears to have been compressed twice - probably the website you downloaded it from had a mis-configured webserver."
+msgstr ""
+
+#: admin.php:1172 admin.php:1194
+msgid "The attempt to undo the double-compression failed."
+msgstr ""
+
+#: admin.php:1196
+msgid "The attempt to undo the double-compression succeeded."
+msgstr ""
+
+#: admin.php:813
+msgid "Constants"
+msgstr ""
+
+#: backup.php:963
+msgid "Failed to open database file for reading:"
+msgstr ""
+
+#: backup.php:834
+msgid "please wait for the rescheduled attempt"
+msgstr ""
+
+#: backup.php:836
+msgid "No database tables found"
+msgstr ""
+
 #: addons/reporting.php:115
 msgid "Note that warning messages are advisory - the backup process does not stop for them. Instead, they provide information that you might find useful, or that may indicate the source of a problem if the backup did not succeed."
 msgstr "Notera att varningsmeddelanden bara är rådgivande - de avbryter inte backup-processen. De tillhandahåller information som du kan ha nytta av, och som kan indikera vilka orsakerna kan vara om backupen misslyckas."
 
-#: restorer.php:1199
+#: restorer.php:1218
 msgid "Database queries processed: %d in %.2f seconds"
 msgstr "Databas-anrop som bearbetats: %d på %.2f sekunder"
 
 #: addons/migrator.php:641
 msgid "Searching and replacing reached row: %d"
-msgstr "Söker och ersätter nådd rad: %d"
+msgstr "Sök och ersätt nådde till rad: %d"
 
 #: methods/dropbox.php:113
 msgid "Account full: your %s account has only %d bytes left, but the file to be uploaded has %d bytes remaining (total size: %d bytes)"
@@ -30,39 +134,39 @@ msgstr "Kontot fullt: ditt %s-konto har bara %d bytes kvar, men filen som ska la
 msgid "Skipping this table: data in this table (%s) should not be search/replaced"
 msgstr "Hoppar över denna tabell: data i denna tabell (%s) bör er sökas/ersättas"
 
-#: udaddons/updraftplus-addons.php:213 udaddons/updraftplus-addons.php:216
+#: udaddons/updraftplus-addons.php:271 udaddons/updraftplus-addons.php:274
 msgid "Errors occurred:"
 msgstr "Inträffade fel:"
 
-#: admin.php:2899
+#: admin.php:2975
 msgid "Follow this link to download the log file for this restoration (needed for any support requests)."
 msgstr "Följ denna länk för att ladda ner loggfilen för denna återställning (krävs om du begär support)."
 
-#: admin.php:2509
+#: admin.php:2585
 msgid "See this FAQ also."
 msgstr "See också denna FAQ."
 
-#: admin.php:2403
+#: admin.php:2479
 msgid "If you choose no remote storage, then the backups remain on the web-server. This is not recommended (unless you plan to manually copy them to your computer), as losing the web-server would mean losing both your website and the backups in one event."
 msgstr "Om du inte väljer fjärrlagring, då förblir backupen på webbservern. Detta är inte rekommenderat (såvida du inte planerar att manuellt kopiera dem till din dator). Om du mister innehållet på webbservern förlorar du i så fall både webbplatsen och dina backuper samtidigt."
 
-#: admin.php:1628
+#: admin.php:1702
 msgid "Retrieving (if necessary) and preparing backup files..."
 msgstr "Hämtar (om nödvändigt) och förbereder backupfiler..."
 
-#: admin.php:588
+#: admin.php:590
 msgid "The PHP setup on this webserver allows only %s seconds for PHP to run, and does not allow this limit to be raised. If you have a lot of data to import, and if the restore operation times out, then you will need to ask your web hosting company for ways to raise this limit (or attempt the restoration piece-by-piece)."
 msgstr "PHP-inställningarna på denna webbserver tillåter bara %s sekunder för PHP att köra, och tillåter inte att denna gräns höjs. Om du har stora mängder data att importera, eller om återställningsprocessen avbryts (pga time out), då måste du be ditt webbhotell att hjälpa dig höja denna gräns (eller försöka återställa del-för-del)."
 
-#: restorer.php:388
+#: restorer.php:389
 msgid "Existing unremoved folders from a previous restore exist (please use the \"Delete Old Directories\" button to delete them before trying again): %s"
 msgstr "Ej borttagna kataloger från tidigare återställning existerar (vänligen använd \"Ta Bort Gamla Kataloger\"-knappen för att ta bort dem innan du försöker igen: %s"
 
-#: updraftplus.php:2404
+#: updraftplus.php:2424
 msgid "Need high-quality WordPress hosting from WordPress specialists? (Including automatic backups and 1-click installer). Get it from the creators of UpdraftPlus."
 msgstr "Behöver du ett webbhotell av hög kvalitet för WordPress? (Inklusive automatiska backuper och 1-klicks installation). Skaffa det från skaparna av UpdraftPlus."
 
-#: updraftplus.php:601 admin.php:308
+#: updraftplus.php:612 admin.php:308
 msgid "The amount of time allowed for WordPress plugins to run is very low (%s seconds) - you should increase it to avoid backup failures due to time-outs (consult your web hosting company for more help - it is the max_execution_time PHP setting; the recommended value is %s seconds or more)"
 msgstr "Den tid som tillåts för WordPress-tillägg att köras är väldigt låg (%s sekunder) - du bör öka den för att undvika misslyckande vid backup pga time-out (konsultera ditt webbhotell för mer hjälp - det är inställningen för max_execution_time för PHP som behöver höjas; rekommenderat värde är %s sekunder eller mer)"
 
@@ -82,27 +186,27 @@ msgstr "%s: Hoppar över cache-fil (existerar inte)"
 msgid "The Cloud Files object was not found"
 msgstr "Molnfil-objekt hittades inte"
 
-#: includes/ftp.class.php:40 includes/ftp.class.php:43
+#: includes/ftp.class.php:39 includes/ftp.class.php:42
 msgid "The %s connection timed out; if you entered the server correctly, then this is usually caused by a firewall blocking the connection - you should check with your web hosting company."
 msgstr "%s-anslutningen avbröts pga time out; om du angivit servern korrekt beror detta vanligen på att en brandvägg blockarar förbindelsen - du bör kontrollera med ditt webbhotell."
 
-#: admin.php:3091
+#: admin.php:3167
 msgid "The current theme was not found; to prevent this stopping the site from loading, your theme has been reverted to the default theme"
 msgstr "Det nuvarande temat hittades inte: för att förhindra att detta stoppar laddningen av din webbplats har ditt tema återställts till det förvalda (default)"
 
-#: admin.php:1342
+#: admin.php:1416
 msgid "Restore failed..."
 msgstr "Återställning misslyckades..."
 
-#: admin.php:879
+#: admin.php:895
 msgid "Messages:"
 msgstr "Meddelanden:"
 
-#: restorer.php:1017
+#: restorer.php:1036
 msgid "An SQL line that is larger than the maximum packet size and cannot be split was found; this line will not be processed, but will be dropped: %s"
 msgstr "En SQL-rad som är längre än maximal paketstorlek och som inte kan delas hittades; denna rad kommer inte att processas, utan utelämnas: %s"
 
-#: restorer.php:176
+#: restorer.php:177
 msgid "The directory does not exist"
 msgstr "Katalogen existerar inte"
 
@@ -267,11 +371,11 @@ msgstr "Kunde inte komma åt Cloud Files lagringsplats"
 msgid "Create"
 msgstr "Skapa"
 
-#: restorer.php:1184
+#: restorer.php:1203
 msgid "An error (%s) occurred:"
 msgstr "Ett fel (%s) inträffade:"
 
-#: restorer.php:1188
+#: restorer.php:1207
 msgid "An error occurred on the first CREATE TABLE command - aborting run"
 msgstr "Ett fel inträffade vid första CREATE TABLE-kommandot - körning avbryts"
 
@@ -283,7 +387,7 @@ msgstr "Den nya användarens RackSpace konsol-lösenord är (kommer inte att vis
 msgid "Trying..."
 msgstr "Försöker..."
 
-#: backup.php:923
+#: backup.php:926
 msgid "The database backup appears to have failed - the options table was not found"
 msgstr "Databas-backupen verkar ha misslyckats - options-tabellen kunde inte hittas"
 
@@ -291,59 +395,59 @@ msgstr "Databas-backupen verkar ha misslyckats - options-tabellen kunde inte hit
 msgid "(when decrypted)"
 msgstr "(dekrypterad)"
 
-#: admin.php:3067
+#: admin.php:3143
 msgid "Error data:"
 msgstr "Feldata:"
 
-#: admin.php:2859
+#: admin.php:2935
 msgid "Backup does not exist in the backup history"
 msgstr "Backup existerar inte i backup-historiken"
 
-#: admin.php:1502
+#: admin.php:1576
 msgid "This button is disabled because your backup directory is not writable (see the setting futher down the page)."
 msgstr "Denna knapp är avaktiverad eftersom din backup-katalog inte är skrivbar (se inställningarna längre ner på sidan)."
 
-#: admin.php:1820
+#: admin.php:1895
 msgid "Your WordPress install has old directories from its state before you restored/migrated (technical information: these are suffixed with -old). You should press this button to delete them as soon as you have verified that the restoration worked."
 msgstr "Din WordPress-installation har gamla kataloger från tidpunkten innan du återställde/migrerade (teknisk information: dessa har fått tilläget -old till sina namn). Du bör trycka på denna knapp för att ta bort katalogerna så snart du verifierat att återställningen lyckats."
 
-#: restorer.php:997
+#: restorer.php:1016
 msgid "Split line to avoid exceeding maximum packet size"
 msgstr "Dela rad för att undvika att överskrida maximal paketstorlek"
 
-#: restorer.php:922
+#: restorer.php:937
 msgid "Your database user does not have permission to drop tables. We will attempt to restore by simply emptying the tables; this should work as long as you are restoring from a WordPress version with the same database structure (%s)"
 msgstr "Din databasanvändare har inte behörighet att förkasta tabeller. Vi kommer att försöka återställa genom att bara tömma tabellerna; detta borde fungera så länge du återställer från en WordPress-version med samma databasstruktur (%s)"
 
-#: restorer.php:937
+#: restorer.php:952
 msgid "<strong>Backup of:</strong> %s"
 msgstr "<strong>Backup av:</strong> %s"
 
-#: restorer.php:791
+#: restorer.php:806
 msgid "New table prefix: %s"
 msgstr "Nytt tabell-prefix: %s"
 
-#: restorer.php:555 restorer.php:569
+#: restorer.php:556 restorer.php:570
 msgid "%s: This directory already exists, and will be replaced"
 msgstr "%s: Denna katalog existerar redan och kommer att ersättas"
 
-#: restorer.php:585
+#: restorer.php:586
 msgid "File permissions do not allow the old data to be moved and retained; instead, it will be deleted."
 msgstr "Filberhörigheter tillåter inte att gammal data flyttas och behålls, istället kommer den att tas bort."
 
-#: restorer.php:34
+#: restorer.php:35
 msgid "Could not move the files into place. Check your file permissions."
 msgstr "Kunde inte flytta filerna till avsedd plats. Kontrollera dina behörigheter."
 
-#: restorer.php:27
+#: restorer.php:28
 msgid "Moving old data out of the way..."
 msgstr "Flyttar gammal data ur vägen..."
 
-#: restorer.php:31
+#: restorer.php:32
 msgid "Could not move old files out of the way."
 msgstr "Kunde inte flytta gamla filer ur vägen."
 
-#: restorer.php:33
+#: restorer.php:34
 msgid "Could not move new files into place. Check your wp-content/upgrade folder."
 msgstr "Kunde inte flytta nya filer till avsedd plats. Kontrollera din wp-content/upgrade-katalog."
 
@@ -463,23 +567,19 @@ msgstr "Du behöver också ansluta för att ta emot framtida uppdateringar av Up
 msgid "Connect"
 msgstr "Anslut"
 
-#: admin.php:2353
+#: admin.php:2429
 msgid "Check this box to have a basic report sent to your site's admin address (%s)."
 msgstr "Markera denna ruta för att få en enkel rapport skickad till din webbplats admin-användares adress (%s)."
 
-#: admin.php:2355
+#: admin.php:2431
 msgid "For more reporting features, use the Reporting add-on."
 msgstr "För fler rapporteringsfunktioner, använd Rapport-tillägget."
 
-#: admin.php:2273
+#: admin.php:2348
 msgid "If entering multiple files/directories, then separate them with commas. You can use a * at the start or end of any entry as a wildcard."
 msgstr "Om du anger flera filer/kataloger, skilj dem åt med kommatecken. Du kan använda en * i början eller slutet av varje inmatning som \"wildcard\"."
 
-#: admin.php:1712
-msgid "Don't send this backup to cloud storage"
-msgstr "Skicka inte denna backup till fjärrlagring"
-
-#: admin.php:1031
+#: admin.php:1047
 msgid "(version: %s)"
 msgstr "(version: %s)"
 
@@ -551,55 +651,55 @@ msgstr "(Detta gäller alla WordPress backup-tilläg såvida de inte har kodats 
 msgid "UpdraftPlus warning:"
 msgstr "UpdraftPlus varning:"
 
-#: udaddons/options.php:427
+#: udaddons/options.php:437
 msgid "(or connect using the form on this page if you have already purchased it)"
 msgstr "(eller anslut med hjälp av formuläret på denna sida om du redan har köpt den)"
 
-#: udaddons/options.php:400
+#: udaddons/options.php:406
 msgid "You've got it"
 msgstr "Du har den"
 
-#: udaddons/options.php:402
+#: udaddons/options.php:408
 msgid "Your version: %s"
 msgstr "Din version: %s"
 
-#: udaddons/options.php:404 udaddons/options.php:406
+#: udaddons/options.php:410 udaddons/options.php:412
 msgid "latest"
 msgstr "senaste"
 
-#: udaddons/options.php:414
+#: udaddons/options.php:420
 msgid "please follow this link to update the plugin in order to get it"
 msgstr "vänligen följ denna länk för att uppdatera tillägget för att kunna få den"
 
-#: udaddons/options.php:417
+#: udaddons/options.php:423
 msgid "please  follow this link to update the plugin in order to activate it"
 msgstr "vänligen följ denna länk för att uppdatera tillägget för att kunna aktivera den"
 
-#: udaddons/updraftplus-addons.php:70 udaddons/options.php:328
+#: udaddons/updraftplus-addons.php:168 udaddons/options.php:334
 msgid "UpdraftPlus Addons"
 msgstr "UpdraftPlus Tillägg"
 
-#: udaddons/options.php:339
+#: udaddons/options.php:345
 msgid "An update containing your addons is available for UpdraftPlus - please follow this link to get it."
 msgstr "En uppdatering som innehåller dina tillägg är tillgänglig för UpdraftPlus - vänligen följ denna länk för att komma åt den."
 
-#: udaddons/options.php:381
+#: udaddons/options.php:387
 msgid "UpdraftPlus Support"
 msgstr "UpdraftPlus Support"
 
-#: udaddons/updraftplus-addons.php:471
+#: udaddons/updraftplus-addons.php:529
 msgid "UpdraftPlus.Com responded, but we did not understand the response"
 msgstr "UpdraftPlus.Com svarade, men vi förstår inte svaret"
 
-#: udaddons/updraftplus-addons.php:504
+#: udaddons/updraftplus-addons.php:562
 msgid "UpdraftPlus.Com returned a response which we could not understand (data: %s)"
 msgstr "UpdraftPlus.Com returnerade ett svar som inte kunde tolkas (data: %s)"
 
-#: udaddons/updraftplus-addons.php:527
+#: udaddons/updraftplus-addons.php:585
 msgid "Your email address and password were not recognised by UpdraftPlus.Com"
 msgstr "Din epostadress och lösenord kunde inte kännas igen av UpdraftPlus.Com"
 
-#: udaddons/updraftplus-addons.php:532
+#: udaddons/updraftplus-addons.php:590
 msgid "UpdraftPlus.Com returned a response, but we could not understand it"
 msgstr "UpdraftPlus.Com skickade ett svar, men det kunde inte tolkas"
 
@@ -607,15 +707,15 @@ msgstr "UpdraftPlus.Com skickade ett svar, men det kunde inte tolkas"
 msgid "An update is available for UpdraftPlus - please follow this link to get it."
 msgstr "En uppdatering är tillgänglig för UpdraftPlus - vänligen följ denna länk för att hämta den."
 
-#: udaddons/updraftplus-addons.php:469
+#: udaddons/updraftplus-addons.php:527
 msgid "We failed to successfully connect to UpdraftPlus.Com"
 msgstr "Vi misslyckades med att ansluta till UpdraftPlus.Com"
 
-#: admin.php:2336
+#: admin.php:2412
 msgid "Reporting"
 msgstr "Rapporterar"
 
-#: admin.php:786
+#: admin.php:791
 msgid "Options (raw)"
 msgstr "Alternativ (råa)"
 
@@ -623,79 +723,79 @@ msgstr "Alternativ (råa)"
 msgid "Send a report only when there are warnings/errors"
 msgstr "Skicka rapport bara när det varit varningar/fel"
 
-#: restorer.php:948
+#: restorer.php:967
 msgid "Content URL:"
 msgstr "Innehålls-URL:"
 
-#: restorer.php:31
+#: restorer.php:32
 msgid "You should check the file permissions in your WordPress installation"
 msgstr "Du bör kontrollera filbehörigheterna i din WordPress-installation"
 
-#: admin.php:2285
+#: admin.php:2360
 msgid "See also the \"More Files\" add-on from our shop."
 msgstr "Se också \"Fler Filer\"-tillägget i vår butik."
 
-#: admin.php:1767
+#: admin.php:1842
 msgid "Free disk space in account: %s (%s used)"
 msgstr "Tillgängligt diskutrymme på konto: %s (%s använt)"
 
-#: updraftplus.php:620
+#: updraftplus.php:631
 msgid "Your free space in your hosting account is very low - only %s Mb remain"
 msgstr "Ditt tillgängliga utrymme på webbhotellet är väldigt lågt - bara %s Mb återstår"
 
-#: updraftplus.php:910
+#: updraftplus.php:921
 msgid "See: %s"
 msgstr "Se: %s"
 
-#: updraftplus.php:598
+#: updraftplus.php:609
 msgid "The amount of memory (RAM) allowed for PHP is very low (%s Mb) - you should increase it to avoid failures due to insufficient memory (consult your web hosting company for more help)"
 msgstr "Mängden minne (RAM) som tillåts för PHP är väldigt lågt (%s Mb) - du bör öka det för att undvika misslyckanden orsakade av otillräckligt minne (konsultera ditt webbhotell för mer hjälp)"
 
-#: udaddons/options.php:424
+#: udaddons/options.php:433
 msgid "You have an inactive purchase"
 msgstr "Du har ett inaktivt köp"
 
-#: udaddons/options.php:424
+#: udaddons/options.php:431 udaddons/options.php:433
 msgid "activate it on this site"
 msgstr "aktivera på denna sajt"
 
-#: udaddons/options.php:427
+#: udaddons/options.php:437
 msgid "Get it from the UpdraftPlus.Com Store"
 msgstr "Skaffa den från UpdraftPlus.Com-butiken."
 
-#: udaddons/options.php:428
+#: udaddons/options.php:438
 msgid "Buy It"
 msgstr "Köp Den"
 
-#: udaddons/options.php:451
+#: udaddons/options.php:461
 msgid "Manage Addons"
 msgstr "Hantera Tillägg"
 
-#: udaddons/options.php:298
+#: udaddons/options.php:304
 msgid "An unknown response was received. Response was:"
 msgstr "Ett okänt svar mottogs. Svaret var:"
 
-#: udaddons/options.php:365
+#: udaddons/options.php:371
 msgid "An error occurred when trying to retrieve your add-ons."
 msgstr "Ett fel inträffade när dina tillägg skulle hämtas."
 
-#: udaddons/options.php:383
+#: udaddons/options.php:389
 msgid "Need to get support?"
 msgstr "Behöver du support?"
 
-#: udaddons/options.php:383
+#: udaddons/options.php:389
 msgid "Go here"
 msgstr "Gå hit"
 
-#: udaddons/options.php:408
+#: udaddons/options.php:414
 msgid "(apparently a pre-release or withdrawn release)"
 msgstr "(uppenbarligen en för-release eller en återkallad release)"
 
-#: udaddons/options.php:414
+#: udaddons/options.php:420
 msgid "Available for this site (via your all-addons purchase)"
 msgstr "Tillgängligt för denna sajt (via ditt köp av alla tillägg)"
 
-#: udaddons/options.php:417
+#: udaddons/options.php:423
 msgid "Assigned to this site"
 msgstr "Tilldelad denna sajt"
 
@@ -719,15 +819,15 @@ msgstr "Du är för närvarande <strong>inte ansluten</strong> till ett UpdraftP
 msgid "Errors occurred when trying to connect to UpdraftPlus.Com:"
 msgstr "Fel inträffade vid försök att ansluta till UpdraftPlus.Com:"
 
-#: udaddons/options.php:295
+#: udaddons/options.php:301
 msgid "Please wait whilst we make the claim..."
 msgstr "Vänta medan vi gör en begäran..."
 
-#: udaddons/options.php:296
+#: udaddons/options.php:302
 msgid "Claim not granted - perhaps you have already used this purchase somewhere else?"
 msgstr "Begäran kunde inte godkännas - kanske använder du redan detta köp någon annanstans?"
 
-#: udaddons/options.php:297
+#: udaddons/options.php:303
 msgid "Claim not granted - your account login details were wrong"
 msgstr "Begäran kunde inte godkännas - dina inloggningsuppgifter var felaktiga"
 
@@ -775,27 +875,27 @@ msgstr "Gå hit för att börja installera."
 msgid "You do seem to have the obsolete Updraft plugin installed - perhaps you got them confused?"
 msgstr "Du verkar ha en utdaterad version av Updraft-tillägget installerat - kanske har du blandat ihop dem?"
 
-#: admin.php:2305
+#: admin.php:2381
 msgid "A future release of UpdraftPlus will move the encryption feature into an add-on, and add the capability to encrypt files also."
 msgstr "En framtida version av UpdraftPlus kommer att flytta krypteringsfunktionen till ett tillägg, och lägga till möjligheten att även kryptera filer."
 
-#: admin.php:1418
+#: admin.php:1492
 msgid "If your restore included files, then your old (themes, uploads, plugins, whatever) directories have been retained with \"-old\" appended to their name. Remove them when you are satisfied that the backup worked properly."
 msgstr "Om du återställer inkluderade filer kommer dina gamla (teman, uppladdningar, tillägg osv) filmappar att behållas med tillägger \"-old\" efter respektive namn. Ta bort dem när du är säker på att återställningen har fungerat som den ska."
 
-#: updraftplus.php:907 admin.php:2299
+#: updraftplus.php:918 admin.php:2375
 msgid "Your web-server does not have the %s module installed."
 msgstr "Din webbserver har inte %s-modulen installerad."
 
-#: updraftplus.php:907 admin.php:2299
+#: updraftplus.php:918 admin.php:2375
 msgid "Without it, encryption will be a lot slower."
 msgstr "Utan den kommer krypteringen att vara mycket långsammare."
 
-#: updraftplus.php:910
+#: updraftplus.php:921
 msgid "A future release of UpdraftPlus will move the encryption feature into an add-on (and add more features to it)."
 msgstr "En framtida utgåva av UpdraftPlus kommer att flytta krypterings-funktionen till ett tillägg (och lägga till fler funktioner till den)."
 
-#: admin.php:1579
+#: admin.php:1653
 msgid "Drop backup files here"
 msgstr "Släpp dina backup-filer här"
 
@@ -807,35 +907,35 @@ msgstr "<strong>(Du verkar redan vara autentiserad,</strong> men du kan autentis
 msgid "(You appear to be already authenticated)"
 msgstr "(Du verkar redan vara autentiserad)"
 
-#: updraftplus.php:2389
+#: updraftplus.php:2409
 msgid "Want more features or paid, guaranteed support? Check out UpdraftPlus.Com"
 msgstr "Vill du ha fler funktioner eller betalad, garanterad support? Ta en titt på UpdraftPlus.Com"
 
-#: updraftplus.php:2398
+#: updraftplus.php:2418
 msgid "Check out WordShell"
 msgstr "Ta en titt på WordShell"
 
-#: updraftplus.php:2398
+#: updraftplus.php:2418
 msgid "manage WordPress from the command line - huge time-saver"
 msgstr "hantera WordPress från kommandoraden - en stor tidsbesparing"
 
-#: admin.php:1715
+#: admin.php:1789
 msgid "Does nothing happen when you attempt backups?"
 msgstr "Händer det ingenting när du försöker ta backup?"
 
-#: admin.php:1710
+#: admin.php:1784
 msgid "Don't include the database in the backup"
 msgstr "Inkludera inte databasen i backupen."
 
-#: admin.php:1711
+#: admin.php:1785
 msgid "Don't include any files in the backup"
 msgstr "Inkludera inga filer i backupen"
 
-#: admin.php:1561
+#: admin.php:1635
 msgid "Restoring:"
 msgstr "Återställer:"
 
-#: admin.php:1561
+#: admin.php:1635
 msgid "Press the Restore button next to the chosen backup set."
 msgstr "Tryck Återställ-knappen intill det valda backup-setet."
 
@@ -851,7 +951,7 @@ msgstr "Webbservern returnerade en felkod (försök igen, eller kontrollera dina
 msgid "If you exclude both the database and the files, then you have excluded everything!"
 msgstr "Om du exkluderar både databasen och filerna, då har du exkluderat allt!"
 
-#: restorer.php:942
+#: restorer.php:961
 msgid "Site home:"
 msgstr "Webbplatsens hem:"
 
@@ -871,23 +971,23 @@ msgstr "(loggar kan hittas på UpdraftPlus inställningssida som vanligt)..."
 msgid "Upload failed"
 msgstr "Uppladdning misslyckades"
 
-#: admin.php:2394
+#: admin.php:2470
 msgid "You can send a backup to more than one destination with an add-on."
 msgstr "Du kan skicka en backup till mer än en destination med ett tillägg."
 
-#: admin.php:1979
+#: admin.php:2054
 msgid "Note: the progress bar below is based on stages, NOT time. Do not stop the backup simply because it seems to have remained in the same place for a while - that is normal."
 msgstr "Observera: progressmätaren nedan är baserad på steg, INTE på tid. Stoppa inte backupen bara för att den verkar ha stannat på samma ställe en längre stund - det är normalt."
 
-#: admin.php:1929
+#: admin.php:2004
 msgid "(%s%%, file %s of %s)"
 msgstr "(%s%%, fil %s av %s)"
 
-#: addons/sftp.php:422
+#: addons/sftp.php:434
 msgid "Failed: We were able to log in and move to the indicated directory, but failed to successfully create a file in that location."
 msgstr "Misslyckades: Vi kunde logga in och flytta till den valda katalogen, men misslyckades att skapa en fil på den platsen."
 
-#: addons/sftp.php:424
+#: addons/sftp.php:436
 msgid "Failed: We were able to log in, but failed to successfully create a file in that location."
 msgstr "Misslyckades. Vi kunde logga in, men misslyckades att skapa en fil på den platsen."
 
@@ -895,19 +995,19 @@ msgstr "Misslyckades. Vi kunde logga in, men misslyckades att skapa en fil på d
 msgid "Read more about how this works..."
 msgstr "Läs mer om hur detta fungerar..."
 
-#: addons/sftp.php:312
+#: addons/sftp.php:324
 msgid "Use SCP instead of SFTP"
 msgstr "Använd SCP istället för SFTP"
 
-#: addons/sftp.php:36
+#: addons/sftp.php:48
 msgid "SCP/SFTP password"
 msgstr "SCP/SFTP lösenord"
 
-#: addons/sftp.php:34
+#: addons/sftp.php:46
 msgid "SCP/SFTP host setting"
 msgstr "SCP/SFTP värdinställningar"
 
-#: addons/sftp.php:35
+#: addons/sftp.php:47
 msgid "SCP/SFTP user setting"
 msgstr "SCP/SFTP användarinställningar"
 
@@ -923,91 +1023,91 @@ msgstr "Försöet att skicka backupen via epost misslyckades (förmodligen för 
 msgid "%s settings test result:"
 msgstr "%s inställningar testresultat:"
 
-#: admin.php:2664
+#: admin.php:2740
 msgid "If you are seeing more backups than you expect, then it is probably because the deletion of old backup sets does not happen until a fresh backup completes."
 msgstr "Om du ser fler backuper än du väntat dig, så beror det troligen på att borttagandet av gamla backup-set inte sker förrän en ny backup färdigställts.                  "
 
-#: admin.php:2664
+#: admin.php:2740
 msgid "(Not finished)"
 msgstr "(Ej klar)"
 
-#: admin.php:2494
+#: admin.php:2570
 msgid "This is where UpdraftPlus will write the zip files it creates initially.  This directory must be writable by your web server. It is relative to your content directory (which by default is called wp-content)."
 msgstr "Detta är den plats där UpdraftPlus kommer att skriva zip-filer som den skapar inledningsvis. Denna katalog måste vara skrivbar för webbservern. Den är relativ till din innehållskatalog (som förinställt har namnet wp-content)."
 
-#: admin.php:2494
+#: admin.php:2570
 msgid "<b>Do not</b> place it inside your uploads or plugins directory, as that will cause recursion (backups of backups of backups of...)."
 msgstr "Placera den <b>INTE</b> inuti dina uploads- eller plugin-kataloger, eftersom detta skapar upprepningsproblem (backuper av backuper av backuper av...)"
 
-#: admin.php:2467
+#: admin.php:2543
 msgid "UpdraftPlus will split up backup archives when they exceed this file size. The default value is 800 megabytes. Be careful to leave some margin if your web-server has a hard size limit (e.g. the 2 Gb / 2048 Mb limit on some 32-bit servers/file systems)."
 msgstr "UpdraftPlus kommer att dela backup-arkiven när de överstiger denna filstorlek. Det förinställda värdet är 800 megabyte. Var försiktig och lämna marginal ifall webbservern har en egen storleksbegränsning (ex. den 2 Gb / 2048 Mb-gräns som förekommer på vissa 32-bitars servrar och filsystem)."
 
-#: admin.php:1938
+#: admin.php:2013
 msgid "Waiting until scheduled time to retry because of errors"
 msgstr "Väntar till schemalagd tidpunkt med att försöka igen pga fel"
 
-#: admin.php:1943
+#: admin.php:2018
 msgid "Backup finished"
 msgstr "Backup färdigställdes"
 
-#: admin.php:1946
+#: admin.php:2021
 msgid "Unknown"
 msgstr "Okänt"
 
-#: admin.php:1962
+#: admin.php:2037
 msgid "next resumption: %d (after %ss)"
 msgstr "nästa återupptagande: %d (efter %ss)"
 
-#: admin.php:1963
+#: admin.php:2038
 msgid "last activity: %ss ago"
 msgstr "senaste aktivitet: %ss sedan"
 
-#: admin.php:1973
+#: admin.php:2048
 msgid "Job ID: %s"
 msgstr "Jobb-ID: %s"
 
-#: admin.php:1900
+#: admin.php:1975
 msgid "table: %s"
 msgstr "tabell: %s"
 
-#: admin.php:1908
+#: admin.php:1983
 msgid "Created database backup"
 msgstr "Skapade databas-backup"
 
-#: admin.php:1913
+#: admin.php:1988
 msgid "Encrypting database"
 msgstr "Krypterar databas"
 
-#: admin.php:1917
+#: admin.php:1992
 msgid "Encrypted database"
 msgstr "Krypterade databas"
 
-#: admin.php:1922
+#: admin.php:1997
 msgid "Uploading files to remote storage"
 msgstr "Laddar upp filer till fjärrlagringsplats"
 
-#: admin.php:1934
+#: admin.php:2009
 msgid "Pruning old backup sets"
 msgstr "Rensar gamla backup-set"
 
-#: admin.php:1880
+#: admin.php:1955
 msgid "Creating file backup zips"
 msgstr "Skapar zip-filer med fil-backuper"
 
-#: admin.php:1893
+#: admin.php:1968
 msgid "Created file backup zips"
 msgstr "Skapade zip-filer med fil-backuper"
 
-#: admin.php:1898
+#: admin.php:1973
 msgid "Creating database backup"
 msgstr "Skapar databas-backup"
 
-#: admin.php:1875
+#: admin.php:1950
 msgid "Backup begun"
 msgstr "Backup påbörjades"
 
-#: admin.php:1525
+#: admin.php:1599
 msgid "Backups in progress:"
 msgstr "Backuper som pågår:"
 
@@ -1015,31 +1115,31 @@ msgstr "Backuper som pågår:"
 msgid "The scheduler is disabled in your WordPress install, via the DISABLE_WP_CRON setting. No backups can run (even &quot;Backup Now&quot;) unless either you have set up a facility to call the scheduler manually, or until it is enabled."
 msgstr "Schemaläggaren är avstängd i din WordPress-installation, via inställningen DISABLE_WP_CRON. Inga backuper kan köras (inte ens &quot;Ta Backup Nu&quot:) såvida du inte endera har ställt in någon anordning att anropa schemaläggaren manuellt, eller till dess att den aktiverats."
 
-#: restorer.php:360 restorer.php:367
+#: restorer.php:361 restorer.php:368
 msgid "UpdraftPlus needed to create a %s in your content directory, but failed - please check your file permissions and enable the access (%s)"
 msgstr "UpdraftPlus behövde skapa en %s i din innehållskatalog, men misslyckades - vänligen kontrollera dina filbehörigheter och aktivera åtkomsten (%s)"
 
-#: restorer.php:360
+#: restorer.php:361
 msgid "folder"
 msgstr "katalog"
 
-#: restorer.php:367
+#: restorer.php:368
 msgid "file"
 msgstr "fil"
 
-#: backup.php:1325
+#: backup.php:1329
 msgid "Failed to open directory (check the file permissions): %s"
 msgstr "Misslyckades att öppna katalogen (kontrollera filrättigheterna): %s"
 
-#: backup.php:1319
+#: backup.php:1323
 msgid "%s: unreadable file - could not be backed up (check the file permissions)"
 msgstr "%s: oläsbar fil - kunde inte backas upp (kontrollera filrättigheterna)"
 
-#: updraftplus.php:1805
+#: updraftplus.php:1816
 msgid "The backup has not finished; a resumption is scheduled"
 msgstr "Backupen har inte färdigställts; ett återupptagande har schemalagts"
 
-#: updraftplus.php:1337
+#: updraftplus.php:1348
 msgid "Your website is visited infrequently and UpdraftPlus is not getting the resources it hoped for; please read this page:"
 msgstr "Din webbplats besöks sällan och UpdraftPlus får inte de resurser den hoppades på; vänligen läs denna sida:"
 
@@ -1052,7 +1152,7 @@ msgstr "<strong>Detta är inte ett katalognamn</strong>. För att hitta en katal
 msgid "The %s authentication could not go ahead, because something else on your site is breaking it. Try disabling your other plugins and switching to a default theme. (Specifically, you are looking for the component that sends output (most likely PHP warnings/errors) before the page begins. Turning off any debugging settings may also help)."
 msgstr "%s-autentiseringen kunde inte fortsätta, eftersom något annat på din sajt förhindrar det. Försök stänga av dina andra tillägg och växla till det förinställda temat. (Specifikt letar du efter en komponent som skickar ut information (mest troligt PHP-varningar och -fel) innan sidan börjar. Att stänga av eventuella avbuggningsinställningar kan också hjälpa)."
 
-#: admin.php:1425
+#: admin.php:1499
 msgid "Your PHP memory limit (set by your web hosting company) is very low. UpdraftPlus attempted to raise it but was unsuccessful. This plugin may struggle with a memory limit of less than 64 Mb  - especially if you have very large files uploaded (though on the other hand, many sites will be successful with a 32Mb limit - your experience may vary)."
 msgstr "Din PHP-minnesgräns (inställd av ditt webbhotell) är mycket låg. UpdraftPlus försökte höja den men misslyckades. Detta tillägg kan få det besvärligt med en minnesgräns lägre än 64 Mb - särskilt om du har väldigt stora filer uppladdade (men å andra sidan så kommer många sajter att lyckas med bara 32Mb gräns - erfarenheterna kan variera)."
 
@@ -1133,27 +1233,27 @@ msgstr "Detta ser inte ut som en giltig backup av WordPress-kärnan - filen %s s
 msgid "If you are not sure then you should stop; otherwise you may destroy this WordPress installation."
 msgstr "Om du inte är säker så bör du avsluta; annars kan du förstöra denna WordPress-installation."
 
-#: admin.php:1407
+#: admin.php:1481
 msgid "Support"
 msgstr "Support"
 
-#: admin.php:1407
+#: admin.php:1481
 msgid "More plugins"
 msgstr "Fler tillägg"
 
-#: admin.php:1050
+#: admin.php:1066
 msgid "You are importing from a newer version of WordPress (%s) into an older one (%s). There are no guarantees that WordPress can handle this."
 msgstr "Du importerar från en nyare version av WordPress (%s) till en äldre (%s). Det finns inga garantier att WordPress kan hantera detta."
 
-#: admin.php:1124
+#: admin.php:1140
 msgid "This database backup is missing core WordPress tables: %s"
 msgstr "Denna databas-backup saknar tabeller från WordPress-kärnan: %s"
 
-#: admin.php:1127
+#: admin.php:1143
 msgid "UpdraftPlus was unable to find the table prefix when scanning the database backup."
 msgstr "UpdraftPlus kunde inte hitta tabellprefixen när den skannade databasbackupen."
 
-#: admin.php:992
+#: admin.php:1008
 msgid "The database is too small to be a valid WordPress database (size: %s Kb)."
 msgstr "Databasen är för liten för att vara en giltig WordPress-databas (storlek: %s Kb)."
 
@@ -1181,11 +1281,11 @@ msgstr "Avfärda (för %s veckor)"
 msgid "Be safe with an automatic backup"
 msgstr "Var säker med en automatisk backup"
 
-#: restorer.php:1259
+#: restorer.php:1278
 msgid "Uploads path (%s) does not exist - resetting (%s)"
 msgstr "Uppladdnings-sökväg (%s) existerar inte - nollställer (%s)"
 
-#: admin.php:1411
+#: admin.php:1485
 msgid "If you can still read these words after the page finishes loading, then there is a JavaScript or jQuery problem in the site."
 msgstr "Om du fortfarande kan läsa dessa ord efter att sidan laddat färdigt, då finns det ett JavaScript- eller jQuery-problem på webbplatsen."
 
@@ -1249,23 +1349,23 @@ msgstr "Exempel på S3-kompatibla lagringstjänster:"
 msgid "Upload expected to fail: the %s limit for any single file is %s, whereas this file is %s Gb (%d bytes)"
 msgstr "Uppladdning förväntas misslyckas: %s-gränsen för enstaka filer är %s, och filen är %s Gb (%d bytes)"
 
-#: backup.php:842
+#: backup.php:845
 msgid "The backup directory is not writable - the database backup is expected to shortly fail."
 msgstr "Backup-katalogen är inte skrivbar - databasbackupen förväntas misslyckas inom kort."
 
-#: admin.php:3039
+#: admin.php:3115
 msgid "Will not delete any archives after unpacking them, because there was no cloud storage for this backup"
 msgstr "Kommer inte att ta bort några arkiv efter uppackning eftersom det inte fanns någon molnlagring för denna backup"
 
-#: admin.php:2716
+#: admin.php:2792
 msgid "(%d archive(s) in set)."
 msgstr "(%d arkiv i setet)."
 
-#: admin.php:2719
+#: admin.php:2795
 msgid "You appear to be missing one or more archives from this multi-archive set."
 msgstr "Du verkar sakna ett eller flera arkiv från detta multiarkiv-set."
 
-#: admin.php:2466
+#: admin.php:2542
 msgid "Split archives every:"
 msgstr "Dela upp arkiv varje:"
 
@@ -1285,19 +1385,19 @@ msgstr "Varningar:"
 msgid "Error: the server sent us a response (JSON) which we did not understand."
 msgstr "Fel: servern skickade oss ett svar (JSON) som vi inte förstod."
 
-#: admin.php:1225
+#: admin.php:1299
 msgid "This looks like a file created by UpdraftPlus, but this install does not know about this type of object: %s. Perhaps you need to install an add-on?"
 msgstr "Detta ser ut som en fil skapad av UpdraftPlus, men den här installationen känner inte igen den här typen av objekt: %s. Kanske måste du installera ett insticksprogram?"
 
-#: admin.php:640
+#: admin.php:644
 msgid "The backup archive files have been successfully processed. Now press Restore again to proceed."
 msgstr "Backup-arkivfilen har framgångsrikt behandlats. Tryck nu på Återställ igen för att fortsätta."
 
-#: admin.php:642
+#: admin.php:646
 msgid "The backup archive files have been processed, but with some warnings. If all is well, then now press Restore again to proceed. Otherwise, cancel and correct any problems first."
 msgstr "Backup-arkivfilen har behandlats, men med några varningar. Om allt fungerar så kan du klicka Återställ igen för att fortsätta. Annars avbryt och rätta till eventuella problem först."
 
-#: admin.php:644
+#: admin.php:648
 msgid "The backup archive files have been processed, but with some errors. You will need to cancel and correct any problems before retrying."
 msgstr "Backup-arkivfilen har bearbetats, men några fel har uppstått. Du måste avbryta och rätta till alla problem innan du försöker igen."
 
@@ -1305,39 +1405,39 @@ msgstr "Backup-arkivfilen har bearbetats, men några fel har uppstått. Du måst
 msgid "The backup archive for this file could not be found. The remote storage method in use (%s) does not allow us to retrieve files. To perform any restoration using UpdraftPlus, you will need to obtain a copy of this file and place it inside UpdraftPlus's working folder"
 msgstr "Backup-arkivet för denna fil kunde inte hittas. Fjärrlagringsmetoden som används (%s) tillåter oss inte att hämta filer. För att utföra återställning med hjälp av UpdraftPlus, måste du hämta en kopia av denna fil och placera den inuti UpdraftPlus arbetskatalog."
 
-#: admin.php:568
+#: admin.php:570
 msgid "No such backup set exists"
 msgstr "Inget sådant backup-set existerar"
 
-#: admin.php:615
+#: admin.php:617
 msgid "File not found (you need to upload it): %s"
 msgstr "Filen hittades inte (du måste ladda upp den): %s"
 
-#: admin.php:617
+#: admin.php:619
 msgid "File was found, but is zero-sized (you need to re-upload it): %s"
 msgstr "Filen hittades, men har nollstorlek (du måste ladda upp den igen): %s"
 
-#: admin.php:621
+#: admin.php:624
 msgid "File (%s) was found, but has a different size (%s) from what was expected (%s) - it may be corrupt."
 msgstr "Filen (%s) hittades, men har en annan storlek (%s) jämfört med förväntade (%s) - den kan vara korrupt."
 
-#: admin.php:635
+#: admin.php:639
 msgid "This multi-archive backup set appears to have the following archives missing: %s"
 msgstr "Detta multibackup-set verkar sakna följande arkiv: %s"
 
-#: restorer.php:309
+#: restorer.php:310
 msgid "Failed to move directory (check your file permissions and disk quota): %s"
 msgstr "Misslyckades med att flytta katalog (kontrollera dina behörigheter och disktilldelning): %s"
 
-#: restorer.php:300
+#: restorer.php:301
 msgid "Failed to move file (check your file permissions and disk quota): %s"
 msgstr "Misslyckades med att flytta fil (kontrollera dina behörigheter och disktilldelning): %s"
 
-#: restorer.php:28
+#: restorer.php:29
 msgid "Moving unpacked backup into place..."
 msgstr "Flyttar uppackad backup till sin plats..."
 
-#: backup.php:1594 backup.php:1830
+#: backup.php:1600 backup.php:1836
 msgid "Failed to open the zip file (%s) - %s"
 msgstr "Misslyckades med att öppna zip-fil (%s) - %s"
 
@@ -1353,7 +1453,7 @@ msgstr "...och många mer!"
 msgid "%s end-point"
 msgstr "%s slutpunkt"
 
-#: admin.php:2980
+#: admin.php:3056
 msgid "File is not locally present - needs retrieving from remote storage"
 msgstr "Filen är inte närvarande lokalt - måste hämtas från fjärrlagringsplats"
 
@@ -1361,23 +1461,23 @@ msgstr "Filen är inte närvarande lokalt - måste hämtas från fjärrlagringsp
 msgid "S3 (Compatible)"
 msgstr "S3 (Kompatibel)"
 
-#: admin.php:2952
+#: admin.php:3028
 msgid "Final checks"
 msgstr "Slutkontroller"
 
-#: admin.php:2975
+#: admin.php:3051
 msgid "Looking for %s archive: file name: %s"
 msgstr "Letar efter %s-arkiv: filnamn: %s"
 
-#: admin.php:2472
+#: admin.php:2548
 msgid "Check this to delete any superfluous backup files from your server after the backup run finishes (i.e. if you uncheck, then any files despatched remotely will also remain locally, and any files being kept locally will not be subject to the retention limits)."
 msgstr "Markera denna för att ta bort överflödiga backupfiler från din server efter att backupen kört klart (om du avmarkerar kommer alla filer som skickats för fjärrlagring också att bli kvar lokalt, och alla filer som lagras lokalt kommer inte att omfattas av bevarande-gränserna)."
 
-#: admin.php:2317
+#: admin.php:2393
 msgid "Drop encrypted database files (db.gz.crypt files) here to upload them for decryption"
 msgstr "Släpp krypterade databasfiler (db.gz.crypt-filer) här för att ladda upp dem för dekryptering"
 
-#: admin.php:2265
+#: admin.php:2340
 msgid "Your wp-content directory server path: %s"
 msgstr "Sökväg till din wp-content-katalog: %s"
 
@@ -1385,7 +1485,7 @@ msgstr "Sökväg till din wp-content-katalog: %s"
 msgid "Raw backup history"
 msgstr "Råbackuphistoria"
 
-#: admin.php:1770
+#: admin.php:1845
 msgid "Show raw backup and file list"
 msgstr "Visa råbackup och fillista"
 
@@ -1393,47 +1493,47 @@ msgstr "Visa råbackup och fillista"
 msgid "Processing files - please wait..."
 msgstr "Bearbetar filer - var god vänta..."
 
-#: admin.php:1557
+#: admin.php:1631
 msgid "Your WordPress installation has a problem with outputting extra whitespace. This can corrupt backups that you download from here."
 msgstr "Din WordPress-installation har problem med utmatning av extra blanksteg. Detta kan göra backuper som du laddar ner härifrån korrupta."
 
-#: admin.php:1557
+#: admin.php:1631
 msgid "Please consult this FAQ for help on what to do about it."
 msgstr "Vänligen konsultera denna FAQ för hjälp om vad du kan göra åt det."
 
-#: admin.php:998
+#: admin.php:1014
 msgid "Failed to open database file."
 msgstr "Misslyckades med att öppna databasfil."
 
-#: admin.php:980
+#: admin.php:996
 msgid "Failed to write out the decrypted database to the filesystem."
 msgstr "Misslyckades med att skriva den dekrypterade databasen till filsystemet."
 
-#: admin.php:758
+#: admin.php:763
 msgid "Known backups (raw)"
 msgstr "Kända backuper (råa)"
 
-#: restorer.php:767
+#: restorer.php:782
 msgid "Using directory from backup: %s"
 msgstr "Använder katalog från backup: %s"
 
-#: restorer.php:654
+#: restorer.php:667
 msgid "Files found:"
 msgstr "Hittade filer:"
 
-#: restorer.php:660
+#: restorer.php:673
 msgid "Unable to enumerate files in that directory."
 msgstr "Kan inte räkna upp filer i den katalogen."
 
-#: restorer.php:1100
+#: restorer.php:1119
 msgid "Requested table engine (%s) is not present - changing to MyISAM."
 msgstr "Begärd tabellmotor (%s) finns inte tillgänglig ä ändrar till MyISAM."
 
-#: restorer.php:1111
+#: restorer.php:1130
 msgid "Restoring table (%s)"
 msgstr "Återställer tabell (%s)"
 
-#: backup.php:1647 backup.php:1840
+#: backup.php:1653 backup.php:1846
 msgid "A zip error occurred - check your log for more details."
 msgstr "Ett zip-fel inträffade - kontrollera din logg för fler detaljer."
 
@@ -1441,15 +1541,15 @@ msgstr "Ett zip-fel inträffade - kontrollera din logg för fler detaljer."
 msgid "This looks like a migration (the backup is from a site with a different address/URL), but you did not check the option to search-and-replace the database. That is usually a mistake."
 msgstr "Detta ser ut som en migration (backupen kommer från en webbplats med en annan adress/URL), men du valde inte alternativet sök-och-ersätt i databasen. Det är vanligen ett misstag."
 
-#: admin.php:3001
+#: admin.php:3077
 msgid "file is size:"
 msgstr "filen har storleken:"
 
-#: admin.php:2683
+#: admin.php:2759
 msgid "database"
 msgstr "databas"
 
-#: admin.php:312 admin.php:1411
+#: admin.php:312 admin.php:1485
 msgid "Go here for more information."
 msgstr "Gå hit för mer information."
 
@@ -1457,7 +1557,7 @@ msgstr "Gå hit för mer information."
 msgid "Some files are still downloading or being processed - please wait."
 msgstr "Några filer laddas fortfarande ner eller bearbetas - var god vänta."
 
-#: admin.php:1035 admin.php:1043
+#: admin.php:1051 admin.php:1059
 msgid "This backup set is from a different site - this is not a restoration, but a migration. You need the Migrator add-on in order to make this work."
 msgstr "Detta backup-set kommer från en annan webbplats - det här är inte en återställning utan en migration. Du måste ha Migrator-insticksprogrammet för att få detta att fungera."
 
@@ -1497,7 +1597,7 @@ msgstr "Du verkar inte ha verifierats hos %s"
 msgid "Error - no such file exists at %s"
 msgstr "Fel - ingen sådan fil existerar på %s"
 
-#: updraftplus.php:889
+#: updraftplus.php:900
 msgid "Error - failed to download the file from %s"
 msgstr "Fel - misslyckades med nedladdning av fil från %s"
 
@@ -1516,7 +1616,7 @@ msgstr "%s Fel"
 msgid "%s authentication failed"
 msgstr "%s autentisering misslyckades"
 
-#: updraftplus.php:833
+#: updraftplus.php:844
 msgid "%s error - failed to re-assemble chunks"
 msgstr "%s fel - misslyckades att återsammansätta delarna"
 
@@ -1524,40 +1624,40 @@ msgstr "%s fel - misslyckades att återsammansätta delarna"
 msgid "%s error: zero-size file was downloaded"
 msgstr "%s fel: fil med nollstorlek laddades ner"
 
-#: updraftplus.php:704 restorer.php:648 admin.php:971 admin.php:1062
-#: admin.php:1067 admin.php:1218 admin.php:1225
+#: updraftplus.php:715 restorer.php:661 admin.php:987 admin.php:1078
+#: admin.php:1083 admin.php:1292 admin.php:1299
 msgid "Error: %s"
 msgstr "Fel: %s"
 
-#: admin.php:2489
+#: admin.php:2565
 msgid "Backup directory specified exists, but is <b>not</b> writable."
 msgstr "Backup-katalogen som specificerats existerar men är <b>inte</b> skrivbar."
 
-#: admin.php:2487
+#: admin.php:2563
 msgid "Backup directory specified does <b>not</b> exist."
 msgstr "Backup-katalogen som specificerats existerar <b>inte</b>."
 
-#: admin.php:1035 admin.php:1043 admin.php:1984 admin.php:2175
+#: admin.php:1051 admin.php:1059 admin.php:2059 admin.php:2250
 msgid "Warning: %s"
 msgstr "Varning: %s"
 
-#: admin.php:1495
+#: admin.php:1569
 msgid "Last backup job run:"
 msgstr "Senaste körning av backup-jobb:"
 
-#: backup.php:1339 backup.php:1351
+#: backup.php:1343 backup.php:1355
 msgid "%s: unreadable file - could not be backed up"
 msgstr "%s: oläsbar fil - kunde inte backas upp"
 
-#: backup.php:1608
+#: backup.php:1614
 msgid "A very large file was encountered: %s (size: %s Mb)"
 msgstr "En mycket stor fil påträffades: %s (storlek: %s Mb)"
 
-#: backup.php:886
+#: backup.php:889
 msgid "Table %s has very many rows (%s) - we hope your web hosting company gives you enough resources to dump out that table in the backup"
 msgstr "Tabell %s har väldigt många rader (%s) - vi hoppas att ditt webbhotell ger dig tillräckliga resurser att dumpa ut den tabellen i backupen."
 
-#: backup.php:977
+#: backup.php:980
 msgid "An error occurred whilst closing the final database file"
 msgstr "Ett fel uppstod under stängning av den sista databasfilen"
 
@@ -1565,11 +1665,11 @@ msgstr "Ett fel uppstod under stängning av den sista databasfilen"
 msgid "Warnings encountered:"
 msgstr "Påträffade varningar:"
 
-#: updraftplus.php:1795
+#: updraftplus.php:1806
 msgid "The backup apparently succeeded (with warnings) and is now complete"
 msgstr "Backupen verkar ha lyckats (med varningar) och är nu komplett"
 
-#: updraftplus.php:632
+#: updraftplus.php:643
 msgid "Your free disk space is very low - only %s Mb remain"
 msgstr "Ditt lediga diskutrymme är väldigt lågt - bara %s Mb återstår"
 
@@ -1617,11 +1717,11 @@ msgstr "Bearbetat tillägg:"
 msgid "Network activating theme:"
 msgstr "Nätverk aktiverar tema:"
 
-#: addons/sftp.php:27
+#: addons/sftp.php:39
 msgid "Some servers advertise encrypted FTP as available, but then time-out (after a long time) when you attempt to use it. If you find this happenning, then go into the \"Expert Options\" (below) and turn off SSL there."
 msgstr "Vissa servrar anger att krypterad FTP finns tillgängligt, men time-out uppstår (efter lång tid) när du försöker använda den. Om detta händer dig, gå in i \"Expert-alternativ\" (nedan) och stäng av SSL där."
 
-#: addons/sftp.php:64
+#: addons/sftp.php:76
 msgid "Check your file permissions: Could not successfully create and enter directory:"
 msgstr "Kontrollera dina filbehörigheter: Kunde inte skapa och öppna katalog:"
 
@@ -1637,47 +1737,47 @@ msgstr "Vänligen kontrollera dina åtkomstuppgifter."
 msgid "The error reported by %s was:"
 msgstr "Felet som rapporterades av %s var:"
 
-#: restorer.php:783
+#: restorer.php:798
 msgid "Please supply the requested information, and then continue."
 msgstr "Vänligen tillhandahåll den efterfrågade informationen och fortsätt sedan."
 
-#: restorer.php:1168
+#: restorer.php:1187
 msgid "Cannot drop tables, so deleting instead (%s)"
 msgstr "Kan inte släppa tabeller, så vänligen ta istället bort (%s)"
 
-#: restorer.php:966 admin.php:1067
+#: restorer.php:985 admin.php:1083
 msgid "To import an ordinary WordPress site into a multisite installation requires both the multisite and migrator add-ons."
 msgstr "För att importera en vanlig WordPress-webbplats till en multisajt-installation krävs både multisajt- och migrator-insticksprogrammen."
 
-#: restorer.php:972 admin.php:1075
+#: restorer.php:991 admin.php:1091
 msgid "Site information:"
 msgstr "Webbplatsinformation:"
 
-#: restorer.php:1163
+#: restorer.php:1182
 msgid "Cannot create new tables, so skipping this command (%s)"
 msgstr "Kan inte skapa nya tabeller, hoppar över kommandot (%s)"
 
-#: restorer.php:905 restorer.php:921 restorer.php:1017 admin.php:1411
+#: restorer.php:920 restorer.php:936 restorer.php:1036 admin.php:1485
 msgid "Warning:"
 msgstr "Varning:"
 
-#: restorer.php:906
+#: restorer.php:921
 msgid "Your database user does not have permission to create tables. We will attempt to restore by simply emptying the tables; this should work as long as a) you are restoring from a WordPress version with the same database structure, and b) Your imported database does not contain any tables which are not already present on the importing site."
 msgstr "Din databasanvändare har inte behörighet att skapa tabeller. Vi kommer att försöka återskapa genom att helt enkelt tömma tabellerna; detta borde fungera såvida a)du återställer från en WordPress-version med samma databasstruktur, och b) Din importerade databas inte innehåller några tabeller som inte redan finns på den importerande webbplatsen."
 
-#: restorer.php:36 admin.php:1062
+#: restorer.php:37 admin.php:1078
 msgid "You are running on WordPress multisite - but your backup is not of a multisite site."
 msgstr "Du kör med WordPress multisajt - men din backup är inte från en multisajt-webbplats."
 
-#: admin.php:2964
+#: admin.php:3040
 msgid "Skipping restoration of WordPress core when importing a single site into a multisite installation. If you had anything necessary in your WordPress directory then you will need to re-add it manually from the zip file."
 msgstr "Hoppar över återskapande av WordPress-kärnan vid import av enkel webbplats till en multisajt-installation. Om du hade något nödvändigt i WordPress-katalogen kommer du att behöva lägga tillbaka det manuellt från zip-filen."
 
-#: admin.php:2560
+#: admin.php:2636
 msgid "Your web server's PHP installation does not included a <strong>required</strong> (for %s) module (%s). Please contact your web hosting provider's support and ask for them to enable it."
 msgstr "Din webbservers PHP-installation inkluderar inte en <strong>nödvändig</strong> (för %s) modul (%s). Vänligen kontakta ditt webbhotells support och be dem aktivera den."
 
-#: admin.php:2560
+#: admin.php:2636
 msgid "Your options are 1) Install/enable %s or 2) Change web hosting companies - %s is a standard PHP component, and required by all cloud backup plugins that we know of."
 msgstr "Dina alternativ är 1) Installera/aktivera %s eller 2) Byta webbhotell - %s är en standard PHP-komponent som krävs av alla backuptillägg vi känner till som använder molnlagring."
 
@@ -1697,67 +1797,67 @@ msgstr "För att skicka mer än en adress, åtskilj varje adress med ett kommate
 msgid "PHP information"
 msgstr "PHP-information"
 
-#: admin.php:1749
+#: admin.php:1823
 msgid "show PHP information (phpinfo)"
 msgstr "visa PHP-information (phpinfo)"
 
-#: admin.php:1762
+#: admin.php:1837
 msgid "zip executable found:"
 msgstr "zip exekverbar fil hittades:"
 
-#: admin.php:1689
+#: admin.php:1763
 msgid "Migrate Site"
 msgstr "Migrera Webbplats"
 
-#: admin.php:1693
+#: admin.php:1767
 msgid "Migration of data from another site happens through the \"Restore\" button. A \"migration\" is ultimately the same as a restoration - but using backup archives that you import from another site. UpdraftPlus modifies the restoration operation appropriately, to fit the backup data to the new site."
 msgstr "Migrering av data från en annan webbplats sker genom \"Återställ\"-knappen. En \"migration\" är ytterst samma sak som en återställning - men man använder backup-arkiv som importeras från en annan webbplats. UpdraftPlus modifierar återställningsprocessen efter behov för att överföra backup-data till den nya webbplatsen."
 
-#: admin.php:1693
+#: admin.php:1767
 msgid "<a href=\"%s\">Read this article to see step-by-step how it's done.</a>"
 msgstr "<a href=\"%s\">Läs denna artikel för att se hur det görs steg-för-steg.</a>"
 
-#: admin.php:1695
+#: admin.php:1769
 msgid "Do you want to migrate or clone/duplicate a site?"
 msgstr "Vill du migrera eller klona/duplicera en webbplats?"
 
-#: admin.php:1695
+#: admin.php:1769
 msgid "Then, try out our \"Migrator\" add-on. After using it once, you'll have saved the purchase price compared to the time needed to copy a site by hand."
 msgstr "Testa då vårt insticksprogram \"Migrator\". Efter att ha använt det en gång har du tjänat in inköpspriset jämfört med tiden som skulle ha behövts för att kopiera webbplatsen manuellt."
 
-#: admin.php:1695
+#: admin.php:1769
 msgid "Get it here."
 msgstr "Skaffa den här."
 
-#: admin.php:1617
+#: admin.php:1691
 msgid "Deleting... please allow time for the communications with the remote storage to complete."
 msgstr "Tar bort... vänligen vänta på att kommunikationen med fjärrlagringsplatsen slutförs."
 
-#: admin.php:1616
+#: admin.php:1690
 msgid "Also delete from remote storage"
 msgstr "Ta också bort från fjärrlagringsplatsen"
 
-#: admin.php:1545
+#: admin.php:1619
 msgid "Latest UpdraftPlus.com news:"
 msgstr "Senaste Nyheter från UpdraftPlus.com"
 
-#: admin.php:1516
+#: admin.php:1590
 msgid "Clone/Migrate"
 msgstr "Klona/Migrera"
 
-#: admin.php:1407
+#: admin.php:1481
 msgid "News"
 msgstr "Nyheter"
 
-#: admin.php:1407
+#: admin.php:1481
 msgid "Premium"
 msgstr "Premium"
 
-#: admin.php:744
+#: admin.php:748
 msgid "Local archives deleted: %d"
 msgstr "Lokala arkiv borttagna: %d"
 
-#: admin.php:745
+#: admin.php:749
 msgid "Remote archives deleted: %d"
 msgstr "Fjärrarkiv borttagna: %d"
 
@@ -1765,32 +1865,32 @@ msgstr "Fjärrarkiv borttagna: %d"
 msgid "%s - could not back this entity up; the corresponding directory does not exist (%s)"
 msgstr "%s - kunde inte backa upp denna enhet; den motsvarande katalogen existerar inte (%s)"
 
-#: admin.php:659
+#: admin.php:663
 msgid "Backup set not found"
 msgstr "Backup-setet hittades inte"
 
-#: admin.php:743
+#: admin.php:747
 msgid "The backup set has been removed."
 msgstr "Backup-setet har tagits bort."
 
-#: updraftplus.php:2415
+#: updraftplus.php:2435
 msgid "Subscribe to the UpdraftPlus blog to get up-to-date news and offers"
 msgstr "Prenumerera på UpdraftPlus-bloggen för att få uppdaterade nyheter och erbjudanden"
 
-#: updraftplus.php:2415
+#: updraftplus.php:2435
 msgid "Blog link"
 msgstr "Blogg-länk"
 
-#: updraftplus.php:2415
+#: updraftplus.php:2435
 msgid "RSS link"
 msgstr "RSS-länk"
 
 #: methods/s3.php:354 methods/ftp.php:148 addons/webdav.php:291
-#: addons/sftp.php:327
+#: addons/sftp.php:339
 msgid "Testing %s Settings..."
 msgstr "Testar %s Inställningar..."
 
-#: admin.php:1575
+#: admin.php:1649
 msgid "Or, you can place them manually into your UpdraftPlus directory (usually wp-content/updraft), e.g. via FTP, and then use the \"rescan\" link above."
 msgstr "Eller så kan du lägga till dem manuellt i din UpdraftPlus-katalog (vanligtvis wp-content/updraft), till exempel via FTP, och sedan använda \"scanna om\"-länken ovan"
 
@@ -1882,19 +1982,19 @@ msgstr "Undersökta rader:"
 msgid "Changes made:"
 msgstr "Gjorda ändringar:"
 
-#: addons/sftp.php:201
+#: addons/sftp.php:213
 msgid "%s Error: Failed to download"
 msgstr "%s Fel: Misslyckades med nedladdning"
 
-#: addons/sftp.php:261
+#: addons/sftp.php:273
 msgid "Resuming partial uploads is not supported, so you will need to ensure that your webserver allows PHP processes to run long enough to upload your largest backup file."
 msgstr "Att återuppta delvis utförda uppladdningar stöds inte, så du måste säkerställa att din webbserver tillåter PHP-processer att köra tillräckligt länge för att ladda upp din största backup-fil."
 
-#: addons/sftp.php:266
+#: addons/sftp.php:278
 msgid "Host"
 msgstr "Värd"
 
-#: addons/sftp.php:273
+#: addons/sftp.php:285
 msgid "Port"
 msgstr "Port"
 
@@ -1902,27 +2002,27 @@ msgstr "Port"
 msgid "Password"
 msgstr "Lösenord"
 
-#: addons/sftp.php:303
+#: addons/sftp.php:315
 msgid "Directory path"
 msgstr "Sökväg till katalog"
 
-#: addons/sftp.php:305
+#: addons/sftp.php:317
 msgid "Where to change directory to after logging in - often this is relative to your home directory."
 msgstr "Till vad ska katalogen ändras efter inloggning - ofta är detta relativt till din hemkatalog."
 
-#: addons/sftp.php:356
+#: addons/sftp.php:368
 msgid "host name"
 msgstr "Värdnamn"
 
-#: addons/sftp.php:360
+#: addons/sftp.php:372
 msgid "username"
 msgstr "användarnamn"
 
-#: addons/sftp.php:364
+#: addons/sftp.php:376
 msgid "password"
 msgstr "lösenord"
 
-#: addons/sftp.php:369
+#: addons/sftp.php:381
 msgid "Failure: Port must be an integer."
 msgstr "Fel: Porten måste vara ett heltal."
 
@@ -1930,7 +2030,7 @@ msgstr "Fel: Porten måste vara ett heltal."
 msgid "starting from next time it is"
 msgstr "med början från nästa gång är det"
 
-#: addons/multisite.php:143
+#: addons/multisite.php:149
 msgid "Multisite Install"
 msgstr "Multisajt-Installation"
 
@@ -1942,11 +2042,11 @@ msgstr "Du har inte tillräcklig behörighet för att komma åt denna sida."
 msgid "You do not have permission to access this page."
 msgstr "Du har inte behörighet att komma åt denna sida."
 
-#: addons/multisite.php:246
+#: addons/multisite.php:254
 msgid "Must-use plugins"
 msgstr "Tillägg som krävs"
 
-#: addons/multisite.php:253
+#: addons/multisite.php:261
 msgid "Blog uploads"
 msgstr "Blogg-uppladdningar"
 
@@ -2015,7 +2115,7 @@ msgstr "Om du använder det, ange en absolut sökväg (den är inte relativ till
 msgid "Be careful what you enter - if you enter / then it really will try to create a zip containing your entire webserver."
 msgstr "Var försiktig med vad du matar in - om du anger / så kommer den verkligen att försöka skapa en zip innehållande hela din webbserver."
 
-#: addons/morefiles.php:222 addons/morefiles.php:299
+#: addons/morefiles.php:222 addons/morefiles.php:300
 msgid "No backup of %s directories: there was nothing found to back up"
 msgstr "Ingen backup av %s-kataloger: inget hittades att backa upp"
 
@@ -2023,64 +2123,64 @@ msgstr "Ingen backup av %s-kataloger: inget hittades att backa upp"
 msgid "more"
 msgstr "fler"
 
-#: addons/sftp.php:27
+#: addons/sftp.php:39
 msgid "Encrypted FTP is available, and will be automatically tried first (before falling back to non-encrypted if it is not successful), unless you disable it using the expert options. The 'Test FTP Login' button will tell you what type of connection is in use."
 msgstr "Krypterad FTP finns tillgänglig och kommer automatiskt att försökas med först (icke-krypterad används om den krypterade misslyckas), såvida du inte stänger av funktionen via expert-alternativen. 'Testa FTP-Inloggning'-knappen kommer att tala om för dig vilken typ av anslutning som används."
 
-#: addons/sftp.php:27
+#: addons/sftp.php:39
 msgid "Explicit encryption is used by default. To force implicit encryption (port 990), add :990 to your FTP server below."
 msgstr "Explicit kryptering används som förvalt alternativ. För att tvinga implicit kryptering (port 990), lägg till :990 till din FTP-server nedan."
 
-#: addons/sftp.php:34 addons/sftp.php:35 addons/sftp.php:36
+#: addons/sftp.php:46 addons/sftp.php:47 addons/sftp.php:48
 msgid "No %s found"
 msgstr "Inga %s hittades"
 
-#: addons/sftp.php:399
+#: addons/sftp.php:411
 msgid "Check your file permissions: Could not successfully create and enter:"
 msgstr "Kontrollera dina filbehörigheter: Kunde inte skapa och ange:"
 
-#: methods/ftp.php:186
+#: methods/ftp.php:219
 msgid "FTP Server"
 msgstr "FTP-Server"
 
-#: methods/ftp.php:190
+#: methods/ftp.php:223
 msgid "FTP Login"
 msgstr "FTP-Inloggning"
 
-#: methods/ftp.php:194
+#: methods/ftp.php:227
 msgid "FTP Password"
 msgstr "FTP-Lösenord"
 
-#: methods/ftp.php:198
+#: methods/ftp.php:231
 msgid "Remote Path"
 msgstr "Fjärrsökväg"
 
-#: methods/ftp.php:199
+#: methods/ftp.php:232
 msgid "Needs to already exist"
 msgstr "Måste redan existera"
 
-#: methods/ftp.php:224
+#: methods/ftp.php:257
 msgid "Failure: No server details were given."
 msgstr "Fel: Inga server-uppgifter lämnades."
 
-#: methods/ftp.php:239
+#: methods/ftp.php:272
 msgid "Failure: we did not successfully log in with those credentials."
 msgstr "Fel: Vi kunde inte logga in med dessa användaruppgifter."
 
-#: methods/ftp.php:247
+#: methods/ftp.php:280
 msgid "Failure: an unexpected internal UpdraftPlus error occurred when testing the credentials - please contact the developer"
 msgstr "Fel: ett oväntat internt UpdraftPlus-fel uppstod när användaruppgifterna testades - vänlige kontakta utvecklaren"
 
-#: methods/ftp.php:251
+#: methods/ftp.php:284
 msgid "Success: we successfully logged in, and confirmed our ability to create a file in the given directory (login type:"
 msgstr "Framgång: vi loggade in och bekräftade vår förmåga att skapa en fil i den utpekade katalogen (inloggningstyp:"
 
-#: methods/ftp.php:254
+#: methods/ftp.php:287
 msgid "Failure: we successfully logged in, but were not able to create a file in the given directory."
 msgstr "Fel: vi loggade in men kunde inte skapa en fil i den utpekade katalogen."
 
 #: addons/webdav.php:42 addons/webdav.php:163 addons/webdav.php:199
-#: addons/sftp.php:32
+#: addons/sftp.php:44
 msgid "No %s settings were found"
 msgstr "Inga %s-inställningar hittades"
 
@@ -2108,15 +2208,15 @@ msgstr "WebDAV URL"
 msgid "Enter a complete URL, beginning with webdav:// or webdavs:// and including path, username, password and port as required - e.g.%s"
 msgstr "Ange en fullständig URL, börj med webdav:// eller webdavs:// och inkludera sökväg, användarnamn, lösenord och port efter behov - ex %s"
 
-#: admin.php:2037 admin.php:2072 admin.php:2081
+#: admin.php:2112 admin.php:2147 admin.php:2156
 msgid "Failed"
 msgstr "Misslyckades"
 
-#: addons/webdav.php:333
+#: addons/webdav.php:335
 msgid "Failed: We were not able to place a file in that directory - please check your credentials."
 msgstr "Misslyckades: Vi kunde inte placera en fil i den katalogen - var god kontrollera dina användaruppgifter."
 
-#: addons/morefiles.php:50 addons/morefiles.php:299
+#: addons/morefiles.php:50 addons/morefiles.php:300
 msgid "WordPress Core"
 msgstr "WordPress-kärnan"
 
@@ -2148,11 +2248,11 @@ msgstr "men en del av den returnerade informationen var inte som väntat - din k
 msgid "Your %s account name: %s"
 msgstr "Ditt %s kontonamn: %s"
 
-#: methods/ftp.php:182
+#: methods/ftp.php:215
 msgid "Only non-encrypted FTP is supported by regular UpdraftPlus."
 msgstr "Endast ickekrypterad FTP stöds av vanliga UpdraftPlus."
 
-#: methods/ftp.php:182
+#: methods/ftp.php:215
 msgid "If you want encryption (e.g. you are storing sensitive business data), then an add-on is available."
 msgstr "Om du vill ha kryptering (exempelvis om du vill lagra affärskritisk information), då finns ett insticksprogram tillgängligt."
 
@@ -2399,7 +2499,7 @@ msgstr "Cloud Files-autentiseringen misslyckades"
 msgid "Cloud Files error - failed to create and access the container"
 msgstr "Cloud Files fel - misslyckades att skapa och få åtkomst till containern"
 
-#: updraftplus.php:790
+#: updraftplus.php:801
 msgid "%s Error: Failed to open local file"
 msgstr "%s Fel: Misslyckades med att öppna lokal fil"
 
@@ -2412,7 +2512,7 @@ msgstr "%s Error: Misslyckades med uppladdning"
 msgid "Cloud Files error - failed to upload file"
 msgstr "Cloud Files fel - misslyckades med att ladda upp fil"
 
-#: updraftplus.php:861
+#: updraftplus.php:872
 msgid "Error opening local file: Failed to download"
 msgstr "Fel vid öppning av lokal fil: Misslyckades att ladda ner"
 
@@ -2470,28 +2570,28 @@ msgstr "Kontot är inte godkänt."
 msgid "%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your site is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts."
 msgstr "%s är ett bra val, eftersom UpdraftPlus stöder delade uppladdningar - det spelar ingen roll hur stor din webbplats är, så kan UpdraftPlus ladda upp den lite i taget utan att avbrytas av timeouts."
 
-#: restorer.php:1115
+#: restorer.php:1134
 msgid "will restore as:"
 msgstr "kommer att återställa som:"
 
-#: restorer.php:1184
+#: restorer.php:1203
 msgid "the database query being run was:"
 msgstr "databasfrågan som kördes var:"
 
-#: restorer.php:1191
+#: restorer.php:1210
 msgid "Too many database errors have occurred - aborting restoration (you will need to restore manually)"
 msgstr "För många databasfel har uppstått - avbryter återställning (du måste återställa manuellt)"
 
-#: restorer.php:1147
+#: restorer.php:1166
 msgid "Finished: lines processed: %d in %.2f seconds"
 msgstr "Klart: rader som bearbetats: %d på %2f sekunder"
 
-#: restorer.php:1245 restorer.php:1270
+#: restorer.php:1264 restorer.php:1289
 msgid "Table prefix has changed: changing %s table field(s) accordingly:"
 msgstr "Tabellprefix har ändrats: ändrar %s tabellfält motsvarande:"
 
-#: restorer.php:1249 restorer.php:1296 admin.php:2040 admin.php:2074
-#: admin.php:2078 admin.php:2986 admin.php:2999
+#: restorer.php:1268 restorer.php:1315 admin.php:2115 admin.php:2149
+#: admin.php:2153 admin.php:3062 admin.php:3075
 msgid "OK"
 msgstr "OK"
 
@@ -2541,107 +2641,107 @@ msgstr "Har ännu inte fått något åtkomstbevis från Google - du måste godk�
 msgid "Have not yet obtained an access token from Google (has the user authorised?)"
 msgstr "Har ännu inte fått något åtkomstbevis från Google (har användaren godkänt?)"
 
-#: restorer.php:213
+#: restorer.php:214
 msgid "wp-config.php from backup: restoring (as per user's request)"
 msgstr "wp-config.php från backup: återställer (enligt användarens önskemål)"
 
-#: restorer.php:824
+#: restorer.php:839
 msgid "Warning: PHP safe_mode is active on your server. Timeouts are much more likely. If these happen, then you will need to manually restore the file via phpMyAdmin or another method."
 msgstr "Varning: PHP safe_mode är aktivt på din server. Det betyder ökad risk för timeouts. Om sådana inträffar kommer du att behöva manuellt återställa filen via phpMyAdmin eller annan metod."
 
-#: restorer.php:829
+#: restorer.php:844
 msgid "Failed to find database file"
 msgstr "Hittade inte databasfil"
 
-#: restorer.php:837
+#: restorer.php:852
 msgid "Failed to open database file"
 msgstr "Kunde inte öppna databasfil"
 
-#: restorer.php:859
+#: restorer.php:874
 msgid "Database access: Direct MySQL access is not available, so we are falling back to wpdb (this will be considerably slower)"
 msgstr "Databas-åtkomst: Direkt MySQL-åtkomst är inte tillgängligt, så vi faller tillbaka till wpdb (detta kommer att vara betydligt långsammare)"
 
-#: backup.php:503 admin.php:1031
+#: backup.php:503 admin.php:1047
 msgid "Backup of:"
 msgstr "Backup av:"
 
-#: restorer.php:953 restorer.php:1040
+#: restorer.php:972 restorer.php:1059
 msgid "Old table prefix:"
 msgstr "Prefix för gamla tabeller:"
 
-#: admin.php:2996
+#: admin.php:3072
 msgid "Archive is expected to be size:"
 msgstr "Arkivet förväntas ha storleken:"
 
-#: admin.php:3004
+#: admin.php:3080
 msgid "The backup records do not contain information about the proper size of this file."
 msgstr "Backupnoteringarna innehåller ingen information om den rätta storleken på den här filen."
 
-#: admin.php:3059
+#: admin.php:3135
 msgid "Error message"
 msgstr "Felmeddelande"
 
-#: admin.php:3007 admin.php:3008
+#: admin.php:3083 admin.php:3084
 msgid "Could not find one of the files for restoration"
 msgstr "Kunde inte hitta en av filerna för återskapning"
 
-#: restorer.php:21
+#: restorer.php:22
 msgid "UpdraftPlus is not able to directly restore this kind of entity. It must be restored manually."
 msgstr "UpdraftPlus kan inte direkt återskapa den här typen av enhet. Den måste återställas manuellt."
 
-#: restorer.php:22
+#: restorer.php:23
 msgid "Backup file not available."
 msgstr "Backup-fil är inte tillgänglig."
 
-#: restorer.php:23
+#: restorer.php:24
 msgid "Copying this entity failed."
 msgstr "Kopiering av denna entitet misslyckades."
 
-#: restorer.php:24
+#: restorer.php:25
 msgid "Unpacking backup..."
 msgstr "Packar upp backup..."
 
-#: restorer.php:25
+#: restorer.php:26
 msgid "Decrypting database (can take a while)..."
 msgstr "Avkrypterar databas (kan ta ett tag)..."
 
-#: restorer.php:26
+#: restorer.php:27
 msgid "Database successfully decrypted."
 msgstr "Avkryptering av databasen lyckades."
 
-#: restorer.php:29
+#: restorer.php:30
 msgid "Restoring the database (on a large site this can take a long time - if it times out (which can happen if your web hosting company has configured your hosting to limit resources) then you should use a different method, such as phpMyAdmin)..."
 msgstr "Återställer databasen (på en stor webbplats kan detta ta lång tid - om timeout inträffar (vilket kan hända om ditt webbhotell har konfigurerat hotellet för att begränsa resursnyttjandet) så bör du använda en annan metod, som exempelvis phpMyAdmin)..."
 
-#: restorer.php:30
+#: restorer.php:31
 msgid "Cleaning up rubbish..."
 msgstr "Städer bort skräp..."
 
-#: restorer.php:32
+#: restorer.php:33
 msgid "Could not delete old directory."
 msgstr "Kunde inte ta bort gamla katalogen."
 
-#: restorer.php:35
+#: restorer.php:36
 msgid "Failed to delete working directory after restoring."
 msgstr "Misslyckades med att ta bort arbetskatalog efter återställning."
 
-#: restorer.php:117
+#: restorer.php:118
 msgid "Failed to create a temporary directory"
 msgstr "Misslyckades skapa tillfällig katalog"
 
-#: restorer.php:130
+#: restorer.php:131
 msgid "Failed to write out the decrypted database to the filesystem"
 msgstr "Misslyckades med att skriva ut den avkrypterade databasen till filsystemet"
 
-#: restorer.php:208
+#: restorer.php:209
 msgid "wp-config.php from backup: will restore as wp-config-backup.php"
 msgstr "wp-config.php från backup: återskapas som wp-config-backup.php"
 
-#: admin.php:2509
+#: admin.php:2585
 msgid "Choosing this option lowers your security by stopping UpdraftPlus from using SSL for authentication and encrypted transport at all, where possible. Note that some cloud storage providers do not allow this (e.g. Dropbox), so with those providers this setting will have no effect."
 msgstr "Väljer du detta alternativ minskar säkerheten då du stoppar UpdraftPlus helt från att använda SSL för autentisering och krypterad transport, där det är möjligt. Notera att vissa molnlagringstjänster inte tillåter detta (exempelvis Dropbox), så för dessa tjänster kommer denna inställning inte att ha någon effekt."
 
-#: admin.php:2533
+#: admin.php:2609
 msgid "Save Changes"
 msgstr "Spara Ändringar"
 
@@ -2650,155 +2750,155 @@ msgstr "Spara Ändringar"
 msgid "Your web server's PHP installation does not included a required module (%s). Please contact your web hosting provider's support."
 msgstr "Din webbservers PHP-installation saknar en nödvändig modul (%s). Vänligen kontakta ditt webbhotells support."
 
-#: admin.php:2567
+#: admin.php:2643
 msgid "Your web server's PHP/Curl installation does not support https access. Communications with %s will be unencrypted. ask your web host to install Curl/SSL in order to gain the ability for encryption (via an add-on)."
 msgstr "Din webbservers PHP/Curl-installation stöder inte https-åtkomst. Kommunikationen med %s kommer att vara okrypterad. Be ditt webbhotell installera Curl/SSL för att kunna kryptera (via ett insticksprogram)."
 
-#: admin.php:2569
+#: admin.php:2645
 msgid "Your web server's PHP/Curl installation does not support https access. We cannot access %s without this support. Please contact your web hosting provider's support. %s <strong>requires</strong> Curl+https. Please do not file any support requests; there is no alternative."
 msgstr "Din webbservers PHP/Curl-installation stöder inte https-åtkomst. Vi kan inte komma åt %s utan detta stöd. Vänligen kontakta ditt webbhotells support. %s <strong>kräver</strong> Curl+https. Vänligen skicka ingen supportbegäran; det finns inget alternativ."
 
-#: admin.php:2572
+#: admin.php:2648
 msgid "Good news: Your site's communications with %s can be encrypted. If you see any errors to do with encryption, then look in the 'Expert Settings' for more help."
 msgstr "Goda nyheter: Din webbplats kommunikation med %s kan krypteras. Om du ser några fel som rör krypteringen, titta i 'Expert-Inställningar' för mer hjälp."
 
-#: admin.php:2655
+#: admin.php:2731
 msgid "Delete this backup set"
 msgstr "Ta bort detta backup-set"
 
-#: admin.php:2710
+#: admin.php:2786
 msgid "Press here to download"
 msgstr "Tryck här för att ladda ner"
 
-#: admin.php:2683 admin.php:2738
+#: admin.php:2759 admin.php:2814
 msgid "(No %s)"
 msgstr "(Inga %s)"
 
-#: admin.php:2746
+#: admin.php:2822
 msgid "Backup Log"
 msgstr "Backup-Logg"
 
-#: admin.php:2767
+#: admin.php:2843
 msgid "After pressing this button, you will be given the option to choose which components you wish to restore"
 msgstr "Efter att ha tryckt på denna knapp kommer du att ges möjlighet att välja vilka komponenter du önskar återställa"
 
-#: admin.php:2858
+#: admin.php:2934
 msgid "This backup does not exist in the backup history - restoration aborted. Timestamp:"
 msgstr "Denna backup existerar inte i backup-historiken - återställning avbryts. Tidsstämpel:"
 
-#: admin.php:2897
+#: admin.php:2973
 msgid "UpdraftPlus Restoration: Progress"
 msgstr "UpdraftPlus Återställning: Pågår"
 
-#: admin.php:2927
+#: admin.php:3003
 msgid "ABORT: Could not find the information on which entities to restore."
 msgstr "AVBRYT: Kunde inte hitta information om vilka enheter som ska återställas."
 
-#: admin.php:2928
+#: admin.php:3004
 msgid "If making a request for support, please include this information:"
 msgstr "Om du begär support, vänligen inkludera denna information:"
 
-#: admin.php:2503
+#: admin.php:2579
 msgid "Do not verify SSL certificates"
 msgstr "Verifiera inte SSL-certifikat"
 
-#: admin.php:2504
+#: admin.php:2580
 msgid "Choosing this option lowers your security by stopping UpdraftPlus from verifying the identity of encrypted sites that it connects to (e.g. Dropbox, Google Drive). It means that UpdraftPlus will be using SSL only for encryption of traffic, and not for authentication."
 msgstr "Väljer du detta alternativ minskar du säkerheten genom att du stoppar UpdraftPlus från att verifiera identiteten hos krypterade webbplatser som den ansluter till (exempelvis Dropbox, Google Drive). Det betyder att UpdraftPlus bara kommer att använda SSL för kryptering av trafik, inte för autentisering."
 
-#: admin.php:2504
+#: admin.php:2580
 msgid "Note that not all cloud backup methods are necessarily using SSL authentication."
 msgstr "Notera att inte alla molnbackuptjänster nödvändigtvis använder SSL-autentisering."
 
-#: admin.php:2508
+#: admin.php:2584
 msgid "Disable SSL entirely where possible"
 msgstr "Stäng av SSL helt där det är möjligt"
 
-#: admin.php:2455
+#: admin.php:2531
 msgid "Expert settings"
 msgstr "Expert-Inställningar"
 
-#: admin.php:2456
+#: admin.php:2532
 msgid "Show expert settings"
 msgstr "Visa expert-inställningar"
 
-#: admin.php:2456
+#: admin.php:2532
 msgid "click this to show some further options; don't bother with this unless you have a problem or are curious."
 msgstr "klicka denna för att visa några ytterligare alternativ; men låt bli såvida du inte har problem eller är nyfiken."
 
-#: admin.php:2471
+#: admin.php:2547
 msgid "Delete local backup"
 msgstr "Ta bort lokal backup"
 
-#: admin.php:2476
+#: admin.php:2552
 msgid "Backup directory"
 msgstr "Backup-katalog"
 
-#: admin.php:2483
+#: admin.php:2559
 msgid "Backup directory specified is writable, which is good."
 msgstr "Backup-katalogen som specificerades är skrivbar, vilket är bra."
 
-#: admin.php:2491
+#: admin.php:2567
 msgid "Click here to attempt to create the directory and set the permissions"
 msgstr "Klicka här för att försöka skapa katalogen och ställa in behörigheterna"
 
-#: admin.php:2491
+#: admin.php:2567
 msgid "or, to reset this option"
 msgstr "eller, för att nollställa detta alternativ"
 
-#: admin.php:2491
+#: admin.php:2567
 msgid "click here"
 msgstr "klicka här"
 
-#: admin.php:2491
+#: admin.php:2567
 msgid "If that is unsuccessful check the permissions on your server or change it to another directory that is writable by your web server process."
 msgstr "Om detta inte lyckas kontrollera behörigheterna på din server eller ändra den till en annan katalog som är skrivbar för din webbserverprocess."
 
-#: admin.php:2498
+#: admin.php:2574
 msgid "Use the server's SSL certificates"
 msgstr "Använd serverns SSL-certifikat"
 
-#: admin.php:2499
+#: admin.php:2575
 msgid "By default UpdraftPlus uses its own store of SSL certificates to verify the identity of remote sites (i.e. to make sure it is talking to the real Dropbox, Amazon S3, etc., and not an attacker). We keep these up to date. However, if you get an SSL error, then choosing this option (which causes UpdraftPlus to use your web server's collection instead) may help."
 msgstr "Vanligtvis använder UpdraftPlus sin egen uppsättning SSL-certifikat för att verifiera identiteten hos fjärrwebbplatser (för att säkerställa att den talar med det verkliga Dropbox, Amazon S3 osv och inte en hackare). Vi håller dessa uppdaterade. Men om du råkar ut för ett SSL-fel, då kan detta alternativ (som får UpdraftPlus att använda din webbservers uppsättning istället) kanske hjälpa."
 
-#: admin.php:2285
+#: admin.php:2361
 msgid "Use WordShell for automatic backup, version control and patching"
 msgstr "Använd WordShell för automatisk backup, versionskontroll och patchning."
 
-#: admin.php:2348 udaddons/options.php:111
+#: admin.php:2424 udaddons/options.php:111
 msgid "Email"
 msgstr "Epost"
 
-#: admin.php:2290
+#: admin.php:2366
 msgid "Database encryption phrase"
 msgstr "Fras för databaskryptering"
 
-#: admin.php:2301
+#: admin.php:2377
 msgid "If you enter text here, it is used to encrypt backups (Rijndael). <strong>Do make a separate record of it and do not lose it, or all your backups <em>will</em> be useless.</strong> Presently, only the database file is encrypted. This is also the key used to decrypt backups from this admin interface (so if you change it, then automatic decryption will not work until you change it back)."
 msgstr "Om du matar in text här så används den för att kryptera backuper (Rijndael). <strong>Gör en separat notering av det och slarva inte bort den, eller så <em>kommer</em> alla dina backuper att bli oanvändbara.</strong> För närvarande är bara databasfilen krypterad. Detta är också den nyckel som används för att avkryptera backuper från detta administrationsgränssnitt (så om du ändrar den så kommer den automatiska avkrypteringen inte att fungera förrän då ändrar den tillbaka)."
 
-#: admin.php:2301
+#: admin.php:2377
 msgid "You can also decrypt a database manually here."
 msgstr "Du kan också avkryptera en databas manuellt här."
 
-#: admin.php:2313
+#: admin.php:2389
 msgid "Manually decrypt a database backup file"
 msgstr "Avkryptera en databas-backupfil manuellt"
 
-#: admin.php:2320
+#: admin.php:2396
 msgid "Use decryption key"
 msgstr "Använd avkrypteringsnyckel"
 
-#: admin.php:2364
+#: admin.php:2440
 msgid "Copying Your Backup To Remote Storage"
 msgstr "Kopiering av Din Backup Till Fjärrlagring"
 
-#: admin.php:2374
+#: admin.php:2450
 msgid "Choose your remote storage"
 msgstr "Välj din fjärrlagringsplats"
 
-#: admin.php:2383
+#: admin.php:2459
 msgid "None"
 msgstr "Ingen"
 
@@ -2810,247 +2910,247 @@ msgstr "Avbryt"
 msgid "Requesting start of backup..."
 msgstr "Begär start av backup..."
 
-#: admin.php:2448
+#: admin.php:2524
 msgid "Advanced / Debugging Settings"
 msgstr "Avancerat / Avbuggningsinställningar"
 
-#: admin.php:2451
+#: admin.php:2527
 msgid "Debug mode"
 msgstr "Avbuggningsläge"
 
-#: admin.php:2452
+#: admin.php:2528
 msgid "Check this to receive more information and emails on the backup process - useful if something is going wrong. You <strong>must</strong> send us this log if you are filing a bug report."
 msgstr "Markera denna för att få mer information och epost om backup-processen - användbart om något går fel. Du <strong>måste</strong> skicka oss denna logg om du skickar in en felrapport."
 
-#: admin.php:2285
+#: admin.php:2360
 msgid "The above directories are everything, except for WordPress core itself which you can download afresh from WordPress.org."
 msgstr "Ovanstående kataloger är allt, förutom WordPress-kärnan, som du kan ladda ner ånyo från WordPress.org."
 
-#: admin.php:2214
+#: admin.php:2289
 msgid "Daily"
 msgstr "Dagligen"
 
-#: admin.php:2214
+#: admin.php:2289
 msgid "Weekly"
 msgstr "Varje vecka"
 
-#: admin.php:2214
+#: admin.php:2289
 msgid "Fortnightly"
 msgstr "Var 14:e dag"
 
-#: admin.php:2214
+#: admin.php:2289
 msgid "Monthly"
 msgstr "Månatligen"
 
-#: admin.php:2223 admin.php:2241
+#: admin.php:2298 admin.php:2316
 msgid "and retain this many backups"
 msgstr "och behåll så här många backuper"
 
-#: admin.php:2230
+#: admin.php:2305
 msgid "Database backup intervals"
 msgstr "Intervaller för databas-backup"
 
-#: admin.php:2248
+#: admin.php:2323
 msgid "If you would like to automatically schedule backups, choose schedules from the dropdowns above. Backups will occur at the intervals specified. If the two schedules are the same, then the two backups will take place together. If you choose \"manual\" then you must click the \"Backup Now\" button whenever you wish a backup to occur."
 msgstr "Om du vill schemalägga backuper automatiskt, välj scheman från rullgardinsmenyerna ovan. Backuper sker i enlighet med specificerade intervaller. Om de två schemana är samma, då kommer båda backuperna att ske tillsammans. OM du väljer \"manuellt\" måste du klicka \"Gör Backup Nu\"-knappen när du vill att en backup ska göras."
 
-#: admin.php:2249
+#: admin.php:2324
 msgid "To fix the time at which a backup should take place,"
 msgstr "För att bestämma vid vilken tidpunkt en backup ska göras,"
 
-#: admin.php:2249
+#: admin.php:2324
 msgid "e.g. if your server is busy at day and you want to run overnight"
 msgstr "exempelvis om din server är hårt belastad dagtid och du vill köra den under natten"
 
-#: admin.php:2249
+#: admin.php:2324
 msgid "use the \"Fix Time\" add-on"
 msgstr "använd \"Fastställ Tid\"-insticksprogrammet"
 
-#: admin.php:2253
+#: admin.php:2328
 msgid "Include in files backup"
 msgstr "Inkludera i filbackupen"
 
-#: admin.php:2265
+#: admin.php:2340
 msgid "Any other directories found inside wp-content"
 msgstr "Varje annan katalog som hittas inuti wp-content"
 
-#: admin.php:2271
+#: admin.php:2346
 msgid "Exclude these:"
 msgstr "Exkludera dessa:"
 
-#: admin.php:1799
+#: admin.php:1874
 msgid "Debug Database Backup"
 msgstr "Avbugga Databas-backup"
 
-#: admin.php:1799
+#: admin.php:1874
 msgid "This will cause an immediate DB backup. The page will stall loading until it finishes (ie, unscheduled). The backup may well run out of time; really this button is only helpful for checking that the backup is able to get through the initial stages, or for small WordPress sites.."
 msgstr "Detta orsakar en omedelbar databas-backup. Sidan kommer att frysas under laddning till dess att den är klar (alltså ej schemalagt). Backupen kan mycket väl råka ut för timeout; denna knapp är enbart bra till att kontrollera att backupen klarar att ta sig igenom de inledande stegen, eller för små WordPress-webbplatser..."
 
-#: admin.php:1805
+#: admin.php:1880
 msgid "Wipe Settings"
 msgstr "Radera Inställningar"
 
-#: admin.php:1806
+#: admin.php:1881
 msgid "This button will delete all UpdraftPlus settings (but not any of your existing backups from your cloud storage). You will then need to enter all your settings again. You can also do this before deactivating/deinstalling UpdraftPlus if you wish."
 msgstr "Denna knapp tar bort alla UpdraftPlus-inställningar (men inte några av dina befintliga backuper från din molnlagringstjänst). Du kommer sedan behöva göra om alla inställningar igen. Du kan också göra detta innan du avaktiverar eller avinstallerar UpdraftPlus om du så önskar."
 
-#: admin.php:1809
+#: admin.php:1884
 msgid "Wipe All Settings"
 msgstr "Radera Alla Inställningar"
 
-#: admin.php:1809
+#: admin.php:1884
 msgid "This will delete all your UpdraftPlus settings - are you sure you want to do this?"
 msgstr "Detta raderar alla dina UpdraftPlus-inställningar - är du säker på att du vill göra detta?"
 
-#: admin.php:1977
+#: admin.php:2052
 msgid "show log"
 msgstr "visa logg"
 
-#: admin.php:1979
+#: admin.php:2054
 msgid "delete schedule"
 msgstr "ta bort schema"
 
-#: admin.php:123 admin.php:2034 admin.php:2067
+#: admin.php:123 admin.php:2109 admin.php:2142
 msgid "Delete"
 msgstr "Ta bort"
 
-#: admin.php:2118
+#: admin.php:2193
 msgid "The request to the filesystem to create the directory failed."
 msgstr "Begäran till filsystemet att skapa katalogen misslyckades."
 
-#: admin.php:2132
+#: admin.php:2207
 msgid "The folder was created, but we had to change its file permissions to 777 (world-writable) to be able to write to it. You should check with your hosting provider that this will not cause any problems"
 msgstr "Katalogen skapades, men vi var tvingade att ställa behörigheten till 777 (skrivbart för alla) för att kunna skriva till den. Du bör kontrollera med ditt webbhotell att detta inte kommer att orsaka några problem"
 
-#: admin.php:2136
+#: admin.php:2211
 msgid "The folder exists, but your webserver does not have permission to write to it."
 msgstr "Katalogen existerar, men din webbserver har inte behörighet att skriva till den."
 
-#: admin.php:2136
+#: admin.php:2211
 msgid "You will need to consult with your web hosting provider to find out to set permissions for a WordPress plugin to write to the directory."
 msgstr "Du kommer att behöva konsultera ditt webbhotell för att få veta hur du ställer in behörighet för ett WordPress-tillägg att skriva till katalogen."
 
-#: admin.php:2191
+#: admin.php:2266
 msgid "Download log file"
 msgstr "Ladda ner logg-fil"
 
-#: admin.php:2195
+#: admin.php:2270
 msgid "No backup has been completed."
 msgstr "Ingen backup har slutförts."
 
-#: admin.php:2211
+#: admin.php:2286
 msgid "File backup intervals"
 msgstr "Intervall för fil-backuper"
 
-#: admin.php:2214
+#: admin.php:2289
 msgid "Manual"
 msgstr "Manell"
 
-#: admin.php:2214
+#: admin.php:2289
 msgid "Every 4 hours"
 msgstr "Var 4:e timma"
 
-#: admin.php:2214
+#: admin.php:2289
 msgid "Every 8 hours"
 msgstr "Var 8.e timma"
 
-#: admin.php:2214
+#: admin.php:2289
 msgid "Every 12 hours"
 msgstr "Var 12:e timma"
 
-#: admin.php:1707
+#: admin.php:1781
 msgid "To proceed, press 'Backup Now'. Then, watch the 'Last Log Message' field for activity after about 10 seconds. WordPress should start the backup running in the background."
 msgstr "För att fortsätta, tryck 'Ta Backup Nu' Titta sedan på 'Sista Logg-Meddelande'-fältet för aktivitet efter ungefär 10 sekunder. WordPress bör börja köra backupen i bakgrunden."
 
-#: admin.php:1715
+#: admin.php:1789
 msgid "Go here for help."
 msgstr "Gå hit för hjälp."
 
-#: admin.php:1721
+#: admin.php:1795
 msgid "Multisite"
 msgstr "Multisajt"
 
-#: admin.php:1725
+#: admin.php:1799
 msgid "Do you need WordPress Multisite support?"
 msgstr "Behöver du WordPress Multisajt-support?"
 
-#: admin.php:1725
+#: admin.php:1799
 msgid "Please check out UpdraftPlus Premium, or the stand-alone Multisite add-on."
 msgstr "Vänligen ta en titt på UpdraftPlus Premium, eller det fristående Multisajt-insticksprogrammet."
 
-#: admin.php:1730
+#: admin.php:1804
 msgid "Configure Backup Contents And Schedule"
 msgstr "Konfigurera Backup-Innehåll Och Schemalägg"
 
-#: admin.php:1736
+#: admin.php:1810
 msgid "Debug Information And Expert Options"
 msgstr "Avbuggnings-Information Och Expert-Alternativ"
 
-#: admin.php:1739
+#: admin.php:1813
 msgid "Web server:"
 msgstr "Webbserver:"
 
-#: admin.php:1745
+#: admin.php:1819
 msgid "Peak memory usage"
 msgstr "Högsta minnesanvändning"
 
-#: admin.php:1746
+#: admin.php:1820
 msgid "Current memory usage"
 msgstr "Nuvarande minnesanvändning"
 
-#: admin.php:1747
+#: admin.php:1821
 msgid "PHP memory limit"
 msgstr "PHP minnesgräns"
 
-#: admin.php:1748 admin.php:1750
+#: admin.php:1822 admin.php:1824
 msgid "%s version:"
 msgstr "%s version:"
 
-#: admin.php:1753 admin.php:1755 admin.php:1762
+#: admin.php:1827 admin.php:1830 admin.php:1837
 msgid "Yes"
 msgstr "Ja"
 
-#: admin.php:1755 admin.php:1762
+#: admin.php:1830 admin.php:1837
 msgid "No"
 msgstr "Nej"
 
-#: admin.php:1758
+#: admin.php:1833
 msgid "PHP has support for ZipArchive::addFile:"
 msgstr "PHP har stöd för ZipArchive::addFile:"
 
-#: admin.php:1772
+#: admin.php:1847
 msgid "Total (uncompressed) on-disk data:"
 msgstr "Total (okomprimerad) data på disk:"
 
-#: admin.php:1773
+#: admin.php:1848
 msgid "N.B. This count is based upon what was, or was not, excluded the last time you saved the options."
 msgstr "Notera. Denna siffra baseras på vad som exkluderades eller inte senast du sparade alternativen."
 
-#: admin.php:1780
+#: admin.php:1855
 msgid "count"
 msgstr "räkna"
 
-#: admin.php:1786
+#: admin.php:1861
 msgid "The buttons below will immediately execute a backup run, independently of WordPress's scheduler. If these work whilst your scheduled backups and the \"Backup Now\" button do absolutely nothing (i.e. not even produce a log file), then it means that your scheduler is broken. You should then disable all your other plugins, and try the \"Backup Now\" button. If that fails, then contact your web hosting company and ask them if they have disabled wp-cron. If it succeeds, then re-activate your other plugins one-by-one, and find the one that is the problem and report a bug to them."
 msgstr "Knapparna nedan kommer omedelbart att utföra en backup-körning, oberoende av WordPress egen schemaläggare. Om dessa fungerar medan dina schemalagda backuper och \"Ta Backup Nu\"-knappen gör absolut ingenting (alltså inte ens producerar en logg-fil), då betyder det att din schemaläggare är trasig. Du bör avaktivera alla andra tillägg, och försöka \"Ta Backup Nu\"-knappen. Om det inte fungerar, kontakta ditt webbhotell och fråga dem om de har avaktiverat wp-cron. Om det fungerar, så återaktivera dina andra tillägg ett efter ett för att hitta vilket som orsakar problemet och rapportera felet till dem."
 
-#: admin.php:1794
+#: admin.php:1869
 msgid "Debug Full Backup"
 msgstr "Avbugga Hel Backup"
 
-#: admin.php:1794
+#: admin.php:1869
 msgid "This will cause an immediate backup. The page will stall loading until it finishes (ie, unscheduled)."
 msgstr "Detta orsakar en omedelbar backup. Sidan kommer att frysa under laddning tills den är klar (alltså ej schemalagt)."
 
-#: admin.php:1574
+#: admin.php:1648
 msgid "UpdraftPlus - Upload backup files"
 msgstr "UpdraftPlus - Ladda upp backup-filer"
 
-#: admin.php:1575
+#: admin.php:1649
 msgid "Upload files into UpdraftPlus. Use this to import backups made on a different WordPress installation."
 msgstr "Ladda upp filer till UpdraftPlus. Använd denna för att importera backuper gjorda på en annan WordPress-installation"
 
-#: admin.php:1580 admin.php:2318
+#: admin.php:1654 admin.php:2394
 msgid "or"
 msgstr "eller"
 
@@ -3058,7 +3158,7 @@ msgstr "eller"
 msgid "calculating..."
 msgstr "beräknar..."
 
-#: restorer.php:786 admin.php:100 admin.php:3001 admin.php:3021
+#: restorer.php:801 admin.php:100 admin.php:3077 admin.php:3097
 msgid "Error:"
 msgstr "Fel:"
 
@@ -3070,216 +3170,216 @@ msgstr "Du bör:"
 msgid "Download error: the server sent us a response which we did not understand."
 msgstr "Nedladdningsfel: servern skickade oss ett svar som vi inte kunde förstå."
 
-#: admin.php:1605
+#: admin.php:1679
 msgid "Delete backup set"
 msgstr "Ta bort backup-set"
 
-#: admin.php:1608
+#: admin.php:1682
 msgid "Are you sure that you wish to delete this backup set?"
 msgstr "Är du säker på att du vill ta bort detta backup-set?"
 
-#: admin.php:1623
+#: admin.php:1697
 msgid "Restore backup"
 msgstr "Återställ backup"
 
-#: admin.php:1624
+#: admin.php:1698
 msgid "Restore backup from"
 msgstr "Återställ backup från"
 
-#: admin.php:1636
+#: admin.php:1710
 msgid "Restoring will replace this site's themes, plugins, uploads, database and/or other content directories (according to what is contained in the backup set, and your selection)."
 msgstr "Återställning ersätter denna webbplats teman, tillägg, uppladdningar, databas och/eller andra innehållskataloger (i enlighet med vad detta backup-set innehåller, och baserat på dina val)."
 
-#: admin.php:1636
+#: admin.php:1710
 msgid "Choose the components to restore"
 msgstr "Välj komponenter att återställa"
 
-#: admin.php:1645
+#: admin.php:1719
 msgid "Your web server has PHP's so-called safe_mode active."
 msgstr "Din webbserver har PHP:s så kallade safe_mode aktivt."
 
-#: admin.php:1645
+#: admin.php:1719
 msgid "This makes time-outs much more likely. You are recommended to turn safe_mode off, or to restore only one entity at a time, <a href=\"http://updraftplus.com/faqs/i-want-to-restore-but-have-either-cannot-or-have-failed-to-do-so-from-the-wp-admin-console/\">or to restore manually</a>."
 msgstr "Detta gör att time-outs blir mer sannolika. Du rekommenderas att stänga av safe_mode, eller att bara återställa en entitet åt gången, <a href=\"http://updraftplus.com/faqs/i-want-to-restore-but-have-either-cannot-or-have-failed-to-do-so-from-the-wp-admin-console/\">eller att återställa manuellt</a>."
 
-#: admin.php:1658
+#: admin.php:1732
 msgid "The following entity cannot be restored automatically: \"%s\"."
 msgstr "Följande entitet kunde inte återställas automatiskt: \"%s\"."
 
-#: admin.php:1658
+#: admin.php:1732
 msgid "You will need to restore it manually."
 msgstr "Du kommer att behöva återställa den manuellt."
 
-#: admin.php:1665
+#: admin.php:1739
 msgid "%s restoration options:"
 msgstr "%s återställningsalternativ:"
 
-#: admin.php:1673
+#: admin.php:1747
 msgid "You can search and replace your database (for migrating a website to a new location/URL) with the Migrator add-on - follow this link for more information"
 msgstr "Du kan söka och ersätta din databas (för migrering av en webbplats till en ny plats/URL) med Migrator-insticksprogrammet - följ denna länk för mer information"
 
-#: admin.php:1684
+#: admin.php:1758
 msgid "Do read this helpful article of useful things to know before restoring."
 msgstr "Läs denna hjälpsamma artikel om användbara saker att veta innan du börjar återställa."
 
-#: admin.php:1706
+#: admin.php:1780
 msgid "Perform a one-time backup"
 msgstr "Utför en engångs-backup"
 
-#: admin.php:1490
+#: admin.php:1564
 msgid "Time now"
 msgstr "Tid nu"
 
-#: admin.php:121 admin.php:1502
+#: admin.php:121 admin.php:1576
 msgid "Backup Now"
 msgstr "Ta Backup Nu"
 
-#: admin.php:126 admin.php:1513 admin.php:2767
+#: admin.php:126 admin.php:1587 admin.php:2843
 msgid "Restore"
 msgstr "Återställ"
 
-#: admin.php:1530
+#: admin.php:1604
 msgid "Last log message"
 msgstr "Senaste logg-meddelandet"
 
-#: admin.php:1532
+#: admin.php:1606
 msgid "(Nothing yet logged)"
 msgstr "(Inget loggat ännu)"
 
-#: admin.php:1533
+#: admin.php:1607
 msgid "Download most recently modified log file"
 msgstr "Ladda ner den senast modifierade loggfilen"
 
-#: admin.php:1538
+#: admin.php:1612
 msgid "Backups, logs & restoring"
 msgstr "Backuper, loggar & återställning"
 
-#: admin.php:1539
+#: admin.php:1613
 msgid "Press to see available backups"
 msgstr "Tryck för att se tillgängliga backuper"
 
-#: admin.php:799 admin.php:859 admin.php:1539
+#: admin.php:804 admin.php:875 admin.php:1613
 msgid "%d set(s) available"
 msgstr "%d set tillgängliga"
 
-#: admin.php:1555
+#: admin.php:1629
 msgid "Downloading and restoring"
 msgstr "Nedladdning och Återställning"
 
-#: admin.php:1560
+#: admin.php:1634
 msgid "Downloading"
 msgstr "Nedleddning"
 
-#: admin.php:1560
+#: admin.php:1634
 msgid "Pressing a button for Database/Plugins/Themes/Uploads/Others will make UpdraftPlus try to bring the backup file back from the remote storage (if any - e.g. Amazon S3, Dropbox, Google Drive, FTP) to your webserver. Then you will be allowed to download it to your computer. If the fetch from the remote storage stops progressing (wait 30 seconds to make sure), then press again to resume. Remember that you can also visit the cloud storage vendor's website directly."
 msgstr "När du trycker en knapp för Databas/Tillägg/Teman/Uppladdningar/Annat kommer UpdraftPlus försöka hämta tillbaka backup-filen från fjärrlagringen (om sådan finns - till exempel Amazon S3, Dropbox, Google Drive, FTP) till din webbserver. Du kommer då att kunna ladda ner den till din dator. Om hämtningen från fjärrlagringsplatsen slutar framskrida (vänta 30 sekunder för att vara säker), tryck då igen för att återuppta. Kom ihåg att du kan också besöka lagringstjänstföretagets webbsida direkt."
 
-#: admin.php:1561
+#: admin.php:1635
 msgid "More tasks:"
 msgstr "Fler uppgifter:"
 
-#: admin.php:1561
+#: admin.php:1635
 msgid "upload backup files"
 msgstr "ladda upp backup-filer"
 
-#: admin.php:1561
+#: admin.php:1635
 msgid "Press here to look inside your UpdraftPlus directory (in your web hosting space) for any new backup sets that you have uploaded. The location of this directory is set in the expert settings, below."
 msgstr "Tryck här för att titta in i din UpdraftPlus-katalog (på utrymmet i ditt webbhotell) för att se om det finns nya backup-set som du laddat upp. Var denna katalog finns ställs in med expert-inställningar nedan."
 
-#: admin.php:1561
+#: admin.php:1635
 msgid "rescan folder for new backup sets"
 msgstr "Scanna om en folder efter nya backup-set"
 
-#: admin.php:1564
+#: admin.php:1638
 msgid "Opera web browser"
 msgstr "Webbläsaren Opera"
 
-#: admin.php:1564
+#: admin.php:1638
 msgid "If you are using this, then turn Turbo/Road mode off."
 msgstr "Om du använder denna, stäng då av Turbo/Road-läget."
 
-#: admin.php:1569
+#: admin.php:1643
 msgid "Google Drive"
 msgstr "Google Drive"
 
-#: admin.php:1569
+#: admin.php:1643
 msgid "Google changed their permissions setup recently (April 2013). To download or restore from Google Drive, you <strong>must</strong> first re-authenticate (using the link in the Google Drive configuration section)."
 msgstr "Google ändrade sin behörighetsinställning i April 2013. För att ladda ner eller återställa från Google Drive, <strong>måste</strong> du först återautentisera (med länken i Google Drives konfigureringssektion)."
 
-#: admin.php:1572
+#: admin.php:1646
 msgid "This is a count of the contents of your Updraft directory"
 msgstr "Detta är en räkning av innehållet i din Updraft-katalog"
 
-#: admin.php:1572
+#: admin.php:1646
 msgid "Web-server disk space in use by UpdraftPlus"
 msgstr "Utrymme på webbservern som används av UpdraftPlus"
 
-#: admin.php:1572
+#: admin.php:1646
 msgid "refresh"
 msgstr "uppdatera"
 
-#: admin.php:1407
+#: admin.php:1481
 msgid "By UpdraftPlus.Com"
 msgstr "Av UpdraftPlus.Com"
 
-#: admin.php:1407
+#: admin.php:1481
 msgid "Lead developer's homepage"
 msgstr "Huvudutvecklarens hemsida"
 
-#: admin.php:1407
+#: admin.php:1481
 msgid "Donate"
 msgstr "Donera"
 
-#: admin.php:1407
+#: admin.php:1481
 msgid "Version"
 msgstr "Version"
 
-#: admin.php:1418
+#: admin.php:1492
 msgid "Your backup has been restored."
 msgstr "Din backup har återskapats."
 
-#: admin.php:1425
+#: admin.php:1499
 msgid "Current limit is:"
 msgstr "Nuvarande gräns är:"
 
-#: admin.php:109 admin.php:1824
+#: admin.php:109 admin.php:1899
 msgid "Delete Old Directories"
 msgstr "Ta bort Gamla Kataloger"
 
-#: admin.php:1436
+#: admin.php:1510
 msgid "Existing Schedule And Backups"
 msgstr "Befintligt Schema Och Backuper"
 
-#: admin.php:1441
+#: admin.php:1515
 msgid "JavaScript warning"
 msgstr "JavaScript-varning"
 
-#: admin.php:1442
+#: admin.php:1516
 msgid "This admin interface uses JavaScript heavily. You either need to activate it within your browser, or to use a JavaScript-capable browser."
 msgstr "Detta administrationsgränssnitt använder JavaScipt i stor utsträckning. Du måste antingen aktivera det i din webbläsare eller använda en annan JavaScript-kapabel webbläsare."
 
-#: admin.php:1455 admin.php:1468
+#: admin.php:1529 admin.php:1542
 msgid "Nothing currently scheduled"
 msgstr "Inget schemalagt för närvarande"
 
-#: admin.php:1460
+#: admin.php:1534
 msgid "At the same time as the files backup"
 msgstr "Samtidigt som filbackupen"
 
-#: admin.php:1482
+#: admin.php:1556
 msgid "All the times shown in this section are using WordPress's configured time zone, which you can set in Settings -> General"
 msgstr "Alla tider som visas i denna sektion använder WordPress konfigurerade tidszon, som du ställer in i Inställningar -> Allmänt"
 
-#: admin.php:1482
+#: admin.php:1556
 msgid "Next scheduled backups"
 msgstr "Nästa schemalagda backuper"
 
-#: admin.php:1486
+#: admin.php:1560
 msgid "Files"
 msgstr "Filer"
 
-#: admin.php:600 admin.php:1488 admin.php:1662 admin.php:1665 admin.php:2670
-#: admin.php:2672 admin.php:3049
+#: admin.php:602 admin.php:1562 admin.php:1736 admin.php:1739 admin.php:2746
+#: admin.php:2748 admin.php:3125
 msgid "Database"
 msgstr "Databas"
 
@@ -3299,116 +3399,116 @@ msgstr "Klicka här för att autentisera ditt %s-konto (du kommer inte att kunna
 msgid "Nothing yet logged"
 msgstr "Inget loggat ännu."
 
-#: admin.php:810
+#: admin.php:826
 msgid "Schedule backup"
 msgstr "Schemalägg backup"
 
-#: admin.php:815
+#: admin.php:831
 msgid "Failed."
 msgstr "Misslyckades."
 
-#: admin.php:817
+#: admin.php:833
 msgid "OK. You should soon see activity in the \"Last log message\" field below."
 msgstr "OK. Du bör snart se aktivitet i \"Senaste Logg-meddelande\"-fältet ovan."
 
-#: admin.php:817
+#: admin.php:833
 msgid "Nothing happening? Follow this link for help."
 msgstr "Händer det inget? Följ denna länk för hjälp."
 
-#: admin.php:833
+#: admin.php:849
 msgid "Job deleted"
 msgstr "Jobb borttaget"
 
-#: admin.php:840
+#: admin.php:856
 msgid "Could not find that job - perhaps it has already finished?"
 msgstr "Kunde inte hitta detta jobb - kanske är det redan klart?"
 
-#: updraftplus.php:861 restorer.php:1247 restorer.php:1261 restorer.php:1294
-#: admin.php:851 admin.php:2984
+#: updraftplus.php:872 restorer.php:1266 restorer.php:1280 restorer.php:1313
+#: admin.php:867 admin.php:3060
 msgid "Error"
 msgstr "Fel"
 
-#: admin.php:908
+#: admin.php:924
 msgid "Download failed"
 msgstr "Nedladdning misslyckades"
 
-#: admin.php:101 admin.php:926
+#: admin.php:101 admin.php:942
 msgid "File ready."
 msgstr "Filen klar."
 
-#: admin.php:934
+#: admin.php:950
 msgid "Download in progress"
 msgstr "Nedladdning pågår"
 
-#: admin.php:937
+#: admin.php:953
 msgid "No local copy present."
 msgstr "Ingen lokal kopia närvarande."
 
-#: admin.php:1218
+#: admin.php:1292
 msgid "Bad filename format - this does not look like a file created by UpdraftPlus"
 msgstr "Felaktigt filnamnsformat - detta ser inte ut som en fil skapad av UpdraftPlus"
 
-#: admin.php:1305
+#: admin.php:1379
 msgid "Bad filename format - this does not look like an encrypted database file created by UpdraftPlus"
 msgstr "Felaktigt filnamnsformat - detta ser inte ut som en krypterad databasfil skapad av UpdraftPlus"
 
-#: admin.php:1335
+#: admin.php:1409
 msgid "Restore successful!"
 msgstr "Återställningen lyckades!"
 
-#: admin.php:1338 admin.php:1347 admin.php:1377 admin.php:2008
+#: admin.php:1412 admin.php:1421 admin.php:1451 admin.php:2083
 msgid "Actions"
 msgstr "Aktiviteter"
 
-#: admin.php:1338 admin.php:1347 admin.php:1377 admin.php:2008
+#: admin.php:1412 admin.php:1421 admin.php:1451 admin.php:2083
 msgid "Return to UpdraftPlus Configuration"
 msgstr "Återvänd till UpdraftPlus-konfiguration"
 
-#: admin.php:2001
+#: admin.php:2076
 msgid "Remove old directories"
 msgstr "Ta bort gamla kataloger"
 
-#: admin.php:2004
+#: admin.php:2079
 msgid "Old directories successfully removed."
 msgstr "Gamla kataloger togs bort med framgång."
 
-#: admin.php:2006
+#: admin.php:2081
 msgid "Old directory removal failed for some reason. You may want to do this manually."
 msgstr "Borttagning av gamla kataloger misslyckades av någon anledning. Du kan vilja göra detta manuellt."
 
-#: admin.php:1368
+#: admin.php:1442
 msgid "Backup directory could not be created"
 msgstr "Backup-katalog kunde inte skapas"
 
-#: admin.php:1375
+#: admin.php:1449
 msgid "Backup directory successfully created."
 msgstr "Backup-katalog skapades framgångsrikt."
 
-#: admin.php:1400
+#: admin.php:1474
 msgid "Your settings have been wiped."
 msgstr "Dina inställningar har raderats."
 
-#: updraftplus.php:2395 updraftplus.php:2401
+#: updraftplus.php:2415 updraftplus.php:2421
 msgid "Please help UpdraftPlus by giving a positive review at wordpress.org"
 msgstr "Vänligen hjälp UpdraftPlus genom att ge ett positivt omdöme på wordpress.org"
 
-#: updraftplus.php:2408
+#: updraftplus.php:2428
 msgid "Need even more features and support? Check out UpdraftPlus Premium"
 msgstr "Behöver du ännu fler funktioner och support? Ta en titt på UpdraftPlus Premium"
 
-#: updraftplus.php:2418
+#: updraftplus.php:2438
 msgid "Check out UpdraftPlus.Com for help, add-ons and support"
 msgstr "Ta en titt på UpdraftPlus.Com för hjälp, insticksprogram och support"
 
-#: updraftplus.php:2421
+#: updraftplus.php:2441
 msgid "Want to say thank-you for UpdraftPlus?"
 msgstr "Vill du säga tack för UpdraftPlus?"
 
-#: updraftplus.php:2421
+#: updraftplus.php:2441
 msgid "Please buy our very cheap 'no adverts' add-on."
 msgstr "Köp gärna vårt billiga 'inga annonser'-insticksprogram."
 
-#: backup.php:1307
+#: backup.php:1311
 msgid "Infinite recursion: consult your log for more information"
 msgstr "Oändlig upprepning. konsultera din logg för mer information"
 
@@ -3429,7 +3529,7 @@ msgid "Add-Ons / Pro Support"
 msgstr "Insticksprogram / Pro Support"
 
 #: admin.php:308 admin.php:312 admin.php:316 admin.php:320 admin.php:324
-#: admin.php:333 admin.php:1557 admin.php:2560 admin.php:2567 admin.php:2569
+#: admin.php:333 admin.php:1631 admin.php:2636 admin.php:2643 admin.php:2645
 msgid "Warning"
 msgstr "Varning"
 
@@ -3449,95 +3549,95 @@ msgstr "WordPress-backup är klar"
 msgid "Backup directory (%s) is not writable, or does not exist."
 msgstr "Backup-katalog (%s) är inte skrivbar, eller existerar inte."
 
-#: updraftplus.php:2081
+#: updraftplus.php:2096
 msgid "Could not read the directory"
 msgstr "Kunde inte läsa katalogen"
 
-#: updraftplus.php:2098
+#: updraftplus.php:2113
 msgid "Could not save backup history because we have no backup array. Backup probably failed."
 msgstr "Kunde inte spara backup-historik eftersom vi inte har någon backup-matris. Backupen misslyckades troligen."
 
-#: backup.php:1234
+#: backup.php:1237
 msgid "Could not open the backup file for writing"
 msgstr "Kunde inte öppna backupfilen för skrivning"
 
-#: backup.php:1270
+#: backup.php:1274
 msgid "Generated: %s"
 msgstr "Genererade: %s"
 
-#: backup.php:1271
+#: backup.php:1275
 msgid "Hostname: %s"
 msgstr "Värdnamn: %s"
 
-#: backup.php:1272
+#: backup.php:1276
 msgid "Database: %s"
 msgstr "Databas: %s"
 
-#: backup.php:1069
+#: backup.php:1072
 msgid "Delete any existing table %s"
 msgstr "Ta bort eventuell befintlig tabell %s"
 
-#: backup.php:1075
+#: backup.php:1078
 msgid "Table structure of table %s"
 msgstr "Tabellstruktur i tabell %s"
 
-#: backup.php:1079
+#: backup.php:1082
 msgid "Error with SHOW CREATE TABLE for %s."
 msgstr "Fel med SHOW CREATE TABLE för %s."
 
-#: backup.php:1171
+#: backup.php:1174
 msgid "End of data contents of table %s"
 msgstr "Slut på datainnehåll i tabell %s"
 
-#: updraftplus.php:2289 restorer.php:123 admin.php:971
+#: updraftplus.php:2304 restorer.php:124 admin.php:987
 msgid "Decryption failed. The database file is encrypted, but you have no encryption key entered."
 msgstr "Avkryptering misslyckades. Databasfilen är krypterad, men du har inte angett någon krypteringsnyckel."
 
-#: updraftplus.php:2299 restorer.php:133 admin.php:985
+#: updraftplus.php:2314 restorer.php:134 admin.php:1001
 msgid "Decryption failed. The most likely cause is that you used the wrong key."
 msgstr "Avkryptering misslyckades. Den mest troliga anledningen är att du använt fel nyckel."
 
-#: updraftplus.php:2299
+#: updraftplus.php:2314
 msgid "The decryption key used:"
 msgstr "Avkrypteringsnyckeln som användes:"
 
-#: updraftplus.php:2316
+#: updraftplus.php:2331
 msgid "File not found"
 msgstr "Filen hittades ej"
 
-#: updraftplus.php:2393
+#: updraftplus.php:2413
 msgid "Can you translate? Want to improve UpdraftPlus for speakers of your language?"
 msgstr "Kan du översätta? Vill du förbättra UpdraftPlus för de som talar ditt språk?"
 
-#: updraftplus.php:2395 updraftplus.php:2401
+#: updraftplus.php:2415 updraftplus.php:2421
 msgid "Like UpdraftPlus and can spare one minute?"
 msgstr "Gillar du UpdraftPlus och kan avvara en minut?"
 
-#: updraftplus.php:1170
+#: updraftplus.php:1181
 msgid "Themes"
 msgstr "Teman"
 
-#: updraftplus.php:1171
+#: updraftplus.php:1182
 msgid "Uploads"
 msgstr "Uppladdningar"
 
-#: updraftplus.php:1186
+#: updraftplus.php:1197
 msgid "Others"
 msgstr "Annat"
 
-#: updraftplus.php:1629
+#: updraftplus.php:1640
 msgid "Could not create files in the backup directory. Backup aborted - check your UpdraftPlus settings."
 msgstr "Kunde inte skapa filer i backup-katalogen. Backup avbröts - kontrollera dina UpdraftPlus-inställningar."
 
-#: backup.php:1206
+#: backup.php:1209
 msgid "Encryption error occurred when encrypting database. Encryption aborted."
 msgstr "Krypteringsfel uppstod vid kryptering av databasen. Krypteringen avbröts."
 
-#: updraftplus.php:1789
+#: updraftplus.php:1800
 msgid "The backup apparently succeeded and is now complete"
 msgstr "Backupen lyckades uppenbarligen och är nu klar"
 
-#: updraftplus.php:1802
+#: updraftplus.php:1813
 msgid "The backup attempt has finished, apparently unsuccessfully"
 msgstr "Backup-försöket har avslutats, uppenbarligen utan framgång"
 
@@ -3545,23 +3645,23 @@ msgstr "Backup-försöket har avslutats, uppenbarligen utan framgång"
 msgid "UpdraftPlus Backups"
 msgstr "UpdraftPlus-backuper"
 
-#: updraftplus.php:458 updraftplus.php:463 updraftplus.php:468 admin.php:337
+#: updraftplus.php:469 updraftplus.php:474 updraftplus.php:479 admin.php:337
 #: admin.php:341
 msgid "UpdraftPlus notice:"
 msgstr "UpdraftPlus-meddelande:"
 
-#: updraftplus.php:458
+#: updraftplus.php:469
 msgid "The log file could not be read."
 msgstr "Loggfilen kunde inte läsas."
 
-#: updraftplus.php:463
+#: updraftplus.php:474
 msgid "No log files were found."
 msgstr "Ingen loggfil hittades."
 
-#: updraftplus.php:468
+#: updraftplus.php:479
 msgid "The given file could not be read."
 msgstr "Den aktuella filen kunde inte läsas."
 
-#: updraftplus.php:1169
+#: updraftplus.php:1180
 msgid "Plugins"
 msgstr "Tillägg"
