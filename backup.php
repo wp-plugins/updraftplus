@@ -1317,7 +1317,7 @@ class UpdraftPlus_Backup {
 
 		if(is_file($fullpath)) {
 			if (is_readable($fullpath)) {
-				$key = ($fullpath == $original_fullpath) ? basename($fullpath) : $use_path_when_storing.'/'.basename($fullpath);
+				$key = ($fullpath == $original_fullpath) ? ((2 == $startlevels) ? $use_path_when_storing : basename($fullpath)) : $use_path_when_storing.'/'.basename($fullpath);
 				$this->zipfiles_batched[$fullpath] = $key;
 				$this->makezip_recursive_batchedbytes += @filesize($fullpath);
 				#@touch($zipfile);
