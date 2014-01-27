@@ -142,7 +142,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 = 1.8.8 - 2014/01/27 =
 
 * FIX: Correctly detect table prefix on some WPMU installs that had been upgraded from an earlier version than 3.0 (i.e. very old)
-* FIX: Files directly in wp-content/uploads (not in a sub-directory from a 1.8.5 backup) were being restored one directory too high
+* FIX: Files directly in wp-content/uploads (from a 1.8.5 backup and not in any sub-directory) were being restored one directory too high
 * UPDATED: Updated Swedish, Portuguese and Dutch translations
 * UPDATED: Update root certificates to match latest CURL/Mozilla version
 * TWEAK: Automatically change http(s):// to webdav(s):// in WebDAV URLs if the user overlooks the instructions
