@@ -520,7 +520,7 @@ class UpdraftPlus_Backup {
 					if (!$whandle = gzopen($attach.'.gz', 'w')) {
 						$updraftplus->log("Error: Failed to open log file for reading: ".$attach.".gz");
 					} else {
-						while (false !== ($line = @stream_get_line($handle, 2048, "\n"))) {
+						while (false !== ($line = @stream_get_line($handle, 131072, "\n"))) {
 							@gzwrite($whandle, $line."\n");
 						}
 						fclose($handle);
@@ -695,7 +695,13 @@ class UpdraftPlus_Backup {
 							A string containing a list of filename or dirname separated by a comma.
 						*/
 
-						$dirlist = ('others' == $youwhat) ? $updraftplus->backup_others_dirlist() : $whichdir;
+						if ('others' == $youwhat) {
+							$dirlist = $updraftplus->backup_others_dirlist(true);
+						} elseif ('uploads' == $youwhat) {
+							$dirlist = $updraftplus->backup_uploads_dirlist(true);
+						} else {
+							$dirlist = $whichdir;
+						}
 
 						if (count($dirlist)>0) {
 							$created = $this->create_zip($dirlist, $youwhat, $backup_file_basename, $index);
@@ -824,6 +830,13 @@ class UpdraftPlus_Backup {
 		$all_tables = $wpdb->get_results("SHOW TABLES", ARRAY_N);
 		$all_tables = array_map(create_function('$a', 'return $a[0];'), $all_tables);
 
+		if (0 == count($all_tables)) {
+			$extra = ($updraftplus->newresumption_scheduled) ? ' - '.__('please wait for the rescheduled attempt', 'updraftplus') : '';
+			$updraftplus->log("Error: No database tables found (SHOW TABLES returned nothing)".$extra);
+			$updraftplus->log(__("No database tables found", 'updraftplus').$extra, 'error');
+			die;
+		}
+
 		// Put the options table first
 		usort($all_tables, array($this, 'backup_db_sorttables'));
 
@@ -849,7 +862,7 @@ class UpdraftPlus_Backup {
 			// The table file may already exist if we have produced it on a previous run
 			$table_file_prefix = $file_base.'-db-table-'.$table.'.table';
 
-			if ($this->table_prefix.'options' == $table) $found_options_table = true;
+			if ($this->table_prefix_raw.'options' == $table) $found_options_table = true;
 
 			if (file_exists($this->updraft_dir.'/'.$table_file_prefix.'.gz')) {
 				$updraftplus->log("Table $table: corresponding file already exists; moving on");
@@ -903,7 +916,7 @@ class UpdraftPlus_Backup {
 
 				} else {
 					$total_tables--;
-					$updraftplus->log("Skipping table (lacks our prefix): $table");
+					$updraftplus->log("Skipping table (lacks our prefix (".$this->table_prefix.")): $table");
 				}
 				
 			}
@@ -947,7 +960,7 @@ class UpdraftPlus_Backup {
 			$updraftplus->log("{$table_file}.gz ($sind/$how_many_tables): adding to final database dump");
 			if (!$handle = gzopen($this->updraft_dir.'/'.$table_file.'.gz', "r")) {
 				$updraftplus->log("Error: Failed to open database file for reading: ${table_file}.gz");
-				$updraftplus->log("Failed to open database file for reading: ${table_file}.gz", 'error');
+				$updraftplus->log(__("Failed to open database file for reading:", 'updraftplus').' '.$table_file.'.gz', 'error');
 				$errors++;
 			} else {
 				while ($line = gzgets($handle, 2048)) { $this->stow($line); }
@@ -1253,6 +1266,7 @@ class UpdraftPlus_Backup {
 		$this->stow("# Home URL: ".untrailingslashit(home_url())."\n");
 		$this->stow("# Content URL: ".untrailingslashit(content_url())."\n");
 		$this->stow("# Table prefix: ".$this->table_prefix_raw."\n");
+		$this->stow("# Filtered table prefix: ".$this->table_prefix."\n");
 		$this->stow("# Site info: multisite=".(is_multisite() ? '1' : '0')."\n");
 		$this->stow("# Site info: end\n");
 
@@ -1281,7 +1295,7 @@ class UpdraftPlus_Backup {
 	}
 
 	// This function recursively packs the zip, dereferencing symlinks but packing into a single-parent tree for universal unpacking
-	private function makezip_recursive_add($fullpath, $use_path_when_storing, $original_fullpath) {
+	private function makezip_recursive_add($fullpath, $use_path_when_storing, $original_fullpath, $startlevels = 1) {
 
 		$zipfile = $this->zip_basename.(($this->index == 0) ? '' : ($this->index+1)).'.zip.tmp';
 
@@ -1292,7 +1306,7 @@ class UpdraftPlus_Backup {
 		$original_fullpath = realpath($original_fullpath);
 
 		// Is the place we've ended up above the original base? That leads to infinite recursion
-		if (($fullpath !== $original_fullpath && strpos($original_fullpath, $fullpath) === 0) || ($original_fullpath == $fullpath && strpos($use_path_when_storing, '/') !== false) ) {
+		if (($fullpath !== $original_fullpath && strpos($original_fullpath, $fullpath) === 0) || ($original_fullpath == $fullpath && ((1== $startlevels && strpos($use_path_when_storing, '/') !== false) || (2 == $startlevels && substr_count($use_path_when_storing, '/') >1)))) {
 			$updraftplus->log("Infinite recursion: symlink lead us to $fullpath, which is within $original_fullpath");
 			$updraftplus->log(__("Infinite recursion: consult your log for more information",'updraftplus'), 'error');
 			return false;
@@ -1300,7 +1314,7 @@ class UpdraftPlus_Backup {
 
 		if(is_file($fullpath)) {
 			if (is_readable($fullpath)) {
-				$key = ($fullpath == $original_fullpath) ? basename($fullpath) : $use_path_when_storing.'/'.basename($fullpath);
+				$key = ($fullpath == $original_fullpath) ? ((2 == $startlevels) ? $use_path_when_storing : basename($fullpath)) : $use_path_when_storing.'/'.basename($fullpath);
 				$this->zipfiles_batched[$fullpath] = $key;
 				$this->makezip_recursive_batchedbytes += @filesize($fullpath);
 				#@touch($zipfile);
@@ -1329,7 +1343,7 @@ class UpdraftPlus_Backup {
 								$updraftplus->log(sprintf(__("%s: unreadable file - could not be backed up"), $deref), 'warning');
 							}
 						} elseif (is_dir($deref)) {
-							$this->makezip_recursive_add($deref, $use_path_when_storing.'/'.$e, $original_fullpath);
+							$this->makezip_recursive_add($deref, $use_path_when_storing.'/'.$e, $original_fullpath, $startlevels);
 						}
 					} elseif (is_file($fullpath.'/'.$e)) {
 						if (is_readable($fullpath.'/'.$e)) {
@@ -1342,7 +1356,7 @@ class UpdraftPlus_Backup {
 						}
 					} elseif (is_dir($fullpath.'/'.$e)) {
 						// no need to addEmptyDir here, as it gets done when we recurse
-						$this->makezip_recursive_add($fullpath.'/'.$e, $use_path_when_storing.'/'.$e, $original_fullpath);
+						$this->makezip_recursive_add($fullpath.'/'.$e, $use_path_when_storing.'/'.$e, $original_fullpath, $startlevels);
 					}
 				}
 			}
@@ -1454,8 +1468,16 @@ class UpdraftPlus_Backup {
 		# Reset. This counter is used only with PcLZip, to decide if it's better to do it all-in-one
 		$this->makezip_recursive_batchedbytes = 0;
 		if (!is_array($source)) $source=array($source);
+
+
 		foreach ($source as $element) {
-			$add_them = $this->makezip_recursive_add($element, basename($element), $element);
+			#makezip_recursive_add($fullpath, $use_path_when_storing, $original_fullpath, $startlevels = 1)
+			if ('uploads' == $whichone) {
+				$dirname = dirname($element);
+				$add_them = $this->makezip_recursive_add($element, basename($dirname).'/'.basename($element), $element, 2);
+			} else {
+				$add_them = $this->makezip_recursive_add($element, basename($element), $element);
+			}
 			if (is_wp_error($add_them) || false === $add_them) $error_occurred = true;
 		}
 

@@ -26,7 +26,7 @@ class UpdraftPlus_Options {
 	}
 
 	public static function delete_updraft_option($option) {
-		delete_option($option, $value);
+		delete_option($option);
 	}
 
 	public static function add_admin_pages() {
@@ -68,8 +68,8 @@ class UpdraftPlus_Options {
 
 		register_setting('updraft-options-group', 'updraft_cloudfiles' );
 
-		register_setting('updraft-options-group', 'updraft_sftp_settings' );
-		register_setting('updraft-options-group', 'updraft_webdav_settings' );
+		register_setting('updraft-options-group', 'updraft_sftp_settings');
+		register_setting('updraft-options-group', 'updraft_webdav_settings', array($updraftplus, 'replace_http_with_webdav'));
 
 		register_setting('updraft-options-group', 'updraft_dropbox_appkey' );
 		register_setting('updraft-options-group', 'updraft_dropbox_secret' );
@@ -107,6 +107,7 @@ class UpdraftPlus_Options {
 		register_setting('updraft-options-group', 'updraft_include_wpcore_exclude' );
 		register_setting('updraft-options-group', 'updraft_include_more', 'absint' );
 		register_setting('updraft-options-group', 'updraft_include_more_path' );
+		register_setting('updraft-options-group', 'updraft_include_uploads_exclude' );
 		register_setting('updraft-options-group', 'updraft_include_others_exclude' );
 
 		register_setting('updraft-options-group', 'updraft_starttime_files', array('UpdraftPlus_Options', 'hourminute') );
