@@ -3,7 +3,7 @@
 class UpdraftPlus_BackupModule_webdav {
 
 	// backup method: takes an array, and shovels them off to the cloud storage
-	function backup($backup_array) {
+	public function backup($backup_array) {
 
 		global $updraftplus;
 
@@ -24,7 +24,7 @@ class UpdraftPlus_BackupModule_webdav {
 	}
 
 	// delete method: takes a file name (base name) (or array thereof), and removes it from the cloud storage
-	function delete($files, $method_obj = false) {
+	public function delete($files, $method_obj = false) {
 
 		global $updraftplus;
 
@@ -40,7 +40,7 @@ class UpdraftPlus_BackupModule_webdav {
 	}
 
 	// download method: takes a file name (base name), and removes it from the cloud storage
-	function download($file) {
+	public function download($file) {
 
 		global $updraftplus;
 
@@ -58,7 +58,7 @@ class UpdraftPlus_BackupModule_webdav {
 	// config_print: prints out table rows for the configuration screen
 	// Your rows need to have a class exactly matching your method (in this example, webdav), and also a class of updraftplusmethod
 	// Note that logging is not available from this context; it will do nothing.
-	public static function config_print() {
+	public function config_print() {
 
 		$link = sprintf(__('%s support is available as an add-on','updraftplus'),'WebDAV').' - <a href="http://updraftplus.com/shop/webdav/">'.__('follow this link to get it','updraftplus');
 
@@ -72,16 +72,13 @@ ENDHERE;
 		echo apply_filters('updraft_webdav_config_print', $default);
 	}
 
-	public static function config_print_javascript_onready() {
+	public function config_print_javascript_onready() {
 		do_action('updraft_webdav_config_javascript');
 	}
 
-	public static function credentials_test() {
-
+	public function credentials_test() {
 		do_action('updraft_webdav_credentials_test');
-
 		die;
-
 	}
 
 }

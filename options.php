@@ -53,19 +53,9 @@ class UpdraftPlus_Options {
 		register_setting('updraft-options-group', 'updraft_encryptionphrase');
 		register_setting('updraft-options-group', 'updraft_service', array($updraftplus, 'just_one'));
 
-		register_setting('updraft-options-group', 'updraft_s3_login' );
-		register_setting('updraft-options-group', 'updraft_s3_pass' );
-		register_setting('updraft-options-group', 'updraft_s3_remote_path' );
-
-		register_setting('updraft-options-group', 'updraft_dreamobjects_login' );
-		register_setting('updraft-options-group', 'updraft_dreamobjects_pass' );
-		register_setting('updraft-options-group', 'updraft_dreamobjects_remote_path' );
-
-		register_setting('updraft-options-group', 'updraft_s3generic_login' );
-		register_setting('updraft-options-group', 'updraft_s3generic_pass' );
-		register_setting('updraft-options-group', 'updraft_s3generic_remote_path' );
-		register_setting('updraft-options-group', 'updraft_s3generic_endpoint' );
-
+		register_setting('updraft-options-group', 'updraft_s3');
+		register_setting('updraft-options-group', 'updraft_dreamobjects');
+		register_setting('updraft-options-group', 'updraft_s3generic' );
 		register_setting('updraft-options-group', 'updraft_cloudfiles' );
 
 		register_setting('updraft-options-group', 'updraft_sftp_settings');

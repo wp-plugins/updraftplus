@@ -84,7 +84,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 			$uploaded_size = $this->get_remote_size($file);
 
 			try {
-				if (1 === $updraftplus->chunked_upload($this, $file, "cloudfiles://".$this->container."/$file", 'Cloud Files', self::CHUNK_SIZE, $uploaded_size)) {
+				if (1 === $updraftplus->chunked_upload($this, $file, "cloudfiles://".$this->container."/$file", 'Cloud Files', $this->CHUNK_SIZE, $uploaded_size)) {
 					try {
 						if (false !== ($data = fopen($updraftplus->backups_dir_location().'/'.$file, 'r+'))) {
 							$this->container_object->uploadObject($file, $data);
@@ -294,7 +294,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 
 	}
 
-	public static function chunked_download($file, $headers, $container_object) {
+	public function chunked_download($file, $headers, $container_object) {
 		try {
 			$dl = $container_object->getObject($file, $headers);
 		} catch (Exception $e) {
@@ -306,7 +306,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 		return $dl->getContent();
 	}
 
-	public static function credentials_test() {
+	public function credentials_test() {
 
 		if (empty($_POST['apikey'])) {
 			printf(__("Failure: No %s was given.",'updraftplus'),__('API key','updraftplus'));
@@ -400,9 +400,9 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 
 	}
 
-	public static function config_print() {
+	public function config_print() {
 
-		$opts = self::get_opts();
+		$opts = $this->get_opts();
 
 		?>
 		<tr class="updraftplusmethod cloudfiles">

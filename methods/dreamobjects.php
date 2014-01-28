@@ -2,37 +2,53 @@
 
 require_once(UPDRAFTPLUS_DIR.'/methods/s3.php');
 
+# Migrate options to new-style storage - Jan 2014
+if (!is_array(UpdraftPlus_Options::get_updraft_option('updraft_dreamobjects')) && '' != UpdraftPlus_Options::get_updraft_option('updraft_dreamobjects_login', '')) {
+	$opts = array(
+		'accesskey' => UpdraftPlus_Options::get_updraft_option('updraft_dreamobjects_login'),
+		'secretkey' => UpdraftPlus_Options::get_updraft_option('updraft_dreamobjects_pass'),
+		'path' => UpdraftPlus_Options::get_updraft_option('updraft_dreamobjects_remote_path'),
+	);
+	UpdraftPlus_Options::update_updraft_option('updraft_dreamobjects', $opts);
+	UpdraftPlus_Options::delete_updraft_option('updraft_dreamobjects_login');
+	UpdraftPlus_Options::delete_updraft_option('updraft_dreamobjects_pass');
+	UpdraftPlus_Options::delete_updraft_option('updraft_dreamobjects_remote_path');
+}
+
 class UpdraftPlus_BackupModule_dreamobjects extends UpdraftPlus_BackupModule_s3 {
 
-	function set_endpoint($obj, $region) {
-		$config = self::get_config();
+	protected function set_endpoint($obj, $region) {
+		$config = $this->get_config();
 		global $updraftplus;
 		$updraftplus->log("Set endpoint: ".$config['endpoint']);
 		$obj->setEndpoint($config['endpoint']);
 	}
 
-	function get_config() {
-		return array(
-			'login' => UpdraftPlus_Options::get_updraft_option('updraft_dreamobjects_login'),
-			'pass' => UpdraftPlus_Options::get_updraft_option('updraft_dreamobjects_pass'),
-			'remote_path' => UpdraftPlus_Options::get_updraft_option('updraft_dreamobjects_remote_path'),
-			'whoweare' => 'DreamObjects',
-			'whoweare_long' => 'DreamObjects',
-			'key' => 'dreamobjects',
-			'endpoint' => 'objects.dreamhost.com'
-		);
+	public function get_credentials() {
+		return array('updraft_dreamobjects');
 	}
 
-	public static function config_print() {
-		self::config_print_engine('dreamobjects', 'DreamObjects', 'DreamObjects', 'DreamObjects', 'https://panel.dreamhost.com/index.cgi?tree=storage.dreamhostobjects', '<a href="http://dreamhost.com/cloud/dreamobjects/"><img alt="DreamObjects" src="'.UPDRAFTPLUS_URL.'/images/dreamobjects_logo-horiz-2013.png"></a>');
+	protected function get_config() {
+		global $updraftplus;
+		$opts = $updraftplus->get_job_option('updraft_dreamobjects');
+		if (!is_array($opts)) $opts = array('accesskey' => '', 'secretkey' => '', 'path' => '');
+		$opts['whoweare'] = 'DreamObjects';
+		$opts['whoweare_long'] = 'DreamObjects';
+		$opts['key'] = 'dreamobjects';
+		$opts['endpoint'] = 'objects.dreamhost.com';
+		return $opts;
 	}
 
-	public static function config_print_javascript_onready() {
-		self::config_print_javascript_onready_engine('dreamobjects', 'DreamObjects');
+	public function config_print() {
+		$this->config_print_engine('dreamobjects', 'DreamObjects', 'DreamObjects', 'DreamObjects', 'https://panel.dreamhost.com/index.cgi?tree=storage.dreamhostobjects', '<a href="http://dreamhost.com/cloud/dreamobjects/"><img alt="DreamObjects" src="'.UPDRAFTPLUS_URL.'/images/dreamobjects_logo-horiz-2013.png"></a>');
 	}
 
-	public static function credentials_test() {
-		self::credentials_test_engine(self::get_config());
+	public function config_print_javascript_onready() {
+		$this->config_print_javascript_onready_engine('dreamobjects', 'DreamObjects');
+	}
+
+	public function credentials_test() {
+		$this->credentials_test_engine($this->get_config());
 	}
 
 }

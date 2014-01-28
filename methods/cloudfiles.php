@@ -60,7 +60,7 @@ class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 		return array('updraft_cloudfiles');
 	}
 
-	protected static function get_opts() {
+	protected function get_opts() {
 		global $updraftplus;
 		$opts = $updraftplus->get_job_option('updraft_cloudfiles');
 		if (!is_array($opts)) $opts = array('user' => '', 'authurl' => 'https://auth.api.rackspacecloud.com', 'apikey' => '', 'path' => '');
@@ -387,7 +387,7 @@ class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 
 	}
 
-	public static function config_print_javascript_onready() {
+	public function config_print_javascript_onready() {
 		?>
 		jQuery('#updraft-cloudfiles-test').click(function(){
 			jQuery(this).html('<?php echo esc_js(__('Testing - Please Wait...','updraftplus'));?>');
@@ -414,9 +414,9 @@ class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 		<?php
 	}
 
-	public static function config_print() {
+	public function config_print() {
 
-		$opts = self::get_opts();
+		$opts = $this->get_opts();
 
 		?>
 		<tr class="updraftplusmethod cloudfiles">
@@ -485,7 +485,7 @@ class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 	<?php
 	}
 
-	public static function credentials_test() {
+	public function credentials_test() {
 
 		if (empty($_POST['apikey'])) {
 			printf(__("Failure: No %s was given.",'updraftplus'),__('API key','updraftplus'));
@@ -520,7 +520,7 @@ class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 		define('UPDRAFTPLUS_SSL_DISABLEVERIFY', $disableverify);
 
 		try {
-			$conn = self::getCF($user, $key, $authurl, $useservercerts);
+			$conn = $this->getCF($user, $key, $authurl, $useservercerts);
 			$container_object = $conn->create_container($container);
 		} catch(AuthenticationException $e) {
 			echo __('Cloud Files authentication failed','updraftplus').' ('.$e->getMessage().')';

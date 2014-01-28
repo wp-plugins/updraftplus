@@ -3,7 +3,7 @@
 class UpdraftPlus_BackupModule_ftp {
 
 	// Get FTP object with parameters set
-	function getFTP($server, $user, $pass, $disable_ssl = false, $disable_verify = true, $use_server_certs = false, $passive = true) {
+	private function getFTP($server, $user, $pass, $disable_ssl = false, $disable_verify = true, $use_server_certs = false, $passive = true) {
 
 		if( !class_exists('UpdraftPlus_ftp_wrapper')) require_once(UPDRAFTPLUS_DIR.'/includes/ftp.class.php');
 
@@ -24,7 +24,7 @@ class UpdraftPlus_BackupModule_ftp {
 
 	}
 
-	function backup($backup_array) {
+	public function backup($backup_array) {
 
 		global $updraftplus, $updraftplus_backup;
 
@@ -67,7 +67,7 @@ class UpdraftPlus_BackupModule_ftp {
 		return array('ftp_object' => $ftp, 'ftp_remote_path' => $ftp_remote_path);
 	}
 
-	function delete($files, $ftparr = array()) {
+	public function delete($files, $ftparr = array()) {
 
 		global $updraftplus;
 		if (is_string($files)) $files=array($files);
@@ -109,7 +109,7 @@ class UpdraftPlus_BackupModule_ftp {
 
 	}
 
-	function download($file) {
+	public function download($file) {
 		if( !class_exists('UpdraftPlus_ftp_wrapper')) require_once(UPDRAFTPLUS_DIR.'/includes/ftp.class.php');
 
 		global $updraftplus;
@@ -142,7 +142,7 @@ class UpdraftPlus_BackupModule_ftp {
 		return $ftp->get($fullpath, $ftp_remote_path.$file, FTP_BINARY, $resume, $updraftplus);
 	}
 
-	public static function config_print_javascript_onready() {
+	public function config_print_javascript_onready() {
 		?>
 		jQuery('#updraft-ftp-test').click(function(){
 			jQuery('#updraft-ftp-test').html('<?php echo esc_js(sprintf(__('Testing %s Settings...', 'updraftplus'),'FTP')); ?>');
@@ -168,7 +168,7 @@ class UpdraftPlus_BackupModule_ftp {
 		<?php
 	}
 
-	private static function ftp_possible() {
+	private function ftp_possible() {
 		$funcs_disabled = array();
 		foreach (array('ftp_connect', 'ftp_login', 'ftp_nb_fput') as $func) {
 			if (!function_exists($func)) $funcs_disabled['ftp'][] = $func;
@@ -177,10 +177,10 @@ class UpdraftPlus_BackupModule_ftp {
 		return (0 == count($funcs_disabled)) ? true : $funcs_disabled;
 	}
 
-	public static function config_print() {
+	public function config_print() {
 		global $updraftplus;
 
-		$possible = self::ftp_possible();
+		$possible = $this->ftp_possible();
 		if (is_array($possible)) {
 			?>
 			<tr class="updraftplusmethod ftp">
@@ -242,7 +242,7 @@ class UpdraftPlus_BackupModule_ftp {
 		return array('updraft_server_address', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_ssl_disableverify', 'updraft_ssl_nossl', 'updraft_ssl_useservercerts');
 	}
 
-	public static function credentials_test() {
+	public function credentials_test() {
 
 		$server = $_POST['server'];
 		$login = stripslashes($_POST['login']);
@@ -266,7 +266,7 @@ class UpdraftPlus_BackupModule_ftp {
 			return;
 		}
 
-		$ftp = self::getFTP($server, $login, $pass, $nossl, $disable_verify, $use_server_certs);
+		$ftp = $this->getFTP($server, $login, $pass, $nossl, $disable_verify, $use_server_certs);
 
 		if (!$ftp->connect()) {
 			_e('Failure: we did not successfully log in with those credentials.', 'updraftplus');

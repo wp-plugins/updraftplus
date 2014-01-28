@@ -2,22 +2,22 @@
 
 class UpdraftPlus_BackupModule_googledrive {
 
-	public $gdocs;
+	private $gdocs;
 
-	public static function action_auth() {
+	public function action_auth() {
 		if ( isset( $_GET['state'] ) ) {
 			if ('success' == $_GET['state']) {
 				add_action('all_admin_notices', array('UpdraftPlus_BackupModule_googledrive', 'show_authed_admin_success') );
 			}
-			elseif ('token' == $_GET['state']) self::gdrive_auth_token();
-			elseif ('revoke' == $_GET['state']) self::gdrive_auth_revoke();
+			elseif ('token' == $_GET['state']) $this->gdrive_auth_token();
+			elseif ('revoke' == $_GET['state']) $this->gdrive_auth_revoke();
 		} elseif (isset($_GET['updraftplus_googleauth'])) {
-			self::gdrive_auth_request();
+			$this->gdrive_auth_request();
 		}
 	}
 
 	// Get a Google account access token using the refresh token
-	function access_token($token, $client_id, $client_secret) {
+	private function access_token($token, $client_id, $client_secret) {
 
 		global $updraftplus;
 		$updraftplus->log("Google Drive: requesting access token: client_id=$client_id");
@@ -48,9 +48,9 @@ class UpdraftPlus_BackupModule_googledrive {
 	}
 
 	// Acquire single-use authorization code from Google OAuth 2.0
-	public static function gdrive_auth_request() {
+	public function gdrive_auth_request() {
 		// First, revoke any existing token, since Google doesn't appear to like issuing new ones
-		if (UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token') != "") self::gdrive_auth_revoke();
+		if (UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token') != "") $this->gdrive_auth_revoke();
 		// We use 'force' here for the approval_prompt, not 'auto', as that deals better with messy situations where the user authenticated, then changed settings
 		$params = array(
 			'response_type' => 'code',
@@ -71,13 +71,13 @@ class UpdraftPlus_BackupModule_googledrive {
 
 	// Revoke a Google account refresh token
 	// Returns the parameter fed in, so can be used as a WordPress options filter
-	public static function gdrive_auth_revoke() {
+	public function gdrive_auth_revoke() {
 		$ignore = wp_remote_get('https://accounts.google.com/o/oauth2/revoke?token='.UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token'));
 		UpdraftPlus_Options::update_updraft_option('updraft_googledrive_token','');
 	}
 
 	// Get a Google account refresh token using the code received from gdrive_auth_request
-	public static function gdrive_auth_token() {
+	public function gdrive_auth_token() {
 		if( isset( $_GET['code'] ) ) {
 			$post_vars = array(
 				'code' => $_GET['code'],
@@ -128,7 +128,7 @@ class UpdraftPlus_BackupModule_googledrive {
 		}
 	}
 
-	public static function show_authed_admin_success() {
+	public function show_authed_admin_success() {
 
 		global $updraftplus_admin;
 
@@ -158,7 +158,7 @@ class UpdraftPlus_BackupModule_googledrive {
 	}
 
 	// This function just does the formalities, and off-loads the main work to upload_file
-	function backup($backup_array) {
+	public function backup($backup_array) {
 
 		global $updraftplus, $updraftplus_backup;
 
@@ -223,7 +223,7 @@ class UpdraftPlus_BackupModule_googledrive {
 		return null;
 	}
 
-	function delete($files) {
+	public function delete($files) {
 		global $updraftplus;
 		if (is_string($files)) $files=array($files);
 
@@ -275,7 +275,7 @@ class UpdraftPlus_BackupModule_googledrive {
 	// true = already uploaded
 	// false = failure
 	// otherwise, the file ID
-	function upload_file( $file, $title, $parent = '') {
+	private function upload_file( $file, $title, $parent = '') {
 
 		global $updraftplus;
 
@@ -355,7 +355,7 @@ class UpdraftPlus_BackupModule_googledrive {
 
 	}
 
-	function download($file) {
+	public function download($file) {
 
 		global $updraftplus;
 
@@ -400,7 +400,7 @@ class UpdraftPlus_BackupModule_googledrive {
 	}
 
 	// This function modified from wordpress.org/extend/plugins/backup, by Sorin Iclanzan, under the GPLv3 or later at your choice
-	function need_gdocs($access_token) {
+	private function need_gdocs($access_token) {
 
 		global $updraftplus;
 
@@ -416,9 +416,9 @@ class UpdraftPlus_BackupModule_googledrive {
 			$this->gdocs = new UpdraftPlus_GDocs($access_token);
 			// We need to be able to upload at least one chunk within the timeout (at least, we have seen an error report where the failure to do this seemed to be the cause)
 			// If we assume a user has at least 16kb/s (we saw one user with as low as 22kb/s), and that their provider may allow them only 15s, then we have the following settings
-			$this->gdocs->set_option( 'chunk_size', 0.2 ); # 0.2Mb; change from default of 512Kb
-			$this->gdocs->set_option( 'request_timeout', 15 ); # Change from default of 5s
-			$this->gdocs->set_option( 'max_resume_attempts', 36 ); # Doesn't look like GDocs class actually uses this anyway
+			$this->gdocs->set_option('chunk_size', 0.2 ); # 0.2Mb; change from default of 512Kb
+			$this->gdocs->set_option('request_timeout', 15 ); # Change from default of 5s
+			$this->gdocs->set_option('max_resume_attempts', 36 ); # Doesn't look like GDocs class actually uses this anyway
 			if (UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify')) {
 				$this->gdocs->set_option('ssl_verify', false);
 			} else {
@@ -429,12 +429,12 @@ class UpdraftPlus_BackupModule_googledrive {
 	}
 
 	// This function taken from wordpress.org/extend/plugins/backup, by Sorin Iclanzan, under the GPLv3 or later at your choice
-	function is_gdocs( $thing ) {
+	function is_gdocs($thing) {
 		if ( is_object( $thing ) && is_a( $thing, 'UpdraftPlus_GDocs' ) ) return true;
 		return false;
 	}
 
-	public static function config_print() {
+	public function config_print() {
 		?>
 			<tr class="updraftplusmethod googledrive">
 				<td><?php _e('Google Drive','updraftplus');?>:</td>

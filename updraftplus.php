@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.8.8
+Version: 1.8.9
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -15,6 +15,7 @@ Author URI: http://updraftplus.com
 /*
 TODO - some of these are out of date/done, needs pruning
 // On plugins restore, don't let UD over-write itself - because this usually means a down-grade. Since upgrades are db-compatible, there's no reason to downgrade.
+// Option to create S3 bucket with RRS
 // Schedule a task to report on failure
 // When doing AJAX pre-restore check capture all PHP notices and dump them in our 'warning' array (don't let them go to browser directly and break the JSON)
 // When using FTP, verify that the FTP functions are not disabled (e.g. one.com disable them)
@@ -26,10 +27,8 @@ TODO - some of these are out of date/done, needs pruning
 // On restore, check for some 'standard' PHP modules (prevents support requests related to them) -e.g. GD, Curl
 // Get checkout page to pre-select country by IP address? (Make as free plugin?)
 // Recognise known huge non-core tables on restore, and postpone them to the end (AJAX method?)
-// Add a link on the restore page to the log file
 // Add a cart notice if people have DBSF=quantity1
 // Pre-restore actually unpack the zips if they are not insanely big (to prevent the restore crashing at this stage if there's a problem)
-// Don't set file permissions post-restore tighter than they were before
 // Pre-schedule resumptions that we know will be scheduled later
 // Make SFTP chunked (there is a new stream wrapper)
 // In WebDAV library, swap all error_log calls for trigger_error, and make sure they get up to the top layer
@@ -106,7 +105,6 @@ TODO - some of these are out of date/done, needs pruning
 // Detect CloudFlare output in attempts to connect - detecting cloudflare.com should be sufficient
 // Bring multisite shop page up to date
 // Re-do pricing + support packages
-// Option to create S3 bucket with RRS
 // More files: back up multiple directories, not just one
 // Give a help page to go with the message: A zip error occurred - check your log for more details (reduce support requests)
 // Exclude .git and .svn by default from wpcore
@@ -854,7 +852,7 @@ class UpdraftPlus {
 		}
 	}
 
-	function chunked_download($file, $method, $remote_size, $manually_break_up = false, $passback = null) {
+	public function chunked_download($file, $method, $remote_size, $manually_break_up = false, $passback = null) {
 
 		try {
 
@@ -906,14 +904,14 @@ class UpdraftPlus {
 		return true;
 	}
 
-	function decrypt($fullpath, $key, $ciphertext = false) {
+	public function decrypt($fullpath, $key, $ciphertext = false) {
 		$this->ensure_phpseclib('Crypt_Rijndael', 'Crypt/Rijndael');
 		$rijndael = new Crypt_Rijndael();
 		$rijndael->setKey($key);
 		return (false == $ciphertext) ? $rijndael->decrypt(file_get_contents($fullpath)) : $rijndael->decrypt($ciphertext);
 	}
 
-	function encrypt($fullpath, $key, $rformat = 'inline') {
+	public function encrypt($fullpath, $key, $rformat = 'inline') {
 		if (!function_exists('mcrypt_encrypt')) {
 			$this->log(sprintf(__('Your web-server does not have the %s module installed.', 'updraftplus'), 'mcrypt').' '.__('Without it, encryption will be a lot slower.', 'updraftplus'), 'warning', 'nomcrypt');
 		}
@@ -932,7 +930,7 @@ class UpdraftPlus {
 		return (@ini_get('safe_mode') && strtolower(@ini_get('safe_mode')) != "off") ? 1 : 0;
 	}
 
-	function find_working_sqldump($logit = true, $cacheit = true) {
+	public function find_working_sqldump($logit = true, $cacheit = true) {
 
 		// The hosting provider may have explicitly disabled the popen or proc_open functions
 		if ($this->detect_safe_mode() || !function_exists('popen')) {
@@ -1119,7 +1117,7 @@ class UpdraftPlus {
 	}
 
 	// This function is purely for timing - we just want to know the maximum run-time; not whether we have achieved anything during it
-	function record_still_alive() {
+	public function record_still_alive() {
 		// Update the record of maximum detected runtime on each run
 		$time_passed = $this->jobdata_get('run_times');
 		if (!is_array($time_passed)) $time_passed = array();
@@ -1138,7 +1136,7 @@ class UpdraftPlus {
 
 	}
 
-	function something_useful_happened() {
+	public function something_useful_happened() {
 
 		$this->record_still_alive();
 
@@ -1171,7 +1169,7 @@ class UpdraftPlus {
 	}
 
 	// This important function returns a list of file entities that can potentially be backed up (subject to users settings), and optionally further meta-data about them
-	function get_backupable_file_entities($include_others = true, $full_info = false) {
+	public function get_backupable_file_entities($include_others = true, $full_info = false) {
 
 		$wp_upload_dir = wp_upload_dir();
 

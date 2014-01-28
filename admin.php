@@ -890,7 +890,10 @@ class UpdraftPlus_Admin {
 
 			$this->logged = array();
 			set_error_handler(array($this, 'get_php_errors'), E_ALL & ~E_STRICT);
-			if (method_exists($objname, "credentials_test")) call_user_func(array($objname, 'credentials_test'));
+			if (method_exists($objname, "credentials_test")) {
+				$obj = new $objname;
+				$obj->credentials_test();
+			}
 			if (count($this->logged) >0) {
 				echo "\n\n".__('Messages:', 'updraftplus')."\n";
 				foreach ($this->logged as $err) {
@@ -2480,11 +2483,13 @@ CREATE TABLE $wpdb->signups (
 					</tr>
 
 					<?php
+						$method_objects = array();
 						foreach ($updraftplus->backup_methods as $method => $description) {
 							do_action('updraftplus_config_print_before_storage', $method);
 							require_once(UPDRAFTPLUS_DIR.'/methods/'.$method.'.php');
 							$call_method = 'UpdraftPlus_BackupModule_'.$method;
-							call_user_func(array($call_method, 'config_print'));
+							$method_objects[$method] = new $call_method;
+							$method_objects[$method]->config_print();
 							do_action('updraftplus_config_print_after_storage', $method);
 						}
 					?>
@@ -2513,7 +2518,9 @@ CREATE TABLE $wpdb->signups (
 						foreach ($updraftplus->backup_methods as $method => $description) {
 							// already done: require_once(UPDRAFTPLUS_DIR.'/methods/'.$method.'.php');
 							$call_method = "UpdraftPlus_BackupModule_$method";
-							if (method_exists($call_method, 'config_print_javascript_onready')) call_user_func(array($call_method, 'config_print_javascript_onready'));
+							if (method_exists($call_method, 'config_print_javascript_onready')) {
+								$method_objects[$method]->config_print_javascript_onready();
+							}
 						}
 					?>
 				});
@@ -3201,7 +3208,7 @@ ENDHERE;
 	function get_settings_keys() {
 		return array('updraft_autobackup_default', 'updraftplus_tmp_googledrive_access_token', 'updraftplus_dismissedautobackup', 'updraftplus_dismissedexpiry', 'updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_wpcore', 'updraft_include_wpcore_exclude', 'updraft_include_more', 'updraft_include_blogs', 'updraft_include_mu-plugins', 'updraft_include_others_exclude', 'updraft_include_uploads_exclude', 'updraft_lastmessage', 'updraft_googledrive_token',
 		'updraft_dropboxtk_request_token', 'updraft_dropboxtk_access_token', 'updraft_dropbox_folder',
-		'updraft_last_backup', 'updraft_starttime_files', 'updraft_starttime_db', 'updraft_startday_db', 'updraft_startday_files', 'updraft_sftp_settings', 'updraft_s3generic_login', 'updraft_s3generic_pass', 'updraft_s3generic_remote_path', 'updraft_s3generic_endpoint', 'updraft_webdav_settings', 'updraft_disable_ping', 'updraft_cloudfiles', 'updraft_cloudfiles_user', 'updraft_cloudfiles_apikey', 'updraft_cloudfiles_path', 'updraft_cloudfiles_authurl', 'updraft_ssl_useservercerts', 'updraft_ssl_disableverify', 'updraft_s3_login', 'updraft_s3_pass', 'updraft_s3_remote_path', 'updraft_dreamobjects_login', 'updraft_dreamobjects_pass', 'updraft_dreamobjects_remote_path', 'updraft_report_warningsonly', 'updraft_report_wholebackup');
+		'updraft_last_backup', 'updraft_starttime_files', 'updraft_starttime_db', 'updraft_startday_db', 'updraft_startday_files', 'updraft_sftp_settings', 'updraft_s3', 'updraft_s3generic', 'updraft_dreamhost', 'updraft_s3generic_login', 'updraft_s3generic_pass', 'updraft_s3generic_remote_path', 'updraft_s3generic_endpoint', 'updraft_webdav_settings', 'updraft_disable_ping', 'updraft_cloudfiles', 'updraft_cloudfiles_user', 'updraft_cloudfiles_apikey', 'updraft_cloudfiles_path', 'updraft_cloudfiles_authurl', 'updraft_ssl_useservercerts', 'updraft_ssl_disableverify', 'updraft_s3_login', 'updraft_s3_pass', 'updraft_s3_remote_path', 'updraft_dreamobjects_login', 'updraft_dreamobjects_pass', 'updraft_dreamobjects_remote_path', 'updraft_report_warningsonly', 'updraft_report_wholebackup');
 	}
 
 }
