@@ -1,7 +1,7 @@
 <?php
 
 // Options handling
-if (!defined ('ABSPATH')) die ('No direct access allowed');
+if (!defined('ABSPATH')) die ('No direct access allowed');
 
 class UpdraftPlus_Options {
 

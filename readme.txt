@@ -139,6 +139,10 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
+= Development version - not yet released/supported  =
+
+* FEATURE: Allow use of Amazon S3's Reduced Redundancy Storage (via add-on/Premium)
+
 = 1.8.8 - 2014/01/27 =
 
 * FIX: Correctly detect table prefix on some WPMU installs that had been upgraded from an earlier version than 3.0 (i.e. very old)
