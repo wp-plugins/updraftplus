@@ -576,7 +576,7 @@ class UpdraftPlus {
 		$this->logfile_handle = fopen($this->logfile_name, 'a');
 
 		$this->opened_log_time = microtime(true);
-		$this->log('Opened log file at time: '.date('r'));
+		$this->log('Opened log file at time: '.date('r').' on '.site_url());
 		global $wp_version;
 		@include(ABSPATH.'wp-includes/version.php');
 
