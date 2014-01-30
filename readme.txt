@@ -142,6 +142,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 = Development version - not yet released/supported  =
 
 * FEATURE: Allow use of Amazon S3's Reduced Redundancy Storage (via add-on/Premium)
+* FEATURE: Allow skipping of data from tables whose data is explicitly known to be inessential if at least 2 attempts to backup the data fail (e.g. lack of resources on low-budget hosts with huge tables, e.g. StatPress data) - as an alternative to total backup failure.
 
 = 1.8.8 - 2014/01/27 =
 
