@@ -1104,7 +1104,17 @@ class UpdraftPlus_Backup {
 			$this->stow("\n\n# " . sprintf('Data contents of table %s',$updraftplus->backquote($table)) . "\n\n");
 
 		}
-		
+
+		# Some tables have optional data, and should be skipped if they do not work
+		$table_sans_prefix = substr($table, strlen($this->table_prefix_raw));
+		$data_optional_tables = apply_filters('updraftplus_data_optional_tables', explode(',', UPDRAFTPLUS_DATA_OPTIONAL_TABLES));
+		if (in_array($table_sans_prefix, $data_optional_tables)) {
+			if (!$updraftplus->something_useful_happened && !empty($updraftplus->current_resumption) && ($updraftplus->current_resumption - $updraftplus->last_successful_resumption > 2)) {
+				$updraftplus->log("Table $table: Data skipped (previous attempts failed, and table is marked as non-essential)");
+				return true;
+			}
+		}
+
 		// In UpdraftPlus, segment is always 'none'
 		if($segment == 'none' || $segment >= 0) {
 			$defs = array();

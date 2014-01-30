@@ -208,6 +208,8 @@ define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,backup*,*backups'
 define('UPDRAFT_DEFAULT_UPLOADS_EXCLUDE','backup*,*backups,backwpup*');
 
 # The following can go in your wp-config.php
+# Tables whose data can be safed without significant loss, if (and only if) the attempt to back them up fails (e.g. bwps_log, from WordPress Better Security, is log data; but individual entries can be huge and cause out-of-memory fatal errors on low-resource environments). Comma-separate the table names (without the WordPress table prefix).
+if (!defined('UPDRAFTPLUS_DATA_OPTIONAL_TABLES')) define('UPDRAFTPLUS_DATA_OPTIONAL_TABLES', 'bwps_log');
 if (!defined('UPDRAFTPLUS_ZIP_EXECUTABLE')) define('UPDRAFTPLUS_ZIP_EXECUTABLE', "/usr/bin/zip,/bin/zip,/usr/local/bin/zip,/usr/sfw/bin/zip,/usr/xdg4/bin/zip,/opt/bin/zip");
 if (!defined('UPDRAFTPLUS_MYSQLDUMP_EXECUTABLE')) define('UPDRAFTPLUS_MYSQLDUMP_EXECUTABLE', "/usr/bin/mysqldump,/bin/mysqldump,/usr/local/bin/mysqldump,/usr/sfw/bin/mysqldump,/usr/xdg4/bin/mysqldump,/opt/bin/mysqldump");
 # If any individual file size is greater than this, then a warning is given
@@ -574,7 +576,7 @@ class UpdraftPlus {
 		$this->logfile_handle = fopen($this->logfile_name, 'a');
 
 		$this->opened_log_time = microtime(true);
-		$this->log('Opened log file at time: '.date('r'));
+		$this->log('Opened log file at time: '.date('r').' on '.site_url());
 		global $wp_version;
 		@include(ABSPATH.'wp-includes/version.php');
 
@@ -1268,6 +1270,7 @@ class UpdraftPlus {
 		// Restore state
 		$resumption_extralog = '';
 		$prev_resumption = $resumption_no - 1;
+		$last_successful_resumption = -1;
 
 		if ($resumption_no > 0) {
 			$this->nonce = $bnonce;
@@ -1299,11 +1302,16 @@ class UpdraftPlus {
 				}
 			}
 
+			for ($i = 0; $i<=$prev_resumption; $i++) {
+				if (isset($time_passed[$i])) $last_successful_resumption = $i;
+			}
+
 			if (isset($time_passed[$prev_resumption])) {
 				$resumption_extralog = ", previous check-in=".round($time_passed[$prev_resumption], 1)."s";
 			} else {
 				$this->no_checkin_last_time = true;
 			}
+			
 
 			# This is just a simple test to catch restorations of old backup sets where the backup includes a resumption of the backup job
 			if ($time_now - $this->backup_time > 172800) {
@@ -1312,6 +1320,7 @@ class UpdraftPlus {
 			}
 
 		}
+	$this->last_successful_resumption = $last_successful_resumption;
 
 		$runs_started[$resumption_no] = $time_now;
 		if (!empty($this->backup_time)) $this->jobdata_set('runs_started', $runs_started);
