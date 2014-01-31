@@ -856,15 +856,16 @@ class UpdraftPlus_Admin {
 			if (!$found_it) echo json_encode(array('ok' => 'N', 'm' => __('Could not find that job - perhaps it has already finished?', 'updraftplus')));
 
 		} elseif (isset($_GET['subaction']) && 'diskspaceused' == $_GET['subaction'] && isset($_GET['entity'])) {
-			if ($_GET['entity'] == 'updraft') {
+			if ('updraft' == $_GET['entity']) {
 				echo $this->recursive_directory_size($updraftplus->backups_dir_location());
 			} else {
 				$backupable_entities = $updraftplus->get_backupable_file_entities(true, false);
 				if (!empty($backupable_entities[$_GET['entity']])) {
-					$dirs = apply_filters('updraftplus_dirlist_'.$_GET['entity'], $backupable_entities[$_GET['entity']]);
-					echo $this->recursive_directory_size($dirs);
+					$basedir = $backupable_entities[$_GET['entity']];
+					$dirs = apply_filters('updraftplus_dirlist_'.$_GET['entity'], $basedir);
+					echo $this->recursive_directory_size($dirs, $updraftplus->get_exclude($_GET['entity']), $basedir);
 				} else {
-					_e('Error','updraftplus');
+					_e('Error', 'updraftplus');
 				}
 			}
 		} elseif (isset($_GET['subaction']) && 'historystatus' == $_GET['subaction']) {
@@ -2348,7 +2349,7 @@ CREATE TABLE $wpdb->signups (
 
 							echo '<label for="updraft_include_'.$key.'_exclude">'.__('Exclude these:', 'updraftplus').'</label>';
 
-							echo '<input title="'.__('If entering multiple files/directories, then separate them with commas. You can use a * at the start or end of any entry as a wildcard.', 'updraftplus').'" type="text" id="updraft_include_'.$key.'_exclude" name="updraft_include_'.$key.'_exclude" size="54" value="'.htmlspecialchars($include_exclude).'" />';
+							echo '<input title="'.__('If entering multiple files/directories, then separate them with commas. For entities at the top level, you can use a * at the start or end of the entry as a wildcard.', 'updraftplus').'" type="text" id="updraft_include_'.$key.'_exclude" name="updraft_include_'.$key.'_exclude" size="54" value="'.htmlspecialchars($include_exclude).'" />';
 
 							echo '<br>';
 
@@ -2657,9 +2658,12 @@ CREATE TABLE $wpdb->signups (
 		}
 	}
 
-	function recursive_directory_size($directories) {
+	function recursive_directory_size($directories, $exclude = array(), $basedir = '') {
 
-		if (is_string($directories)) $directories = array($directories);
+		if (is_string($directories)) {
+			$basedir = $directories;
+			$directories = array($directories);
+		}
 
 		$size = 0;
 
@@ -2667,7 +2671,8 @@ CREATE TABLE $wpdb->signups (
 			if (is_file($dir)) {
 				$size += @filesize($dir);
 			} else {
-				$size += $this->recursive_directory_size_raw($dir);
+				$suffix = ('' != $basedir) ? ((0 === strpos($dir, $basedir.'/')) ? substr($dir, 1+strlen($basedir)) : '') : '';
+				$size += $this->recursive_directory_size_raw($basedir, $exclude, $suffix);
 			}
 		}
 
@@ -2683,21 +2688,27 @@ CREATE TABLE $wpdb->signups (
 
 	}
 
-	function recursive_directory_size_raw($directory) {
+	function recursive_directory_size_raw($prefix_directory, &$exclude = array(), $suffix_directory = '') {
 
+		$directory = $prefix_directory.('' == $suffix_directory ? '' : '/'.$suffix_directory);
 		$size = 0;
-		if(substr($directory,-1) == '/') $directory = substr($directory,0,-1);
+		if(substr($directory, -1) == '/') $directory = substr($directory,0,-1);
 
 		if(!file_exists($directory) || !is_dir($directory) || !is_readable($directory)) return -1;
 
 		if($handle = opendir($directory)) {
-			while(($file = readdir($handle)) !== false) {
-				$path = $directory.'/'.$file;
-				if($file != '.' && $file != '..') {
+			while (($file = readdir($handle)) !== false) {
+				if ($file != '.' && $file != '..') {
+					$spath = ('' == $suffix_directory) ? $file : $suffix_directory.'/'.$file;
+					if (false !== ($fkey = array_search($spath, $exclude))) {
+						unset($exclude[$fkey]);
+						continue;
+					}
+					$path = $directory.'/'.$file;
 					if(is_file($path)) {
 						$size += filesize($path);
 					} elseif(is_dir($path)) {
-						$handlesize = $this->recursive_directory_size_raw($path);
+						$handlesize = $this->recursive_directory_size_raw($prefix_directory, $exclude, $suffix_directory.('' == $suffix_directory ? '' : '/').$file);
 						if($handlesize >= 0) { $size += $handlesize; }# else { return -1; }
 					}
 				}

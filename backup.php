@@ -1305,7 +1305,8 @@ class UpdraftPlus_Backup {
 	}
 
 	// This function recursively packs the zip, dereferencing symlinks but packing into a single-parent tree for universal unpacking
-	private function makezip_recursive_add($fullpath, $use_path_when_storing, $original_fullpath, $startlevels = 1) {
+	// $exclude is passed by reference so that we can remove elements as they are matched - saves time checking against already-dealt-with objects
+	private function makezip_recursive_add($fullpath, $use_path_when_storing, $original_fullpath, $startlevels = 1, &$exclude) {
 
 		$zipfile = $this->zip_basename.(($this->index == 0) ? '' : ($this->index+1)).'.zip.tmp';
 
@@ -1320,6 +1321,14 @@ class UpdraftPlus_Backup {
 			$updraftplus->log("Infinite recursion: symlink lead us to $fullpath, which is within $original_fullpath");
 			$updraftplus->log(__("Infinite recursion: consult your log for more information",'updraftplus'), 'error');
 			return false;
+		}
+
+		# This is sufficient for the ones we have exclude options for - uploads, others, wpcore
+		$stripped_storage_path = (1 == $startlevels) ? $use_path_when_storing : substr($use_path_when_storing, strpos($use_path_when_storing, '/') + 1);
+		if (false !== ($fkey = array_search($stripped_storage_path, $exclude))) {
+			$updraftplus->log("Entity excluded by configuration option: $stripped_storage_path");
+			unset($exclude[$fkey]);
+			return true;
 		}
 
 		if(is_file($fullpath)) {
@@ -1345,28 +1354,40 @@ class UpdraftPlus_Backup {
 						$deref = realpath($fullpath.'/'.$e);
 						if (is_file($deref)) {
 							if (is_readable($deref)) {
-								$this->zipfiles_batched[$deref] = $use_path_when_storing.'/'.$e;
-								$this->makezip_recursive_batchedbytes += @filesize($deref);
-								#@touch($zipfile);
+								$use_stripped = $stripped_storage_path.'/'.$e;
+								if (false !== ($fkey = array_search($use_stripped, $exclude))) {
+									$updraftplus->log("Entity excluded by configuration option: $use_stripped");
+									unset($exclude[$fkey]);
+								} else {
+									$this->zipfiles_batched[$deref] = $use_path_when_storing.'/'.$e;
+									$this->makezip_recursive_batchedbytes += @filesize($deref);
+									#@touch($zipfile);
+								}
 							} else {
 								$updraftplus->log("$deref: unreadable file");
 								$updraftplus->log(sprintf(__("%s: unreadable file - could not be backed up"), $deref), 'warning');
 							}
 						} elseif (is_dir($deref)) {
-							$this->makezip_recursive_add($deref, $use_path_when_storing.'/'.$e, $original_fullpath, $startlevels);
+							$this->makezip_recursive_add($deref, $use_path_when_storing.'/'.$e, $original_fullpath, $startlevels, $exclude);
 						}
 					} elseif (is_file($fullpath.'/'.$e)) {
 						if (is_readable($fullpath.'/'.$e)) {
-							$this->zipfiles_batched[$fullpath.'/'.$e] = $use_path_when_storing.'/'.$e;
-							$this->makezip_recursive_batchedbytes += @filesize($fullpath.'/'.$e);
-							#@touch($zipfile);
+							$use_stripped = $stripped_storage_path.'/'.$e;
+							if (false !== ($fkey = array_search($use_stripped, $exclude))) {
+								$updraftplus->log("Entity excluded by configuration option: $use_stripped");
+								unset($exclude[$fkey]);
+							} else {
+								$this->zipfiles_batched[$fullpath.'/'.$e] = $use_path_when_storing.'/'.$e;
+								$this->makezip_recursive_batchedbytes += @filesize($fullpath.'/'.$e);
+								#@touch($zipfile);
+							}
 						} else {
 							$updraftplus->log("$fullpath/$e: unreadable file");
 							$updraftplus->log(sprintf(__("%s: unreadable file - could not be backed up", 'updraftplus'), $use_path_when_storing.'/'.$e), 'warning', "unrfile-$e");
 						}
 					} elseif (is_dir($fullpath.'/'.$e)) {
 						// no need to addEmptyDir here, as it gets done when we recurse
-						$this->makezip_recursive_add($fullpath.'/'.$e, $use_path_when_storing.'/'.$e, $original_fullpath, $startlevels);
+						$this->makezip_recursive_add($fullpath.'/'.$e, $use_path_when_storing.'/'.$e, $original_fullpath, $startlevels, $exclude);
 					}
 				}
 			}
@@ -1479,14 +1500,14 @@ class UpdraftPlus_Backup {
 		$this->makezip_recursive_batchedbytes = 0;
 		if (!is_array($source)) $source=array($source);
 
-
+		$exclude = $updraftplus->get_exclude($whichone);
 		foreach ($source as $element) {
-			#makezip_recursive_add($fullpath, $use_path_when_storing, $original_fullpath, $startlevels = 1)
+			#makezip_recursive_add($fullpath, $use_path_when_storing, $original_fullpath, $startlevels = 1, $exclude_array)
 			if ('uploads' == $whichone) {
 				$dirname = dirname($element);
-				$add_them = $this->makezip_recursive_add($element, basename($dirname).'/'.basename($element), $element, 2);
+				$add_them = $this->makezip_recursive_add($element, basename($dirname).'/'.basename($element), $element, 2, $exclude);
 			} else {
-				$add_them = $this->makezip_recursive_add($element, basename($element), $element);
+				$add_them = $this->makezip_recursive_add($element, basename($element), $element, 1, $exclude);
 			}
 			if (is_wp_error($add_them) || false === $add_them) $error_occurred = true;
 		}

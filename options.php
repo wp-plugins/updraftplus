@@ -94,11 +94,11 @@ class UpdraftPlus_Options {
 		register_setting('updraft-options-group', 'updraft_include_uploads', 'absint' );
 		register_setting('updraft-options-group', 'updraft_include_others', 'absint' );
 		register_setting('updraft-options-group', 'updraft_include_wpcore', 'absint' );
-		register_setting('updraft-options-group', 'updraft_include_wpcore_exclude' );
+		register_setting('updraft-options-group', 'updraft_include_wpcore_exclude', array($updraftplus, 'strip_dirslash'));
 		register_setting('updraft-options-group', 'updraft_include_more', 'absint' );
 		register_setting('updraft-options-group', 'updraft_include_more_path' );
-		register_setting('updraft-options-group', 'updraft_include_uploads_exclude' );
-		register_setting('updraft-options-group', 'updraft_include_others_exclude' );
+		register_setting('updraft-options-group', 'updraft_include_uploads_exclude', array($updraftplus, 'strip_dirslash'));
+		register_setting('updraft-options-group', 'updraft_include_others_exclude', array($updraftplus, 'strip_dirslash'));
 
 		register_setting('updraft-options-group', 'updraft_starttime_files', array('UpdraftPlus_Options', 'hourminute') );
 		register_setting('updraft-options-group', 'updraft_starttime_db', array('UpdraftPlus_Options', 'hourminute') );

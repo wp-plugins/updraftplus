@@ -15,14 +15,8 @@ Author URI: http://updraftplus.com
 /*
 TODO - some of these are out of date/done, needs pruning
 // On plugins restore, don't let UD over-write itself - because this usually means a down-grade. Since upgrades are db-compatible, there's no reason to downgrade.
-// Option to create S3 bucket with RRS
 // Schedule a task to report on failure
-// When doing AJAX pre-restore check capture all PHP notices and dump them in our 'warning' array (don't let them go to browser directly and break the JSON)
-// When using FTP, verify that the FTP functions are not disabled (e.g. one.com disable them)
-// Renewal warning is sending them to shop... instead, send them to a 'renewals' page which gives them instructions + the coupon
-// Detect when the webserver has double-gzipped the db
 // Tweak the display so that users seeing resumption messages don't think it's stuck
-// http://www.empsebiz.com/woocommerce/
 // Store/show current Dropbox account
 // On restore, check for some 'standard' PHP modules (prevents support requests related to them) -e.g. GD, Curl
 // Get checkout page to pre-select country by IP address? (Make as free plugin?)
@@ -33,18 +27,15 @@ TODO - some of these are out of date/done, needs pruning
 // Make SFTP chunked (there is a new stream wrapper)
 // In WebDAV library, swap all error_log calls for trigger_error, and make sure they get up to the top layer
 // If we're on the last resumption, zipping, and nothing's succeeded for a while, then auto-split
-// After Oct 15 2013: Remove page(s) from websites discussing W3TC
 // Change add-ons screen, to be less confusing for people who haven't yet updated but have connected
 // Change migrate window: 1) Retain link to article 2) Have selector to choose which backup set to migrate - or a fresh one 3) Have option for FTP/SFTP/SCP despatch 4) Have big "Go" button. Have some indication of what happens next. Test the login first. Have the remote site auto-scan its directory + pick up new sets. Have a way of querying the remote site for its UD-dir. Have a way of saving the settings as a 'profile'. Or just save the last set of settings (since mostly will be just one place to send to). Implement an HTTP/JSON method for sending files too.
 // Post restore, do an AJAX get for the site; if this results in a 500, then auto-turn-on WP_DEBUG
 // Place in maintenance mode during restore - ?
-// Add FAQ about upgrades
 // Test Azure: https://blogs.technet.com/b/blainbar/archive/2013/08/07/article-create-a-wordpress-site-using-windows-azure-read-on.aspx?Redirected=true
 // Seen during autobackup on 1.8.2: Warning: Invalid argument supplied for foreach() in /home/infinite/public_html/new/wp-content/plugins/updraftplus/updraftplus.php on line 1652
 // Add some kind of automated scan for post content (e.g. images) that has the same URL base, but is not part of WP. There's an example of such a site in tmp-rich.
 // Log all output of restore; include Migrator
 // Free/premium comparison page
-// Limited auto-rescan... on settings page load, if we have no known files, and if some exist, then add them
 // Complete the tweak to bring the delete-old-dirs within a dialog (just needed to deal wtih case of needing credentials more elegantly).
 // Add note to support page requesting that non-English be translated
 // More locking: lock the resumptions too (will need to manage keys to make sure junk data is not left behind)
@@ -62,7 +53,6 @@ TODO - some of these are out of date/done, needs pruning
 // Take a look at logfile-to-examine.txt (stored), and the pattern of detection of zipfile contents
 // http://www.phpclasses.org/package/8269-PHP-Send-MySQL-database-backup-files-to-Ubuntu-One.html
 // Put the -old directories in updraft_dir instead of present location. Prevents file perms issues, and also will be automatically excluded from backups.
-// Update updates checker so that it checks for updates on a sliding-scale: those who've not updated in last X only end up checking every Y : https://github.com/YahnisElsts/plugin-update-checker/issues/9
 // Add feature in Backup Now to skip cloud despatch for this backup
 // Test restores via cloud service for small $??? (Relevant: http://browshot.com/features) (per-day? per-install?)
 // Warn/prevent if trying to migrate between sub-domain/sub-folder based multisites
@@ -83,7 +73,6 @@ TODO - some of these are out of date/done, needs pruning
 // Test with: http://wordpress.org/plugins/wp-db-driver/
 // Backup notes
 // Automatically re-count folder usage after doing a delete
-// Exclude by default: uploads/wp-clone
 // Switch zip engines earlier if no progress - see log.cfd793337563_hostingfails.txt
 // The delete-em at the end needs to be made resumable. And to only run on last run-through (i.e. no errors, or no resumption)
 // Incremental - can leverage some of the multi-zip work???
@@ -205,7 +194,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 define('UPDRAFTPLUS_DIR', dirname(__FILE__));
 define('UPDRAFTPLUS_URL', plugins_url('', __FILE__));
 define('UPDRAFT_DEFAULT_OTHERS_EXCLUDE','upgrade,cache,updraft,backup*,*backups');
-define('UPDRAFT_DEFAULT_UPLOADS_EXCLUDE','backup*,*backups,backwpup*');
+define('UPDRAFT_DEFAULT_UPLOADS_EXCLUDE','backup*,*backups,backwpup*,wp-clone');
 
 # The following can go in your wp-config.php
 # Tables whose data can be safed without significant loss, if (and only if) the attempt to back them up fails (e.g. bwps_log, from WordPress Better Security, is log data; but individual entries can be huge and cause out-of-memory fatal errors on low-resource environments). Comma-separate the table names (without the WordPress table prefix).
@@ -2001,6 +1990,17 @@ class UpdraftPlus {
 		}
 	}
 
+	public function get_exclude($whichone) {
+		if ('uploads' == $whichone) {
+			$exclude = explode(',', UpdraftPlus_Options::get_updraft_option('updraft_include_uploads_exclude', UPDRAFT_DEFAULT_UPLOADS_EXCLUDE));
+		} elseif ('others' == $whichone) {
+			$exclude = explode(',', UpdraftPlus_Options::get_updraft_option('updraft_include_others_exclude', UPDRAFT_DEFAULT_OTHERS_EXCLUDE));
+		} else {
+			$exclude = apply_filters('updraftplus_include_'.$whichone.'_exclude', array());
+		}
+		return (empty($exclude) || !is_array($exclude)) ? array() : $exclude;
+	}
+
 	public function really_is_writable($dir) {
 		// Suppress warnings, since if the user is dumping warnings to screen, then invalid JavaScript results and the screen breaks.
 		if (!@is_writable($dir)) return false;
@@ -2050,6 +2050,10 @@ class UpdraftPlus {
 		} else {
 			return $a_name;
 		}
+	}
+
+	public function strip_dirslash($string) {
+		return preg_replace('#/+(,|$)#', '$1', $string);
 	}
 
 	// avoid_these_dirs and skip_these_dirs ultimately do the same thing; but avoid_these_dirs takes full paths whereas skip_these_dirs takes basenames; and they are logged differently (dirs in avoid are potentially dangerous to include; skip is just a user-level preference). They are allowed to overlap.
