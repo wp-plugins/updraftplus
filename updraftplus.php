@@ -23,6 +23,7 @@ TODO - some of these are out of date/done, needs pruning
 // Recognise known huge non-core tables on restore, and postpone them to the end (AJAX method?)
 // Add a cart notice if people have DBSF=quantity1
 // Pre-restore actually unpack the zips if they are not insanely big (to prevent the restore crashing at this stage if there's a problem)
+// Integrate jstree for a nice files-chooser; use https://wordpress.org/plugins/dropbox-photo-sideloader/ to see how it's done
 // Pre-schedule resumptions that we know will be scheduled later
 // Make SFTP chunked (there is a new stream wrapper)
 // In WebDAV library, swap all error_log calls for trigger_error, and make sure they get up to the top layer
@@ -34,7 +35,6 @@ TODO - some of these are out of date/done, needs pruning
 // Test Azure: https://blogs.technet.com/b/blainbar/archive/2013/08/07/article-create-a-wordpress-site-using-windows-azure-read-on.aspx?Redirected=true
 // Seen during autobackup on 1.8.2: Warning: Invalid argument supplied for foreach() in /home/infinite/public_html/new/wp-content/plugins/updraftplus/updraftplus.php on line 1652
 // Add some kind of automated scan for post content (e.g. images) that has the same URL base, but is not part of WP. There's an example of such a site in tmp-rich.
-// Log all output of restore; include Migrator
 // Free/premium comparison page
 // Complete the tweak to bring the delete-old-dirs within a dialog (just needed to deal wtih case of needing credentials more elegantly).
 // Add note to support page requesting that non-English be translated
@@ -547,7 +547,7 @@ class UpdraftPlus {
 		if (file_exists($this->logfile_name)) {
 			$seek_to = max((filesize($this->logfile_name) - 340), 1);
 			$handle = fopen($this->logfile_name, 'r');
-			if ($handle) {
+			if (is_resource($handle)) {
 				# Returns 0 on success
 				if (0 === @fseek($handle, $seek_to)) {
 					$bytes_back = filesize($this->logfile_name) - $seek_to;
@@ -662,6 +662,8 @@ class UpdraftPlus {
 			}
 			$this->jobdata_set('warnings', $warnings);
 		}
+
+		do_action('updraftplus_logline', $line, $this->nonce, $level, $uniq_id);
 
 		if ($this->logfile_handle) {
 			# Record log file times relative to the backup start, if possible
@@ -1309,7 +1311,7 @@ class UpdraftPlus {
 			}
 
 		}
-	$this->last_successful_resumption = $last_successful_resumption;
+		$this->last_successful_resumption = $last_successful_resumption;
 
 		$runs_started[$resumption_no] = $time_now;
 		if (!empty($this->backup_time)) $this->jobdata_set('runs_started', $runs_started);
