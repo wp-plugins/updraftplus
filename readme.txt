@@ -141,6 +141,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 
 = Development version - not yet released/supported  =
 
+* FIX: When migrating a subdomain-based multisite install to a new URL, make sure all sub-sites have URLs replaced
 * FEATURE: Allow the 'exclude' options (for omitting files/directories from the backup) to go to any level (i.e. can now exclude entities which are deep in the directory tree)
 * FEATURE: Allow use of Amazon S3's Reduced Redundancy Storage (via add-on/Premium)
 * FEATURE: Allow all messages to be centrally logged in syslog/Event Log (via add-on/Premium)

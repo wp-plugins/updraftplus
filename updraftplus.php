@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.8.9
+Version: 1.8.10
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -16,6 +16,7 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // On plugins restore, don't let UD over-write itself - because this usually means a down-grade. Since upgrades are db-compatible, there's no reason to downgrade.
 // Schedule a task to report on failure
+// Apparently Google's console has changed again...
 // Tweak the display so that users seeing resumption messages don't think it's stuck
 // Store/show current Dropbox account
 // On restore, check for some 'standard' PHP modules (prevents support requests related to them) -e.g. GD, Curl
@@ -24,9 +25,9 @@ TODO - some of these are out of date/done, needs pruning
 // Add a cart notice if people have DBSF=quantity1
 // Pre-restore actually unpack the zips if they are not insanely big (to prevent the restore crashing at this stage if there's a problem)
 // Integrate jstree for a nice files-chooser; use https://wordpress.org/plugins/dropbox-photo-sideloader/ to see how it's done
+// Verify that attempting to bring back a MS backup on a non-MS install warns the user
 // Pre-schedule resumptions that we know will be scheduled later
 // Make SFTP chunked (there is a new stream wrapper)
-// In WebDAV library, swap all error_log calls for trigger_error, and make sure they get up to the top layer
 // If we're on the last resumption, zipping, and nothing's succeeded for a while, then auto-split
 // Change add-ons screen, to be less confusing for people who haven't yet updated but have connected
 // Change migrate window: 1) Retain link to article 2) Have selector to choose which backup set to migrate - or a fresh one 3) Have option for FTP/SFTP/SCP despatch 4) Have big "Go" button. Have some indication of what happens next. Test the login first. Have the remote site auto-scan its directory + pick up new sets. Have a way of querying the remote site for its UD-dir. Have a way of saving the settings as a 'profile'. Or just save the last set of settings (since mostly will be just one place to send to). Implement an HTTP/JSON method for sending files too.
@@ -62,7 +63,6 @@ TODO - some of these are out of date/done, needs pruning
 // Can some tables be omitted from the search/replace on a migrate? i.e. Special knowledge?
 // Put a 'what do I get if I upgrade?' link into the mix
 // Add to admin bar (and make it something that can be turned off)
-// Option to log to syslog
 // If migrated database from somewhere else, then add note about revising UD settings
 // Strategy for what to do if the updraft_dir contains untracked backups. Automatically rescan?
 // MySQL manual: See Section 8.2.2.1, Speed of INSERT Statements.
@@ -118,8 +118,6 @@ TODO - some of these are out of date/done, needs pruning
 // With ginormous tables, log how many times they've been attempted: after 3rd attempt, log a warning and move on. But first, batch ginormous tables (resumable)
 // Import single site into a multisite: http://codex.wordpress.org/Migrating_Multiple_Blogs_into_WordPress_3.0_Multisite, http://wordpress.org/support/topic/single-sites-to-multisite?replies=5, http://wpmu.org/import-export-wordpress-sites-multisite/
 // Selective restores - some resources
-// Automatically de-activate cacheing/minifying plugins upon restore (and inform user) to prevent unexpected clashes
-// After restoring the themes, should check to see if the currently-active one still exists or not
 // When you migrate/restore, if there is a .htaccess, warn/give option about it.
 // 'Show log' should be done in a nice pop-out, with a button to download the raw
 // delete_old_dirs() needs to use WP_Filesystem in a more user-friendly way when errors occur
