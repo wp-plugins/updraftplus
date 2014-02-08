@@ -146,6 +146,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * FEATURE: Allow use of Amazon S3's Reduced Redundancy Storage (via add-on/Premium)
 * FEATURE: Allow all messages to be centrally logged in syslog/Event Log (via add-on/Premium)
 * RELIABILITY: Allow skipping of data from tables whose data is explicitly known to be inessential if at least 2 attempts to backup the data fail (e.g. lack of resources on low-budget hosts with huge tables, e.g. StatPress data) - as an alternative to total backup failure.
+* TWEAK: Prevent spurious warning message if the site (uploads) is empty and using /usr/bin/zip
 
 = 1.8.8 - 2014/01/27 =
 

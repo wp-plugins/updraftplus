@@ -157,7 +157,7 @@ class UpdraftPlus_BackupModule_s3 {
 				if ($chunks < 2) {
 					$s3->setExceptions(true);
 					try {
-						if (!$s3->putObjectFile($fullpath, $bucket_name, $filepath, $s3::ACL_PRIVATE, array(), array(), apply_filters('updraft_'.$whoweare_key.'_storageclass', $s3::STORAGE_CLASS_STANDARD, $s3, $config))) {
+						if (!$s3->putObjectFile($fullpath, $bucket_name, $filepath, UpdraftPlus_S3::ACL_PRIVATE, array(), array(), apply_filters('updraft_'.$whoweare_key.'_storageclass', UpdraftPlus_S3::STORAGE_CLASS_STANDARD, $s3, $config))) {
 							$updraftplus->log("$whoweare regular upload: failed ($fullpath)");
 							$updraftplus->log("$file: ".sprintf(__('%s Error: Failed to upload','updraftplus'),$whoweare), 'error');
 						} else {
@@ -176,7 +176,7 @@ class UpdraftPlus_BackupModule_s3 {
 					if (empty($uploadId)) {
 						$s3->setExceptions(true);
 						try {
-							$uploadId = $s3->initiateMultipartUpload($bucket_name, $filepath, $s3::ACL_PRIVATE, array(), array(), apply_filters('updraft_'.$whoweare_key.'_storageclass', $s3::STORAGE_CLASS_STANDARD, $s3, $config));
+							$uploadId = $s3->initiateMultipartUpload($bucket_name, $filepath, UpdraftPlus_S3::ACL_PRIVATE, array(), array(), apply_filters('updraft_'.$whoweare_key.'_storageclass', UpdraftPlus_S3::STORAGE_CLASS_STANDARD, $s3, $config));
 						} catch (Exception $e) {
 							$updraftplus->log("$whoweare error whilst trying initiateMultipartUpload: ".$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
 							$uploadId = false;
