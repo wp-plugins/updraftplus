@@ -97,7 +97,7 @@ class UpdraftPlus_Options {
 		register_setting('updraft-options-group', 'updraft_include_wpcore', 'absint' );
 		register_setting('updraft-options-group', 'updraft_include_wpcore_exclude', array($updraftplus, 'strip_dirslash'));
 		register_setting('updraft-options-group', 'updraft_include_more', 'absint' );
-		register_setting('updraft-options-group', 'updraft_include_more_path' );
+		register_setting('updraft-options-group', 'updraft_include_more_path', array($updraftplus, 'remove_empties'));
 		register_setting('updraft-options-group', 'updraft_include_uploads_exclude', array($updraftplus, 'strip_dirslash'));
 		register_setting('updraft-options-group', 'updraft_include_others_exclude', array($updraftplus, 'strip_dirslash'));
 

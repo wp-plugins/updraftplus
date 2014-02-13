@@ -195,6 +195,8 @@ class UpdraftPlus_Backup {
 				}
 			} elseif ($this->index > $original_index) {
 				$updraftplus->log("Did not create $whichone zip (".$this->index.") - not needed");
+				# Added 12-Feb-2014 (to help multiple morefiles)
+				$this->index--;
 			} else {
 				$updraftplus->log("Looked-for $whichone zip (".$this->index.") was not found (".basename($full_path).".tmp)", 'warning');
 			}
@@ -633,6 +635,7 @@ class UpdraftPlus_Backup {
 		# This is just used for the visual feedback (via the 'substatus' key)
 		$which_entity = 0;
 		# e.g. plugins, themes, uploads, others
+		# $whichdir might be an array (if $youwhat is 'more')
 		foreach ($possible_backups as $youwhat => $whichdir) {
 
 			if (isset($this->job_file_entities[$youwhat])) {
@@ -684,7 +687,7 @@ class UpdraftPlus_Backup {
 					# Apply a filter to allow add-ons to provide their own method for creating a zip of the entity
 					$created = apply_filters('updraftplus_backup_makezip_'.$youwhat, $whichdir, $backup_file_basename, $index);
 					# If the filter did not lead to something being created, then use the default method
-					if ($created == $whichdir) {
+					if ($created === $whichdir) {
 
 						// http://www.phpconcept.net/pclzip/user-guide/53
 						/* First parameter to create is:
@@ -701,6 +704,7 @@ class UpdraftPlus_Backup {
 							$dirlist = $updraftplus->backup_uploads_dirlist(true);
 						} else {
 							$dirlist = $whichdir;
+							if (is_array($dirlist)) $dirlist=array_shift($dirlist);
 						}
 
 						if (count($dirlist)>0) {
@@ -712,7 +716,7 @@ class UpdraftPlus_Backup {
 						}
 					}
 
-					if ( $created != $whichdir && (is_string($created) || is_array($created))) {
+					if ($created != $whichdir && (is_string($created) || is_array($created))) {
 						if (is_string($created)) $created=array($created);
 						foreach ($created as $findex => $fname) {
 							$backup_array[$youwhat][$index] = $fname;

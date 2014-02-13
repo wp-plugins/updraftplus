@@ -16,7 +16,9 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // On plugins restore, don't let UD over-write itself - because this usually means a down-grade. Since upgrades are db-compatible, there's no reason to downgrade.
 // Schedule a task to report on failure
+// Get user to confirm if they check both the search/replace and wp-config boxes
 // Apparently Google's console has changed again...
+// Auto-split. Helps on one.com. Check the log sent by #6292
 // Tweak the display so that users seeing resumption messages don't think it's stuck
 // Store/show current Dropbox account
 // On restore, check for some 'standard' PHP modules (prevents support requests related to them) -e.g. GD, Curl
@@ -2056,6 +2058,14 @@ class UpdraftPlus {
 		return preg_replace('#/+(,|$)#', '$1', $string);
 	}
 
+	public function remove_empties($list) {
+		if (!is_array($list)) return $list;
+		foreach ($list as $ind => $entry) {
+			if (empty($entry)) unset($list[$ind]);
+		}
+		return $list;
+	}
+
 	// avoid_these_dirs and skip_these_dirs ultimately do the same thing; but avoid_these_dirs takes full paths whereas skip_these_dirs takes basenames; and they are logged differently (dirs in avoid are potentially dangerous to include; skip is just a user-level preference). They are allowed to overlap.
 	public function compile_folder_list_for_backup($backup_from_inside_dir, $avoid_these_dirs, $skip_these_dirs) {
 
@@ -2064,7 +2074,6 @@ class UpdraftPlus {
 		$dirlist = array(); 
 
 		$this->log('Looking for candidates to back up in: '.$backup_from_inside_dir);
-
 		$updraft_dir = $this->backups_dir_location();
 		if ($handle = opendir($backup_from_inside_dir)) {
 		

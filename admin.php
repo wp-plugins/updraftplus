@@ -197,6 +197,22 @@ class UpdraftPlus_Admin {
 		var updraft_downloader_nonce = '<?php wp_create_nonce("updraftplus_download"); ?>'
 		</script>
 		<style type="text/css">
+			.updraftplus-morefiles-row-delete {
+				cursor: pointer;
+				color: red;
+				font-size: 100%;
+				font-weight: bold;
+				border: 0px;
+				border-radius: 3px;
+				padding: 2px;
+				margin: 0 6px;
+			}
+			.updraftplus-morefiles-row-delete:hover {
+				cursor: pointer;
+				color: white;
+				background: red;
+			}
+
 		#updraft-wrap .form-table th {
 			width: 230px;
 		}
@@ -861,6 +877,7 @@ class UpdraftPlus_Admin {
 			} else {
 				$backupable_entities = $updraftplus->get_backupable_file_entities(true, false);
 				if (!empty($backupable_entities[$_GET['entity']])) {
+					# Might be an array
 					$basedir = $backupable_entities[$_GET['entity']];
 					$dirs = apply_filters('updraftplus_dirlist_'.$_GET['entity'], $basedir);
 					echo $this->recursive_directory_size($dirs, $updraftplus->get_exclude($_GET['entity']), $basedir);
@@ -2533,7 +2550,7 @@ CREATE TABLE $wpdb->signups (
 			</tr>
 			<tr>
 				<th><?php _e('Debug mode','updraftplus');?>:</th>
-				<td><input type="checkbox" id="updraft_debug_mode" name="updraft_debug_mode" value="1" <?php echo $debug_mode; ?> /> <br><label for="updraft_debug_mode"><?php _e('Check this to receive more information and emails on the backup process - useful if something is going wrong. You <strong>must</strong> send us this log if you are filing a bug report.','updraftplus');?></label></td>
+				<td><input type="checkbox" id="updraft_debug_mode" name="updraft_debug_mode" value="1" <?php echo $debug_mode; ?> /> <br><label for="updraft_debug_mode"><?php _e('Check this to receive more information and emails on the backup process - useful if something is going wrong.','updraftplus');?></label></td>
 			</tr>
 			<tr>
 				<th><?php _e('Expert settings','updraftplus');?>:</th>
@@ -2658,22 +2675,32 @@ CREATE TABLE $wpdb->signups (
 		}
 	}
 
-	function recursive_directory_size($directories, $exclude = array(), $basedir = '') {
-
-		if (is_string($directories)) {
-			$basedir = $directories;
-			$directories = array($directories);
-		}
+	# If $basedirs is passed as an array, then $directorieses must be too
+	function recursive_directory_size($directorieses, $exclude = array(), $basedirs = '') {
 
 		$size = 0;
 
-		foreach ($directories as $dir) {
-			if (is_file($dir)) {
-				$size += @filesize($dir);
-			} else {
-				$suffix = ('' != $basedir) ? ((0 === strpos($dir, $basedir.'/')) ? substr($dir, 1+strlen($basedir)) : '') : '';
-				$size += $this->recursive_directory_size_raw($basedir, $exclude, $suffix);
+		if (is_string($directorieses)) {
+			$basedirs = $directorieses;
+			$directorieses = array($directorieses);
+		}
+
+		if (is_string($basedirs)) $basedirs = array($basedirs);
+
+		foreach ($basedirs as $ind => $basedir) {
+
+			$directories = $directorieses[$ind];
+			if (!is_array($directories)) $directories=array($directories);
+
+			foreach ($directories as $dir) {
+				if (is_file($dir)) {
+					$size += @filesize($dir);
+				} else {
+					$suffix = ('' != $basedir) ? ((0 === strpos($dir, $basedir.'/')) ? substr($dir, 1+strlen($basedir)) : '') : '';
+					$size += $this->recursive_directory_size_raw($basedir, $exclude, $suffix);
+				}
 			}
+
 		}
 
 		if ($size > 1073741824) {
