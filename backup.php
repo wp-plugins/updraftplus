@@ -231,7 +231,7 @@ class UpdraftPlus_Backup {
 
 		$upload_status = $updraftplus->jobdata_get('uploading_substatus');
 		if (!is_array($upload_status) || !isset($upload_status['t'])) {
-			$upload_status = array('i' => 0, 't' => max(1, count($services))*count($backup_array));
+			$upload_status = array('i' => 0, 'p' => 0, 't' => max(1, count($services))*count($backup_array));
 			$updraftplus->jobdata_set('uploading_substatus', $upload_status);
 		}
 

@@ -1877,7 +1877,7 @@ class UpdraftPlus {
 	}
 
 	// This should be called whenever a file is successfully uploaded
-	function uploaded_file($file, $id = false, $force = false) {
+	public function uploaded_file($file, $id = false, $force = false) {
 	
 		global $updraftplus_backup;
 

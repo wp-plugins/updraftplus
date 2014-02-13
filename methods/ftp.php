@@ -55,7 +55,15 @@ class UpdraftPlus_BackupModule_ftp {
 			$updraftplus->log("FTP upload attempt: $file -> ftp://$user@$server/${ftp_remote_path}${file}");
 			$timer_start = microtime(true);
 			$size_k = round(filesize($fullpath)/1024,1);
-			if ($ftp->put($fullpath, $ftp_remote_path.$file, FTP_BINARY, true, $updraftplus)) {
+			# Note :Setting $resume to true unnecessarily is not meant to be a problem. Only ever (Feb 2014) seen one weird FTP server where calling SIZE on a non-existent file did create a problem. So, this code just helps that case. (the check for non-empty upload_status[p] is being cautious.
+			$upload_status = $updraftplus->jobdata_get('uploading_substatus');
+			if (0 == $updraftplus->current_resumption|| (is_array($upload_status) && !empty($upload_status['p']) && $upload_status['p'] == 0)) {
+				$resume = false;
+			} else {
+				$resume = true;
+			}
+
+			if ($ftp->put($fullpath, $ftp_remote_path.$file, FTP_BINARY, $resume, $updraftplus)) {
 				$updraftplus->log("FTP upload attempt successful (".$size_k."Kb in ".(round(microtime(true)-$timer_start,2)).'s)');
 				$updraftplus->uploaded_file($file);
 			} else {
