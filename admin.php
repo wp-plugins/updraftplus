@@ -304,7 +304,7 @@ class UpdraftPlus_Admin {
 				$submenu_file = 'themes.php';
 			}
 
-			require_once(ABSPATH . 'wp-admin/admin-header.php');
+			require_once(ABSPATH.'wp-admin/admin-header.php');
 
 			?>
 			<div id="updraft-autobackup" class="updated" style="float:left; padding: 6px; margin:8px 0px;">
@@ -1490,7 +1490,7 @@ CREATE TABLE $wpdb->signups (
 
 			# These aren't in get_settings_keys() because they are always in the options table, regardless of context
 			global $wpdb;
-			$wpdb->query("DELETE FROM $wpdb->options WHERE ( option_name LIKE 'updraftplus_unlocked_%' OR option_name LIKE 'updraftplus_last_lock_time_%' OR option_name LIKE 'updraftplus_semaphore_%')");
+			$wpdb->query("DELETE FROM $wpdb->options WHERE ( option_name LIKE 'updraftplus_unlocked_%' OR option_name LIKE 'updraftplus_locked_%' OR option_name LIKE 'updraftplus_last_lock_time_%' OR option_name LIKE 'updraftplus_semaphore_%')");
 
 			$site_options = array('updraft_oneshotnonce');
 			foreach ($site_options as $s) delete_site_option($s);
@@ -1838,6 +1838,7 @@ CREATE TABLE $wpdb->signups (
 				echo 'ABSPATH: '.htmlspecialchars(ABSPATH).'<br/>';
 				echo 'WP_CONTENT_DIR: '.htmlspecialchars(WP_CONTENT_DIR).'<br/>';
 				echo 'WP_PLUGIN_DIR: '.htmlspecialchars(WP_PLUGIN_DIR).'<br/>';
+				echo 'Table prefix: '.htmlspecialchars($updraftplus->get_table_prefix()).'<br/>';
 				$peak_memory_usage = memory_get_peak_usage(true)/1024/1024;
 				$memory_usage = memory_get_usage(true)/1024/1024;
 				echo __('Peak memory usage','updraftplus').': '.$peak_memory_usage.' MB<br/>';
@@ -1867,6 +1868,8 @@ CREATE TABLE $wpdb->signups (
 				}
 
 				echo '<a href="admin-ajax.php?page=updraftplus&action=updraft_ajax&subaction=backuphistoryraw&nonce='.wp_create_nonce('updraftplus-credentialtest-nonce').'" id="updraftplus-rawbackuphistory">'.__('Show raw backup and file list', 'updraftplus').'</a><br/>';
+
+				echo __('Install plugins for debugging:', 'updraftplus').' <a href="'.wp_nonce_url(self_admin_url('update.php?action=install-plugin&updraftplus_noautobackup=1&plugin=wp-crontrol'), 'install-plugin_wp-crontrol').'">WP Crontrol</a> | <a href="'.wp_nonce_url(self_admin_url('update.php?action=install-plugin&updraftplus_noautobackup=1&plugin=sql-executioner'), 'install-plugin_sql-executioner').'">SQL Executioner</a> | <a href="'.wp_nonce_url(self_admin_url('update.php?action=install-plugin&updraftplus_noautobackup=1&plugin=advanced-code-editor'), 'install-plugin_advanced-code-editor').'">Advanced Code Editor</a> | <a href="'.wp_nonce_url(self_admin_url('update.php?action=install-plugin&updraftplus_noautobackup=1&plugin=wp-filemanager'), 'install-plugin_wp-filemanager').'">WP Filemanager</a><br>';
 
 				echo '<h3>'.__('Total (uncompressed) on-disk data:','updraftplus').'</h3>';
 				echo '<p style="clear: left; max-width: 600px;"><em>'.__('N.B. This count is based upon what was, or was not, excluded the last time you saved the options.', 'updraftplus').'</em></p>';
