@@ -94,7 +94,7 @@ Check out <a href="http://updraftplus.com/updraftplus-full-feature-list/">our fu
 
 Note - this FAQ is for users of the free plugin. If you're a paying customer, then you should go here: http://updraftplus.com/support/ - please don't ask question in the WordPress.Org forum about purchases, as that's against their rules.
 
-Next, please make sure you read this FAQ through to the end - it may already have the answer you need. If it does, then please consider a donation (e.g. buy our "No Adverts" add-on - http://updraftplus.com/shop/); it takes time to develop this plugin and FAQ.
+Next, please make sure you read this FAQ through to the end - it may already have the answer you need. If it does, then please consider a donation (e.g. buy our "No Adverts" add-on - <a href="http://updraftplus.com/shop/">http://updraftplus.com/shop/</a>); it takes time to develop this plugin and FAQ.
 
 If it does not, then contact me (<a href="http://wordpress.org/support/plugin/updraftplus">the forum is the best way</a>)! This is a complex backup plugin and the only way I can ensure it's robust is to get bug reports and fix the problems that crop up. Please make sure you are using the latest version of the plugin, and that you include the version in your bug report - if you are not using the latest, then the first thing you will be asked to do is upgrade.
 
@@ -150,6 +150,8 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Prevent spurious warning message if the site (uploads) is empty and using /usr/bin/zip
 * TWEAK: Work-around for quirky FTP server for which PHP loses the communication if SIZE is called for a non-existent file
 * TWEAK: Show table prefix in debugging information, and add quick links to install useful debugging plugins
+* TWEAK: Limit amount of to-database logging when backing up uploads if the user is not using dated directories (speed-up)
+* TWEAK: Split zip earlier if progress made in the past but not recently (should help with some ultra-low-resource hosts, e.g. one.com)
 
 = 1.8.8 - 2014/01/27 =
 

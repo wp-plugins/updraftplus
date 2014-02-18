@@ -91,7 +91,7 @@ class UpdraftPlus_Backup {
 
 		global $updraftplus;
 
-		$this->zip_split_every = max((int)$updraftplus->jobdata_get('split_every'), UPDRAFTPLUS_SPLIT_MIN)*1024*1024;
+		$this->zip_split_every = max((int)$updraftplus->jobdata_get('split_every'), UPDRAFTPLUS_SPLIT_MIN)*1048576;
 
 		if ('others' != $whichone) $updraftplus->log("Beginning creation of dump of $whichone (split every: ".round($this->zip_split_every/1048576,1)." Mb)");
 
@@ -615,12 +615,17 @@ class UpdraftPlus_Backup {
 			if ((int)$maxzipbatch < 1) $maxzipbatch = 26214400;
 
 			# NOTYET: Possible amendment to original algorithm; not just no check-in, but if the check in was very early (can happen if we get a very early checkin for some trivial operation, then attempt something too big)
+
 			if (!empty($updraftplus->no_checkin_last_time)) {
-				$new_maxzipbatch = max(floor($maxzipbatch * 0.75), 20971520);
-				if ($new_maxzipbatch < $maxzipbatch) {
-					$updraftplus->log("No check-in was detected on the previous run - as a result, we are reducing the batch amount (old=$maxzipbatch, new=$new_maxzipbatch)");
-					$updraftplus->jobdata_set('maxzipbatch', $new_maxzipbatch);
-					$updraftplus->jobdata_set('maxzipbatch_ceiling', $new_maxzipbatch);
+				if ($updraftplus->current_resumption - $updraftplus->last_successful_resumption > 2) {
+					$this->try_split = true;
+				} else {
+					$new_maxzipbatch = max(floor($maxzipbatch * 0.75), 20971520);
+					if ($new_maxzipbatch < $maxzipbatch) {
+						$updraftplus->log("No check-in was detected on the previous run - as a result, we are reducing the batch amount (old=$maxzipbatch, new=$new_maxzipbatch)");
+						$updraftplus->jobdata_set('maxzipbatch', $new_maxzipbatch);
+						$updraftplus->jobdata_set('maxzipbatch_ceiling', $new_maxzipbatch);
+					}
 				}
 			}
 		}
@@ -647,7 +652,7 @@ class UpdraftPlus_Backup {
 
 				# Split needed?
 				$split_every=max((int)$updraftplus->jobdata_get('split_every'), 250);
-				if (file_exists($zip_file) && filesize($zip_file) > $split_every*1024*1024) {
+				if (file_exists($zip_file) && filesize($zip_file) > $split_every*1048576) {
 					$index++;
 					$this->job_file_entities[$youwhat]['index'] = $index;
 					$updraftplus->jobdata_set('job_file_entities', $this->job_file_entities);
@@ -664,7 +669,7 @@ class UpdraftPlus_Backup {
 					}
 				}
 
-				if ($job_status == 'finished') {
+				if ('finished' == $job_status) {
 					// Add the final part of the array
 					if ($index >0) {
 						$fbase = $backup_file_basename.'-'.$youwhat.($index+1).'.zip';
@@ -1061,7 +1066,6 @@ class UpdraftPlus_Backup {
 		global $wpdb, $updraftplus;
 
 		$microtime = microtime(true);
-
 		$total_rows = 0;
 
 		$table_structure = $wpdb->get_results("DESCRIBE $table");
@@ -1072,14 +1076,12 @@ class UpdraftPlus_Backup {
 	
 		if($segment == 'none' || $segment == 0) {
 			// Add SQL statement to drop existing table
-			$this->stow("\n");
-			$this->stow("# " . sprintf(__('Delete any existing table %s','wp-db-backup'),$updraftplus->backquote($table)) . "\n\n");
+			$this->stow("\n# " . sprintf(__('Delete any existing table %s','wp-db-backup'),$updraftplus->backquote($table)) . "\n\n");
 			$this->stow("DROP TABLE IF EXISTS " . $updraftplus->backquote($table) . ";\n");
 			
 			// Table structure
 			// Comment in SQL-file
-			$this->stow("\n");
-			$this->stow("# " . sprintf(__('Table structure of table %s','wp-db-backup'),$updraftplus->backquote($table)) . "\n\n");
+			$this->stow("\n# " . sprintf(__('Table structure of table %s','wp-db-backup'),$updraftplus->backquote($table)) . "\n\n");
 			
 			$create_table = $wpdb->get_results("SHOW CREATE TABLE `$table`", ARRAY_N);
 			if (false === $create_table) {
@@ -1397,7 +1399,7 @@ class UpdraftPlus_Backup {
 			}
 			closedir($dir_handle);
 		} else {
-			$updraftplus->log("Unexpected: path fails both is_file() and is_dir(): $fullpath");
+			$updraftplus->log("Unexpected: path ($use_path_when_storing) fails both is_file() and is_dir()");
 		}
 
 		// We don't want to tweak the zip file on every single file, so we batch them up
@@ -1478,6 +1480,17 @@ class UpdraftPlus_Backup {
 
 				$updraftplus->log(basename($examine_zip).": Zip file already exists, with ".count($this->existing_files)." files");
 
+				# try_split is set if there have been no check-ins recently
+				if ($j == $this->index && isset($this->try_split)) {
+					if (filesize($examine_zip) > 50*1048576) {
+						# We could, as a future enhancement, save this back to the job data, if we see a case that needs it
+						$this->zip_split_every = max((int)$this->zip_split_every/2, UPDRAFTPLUS_SPLIT_MIN*1048576, filesize($examine_zip));
+						$updraftplus->log("No check-in on last two runs; bumping index and reducing zip split for this job to: ".round($this->zip_split_every/1048576, 1)." Mb");
+						$do_bump_index = true;
+					}
+					unset($this->try_split);
+				}
+
 			} elseif (file_exists($examine_zip)) {
 				$updraftplus->log("Zip file already exists, but is not readable or was zero-sized; will remove: ".basename($examine_zip));
 				@unlink($examine_zip);
@@ -1493,6 +1506,10 @@ class UpdraftPlus_Backup {
 		$this->zipfiles_lastwritetime = time();
 
 		$this->zip_basename = $this->updraft_dir.'/'.$backup_file_basename.'-'.$whichone;
+
+		if (!empty($do_bump_index)) {
+			$this->bump_index();
+		}
 
 		$error_occurred = false;
 
@@ -1519,7 +1536,7 @@ class UpdraftPlus_Backup {
 		// This relies on us *not* touch()ing the zip file to indicate to any resumption 'behind us' that we're already here. Rather, we're relying on the combined facts that a) if it takes us a while to search the directory tree, then it should do for the one behind us too (though they'll have the benefit of cache, so could catch very fast) and b) we touch *immediately* after finishing the enumeration of the files to add.
 		$updraftplus->check_recent_modification($destination);
 		// Here we're relying on the fact that both PclZip and ZipArchive will happily operate on an empty file. Note that BinZip *won't* (for that, may need a new strategy - e.g. add the very first file on its own, in order to 'lay down a marker')
-		@touch($destination);
+		if (empty($do_bump_index)) @touch($destination);
 
 		if (count($this->zipfiles_dirbatched)>0 || count($this->zipfiles_batched)>0) {
 			$updraftplus->log(sprintf("Total entities for the zip file: %d directories, %d files, %s Mb", count($this->zipfiles_dirbatched), count($this->zipfiles_batched), round($this->makezip_recursive_batchedbytes/1048576,1)));

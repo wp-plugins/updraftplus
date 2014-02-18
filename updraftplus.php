@@ -639,9 +639,10 @@ class UpdraftPlus {
 	- Messages at level 'error' are not logged to file - it is assumed that a separate call to log() at another level will take place. This is because at level 'error', messages are translated; whereas the log file is for developers who may not know the translated language. Messages at level 'error' are for the user.
 	- Messages at level 'error' do not persist through the job (they are only saved with save_backup_history(), and never restored from there - so only the final save_backup_history() errors persist); we presume that either a) they will be cleared on the next attempt, or b) they will occur again on the final attempt (at which point they will go to the user). But...
 	- ... messages at level 'warning' persist. These are conditions that are unlikely to be cleared, not-fatal, but the user should be informed about. The $uniq_id field (which should not be numeric) can then be used for warnings that should only be logged once
+	$skip_dblog = true is suitable when there's a risk of excessive logging, and the information is not important for the user to see in the browser on the settings page
 	*/
 
-	public function log($line, $level = 'notice', $uniq_id = false) {
+	public function log($line, $level = 'notice', $uniq_id = false, $skip_dblog = false) {
 
 		if ('error' == $level || 'warning' == $level) {
 			if ('error' == $level && 0 == $this->error_count()) $this->log('An error condition has occurred for the first time during this job');
@@ -684,7 +685,7 @@ class UpdraftPlus {
 				#if ('debug' != $level) echo $line."\n";
 				break;
 			default:
-				if ('debug' != $level) UpdraftPlus_Options::update_updraft_option('updraft_lastmessage', $line." (".date_i18n('M d H:i:s').")", false);
+				if (!$skip_dblog && 'debug' != $level) UpdraftPlus_Options::update_updraft_option('updraft_lastmessage', $line." (".date_i18n('M d H:i:s').")", false);
 				break;
 		}
 
@@ -2071,7 +2072,8 @@ class UpdraftPlus {
 
 		// Entries in $skip_these_dirs are allowed to end in *, which means "and anything else as a suffix". It's not a full shell glob, but it covers what is needed to-date.
 
-		$dirlist = array(); 
+		$dirlist = array();
+		$added = 0;
 
 		$this->log('Looking for candidates to back up in: '.$backup_from_inside_dir);
 		$updraft_dir = $this->backups_dir_location();
@@ -2104,8 +2106,10 @@ class UpdraftPlus {
 							}
 						}
 						if ($add_to_list) {
-							$this->log("finding files: $entry: adding to list");
 							array_push($dirlist, $candidate);
+							$added++;
+							$skip_dblog = ($added > 50 && 0 != $added % 100);
+							$this->log("finding files: $entry: adding to list ($added)", 'notice', false, $skip_dblog);
 						}
 					}
 				}
