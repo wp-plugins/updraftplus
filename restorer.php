@@ -1284,6 +1284,18 @@ class Updraft_Restorer extends WP_Upgrader {
 				}
 			}
 
+			# Bad plugin that hard-codes path references - https://wordpress.org/plugins/custom-content-type-manager/
+			$cctm_data = $wpdb->get_row($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", 'cctm_data'));
+			if (!empty($cctm_data->option_value)) {
+				$cctm_data = maybe_unserialize($cctm_data->option_value);
+				if (is_array($cctm_data) && !empty($cctm_data['cache']) && is_array($cctm_data['cache'])) {
+					$cctm_data['cache'] = array();
+					$updraftplus->log_e("Custom content type manager plugin data detected: clearing option cache");
+					update_option('cctm_data', $cctm_data);
+				}
+			}
+
+
 		} elseif ($table == $import_table_prefix.'usermeta' && $import_table_prefix != $old_table_prefix) {
 
 			echo sprintf(__('Table prefix has changed: changing %s table field(s) accordingly:', 'updraftplus'),'usermeta').' ';

@@ -152,6 +152,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Show table prefix in debugging information, and add quick links to install useful debugging plugins
 * TWEAK: Limit amount of to-database logging when backing up uploads if the user is not using dated directories (speed-up)
 * TWEAK: Split zip earlier if progress made in the past but not recently (should help with some ultra-low-resource hosts, e.g. one.com)
+* TWEAK: "Custom Content Type Manager" plugin has bad hard-coded cache data; detect + fix this on restore
 
 = 1.8.8 - 2014/01/27 =
 
