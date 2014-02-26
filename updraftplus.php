@@ -22,7 +22,6 @@ TODO - some of these are out of date/done, needs pruning
 // Tweak the display so that users seeing resumption messages don't think it's stuck
 // Store/show current Dropbox account
 // On restore, check for some 'standard' PHP modules (prevents support requests related to them) -e.g. GD, Curl
-// Get checkout page to pre-select country by IP address? (Make as free plugin?)
 // Recognise known huge non-core tables on restore, and postpone them to the end (AJAX method?)
 // Add a cart notice if people have DBSF=quantity1
 // Pre-restore actually unpack the zips if they are not insanely big (to prevent the restore crashing at this stage if there's a problem)
@@ -414,8 +413,9 @@ class UpdraftPlus {
 				require_once(UPDRAFTPLUS_DIR.'/methods/'.$method.'.php');
 				$call_class = "UpdraftPlus_BackupModule_".$method;
 				$call_method = "action_".$matches[2];
+				$backup_obj = new $call_class;
 				add_action('http_api_curl', array($this, 'add_curl_capath'));
-				if (method_exists($call_class, $call_method)) call_user_func(array($call_class, $call_method));
+				if (method_exists($backup_obj, $call_method)) call_user_func(array($backup_obj, $call_method));
 				remove_action('http_api_curl', array($this, 'add_curl_capath'));
 			} elseif (isset( $_GET['page'] ) && $_GET['page'] == 'updraftplus' && $_GET['action'] == 'downloadlog' && isset($_GET['updraftplus_backup_nonce']) && preg_match("/^[0-9a-f]{12}$/",$_GET['updraftplus_backup_nonce']) && UpdraftPlus_Options::user_can_manage()) {
 				// No WordPress nonce is needed here or for the next, since the backup is already nonce-based
