@@ -376,7 +376,7 @@ class UpdraftPlus_BackupModule_dropbox {
 		$this->bootstrap();
 		$new_token = UpdraftPlus_Options::get_updraft_option("updraft_dropboxtk_request_token", '');
 		if ($new_token) {
-			add_action('all_admin_notices', array('UpdraftPlus_BackupModule_dropbox', 'show_authed_admin_warning') );
+			add_action('all_admin_notices', array($this, 'show_authed_admin_warning') );
 		}
 	}
 
