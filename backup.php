@@ -1362,7 +1362,7 @@ class UpdraftPlus_Backup {
 			}
 			closedir($dir_handle);
 		} else {
-			$updraftplus->log("Unexpected: path fails both is_file() and is_dir(): $fullpath");
+			$updraftplus->log("Unexpected: path ($use_path_when_storing) fails both is_file() and is_dir(): $fullpath");
 		}
 
 		// We don't want to tweak the zip file on every single file, so we batch them up

@@ -652,7 +652,7 @@ class UpdraftPlus {
 	- ... messages at level 'warning' persist. These are conditions that are unlikely to be cleared, not-fatal, but the user should be informed about. The $uniq_id field (which should not be numeric) can then be used for warnings that should only be logged once
 	*/
 
-	public function log($line, $level = 'notice', $uniq_id = false) {
+	public function log($line, $level = 'notice', $uniq_id = false, $skip_dblog = false) {
 
 		if ('error' == $level || 'warning' == $level) {
 			if ('error' == $level && 0 == $this->error_count()) $this->log('An error condition has occurred for the first time during this job');
@@ -693,7 +693,7 @@ class UpdraftPlus {
 				#if ('debug' != $level) echo $line."\n";
 				break;
 			default:
-				if ('debug' != $level) UpdraftPlus_Options::update_updraft_option('updraft_lastmessage', $line." (".date_i18n('M d H:i:s').")", false);
+				if (!$skip_dblog && 'debug' != $level) UpdraftPlus_Options::update_updraft_option('updraft_lastmessage', $line." (".date_i18n('M d H:i:s').")", false);
 				break;
 		}
 
@@ -2051,6 +2051,7 @@ class UpdraftPlus {
 		// Entries in $skip_these_dirs are allowed to end in *, which means "and anything else as a suffix". It's not a full shell glob, but it covers what is needed to-date.
 
 		$dirlist = array(); 
+		$added = 0;
 
 		$this->log('Looking for candidates to back up in: '.$backup_from_inside_dir);
 
@@ -2084,8 +2085,10 @@ class UpdraftPlus {
 							}
 						}
 						if ($add_to_list) {
-							$this->log("finding files: $entry: adding to list");
 							array_push($dirlist, $candidate);
+							$added++;
+							$skip_dblog = ($added > 50 && 0 != $added % 100);
+							$this->log("finding files: $entry: adding to list ($added)", 'notice', false, $skip_dblog);
 						}
 					}
 				}
