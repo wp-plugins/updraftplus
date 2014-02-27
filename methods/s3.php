@@ -90,7 +90,11 @@ class UpdraftPlus_BackupModule_s3 {
 			case 'ap-southeast-2':
 			case 'ap-northeast-1':
 			case 'sa-east-1':
+			case 'us-gov-west-1':
 				$endpoint = 's3-'.$region.'.amazonaws.com';
+				break;
+			case 'cn-north-1':
+				$endpoint = 's3.'.$region.'.amazonaws.com.cn';
 				break;
 			default:
 				break;
