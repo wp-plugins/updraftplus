@@ -3,7 +3,7 @@ Contributors: Backup with UpdraftPlus, DavidAnderson
 Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, s3 compatible, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, ftp backup, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp, ftps, scp, migrate, duplicate, copy, updraft, schedule, mysql backup, database backup, db backup, website backup, wordpress backup, full backup
 Requires at least: 3.2
 Tested up to: 3.8.1
-Stable tag: 1.8.8
+Stable tag: 1.8.11
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -46,7 +46,7 @@ If you need WordPress multisite compatibility (you'll know if you do), <a href="
 
 = Professional / Enterprise support agreements available =
 
-UpdraftPlus is written by professional WordPress developers. If your site needs guaranteed support, then we are available. Just  <a href="http://updraftplus.com/shop/">go to our shop.</a>
+UpdraftPlus backup/restore is written by professional WordPress developers. If your site needs guaranteed support, then we are available. Just  <a href="http://updraftplus.com/shop/">go to our shop.</a>
 
 = More premium plugins =
 

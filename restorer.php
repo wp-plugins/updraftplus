@@ -764,7 +764,7 @@ class Updraft_Restorer extends WP_Upgrader {
 	}
 
 	// $dirnames: an array of preferred names
-	function get_first_directory($working_dir, $dirnames) {
+	private function get_first_directory($working_dir, $dirnames) {
 		global $wp_filesystem, $updraftplus;
 		$fdirnames = array_flip($dirnames);
 		$dirlist = $wp_filesystem->dirlist($working_dir, true, false);
