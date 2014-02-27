@@ -3036,19 +3036,17 @@ ENDHERE;
 
 		$entities_to_restore = array_flip($_POST['updraft_restore']);
 
-		$entities_log = '';
 		foreach ($_POST as $key => $value) {
 			if (strpos($key, 'updraft_restore_') === 0 ) {
 				$nkey = substr($key, 16);
 				if (!isset($entities_to_restore[$nkey])) {
 					$_POST['updraft_restore'][] = $nkey;
 					$entities_to_restore[$nkey] = 1;
-					$entities_log .= ('' == $entities_log) ? $nkey : ",$nkey";
 				}
 			}
 		}
 
-		$updraftplus->log("Restore job started. Entities to restore: $entities_log");
+		$updraftplus->log("Restore job started. Entities to restore: ".implode(', ', array_flip($entities_to_restore)));
 
 		if (0 == count($_POST['updraft_restore'])) {
 			echo '<p>'.__('ABORT: Could not find the information on which entities to restore.', 'updraftplus').'</p>';

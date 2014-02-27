@@ -544,6 +544,8 @@ class Updraft_Restorer extends WP_Upgrader {
 			// A filter, to allow add-ons to perform the install of non-standard entities, or to indicate that it's not possible
 			if (false === $movedin) {
 				$this->skin->feedback('not_possible');
+			} elseif (is_wp_error($movedin)) {
+				return $movedin;
 			} elseif (true !== $movedin) {
 
 				# On the first time, create the -old directory in updraft_dir
@@ -784,7 +786,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			}
 		} else {
 			# That shouldn't happen. Fall back to default
-			$move_from = $working_dir."/".$dirname[0];
+			$move_from = $working_dir."/".$dirnames[0];
 		}
 		return $move_from;
 	}
