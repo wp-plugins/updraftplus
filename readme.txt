@@ -2,8 +2,8 @@
 Contributors: Backup with UpdraftPlus, DavidAnderson
 Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, s3 compatible, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, ftp backup, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp, ftps, scp, migrate, duplicate, copy, updraft, schedule, mysql backup, database backup, db backup, website backup, wordpress backup, full backup
 Requires at least: 3.2
-Tested up to: 3.8
-Stable tag: 1.8.1
+Tested up to: 3.8.1
+Stable tag: 1.8.11
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -14,11 +14,11 @@ Easy and complete backups + restoration. Manual or automated backups (backup to 
 
 <a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3 (or compatible), Dropbox, Google Drive, Rackspace Cloud, DreamObjects, FTP, SFTP, SCP, WebDAV and email) and restore with a single click. Backups of files and database can have separate schedules.
 
-<strong>Top-quality:</strong> UpdraftPlus is the <a href="http://rankwp.com/plugins/updraftplus">highest-ranking backup plugin on rankwp.com</a> (ranks 16th out of 28,000 WordPress plugins for quality on rankwp.com - last checked 28th September 2013).
+<strong>Top-quality:</strong> UpdraftPlus is the <a href="http://rankwp.com/plugins/updraftplus">highest-ranking backup plugin on rankwp.com</a> (ranks in the top 50 out of 28,000 WordPress plugins for quality on rankwp.com - last checked 8th January 2014).
 
-<strong>Tens of thousands of users:</strong> widely tested and reliable (over 450,000 downloads). Ranks in the top 100 most used of all WordPress plugins on rankwp.com. Millions of backups completed!
+<strong>Tens of thousands of users:</strong> widely tested and reliable (over 635,000 downloads). Ranks in the top 100 most used of all WordPress plugins on rankwp.com. Millions of backups completed!
 
-* Supports WordPress backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP and email. Also (via an add-on) FTP over SSL, SFTP, SCP and WebDAV. (Note: Microsoft forbid SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
+* Supports WordPress backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP and email. Also (via an add-on) FTP over SSL, SFTP, SCP and WebDAV. (Note: Microsoft forbid OneDrive/SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
 * Quick restore (both file and database backups)
 * Backup automatically on a repeating schedule
 * Site duplicator/migrator: can copy sites, and (with add-on) move them to new locations
@@ -46,7 +46,11 @@ If you need WordPress multisite compatibility (you'll know if you do), <a href="
 
 = Professional / Enterprise support agreements available =
 
-UpdraftPlus is written by professional WordPress developers. If your site needs guaranteed support, then we are available. Just  <a href="http://updraftplus.com/shop/">go to our shop.</a>
+UpdraftPlus backup/restore is written by professional WordPress developers. If your site needs guaranteed support, then we are available. Just  <a href="http://updraftplus.com/shop/">go to our shop.</a>
+
+= More premium plugins =
+
+If you are in the market for other WordPress premium plugins (especially WooCommerce addons), then try our shop, here: https://www.simbahosting.co.uk/s3/shop/
 
 = Are you multi-lingual? Can you translate? =
 
@@ -54,17 +58,19 @@ Are you able to translate UpdraftPlus into another language? Are you ready to he
 
 Many thanks to the existing translators:
 
-* русский / Russian (ru_RU): Илья Худолей (Ilya Khudoley) - ironman_c at icloud.com and Igor Ocheretny (http://wpsells.com)
+* Português / Portuguese (Brazilian) (pt_BR): Lucien Raven (lucienraven at yahoo.com.br) and Tom Fonseca (tomfonseca at gmail.com)
+* русский / Russian (ru_RU): Илья Худолей (Ilya Khudoley) - ironman_c at icloud.com and Igor Ocheretny (http://wpsells.com) - also see Igor's free training videos at: http://goodbackup.wpsells.com/
 * Ελληνική  / Greek translation (el): Κώστας Θερμογιάννης (Kostas Thermoyiannis) - http://tovivlio.net
 * Français / French translation (fr_FR): ufo3D - http://ufo-3d.fr and Thomas Jacobsen - http://123informatique.ch - with help from Françoise Lhermitte - http://www.ajwan.net
 * Swedish / Svensk (sv_SE): Steve Sandström - http://www.brandicon.se
 * Polski / Polish (pl_PL): Bartosz Kaczmarek - barth.kaczmarek at gmail.com
 * Chinese (zh_CN): K L Wang - http://klwang.info
 * Italiano / Italian (it_IT): Francesco Carpana - f.carpana at gmail.com
+* Deutsch / German (de_DE): Marcel Herrguth - mherrguth at mrgeneration.de
 
 And to these (need updating or new translators; now less than 50% translated):
+
 * Español / Spanish (es_ES): Fernando Villasmil - villasmil.fernando at gmail.com
-* Deutsch / German (de_DE): Marcel Herrguth - mherrguth at mrgeneration.de
 * Magyar / Hungarian (hu_HU): Szépe Viktor - http://www.szepe.net
 * Nederlands / Dutch (nl_NL): Hans van der Vlist - hansvandervlist at gmail.com
 
@@ -88,7 +94,7 @@ Check out <a href="http://updraftplus.com/updraftplus-full-feature-list/">our fu
 
 Note - this FAQ is for users of the free plugin. If you're a paying customer, then you should go here: http://updraftplus.com/support/ - please don't ask question in the WordPress.Org forum about purchases, as that's against their rules.
 
-Next, please make sure you read this FAQ through to the end - it may already have the answer you need. If it does, then please consider a donation (e.g. buy our "No Adverts" add-on - http://updraftplus.com/shop/); it takes time to develop this plugin and FAQ.
+Next, please make sure you read this FAQ through to the end - it may already have the answer you need. If it does, then please consider a donation (e.g. buy our "No Adverts" add-on - <a href="http://updraftplus.com/shop/">http://updraftplus.com/shop/</a>); it takes time to develop this plugin and FAQ.
 
 If it does not, then contact me (<a href="http://wordpress.org/support/plugin/updraftplus">the forum is the best way</a>)! This is a complex backup plugin and the only way I can ensure it's robust is to get bug reports and fix the problems that crop up. Please make sure you are using the latest version of the plugin, and that you include the version in your bug report - if you are not using the latest, then the first thing you will be asked to do is upgrade.
 
@@ -108,9 +114,9 @@ After you have set up UpdraftPlus, you must check that your WordPress backups ar
 
 UpdraftPlus supports resuming backup runs right from the beginning, so that it does not need to do everything in a single go; but this has limits. If your website is huge and your web hosting company gives your tiny resources on an over-loaded server, then go into the "Expert settings" and reduce the size at which zip files are split (versions 1.6.53 onwards). UpdraftPlus is known to successfully back up websites that run into the multiple-gigabytes on web servers that are not resource-starved.
 
-= Will you support Windows Live SkyDrive? =
+= Will you support Windows Live OneDrive (f.k.a. SkyDrive)? =
 
-No. Microsoft forbid the use of SkyDrive by backup utilities - see http://msdn.microsoft.com/en-us/library/live/hh826521.aspx ("Here are some examples of nonconforming apps: Apps that automatically back up files or folders to SkyDrive.").
+No. Microsoft forbid the use of OneDrive/SkyDrive by backup utilities - see http://msdn.microsoft.com/en-us/library/live/hh826521.aspx ("Here are some examples of nonconforming apps: Apps that automatically back up files or folders to SkyDrive.").
 
 = Any known bugs ? =
 
@@ -128,15 +134,72 @@ Yes; especially before you submit any support requests.
 
 Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ .
 
+
 == Changelog ==
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
-= Development version (not yet released/supported) =
+= 1.8.11 - 2014/02/27 =
 
-* FIX: Various small fixes to the initial release of 1.8.1 (if you installed 1.8.1 after the first day of its release then you already have these fixes)
-* TWEAK: Restorer now switches theme if database is restored to indicate a non-existent theme, and temporarily disables cacheing plugins
+* FIX: Deal with some unlikely multisite migration combinations
+* FEATURE: Allow the 'exclude' options (for omitting files/directories from the backup) to go to any level (i.e. can now exclude entities which are deep in the directory tree)
+* FEATURE: "More Files" add-on (and hence Premium) now allows adding as many non-WP directories as you like
+* FEATURE: Allow use of Amazon S3's Reduced Redundancy Storage (via add-on/Premium)
+* FEATURE: Allow all messages to be centrally logged in syslog/Event Log (via add-on/Premium)
+* RELIABILITY: Allow skipping of data from tables whose data is explicitly known to be inessential if at least 2 attempts to backup the data fail (e.g. lack of resources on low-budget hosts with huge tables, e.g. StatPress data) - as an alternative to total backup failure.
+* TWEAK: Prevent spurious warning message if the site (uploads) is empty and using /usr/bin/zip
+* TWEAK: Work-around for quirky FTP server for which PHP loses the communication if SIZE is called for a non-existent file
+* TWEAK: Show table prefix in debugging information, and add quick links to install useful debugging plugins
+* TWEAK: Limit amount of to-database logging when backing up uploads if the user is not using dated directories (speed-up)
+* TWEAK: Split zip earlier if progress made in the past but not recently (should help with some ultra-low-resource hosts, e.g. one.com)
+* TWEAK: "Custom Content Type Manager" plugin has bad hard-coded cache data; detect + fix this on restore
+* TRANSLATIONS: Updated translations for Russian, Dutch, German and Portuguese (Brazilian)
+
+= 1.8.8 - 2014/01/27 =
+
+* FIX: Correctly detect table prefix on some WPMU installs that had been upgraded from an earlier version than 3.0 (i.e. very old)
+* FIX: Files directly in wp-content/uploads (from a 1.8.5 backup and not in any sub-directory) were being restored one directory too high
+* UPDATED: Updated Swedish, Portuguese and Dutch translations
+* UPDATED: Update root certificates to match latest CURL/Mozilla version
+* TWEAK: Automatically change http(s):// to webdav(s):// in WebDAV URLs if the user overlooks the instructions
+* TWEAK: If SHOW TABLES returns no tables, then schedule a re-try later (presume the DB connection had been dropped)
+* TWEAK: Preceed warnings in the log file with [Warning]
+* TWEAK: Prevent a very rare PHP segfault due to https://bugs.php.net/bug.php?id=51425
+* TWEAK: Show the filename being unpacked during restore (helps with troubleshooting if there are very many zips)
+* TWEAK: Premium plugin now shows information about pending/past update/support expiries + links to renewal page
+* TWEAK: Show all defined constants in the debug dialog
+* TWEAK: Detect + deal with situations where the webserver double-gzipped the database file
+* TWEAK: Display a warning in the FTP configuration section if the hosting company disabled FTP functions
+* TWEAK: Make sure that WebDAV notices are included in UD's log file
+
+= 1.8.5 - 2014/01/09 =
+
+* FEATURE: Add option to exclude specified files from the 'uploads' backup. The default option will omit backing up backups created by at least 2 other backup plugins.
+* FEATURE: New Brazilian Portuguese translation - thanks to Lucien Raven and Tom Fonseca
+* FEATURE: Migrator search/replace now handles JSON and object-encoded data
+* UPDATED: Updated Swedish translation
+* FIX: When advising the user that his remaining Dropbox quota is insufficient, take into account parts of the file already uploaded
+* FIX: Delete Old Directories button in 1.8.2 was using a PHP 5.3+ feature: restore PHP 5.2 compatibility
+* FIX: Reporting add-on was incorrectly inflating the number displayed for the total error count if there were warnings
+* FIX: Prevent a bogus warning appearing when the user has filtered the base table prefix
+* TWEAK: Give more feedback to user when FTP login fails. Also, improve automatic switch to non-SSL FTP if SSL FTP fails to cover more situations.
+* TWEAK: Add informational text about the implications of not choosing any remote storage method
+* TWEAK: Supply the "Delete Old Directories" button directly with the message advising users to press it
+* TWEAK: If using WP Slimstats, don't search/replace the slimstats table when migrating (referer data should be left intact); and this table is often gigantic, so this hugely speeds up restores/migrations
+* TWEAK: Handle odd file permissions setups more skilfully when restoring/migrating
+* TWEAK: Automatically rescan for new backup sets if none were previously known (saves a click when manually importing)
+* TWEAK: Force a shorter pathname to be used when unpacking zip files (prevent maximum pathname limits being hit)
+* TWEAK: Tweak CSS to work-around other plugins that dump their CSS code on all settings pages and break modals (in this case, Events Manager)
+* TWEAK: Hide the instruction for users of Opera unless the user agent header indicates Opera
+* TWEAK: Speed migrations by skipping redundant search/replace scan on term_relationships table (which can never have URLs in it)
+
+= 1.8.2 - 2013/12/13 =
+
+* FIX: Various small fixes to the initial release of 1.8.1
+* TWEAK: Restorer now switches theme if database is restored to indicate a non-existent theme, and Migrator temporarily disables cacheing plugins during Migration
 * TWEAK: Improve handling of MySQL's maximum packet size - attempt to raise it, and leave some margin
+* TWEAK: Move the Rackspace SDK around to prevent problems on systems with limited maximum pathname lengths
+* TWEAK: Provide a link to the log file at the top of the restoration page
 
 = 1.8.1 - 2013/12/10 =
 
@@ -671,7 +734,7 @@ We recognise and thank the following for code and/or libraries used and/or modif
 
 == License ==
 
-    Copyright 2011-3 David Anderson
+    Copyright 2011-14 David Anderson
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -690,4 +753,4 @@ We recognise and thank the following for code and/or libraries used and/or modif
 Furthermore, reliance upon any non-English translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
 
 == Upgrade Notice ==
-* 1.8.1 : A mix of new features, tweaks and bug fixes
+* 1.8.11 : More exclusion + more files options; Amazon S3 RRS; various small tweaks for performance + usability

@@ -48,7 +48,7 @@ class UpdraftPlus_BackupModule_email {
 		return null;
 	}
 
-	public static function config_print() {
+	public function config_print() {
 		?>
 		<tr class="updraftplusmethod email">
 			<th><?php _e('Note:', 'updraftplus');?></th>

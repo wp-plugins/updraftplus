@@ -3,7 +3,7 @@
 class UpdraftPlus_BackupModule_ftp {
 
 	// Get FTP object with parameters set
-	function getFTP($server, $user, $pass, $disable_ssl = false, $disable_verify = true, $use_server_certs = false, $passive = true) {
+	private function getFTP($server, $user, $pass, $disable_ssl = false, $disable_verify = true, $use_server_certs = false, $passive = true) {
 
 		if( !class_exists('UpdraftPlus_ftp_wrapper')) require_once(UPDRAFTPLUS_DIR.'/includes/ftp.class.php');
 
@@ -24,7 +24,7 @@ class UpdraftPlus_BackupModule_ftp {
 
 	}
 
-	function backup($backup_array) {
+	public function backup($backup_array) {
 
 		global $updraftplus, $updraftplus_backup;
 
@@ -55,7 +55,15 @@ class UpdraftPlus_BackupModule_ftp {
 			$updraftplus->log("FTP upload attempt: $file -> ftp://$user@$server/${ftp_remote_path}${file}");
 			$timer_start = microtime(true);
 			$size_k = round(filesize($fullpath)/1024,1);
-			if ($ftp->put($fullpath, $ftp_remote_path.$file, FTP_BINARY, true, $updraftplus)) {
+			# Note :Setting $resume to true unnecessarily is not meant to be a problem. Only ever (Feb 2014) seen one weird FTP server where calling SIZE on a non-existent file did create a problem. So, this code just helps that case. (the check for non-empty upload_status[p] is being cautious.
+			$upload_status = $updraftplus->jobdata_get('uploading_substatus');
+			if (0 == $updraftplus->current_resumption|| (is_array($upload_status) && !empty($upload_status['p']) && $upload_status['p'] == 0)) {
+				$resume = false;
+			} else {
+				$resume = true;
+			}
+
+			if ($ftp->put($fullpath, $ftp_remote_path.$file, FTP_BINARY, $resume, $updraftplus)) {
 				$updraftplus->log("FTP upload attempt successful (".$size_k."Kb in ".(round(microtime(true)-$timer_start,2)).'s)');
 				$updraftplus->uploaded_file($file);
 			} else {
@@ -67,7 +75,7 @@ class UpdraftPlus_BackupModule_ftp {
 		return array('ftp_object' => $ftp, 'ftp_remote_path' => $ftp_remote_path);
 	}
 
-	function delete($files, $ftparr = array()) {
+	public function delete($files, $ftparr = array()) {
 
 		global $updraftplus;
 		if (is_string($files)) $files=array($files);
@@ -109,7 +117,7 @@ class UpdraftPlus_BackupModule_ftp {
 
 	}
 
-	function download($file) {
+	public function download($file) {
 		if( !class_exists('UpdraftPlus_ftp_wrapper')) require_once(UPDRAFTPLUS_DIR.'/includes/ftp.class.php');
 
 		global $updraftplus;
@@ -142,7 +150,7 @@ class UpdraftPlus_BackupModule_ftp {
 		return $ftp->get($fullpath, $ftp_remote_path.$file, FTP_BINARY, $resume, $updraftplus);
 	}
 
-	public static function config_print_javascript_onready() {
+	public function config_print_javascript_onready() {
 		?>
 		jQuery('#updraft-ftp-test').click(function(){
 			jQuery('#updraft-ftp-test').html('<?php echo esc_js(sprintf(__('Testing %s Settings...', 'updraftplus'),'FTP')); ?>');
@@ -168,8 +176,41 @@ class UpdraftPlus_BackupModule_ftp {
 		<?php
 	}
 
-	public static function config_print() {
+	private function ftp_possible() {
+		$funcs_disabled = array();
+		foreach (array('ftp_connect', 'ftp_login', 'ftp_nb_fput') as $func) {
+			if (!function_exists($func)) $funcs_disabled['ftp'][] = $func;
+		}
+		$funcs_disabled = apply_filters('updraftplus_ftp_possible', $funcs_disabled);
+		return (0 == count($funcs_disabled)) ? true : $funcs_disabled;
+	}
+
+	public function config_print() {
 		global $updraftplus;
+
+		$possible = $this->ftp_possible();
+		if (is_array($possible)) {
+			?>
+			<tr class="updraftplusmethod ftp">
+			<th></th>
+			<td>
+			<?php
+				// Check requirements.
+				global $updraftplus_admin;
+				$trans = array(
+					'ftp' => __('regular non-encrypted FTP', 'updraftplus'),
+					'ftpsslimplicit' => __('encrypted FTP (implicit encryption)', 'updraftplus'),
+					'ftpsslexplicit' => __('encrypted FTP (explicit encryption)', 'updraftplus')
+				);
+				foreach ($possible as $type => $missing) {
+					$updraftplus_admin->show_double_warning('<strong>'.__('Warning','updraftplus').':</strong> '. sprintf(__("Your web server's PHP installation has these functions disabled: %s.", 'updraftplus'), implode(', ', $missing)).' '.sprintf(__('Your hosting company must enable these functions before %s can work.', 'updraftplus'), $trans[$type]), 'ftp');
+				}
+			?>
+			</td>
+			</tr>
+			<?php
+		}
+
 		?>
 
 		<tr class="updraftplusmethod ftp">
@@ -209,7 +250,7 @@ class UpdraftPlus_BackupModule_ftp {
 		return array('updraft_server_address', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_ssl_disableverify', 'updraft_ssl_nossl', 'updraft_ssl_useservercerts');
 	}
 
-	public static function credentials_test() {
+	public function credentials_test() {
 
 		$server = $_POST['server'];
 		$login = stripslashes($_POST['login']);
@@ -233,7 +274,7 @@ class UpdraftPlus_BackupModule_ftp {
 			return;
 		}
 
-		$ftp = self::getFTP($server, $login, $pass, $nossl, $disable_verify, $use_server_certs);
+		$ftp = $this->getFTP($server, $login, $pass, $nossl, $disable_verify, $use_server_certs);
 
 		if (!$ftp->connect()) {
 			_e('Failure: we did not successfully log in with those credentials.', 'updraftplus');
