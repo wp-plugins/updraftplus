@@ -3,7 +3,7 @@ Contributors: Backup with UpdraftPlus, DavidAnderson
 Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, s3 compatible, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, ftp backup, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp, ftps, scp, migrate, duplicate, copy, updraft, schedule, mysql backup, database backup, db backup, website backup, wordpress backup, full backup
 Requires at least: 3.2
 Tested up to: 3.8.1
-Stable tag: 1.8.11
+Stable tag: 1.8.12
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -138,6 +138,11 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 == Changelog ==
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
+
+= 1.8.12 - 2014/02/27 =
+
+* FIX: Prevent spurious warning message showing when authenticating new Dropbox connections (introduced in 1.8.11)
+* TWEAK: Add support for Amazon S3's China + government zones
 
 = 1.8.11 - 2014/02/27 =
 
@@ -753,4 +758,4 @@ We recognise and thank the following for code and/or libraries used and/or modif
 Furthermore, reliance upon any non-English translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
 
 == Upgrade Notice ==
-* 1.8.11 : More exclusion + more files options; Amazon S3 RRS; various small tweaks for performance + usability
+* 1.8.12 : More exclusion + more files options; Amazon S3 RRS; various small tweaks for performance + usability
