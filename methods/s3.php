@@ -17,6 +17,8 @@ if (!is_array(UpdraftPlus_Options::get_updraft_option('updraft_s3')) && '' != Up
 
 class UpdraftPlus_BackupModule_s3 {
 
+	private $s3_object;
+
 	protected function get_config() {
 		global $updraftplus;
 		$opts = $updraftplus->get_job_option('updraft_s3');
@@ -33,6 +35,9 @@ class UpdraftPlus_BackupModule_s3 {
 
 	// Get an S3 object, after setting our options
 	protected function getS3($key, $secret, $useservercerts, $disableverify, $nossl) {
+
+		if (!empty($this->s3_object) && !is_wp_error($this->s3_object)) return $this->s3_object;
+
 		global $updraftplus;
 
 		if (!class_exists('UpdraftPlus_S3')) require_once(UPDRAFTPLUS_DIR.'/includes/S3.php');
@@ -77,7 +82,10 @@ class UpdraftPlus_BackupModule_s3 {
 			$s3->useSSL = false;
 			$updraftplus->log("SSL was disabled via the user's preference. Communications will not be encrypted.");
 		}
-		return $s3;
+
+		$this->s3_object = $s3;
+
+		return $this->s3_object;
 	}
 
 	protected function set_endpoint($obj, $region) {
@@ -256,6 +264,67 @@ class UpdraftPlus_BackupModule_s3 {
 			$updraftplus->log("$whoweare Error: Failed to create bucket $bucket_name.");
 			$updraftplus->log(sprintf(__('%s Error: Failed to create bucket %s. Check your permissions and credentials.','updraftplus'),$whoweare, $bucket_name), 'error');
 		}
+	}
+
+	public function listfiles($match = 'backup_') {
+
+		global $updraftplus;
+
+		$config = $this->get_config();
+		$whoweare = $config['whoweare'];
+		$whoweare_key = $config['key'];
+		$whoweare_keys = substr($whoweare_key, 0, 3);
+
+		$s3 = $this->getS3(
+			$config['accesskey'],
+			$config['secretkey'],
+			UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify'),
+			UpdraftPlus_Options::get_updraft_option('updraft_ssl_nossl')
+		);
+
+		if (!is_a($s3, 'UpdraftPlus_S3')) return new WP_Error('no_s3object', 'Failed to gain acccess to '.$config['whoweare']);
+
+		$bucket_name = untrailingslashit($config['path']);
+		$bucket_path = '';
+
+		if (preg_match("#^([^/]+)/(.*)$#",$bucket_name,$bmatches)) {
+			$bucket_name = $bmatches[1];
+			$bucket_path = trailingslashit($bmatches[2]);
+		}
+
+		$region = ($config['key'] == 'dreamobjects' || $config['key'] == 's3generic') ? 'n/a' : @$s3->getBucketLocation($bucket_name);
+		if (!empty($region)) {
+			$this->set_endpoint($s3, $region);
+		} else {
+			$updraftplus->log("$whoweare Error: Failed to access bucket $bucket_name. Check your permissions and credentials.");
+			return new WP_Error('bucket_not_accessed', sprintf(__('%s Error: Failed to access bucket %s. Check your permissions and credentials.','updraftplus'),$whoweare, $bucket_name));
+		}
+
+		$bucket = $s3->getBucket($bucket_name, $bucket_path.$match);
+
+		if (!is_array($bucket)) return array();
+
+		$results = array();
+
+		foreach ($bucket as $key => $object) {
+			if (!is_array($object) || empty($object['name'])) continue;
+			if (isset($object['size']) && 0 == $object['size']) continue;
+
+			if ($bucket_path) {
+				if (0 !== strpos($object['name'], $bucket_path)) continue;
+				$object['name'] = substr($object['name'], strlen($bucket_path));
+			} else {
+				if (false !== strpos($object['name'], '/')) continue;
+			}
+
+			$result = array('name' => $object['name']);
+			if (isset($object['size'])) $result['size'] = $object['size'];
+			unset($bucket[$key]);
+			$results[] = $result;
+		}
+
+		return $results;
+
 	}
 
 	public function delete($files, $s3arr = false) {

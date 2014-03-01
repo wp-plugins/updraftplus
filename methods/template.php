@@ -37,6 +37,12 @@ class UpdraftPlus_BackupModule_template {
 
 	}
 
+	# $match: a substring to require (tested via strpos() !== false)
+	public function listfiles($match = 'backup_') {
+		# This function needs to return an array of arrays. The keys for the sub-arrays are name (a path-less filename, i.e. a basename), (optional)size, and should be a list of matching files from the storage backend. A WP_Error object can also be returned.
+		return array();
+	}
+
 	// delete method: takes an array of file names (base name) or a single string, and removes them from the cloud storage
 	public function delete($files) {
 
