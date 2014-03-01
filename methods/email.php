@@ -1,5 +1,7 @@
 <?php
 
+if (!defined('UPDRAFTPLUS_DIR')) die('No direct access allowed.');
+
 // Files can easily get too big for this method
 
 class UpdraftPlus_BackupModule_email {

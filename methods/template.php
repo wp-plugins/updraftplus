@@ -17,6 +17,8 @@ Some handy tips:
 
 */
 
+if (!defined('UPDRAFTPLUS_DIR')) die('No direct access allowed.');
+
 class UpdraftPlus_BackupModule_template {
 
 	// backup method: takes an array, and shovels them off to the cloud storage

@@ -1,5 +1,7 @@
 <?php
 
+if (!defined('UPDRAFTPLUS_DIR')) die('No direct access allowed.');
+
 require_once(UPDRAFTPLUS_DIR.'/methods/s3.php');
 
 # Migrate options to new-style storage - Jan 2014

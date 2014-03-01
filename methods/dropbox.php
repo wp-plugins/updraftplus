@@ -2,10 +2,13 @@
 
 // https://www.dropbox.com/developers/apply?cont=/developers/apps
 
+if (!defined('UPDRAFTPLUS_DIR')) die('No direct access allowed.');
+
 class UpdraftPlus_BackupModule_dropbox {
 
 	private $current_file_hash;
 	private $current_file_size;
+	private $dropbox_object;
 
 	public function chunked_callback($offset, $uploadid, $fullpath = false) {
 		global $updraftplus;
@@ -162,6 +165,55 @@ class UpdraftPlus_BackupModule_dropbox {
 
 		return null;
 
+	}
+
+	# $match: a substring to require (tested via strpos() !== false)
+	public function listfiles($match = 'backup_') {
+
+		global $updraftplus;
+		try {
+			$dropbox = $this->bootstrap();
+		} catch (Exception $e) {
+			$updraftplus->log('Dropbox access error: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
+			return new WP_Error('access_error', $e->getMessage());
+		}
+
+		$searchpath = '/'.untrailingslashit(apply_filters('updraftplus_dropbox_modpath', ''));
+
+		try {
+			$search = $dropbox->search($match, $searchpath);
+		} catch (Exception $e) {
+			$updraftplus->log('Dropbox error: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
+			return new WP_Error('search_error', $e->getMessage());
+		}
+
+		if (empty($search['code']) || 200 != $search['code']) return new WP_Error('response_error', sprintf(__('%s returned an unexpected HTTP response: %s', 'updraftplus'), 'Dropbox', $search['code']), $search['body']);
+
+		if (empty($search['body']) || !is_array($search['body'])) return array();
+
+		$results = array();
+
+		foreach ($search['body'] as $item) {
+			if (!is_object($item)) continue;
+
+			if ((!isset($item->bytes) || $item->bytes > 0) && empty($item->is_dir) && !empty($item->path) && 0 === strpos($item->path, $searchpath)) {
+
+				$path = substr($item->path, strlen($searchpath));
+				if ('/' == substr($path, 0, 1)) $path=substr($path, 1);
+
+				# Ones in subfolders are not wanted
+				if (false !== strpos($path, '/')) continue;
+
+				$result = array('name' => $path);
+				if (!empty($item->bytes)) $result['size'] = $item->bytes;
+
+				$results[] = $result;
+
+			}
+
+		}
+
+		return $results;
 	}
 
 	public function defaults() {
@@ -388,6 +440,8 @@ class UpdraftPlus_BackupModule_dropbox {
 	// This basically reproduces the relevant bits of bootstrap.php from the SDK
 	public function bootstrap() {
 
+		if (!empty($this->dropbox_object) && !is_wp_error($this->dropbox_object)) return $this->dropbox_object;
+
 		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/API.php'	);
 		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/Exception.php');
 		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/API.php');
@@ -425,7 +479,10 @@ class UpdraftPlus_BackupModule_dropbox {
 			$updraftplus->log(sprintf(__("%s error: %s", 'updraftplus'), "Dropbox/Curl", $e->getMessage()), 'error');
 			return false;
 		}
-		return new Dropbox_API($OAuth);
+
+		$this->dropbox_object = new Dropbox_API($OAuth);
+
+		return $this->dropbox_object;
 	}
 
 }

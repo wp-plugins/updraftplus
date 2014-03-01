@@ -17,8 +17,6 @@ TODO - some of these are out of date/done, needs pruning
 // On plugins restore, don't let UD over-write itself - because this usually means a down-grade. Since upgrades are db-compatible, there's no reason to downgrade.
 // Schedule a task to report on failure
 // Get user to confirm if they check both the search/replace and wp-config boxes
-// Apparently Google's console has changed again...
-// Auto-split. Helps on one.com. Check the log sent by #6292
 // Tweak the display so that users seeing resumption messages don't think it's stuck
 // Store/show current Dropbox account
 // On restore, check for some 'standard' PHP modules (prevents support requests related to them) -e.g. GD, Curl
