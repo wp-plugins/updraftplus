@@ -203,6 +203,10 @@ class UpdraftPlus_ftp_wrapper {
 		ftp_cdup($this->conn_id);
 	}
  
+	public function size($f) {
+		return ftp_size($this->conn_id, $f);
+	}
+
 	public function current_dir() {
 		return ftp_pwd($this->conn_id);
 	}

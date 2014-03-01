@@ -763,9 +763,8 @@ class UpdraftPlus {
 
 		// Log it
 		global $updraftplus_backup;
-		$log = ucfirst($updraftplus_backup->current_service)." chunked upload: $percent % uploaded";
-		if ($extra) $log .= " ($extra)";
-		$this->log($log);
+		$log = (!empty($updraftplus_backup->current_service)) ? ucfirst($updraftplus_backup->current_service)." chunked upload: $percent % uploaded" : '';
+		if ($log) $this->log($log.(($extra) ? " ($extra)" : ''));
 		// If we are on an 'overtime' resumption run, and we are still meaningfully uploading, then schedule a new resumption
 		// Our definition of meaningful is that we must maintain an overall average of at least 0.7% per run, after allowing 9 runs for everything else to get going
 		// i.e. Max 100/.7 + 9 = 150 runs = 760 minutes = 12 hrs 40, if spaced at 5 minute intervals. However, our algorithm now decreases the intervals if it can, so this should not really come into play
