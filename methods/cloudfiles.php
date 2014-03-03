@@ -33,6 +33,8 @@ if (!is_array(UpdraftPlus_Options::get_updraft_option('updraft_cloudfiles')) && 
 # Old SDK
 class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 
+	private $cloudfiles_object;
+
 	// This function does not catch any exceptions - that should be done by the caller
 	function getCF($user, $apikey, $authurl, $useservercerts = false) {
 		
@@ -222,6 +224,43 @@ class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 		}
 
 		return array('cloudfiles_object' => $container_object, 'cloudfiles_orig_path' => $opts['path'], 'cloudfiles_container' => $container);
+
+	}
+
+	public function listfiles($match = 'backup_') {
+
+		$opts = $this->get_opts();
+		$container = $opts['path'];
+
+		try {
+			$conn = $this->getCF($opts['user'], $opts['apikey'], $opts['authurl'], UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'));
+			$container_object = $conn->create_container($container);
+		} catch(Exception $e) {
+			return new WP_Error('no_access', sprintf(__('%s authentication failed','updraftplus'),'Cloud Files').' ('.$e->getMessage().')');
+		}
+
+		$results = array();
+
+		try {
+			$objects = $container_object->list_objects(0, NULL, $match);
+			foreach ($objects as $name) {
+				$result = array('name' => $name);
+				try {
+					$object = new UpdraftPlus_CF_Object($container_object, $name, true);
+					if ($object->content_length == 0) {
+						$result = false;
+					} else {
+						$result['size'] = $object->content_length;
+					}
+				} catch (Exception $e) {
+				}
+				if (is_array($result)) $results[] = $result;
+			}
+		} catch (Exception $e) {
+			return new WP_Error('cf_error', 'Cloud Files error ('.$e->getMessage().')');
+		}
+
+		return $results;
 
 	}
 

@@ -124,8 +124,8 @@ var updraft_historytimer = 0;
 var calculated_diskspace = 0;
 function updraft_historytimertoggle(forceon) {
 	if (!updraft_historytimer || forceon == 1) {
-		updraft_updatehistory(0);
-		updraft_historytimer = setInterval(function(){updraft_updatehistory(0);}, 30000);
+		updraft_updatehistory(0, 0);
+		updraft_historytimer = setInterval(function(){updraft_updatehistory(0, 0);}, 30000);
 		if (!calculated_diskspace) {
 			updraftplus_diskspace();
 			calculated_diskspace=1;
@@ -135,11 +135,15 @@ function updraft_historytimertoggle(forceon) {
 		updraft_historytimer = 0;
 	}
 }
-function updraft_updatehistory(rescan) {
+function updraft_updatehistory(rescan, remotescan) {
 	if (rescan == 1) {
-		jQuery('#updraft_existing_backups').html('<p style="text-align:center;"><em>'+updraftlion.rescanning+'</em></p>');
+		if (remotescan == 1) {
+			jQuery('#updraft_existing_backups').html('<p style="text-align:center;"><em>'+updraftlion.rescanningremote+'</em></p>');
+		} else {
+			jQuery('#updraft_existing_backups').html('<p style="text-align:center;"><em>'+updraftlion.rescanning+'</em></p>');
+		}
 	}
-	jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'historystatus', nonce: updraft_credentialtest_nonce, rescan: rescan }, function(response) {
+	jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'historystatus', nonce: updraft_credentialtest_nonce, rescan: rescan, remotescan: remotescan }, function(response) {
 		try {
 			resp = jQuery.parseJSON(response);
 			if (resp.n != null) { jQuery('#updraft_showbackups').html(resp.n); }
@@ -551,7 +555,7 @@ jQuery(document).ready(function($){
 	var migrate_modal_buttons = {};
 	migrate_modal_buttons[updraftlion.close] = function() { jQuery(this).dialog("close"); };
 	jQuery( "#updraft-migrate-modal" ).dialog({
-		autoOpen: false, height: 265, width: 390, modal: true,
+		autoOpen: false, height: 295, width: 420, modal: true,
 		buttons: migrate_modal_buttons
 	});
 
@@ -662,7 +666,7 @@ uploader.bind('FileUploaded', function(up, file, response) {
 		if (response.response.substring(0,6) == 'ERROR:') {
 			alert(updraftlion.uploaderror+" "+response.response.substring(6));
 		} else if (response.response.substring(0,3) == 'OK:') {
-			updraft_updatehistory(1);
+			updraft_updatehistory(1, 0);
 		} else {
 			alert('Unknown server response: '+response.response);
 		}

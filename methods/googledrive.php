@@ -18,6 +18,10 @@ class UpdraftPlus_BackupModule_googledrive {
 		}
 	}
 
+	public function listfiles($match = 'backup_') {
+		return new WP_Error('unsupported_op', sprintf(__('The UpdraftPlus module for this file access method (%s) does not support listing files', 'updraftplus'), __('Google Drive','updraftplus')));
+	}
+
 	// Get a Google account access token using the refresh token
 	private function access_token($token, $client_id, $client_secret) {
 
