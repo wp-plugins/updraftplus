@@ -2954,6 +2954,7 @@ ENDHERE;
 
 		if (!$handle = opendir($updraft_dir)) return;
 
+		// See if there are any more files in the directory than the ones already known about
 		while (false !== ($entry = readdir($handle))) {
 			if ($entry != "." && $entry != "..") {
 				if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i', $entry, $matches)) {
@@ -2968,6 +2969,7 @@ ENDHERE;
 							// The time from the filename does not include seconds. Need to identify the seconds to get the right time
 							if (isset($known_nonces[$nonce])) $btime = $known_nonces[$nonce];
 							// No cloud backup known of this file
+							# TODO: Integrate this bit with the remotescan bit below (which needs doing first)
 							if (!isset($backup_history[$btime])) $backup_history[$btime] = array('service' => 'none' );
 							$backup_history[$btime][$type][$index] = $entry;
 							$fs = @filesize($updraft_dir.'/'.$entry);
@@ -2976,6 +2978,47 @@ ENDHERE;
 						}
 					}
 				}
+			}
+		}
+
+		# TODO - not finished
+		if ($remotescan) {
+			$remotefiles = array();
+			foreach ($updraftplus->backup_methods as $method => $desc) {
+				require_once(UPDRAFTPLUS_DIR.'/methods/'.$method.'.php');
+				$objname = 'UpdraftPlus_BackupModule_'.$method;
+				$obj = new $objname;
+				if (!method_exists($obj, 'listfiles')) continue;
+				$files = $obj->listfiles('backup_');
+				foreach ($files as $entry) {
+					$n = $entry['name'];
+					if (!preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i', $n, $matches)) continue;
+					#echo "$method: ".$n."\n";
+					if (isset($remotefiles[$n])) {
+						$remotefiles[$n][] = $method;
+					} else {
+						$remotefiles[$n] = array($method);
+					}
+				}
+			}
+			# Now, we need to compare $remotefiles with $known_files / $known_nonces, and adjust $backup_history
+			# $backup_history[$btime]['nonce'] = $nonce
+			foreach ($remotefiles as $file => $services) {
+				if (!preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i', $n, $matches)) continue;
+				$nonce = $matches[2];
+				$type = $matches[3];
+				$index = (empty($matches[4])) ? '0' : (max((int)$matches[4]-1,0));
+				$itext = ($index == 0) ? '' : $index;
+				echo "NONE=$nonce, TYPE=$type, INDEX=$index, ITEXT=$itext, SERVICES=".implode(',', $services);
+				echo " ";
+				# TODO: Aren't these arrays out-of-date after the local scan?
+				if (isset($known_files[$file])) {
+					$nonce = $known_files[$file];
+					echo "KNOWN: ".$nonce." ".$known_nonces[$nonce];
+				} else {
+					echo "NEW";
+				}
+				echo "\n";
 			}
 		}
 

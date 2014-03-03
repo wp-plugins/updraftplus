@@ -169,7 +169,7 @@ Encrypt filesystem, if memory allows (and have option for abort if not)
 */
 
 /*
-Portions copyright 2011-13 David Anderson
+Portions copyright 2011-14 David Anderson
 Portions copyright 2010 Paul Kehrer
 Other portions copyright as indicated authors in the relevant files
 
@@ -249,7 +249,7 @@ class UpdraftPlus {
 	public $plugin_title = 'UpdraftPlus Backup/Restore';
 
 	// Choices will be shown in the admin menu in the order used here
-	public $backup_methods = array (
+	public $backup_methods = array(
 		"s3" => "Amazon S3",
 		"dropbox" => "Dropbox",
 		'cloudfiles' => 'Rackspace Cloud Files',
