@@ -26,9 +26,9 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 
 		if (null === $disablesslverify) $disablesslverify = UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify');
 
-		$updraftplus->log("Cloud Files authentication URL: ".$new_authurl);
-
 		if (empty($user) || empty($apikey)) throw new Exception(__('Authorisation failed (check your credentials)', 'updraftplus'));
+
+		$updraftplus->log("Cloud Files authentication URL: ".$new_authurl);
 
 		$client = new Rackspace($new_authurl, array(
 			'username' => $user,
@@ -124,6 +124,8 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 		$opts = $this->get_opts();
 		$container = $opts['path'];
 		$path = $container;
+
+		if (empty($opts['user']) || empty($opts['apikey'])) return new WP_Error('no_settings', __('No settings were found','updraftplus'));
 
 		try {
 			$service = $this->get_service($opts['user'], $opts['apikey'], $opts['authurl'], UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify'), $opts['region']);

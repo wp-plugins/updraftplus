@@ -7,6 +7,8 @@ class UpdraftPlus_BackupModule_ftp {
 	// Get FTP object with parameters set
 	private function getFTP($server, $user, $pass, $disable_ssl = false, $disable_verify = true, $use_server_certs = false, $passive = true) {
 
+		if ('' == $server || '' == $user || '' == $pass) return new WP_Error('no_settings', sprintf(__('No %s settings were found','updraftplus'), 'FTP'));
+
 		if( !class_exists('UpdraftPlus_ftp_wrapper')) require_once(UPDRAFTPLUS_DIR.'/includes/ftp.class.php');
 
 		$port = 21;
@@ -40,6 +42,7 @@ class UpdraftPlus_BackupModule_ftp {
 			$updraftplus->get_job_option('updraft_ssl_disableverify'),
 			$updraftplus->get_job_option('updraft_ssl_useservercerts')
 		);
+		if (is_wp_error($ftp)) return $ftp;
 
 		if (!$ftp->connect()) {
 			$updraftplus->log("FTP Failure: we did not successfully log in with those credentials.");
@@ -87,6 +90,7 @@ class UpdraftPlus_BackupModule_ftp {
 			$updraftplus->get_job_option('updraft_ssl_disableverify'),
 			$updraftplus->get_job_option('updraft_ssl_useservercerts')
 		);
+		if (is_wp_error($ftp)) return $ftp;
 
 		if (!$ftp->connect()) return new WP_Error('ftp_login_failed', sprintf(__("%s login failure",'updraftplus'), 'FTP'));
 
@@ -147,6 +151,7 @@ class UpdraftPlus_BackupModule_ftp {
 				$updraftplus->get_job_option('updraft_ssl_disableverify'),
 				$updraftplus->get_job_option('updraft_ssl_useservercerts')
 			);
+			if (is_wp_error($ftp)) return $ftp;
 
 			if (!$ftp->connect()) {
 				$updraftplus->log("FTP Failure: we did not successfully log in with those credentials.");
@@ -181,6 +186,7 @@ class UpdraftPlus_BackupModule_ftp {
 			$updraftplus->get_job_option('updraft_ssl_disableverify'),
 			$updraftplus->get_job_option('updraft_ssl_useservercerts')
 		);
+		if (is_wp_error($ftp)) return $ftp;
 
 		if (!$ftp->connect()) {
 			$updraftplus->log("FTP Failure: we did not successfully log in with those credentials.");

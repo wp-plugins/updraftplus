@@ -30,7 +30,7 @@ function updraft_restore_setoptions(entities) {
 			jQuery(y).attr('disabled','disabled').parent().hide();
 		}
 	});
-	var height = 276+howmany*20;
+	var height = 336+howmany*20;
 	jQuery('#updraft-restore-modal').dialog("option", "height", height);
 }
 
@@ -122,6 +122,7 @@ function updraft_showlastbackup(){
 }
 var updraft_historytimer = 0;
 var calculated_diskspace = 0;
+var updraft_historytimer_notbefore = 0;
 function updraft_historytimertoggle(forceon) {
 	if (!updraft_historytimer || forceon == 1) {
 		updraft_updatehistory(0, 0);
@@ -136,6 +137,18 @@ function updraft_historytimertoggle(forceon) {
 	}
 }
 function updraft_updatehistory(rescan, remotescan) {
+	
+	var unixtime = Math.round(new Date().getTime() / 1000);
+	
+	if (1 == rescan || 1 == remotescan) {
+		updraft_historytimer_notbefore = unixtime + 30;
+	} else {
+		if (unixtime < updraft_historytimer_notbefore) {
+			console.log("Update history skipped: "+unixtime.toString()+" < "+updraft_historytimer_notbefore.toString());
+			return;
+		}
+	}
+	
 	if (rescan == 1) {
 		if (remotescan == 1) {
 			jQuery('#updraft_existing_backups').html('<p style="text-align:center;"><em>'+updraftlion.rescanningremote+'</em></p>');
@@ -464,7 +477,7 @@ jQuery(document).ready(function($){
 	};
 	updraft_delete_modal_buttons[updraftlion.cancel] = function() { jQuery(this).dialog("close"); };
 	jQuery( "#updraft-delete-modal" ).dialog({
-		autoOpen: false, height: 230, width: 430, modal: true,
+		autoOpen: false, height: 262, width: 430, modal: true,
 		buttons: updraft_delete_modal_buttons
 	});
 

@@ -38,6 +38,8 @@ class UpdraftPlus_BackupModule_s3 {
 
 		if (!empty($this->s3_object) && !is_wp_error($this->s3_object)) return $this->s3_object;
 
+		if ('' == $key || '' == $secret) return new WP_Error('no_settings', __('No settings were found','updraftplus'));
+
 		global $updraftplus;
 
 		if (!class_exists('UpdraftPlus_S3')) require_once(UPDRAFTPLUS_DIR.'/includes/S3.php');
@@ -131,6 +133,7 @@ class UpdraftPlus_BackupModule_s3 {
 			UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify'),
 			UpdraftPlus_Options::get_updraft_option('updraft_ssl_nossl')
 		);
+		if (is_wp_error($s3)) return $s3;
 
 		$bucket_name = untrailingslashit($config['path']);
 		$bucket_path = "";
@@ -282,6 +285,7 @@ class UpdraftPlus_BackupModule_s3 {
 			UpdraftPlus_Options::get_updraft_option('updraft_ssl_nossl')
 		);
 
+		if (is_wp_error($s3)) return $s3;
 		if (!is_a($s3, 'UpdraftPlus_S3')) return new WP_Error('no_s3object', 'Failed to gain acccess to '.$config['whoweare']);
 
 		$bucket_name = untrailingslashit($config['path']);

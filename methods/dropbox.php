@@ -170,6 +170,8 @@ class UpdraftPlus_BackupModule_dropbox {
 	# $match: a substring to require (tested via strpos() !== false)
 	public function listfiles($match = 'backup_') {
 
+		if ('' == UpdraftPlus_Options::get_updraft_option("updraft_dropboxtk_access_token", '')) return new WP_Error('no_settings', __('No settings were found','updraftplus'));
+
 		global $updraftplus;
 		try {
 			$dropbox = $this->bootstrap();

@@ -42,7 +42,7 @@ class UpdraftPlus_BackupModule_webdav {
 	}
 
 	public function listfiles($match = 'backup_') {
-		return apply_filters('updraft_webdav_listfiles', new WP_Error('no_webdav', sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'),'WebDAV','http://updraftplus.com/shop/')), $match);
+		return apply_filters('updraft_webdav_listfiles', new WP_Error('no_addon', sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'),'WebDAV','http://updraftplus.com/shop/')), $match);
 	}
 
 	// download method: takes a file name (base name), and removes it from the cloud storage

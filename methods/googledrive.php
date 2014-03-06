@@ -19,6 +19,9 @@ class UpdraftPlus_BackupModule_googledrive {
 	}
 
 	public function listfiles($match = 'backup_') {
+
+		if ('' == UpdraftPlus_Options::get_updraft_option('updraft_googledrive_secret') || '' == UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid')) return new WP_Error('no_settings', sprintf(__('No %s settings were found','updraftplus'), __('Google Drive','updraftplus')));
+
 		return new WP_Error('unsupported_op', sprintf(__('The UpdraftPlus module for this file access method (%s) does not support listing files', 'updraftplus'), __('Google Drive','updraftplus')));
 	}
 

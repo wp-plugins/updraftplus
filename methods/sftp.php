@@ -40,7 +40,7 @@ class UpdraftPlus_BackupModule_sftp {
 	}
 
 	public function listfiles($match = 'backup_') {
-		return apply_filters('updraft_sftp_listfiles', new WP_Error('no_sftp', sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'),'SFTP','http://updraftplus.com/shop/')), $match);
+		return apply_filters('updraft_sftp_listfiles', new WP_Error('no_addon', sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'),'SFTP','http://updraftplus.com/shop/')), $match);
 	}
 
 	// download method: takes a file name (base name), and removes it from the cloud storage

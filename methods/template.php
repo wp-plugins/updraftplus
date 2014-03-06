@@ -39,7 +39,7 @@ class UpdraftPlus_BackupModule_template {
 
 	# $match: a substring to require (tested via strpos() !== false)
 	public function listfiles($match = 'backup_') {
-		# This function needs to return an array of arrays. The keys for the sub-arrays are name (a path-less filename, i.e. a basename), (optional)size, and should be a list of matching files from the storage backend. A WP_Error object can also be returned.
+		# This function needs to return an array of arrays. The keys for the sub-arrays are name (a path-less filename, i.e. a basename), (optional)size, and should be a list of matching files from the storage backend. A WP_Error object can also be returned; and the error code should be no_settings if that is relevant.
 		return array();
 	}
 

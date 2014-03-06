@@ -232,6 +232,8 @@ class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 		$opts = $this->get_opts();
 		$container = $opts['path'];
 
+		if (empty($opts['user']) || empty($opts['apikey'])) new WP_Error('no_settings', __('No settings were found','updraftplus'));
+
 		try {
 			$conn = $this->getCF($opts['user'], $opts['apikey'], $opts['authurl'], UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'));
 			$container_object = $conn->create_container($container);

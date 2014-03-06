@@ -339,6 +339,11 @@ class UpdraftPlus_Backup {
 			// The new backup_history array is saved afterwards, so remember to unset the ones that are to be deleted
 			$updraftplus->log(sprintf("Examining backup set with datestamp: %s (%s)", $backup_datestamp, gmdate('M d Y H:i:s', $backup_datestamp)));
 
+			if (isset($backup_to_examine['native']) && false == $backup_to_examine['native']) {
+				$updraftplus->log("This backup set ($backup_datestamp) was imported from remote storage, so will not be counted or pruned. Skipping.");
+				continue;
+			}
+
 			# Databases
 			foreach ($backup_to_examine as $key => $data) {
 				if ('db' != strtolower(substr($key, 0, 2)) || '-size' == substr($key, -5, 5)) continue;

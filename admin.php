@@ -535,7 +535,7 @@ class UpdraftPlus_Admin {
 	}
 
 	// Called via AJAX
-	function updraft_ajax_handler() {
+	public function updraft_ajax_handler() {
 
 		global $updraftplus;
 
@@ -597,8 +597,7 @@ class UpdraftPlus_Admin {
 
 				$elements = array_flip($res['updraft_restore']);
 
-				$warn = array();
-				$err = array();
+				$warn = array(); $err = array();
 
 				@set_time_limit(900);
 				$max_execution_time = (int)@ini_get('max_execution_time');
@@ -607,9 +606,13 @@ class UpdraftPlus_Admin {
 					$warn[] = __('The PHP setup on this webserver allows only %s seconds for PHP to run, and does not allow this limit to be raised. If you have a lot of data to import, and if the restore operation times out, then you will need to ask your web hosting company for ways to raise this limit (or attempt the restoration piece-by-piece).', 'updraftplus');
 				}
 
+				if (isset($backups[$timestamp]['native']) && false == $backups[$timestamp]['native']) {
+					$warn[] = __('This backup set was not known by UpdraftPlus to be created by the current WordPress installation, but was found in remote storage.', 'updraftplus').' '.__('You should make sure that this really is a backup set intended for use on this website, before you restore (rather than a backup set of an unrelated website that was using the same storage location).', 'updraftplus');
+				}
+
 				if (isset($elements['db'])) {
 					// Analyse the header of the database file + display results
-					list ($mess2, $warn2, $err2) = $this->analyse_db_file($_GET['timestamp'], $res);
+					list ($mess2, $warn2, $err2) = $this->analyse_db_file($timestamp, $res);
 					$mess = array_merge($mess, $mess2);
 					$warn = array_merge($warn, $warn2);
 					$err = array_merge($err, $err2);
@@ -889,10 +892,22 @@ class UpdraftPlus_Admin {
 		} elseif (isset($_GET['subaction']) && 'historystatus' == $_GET['subaction']) {
 			$remotescan = (isset($_GET['remotescan']) && $_GET['remotescan'] == 1);
 			$rescan = ($remotescan || (isset($_GET['rescan']) && $_GET['rescan'] == 1));
-			if ($rescan) $this->rebuild_backup_history($remotescan);
+			if ($rescan) $messages = $this->rebuild_backup_history($remotescan);
+
 			$backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
 			$backup_history = (is_array($backup_history)) ? $backup_history : array();
-			echo json_encode(array('n' => sprintf(__('%d set(s) available', 'updraftplus'), count($backup_history)), 't' => $this->existing_backup_table($backup_history)));
+			$output = $this->existing_backup_table($backup_history);
+
+			if (is_array($messages) && !empty($messages)) {
+				$noutput = '<div style="margin-left: 100px; margin-top: 10px;"><ul style="list-style: disc inside;">';
+				foreach ($messages as $msg) {
+					$noutput .= '<li>'.(($msg['desc']) ? $msg['desc'].': ' : '').'<em>'.$msg['message'].'</em></li>';
+				}
+				$noutput .= '</ul></div>';
+				$output = $noutput.$output;
+			}
+
+			echo json_encode(array('n' => sprintf(__('%d set(s) available', 'updraftplus'), count($backup_history)), 't' => $output));
 		} elseif (isset($_GET['subaction']) && 'downloadstatus' == $_GET['subaction'] && isset($_GET['timestamp']) && isset($_GET['type'])) {
 
 			$findex = (isset($_GET['findex'])) ? $_GET['findex'] : '0';
@@ -906,7 +921,7 @@ class UpdraftPlus_Admin {
 
 			// Test the credentials, return a code
 			require_once(UPDRAFTPLUS_DIR."/methods/$method.php");
-			$objname = "UpdraftPlus_BackupModule_${method}";
+			$objname = "UpdraftPlus_BackupModule_$method";
 
 			$this->logged = array();
 			set_error_handler(array($this, 'get_php_errors'), E_ALL & ~E_STRICT);
@@ -922,7 +937,6 @@ class UpdraftPlus_Admin {
 			}
 			restore_error_handler();
 		}
-
 		die;
 
 	}
@@ -1711,7 +1725,7 @@ CREATE TABLE $wpdb->signups (
 <div id="updraft-delete-modal" title="<?php _e('Delete backup set', 'updraftplus');?>">
 <form id="updraft_delete_form" method="post">
 	<p style="margin-top:3px; padding-top:0">
-		<?php _e('Are you sure that you wish to delete this backup set?', 'updraftplus'); ?>
+		<?php _e('Are you sure that you wish to remove this backup set from UpdraftPlus?', 'updraftplus'); ?>
 	</p>
 	<fieldset>
 		<input type="hidden" name="nonce" value="<?php echo wp_create_nonce('updraftplus-credentialtest-nonce');?>">
@@ -2899,7 +2913,12 @@ ENDHERE;
 					<input type="hidden" name="action" value="updraft_restore" />
 ENDHERE;
 				if ($entities) {
-					$ret .= '<button title="'.__('After pressing this button, you will be given the option to choose which components you wish to restore','updraftplus').'" type="button" class="button-primary" style="padding-top:2px;padding-bottom:2px;font-size:16px !important; min-height:26px;" onclick="'."updraft_restore_setoptions('$entities'); jQuery('#updraft_restore_timestamp').val('$key'); jQuery('.updraft_restore_date').html('$pretty_date'); updraft_restore_stage = 1; jQuery('#updraft-restore-modal').dialog('open'); jQuery('#updraft-restore-modal-stage1').show();jQuery('#updraft-restore-modal-stage2').hide(); jQuery('#updraft-restore-modal-stage2a').html('');\">".__('Restore','updraftplus').'</button>';
+					$show_data = $pretty_date;
+					if (isset($backup['native']) && false == $backup['native']) {
+						$show_data .= ' '.__('(backup set imported from remote storage)', 'updraftplus');
+					}
+					$ret .= '<button title="'.__('After pressing this button, you will be given the option to choose which components you wish to restore','updraftplus').'" type="button" class="button-primary" style="padding-top:2px;padding-bottom:2px;font-size:16px !important; min-height:26px;" onclick="'."updraft_restore_setoptions('$entities'); jQuery('#updraft_restore_timestamp').val('$key'); jQuery('.updraft_restore_date').html('$show_data'); ";
+					$ret .= "updraft_restore_stage = 1; jQuery('#updraft-restore-modal').dialog('open'); jQuery('#updraft-restore-modal-stage1').show();jQuery('#updraft-restore-modal-stage2').hide(); jQuery('#updraft-restore-modal-stage2a').html('');\">".__('Restore','updraftplus').'</button>';
 				}
 				$ret .= <<<ENDHERE
 				</form>
@@ -2912,10 +2931,11 @@ ENDHERE;
 	}
 
 	// This function examines inside the updraft directory to see if any new archives have been uploaded. If so, it adds them to the backup set. (Non-present items are also removed, only if the service is 'none').
-	// If $remotescan is set, then remote storage is also scanned (TODO)
-	function rebuild_backup_history($remotescan = false) {
+	// If $remotescan is set, then remote storage is also scanned
+	public function rebuild_backup_history($remotescan = false) {
 
 		global $updraftplus;
+		$messages = array();
 
 		$known_files = array();
 		$known_nonces = array();
@@ -2927,7 +2947,7 @@ ENDHERE;
 		$updraft_dir = $updraftplus->backups_dir_location();
 		if (!is_dir($updraft_dir)) return;
 
-		// Accumulate a list of known files
+		// Accumulate a list of known files in the database backup history
 		foreach ($backup_history as $btime => $bdata) {
 			$found_file = false;
 			foreach ($bdata as $key => $values) {
@@ -2936,8 +2956,8 @@ ENDHERE;
 				foreach ($values as $val) {
 					if (is_string($val) && preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+([0-9]+(of[0-9]+)?)?+\.(zip|gz|gz\.crypt)$/i', $val, $matches)) {
 						$nonce = $matches[2];
-						if (isset($bdata['service']) && $bdata['service'] == 'none' && !is_file($updraft_dir.'/'.$val)) {
-							# File no longer present
+						if (isset($bdata['service']) && ($bdata['service'] === 'none' || (is_array($bdata['service']) && array('none') === $bdata['service'])) && !is_file($updraft_dir.'/'.$val)) {
+							# File without remote storage is no longer present
 						} else {
 							$found_file = true;
 							$known_files[$val] = $nonce;
@@ -2947,82 +2967,147 @@ ENDHERE;
 				}
 			}
 			if (!$found_file) {
+				# File recorded as being without remote storage is no longer present - though it may in fact exist in remote storage, and this will be picked up later
 				unset($backup_history[$btime]);
 				$changes = true;
 			}
 		}
 
-		if (!$handle = opendir($updraft_dir)) return;
-
-		// See if there are any more files in the directory than the ones already known about
-		while (false !== ($entry = readdir($handle))) {
-			if ($entry != "." && $entry != "..") {
-				if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i', $entry, $matches)) {
-					$btime = strtotime($matches[1]);
-					if ($btime > 100) {
-						if (!isset($known_files[$entry])) {
-							$changes = true;
-							$nonce = $matches[2];
-							$type = $matches[3];
-							$index = (empty($matches[4])) ? '0' : (max((int)$matches[4]-1,0));
-							$itext = ($index == 0) ? '' : $index;
-							// The time from the filename does not include seconds. Need to identify the seconds to get the right time
-							if (isset($known_nonces[$nonce])) $btime = $known_nonces[$nonce];
-							// No cloud backup known of this file
-							# TODO: Integrate this bit with the remotescan bit below (which needs doing first)
-							if (!isset($backup_history[$btime])) $backup_history[$btime] = array('service' => 'none' );
-							$backup_history[$btime][$type][$index] = $entry;
-							$fs = @filesize($updraft_dir.'/'.$entry);
-							if (false !== $fs) $backup_history[$btime][$type.$itext.'-size'] = $fs;
-							$backup_history[$btime]['nonce'] = $nonce;
-						}
-					}
-				}
-			}
-		}
-
-		# TODO - not finished
+		$remotefiles = array();
+		$remotesizes = array();
+		# Scan remote storage and get back lists of files and their sizes
 		if ($remotescan) {
-			$remotefiles = array();
 			foreach ($updraftplus->backup_methods as $method => $desc) {
 				require_once(UPDRAFTPLUS_DIR.'/methods/'.$method.'.php');
 				$objname = 'UpdraftPlus_BackupModule_'.$method;
 				$obj = new $objname;
 				if (!method_exists($obj, 'listfiles')) continue;
 				$files = $obj->listfiles('backup_');
-				foreach ($files as $entry) {
-					$n = $entry['name'];
-					if (!preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i', $n, $matches)) continue;
-					#echo "$method: ".$n."\n";
-					if (isset($remotefiles[$n])) {
-						$remotefiles[$n][] = $method;
-					} else {
-						$remotefiles[$n] = array($method);
+				if (is_array($files)) {
+					foreach ($files as $entry) {
+						$n = $entry['name'];
+						if (!preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i', $n, $matches)) continue;
+						#echo "$method: ".$n."\n";
+						if (isset($remotefiles[$n])) {
+							$remotefiles[$n][] = $method;
+						} else {
+							$remotefiles[$n] = array($method);
+						}
+						if (!empty($entry['size'])) {
+							if (empty($remotesizes[$n]) || $remotesizes[$n] < $entry['size']) $remotesizes[$n] = $entry['size'];
+						}
+					}
+				} elseif (is_wp_error($files)) {
+					foreach ($files->get_error_codes() as $code) {
+						if ('no_settings' == $code || 'no_addon' == $code) continue;
+						$messages[] = array(
+							'method' => $method,
+							'desc' => $desc,
+							'code' => $code,
+							'message' => $files->get_error_message($code)
+						);
 					}
 				}
 			}
-			# Now, we need to compare $remotefiles with $known_files / $known_nonces, and adjust $backup_history
+		}
+
+		if (!$handle = opendir($updraft_dir)) return;
+
+		// See if there are any more files in the local directory than the ones already known about
+		while (false !== ($entry = readdir($handle))) {
+			if ('.' == $entry || '..' == $entry) continue;
+			if (!preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i', $entry, $matches)) continue;
+			$btime = strtotime($matches[1]);
+			$nonce = $matches[2];
+			$type = $matches[3];
+			$index = (empty($matches[4])) ? '0' : (max((int)$matches[4]-1,0));
+			$itext = ($index == 0) ? '' : $index;
+			// The time from the filename does not include seconds. Need to identify the seconds to get the right time
+			if (isset($known_nonces[$nonce])) $btime = $known_nonces[$nonce];
+			if ($btime <= 100) continue;
+			$fs = @filesize($updraft_dir.'/'.$entry);
+
+			if (!isset($known_files[$entry])) $changes = true;
+
+			# Make sure we have the right list of services
+			$current_services = (!empty($backup_history[$btime]) && !empty($backup_history[$btime]['service'])) ? $backup_history[$btime]['service'] : array();
+			if (!empty($remotefiles[$entry])) {
+				if (0 == count(array_diff($current_services, $remotefiles[$entry]))) {
+					$backup_history[$btime]['service'] = $remotefiles[$entry];
+					$changes = true;
+				}
+				# Get the right size (our local copy may be too small)
+				foreach ($remotefiles[$entry] as $rem) {
+					if (!empty($rem['size']) && $rem['size'] > $fs) {
+						$fs = $rem['size'];
+						$changes = true;
+					}
+				}
+				# Remove from $remotefiles, so that we can later see what was left over
+				unset($remotefiles[$entry]);
+			} else {
+				# Not known remotely
+				if (!empty($backup_history[$btime])) {
+					if (empty($backup_history[$btime]['service']) || ('none' !== $backup_history[$btime]['service'] && ''  !== $backup_history[$btime]['service'] && array('none') !== $backup_history[$btime]['service'])) {
+						$backup_history[$btime]['service'] = 'none';
+						$changes = true;
+					}
+				} else {
+					$backup_history[$btime]['service'] = 'none';
+					$changes = true;
+				}
+			}
+
+			$backup_history[$btime][$type][$index] = $entry;
+			if ($fs > 0) $backup_history[$btime][$type.$itext.'-size'] = $fs;
+			$backup_history[$btime]['nonce'] = $nonce;
+		}
+
+		# Any found in remote storage that we did not previously know about?
+		# Compare $remotefiles with $known_files / $known_nonces, and adjust $backup_history
+		if (count($remotefiles) > 0) {
+
 			# $backup_history[$btime]['nonce'] = $nonce
 			foreach ($remotefiles as $file => $services) {
-				if (!preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i', $n, $matches)) continue;
+				if (!preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i', $file, $matches)) continue;
 				$nonce = $matches[2];
 				$type = $matches[3];
 				$index = (empty($matches[4])) ? '0' : (max((int)$matches[4]-1,0));
 				$itext = ($index == 0) ? '' : $index;
-				echo "NONE=$nonce, TYPE=$type, INDEX=$index, ITEXT=$itext, SERVICES=".implode(',', $services);
-				echo " ";
-				# TODO: Aren't these arrays out-of-date after the local scan?
-				if (isset($known_files[$file])) {
-					$nonce = $known_files[$file];
-					echo "KNOWN: ".$nonce." ".$known_nonces[$nonce];
+				$btime = strtotime($matches[1]);
+				if (isset($known_nonces[$nonce])) $btime = $known_nonces[$nonce];
+				if ($btime <= 100) continue;
+
+				# Remember that at this point, we already know that the file is not known about locally
+				if (isset($backup_history[$btime])) {
+					if (!isset($backup_history[$btime]['service']) || ((is_array($backup_history[$btime]['service']) && $backup_history[$btime]['service'] !== $services) || is_string($backup_history[$btime]['service']) && (1 != count($services) || $services[0] !== $backup_history[$btime]['service']))) {
+						$changes = true;
+						$backup_history[$btime]['service'] = $services;
+						$backup_history[$btime][$type][$index] = $file;
+						$backup_history[$btime]['nonce'] = $nonce;
+						if (!empty($remotesizes[$file])) $backup_history[$btime][$type.$itext.'-size'] = $remotesizes[$file];
+					}
 				} else {
-					echo "NEW";
+					$changes = true;
+					$backup_history[$btime]['service'] = $services;
+					$backup_history[$btime][$type][$index] = $file;
+					$backup_history[$btime]['nonce'] = $nonce;
+					if (!empty($remotesizes[$file])) $backup_history[$btime][$type.$itext.'-size'] = $remotesizes[$file];
+					$backup_history[$btime]['native'] = false;
+					$messages['nonnative'] = array(
+						'message' => __('One or more backups has been added from scanning remote storage; note that these backups will not be automatically deleted through the "retain" settings; if/when you wish to delete them then you must do so manually.', 'updraftplus'),
+						'code' => 'nonnative',
+						'desc' => '',
+						'method' => ''
+					);
 				}
-				echo "\n";
+
 			}
 		}
 
 		if ($changes) UpdraftPlus_Options::update_updraft_option('updraft_backup_history', $backup_history);
+
+		return $messages;
 
 	}
 
@@ -3278,13 +3363,13 @@ ENDHERE;
 		return true;
 	}
 
-	function option_filter_template($val) { global $updraftplus; return $updraftplus->option_filter_get('template'); }
+	public function option_filter_template($val) { global $updraftplus; return $updraftplus->option_filter_get('template'); }
 
-	function option_filter_stylesheet($val) { global $updraftplus; return $updraftplus->option_filter_get('stylesheet'); }
+	public function option_filter_stylesheet($val) { global $updraftplus; return $updraftplus->option_filter_get('stylesheet'); }
 
-	function option_filter_template_root($val) { global $updraftplus; return $updraftplus->option_filter_get('template_root'); }
+	public function option_filter_template_root($val) { global $updraftplus; return $updraftplus->option_filter_get('template_root'); }
 
-	function option_filter_stylesheet_root($val) { global $updraftplus; return $updraftplus->option_filter_get('stylesheet_root'); }
+	public function option_filter_stylesheet_root($val) { global $updraftplus; return $updraftplus->option_filter_get('stylesheet_root'); }
 
 	function sort_restoration_entities($a, $b) {
 		if ($a == $b) return 0;
@@ -3294,7 +3379,7 @@ ENDHERE;
 		return strcmp($a, $b);
 	}
 
-	function return_array($input) {
+	public function return_array($input) {
 		if (!is_array($input)) $input = array();
 		return $input;
 	}
