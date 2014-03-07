@@ -1024,8 +1024,11 @@ class Updraft_Restorer extends WP_Upgrader {
 			}
 
 			$sql_line .= $buffer;
-			# Do we have a complete line yet?
-			if (';' != substr($sql_line, -1, 1)) continue;
+			# Do we have a complete line yet? We used to just test the final character for ';' here (up to 1.8.12), but that was too unsophisticated
+			if (
+				(3 == $sql_type && !preg_match('/\)\s*;$/', substr($sql_line, -3, 3)))
+				|| (3 != $sql_type && ';' != substr($sql_line, -1, 1))
+			) continue;
 
 			$this->line++;
 

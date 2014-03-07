@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.8.12
+Version: 1.8.14
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -23,6 +23,7 @@ TODO - some of these are out of date/done, needs pruning
 // Recognise known huge non-core tables on restore, and postpone them to the end (AJAX method?)
 // Add a cart notice if people have DBSF=quantity1
 // Pre-restore actually unpack the zips if they are not insanely big (to prevent the restore crashing at this stage if there's a problem)
+// Include in email report the list of "more" directories: http://updraftplus.com/forums/support-forum-group1/paid-support-forum-forum2/wordpress-multi-sites-thread121/
 // Integrate jstree for a nice files-chooser; use https://wordpress.org/plugins/dropbox-photo-sideloader/ to see how it's done
 // Verify that attempting to bring back a MS backup on a non-MS install warns the user
 // Pre-schedule resumptions that we know will be scheduled later
