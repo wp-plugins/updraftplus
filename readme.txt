@@ -143,6 +143,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 
 * FIX: Prevent SQL errors on restore if SQL command was over-sized and split awkwardly (very hard to trigger)
 * FEATURE: Feature to re-scan remote storage (allows detection of existing backups after a restore to an earlier site version, and allows quicker moving of data from site to site when migrating)
+* TWEAK: Add a warning message and link to helpful page for people whose WP schedulers don't seem to be working (at least 4 overdue jobs in the queue)
 
 = 1.8.13 - 2014/03/07 =
 

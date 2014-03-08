@@ -44,7 +44,7 @@ class UpdraftPlus_Admin {
 			add_action('all_admin_notices', array($this,'show_admin_warning_dropbox') );
 		}
 
-		if (UpdraftPlus_Options::user_can_manage() && $this->disk_space_check(1024*1024*35) === false) add_action('all_admin_notices', array($this, 'show_admin_warning_diskspace'));
+		if (UpdraftPlus_Options::user_can_manage() && $this->disk_space_check(1048576*35) === false) add_action('all_admin_notices', array($this, 'show_admin_warning_diskspace'));
 
 		// Next, the actions that only come on the UpdraftPlus page
 		if ($pagenow != UpdraftPlus_Options::admin_page() || empty($_REQUEST['page']) || 'updraftplus' != $_REQUEST['page']) return;
@@ -53,7 +53,24 @@ class UpdraftPlus_Admin {
 			add_action('all_admin_notices', array($this, 'show_admin_warning_disabledcron'));
 		}
 
-		if(UpdraftPlus_Options::get_updraft_option('updraft_debug_mode')) {
+		if (function_exists('_get_cron_array') || (is_file(ABSPATH.'wp-includes/cron.php') && include_once(ABSPATH.'wp-includes/cron.php') && function_exists('_get_cron_array'))) {
+			$crons = _get_cron_array();
+			if (is_array($crons)) {
+				$timenow = time();
+				$how_many_overdue = 0;
+				foreach ($crons as $jt => $job) {
+					if ($jt < $timenow) {
+						$how_many_overdue++;
+					}
+				}
+				if ($how_many_overdue >= 4) {
+					$this->overdue_crons_howmany = $how_many_overdue;
+					add_action('all_admin_notices', array($this, 'show_admin_warning_overdue_crons'));
+				}
+			}
+		}
+
+		if (UpdraftPlus_Options::get_updraft_option('updraft_debug_mode')) {
 			@ini_set('display_errors',1);
 			@error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 			add_action('all_admin_notices', array($this, 'show_admin_debug_warning'));
@@ -317,7 +334,7 @@ class UpdraftPlus_Admin {
 		}
 	}
 
-	function show_admin_warning($message, $class = "updated") {
+	public function show_admin_warning($message, $class = "updated") {
 		echo '<div class="updraftmessage '.$class.'">'."<p>$message</p></div>";
 	}
 
@@ -325,41 +342,40 @@ class UpdraftPlus_Admin {
 		$this->show_admin_warning('<strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__('The amount of time allowed for WordPress plugins to run is very low (%s seconds) - you should increase it to avoid backup failures due to time-outs (consult your web hosting company for more help - it is the max_execution_time PHP setting; the recommended value is %s seconds or more)', 'updraftplus'), (int)@ini_get('max_execution_time'), 90));
 	}
 
-	function show_admin_warning_disabledcron() {
+	public function show_admin_warning_disabledcron() {
 		$this->show_admin_warning('<strong>'.__('Warning','updraftplus').':</strong> '.__('The scheduler is disabled in your WordPress install, via the DISABLE_WP_CRON setting. No backups can run (even &quot;Backup Now&quot;) unless either you have set up a facility to call the scheduler manually, or until it is enabled.','updraftplus').' <a href="http://updraftplus.com/faqs/my-scheduled-backups-and-pressing-backup-now-does-nothing-however-pressing-debug-backup-does-produce-a-backup/#disablewpcron">'.__('Go here for more information.','updraftplus').'</a>');
 	}
 
-	function show_admin_warning_diskspace() {
+	public function show_admin_warning_diskspace() {
 		$this->show_admin_warning('<strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__('You have less than %s of free disk space on the disk which UpdraftPlus is configured to use to create backups. UpdraftPlus could well run out of space. Contact your the operator of your server (e.g. your web hosting company) to resolve this issue.','updraftplus'),'35 Mb'));
 	}
 
-	function show_admin_warning_wordpressversion() {
+	public function show_admin_warning_wordpressversion() {
 		$this->show_admin_warning('<strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__('UpdraftPlus does not officially support versions of WordPress before %s. It may work for you, but if it does not, then please be aware that no support is available until you upgrade WordPress.'),'3.2'),'updraftplus');
 	}
 
-	function show_admin_warning_litespeed() {
+	public function show_admin_warning_litespeed() {
 		$this->show_admin_warning('<strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__('Your website is hosted using the %s web server.','updraftplus'),'LiteSpeed').' <a href="http://updraftplus.com/faqs/i-am-having-trouble-backing-up-and-my-web-hosting-company-uses-the-litespeed-webserver/">'.__('Please consult this FAQ if you have problems backing up.', 'updraftplus').'</a>');
 	}
 
-	function show_admin_debug_warning() {
+	public function show_admin_debug_warning() {
 		$this->show_admin_warning('<strong>'.__('Notice','updraftplus').':</strong> '.__('UpdraftPlus\'s debug mode is on. You may see debugging notices on this page not just from UpdraftPlus, but from any other plugin installed. Please try to make sure that the notice you are seeing is from UpdraftPlus before you raise a support request.', 'updraftplus').'</a>');
 	}
 
-	function show_admin_warning_w3_total_cache() {
-		$url = (is_multisite()) ? network_admin_url('admin.php?page=w3tc_general') : admin_url('admin.php?page=w3tc_general');
-		$this->show_admin_warning('<strong>'.__('Warning','updraftplus').':</strong> '.__('W3 Total Cache\'s object cache is active. This is known to have a bug that messes with all scheduled tasks (including backup jobs).','updraftplus').' <a href="'.$url.'#object_cache">'.__('Go here to turn it off.','updraftplus').'</a> '.sprintf(__('<a href="%s">Go here</a> for more information.', 'updraftplus'),'http://updraftplus.com/faqs/whats-the-deal-with-w3-total-caches-object-cache/'));
+	public function show_admin_warning_overdue_crons() {
+		$this->show_admin_warning('<strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__('WordPress has a number (%d) of scheduled tasks which are overdue. Unless this is a development site, this probably means that the scheduler in your WordPress install is not working.', 'updraftplus'), $this->overdue_crons_howmany).' <a href="http://updraftplus.com/faqs/scheduler-wordpress-installation-working/">'.__('Read this page for a guide to possible causes and how to fix it.', 'updraftplus').'</a>');
 	}
 
-	function show_admin_warning_dropbox() {
+	public function show_admin_warning_dropbox() {
 		$this->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus').'</strong> <a href="'.UpdraftPlus_Options::admin_page_url().'?page=updraftplus&action=updraftmethod-dropbox-auth&updraftplus_dropboxauth=doit">'.sprintf(__('Click here to authenticate your %s account (you will not be able to back up to %s without it).','updraftplus'),'Dropbox','Dropbox').'</a>');
 	}
 
-	function show_admin_warning_googledrive() {
+	public function show_admin_warning_googledrive() {
 		$this->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus').'</strong> <a href="'.UpdraftPlus_Options::admin_page_url().'?page=updraftplus&action=updraftmethod-googledrive-auth&updraftplus_googleauth=doit">'.sprintf(__('Click here to authenticate your %s account (you will not be able to back up to %s without it).','updraftplus'),'Google Drive','Google Drive').'</a>');
 	}
 
 	// This options filter removes ABSPATH off the front of updraft_dir, if it is given absolutely and contained within it
-	function prune_updraft_dir_prefix($updraft_dir) {
+	public function prune_updraft_dir_prefix($updraft_dir) {
 		if ('/' == substr($updraft_dir, 0, 1) || "\\" == substr($updraft_dir, 0, 1) || preg_match('/^[a-zA-Z]:/', $updraft_dir)) {
 			$wcd = trailingslashit(WP_CONTENT_DIR);
 			if (strpos($updraft_dir, $wcd) === 0) {
@@ -373,7 +389,7 @@ class UpdraftPlus_Admin {
 		return $updraft_dir;
 	}
 
-	function updraft_download_backup() {
+	public function updraft_download_backup() {
 
 		@set_time_limit(900);
 
@@ -511,7 +527,7 @@ class UpdraftPlus_Admin {
 	}
 
 	# Pass only a single service, as a string, into this function
-	function download_file($file, $service) {
+	private function download_file($file, $service) {
 
 		global $updraftplus;
 
@@ -1670,14 +1686,16 @@ CREATE TABLE $wpdb->signups (
 						<p style="display:none; background-color:pink; padding:8px; margin:4px;border: 1px dotted;" id="ud-whitespace-warning">
 						 <?php echo '<strong>'.__('Warning','updraftplus').':</strong> '.__('Your WordPress installation has a problem with outputting extra whitespace. This can corrupt backups that you download from here.','updraftplus').' <a href="http://updraftplus.com/problems-with-extra-white-space/">'.__('Please consult this FAQ for help on what to do about it.', 'updraftplus').'</a>';?>
 						</p>
-						<p style="max-width: 740px;"><ul style="list-style: disc inside;">
+						<ul style="list-style: disc inside; max-width: 1000px;">
 						<li><strong><?php _e('Downloading','updraftplus');?>:</strong> <?php _e("Pressing a button for Database/Plugins/Themes/Uploads/Others will make UpdraftPlus try to bring the backup file back from the remote storage (if any - e.g. Amazon S3, Dropbox, Google Drive, FTP) to your webserver. Then you will be allowed to download it to your computer. If the fetch from the remote storage stops progressing (wait 30 seconds to make sure), then press again to resume. Remember that you can also visit the cloud storage vendor's website directly.",'updraftplus');?></li>
 						<li>
 							<strong><?php _e('Restoring:','updraftplus');?></strong> <?php _e('Press the Restore button next to the chosen backup set.', 'updraftplus');?>
-							<?php _e('More tasks:','updraftplus');?>
-							<a href="#" onclick="jQuery('#updraft-plupload-modal').slideToggle(); return false;"><?php _e('upload backup files','updraftplus');?></a>
-							| <a href="#" onclick="updraft_updatehistory(1, 0); return false;" title="<?php _e('Press here to look inside your UpdraftPlus directory (in your web hosting space) for any new backup sets that you have uploaded. The location of this directory is set in the expert settings, below.','updraftplus'); ?>"><?php _e('rescan folder for new backup sets','updraftplus');?></a>
-							| <a href="#" onclick="updraft_updatehistory(1, 1); return false;" title="<?php _e('Press here to look inside any remote storage methods for any existing backup sets.','updraftplus'); ?>"><?php _e('rescan remote storage','updraftplus');?></a>
+						</li>
+						<li>
+							<strong><?php _e('More tasks:','updraftplus');?></strong>
+							<a href="#" onclick="jQuery('#updraft-plupload-modal').slideToggle(); return false;"><?php _e('Upload backup files','updraftplus');?></a>
+							| <a href="#" onclick="updraft_updatehistory(1, 0); return false;" title="<?php _e('Press here to look inside your UpdraftPlus directory (in your web hosting space) for any new backup sets that you have uploaded. The location of this directory is set in the expert settings, below.','updraftplus'); ?>"><?php _e('Rescan folder for new backup sets','updraftplus');?></a>
+							| <a href="#" onclick="updraft_updatehistory(1, 1); return false;" title="<?php _e('Press here to look inside any remote storage methods for any existing backup sets.','updraftplus'); ?>"><?php _e('Rescan remote storage','updraftplus');?></a>
 						</li>
 						<?php
 							if (false !== strpos($_SERVER['HTTP_USER_AGENT'], 'Opera') || false !== strpos($_SERVER['HTTP_USER_AGENT'], 'OPR/')) { ?>
@@ -2347,7 +2365,7 @@ CREATE TABLE $wpdb->signups (
 					echo __('and retain this many backups', 'updraftplus').': ';
 					$updraft_retain = (int)UpdraftPlus_Options::get_updraft_option('updraft_retain', 2);
 					$updraft_retain = ($updraft_retain > 0) ? $updraft_retain : 1;
-					?> <input type="number" min="1" step="1" name="updraft_retain" value="<?php echo $updraft_retain ?>" style="width:40px;" />
+					?> <input type="number" min="1" step="1" name="updraft_retain" value="<?php echo $updraft_retain ?>" style="width:48px;" />
 					</td>
 			</tr>
 			<tr>
@@ -2365,7 +2383,7 @@ CREATE TABLE $wpdb->signups (
 					echo __('and retain this many backups', 'updraftplus').': ';
 					$updraft_retain_db = (int)UpdraftPlus_Options::get_updraft_option('updraft_retain_db', $updraft_retain);
 					$updraft_retain_db = ($updraft_retain_db > 0) ? $updraft_retain_db : 1;
-					?> <input type="number" min="1" step="1" name="updraft_retain_db" value="<?php echo $updraft_retain_db ?>" style="width:40px" />
+					?> <input type="number" min="1" step="1" name="updraft_retain_db" value="<?php echo $updraft_retain_db ?>" style="width:48px" />
 			</td>
 			</tr>
 			<tr class="backup-interval-description">
