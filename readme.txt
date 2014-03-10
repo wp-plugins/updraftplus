@@ -67,12 +67,12 @@ Many thanks to the existing translators:
 * Chinese (zh_CN): K L Wang - http://klwang.info
 * Italiano / Italian (it_IT): Francesco Carpana - f.carpana at gmail.com
 * Deutsch / German (de_DE): Marcel Herrguth - mherrguth at mrgeneration.de
+* Español / Spanish (es_ES): Pablo Laguna - laguna.sanchez at gmail.com and Fernando Villasmil - villasmil.fernando at gmail.com
+* Nederlands / Dutch (nl_NL):  Dennis Hunink - dennishunink at me.com and Hans van der Vlist - hansvandervlist at gmail.com
 
 And to these (need updating or new translators; now less than 50% translated):
 
-* Español / Spanish (es_ES): Fernando Villasmil - villasmil.fernando at gmail.com
 * Magyar / Hungarian (hu_HU): Szépe Viktor - http://www.szepe.net
-* Nederlands / Dutch (nl_NL): Hans van der Vlist - hansvandervlist at gmail.com
 
 = Other support =
 
@@ -142,6 +142,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 = Development version (not yet released/supported) =
 
 * FIX: Prevent SQL errors on restore if SQL command was over-sized and split awkwardly (very hard to trigger)
+* FIX: Fix subtle race condition that prevented uploads of large archives on Amazon S3 in some very limited situations
 * FEATURE: Feature to re-scan remote storage (allows detection of existing backups after a restore to an earlier site version, and allows quicker moving of data from site to site when migrating)
 * TWEAK: Add a warning message and link to helpful page for people whose WP schedulers don't seem to be working (at least 4 overdue jobs in the queue)
 
