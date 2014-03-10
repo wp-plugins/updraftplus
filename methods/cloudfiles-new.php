@@ -84,7 +84,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 			$uploaded_size = $this->get_remote_size($file);
 
 			try {
-				if (1 === $updraftplus->chunked_upload($this, $file, "cloudfiles://".$this->container."/$file", 'Cloud Files', $this->CHUNK_SIZE, $uploaded_size)) {
+				if (1 === $updraftplus->chunked_upload($this, $file, "cloudfiles://".$this->container."/$file", 'Cloud Files', UpdraftPlus_BackupModule_cloudfiles_opencloudsdk::CHUNK_SIZE, $uploaded_size)) {
 					try {
 						if (false !== ($data = fopen($updraftplus->backups_dir_location().'/'.$file, 'r+'))) {
 							$this->container_object->uploadObject($file, $data);
