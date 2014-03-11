@@ -644,10 +644,20 @@ uploader.bind('FilesAdded', function(up, files){
 // 				var hundredmb = 100 * 1024 * 1024, max = parseInt(up.settings.max_file_size, 10);
 	
 	plupload.each(files, function(file){
+
 		if (! /^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i.test(file.name) && ! /^log\.([0-9a-f]{12})\.txt$/.test(file.name)) {
-			alert(file.name+": "+updraftlion.notarchive);
-			uploader.removeFile(file);
-			return;
+			var accepted_file = false;
+			for (var i = 0; i<updraft_accept_archivename.length; i++) {
+				if (updraft_accept_archivename[i].test(file.name)) {
+					var accepted_file = true;
+				}
+				//Do something
+			}
+			if (!accepted_file) {
+				alert(file.name+": "+updraftlion.notarchive);
+				uploader.removeFile(file);
+				return;
+			}
 		}
 		
 		// a file was added, you may want to update your DOM here...
@@ -676,15 +686,27 @@ uploader.bind('FileUploaded', function(up, file, response) {
 	
 	if (response.status == '200') {
 		// this is your ajax response, update the DOM with it or something...
-		if (response.response.substring(0,6) == 'ERROR:') {
-			alert(updraftlion.uploaderror+" "+response.response.substring(6));
-		} else if (response.response.substring(0,3) == 'OK:') {
-			updraft_updatehistory(1, 0);
-		} else {
-			alert('Unknown server response: '+response.response);
+		try {
+			resp = jQuery.parseJSON(response.response);
+			if (resp.e) {
+				alert(updraftlion.uploaderror+" "+resp.e);
+			} else if (resp.dm) {
+				alert(resp.dm);
+				updraft_updatehistory(1, 0);
+			} else if (resp.m) {
+				updraft_updatehistory(1, 0);
+			} else {
+				alert('Unknown server response: '+response.response);
+			}
+			
+		} catch(err) {
+			console.log(response);
+			alert(updraftlion.jsonnotunderstood);
 		}
+
 	} else {
 		alert('Unknown server response status: '+response.code);
+		console.log(response);
 	}
 
 });

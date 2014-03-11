@@ -204,6 +204,7 @@ class UpdraftPlus_Admin {
 			var updraft_credentialtest_nonce='<?php echo wp_create_nonce('updraftplus-credentialtest-nonce');?>';
 			var updraft_download_nonce='<?php echo wp_create_nonce('updraftplus_download');?>';
 			var updraft_siteurl = '<?php echo esc_js(site_url());?>';
+			var updraft_accept_archivename = <?php echo apply_filters('updraftplus_accept_archivename_js', "[]");?>;
 		</script>
 		<?php
 			$plupload_init['browse_button'] = 'plupload-browse-button2';
@@ -1310,7 +1311,7 @@ CREATE TABLE $wpdb->signups (
 		remove_filter('sanitize_file_name', array($this, 'sanitize_file_name'));
 
 		if (isset($status['error'])) {
-			echo 'ERROR:'.$status['error'];
+			echo json_encode(array('e' => $status['error']));
 			exit;
 		}
 
@@ -1338,25 +1339,37 @@ CREATE TABLE $wpdb->signups (
 
 		}
 
+		$response = array();
 		if (!isset($_POST['chunks']) || (isset($_POST['chunk']) && $_POST['chunk'] == $_POST['chunks']-1)) {
 			$file = basename($status['file']);
 			if (!preg_match('/^log\.[a-f0-9]{12}\.txt/', $file) && !preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i', $file, $matches)) {
-				@unlink($status['file']);
-				echo sprintf(__('Error: %s', 'updraftplus'),__('Bad filename format - this does not look like a file created by UpdraftPlus','updraftplus'));
-				exit;
+				$accept = apply_filters('updraftplus_accept_archivename', array());
+				if (is_array($accept)) {
+					foreach ($accept as $acc) {
+						if (preg_match('/'.$acc['pattern'].'/i', $file)) $accepted = $acc['desc'];
+					}
+				}
+				if (!empty($accepted)) {
+					$response['dm'] = sprintf(__('This backup was created by %s, and can be imported.', 'updraftplus'), $accepted);
+				} else {
+					@unlink($status['file']);
+					echo json_encode(array('e' => sprintf(__('Error: %s', 'updraftplus'),__('Bad filename format - this does not look like a file created by UpdraftPlus','updraftplus'))));
+					exit;
+				}
 			} else {
 				$backupable_entities = $updraftplus->get_backupable_file_entities(true);
 				$type = $matches[3];
 				if ('db' != $type && !isset($backupable_entities[$type]) && !preg_match('/^log\.[a-f0-9]{12}\.txt/', $file)) {
 					@unlink($status['file']);
-					echo sprintf(__('Error: %s', 'updraftplus'),sprintf(__('This looks like a file created by UpdraftPlus, but this install does not know about this type of object: %s. Perhaps you need to install an add-on?','updraftplus'), htmlspecialchars($type)));
+					echo json_encode(array('e' => sprintf(__('Error: %s', 'updraftplus'),sprintf(__('This looks like a file created by UpdraftPlus, but this install does not know about this type of object: %s. Perhaps you need to install an add-on?','updraftplus'), htmlspecialchars($type)))));
 					exit;
 				}
 			}
 		}
 
 		// send the uploaded file url in response
-		echo 'OK:'.$status['url'];
+		$response['m'] = $status['url'];
+		echo json_encode($response);
 		exit;
 	}
 
@@ -2793,13 +2806,13 @@ CREATE TABLE $wpdb->signups (
 
 	}
 
-	function existing_backup_table($backup_history = false) {
+	private function existing_backup_table($backup_history = false) {
 
 		global $updraftplus;
 		$ret = '';
 
 		// Fetch it if it was not passed
-		if ($backup_history === false) $backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
+		if (false === $backup_history) $backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
 		if (!is_array($backup_history)) $backup_history=array();
 
 		$updraft_dir = $updraftplus->backups_dir_location();
@@ -2807,6 +2820,9 @@ CREATE TABLE $wpdb->signups (
 		$backupable_entities = $updraftplus->get_backupable_file_entities(true, true);
 
 		$ret .= '<table>';
+
+		$accept = apply_filters('updraftplus_accept_archivename', array());
+		if (!is_array($accept)) $accept = array();
 
 		krsort($backup_history);
 
@@ -2816,7 +2832,7 @@ CREATE TABLE $wpdb->signups (
 			// Convert to blog time zone
 			$pretty_date = get_date_from_gmt(gmdate('Y-m-d H:i:s', (int)$key), 'Y-m-d G:i');
 
-			$esc_pretty_date=esc_attr($pretty_date);
+			$esc_pretty_date = esc_attr($pretty_date);
 			$entities = '';
 			$sval = ((isset($backup['service']) && $backup['service'] != 'email' && $backup['service'] != 'none')) ? '1' : '0';
 			$title = __('Delete this backup set', 'updraftplus');
@@ -2831,31 +2847,55 @@ ENDHERE;
 				$ret .= "<br><span title=\"".esc_attr(__('If you are seeing more backups than you expect, then it is probably because the deletion of old backup sets does not happen until a fresh backup completes.', 'updraftplus'))."\">".__('(Not finished)', 'updraftplus').'</span>';
 			}
 
-			$ret .= "</td>\n<td>";
-			if (isset($backup['db'])) {
-				$entities .= '/db=0/';
-				$sdescrip = preg_replace('/ \(.*\)$/', '', __('Database','updraftplus'));
-				$nf = wp_nonce_field('updraftplus_download', '_wpnonce', true, false);
-				$dbt = __('Database','updraftplus');
-				$ret .= <<<ENDHERE
-				<form id="uddownloadform_db_${key}_0" action="admin-ajax.php" onsubmit="return updraft_downloader('uddlstatus_', $key, 'db', '#ud_downloadstatus', '0', '$esc_pretty_date', true)" method="post">
-					$nf
-					<input type="hidden" name="action" value="updraft_download_backup" />
-					<input type="hidden" name="type" value="db" />
-					<input type="hidden" name="timestamp" value="$key" />
-					<input type="submit" value="$dbt" />
-				</form>
+			$ret .= "</td>\n";
+
+// 			if () {
+// 				$ret .= '<td colspan="'.count($backupable_entities).'">';
+// 				$ret .= "IT IS FOREIGN, JIM";
+// 				$ret .= "<td>";
+// 				continue;
+// 			}
+
+			if (empty($backup['meta_foreign'])) {
+				$ret .= "<td>";
+				if (isset($backup['db'])) {
+					$entities .= '/db=0/';
+					$sdescrip = preg_replace('/ \(.*\)$/', '', __('Database','updraftplus'));
+					$nf = wp_nonce_field('updraftplus_download', '_wpnonce', true, false);
+					$dbt = __('Database','updraftplus');
+					$ret .= <<<ENDHERE
+					<form id="uddownloadform_db_${key}_0" action="admin-ajax.php" onsubmit="return updraft_downloader('uddlstatus_', $key, 'db', '#ud_downloadstatus', '0', '$esc_pretty_date', true)" method="post">
+						$nf
+						<input type="hidden" name="action" value="updraft_download_backup" />
+						<input type="hidden" name="type" value="db" />
+						<input type="hidden" name="timestamp" value="$key" />
+						<input type="submit" value="$dbt" />
+					</form>
 ENDHERE;
-			} else {
-				$ret .= sprintf(_x('(No %s)','Message shown when no such object is available','updraftplus'), __('database', 'updraftplus'));
+				} else {
+					$ret .= sprintf(_x('(No %s)','Message shown when no such object is available','updraftplus'), __('database', 'updraftplus'));
+				}
+				$ret .="</td>";
 			}
-			$ret .="</td>";
 
 			// Now go through each of the file entities
 			foreach ($backupable_entities as $type => $info) {
-				$ret .= '<td>';
-				$sdescrip = preg_replace('/ \(.*\)$/', '', $info['description']);
-				if (strlen($sdescrip) > 20 && isset($info['shortdescription'])) $sdescrip = $info['shortdescription'];
+				if (!empty($backup['meta_foreign']) && 'wpcore' != $type) continue;
+				$ret .= (empty($backup['meta_foreign'])) ? '<td>' : '<td colspan="'.count($backupable_entities).'">';
+				$ide = '';
+				if (empty($backup['meta_foreign'])) {
+					$sdescrip = preg_replace('/ \(.*\)$/', '', $info['description']);
+					if (strlen($sdescrip) > 20 && isset($info['shortdescription'])) $sdescrip = $info['shortdescription'];
+				} else {
+					$info['description'] = 'WordPress';
+					if (isset($accept[$backup['meta_foreign']])) {
+						$sdescrip = sprintf(__('Complete WordPress backup (created by %s)', 'updraftplus'),$accept[$backup['meta_foreign']]['desc']);
+						$ide .= sprintf(__('Backup created by: %s.', 'updraftplus'), $accept[$backup['meta_foreign']]['desc']).' ';
+					} else {
+						$sdescrip = __('Complete WordPress backup (created by unknown source)', 'updraftplus');
+						$ide .= __('Backup created by unknown source (%s) - cannot be restored.', 'updraftplus').' ';
+					}
+				}
 				if (isset($backup[$type])) {
 					if (!is_array($backup[$type])) $backup[$type]=array($backup[$type]);
 					$nf = wp_nonce_field('updraftplus_download',  '_wpnonce', true, false);
@@ -2874,7 +2914,7 @@ ENDHERE;
 					$entities .= $set_contents.'/';
 					$first_printed = true;
 					foreach ($whatfiles as $findex => $bfile) {
-						$ide = __('Press here to download','updraftplus').' '.strtolower($info['description']);
+						$ide .= __('Press here to download', 'updraftplus').' '.strtolower($info['description']);
 						$pdescrip = ($findex > 0) ? $sdescrip.' ('.($findex+1).')' : $sdescrip;
 						if (!$first_printed) {
 							$ret .= '<div style="display:none;">';
@@ -2907,24 +2947,27 @@ ENDHERE;
 				$ret .= '</td>';
 			};
 
-			$ret .= '<td>';
-			if (isset($backup['nonce']) && preg_match("/^[0-9a-f]{12}$/",$backup['nonce']) && is_readable($updraft_dir.'/log.'.$backup['nonce'].'.txt')) {
-				$nval = $backup['nonce'];
-				$lt = __('Backup Log','updraftplus');
-				$url = UpdraftPlus_Options::admin_page();
-				$ret .= <<<ENDHERE
-				<form action="$url" method="get">
-					<input type="hidden" name="action" value="downloadlog" />
-					<input type="hidden" name="page" value="updraftplus" />
-					<input type="hidden" name="updraftplus_backup_nonce" value="$nval" />
-					<input type="submit" value="$lt" />
-				</form>
+			if (empty($backup['meta_foreign'])) {
+				$ret .= '<td>';
+				if (isset($backup['nonce']) && preg_match("/^[0-9a-f]{12}$/",$backup['nonce']) && is_readable($updraft_dir.'/log.'.$backup['nonce'].'.txt')) {
+					$nval = $backup['nonce'];
+					$lt = __('Backup Log','updraftplus');
+					$url = UpdraftPlus_Options::admin_page();
+					$ret .= <<<ENDHERE
+					<form action="$url" method="get">
+						<input type="hidden" name="action" value="downloadlog" />
+						<input type="hidden" name="page" value="updraftplus" />
+						<input type="hidden" name="updraftplus_backup_nonce" value="$nval" />
+						<input type="submit" value="$lt" />
+					</form>
 ENDHERE;
 				} else {
 					$ret .= "(No&nbsp;backup&nbsp;log)";
 				}
-				$ret .= <<<ENDHERE
-			</td>
+				$ret .= "</td>";
+			}
+
+			$ret .= <<<ENDHERE
 			<td>
 				<form method="post" action="">
 					<input type="hidden" name="backup_timestamp" value="$key">
@@ -2943,7 +2986,7 @@ ENDHERE;
 			</td>
 		</tr>
 ENDHERE;
-			}
+		}
 		$ret .= '</table>';
 		return $ret;
 	}
@@ -2965,6 +3008,9 @@ ENDHERE;
 		$updraft_dir = $updraftplus->backups_dir_location();
 		if (!is_dir($updraft_dir)) return;
 
+		$accept = apply_filters('updraftplus_accept_archivename', array());
+		if (!is_array($accept)) $accept = array();
+
 		// Accumulate a list of known files in the database backup history
 		foreach ($backup_history as $btime => $bdata) {
 			$found_file = false;
@@ -2972,7 +3018,8 @@ ENDHERE;
 				// Record which set this file is found in
 				if (!is_array($values)) $values=array($values);
 				foreach ($values as $val) {
-					if (is_string($val) && preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+([0-9]+(of[0-9]+)?)?+\.(zip|gz|gz\.crypt)$/i', $val, $matches)) {
+					if (!is_string($val)) continue;
+					if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+([0-9]+(of[0-9]+)?)?+\.(zip|gz|gz\.crypt)$/i', $val, $matches)) {
 						$nonce = $matches[2];
 						if (isset($bdata['service']) && ($bdata['service'] === 'none' || (is_array($bdata['service']) && array('none') === $bdata['service'])) && !is_file($updraft_dir.'/'.$val)) {
 							# File without remote storage is no longer present
@@ -2980,6 +3027,20 @@ ENDHERE;
 							$found_file = true;
 							$known_files[$val] = $nonce;
 							$known_nonces[$nonce] = $btime;
+						}
+					} else {
+						$accepted = false;
+						foreach ($accept as $acc) {
+							if (preg_match('/'.$acc['pattern'].'/i', $val)) $accepted = $acc['desc'];
+						}
+						if (!empty($accepted) && preg_match('/(([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{2})-([0-9]{2})-([0-9]{2}))\\.zip$/', $val, $tmatch)) {
+							$btime = mktime($tmatch[5], $tmatch[6], $tmatch[7], $tmatch[3], $tmatch[4], $tmatch[1]);
+							if ($btime >0) {
+								$found_file = true;
+								$nonce = substr(md5($val), 0, 12);
+								$known_files[$val] = $nonce;
+								$known_nonces[$nonce] = $btime;
+							}
 						}
 					}
 				}
@@ -3033,13 +3094,25 @@ ENDHERE;
 
 		// See if there are any more files in the local directory than the ones already known about
 		while (false !== ($entry = readdir($handle))) {
+			$accepted_foreign = false;
 			if ('.' == $entry || '..' == $entry) continue;
-			if (!preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i', $entry, $matches)) continue;
-			$btime = strtotime($matches[1]);
-			$nonce = $matches[2];
-			$type = $matches[3];
-			$index = (empty($matches[4])) ? '0' : (max((int)$matches[4]-1,0));
-			$itext = ($index == 0) ? '' : $index;
+			if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i', $entry, $matches)) {
+				$btime = strtotime($matches[1]);
+				$nonce = $matches[2];
+				$type = $matches[3];
+				$index = (empty($matches[4])) ? '0' : (max((int)$matches[4]-1,0));
+				$itext = ($index == 0) ? '' : $index;
+			} else {
+				foreach ($accept as $fsource => $acc) {
+					if (preg_match('/'.$acc['pattern'].'/i', $entry)) $accepted_foreign = $fsource;
+				}
+				if (empty($accepted_foreign) || !preg_match('/(([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{2})-([0-9]{2})-([0-9]{2}))\\.zip$/', $entry, $tmatch)) continue;
+				$btime = mktime($tmatch[5], $tmatch[6], $tmatch[7], $tmatch[3], $tmatch[4], $tmatch[1]);
+				$nonce = substr(md5($val), 0, 12);
+				$type = 'wpcore';
+				$index = '0';
+				$itext = '';
+			}
 			// The time from the filename does not include seconds. Need to identify the seconds to get the right time
 			if (isset($known_nonces[$nonce])) $btime = $known_nonces[$nonce];
 			if ($btime <= 100) continue;
@@ -3079,6 +3152,7 @@ ENDHERE;
 			$backup_history[$btime][$type][$index] = $entry;
 			if ($fs > 0) $backup_history[$btime][$type.$itext.'-size'] = $fs;
 			$backup_history[$btime]['nonce'] = $nonce;
+			if (!empty($accepted_foreign)) $backup_history[$btime]['meta_foreign'] = $accepted_foreign;
 		}
 
 		# Any found in remote storage that we did not previously know about?
