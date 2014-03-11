@@ -3299,7 +3299,7 @@ ENDHERE;
 		require_once(UPDRAFTPLUS_DIR.'/restorer.php');
 
 		global $updraftplus_restorer;
-		$updraftplus_restorer = new Updraft_Restorer(new Updraft_Restorer_Skin);
+		$updraftplus_restorer = new Updraft_Restorer(new Updraft_Restorer_Skin, $backup_history[$timestamp]);
 
 		$second_loop = array();
 

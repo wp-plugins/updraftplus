@@ -12,7 +12,10 @@ class Updraft_Restorer extends WP_Upgrader {
 
 	private $created_by_version = false;
 
-	function __construct($skin = null) {
+	private $ud_backup_info;
+
+	public function __construct($skin = null, $info = null) {
+		$this->ud_backup_info = $info;
 		parent::__construct($skin);
 		$this->init();
 		$this->backup_strings();
@@ -435,6 +438,12 @@ class Updraft_Restorer extends WP_Upgrader {
 		if ('more' == $type) {
 			$this->skin->feedback('not_possible');
 			return;
+		}
+
+		if (is_array($this->ud_backup_info) && !empty($this->ud_backup_info['meta_foreign'])) {
+			echo "TODO: restore type: ".$this->ud_backup_info['meta_foreign']."<br>";
+			$this->skin->feedback('not_possible');
+			return false;
 		}
 
 		global $wp_filesystem, $updraftplus_addons_migrator, $updraftplus;
