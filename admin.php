@@ -53,23 +53,6 @@ class UpdraftPlus_Admin {
 			add_action('all_admin_notices', array($this, 'show_admin_warning_disabledcron'));
 		}
 
-		if (function_exists('_get_cron_array') || (is_file(ABSPATH.'wp-includes/cron.php') && include_once(ABSPATH.'wp-includes/cron.php') && function_exists('_get_cron_array'))) {
-			$crons = _get_cron_array();
-			if (is_array($crons)) {
-				$timenow = time();
-				$how_many_overdue = 0;
-				foreach ($crons as $jt => $job) {
-					if ($jt < $timenow) {
-						$how_many_overdue++;
-					}
-				}
-				if ($how_many_overdue >= 4) {
-					$this->overdue_crons_howmany = $how_many_overdue;
-					add_action('all_admin_notices', array($this, 'show_admin_warning_overdue_crons'));
-				}
-			}
-		}
-
 		if (UpdraftPlus_Options::get_updraft_option('updraft_debug_mode')) {
 			@ini_set('display_errors',1);
 			@error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
@@ -169,7 +152,7 @@ class UpdraftPlus_Admin {
 		<?php
 	}
 
-	function admin_head() {
+	public function admin_head() {
 
 		global $pagenow;
 		if ($pagenow != UpdraftPlus_Options::admin_page() || !isset($_REQUEST['page']) || 'updraftplus' != $_REQUEST['page']) return;
@@ -205,15 +188,36 @@ class UpdraftPlus_Admin {
 			var updraft_download_nonce='<?php echo wp_create_nonce('updraftplus_download');?>';
 			var updraft_siteurl = '<?php echo esc_js(site_url());?>';
 			var updraft_accept_archivename = <?php echo apply_filters('updraftplus_accept_archivename_js', "[]");?>;
-		</script>
-		<?php
+			<?php
 			$plupload_init['browse_button'] = 'plupload-browse-button2';
 			$plupload_init['container'] = 'plupload-upload-ui2';
 			$plupload_init['drop_element'] = 'drag-drop-area2';
 			$plupload_init['multipart_params']['action'] = 'plupload_action2';
 			$plupload_init['filters'] = array(array('title' => __('Allowed Files'), 'extensions' => 'crypt'));
-		?><script type="text/javascript">var updraft_plupload_config2=<?php echo json_encode($plupload_init); ?>;
-		var updraft_downloader_nonce = '<?php wp_create_nonce("updraftplus_download"); ?>'
+			?>
+			var updraft_plupload_config2=<?php echo json_encode($plupload_init); ?>;
+			var updraft_downloader_nonce = '<?php wp_create_nonce("updraftplus_download"); ?>'
+			<?php
+				$overdue = $this->howmany_overdue_crons();
+				if ($overdue >= 4) { ?>
+			jQuery(document).ready(function(){
+				setTimeout(function(){updraft_check_overduecrons();}, 11000);
+				function updraft_check_overduecrons() {
+					jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'checkoverduecrons', nonce: updraft_credentialtest_nonce }, function(data, response) {
+						if ('success' == response) {
+							try {
+								resp = jQuery.parseJSON(data);
+								if (resp.m) {
+									jQuery('#updraft-insert-admin-warning').html(resp.m);
+								}
+							} catch(err) {
+								console.log(data);
+							}
+						}
+					});
+				}
+			});
+			<?php } ?>
 		</script>
 		<style type="text/css">
 			.updraftplus-morefiles-row-delete {
@@ -291,7 +295,7 @@ class UpdraftPlus_Admin {
 	}
 
 	# Adds the settings link under the plugin on the plugin screen.
-	function plugin_action_links($links, $file) {
+	public function plugin_action_links($links, $file) {
 		if ($file == 'updraftplus/updraftplus.php'){
 			$settings_link = '<a href="'.UpdraftPlus_Options::admin_page_url().'?page=updraftplus">'.__("Settings", "updraftplus").'</a>';
 			array_unshift($links, $settings_link);
@@ -363,8 +367,11 @@ class UpdraftPlus_Admin {
 		$this->show_admin_warning('<strong>'.__('Notice','updraftplus').':</strong> '.__('UpdraftPlus\'s debug mode is on. You may see debugging notices on this page not just from UpdraftPlus, but from any other plugin installed. Please try to make sure that the notice you are seeing is from UpdraftPlus before you raise a support request.', 'updraftplus').'</a>');
 	}
 
-	public function show_admin_warning_overdue_crons() {
-		$this->show_admin_warning('<strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__('WordPress has a number (%d) of scheduled tasks which are overdue. Unless this is a development site, this probably means that the scheduler in your WordPress install is not working.', 'updraftplus'), $this->overdue_crons_howmany).' <a href="http://updraftplus.com/faqs/scheduler-wordpress-installation-working/">'.__('Read this page for a guide to possible causes and how to fix it.', 'updraftplus').'</a>');
+	public function show_admin_warning_overdue_crons($howmany) {
+		$ret = '<div class="updraftmessage updated"><p>';
+		$ret .= '<strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__('WordPress has a number (%d) of scheduled tasks which are overdue. Unless this is a development site, this probably means that the scheduler in your WordPress install is not working.', 'updraftplus'), $howmany).' <a href="http://updraftplus.com/faqs/scheduler-wordpress-installation-working/">'.__('Read this page for a guide to possible causes and how to fix it.', 'updraftplus').'</a>';
+		$ret .= '</p></div>';
+		return $ret;
 	}
 
 	public function show_admin_warning_dropbox() {
@@ -842,6 +849,9 @@ class UpdraftPlus_Admin {
 		} elseif ('ping' == $_REQUEST['subaction']) {
 			// The purpose of this is to detect brokenness caused by extra line feeds in plugins/themes - before it breaks other AJAX operations and leads to support requests
 			echo 'pong';
+		} elseif ('checkoverduecrons' == $_REQUEST['subaction']) {
+			$how_many_overdue = $this->howmany_overdue_crons();
+			if ($how_many_overdue >= 4) echo json_encode(array('m' => $this->show_admin_warning_overdue_crons($how_many_overdue)));
 		} elseif ('delete_old_dirs' == $_REQUEST['subaction']) {
 			$this->delete_old_dirs_go(false);
 		} elseif ('phpinfo' == $_REQUEST['subaction']) {
@@ -956,6 +966,22 @@ class UpdraftPlus_Admin {
 		}
 		die;
 
+	}
+
+	public function howmany_overdue_crons() {
+		$how_many_overdue = 0;
+		if (function_exists('_get_cron_array') || (is_file(ABSPATH.'wp-includes/cron.php') && include_once(ABSPATH.'wp-includes/cron.php') && function_exists('_get_cron_array'))) {
+			$crons = _get_cron_array();
+			if (is_array($crons)) {
+				$timenow = time();
+				foreach ($crons as $jt => $job) {
+					if ($jt < $timenow) {
+						$how_many_overdue++;
+					}
+				}
+			}
+		}
+		return $how_many_overdue;
 	}
 
 	public function get_php_errors($errno, $errstr, $errfile, $errline) {
@@ -1498,7 +1524,7 @@ CREATE TABLE $wpdb->signups (
 			$this->delete_old_dirs_go();
 			return;
 		}
-		
+
 		if(isset($_GET['error'])) $this->show_admin_warning(htmlspecialchars($_GET['error']), 'error');
 		if(isset($_GET['message'])) $this->show_admin_warning(htmlspecialchars($_GET['message']));
 
@@ -1577,6 +1603,8 @@ CREATE TABLE $wpdb->signups (
 			?>
 
 			<h2 style="clear:left;"><?php _e('Existing Schedule And Backups','updraftplus');?></h2>
+
+			<div id="updraft-insert-admin-warning"></div>
 
 			<table class="form-table" style="float:left; clear: both; width:605px;">
 				<noscript>
@@ -1799,7 +1827,7 @@ CREATE TABLE $wpdb->signups (
 			$backupable_entities = $updraftplus->get_backupable_file_entities(true, true);
 			foreach ($backupable_entities as $type => $info) {
 				if (!isset($info['restorable']) || $info['restorable'] == true) {
-					echo '<div><input id="updraft_restore_'.$type.'" type="checkbox" name="updraft_restore[]" value="'.$type.'"> <label for="updraft_restore_'.$type.'">'.$info['description'].'</label><br>';
+					echo '<div><input id="updraft_restore_'.$type.'" type="checkbox" name="updraft_restore[]" value="'.$type.'"> <label id="updraft_restore_label_'.$type.'" for="updraft_restore_'.$type.'">'.$info['description'].'</label><br>';
 
 					do_action("updraftplus_restore_form_$type");
 
@@ -2308,7 +2336,7 @@ CREATE TABLE $wpdb->signups (
 		return false;
 	}
 
-	function last_backup_html() {
+	private function last_backup_html() {
 
 		global $updraftplus;
 
@@ -2883,6 +2911,7 @@ ENDHERE;
 				if (!empty($backup['meta_foreign']) && 'wpcore' != $type) continue;
 				$ret .= (empty($backup['meta_foreign'])) ? '<td>' : '<td colspan="'.count($backupable_entities).'">';
 				$ide = '';
+				$restore_descrip = $info['description'];
 				if (empty($backup['meta_foreign'])) {
 					$sdescrip = preg_replace('/ \(.*\)$/', '', $info['description']);
 					if (strlen($sdescrip) > 20 && isset($info['shortdescription'])) $sdescrip = $info['shortdescription'];
@@ -2895,6 +2924,7 @@ ENDHERE;
 						$sdescrip = __('Complete WordPress backup (created by unknown source)', 'updraftplus');
 						$ide .= __('Backup created by unknown source (%s) - cannot be restored.', 'updraftplus').' ';
 					}
+					$restore_descrip = $sdescrip;
 				}
 				if (isset($backup[$type])) {
 					if (!is_array($backup[$type])) $backup[$type]=array($backup[$type]);
@@ -2978,7 +3008,9 @@ ENDHERE;
 					if (isset($backup['native']) && false == $backup['native']) {
 						$show_data .= ' '.__('(backup set imported from remote storage)', 'updraftplus');
 					}
-					$ret .= '<button title="'.__('After pressing this button, you will be given the option to choose which components you wish to restore','updraftplus').'" type="button" class="button-primary" style="padding-top:2px;padding-bottom:2px;font-size:16px !important; min-height:26px;" onclick="'."updraft_restore_setoptions('$entities'); jQuery('#updraft_restore_timestamp').val('$key'); jQuery('.updraft_restore_date').html('$show_data'); ";
+					$ret .= '<button title="'.__('After pressing this button, you will be given the option to choose which components you wish to restore','updraftplus').'" type="button" class="button-primary" style="padding-top:2px;padding-bottom:2px;font-size:16px !important; min-height:26px;" onclick="'."updraft_restore_setoptions('$entities');
+					jQuery('#updraft_restore_label_wpcore').html('".esc_js($restore_descrip)."');
+					jQuery('#updraft_restore_timestamp').val('$key'); jQuery('.updraft_restore_date').html('$show_data'); ";
 					$ret .= "updraft_restore_stage = 1; jQuery('#updraft-restore-modal').dialog('open'); jQuery('#updraft-restore-modal-stage1').show();jQuery('#updraft-restore-modal-stage2').hide(); jQuery('#updraft-restore-modal-stage2a').html('');\">".__('Restore','updraftplus').'</button>';
 				}
 				$ret .= <<<ENDHERE
@@ -3299,7 +3331,7 @@ ENDHERE;
 		require_once(UPDRAFTPLUS_DIR.'/restorer.php');
 
 		global $updraftplus_restorer;
-		$updraftplus_restorer = new Updraft_Restorer(new Updraft_Restorer_Skin, $backup_history[$timestamp]);
+		$updraftplus_restorer = new Updraft_Restorer(new Updraft_Restorer_Skin, $backup_set);
 
 		$second_loop = array();
 
@@ -3313,7 +3345,7 @@ ENDHERE;
 
 			if (!isset($entities_to_restore[$type])) continue;
 
-			if ($type == 'wpcore' && is_multisite() && 0 === $updraftplus_restorer->ud_backup_is_multisite) {
+			if ('wpcore' == $type && is_multisite() && 0 === $updraftplus_restorer->ud_backup_is_multisite) {
 				echo "<p>$type: <strong>";
 				echo __('Skipping restoration of WordPress core when importing a single site into a multisite installation. If you had anything necessary in your WordPress directory then you will need to re-add it manually from the zip file.', 'updraftplus');
 				#TODO
@@ -3366,33 +3398,48 @@ ENDHERE;
 				}
 			}
 
-			$info = (isset($backupable_entities[$type])) ? $backupable_entities[$type] : array();
+			if (empty($updraftplus_restorer->ud_foreign) || 'wpcore' !== $type) {
+				$types = array($type);
+			} else {
+				$types = array('wpcore', 'plugins', 'themes', 'uploads');
+				$second_loop['db'] = $files;
+				$second_loop['plugins'] = $files;
+				$second_loop['themes'] = $files;
+				$second_loop['uploads'] = $files;
+				$second_loop['others'] = $files;
+			}
+			
+			foreach ($types as $check_type) {
 
-			$val = $updraftplus_restorer->pre_restore_backup($files, $type, $info);
-			if (is_wp_error($val)) {
-				$updraftplus->log_wp_error($val);
-				foreach ($val->get_error_messages() as $msg) {
-					echo '<strong>'.__('Error:',  'updraftplus').'</strong> '.htmlspecialchars($msg).'<br>';
+				$info = (isset($backupable_entities[$check_type])) ? $backupable_entities[$check_type] : array();
+				$val = $updraftplus_restorer->pre_restore_backup($files, $check_type, $info);
+				if (is_wp_error($val)) {
+					$updraftplus->log_wp_error($val);
+					foreach ($val->get_error_messages() as $msg) {
+						echo '<strong>'.__('Error:',  'updraftplus').'</strong> '.htmlspecialchars($msg).'<br>';
+					}
+					foreach ($val->get_error_codes() as $code) {
+						if ('already_exists' == $code) $this->print_delete_old_dirs_form(false);
+					}
+					echo '</div>'; //close the updraft_restore_progress div even if we error
+					restore_error_handler();
+					return $val;
+				} elseif (false === $val) {
+					echo '</div>'; //close the updraft_restore_progress div even if we error
+					restore_error_handler();
+					return false;
 				}
-				foreach ($val->get_error_codes() as $code) {
- 					if ('already_exists' == $code) $this->print_delete_old_dirs_form(false);
-				}
-				echo '</div>'; //close the updraft_restore_progress div even if we error
-				restore_error_handler();
-				return $val;
-			} elseif (false === $val) {
-				echo '</div>'; //close the updraft_restore_progress div even if we error
-				restore_error_handler();
-				return false;
 			}
 
 			$second_loop[$type] = $files;
 		}
 		$updraftplus_restorer->delete = (UpdraftPlus_Options::get_updraft_option('updraft_delete_local')) ? true : false;
-		if ('none' === $service || 'email' === $service || empty($service) || (is_array($service) && 1 == count($service) && (in_array('none', $service) || in_array('', $service) || in_array('email', $service)))) {
+		if ('none' === $service || 'email' === $service || empty($service) || (is_array($service) && 1 == count($service) && (in_array('none', $service) || in_array('', $service) || in_array('email', $service))) || !empty($updraftplus_restorer->ud_foreign)) {
 			if ($updraftplus_restorer->delete) $updraftplus->log_e('Will not delete any archives after unpacking them, because there was no cloud storage for this backup');
 			$updraftplus_restorer->delete = false;
 		}
+
+		if (!empty($updraftplus_restorer->ud_foreign)) $updraftplus->log("Foreign backup; created by: ".$updraftplus_restorer->ud_foreign);
 
 		// Second loop: now actually do the restoration
 		uksort($second_loop, array($this, 'sort_restoration_entities'));
@@ -3433,8 +3480,6 @@ ENDHERE;
 			}
 		}
 
-		
-
 		foreach (array('template', 'stylesheet', 'template_root', 'stylesheet_root') as $opt) {
 			add_filter('pre_option_'.$opt, array($this, 'option_filter_'.$opt));
 		}
@@ -3466,8 +3511,12 @@ ENDHERE;
 	function sort_restoration_entities($a, $b) {
 		if ($a == $b) return 0;
 		# Put the database first
-		if ('db' == $a) return -1;
-		if ('db' == $b) return 1;
+		# Put wpcore after plugins/uploads/themes (needed for restores of foreign all-in-one formats)
+		if ('db' == $a || 'wpcore' == $b) return -1;
+		if ('db' == $b || 'wpcore' == $a) return 1;
+		# After wpcore, next last is others
+		if ('others' == $b) return -1;
+		if ('others' == $a) return 1;
 		return strcmp($a, $b);
 	}
 

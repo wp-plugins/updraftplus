@@ -260,6 +260,7 @@ function updraftplus_deletefromserver(timestamp, type, findex) {
 function updraftplus_downloadstage2(timestamp, type, findex) {
 	location.href=ajaxurl+'?_wpnonce='+updraft_download_nonce+'&timestamp='+timestamp+'&type='+type+'&stage=2&findex='+findex+'&action=updraft_download_backup';
 }
+
 function updraft_downloader(base, nonce, what, whicharea, set_contents, prettydate, async) {
 	if (typeof set_contents !== "string") set_contents=set_contents.toString();
 	var set_contents = set_contents.split(',');
@@ -431,7 +432,7 @@ jQuery(document).ready(function($){
 
 	//setTimeout(function(){updraft_showlastlog(true);}, 1200);
 	setInterval(function() {updraft_activejobs_update(false);}, 1200);
-	
+
 	jQuery('.updraftplusmethod').hide();
 	
 	jQuery('#updraft_restore_db').change(function(){

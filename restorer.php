@@ -13,9 +13,12 @@ class Updraft_Restorer extends WP_Upgrader {
 	private $created_by_version = false;
 
 	private $ud_backup_info;
+	public $ud_foreign;
 
 	public function __construct($skin = null, $info = null) {
 		$this->ud_backup_info = $info;
+		$this->ud_foreign = (empty($info['meta_foreign'])) ? false : $info['meta_foreign'];
+		if (!empty($this->ud_foreign)) $_POST['updraft_restorer_replacesiteurl'] = 1;
 		parent::__construct($skin);
 		$this->init();
 		$this->backup_strings();
@@ -41,7 +44,12 @@ class Updraft_Restorer extends WP_Upgrader {
 	}
 
 	# This function is copied from class WP_Upgrader (WP 3.8 - no significant changes since 3.2 at least); we only had to fork it because it hard-codes using the basename of the zip file as its unpack directory; which can be long; and then combining that with long pathnames in the zip being unpacked can overflow a 256-character path limit (yes, they apparently still exist - amazing!)
-	function unpack_package_zip($package, $delete_package = true) {
+	private function unpack_package_zip($package, $delete_package = true) {
+
+		if (!empty($this->ud_foreign) && !empty($this->ud_foreign_working_dir)) {
+			return $this->ud_foreign_working_dir;
+		}
+
 		global $wp_filesystem;
 
 		$this->skin->feedback($this->strings['unpack_package'].' ('.basename($package).')');
@@ -78,6 +86,8 @@ class Updraft_Restorer extends WP_Upgrader {
 			}
 			return $result;
 		}
+
+		if (!empty($this->ud_foreign)) $this->ud_foreign_working_dir = $working_dir;
 
 		return $working_dir;
 	}
@@ -336,11 +346,11 @@ class Updraft_Restorer extends WP_Upgrader {
 	}
 
 	// Pre-flight check: chance to complain and abort before anything at all is done
-	function pre_restore_backup($backup_files, $type, $info) {
+	public function pre_restore_backup($backup_files, $type, $info) {
 
 		if (is_string($backup_files)) $backup_files=array($backup_files);
 
-		if ($type == 'more') {
+		if ('more' == $type) {
 			$this->skin->feedback('not_possible');
 			return;
 		}
@@ -404,6 +414,13 @@ class Updraft_Restorer extends WP_Upgrader {
 
 // 		$this->maintenance_mode(false);
 
+		if (!empty($this->ud_foreign)) {
+			$known_foreigners = apply_filters('updraftplus_accept_archivename', array());
+			if (!is_array($known_foreigners) || empty($known_foreigners[$this->ud_foreign])) {
+				return new WP_Error('uk_foreign', __('This version of UpdraftPlus does not know how to handle this type of foreign backup', 'updraftplus').' ('.$this->ud_foreign.')');
+			}
+		}
+
 		return $ret_val;
 	}
 
@@ -433,17 +450,11 @@ class Updraft_Restorer extends WP_Upgrader {
 	}
 
 	// $backup_file is just the basename, and must be a string; we expect the caller to deal with looping over an array (multi-archive sets). We do, however, record whether we have already unpacked an entity of the same type - so that we know to add (not replace).
-	function restore_backup($backup_file, $type, $info) {
+	public function restore_backup($backup_file, $type, $info) {
 
 		if ('more' == $type) {
 			$this->skin->feedback('not_possible');
 			return;
-		}
-
-		if (is_array($this->ud_backup_info) && !empty($this->ud_backup_info['meta_foreign'])) {
-			echo "TODO: restore type: ".$this->ud_backup_info['meta_foreign']."<br>";
-			$this->skin->feedback('not_possible');
-			return false;
 		}
 
 		global $wp_filesystem, $updraftplus_addons_migrator, $updraftplus;
@@ -535,12 +546,14 @@ class Updraft_Restorer extends WP_Upgrader {
 
 			$dirname = basename($info['path']);
 
+			$move_from = (!empty($this->foreign)) ? $working_dir.'/wp-content' : $working_dir;
+
 			// In this special case, the backup contents are not in a folder, so it is not simply a case of moving the folder around, but rather looping over all that we find
 
 			# On subsequent archives of a multi-archive set, don't move anything; but do on the first
 			$preserve_existing = (isset($this->been_restored['others'])) ? 3 : 1;
 
-			$this->move_backup_in($working_dir, trailingslashit($wp_filesystem_dir), $preserve_existing, array('plugins', 'themes', 'uploads', 'upgrade'), 'others');
+			$this->move_backup_in($move_from, trailingslashit($wp_filesystem_dir), $preserve_existing, array('plugins', 'themes', 'uploads', 'upgrade'), 'others');
 
 			$this->been_restored['others'] = true;
 
@@ -629,8 +642,10 @@ class Updraft_Restorer extends WP_Upgrader {
 
 				}
 
+				$working_dir_use = (empty($this->ud_foreign)) ? $working_dir : $working_dir.'/wp-content';
+
 				// The backup may not actually have /$type, since that is info from the present site
-				$move_from = $this->get_first_directory($working_dir, array(basename($info['path']), $type));
+				$move_from = $this->get_first_directory($working_dir_use, array(basename($info['path']), $type));
 				if (false === $move_from) return new WP_Error('new_move_failed', $this->strings['new_move_failed']);
 
 				$this->skin->feedback('moving_backup');
@@ -656,7 +671,10 @@ class Updraft_Restorer extends WP_Upgrader {
 		// Non-recursive, so the directory needs to be empty
 		$this->skin->feedback('cleaning_up');
 
-		if (!$wp_filesystem->delete($working_dir) ) {
+		$attempt_delete = true;
+		if (!empty($this->ud_foreign) && 'wpcore' != $type) $attempt_delete = false;
+
+		if ($attempt_delete && !$wp_filesystem->delete($working_dir) ) {
 
 			# TODO: Can remove this after 1-Jan-2015; or at least, make it so that it requires the version number to be present.
 			$fixed_it_now = false;
@@ -820,23 +838,23 @@ class Updraft_Restorer extends WP_Upgrader {
 
 	}
 
-	function option_filter_permalink_structure($val) {
+	public function option_filter_permalink_structure($val) {
 		global $updraftplus;
 		return $updraftplus->option_filter_get('permalink_structure');
 	}
 
-	function option_filter_page_on_front($val) {
+	public function option_filter_page_on_front($val) {
 		global $updraftplus;
 		return $updraftplus->option_filter_get('page_on_front');
 	}
 
-	function option_filter_rewrite_rules($val) {
+	public function option_filter_rewrite_rules($val) {
 		global $updraftplus;
 		return $updraftplus->option_filter_get('rewrite_rules');
 	}
 
 	// The pass-by-reference on $import_table_prefix is due to historical refactoring
-	function restore_backup_db($working_dir, $working_dir_localpath, &$import_table_prefix) {
+	private function restore_backup_db($working_dir, $working_dir_localpath, &$import_table_prefix) {
 
 		do_action('updraftplus_restore_db_pre');
 
@@ -851,15 +869,22 @@ class Updraft_Restorer extends WP_Upgrader {
 			return false;
 		}
 
+		$db_basename = 'backup.db.gz';
+		if (!empty($this->ud_foreign)) {
+			$db_basename = $this->ud_backup_info['wpcore'];
+			if (is_array($db_basename)) $db_basename = array_shift($db_basename);
+			$db_basename = basename($db_basename, '.zip').'.sql';
+		}
+
 		// wp_filesystem has no gzopen method, so we switch to using the local filesystem (which is harmless, since we are performing read-only operations)
-		if (!is_readable($working_dir_localpath.'/backup.db.gz')) return new WP_Error('gzopen_failed',__('Failed to find database file','updraftplus')." ($working_dir/backup.db.gz)");
+		if (!is_readable($working_dir_localpath.'/'.$db_basename)) return new WP_Error('gzopen_failed',__('Failed to find database file','updraftplus')." ($working_dir/".$db_basename.")");
 
 		global $wpdb, $updraftplus;
 		
 		$this->skin->feedback('restore_database');
 
 		// Read-only access: don't need to go through WP_Filesystem
-		$dbhandle = gzopen($working_dir_localpath.'/backup.db.gz', 'r');
+		$dbhandle = gzopen($working_dir_localpath.'/'.$db_basename, 'r');
 		if (!$dbhandle) return new WP_Error('gzopen_failed',__('Failed to open database file','updraftplus'));
 
 		$this->line = 0;
@@ -957,7 +982,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			// Up to 1Mb
 			$buffer = rtrim(gzgets($dbhandle, 1048576));
 			// Discard comments
-			if (empty($buffer) || substr($buffer, 0, 1) == '#') {
+			if (empty($buffer) || substr($buffer, 0, 1) == '#' || preg_match('/^--(\s|$)/', substr($buffer, 0, 3))) {
 				if ('' == $this->old_siteurl && preg_match('/^\# Backup of: (http(.*))$/', $buffer, $matches)) {
 					$this->old_siteurl = untrailingslashit($matches[1]);
 					$updraftplus->log_e('<strong>Backup of:</strong> %s', htmlspecialchars($this->old_siteurl));
@@ -1181,7 +1206,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		gzclose($dbhandle);
 
 		global $wp_filesystem;
-		$wp_filesystem->delete($working_dir.'/backup.db.gz', false, true);
+		$wp_filesystem->delete($working_dir.'/'.$db_basename, false, true);
 
 		return true;
 
