@@ -144,11 +144,11 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 
 * FIX: Prevent SQL errors on restore if SQL command was over-sized and split awkwardly (very hard to trigger)
 * FIX: Fix subtle race condition that prevented uploads of large archives on Amazon S3 in some very limited situations
+* FEATURE: Ability to restore and migrate from backups produced by other backup plugins (Premium) (supported: Simple Backup)
 * FEATURE: Feature to re-scan remote storage (allows detection of existing backups after a restore to an earlier site version, and allows quicker moving of data from site to site when migrating)
 * TWEAK: Add a warning message and link to helpful page for people whose WP schedulers don't seem to be working (at least 4 overdue jobs in the queue)
 * TRANSLATIONS: Updated Spanish translation (thanks to Pablo Laguna - laguna.sanchez at gmail.com)
-* TRANSLATIONS: New Arabic translation (thanks to Omar Amassine - me at omar.ma, Ahmed Fahmy and 
-Riyadh Altayib)
+* TRANSLATIONS: New Arabic translation (thanks to Omar Amassine - me at omar.ma, Ahmed Fahmy and Riyadh Altayib)
 
 = 1.8.13 - 2014/03/07 =
 
