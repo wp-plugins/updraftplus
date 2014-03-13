@@ -18,7 +18,6 @@ class Updraft_Restorer extends WP_Upgrader {
 	public function __construct($skin = null, $info = null) {
 		$this->ud_backup_info = $info;
 		$this->ud_foreign = (empty($info['meta_foreign'])) ? false : $info['meta_foreign'];
-		if (!empty($this->ud_foreign)) $_POST['updraft_restorer_replacesiteurl'] = 1;
 		parent::__construct($skin);
 		$this->init();
 		$this->backup_strings();
@@ -450,7 +449,7 @@ class Updraft_Restorer extends WP_Upgrader {
 	}
 
 	// $backup_file is just the basename, and must be a string; we expect the caller to deal with looping over an array (multi-archive sets). We do, however, record whether we have already unpacked an entity of the same type - so that we know to add (not replace).
-	public function restore_backup($backup_file, $type, $info) {
+	public function restore_backup($backup_file, $type, $info, $last_one = false) {
 
 		if ('more' == $type) {
 			$this->skin->feedback('not_possible');
@@ -458,6 +457,8 @@ class Updraft_Restorer extends WP_Upgrader {
 		}
 
 		global $wp_filesystem, $updraftplus_addons_migrator, $updraftplus;
+
+		$updraftplus->log("restore_backup(backup_file=$backup_file, type=$type, info=".serialize($info).", last_one=$last_one)");
 
 		$updraft_dir = $updraftplus->backups_dir_location();
 
@@ -546,7 +547,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 			$dirname = basename($info['path']);
 
-			$move_from = (!empty($this->foreign)) ? $working_dir.'/wp-content' : $working_dir;
+			$move_from = (!empty($this->ud_foreign)) ? $working_dir.'/wp-content' : $working_dir;
 
 			// In this special case, the backup contents are not in a folder, so it is not simply a case of moving the folder around, but rather looping over all that we find
 
@@ -672,9 +673,9 @@ class Updraft_Restorer extends WP_Upgrader {
 		$this->skin->feedback('cleaning_up');
 
 		$attempt_delete = true;
-		if (!empty($this->ud_foreign) && 'wpcore' != $type) $attempt_delete = false;
+		if (!empty($this->ud_foreign) && !$last_one) $attempt_delete = false;
 
-		if ($attempt_delete && !$wp_filesystem->delete($working_dir) ) {
+		if ($attempt_delete && !$wp_filesystem->delete($working_dir, !empty($this->ud_foreign))) {
 
 			# TODO: Can remove this after 1-Jan-2015; or at least, make it so that it requires the version number to be present.
 			$fixed_it_now = false;

@@ -644,6 +644,17 @@ class UpdraftPlus_Admin {
 
 				$backupable_entities = $updraftplus->get_backupable_file_entities(true, true);
 				$backupable_plus_db = $backupable_entities; $backupable_plus_db['db'] = array('path' => 'path-unused', 'description' => __('Database', 'updraftplus'));
+
+				if (!empty($backups[$timestamp]['meta_foreign'])) {
+					$foreign_known = apply_filters('updraftplus_accept_archivename', array());
+					if (!is_array($foreign_known) || empty($foreign_known[$backups[$timestamp]['meta_foreign']])) {
+						$err[] = sprintf(__('Backup created by unknown source (%s) - cannot be restored.', 'updraftplus'), $backups[$timestamp]['meta_foreign']);
+					} else {
+						$mess[] = sprintf(__('Backup created by: %s.', 'updraftplus'), $foreign_known[$backups[$timestamp]['meta_foreign']]['desc']);
+						$backupable_plus_db = array('wpcore');
+					}
+				}
+
 				foreach ($backupable_plus_db as $type => $info) {
 					if (!isset($elements[$type])) continue;
 					$whatwegot = $backups[$timestamp][$type];
@@ -1817,6 +1828,7 @@ CREATE TABLE $wpdb->signups (
 	<fieldset>
 		<input type="hidden" name="action" value="updraft_restore">
 		<input type="hidden" name="backup_timestamp" value="0" id="updraft_restore_timestamp">
+		<input type="hidden" name="meta_foreign" value="0" id="updraft_restore_meta_foreign">
 		<?php
 
 		# The 'off' check is for badly configured setups - http://wordpress.org/support/topic/plugin-wp-super-cache-warning-php-safe-mode-enabled-but-safe-mode-is-off
@@ -2877,13 +2889,6 @@ ENDHERE;
 
 			$ret .= "</td>\n";
 
-// 			if () {
-// 				$ret .= '<td colspan="'.count($backupable_entities).'">';
-// 				$ret .= "IT IS FOREIGN, JIM";
-// 				$ret .= "<td>";
-// 				continue;
-// 			}
-
 			if (empty($backup['meta_foreign'])) {
 				$ret .= "<td>";
 				if (isset($backup['db'])) {
@@ -2904,14 +2909,16 @@ ENDHERE;
 					$ret .= sprintf(_x('(No %s)','Message shown when no such object is available','updraftplus'), __('database', 'updraftplus'));
 				}
 				$ret .="</td>";
+			} else {
+				$entities = '/db=0//plugins=0//themes=0//uploads=0//others=0//wpcore=0/meta_foreign/';
 			}
 
 			// Now go through each of the file entities
 			foreach ($backupable_entities as $type => $info) {
 				if (!empty($backup['meta_foreign']) && 'wpcore' != $type) continue;
-				$ret .= (empty($backup['meta_foreign'])) ? '<td>' : '<td colspan="'.count($backupable_entities).'">';
+				$ret .= (empty($backup['meta_foreign'])) ? '<td>' : '<td colspan="'.(int)(2+count($backupable_entities)).'">';
 				$ide = '';
-				$restore_descrip = $info['description'];
+				if ('wpcore' == $type) $wpcore_restore_descrip = $info['description'];
 				if (empty($backup['meta_foreign'])) {
 					$sdescrip = preg_replace('/ \(.*\)$/', '', $info['description']);
 					if (strlen($sdescrip) > 20 && isset($info['shortdescription'])) $sdescrip = $info['shortdescription'];
@@ -2924,7 +2931,7 @@ ENDHERE;
 						$sdescrip = __('Complete WordPress backup (created by unknown source)', 'updraftplus');
 						$ide .= __('Backup created by unknown source (%s) - cannot be restored.', 'updraftplus').' ';
 					}
-					$restore_descrip = $sdescrip;
+					if ('wpcore' == $type) $wpcore_restore_descrip = $sdescrip;
 				}
 				if (isset($backup[$type])) {
 					if (!is_array($backup[$type])) $backup[$type]=array($backup[$type]);
@@ -3008,8 +3015,8 @@ ENDHERE;
 					if (isset($backup['native']) && false == $backup['native']) {
 						$show_data .= ' '.__('(backup set imported from remote storage)', 'updraftplus');
 					}
+					# jQuery('#updraft_restore_label_wpcore').html('".esc_js($wpcore_restore_descrip)."');
 					$ret .= '<button title="'.__('After pressing this button, you will be given the option to choose which components you wish to restore','updraftplus').'" type="button" class="button-primary" style="padding-top:2px;padding-bottom:2px;font-size:16px !important; min-height:26px;" onclick="'."updraft_restore_setoptions('$entities');
-					jQuery('#updraft_restore_label_wpcore').html('".esc_js($restore_descrip)."');
 					jQuery('#updraft_restore_timestamp').val('$key'); jQuery('.updraft_restore_date').html('$show_data'); ";
 					$ret .= "updraft_restore_stage = 1; jQuery('#updraft-restore-modal').dialog('open'); jQuery('#updraft-restore-modal-stage1').show();jQuery('#updraft-restore-modal-stage2').hide(); jQuery('#updraft-restore-modal-stage2a').html('');\">".__('Restore','updraftplus').'</button>';
 				}
@@ -3295,14 +3302,18 @@ ENDHERE;
 		// Now, need to turn any updraft_restore_<entity> fields (that came from a potential WP_Filesystem form) back into parts of the _POST array (which we want to use)
 		if (empty($_POST['updraft_restore']) || (!is_array($_POST['updraft_restore']))) $_POST['updraft_restore'] = array();
 
-		$entities_to_restore = array_flip($_POST['updraft_restore']);
+		$backup_set = $backup_history[$timestamp];
+		$entities_to_restore = array();
+		foreach ($_POST['updraft_restore'] as $entity) {
+			$entities_to_restore[$entity] = (empty($backup_set['meta_foreign'])) ? $entity : 'wpcore';
+		}
 
 		foreach ($_POST as $key => $value) {
 			if (strpos($key, 'updraft_restore_') === 0 ) {
 				$nkey = substr($key, 16);
 				if (!isset($entities_to_restore[$nkey])) {
 					$_POST['updraft_restore'][] = $nkey;
-					$entities_to_restore[$nkey] = 1;
+					$entities_to_restore[$nkey] = (empty($backup_set['meta_foreign'])) ? $nkey : 'wpcore';
 				}
 			}
 		}
@@ -3324,7 +3335,6 @@ ENDHERE;
 
 		$backupable_entities = $updraftplus->get_backupable_file_entities(true, true);
 
-		$backup_set = $backup_history[$timestamp];
 		uksort($backup_set, array($this, 'sort_restoration_entities'));
 
 		// We use a single object for each entity, because we want to store information about the backup set
@@ -3337,13 +3347,15 @@ ENDHERE;
 
 		echo "<h2>".__('Final checks', 'updraftplus').'</h2>';
 
+		$entities_to_download = (empty($backup_set['meta_foreign'])) ? $entities_to_restore : array('wpcore' => 1);
+
 		// First loop: make sure that files are present + readable; and populate array for second loop
 		foreach ($backup_set as $type => $files) {
 			// All restorable entities must be given explicitly, as we can store other arbitrary data in the history array
 			if (!isset($backupable_entities[$type]) && 'db' != $type) continue;
 			if (isset($backupable_entities[$type]['restorable']) && $backupable_entities[$type]['restorable'] == false) continue;
 
-			if (!isset($entities_to_restore[$type])) continue;
+			if (!isset($entities_to_download[$type])) continue;
 
 			if ('wpcore' == $type && is_multisite() && 0 === $updraftplus_restorer->ud_backup_is_multisite) {
 				echo "<p>$type: <strong>";
@@ -3401,16 +3413,15 @@ ENDHERE;
 			if (empty($updraftplus_restorer->ud_foreign) || 'wpcore' !== $type) {
 				$types = array($type);
 			} else {
-				$types = array('wpcore', 'plugins', 'themes', 'uploads');
-				$second_loop['db'] = $files;
-				$second_loop['plugins'] = $files;
-				$second_loop['themes'] = $files;
-				$second_loop['uploads'] = $files;
-				$second_loop['others'] = $files;
+				$types = array('wpcore');
+// 				$second_loop['db'] = $files;
+// 				$second_loop['plugins'] = $files;
+// 				$second_loop['themes'] = $files;
+// 				$second_loop['uploads'] = $files;
+// 				$second_loop['others'] = $files;
 			}
 			
 			foreach ($types as $check_type) {
-
 				$info = (isset($backupable_entities[$check_type])) ? $backupable_entities[$check_type] : array();
 				$val = $updraftplus_restorer->pre_restore_backup($files, $check_type, $info);
 				if (is_wp_error($val)) {
@@ -3431,8 +3442,12 @@ ENDHERE;
 				}
 			}
 
-			$second_loop[$type] = $files;
+			foreach ($entities_to_restore as $entity => $via) {
+				if ($via == $type) $second_loop[$entity] = $files;
+			}
+		
 		}
+
 		$updraftplus_restorer->delete = (UpdraftPlus_Options::get_updraft_option('updraft_delete_local')) ? true : false;
 		if ('none' === $service || 'email' === $service || empty($service) || (is_array($service) && 1 == count($service) && (in_array('none', $service) || in_array('', $service) || in_array('email', $service))) || !empty($updraftplus_restorer->ud_foreign)) {
 			if ($updraftplus_restorer->delete) $updraftplus->log_e('Will not delete any archives after unpacking them, because there was no cloud storage for this backup');
@@ -3451,8 +3466,9 @@ ENDHERE;
 			$updraftplus->log("Entity: ".$type);
 
 			if (is_string($files)) $files = array($files);
-			foreach ($files as $file) {
-				$val = $updraftplus_restorer->restore_backup($file, $type, $info);
+			foreach ($files as $fkey => $file) {
+				$last_one = (1 == count($second_loop) && 1 == count($files));
+				$val = $updraftplus_restorer->restore_backup($file, $type, $info, $last_one);
 
 				if(is_wp_error($val)) {
 					$updraftplus->log_e($val);
@@ -3477,7 +3493,9 @@ ENDHERE;
 					restore_error_handler();
 					return false;
 				}
+				unset($files[$fkey]);
 			}
+			unset($second_loop[$type]);
 		}
 
 		foreach (array('template', 'stylesheet', 'template_root', 'stylesheet_root') as $opt) {

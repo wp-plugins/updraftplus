@@ -30,6 +30,11 @@ function updraft_restore_setoptions(entities) {
 			jQuery(y).attr('disabled','disabled').parent().hide();
 		}
 	});
+	if (entities.match(/meta_foreign/)) {
+		jQuery('#updraft_restore_meta_foreign').val('1');
+	} else {
+		jQuery('#updraft_restore_meta_foreign').val('0');
+	}
 	var height = 336+howmany*20;
 	jQuery('#updraft-restore-modal').dialog("option", "height", height);
 }
@@ -498,6 +503,10 @@ jQuery(document).ready(function($){
 		});
 		if (anyselected == 1) {
 			if (updraft_restore_stage == 1) {
+				if ('1' == jQuery('#updraft_restore_meta_foreign').val()) {
+					whichselected = [];
+					whichselected.push([ 'wpcore', 0 ]);
+				}
 				jQuery('#updraft-restore-modal-stage1').slideUp('slow');
 				jQuery('#updraft-restore-modal-stage2').show();
 				updraft_restore_stage = 2;

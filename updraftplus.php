@@ -2032,7 +2032,19 @@ class UpdraftPlus {
 		$exclude = UpdraftPlus_Options::get_updraft_option('updraft_include_others_exclude', UPDRAFT_DEFAULT_OTHERS_EXCLUDE);
 		if ($logit) $this->log("Exclusion option setting (others): ".$exclude);
 		$skip = array_flip(preg_split("/,/", $exclude));
-		$possible_backups_dirs = array_flip($this->get_backupable_file_entities(false));
+		$file_entities = $this->get_backupable_file_entities(false);
+		$avoid_these_dirs = array();
+		foreach ($file_entities as $type => $dirs) {
+			if (is_string($dirs)) {
+				$avoid_these_dirs[$dirs] = $type;
+			} elseif (is_array($dirs)) {
+				foreach ($dirs as $dir) {
+					$avoid_these_dirs[$dir] = $type;
+				}
+			}
+		}
+		# Keys = directory names to avoid; values = the label for that directory (used only in log files)
+		$possible_backups_dirs = array_flip($file_entities);
 		return $this->compile_folder_list_for_backup(WP_CONTENT_DIR, $possible_backups_dirs, $skip);
 	}
 
