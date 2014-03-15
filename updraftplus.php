@@ -2256,7 +2256,7 @@ class UpdraftPlus {
 		return $schedules;
 	}
 
-	public function remove_local_directory($dir) {
+	public function remove_local_directory($dir, $contents_only = false) {
 		// PHP 5.3+ only
 		//foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST) as $path) {
 		//	$path->isFile() ? unlink($path->getPathname()) : rmdir($path->getPathname());

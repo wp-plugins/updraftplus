@@ -178,6 +178,7 @@ class Updraft_Restorer extends WP_Upgrader {
 	function move_backup_in($working_dir, $dest_dir, $preserve_existing = 1, $do_not_overwrite = array('plugins', 'themes', 'uploads', 'upgrade'), $type = 'not-others', $send_actions = false, $force_local = false) {
 
 		global $wp_filesystem, $updraftplus;
+		$updraft_dir = $updraftplus->backups_dir_location();
 
 		#  && !is_a($wp_filesystem, 'WP_Filesystem_Direct')
 		if (true == $force_local) {
@@ -206,6 +207,11 @@ class Updraft_Restorer extends WP_Upgrader {
 		foreach ( $upgrade_files as $file => $filestruc ) {
 
 			if (empty($file)) continue;
+
+			if ($dest_dir.$file == $updraft_dir) {
+				$updraftplus->log('Skipping attempt to replace updraft_dir whilst processing '.$type);
+				continue;
+			}
 
 			// Correctly restore files in 'others' in no directory that were wrongly backed up in versions 1.4.0 - 1.4.48
 			if (('others' == $type || 'wpcore' == $type) && preg_match('/^([\-_A-Za-z0-9]+\.php)$/', $file, $matches) && $wpfs->exists($working_dir . "/$file/$file")) {
@@ -554,9 +560,13 @@ class Updraft_Restorer extends WP_Upgrader {
 
 			$dirname = basename($info['path']);
 
-			# TODO: For foreign 'Simple Backup', we need to keep going down until we find wp-content 
-			# search_for_folder() in class-wp-filesystem-base.php looks useful for this
-			$move_from = (!empty($this->ud_foreign)) ? $working_dir.'/wp-content' : $working_dir;
+			# For foreign 'Simple Backup', we need to keep going down until we find wp-content 
+			if (empty($this->ud_foreign)) {
+				$move_from = $working_dir;
+			} else {
+				$move_from = $this->search_for_folder('wp-content', $working_dir);
+				if (!is_string($move_from)) return new WP_Error('not_found', __('The WordPress content folder (wp-content) was not found in this zip file.', 'updraftplus'));
+			}
 
 			// In this special case, the backup contents are not in a folder, so it is not simply a case of moving the folder around, but rather looping over all that we find
 
@@ -652,9 +662,13 @@ class Updraft_Restorer extends WP_Upgrader {
 
 				}
 
-				# TODO: For foreign 'Simple Backup', we need to keep going down until we find wp-content 
-				# search_for_folder() in class-wp-filesystem-base.php looks useful for this
-				$working_dir_use = (empty($this->ud_foreign)) ? $working_dir : $working_dir.'/wp-content';
+				# For foreign 'Simple Backup', we need to keep going down until we find wp-content 
+				if (empty($this->ud_foreign)) {
+					$working_dir_use = $working_dir;
+				} else {
+					$working_dir_use = $this->search_for_folder('wp-content', $working_dir);
+					if (!is_string($working_dir_use)) return new WP_Error('not_found', __('The WordPress content folder (wp-content) was not found in this zip file.', 'updraftplus'));
+				}
 
 				// The backup may not actually have /$type, since that is info from the present site
 				$move_from = $this->get_first_directory($working_dir_use, array(basename($info['path']), $type));
@@ -738,6 +752,22 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		return true;
 
+	}
+
+	private function search_for_folder($folder, $startat) {
+		# Exists in this folder?
+		if (is_dir($startat.'/'.$folder)) return trailingslashit($startat).$folder;
+		# Does not
+		if($handle = opendir($startat)) {
+			while (($file = readdir($handle)) !== false) {
+				if ($file != '.' && $file != '..' && is_dir($startat).'/'.$file) {
+					$ss = $this->search_for_folder($folder, trailingslashit($startat).$file);
+					if (is_string($ss)) return $ss;
+				}
+			}
+			closedir($handle);
+		}
+		return false;
 	}
 
 	# Returns an octal string (but not an octal number)
