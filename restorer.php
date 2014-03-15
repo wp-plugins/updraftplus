@@ -100,7 +100,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		// If not database, then it is a zip - unpack in the usual way
 		#if (!preg_match('/db\.gz(\.crypt)?$/i', $package)) return parent::unpack_package($updraft_dir.'/'.$package, $delete_package);
-		if (!preg_match('/db\.gz(\.crypt)?$/i', $package)) return $this->unpack_package_zip($updraft_dir.'/'.$package, $delete_package);
+		if (!preg_match('/db\.gz(\.crypt)?$/i', $package) && !preg_match('/\.sql(\.gz)?$/i', $package)) return $this->unpack_package_zip($updraft_dir.'/'.$package, $delete_package);
 
 		$backup_dir = $wp_filesystem->find_folder($updraft_dir);
 
@@ -147,7 +147,14 @@ class Updraft_Restorer extends WP_Upgrader {
 			}
 		} else {
 
-			if (!$wp_filesystem->copy($backup_dir.$package, $working_dir.'/backup.db.gz')) {
+			if (preg_match('/\.sql$/i', $package)) { 
+				if (!$wp_filesystem->copy($backup_dir.$package, $working_dir.'/backup.db')) {
+					if ( $wp_filesystem->errors->get_error_code() ) { 
+						foreach ( $wp_filesystem->errors->get_error_messages() as $message ) show_message($message); 
+					}
+					return new WP_Error('copy_failed', $this->strings['copy_failed']);
+				}
+			} elseif (!$wp_filesystem->copy($backup_dir.$package, $working_dir.'/backup.db.gz')) {
 				if ( $wp_filesystem->errors->get_error_code() ) { 
 					foreach ( $wp_filesystem->errors->get_error_messages() as $message ) show_message($message); 
 				}
@@ -547,6 +554,8 @@ class Updraft_Restorer extends WP_Upgrader {
 
 			$dirname = basename($info['path']);
 
+			# TODO: For foreign 'Simple Backup', we need to keep going down until we find wp-content 
+			# search_for_folder() in class-wp-filesystem-base.php looks useful for this
 			$move_from = (!empty($this->ud_foreign)) ? $working_dir.'/wp-content' : $working_dir;
 
 			// In this special case, the backup contents are not in a folder, so it is not simply a case of moving the folder around, but rather looping over all that we find
@@ -643,6 +652,8 @@ class Updraft_Restorer extends WP_Upgrader {
 
 				}
 
+				# TODO: For foreign 'Simple Backup', we need to keep going down until we find wp-content 
+				# search_for_folder() in class-wp-filesystem-base.php looks useful for this
 				$working_dir_use = (empty($this->ud_foreign)) ? $working_dir : $working_dir.'/wp-content';
 
 				// The backup may not actually have /$type, since that is info from the present site
@@ -862,7 +873,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		# This is now a legacy option (at least on the front end), so we should not see it much
 		$this->prior_upload_path = get_option('upload_path');
 
-		// There is a file backup.db.gz inside the working directory
+		// There is a file backup.db(.gz) inside the working directory
 
 		# The 'off' check is for badly configured setups - http://wordpress.org/support/topic/plugin-wp-super-cache-warning-php-safe-mode-enabled-but-safe-mode-is-off
 		if (@ini_get('safe_mode') && 'off' != strtolower(@ini_get('safe_mode'))) {
@@ -872,21 +883,36 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		$db_basename = 'backup.db.gz';
 		if (!empty($this->ud_foreign)) {
-			$db_basename = $this->ud_backup_info['wpcore'];
-			if (is_array($db_basename)) $db_basename = array_shift($db_basename);
-			$db_basename = basename($db_basename, '.zip').'.sql';
+		
+			$plugins = apply_filters('updraftplus_accept_archivename', array());
+
+			if (empty($plugins[$this->ud_foreign])) return new WP_Error('unknown', sprintf(__('Backup created by unknown source (%s) - cannot be restored.', 'updraftplus'), $this->ud_foreign));
+
+			if (empty($plugins[$this->ud_foreign]['separatedb'])) {
+				$db_basename = $this->ud_backup_info['wpcore'];
+				if (is_array($db_basename)) $db_basename = array_shift($db_basename);
+				$db_basename = basename($db_basename, '.zip').'.sql';
+			} elseif (file_exists($working_dir_localpath.'/backup.db')) {
+				$db_basename = 'backup.db';
+			}
 		}
 
 		// wp_filesystem has no gzopen method, so we switch to using the local filesystem (which is harmless, since we are performing read-only operations)
-		if (!is_readable($working_dir_localpath.'/'.$db_basename)) return new WP_Error('gzopen_failed',__('Failed to find database file','updraftplus')." ($working_dir/".$db_basename.")");
+		if (!is_readable($working_dir_localpath.'/'.$db_basename)) return new WP_Error('dbopen_failed',__('Failed to find database file','updraftplus')." ($working_dir/".$db_basename.")");
 
 		global $wpdb, $updraftplus;
 		
 		$this->skin->feedback('restore_database');
 
+		$is_plain = (substr($db_basename, -3, 3) == '.db');
+
 		// Read-only access: don't need to go through WP_Filesystem
-		$dbhandle = gzopen($working_dir_localpath.'/'.$db_basename, 'r');
-		if (!$dbhandle) return new WP_Error('gzopen_failed',__('Failed to open database file','updraftplus'));
+		if ($is_plain) {
+			$dbhandle = fopen($working_dir_localpath.'/'.$db_basename, 'r');
+		} else {
+			$dbhandle = gzopen($working_dir_localpath.'/'.$db_basename, 'r');
+		}
+		if (!$dbhandle) return new WP_Error('dbopen_failed',__('Failed to open database file','updraftplus'));
 
 		$this->line = 0;
 
@@ -979,9 +1005,9 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		$max_allowed_packet = $updraftplus->get_max_packet_size();
 
-		while (!gzeof($dbhandle)) {
+		while (($is_plain && !feof($dbhandle)) || (!$is_plain && !gzeof($dbhandle))) {
 			// Up to 1Mb
-			$buffer = rtrim(gzgets($dbhandle, 1048576));
+			$buffer = ($is_plain) ? rtrim(fgets($dbhandle, 1048576)) : rtrim(gzgets($dbhandle, 1048576));
 			// Discard comments
 			if (empty($buffer) || substr($buffer, 0, 1) == '#' || preg_match('/^--(\s|$)/', substr($buffer, 0, 3))) {
 				if ('' == $this->old_siteurl && preg_match('/^\# Backup of: (http(.*))$/', $buffer, $matches)) {
@@ -1204,7 +1230,11 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		$time_taken = microtime(true) - $this->start_time;
 		$updraftplus->log_e('Finished: lines processed: %d in %.2f seconds', $this->line, $time_taken);
-		gzclose($dbhandle);
+		if ($is_plain) {
+			fclose($dbhandle);
+		} else {
+			gzclose($dbhandle);
+		}
 
 		global $wp_filesystem;
 		$wp_filesystem->delete($working_dir.'/'.$db_basename, false, true);

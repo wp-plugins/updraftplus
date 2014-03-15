@@ -109,7 +109,8 @@ class UpdraftPlus_Admin {
 			'phpinfo' => __('PHP information', 'updraftplus'),
 			'delete_old_dirs' => __('Delete Old Directories', 'updraftplus'),
 			'raw' => __('Raw backup history', 'updraftplus'),
-			'notarchive' => __('This file does not appear to be an UpdraftPlus backup archive (such files are .zip or .gz files which have a name like: backup_(time)_(site name)_(code)_(type).(zip|gz)). However, UpdraftPlus archives are standard zip/SQL files - so if you are sure that your file has the right format, then you can rename it to match that pattern.','updraftplus'),
+			'notarchive' => __('This file does not appear to be an UpdraftPlus backup archive (such files are .zip or .gz files which have a name like: backup_(time)_(site name)_(code)_(type).(zip|gz)).', 'updraftplus').' '.__('However, UpdraftPlus archives are standard zip/SQL files - so if you are sure that your file has the right format, then you can rename it to match that pattern.','updraftplus'),
+			'notarchive2' => '<p>'.__('This file does not appear to be an UpdraftPlus backup archive (such files are .zip or .gz files which have a name like: backup_(time)_(site name)_(code)_(type).(zip|gz)).', 'updraftplus').'</p> <p><a href="http://updraftplus.com/shop/updraftplus-premium/">'.__('If this is a backup created by a different backup plugin, then UpdraftPlus Premium may be able to help you.', 'updraftplus').'</a></p>',
 			'makesure' => __('(make sure that you were trying to upload a zip file previously created by UpdraftPlus)','updraftplus'),
 			'uploaderror' => __('Upload error:','updraftplus'),
 			'notdba' => __('This file does not appear to be an UpdraftPlus encrypted database archive (such files are .gz.crypt files which have a name like: backup_(time)_(site name)_(code)_db.crypt.gz).','updraftplus'),
@@ -171,7 +172,7 @@ class UpdraftPlus_Admin {
 			'url' => admin_url('admin-ajax.php'),
 			'flash_swf_url' => includes_url('js/plupload/plupload.flash.swf'),
 			'silverlight_xap_url' => includes_url('js/plupload/plupload.silverlight.xap'),
-			'filters' => array(array('title' => __('Allowed Files'), 'extensions' => 'zip,gz,crypt,txt')),
+			'filters' => array(array('title' => __('Allowed Files'), 'extensions' => 'zip,gz,crypt,sql,txt')),
 			'multipart' => true,
 			'multi_selection' => true,
 			'urlstream_upload' => true,
@@ -650,8 +651,7 @@ class UpdraftPlus_Admin {
 					if (!is_array($foreign_known) || empty($foreign_known[$backups[$timestamp]['meta_foreign']])) {
 						$err[] = sprintf(__('Backup created by unknown source (%s) - cannot be restored.', 'updraftplus'), $backups[$timestamp]['meta_foreign']);
 					} else {
-						$mess[] = sprintf(__('Backup created by: %s.', 'updraftplus'), $foreign_known[$backups[$timestamp]['meta_foreign']]['desc']);
-						$backupable_plus_db = array('wpcore');
+						$backupable_plus_db = apply_filters_ref_array("updraftplus_importforeign_backupable_plus_db", array($backupable_plus_db, $foreign_known[$backups[$timestamp]['meta_foreign']], &$mess, &$warn, &$err));
 					}
 				}
 
@@ -1100,7 +1100,9 @@ class UpdraftPlus_Admin {
 			return array($mess, $warn, $err);
 		}
 
-		$dbhandle = $this->gzopen_for_read($db_file, $warn, $err);
+		$is_plain = ('.gz' == substr($db_file, -3, 3)) ? false : true;
+
+		$dbhandle = ($is_plain) ? fopen($db_file, 'r') : $this->gzopen_for_read($db_file, $warn, $err);
 		if (!is_resource($dbhandle)) {
 			$err[] =  __('Failed to open database file.','updraftplus');
 			return array($mess, $warn, $err);
@@ -1127,10 +1129,10 @@ class UpdraftPlus_Admin {
 		# Don't set too high - we want a timely response returned to the browser
 		@set_time_limit(90);
 
-		while (!gzeof($dbhandle) && ($line<100 || count($wanted_tables)>0)) {
+		while ((($is_plain && !feof($dbhandle)) || (!$is_plain && !gzeof($dbhandle))) && ($line<100 || count($wanted_tables)>0)) {
 			$line++;
 			// Up to 1Mb
-			$buffer = rtrim(gzgets($dbhandle, 1048576));
+			$buffer = ($is_plain) ? rtrim(fgets($dbhandle, 1048576)) : rtrim(gzgets($dbhandle, 1048576));
 			// Comments are what we are interested in
 			if (substr($buffer, 0, 1) == '#') {
 				if ('' == $old_siteurl && preg_match('/^\# Backup of: (http(.*))$/', $buffer, $matches)) {
@@ -1198,7 +1200,11 @@ class UpdraftPlus_Admin {
 			}
 		}
 
-		@gzclose($dbhandle);
+		if ($is_plain) {
+			@fclose($dbhandle);
+		} else {
+			@gzclose($dbhandle);
+		}
 
 /*        $blog_tables = "CREATE TABLE $wpdb->terms (
 CREATE TABLE $wpdb->term_taxonomy (
@@ -1231,7 +1237,9 @@ CREATE TABLE $wpdb->signups (
 				$warn[] = sprintf(__('This database backup is missing core WordPress tables: %s', 'updraftplus'), implode(', ', $missing_tables));
 			}
 		} else {
-			$warn[] = __('UpdraftPlus was unable to find the table prefix when scanning the database backup.', 'updraftplus');
+			if (empty($backup['meta_foreign'])) {
+				$warn[] = __('UpdraftPlus was unable to find the table prefix when scanning the database backup.', 'updraftplus');
+			}
 		}
 
 		return array($mess, $warn, $err);
@@ -1788,7 +1796,7 @@ CREATE TABLE $wpdb->signups (
 			</table>
 
 <div id="updraft-message-modal" title="UpdraftPlus">
-	<div id="updraft-message-modal-innards" style="font-size:115%; padding: 4px;">
+	<div id="updraft-message-modal-innards" style="padding: 4px;">
 	</div>
 </div>
 
@@ -2889,13 +2897,21 @@ ENDHERE;
 
 			$ret .= "</td>\n";
 
-			if (empty($backup['meta_foreign'])) {
+			if (empty($backup['meta_foreign']) || !empty($accept[$backup['meta_foreign']]['separatedb'])) {
 				$ret .= "<td>";
 				if (isset($backup['db'])) {
 					$entities .= '/db=0/';
 					$sdescrip = preg_replace('/ \(.*\)$/', '', __('Database','updraftplus'));
 					$nf = wp_nonce_field('updraftplus_download', '_wpnonce', true, false);
-					$dbt = __('Database','updraftplus');
+
+					if (isset($accept[$backup['meta_foreign']])) {
+						$desc_source = $accept[$backup['meta_foreign']]['desc'];
+					} else {
+						$desc_source = __('unknown source', 'updraftplus');
+					}
+
+					$dbt = empty($backup['meta_foreign']) ? __('Database','updraftplus') : sprintf(__('Database (created by %s)', 'updraftplus'), $desc_source);
+
 					$ret .= <<<ENDHERE
 					<form id="uddownloadform_db_${key}_0" action="admin-ajax.php" onsubmit="return updraft_downloader('uddlstatus_', $key, 'db', '#ud_downloadstatus', '0', '$esc_pretty_date', true)" method="post">
 						$nf
@@ -2910,13 +2926,23 @@ ENDHERE;
 				}
 				$ret .="</td>";
 			} else {
-				$entities = '/db=0//plugins=0//themes=0//uploads=0//others=0//wpcore=0/meta_foreign/';
+				# Foreign without separate db
+				$entities = '/db=0/meta_foreign=1/';
+			}
+
+			if (!empty($backup['meta_foreign']) && !empty($accept[$backup['meta_foreign']]['separatedb'])) {
+				$entities .= '/meta_foreign=2/';
 			}
 
 			// Now go through each of the file entities
 			foreach ($backupable_entities as $type => $info) {
 				if (!empty($backup['meta_foreign']) && 'wpcore' != $type) continue;
-				$ret .= (empty($backup['meta_foreign'])) ? '<td>' : '<td colspan="'.(int)(2+count($backupable_entities)).'">';
+				$colspan = 1;
+				if (!empty($backup['meta_foreign'])) {
+					$colspan = (1+count($backupable_entities));
+					if (empty($accept[$backup['meta_foreign']]['separatedb'])) $colspan++;
+				}
+				$ret .= (1 == $colspan) ? '<td>' : '<td colspan="'.$colspan.'">';
 				$ide = '';
 				if ('wpcore' == $type) $wpcore_restore_descrip = $info['description'];
 				if (empty($backup['meta_foreign'])) {
@@ -2924,13 +2950,17 @@ ENDHERE;
 					if (strlen($sdescrip) > 20 && isset($info['shortdescription'])) $sdescrip = $info['shortdescription'];
 				} else {
 					$info['description'] = 'WordPress';
+
 					if (isset($accept[$backup['meta_foreign']])) {
-						$sdescrip = sprintf(__('Complete WordPress backup (created by %s)', 'updraftplus'),$accept[$backup['meta_foreign']]['desc']);
+						$desc_source = $accept[$backup['meta_foreign']]['desc'];
 						$ide .= sprintf(__('Backup created by: %s.', 'updraftplus'), $accept[$backup['meta_foreign']]['desc']).' ';
 					} else {
-						$sdescrip = __('Complete WordPress backup (created by unknown source)', 'updraftplus');
+						$desc_source = __('unknown source', 'updraftplus');
 						$ide .= __('Backup created by unknown source (%s) - cannot be restored.', 'updraftplus').' ';
 					}
+
+
+					$sdescrip = (empty($accept[$backup['meta_foreign']]['separatedb'])) ? sprintf(__('Files and database WordPress backup (created by %s)', 'updraftplus'), $desc_source) : sprintf(__('Files backup (created by %s)', 'updraftplus'), $desc_source);
 					if ('wpcore' == $type) $wpcore_restore_descrip = $sdescrip;
 				}
 				if (isset($backup[$type])) {
@@ -2949,6 +2979,9 @@ ENDHERE;
 						$expected_index++;
 					}
 					$entities .= $set_contents.'/';
+					if (!empty($backup['meta_foreign'])) {
+						$entities .= '/plugins=0//themes=0//uploads=0//others=0/';
+					}
 					$first_printed = true;
 					foreach ($whatfiles as $findex => $bfile) {
 						$ide .= __('Press here to download', 'updraftplus').' '.strtolower($info['description']);
@@ -3041,6 +3074,8 @@ ENDHERE;
 		$known_nonces = array();
 		$changes = false;
 
+		$backupable_entities = $updraftplus->get_backupable_file_entities(true, false);
+
 		$backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
 		if (!is_array($backup_history)) $backup_history = array();
 
@@ -3054,6 +3089,7 @@ ENDHERE;
 		foreach ($backup_history as $btime => $bdata) {
 			$found_file = false;
 			foreach ($bdata as $key => $values) {
+				if (!isset($backupable_entities[$key])) continue;
 				// Record which set this file is found in
 				if (!is_array($values)) $values=array($values);
 				foreach ($values as $val) {
@@ -3069,17 +3105,14 @@ ENDHERE;
 						}
 					} else {
 						$accepted = false;
-						foreach ($accept as $acc) {
-							if (preg_match('/'.$acc['pattern'].'/i', $val)) $accepted = $acc['desc'];
+						foreach ($accept as $fkey => $acc) {
+							if (preg_match('/'.$acc['pattern'].'/i', $val)) $accepted = $fkey;
 						}
-						if (!empty($accepted) && preg_match('/(([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{2})-([0-9]{2})-([0-9]{2}))\\.zip$/', $val, $tmatch)) {
-							$btime = mktime($tmatch[5], $tmatch[6], $tmatch[7], $tmatch[3], $tmatch[4], $tmatch[1]);
-							if ($btime >0) {
-								$found_file = true;
-								$nonce = substr(md5($val), 0, 12);
-								$known_files[$val] = $nonce;
-								$known_nonces[$nonce] = $btime;
-							}
+						if (!empty($accepted) && (false != ($btime = apply_filters('updraftplus_foreign_gettime', false, $fkey, $val))) && $btime > 0) {
+							$found_file = true;
+							$nonce = substr(md5($val), 0, 12);
+							$known_files[$val] = $nonce;
+							$known_nonces[$nonce] = $btime;
 						}
 					}
 				}
@@ -3134,6 +3167,7 @@ ENDHERE;
 		// See if there are any more files in the local directory than the ones already known about
 		while (false !== ($entry = readdir($handle))) {
 			$accepted_foreign = false;
+			$potmessage = false;
 			if ('.' == $entry || '..' == $entry) continue;
 			if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i', $entry, $matches)) {
 				$btime = strtotime($matches[1]);
@@ -3141,23 +3175,38 @@ ENDHERE;
 				$type = $matches[3];
 				$index = (empty($matches[4])) ? '0' : (max((int)$matches[4]-1,0));
 				$itext = ($index == 0) ? '' : $index;
-			} else {
-				foreach ($accept as $fsource => $acc) {
-					if (preg_match('/'.$acc['pattern'].'/i', $entry)) $accepted_foreign = $fsource;
-				}
-				if (empty($accepted_foreign) || !preg_match('/(([0-9]{4})-([0-9]{2})-([0-9]{2})-([0-9]{2})-([0-9]{2})-([0-9]{2}))\\.zip$/', $entry, $tmatch)) continue;
-				$btime = mktime($tmatch[5], $tmatch[6], $tmatch[7], $tmatch[3], $tmatch[4], $tmatch[1]);
-				$nonce = substr(md5($val), 0, 12);
-				$type = 'wpcore';
+			} elseif (false != ($accepted_foreign = apply_filters('updraftplus_accept_foreign', false, $entry)) && false != ($btime = apply_filters('updraftplus_foreign_gettime', false, $accepted_foreign, $entry))) {
+				$nonce = substr(md5($entry), 0, 12);
+				$type = preg_match('/\.sql(\.(bz2|gz))?$/', $entry) ? 'db' : 'wpcore';
 				$index = '0';
 				$itext = '';
+				$potmessage = array(
+					'code' => 'foundforeign_'.md5($entry),
+					'desc' => $entry,
+					'method' => '',
+					'message' => sprintf(__('Backup created by: %s.', 'updraftplus'), $accept[$accepted_foreign]['desc'])
+				);
+			} elseif ('.zip' == substr($entry, -4, 4) || preg_match('/\.sql(\.(bz2|gz))?$/', $entry)) {
+				$potmessage = array(
+					'code' => 'possibleforeign_'.md5($entry),
+					'desc' => $entry,
+					'method' => '',
+					'message' => __('This file does not appear to be an UpdraftPlus backup archive (such files are .zip or .gz files which have a name like: backup_(time)_(site name)_(code)_(type).(zip|gz)).', 'updraftplus').' <a href="http://updraftplus.com/shop/updraftplus-premium/">'.__('If this is a backup created by a different backup plugin, then UpdraftPlus Premium may be able to help you.', 'updraftplus').'</a>'
+				);
+				$messages[$potmessage['code']] = $potmessage;
+				continue;
+			} else {
+				continue;
 			}
 			// The time from the filename does not include seconds. Need to identify the seconds to get the right time
 			if (isset($known_nonces[$nonce])) $btime = $known_nonces[$nonce];
 			if ($btime <= 100) continue;
 			$fs = @filesize($updraft_dir.'/'.$entry);
 
-			if (!isset($known_files[$entry])) $changes = true;
+			if (!isset($known_files[$entry])) {
+				$changes = true;
+				if (is_array($potmessage)) $messages[$potmessage['code']] = $potmessage;
+			}
 
 			# Make sure we have the right list of services
 			$current_services = (!empty($backup_history[$btime]) && !empty($backup_history[$btime]['service'])) ? $backup_history[$btime]['service'] : array();
@@ -3295,6 +3344,7 @@ ENDHERE;
 
 
 		$updraft_dir = trailingslashit($updraftplus->backups_dir_location());
+		$foreign_known = apply_filters('updraftplus_accept_archivename', array());
 
 		$service = (isset($backup_history[$timestamp]['service'])) ? $backup_history[$timestamp]['service'] : false;
 		if (!is_array($service)) $service = array($service);
@@ -3305,7 +3355,15 @@ ENDHERE;
 		$backup_set = $backup_history[$timestamp];
 		$entities_to_restore = array();
 		foreach ($_POST['updraft_restore'] as $entity) {
-			$entities_to_restore[$entity] = (empty($backup_set['meta_foreign'])) ? $entity : 'wpcore';
+			if (empty($backup_set['meta_foreign'])) {
+				$entities_to_restore[$entity] = $entity;
+			} else {
+				if ('db' == $entity && !empty($foreign_known[$backup_set['meta_foreign']]['separatedb'])) {
+					$entities_to_restore[$entity] = 'db';
+				} else {
+					$entities_to_restore[$entity] = 'wpcore';
+				}
+			}
 		}
 
 		foreach ($_POST as $key => $value) {
@@ -3313,7 +3371,15 @@ ENDHERE;
 				$nkey = substr($key, 16);
 				if (!isset($entities_to_restore[$nkey])) {
 					$_POST['updraft_restore'][] = $nkey;
-					$entities_to_restore[$nkey] = (empty($backup_set['meta_foreign'])) ? $nkey : 'wpcore';
+					if (empty($backup_set['meta_foreign'])) {
+						$entities_to_restore[$nkey] = $entity;
+					} else {
+						if ('db' == $entity && !empty($foreign_known[$backup_set['meta_foreign']]['separatedb'])) {
+							$entities_to_restore[$nkey] = 'db';
+						} else {
+							$entities_to_restore[$nkey] = 'wpcore';
+						}
+					}
 				}
 			}
 		}
@@ -3347,7 +3413,21 @@ ENDHERE;
 
 		echo "<h2>".__('Final checks', 'updraftplus').'</h2>';
 
-		$entities_to_download = (empty($backup_set['meta_foreign'])) ? $entities_to_restore : array('wpcore' => 1);
+		if (empty($backup_set['meta_foreign'])) {
+			$entities_to_download = $entities_to_restore;
+		} else {
+			if (!empty($foreign_known[$backup_set['meta_foreign']]['separatedb'])) {
+				$entities_to_download = array();
+				if (in_array('db', $entities_to_restore)) {
+					$entities_to_download['db'] = 1;
+				}
+				if (count($entities_to_restore) > 1 || !in_array('db', $entities_to_restore)) {
+					$entities_to_download['wpcore'] = 1;
+				}
+			} else {
+				$entities_to_download = array('wpcore' => 1);
+			}
+		}
 
 		// First loop: make sure that files are present + readable; and populate array for second loop
 		foreach ($backup_set as $type => $files) {
@@ -3356,7 +3436,6 @@ ENDHERE;
 			if (isset($backupable_entities[$type]['restorable']) && $backupable_entities[$type]['restorable'] == false) continue;
 
 			if (!isset($entities_to_download[$type])) continue;
-
 			if ('wpcore' == $type && is_multisite() && 0 === $updraftplus_restorer->ud_backup_is_multisite) {
 				echo "<p>$type: <strong>";
 				echo __('Skipping restoration of WordPress core when importing a single site into a multisite installation. If you had anything necessary in your WordPress directory then you will need to re-add it manually from the zip file.', 'updraftplus');
@@ -3410,17 +3489,16 @@ ENDHERE;
 				}
 			}
 
-			if (empty($updraftplus_restorer->ud_foreign) || 'wpcore' !== $type) {
+			if (empty($updraftplus_restorer->ud_foreign)) {
 				$types = array($type);
 			} else {
-				$types = array('wpcore');
-// 				$second_loop['db'] = $files;
-// 				$second_loop['plugins'] = $files;
-// 				$second_loop['themes'] = $files;
-// 				$second_loop['uploads'] = $files;
-// 				$second_loop['others'] = $files;
+				if ('db' != $type || empty($foreign_known[$updraftplus_restorer->ud_foreign]['separatedb'])) {
+					$types = array('wpcore');
+				} else {
+					$types = array('db');
+				}
 			}
-			
+
 			foreach ($types as $check_type) {
 				$info = (isset($backupable_entities[$check_type])) ? $backupable_entities[$check_type] : array();
 				$val = $updraftplus_restorer->pre_restore_backup($files, $check_type, $info);

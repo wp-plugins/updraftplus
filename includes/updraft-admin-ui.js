@@ -30,8 +30,9 @@ function updraft_restore_setoptions(entities) {
 			jQuery(y).attr('disabled','disabled').parent().hide();
 		}
 	});
-	if (entities.match(/meta_foreign/)) {
-		jQuery('#updraft_restore_meta_foreign').val('1');
+	var dmatch = entities.match(/meta_foreign=([12])/);
+	if (dmatch) {
+		jQuery('#updraft_restore_meta_foreign').val(dmatch[1]);
 	} else {
 		jQuery('#updraft_restore_meta_foreign').val('0');
 	}
@@ -453,7 +454,7 @@ jQuery(document).ready(function($){
 	var updraft_message_modal_buttons = {};
 	updraft_message_modal_buttons[updraftlion.close] = function() { jQuery(this).dialog("close"); };
 	jQuery( "#updraft-message-modal" ).dialog({
-		autoOpen: false, height: 200, width: 460, modal: true,
+		autoOpen: false, height: 300, width: 500, modal: true,
 		buttons: updraft_message_modal_buttons
 	});
 	
@@ -492,21 +493,36 @@ jQuery(document).ready(function($){
 		var anyselected = 0;
 		var whichselected = [];
 		// Make a list of what files we want
+		var already_added_wpcore = 0;
+		var meta_foreign = jQuery('#updraft_restore_meta_foreign').val();
 		jQuery('input[name="updraft_restore[]"]').each(function(x,y){
 			if (jQuery(y).is(':checked') && !jQuery(y).is(':disabled')) {
 				anyselected = 1;
 				var howmany = jQuery(y).data('howmany');
-				var restobj = [ jQuery(y).val(), howmany ];
-				whichselected.push(restobj);
-				//alert(jQuery(y).val());
+				var type = jQuery(y).val();
+				if (1 == meta_foreign || (2 == meta_foreign && 'db' != type)) { type = 'wpcore'; }
+				if ('wpcore' != type || already_added_wpcore == 0) {
+					var restobj = [ type, howmany ];
+					whichselected.push(restobj);
+					//alert(jQuery(y).val());
+					if ('wpcore' == type) { already_added_wpcore = 1; }
+				}
 			}
 		});
 		if (anyselected == 1) {
+			// Work out what to download
 			if (updraft_restore_stage == 1) {
-				if ('1' == jQuery('#updraft_restore_meta_foreign').val()) {
-					whichselected = [];
-					whichselected.push([ 'wpcore', 0 ]);
-				}
+				// meta_foreign == 1 : All-in-one format: the only thing to download, always, is wpcore
+// 				if ('1' == meta_foreign) {
+// 					whichselected = [];
+// 					whichselected.push([ 'wpcore', 0 ]);
+// 				} else if ('2' == meta_foreign) {
+// 					jQuery(whichselected).each(function(x,y) {
+// 						restobj = whichselected[x];
+// 					});
+// 					whichselected = [];
+// 					whichselected.push([ 'wpcore', 0 ]);
+// 				}
 				jQuery('#updraft-restore-modal-stage1').slideUp('slow');
 				jQuery('#updraft-restore-modal-stage2').show();
 				updraft_restore_stage = 2;
@@ -664,7 +680,12 @@ uploader.bind('FilesAdded', function(up, files){
 				//Do something
 			}
 			if (!accepted_file) {
-				alert(file.name+": "+updraftlion.notarchive);
+				if (/\.zip$/i.test(file.name) || /\.sql(\.gz)?$/i.test(file.name)) {
+					jQuery('#updraft-message-modal-innards').html('<p><strong>'+file.name+"</strong></p> "+updraftlion.notarchive2);
+					jQuery('#updraft-message-modal').dialog('open');
+				} else {
+					alert(file.name+": "+updraftlion.notarchive);
+				}
 				uploader.removeFile(file);
 				return;
 			}
