@@ -177,9 +177,9 @@ function updraft_check_same_times() {
 	var dbmanual = 0;
 	var file_interval = jQuery('#updraft_interval').val();
 	if (file_interval == 'manual') {
-		jQuery('#updraft_files_timings').css('opacity','0.25');
+		jQuery('#updraft_files_timings').css('opacity', '0.25');
 	} else {
-		jQuery('#updraft_files_timings').css('opacity',1);
+		jQuery('#updraft_files_timings').css('opacity', 1);
 	}
 	
 	if ('weekly' == file_interval || 'fortnightly' == file_interval || 'monthly' == file_interval) {
@@ -189,9 +189,9 @@ function updraft_check_same_times() {
 	}
 	
 	var db_interval = jQuery('#updraft_interval_database').val();
-	if ( db_interval == 'manual') {
+	if (db_interval == 'manual') {
 		dbmanual = 1;
-		jQuery('#updraft_db_timings').css('opacity','0.25');
+		jQuery('#updraft_db_timings').css('opacity', '0.25');
 	}
 	
 	if ('weekly' == db_interval || 'fortnightly' == db_interval || 'monthly' == db_interval) {
@@ -203,7 +203,7 @@ function updraft_check_same_times() {
 	if (db_interval == file_interval) {
 		jQuery('#updraft_db_timings').css('opacity','0.25');
 	} else {
-		if (0 == dbmanual) jQuery('#updraft_db_timings').css('opacity','1');
+		if (0 == dbmanual) jQuery('#updraft_db_timings').css('opacity', '1');
 	}
 }
 

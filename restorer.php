@@ -1,6 +1,8 @@
 <?php
 if (!defined ('ABSPATH')) die('No direct access allowed');
 
+# TODO: unpack_package() needs to handle tar files, and compressed tar files, as well as zips.
+
 if(!class_exists('WP_Upgrader')) require_once(ABSPATH.'wp-admin/includes/class-wp-upgrader.php');
 class Updraft_Restorer extends WP_Upgrader {
 

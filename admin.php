@@ -2414,7 +2414,16 @@ CREATE TABLE $wpdb->signups (
 				<th><?php _e('File backup intervals','updraftplus'); ?>:</th>
 				<td><select id="updraft_interval" name="updraft_interval" onchange="updraft_check_same_times();">
 					<?php
-					$intervals = array ("manual" => _x("Manual",'i.e. Non-automatic','updraftplus'), 'every4hours' => __("Every 4 hours",'updraftplus'), 'every8hours' => __("Every 8 hours",'updraftplus'), 'twicedaily' => __("Every 12 hours",'updraftplus'), 'daily' => __("Daily",'updraftplus'), 'weekly' => __("Weekly",'updraftplus'), 'fortnightly' => __("Fortnightly",'updraftplus'), 'monthly' => __("Monthly",'updraftplus'));
+					$intervals = apply_filters('updraftplus_backup_intervals', array(
+						"manual" => _x("Manual", 'i.e. Non-automatic', 'updraftplus'),
+						'every4hours' => __("Every 4 hours", 'updraftplus'),
+						'every8hours' => __("Every 8 hours", 'updraftplus'),
+						'twicedaily' => __("Every 12 hours", 'updraftplus'),
+						'daily' => __("Daily", 'updraftplus'),
+						'weekly' => __("Weekly", 'updraftplus'),
+						'fortnightly' => __("Fortnightly", 'updraftplus'),
+						'monthly' => __("Monthly", 'updraftplus')
+					));
 					foreach ($intervals as $cronsched => $descrip) {
 						echo "<option value=\"$cronsched\" ";
 						if ($cronsched == UpdraftPlus_Options::get_updraft_option('updraft_interval','manual')) echo 'selected="selected"';
