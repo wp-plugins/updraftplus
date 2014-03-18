@@ -146,6 +146,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * FIX: Fix subtle race condition that prevented uploads of large archives on Amazon S3 in some very limited situations
 * FEATURE: Ability to restore and migrate from backups produced by other backup plugins (Premium) (supported: BackUpWordPress and Simple Backups (zip-based))
 * FEATURE: Feature to re-scan remote storage (allows detection of existing backups after a restore to an earlier site version, and allows quicker moving of data from site to site when migrating)
+* FEATURE: SFTP add-on (http://updraftplus.com/shop/sftp/) now supports key-based logins (as well as password-based)
 * TWEAK: Add a warning message and link to helpful page for people whose WP schedulers don't seem to be working (at least 4 overdue jobs in the queue)
 * TWEAK: Introduce a filter allowing users to add a bespoke scheduling option (e.g. every 2 days)
 * TRANSLATIONS: Updated Spanish translation (thanks to Pablo Laguna - laguna.sanchez at gmail.com)
