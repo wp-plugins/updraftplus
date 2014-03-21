@@ -948,7 +948,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			// Up to 1Mb
 			$buffer = rtrim(gzgets($dbhandle, 1048576));
 			// Discard comments
-			if (empty($buffer) || substr($buffer, 0, 1) == '#') {
+			if (empty($buffer) || substr($buffer, 0, 1) == '#' || preg_match('/^--(\s|$)/', substr($buffer, 0, 3))) {
 				if ('' == $this->old_siteurl && preg_match('/^\# Backup of: (http(.*))$/', $buffer, $matches)) {
 					$this->old_siteurl = untrailingslashit($matches[1]);
 					$updraftplus->log_e('<strong>Backup of:</strong> %s', htmlspecialchars($this->old_siteurl));
