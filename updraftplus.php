@@ -16,9 +16,11 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // On plugins restore, don't let UD over-write itself - because this usually means a down-grade. Since upgrades are db-compatible, there's no reason to downgrade.
 // Schedule a task to report on failure
+// Check the timestamps used in filenames - they should be UTC
 // Get user to confirm if they check both the search/replace and wp-config boxes
 // Tweak the display so that users seeing resumption messages don't think it's stuck
 // Store/show current Dropbox account
+// A search/replace console without needing to restore
 // On restore, check for some 'standard' PHP modules (prevents support requests related to them) -e.g. GD, Curl
 // Recognise known huge non-core tables on restore, and postpone them to the end (AJAX method?)
 // Add a cart notice if people have DBSF=quantity1
@@ -365,7 +367,7 @@ class UpdraftPlus {
 			$log_file = '';
 			$mod_time = 0;
 
-			if ($handle = opendir($updraft_dir)) {
+			if ($handle = @opendir($updraft_dir)) {
 				while (false !== ($entry = readdir($handle))) {
 					// The latter match is for files created internally by zipArchive::addFile
 					if (preg_match('/^log\.[a-z0-9]+\.txt$/i', $entry)) {

@@ -18,7 +18,7 @@ Easy and complete backups + restoration. Manual or automated backups (backup to 
 
 <strong>Tens of thousands of users:</strong> widely tested and reliable (over 650,000 downloads). Ranks in the top 100 most used of all WordPress plugins on rankwp.com. Millions of backups completed!
 
-* Supports WordPress backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP and email. Also (via an add-on) FTP over SSL, SFTP, SCP and WebDAV. (Note: Microsoft forbid OneDrive/SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
+* Supports WordPress backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP and email. Also (via an add-on) FTP over SSL, SFTP, SCP and WebDAV (and compatible services, e.g. Yandex). (Note: Microsoft forbid OneDrive/SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
 * Quick restore (both file and database backups)
 * Backup automatically on a repeating schedule
 * Site duplicator/migrator: can copy sites, and (with add-on) move them to new locations
@@ -149,8 +149,10 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * FEATURE: SFTP add-on (http://updraftplus.com/shop/sftp/) now supports key-based logins (as well as password-based)
 * TWEAK: Add a warning message and link to helpful page for people whose WP schedulers don't seem to be working (at least 4 overdue jobs in the queue)
 * TWEAK: Introduce a filter allowing users to add a bespoke scheduling option (e.g. every 2 days)
+* TWEAK: When backup is sent by email attachment, the email now indicates the originating site more clearly
 * TRANSLATIONS: Updated Spanish translation (thanks to Pablo Laguna - laguna.sanchez at gmail.com)
 * TRANSLATIONS: New Arabic translation (thanks to Omar Amassine - me at omar.ma, Ahmed Fahmy and Riyadh Altayib)
+* TRANSLATIONS: Updated Nederlands / Dutch translation (thanks to Dennis Hunink - dennishunink at me.com)
 
 = 1.8.13 - 2014/03/07 =
 

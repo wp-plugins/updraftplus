@@ -3266,12 +3266,15 @@ ENDHERE;
 				$btime = strtotime($matches[1]);
 				if (isset($known_nonces[$nonce])) $btime = $known_nonces[$nonce];
 				if ($btime <= 100) continue;
-
 				# Remember that at this point, we already know that the file is not known about locally
 				if (isset($backup_history[$btime])) {
 					if (!isset($backup_history[$btime]['service']) || ((is_array($backup_history[$btime]['service']) && $backup_history[$btime]['service'] !== $services) || is_string($backup_history[$btime]['service']) && (1 != count($services) || $services[0] !== $backup_history[$btime]['service']))) {
 						$changes = true;
 						$backup_history[$btime]['service'] = $services;
+						$backup_history[$btime]['nonce'] = $nonce;
+					}
+					if (!isset($backup_history[$btime][$type][$index])) {
+						$changes = true;
 						$backup_history[$btime][$type][$index] = $file;
 						$backup_history[$btime]['nonce'] = $nonce;
 						if (!empty($remotesizes[$file])) $backup_history[$btime][$type.$itext.'-size'] = $remotesizes[$file];
