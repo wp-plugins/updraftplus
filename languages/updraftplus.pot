@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: UpdraftPlus\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-25 10:53+0100\n"
-"PO-Revision-Date: 2014-03-25 10:53+0100\n"
+"POT-Creation-Date: 2014-03-25 12:58+0100\n"
+"PO-Revision-Date: 2014-03-25 12:58+0100\n"
 "Last-Translator: David Anderson <contact@updraftplus.com>\n"
 "Language-Team:  <contact@updraftplus.com>\n"
 "Language: \n"
@@ -80,7 +80,7 @@ msgid "Your free disk space is very low - only %s Mb remain"
 msgstr ""
 
 #: updraftplus.php:708
-#: restorer.php:718
+#: restorer.php:723
 #: admin.php:1078
 #: admin.php:1171
 #: admin.php:1176
@@ -101,9 +101,9 @@ msgid "%s error - failed to re-assemble chunks"
 msgstr ""
 
 #: updraftplus.php:864
-#: restorer.php:1368
-#: restorer.php:1382
-#: restorer.php:1427
+#: restorer.php:1393
+#: restorer.php:1407
+#: restorer.php:1452
 #: admin.php:927
 #: admin.php:3473
 msgid "Error"
@@ -187,13 +187,13 @@ msgid "Could not save backup history because we have no backup array. Backup pro
 msgstr ""
 
 #: updraftplus.php:2336
-#: restorer.php:138
+#: restorer.php:143
 #: admin.php:1078
 msgid "Decryption failed. The database file is encrypted, but you have no encryption key entered."
 msgstr ""
 
 #: updraftplus.php:2346
-#: restorer.php:148
+#: restorer.php:153
 #: admin.php:1092
 msgid "Decryption failed. The most likely cause is that you used the wrong key."
 msgstr ""
@@ -514,242 +514,242 @@ msgstr ""
 msgid "You are running on WordPress multisite - but your backup is not of a multisite site."
 msgstr ""
 
-#: restorer.php:132
+#: restorer.php:137
 msgid "Failed to create a temporary directory"
 msgstr ""
 
-#: restorer.php:145
+#: restorer.php:150
 msgid "Failed to write out the decrypted database to the filesystem"
 msgstr ""
 
-#: restorer.php:199
+#: restorer.php:204
 msgid "The directory does not exist"
 msgstr ""
 
-#: restorer.php:236
+#: restorer.php:241
 msgid "wp-config.php from backup: will restore as wp-config-backup.php"
 msgstr ""
 
-#: restorer.php:241
+#: restorer.php:246
 msgid "wp-config.php from backup: restoring (as per user's request)"
 msgstr ""
 
-#: restorer.php:328
+#: restorer.php:333
 #, php-format
 msgid "Failed to move file (check your file permissions and disk quota): %s"
 msgstr ""
 
-#: restorer.php:337
+#: restorer.php:342
 #, php-format
 msgid "Failed to move directory (check your file permissions and disk quota): %s"
 msgstr ""
 
-#: restorer.php:388
-#: restorer.php:395
+#: restorer.php:393
+#: restorer.php:400
 #, php-format
 msgid "UpdraftPlus needed to create a %s in your content directory, but failed - please check your file permissions and enable the access (%s)"
 msgstr ""
 
-#: restorer.php:388
+#: restorer.php:393
 msgid "folder"
 msgstr ""
 
-#: restorer.php:395
+#: restorer.php:400
 msgid "file"
 msgstr ""
 
-#: restorer.php:416
+#: restorer.php:421
 #, php-format
 msgid "Existing unremoved folders from a previous restore exist (please use the \"Delete Old Directories\" button to delete them before trying again): %s"
 msgstr ""
 
-#: restorer.php:434
+#: restorer.php:439
 msgid "This version of UpdraftPlus does not know how to handle this type of foreign backup"
 msgstr ""
 
-#: restorer.php:570
-#: restorer.php:672
+#: restorer.php:575
+#: restorer.php:677
 msgid "The WordPress content folder (wp-content) was not found in this zip file."
 msgstr ""
 
-#: restorer.php:602
-#: restorer.php:616
+#: restorer.php:607
+#: restorer.php:621
 #, php-format
 msgid "%s: This directory already exists, and will be replaced"
 msgstr ""
 
-#: restorer.php:632
+#: restorer.php:637
 msgid "File permissions do not allow the old data to be moved and retained; instead, it will be deleted."
 msgstr ""
 
-#: restorer.php:724
+#: restorer.php:729
 msgid "Files found:"
 msgstr ""
 
-#: restorer.php:730
+#: restorer.php:735
 msgid "Unable to enumerate files in that directory."
 msgstr ""
 
-#: restorer.php:855
+#: restorer.php:860
 #, php-format
 msgid "Using directory from backup: %s"
 msgstr ""
 
-#: restorer.php:871
+#: restorer.php:876
 msgid "Please supply the requested information, and then continue."
 msgstr ""
 
-#: restorer.php:874
+#: restorer.php:879
 #: admin.php:101
 #: admin.php:3490
 #: admin.php:3520
 msgid "Error:"
 msgstr ""
 
-#: restorer.php:879
+#: restorer.php:884
 #, php-format
 msgid "New table prefix: %s"
 msgstr ""
 
-#: restorer.php:912
+#: restorer.php:917
 msgid "Warning: PHP safe_mode is active on your server. Timeouts are much more likely. If these happen, then you will need to manually restore the file via phpMyAdmin or another method."
 msgstr ""
 
-#: restorer.php:921
+#: restorer.php:926
 #: admin.php:652
 #: admin.php:2968
 #, php-format
 msgid "Backup created by unknown source (%s) - cannot be restored."
 msgstr ""
 
-#: restorer.php:933
+#: restorer.php:938
 msgid "Failed to find database file"
 msgstr ""
 
-#: restorer.php:947
+#: restorer.php:952
 msgid "Failed to open database file"
 msgstr ""
 
-#: restorer.php:969
+#: restorer.php:975
 msgid "Database access: Direct MySQL access is not available, so we are falling back to wpdb (this will be considerably slower)"
 msgstr ""
 
-#: restorer.php:1015
-#: restorer.php:1031
-#: restorer.php:1134
+#: restorer.php:1032
+#: restorer.php:1052
+#: restorer.php:1155
 #: admin.php:1599
 msgid "Warning:"
 msgstr ""
 
-#: restorer.php:1016
+#: restorer.php:1033
 msgid "Your database user does not have permission to create tables. We will attempt to restore by simply emptying the tables; this should work as long as a) you are restoring from a WordPress version with the same database structure, and b) Your imported database does not contain any tables which are not already present on the importing site."
 msgstr ""
 
-#: restorer.php:1032
+#: restorer.php:1053
 #, php-format
 msgid "Your database user does not have permission to drop tables. We will attempt to restore by simply emptying the tables; this should work as long as you are restoring from a WordPress version with the same database structure (%s)"
 msgstr ""
 
-#: restorer.php:1047
+#: restorer.php:1068
 #, php-format
 msgid "<strong>Backup of:</strong> %s"
 msgstr ""
 
-#: restorer.php:1051
+#: restorer.php:1072
 msgid "Backup created by:"
 msgstr ""
 
-#: restorer.php:1056
+#: restorer.php:1077
 msgid "Site home:"
 msgstr ""
 
-#: restorer.php:1062
+#: restorer.php:1083
 msgid "Content URL:"
 msgstr ""
 
-#: restorer.php:1067
-#: restorer.php:1157
+#: restorer.php:1088
+#: restorer.php:1178
 msgid "Old table prefix:"
 msgstr ""
 
-#: restorer.php:1080
+#: restorer.php:1101
 #: admin.php:1176
 msgid "To import an ordinary WordPress site into a multisite installation requires both the multisite and migrator add-ons."
 msgstr ""
 
-#: restorer.php:1086
+#: restorer.php:1107
 #: admin.php:1184
 msgid "Site information:"
 msgstr ""
 
-#: restorer.php:1111
+#: restorer.php:1132
 msgid "Split line to avoid exceeding maximum packet size"
 msgstr ""
 
-#: restorer.php:1134
+#: restorer.php:1155
 #, php-format
 msgid "An SQL line that is larger than the maximum packet size and cannot be split was found; this line will not be processed, but will be dropped: %s"
 msgstr ""
 
-#: restorer.php:1217
+#: restorer.php:1238
 #, php-format
 msgid "Requested table engine (%s) is not present - changing to MyISAM."
 msgstr ""
 
-#: restorer.php:1228
+#: restorer.php:1249
 #, php-format
 msgid "Restoring table (%s)"
 msgstr ""
 
-#: restorer.php:1232
+#: restorer.php:1253
 msgid "will restore as:"
 msgstr ""
 
-#: restorer.php:1264
+#: restorer.php:1285
 #, php-format
 msgid "Finished: lines processed: %d in %.2f seconds"
 msgstr ""
 
-#: restorer.php:1284
+#: restorer.php:1305
 #, php-format
 msgid "Cannot create new tables, so skipping this command (%s)"
 msgstr ""
 
-#: restorer.php:1289
+#: restorer.php:1310
 #, php-format
 msgid "Cannot drop tables, so deleting instead (%s)"
 msgstr ""
 
-#: restorer.php:1305
+#: restorer.php:1330
 #, php-format
 msgid "An error (%s) occurred:"
 msgstr ""
 
-#: restorer.php:1305
+#: restorer.php:1330
 msgid "the database query being run was:"
 msgstr ""
 
-#: restorer.php:1309
+#: restorer.php:1334
 msgid "An error occurred on the first CREATE TABLE command - aborting run"
 msgstr ""
 
-#: restorer.php:1312
+#: restorer.php:1337
 msgid "Too many database errors have occurred - aborting restoration (you will need to restore manually)"
 msgstr ""
 
-#: restorer.php:1320
+#: restorer.php:1345
 #, php-format
 msgid "Database queries processed: %d in %.2f seconds"
 msgstr ""
 
-#: restorer.php:1366
-#: restorer.php:1403
+#: restorer.php:1391
+#: restorer.php:1428
 #, php-format
 msgid "Table prefix has changed: changing %s table field(s) accordingly:"
 msgstr ""
 
-#: restorer.php:1370
-#: restorer.php:1429
+#: restorer.php:1395
+#: restorer.php:1454
 #: admin.php:2243
 #: admin.php:2277
 #: admin.php:2281
@@ -758,12 +758,12 @@ msgstr ""
 msgid "OK"
 msgstr ""
 
-#: restorer.php:1380
+#: restorer.php:1405
 #, php-format
 msgid "Uploads path (%s) does not exist - resetting (%s)"
 msgstr ""
 
-#: restorer.php:1395
+#: restorer.php:1420
 msgid "Custom content type manager plugin data detected: clearing option cache"
 msgstr ""
 
@@ -1503,7 +1503,7 @@ msgid "Press here to look inside your UpdraftPlus directory (in your web hosting
 msgstr ""
 
 #: admin.php:1757
-msgid "Rescan folder for new backup sets"
+msgid "Rescan local folder for new backup sets"
 msgstr ""
 
 #: admin.php:1758
@@ -4093,111 +4093,111 @@ msgstr ""
 msgid "(learn more)"
 msgstr ""
 
-#: addons/migrator.php:328
+#: addons/migrator.php:330
 #, php-format
 msgid "Skipping this table: data in this table (%s) should not be search/replaced"
 msgstr ""
 
-#: addons/migrator.php:336
+#: addons/migrator.php:338
 #, php-format
 msgid "Replacing in blogs/site table: from: %s to: %s"
 msgstr ""
 
-#: addons/migrator.php:404
+#: addons/migrator.php:406
 msgid "Adjusting multisite paths"
-msgstr ""
-
-#: addons/migrator.php:423
-#: addons/migrator.php:640
-#, php-format
-msgid "Failed: the %s operation was not able to start."
 msgstr ""
 
 #: addons/migrator.php:425
 #: addons/migrator.php:642
 #, php-format
+msgid "Failed: the %s operation was not able to start."
+msgstr ""
+
+#: addons/migrator.php:427
+#: addons/migrator.php:644
+#, php-format
 msgid "Failed: we did not understand the result returned by the %s operation."
 msgstr ""
 
-#: addons/migrator.php:483
+#: addons/migrator.php:485
 msgid "Database: search and replace site URL"
 msgstr ""
 
-#: addons/migrator.php:487
+#: addons/migrator.php:489
 msgid "This option was not selected."
 msgstr ""
 
-#: addons/migrator.php:515
-#: addons/migrator.php:519
-#: addons/migrator.php:523
-#: addons/migrator.php:528
-#: addons/migrator.php:532
-#: addons/migrator.php:536
+#: addons/migrator.php:517
+#: addons/migrator.php:521
+#: addons/migrator.php:525
+#: addons/migrator.php:530
+#: addons/migrator.php:534
+#: addons/migrator.php:538
 #, php-format
 msgid "Error: unexpected empty parameter (%s, %s)"
 msgstr ""
 
-#: addons/migrator.php:542
+#: addons/migrator.php:544
 #, php-format
 msgid "Nothing to do: the site URL is already: %s"
 msgstr ""
 
-#: addons/migrator.php:549
-#: addons/migrator.php:552
+#: addons/migrator.php:551
+#: addons/migrator.php:554
 #, php-format
 msgid "Warning: the database's site URL (%s) is different to what we expected (%s)"
 msgstr ""
 
-#: addons/migrator.php:562
+#: addons/migrator.php:564
 #, php-format
 msgid "Database search and replace: replace %s in backup dump with %s"
 msgstr ""
 
-#: addons/migrator.php:584
+#: addons/migrator.php:586
 msgid "Could not get list of tables"
 msgstr ""
 
-#: addons/migrator.php:619
+#: addons/migrator.php:621
 #, php-format
 msgid "<strong>Search and replacing table:</strong> %s: already done"
 msgstr ""
 
-#: addons/migrator.php:658
+#: addons/migrator.php:660
 msgid "Tables examined:"
 msgstr ""
 
-#: addons/migrator.php:659
+#: addons/migrator.php:661
 msgid "Rows examined:"
 msgstr ""
 
-#: addons/migrator.php:660
+#: addons/migrator.php:662
 msgid "Changes made:"
 msgstr ""
 
-#: addons/migrator.php:661
+#: addons/migrator.php:663
 msgid "SQL update commands run:"
 msgstr ""
 
-#: addons/migrator.php:663
+#: addons/migrator.php:665
 msgid "Time taken (seconds):"
 msgstr ""
 
-#: addons/migrator.php:717
+#: addons/migrator.php:723
 #, php-format
 msgid "<strong>Search and replacing table:</strong> %s"
 msgstr ""
 
-#: addons/migrator.php:747
+#: addons/migrator.php:753
 #, php-format
 msgid "rows: %d"
 msgstr ""
 
-#: addons/migrator.php:761
+#: addons/migrator.php:767
 #, php-format
 msgid "Searching and replacing reached row: %d"
 msgstr ""
 
-#: addons/migrator.php:853
+#: addons/migrator.php:873
 #, php-format
 msgid "\"%s\" has no primary key, manual change needed on row %s."
 msgstr ""
