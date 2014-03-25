@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: UpdraftPlus\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-19 11:17+0100\n"
-"PO-Revision-Date: 2014-03-19 11:17+0100\n"
+"POT-Creation-Date: 2014-03-25 10:53+0100\n"
+"PO-Revision-Date: 2014-03-25 10:53+0100\n"
 "Last-Translator: David Anderson <contact@updraftplus.com>\n"
 "Language-Team:  <contact@updraftplus.com>\n"
 "Language: \n"
@@ -38,48 +38,48 @@ msgstr ""
 msgid "(This applies to all WordPress backup plugins unless they have been explicitly coded for multisite compatibility)."
 msgstr ""
 
-#: updraftplus.php:458
-#: updraftplus.php:463
-#: updraftplus.php:468
+#: updraftplus.php:459
+#: updraftplus.php:464
+#: updraftplus.php:469
 #: admin.php:379
 #: admin.php:383
 msgid "UpdraftPlus notice:"
 msgstr ""
 
-#: updraftplus.php:458
+#: updraftplus.php:459
 msgid "The log file could not be read."
 msgstr ""
 
-#: updraftplus.php:463
+#: updraftplus.php:464
 msgid "No log files were found."
 msgstr ""
 
-#: updraftplus.php:468
+#: updraftplus.php:469
 msgid "The given file could not be read."
 msgstr ""
 
-#: updraftplus.php:598
+#: updraftplus.php:599
 #, php-format
 msgid "The amount of memory (RAM) allowed for PHP is very low (%s Mb) - you should increase it to avoid failures due to insufficient memory (consult your web hosting company for more help)"
 msgstr ""
 
-#: updraftplus.php:601
+#: updraftplus.php:602
 #: admin.php:348
 #, php-format
 msgid "The amount of time allowed for WordPress plugins to run is very low (%s seconds) - you should increase it to avoid backup failures due to time-outs (consult your web hosting company for more help - it is the max_execution_time PHP setting; the recommended value is %s seconds or more)"
 msgstr ""
 
-#: updraftplus.php:620
+#: updraftplus.php:621
 #, php-format
 msgid "Your free space in your hosting account is very low - only %s Mb remain"
 msgstr ""
 
-#: updraftplus.php:632
+#: updraftplus.php:633
 #, php-format
 msgid "Your free disk space is very low - only %s Mb remain"
 msgstr ""
 
-#: updraftplus.php:707
+#: updraftplus.php:708
 #: restorer.php:718
 #: admin.php:1078
 #: admin.php:1171
@@ -90,177 +90,177 @@ msgstr ""
 msgid "Error: %s"
 msgstr ""
 
-#: updraftplus.php:792
+#: updraftplus.php:793
 #, php-format
 msgid "%s Error: Failed to open local file"
 msgstr ""
 
-#: updraftplus.php:835
+#: updraftplus.php:836
 #, php-format
 msgid "%s error - failed to re-assemble chunks"
 msgstr ""
 
-#: updraftplus.php:863
+#: updraftplus.php:864
 #: restorer.php:1368
 #: restorer.php:1382
 #: restorer.php:1427
 #: admin.php:927
-#: admin.php:3470
+#: admin.php:3473
 msgid "Error"
 msgstr ""
 
-#: updraftplus.php:863
+#: updraftplus.php:864
 msgid "Error opening local file: Failed to download"
 msgstr ""
 
-#: updraftplus.php:891
+#: updraftplus.php:892
 #, php-format
 msgid "Error - failed to download the file from %s"
 msgstr ""
 
-#: updraftplus.php:909
+#: updraftplus.php:910
 #: admin.php:2512
 #, php-format
 msgid "Your web-server does not have the %s module installed."
 msgstr ""
 
-#: updraftplus.php:909
+#: updraftplus.php:910
 #: admin.php:2512
 msgid "Without it, encryption will be a lot slower."
 msgstr ""
 
-#: updraftplus.php:912
+#: updraftplus.php:913
 msgid "A future release of UpdraftPlus will move the encryption feature into an add-on (and add more features to it)."
 msgstr ""
 
-#: updraftplus.php:912
+#: updraftplus.php:913
 #, php-format
 msgid "See: %s"
 msgstr ""
 
-#: updraftplus.php:1171
+#: updraftplus.php:1172
 msgid "Plugins"
 msgstr ""
 
-#: updraftplus.php:1172
+#: updraftplus.php:1173
 msgid "Themes"
 msgstr ""
 
-#: updraftplus.php:1173
+#: updraftplus.php:1174
 msgid "Uploads"
 msgstr ""
 
-#: updraftplus.php:1188
+#: updraftplus.php:1189
 msgid "Others"
 msgstr ""
 
-#: updraftplus.php:1346
+#: updraftplus.php:1347
 msgid "Your website is visited infrequently and UpdraftPlus is not getting the resources it hoped for; please read this page:"
 msgstr ""
 
-#: updraftplus.php:1638
+#: updraftplus.php:1639
 msgid "Could not create files in the backup directory. Backup aborted - check your UpdraftPlus settings."
 msgstr ""
 
-#: updraftplus.php:1798
+#: updraftplus.php:1799
 msgid "The backup apparently succeeded and is now complete"
 msgstr ""
 
-#: updraftplus.php:1804
+#: updraftplus.php:1805
 msgid "The backup apparently succeeded (with warnings) and is now complete"
 msgstr ""
 
-#: updraftplus.php:1811
+#: updraftplus.php:1812
 msgid "The backup attempt has finished, apparently unsuccessfully"
 msgstr ""
 
-#: updraftplus.php:1814
+#: updraftplus.php:1815
 msgid "The backup has not finished; a resumption is scheduled"
 msgstr ""
 
-#: updraftplus.php:2131
+#: updraftplus.php:2132
 msgid "Could not read the directory"
 msgstr ""
 
-#: updraftplus.php:2148
+#: updraftplus.php:2149
 msgid "Could not save backup history because we have no backup array. Backup probably failed."
 msgstr ""
 
-#: updraftplus.php:2335
+#: updraftplus.php:2336
 #: restorer.php:138
 #: admin.php:1078
 msgid "Decryption failed. The database file is encrypted, but you have no encryption key entered."
 msgstr ""
 
-#: updraftplus.php:2345
+#: updraftplus.php:2346
 #: restorer.php:148
 #: admin.php:1092
 msgid "Decryption failed. The most likely cause is that you used the wrong key."
 msgstr ""
 
-#: updraftplus.php:2345
+#: updraftplus.php:2346
 msgid "The decryption key used:"
 msgstr ""
 
-#: updraftplus.php:2362
+#: updraftplus.php:2363
 msgid "File not found"
 msgstr ""
 
-#: updraftplus.php:2440
+#: updraftplus.php:2441
 msgid "Want more features or paid, guaranteed support? Check out UpdraftPlus.Com"
 msgstr ""
 
-#: updraftplus.php:2444
+#: updraftplus.php:2445
 msgid "Can you translate? Want to improve UpdraftPlus for speakers of your language?"
 msgstr ""
 
-#: updraftplus.php:2446
-#: updraftplus.php:2452
+#: updraftplus.php:2447
+#: updraftplus.php:2453
 msgid "Like UpdraftPlus and can spare one minute?"
 msgstr ""
 
-#: updraftplus.php:2446
-#: updraftplus.php:2452
+#: updraftplus.php:2447
+#: updraftplus.php:2453
 msgid "Please help UpdraftPlus by giving a positive review at wordpress.org"
 msgstr ""
 
-#: updraftplus.php:2449
+#: updraftplus.php:2450
 msgid "Check out WordShell"
 msgstr ""
 
-#: updraftplus.php:2449
+#: updraftplus.php:2450
 msgid "manage WordPress from the command line - huge time-saver"
 msgstr ""
 
-#: updraftplus.php:2455
+#: updraftplus.php:2456
 msgid "Need high-quality WordPress hosting from WordPress specialists? (Including automatic backups and 1-click installer). Get it from the creators of UpdraftPlus."
 msgstr ""
 
-#: updraftplus.php:2459
+#: updraftplus.php:2460
 msgid "Need even more features and support? Check out UpdraftPlus Premium"
 msgstr ""
 
-#: updraftplus.php:2466
+#: updraftplus.php:2467
 msgid "Subscribe to the UpdraftPlus blog to get up-to-date news and offers"
 msgstr ""
 
-#: updraftplus.php:2466
+#: updraftplus.php:2467
 msgid "Blog link"
 msgstr ""
 
-#: updraftplus.php:2466
+#: updraftplus.php:2467
 msgid "RSS link"
 msgstr ""
 
-#: updraftplus.php:2469
+#: updraftplus.php:2470
 msgid "Check out UpdraftPlus.Com for help, add-ons and support"
 msgstr ""
 
-#: updraftplus.php:2472
+#: updraftplus.php:2473
 msgid "Want to say thank-you for UpdraftPlus?"
 msgstr ""
 
-#: updraftplus.php:2472
+#: updraftplus.php:2473
 msgid "Please buy our very cheap 'no adverts' add-on."
 msgstr ""
 
@@ -601,8 +601,8 @@ msgstr ""
 
 #: restorer.php:874
 #: admin.php:101
-#: admin.php:3487
-#: admin.php:3517
+#: admin.php:3490
+#: admin.php:3520
 msgid "Error:"
 msgstr ""
 
@@ -753,8 +753,8 @@ msgstr ""
 #: admin.php:2243
 #: admin.php:2277
 #: admin.php:2281
-#: admin.php:3472
-#: admin.php:3485
+#: admin.php:3475
+#: admin.php:3488
 msgid "OK"
 msgstr ""
 
@@ -1022,6 +1022,7 @@ msgstr ""
 #: admin.php:2777
 #: admin.php:2784
 #: admin.php:2786
+#: udaddons/updraftplus-addons.php:132
 msgid "Warning"
 msgstr ""
 
@@ -1109,7 +1110,7 @@ msgstr ""
 #: admin.php:1864
 #: admin.php:2913
 #: admin.php:2922
-#: admin.php:3552
+#: admin.php:3555
 msgid "Database"
 msgstr ""
 
@@ -2312,161 +2313,175 @@ msgstr ""
 msgid "After pressing this button, you will be given the option to choose which components you wish to restore"
 msgstr ""
 
-#: admin.php:3287
+#: admin.php:3290
 msgid "One or more backups has been added from scanning remote storage; note that these backups will not be automatically deleted through the \"retain\" settings; if/when you wish to delete them then you must do so manually."
 msgstr ""
 
-#: admin.php:3311
+#: admin.php:3314
 msgid "This backup does not exist in the backup history - restoration aborted. Timestamp:"
 msgstr ""
 
-#: admin.php:3312
+#: admin.php:3315
 msgid "Backup does not exist in the backup history"
 msgstr ""
 
-#: admin.php:3350
+#: admin.php:3353
 msgid "UpdraftPlus Restoration: Progress"
 msgstr ""
 
-#: admin.php:3352
+#: admin.php:3355
 msgid "Follow this link to download the log file for this restoration (needed for any support requests)."
 msgstr ""
 
-#: admin.php:3399
+#: admin.php:3402
 msgid "ABORT: Could not find the information on which entities to restore."
 msgstr ""
 
-#: admin.php:3400
+#: admin.php:3403
 msgid "If making a request for support, please include this information:"
 msgstr ""
 
-#: admin.php:3423
+#: admin.php:3426
 msgid "Final checks"
 msgstr ""
 
-#: admin.php:3450
+#: admin.php:3453
 msgid "Skipping restoration of WordPress core when importing a single site into a multisite installation. If you had anything necessary in your WordPress directory then you will need to re-add it manually from the zip file."
 msgstr ""
 
-#: admin.php:3461
+#: admin.php:3464
 #, php-format
 msgid "Looking for %s archive: file name: %s"
 msgstr ""
 
-#: admin.php:3466
+#: admin.php:3469
 msgid "File is not locally present - needs retrieving from remote storage"
 msgstr ""
 
-#: admin.php:3482
+#: admin.php:3485
 msgid "Archive is expected to be size:"
 msgstr ""
 
-#: admin.php:3487
+#: admin.php:3490
 msgid "file is size:"
 msgstr ""
 
-#: admin.php:3490
+#: admin.php:3493
 msgid "The backup records do not contain information about the proper size of this file."
 msgstr ""
 
-#: admin.php:3493
-#: admin.php:3494
+#: admin.php:3496
+#: admin.php:3497
 msgid "Could not find one of the files for restoration"
 msgstr ""
 
-#: admin.php:3540
+#: admin.php:3543
 msgid "Will not delete any archives after unpacking them, because there was no cloud storage for this backup"
 msgstr ""
 
-#: admin.php:3563
+#: admin.php:3566
 msgid "Error message"
 msgstr ""
 
-#: admin.php:3571
+#: admin.php:3574
 msgid "Error data:"
 msgstr ""
 
-#: admin.php:3595
+#: admin.php:3598
 msgid "The current theme was not found; to prevent this stopping the site from loading, your theme has been reverted to the default theme"
 msgstr ""
 
-#: udaddons/updraftplus-addons.php:113
+#: udaddons/updraftplus-addons.php:114
 #, php-format
 msgid "Dismiss from main dashboard (for %s weeks)"
 msgstr ""
 
-#: udaddons/updraftplus-addons.php:126
+#: udaddons/updraftplus-addons.php:132
+#, php-format
+msgid "The installed version of UpdraftPlus Backup/Restore has not been tested on your version of WordPress (%s)."
+msgstr ""
+
+#: udaddons/updraftplus-addons.php:132
+#, php-format
+msgid "It has been tested up to version %s."
+msgstr ""
+
+#: udaddons/updraftplus-addons.php:132
+msgid "You should update UpdraftPlus to make sure that you have a version that has been tested for compatibility."
+msgstr ""
+
+#: udaddons/updraftplus-addons.php:139
 msgid "Your paid access to UpdraftPlus updates for this site has expired. You will no longer receive updates to UpdraftPlus."
 msgstr ""
 
-#: udaddons/updraftplus-addons.php:126
-#: udaddons/updraftplus-addons.php:128
+#: udaddons/updraftplus-addons.php:139
+#: udaddons/updraftplus-addons.php:141
 msgid "To regain access to updates (including future features and compatibility with future WordPress releases) and support, please renew."
 msgstr ""
 
-#: udaddons/updraftplus-addons.php:128
+#: udaddons/updraftplus-addons.php:141
 #, php-format
 msgid "Your paid access to UpdraftPlus updates for %s add-ons on this site has expired."
 msgstr ""
 
-#: udaddons/updraftplus-addons.php:132
+#: udaddons/updraftplus-addons.php:145
 #, php-format
 msgid "Your paid access to UpdraftPlus updates for %s of the %s add-ons on this site will soon expire."
 msgstr ""
 
-#: udaddons/updraftplus-addons.php:132
-#: udaddons/updraftplus-addons.php:134
+#: udaddons/updraftplus-addons.php:145
+#: udaddons/updraftplus-addons.php:147
 msgid "To retain your access, and maintain access to updates (including future features and compatibility with future WordPress releases) and support, please renew."
 msgstr ""
 
-#: udaddons/updraftplus-addons.php:134
+#: udaddons/updraftplus-addons.php:147
 msgid "Your paid access to UpdraftPlus updates for this site will soon expire."
 msgstr ""
 
-#: udaddons/updraftplus-addons.php:138
+#: udaddons/updraftplus-addons.php:151
 msgid "Your paid access to UpdraftPlus support has expired."
 msgstr ""
 
-#: udaddons/updraftplus-addons.php:138
+#: udaddons/updraftplus-addons.php:151
 msgid "To regain your access, please renew."
 msgstr ""
 
-#: udaddons/updraftplus-addons.php:140
+#: udaddons/updraftplus-addons.php:153
 msgid "Your paid access to UpdraftPlus support will soon expire."
 msgstr ""
 
-#: udaddons/updraftplus-addons.php:140
+#: udaddons/updraftplus-addons.php:153
 msgid "To maintain your access to support, please renew."
 msgstr ""
 
-#: udaddons/updraftplus-addons.php:168
+#: udaddons/updraftplus-addons.php:180
 #: udaddons/options.php:334
 msgid "UpdraftPlus Addons"
 msgstr ""
 
-#: udaddons/updraftplus-addons.php:271
-#: udaddons/updraftplus-addons.php:274
+#: udaddons/updraftplus-addons.php:283
+#: udaddons/updraftplus-addons.php:286
 msgid "Errors occurred:"
 msgstr ""
 
-#: udaddons/updraftplus-addons.php:527
+#: udaddons/updraftplus-addons.php:539
 msgid "We failed to successfully connect to UpdraftPlus.Com"
 msgstr ""
 
-#: udaddons/updraftplus-addons.php:529
+#: udaddons/updraftplus-addons.php:541
 msgid "UpdraftPlus.Com responded, but we did not understand the response"
 msgstr ""
 
-#: udaddons/updraftplus-addons.php:562
+#: udaddons/updraftplus-addons.php:574
 #, php-format
 msgid "UpdraftPlus.Com returned a response which we could not understand (data: %s)"
 msgstr ""
 
-#: udaddons/updraftplus-addons.php:585
+#: udaddons/updraftplus-addons.php:597
 msgid "Your email address and password were not recognised by UpdraftPlus.Com"
 msgstr ""
 
-#: udaddons/updraftplus-addons.php:590
+#: udaddons/updraftplus-addons.php:602
 msgid "UpdraftPlus.Com returned a response, but we could not understand it"
 msgstr ""
 
@@ -3111,29 +3126,25 @@ msgstr ""
 msgid "WordPress Backup"
 msgstr ""
 
-#: methods/email.php:37
+#: methods/email.php:39
 #, php-format
 msgid "Backup is of: %s."
 msgstr ""
 
-#: methods/email.php:37
-msgid "Be wary; email backups may fail because of file size limitations on mail servers."
-msgstr ""
-
-#: methods/email.php:45
+#: methods/email.php:47
 msgid "The attempt to send the backup via email failed (probably the backup was too large for this method)"
 msgstr ""
 
-#: methods/email.php:56
+#: methods/email.php:58
 msgid "Note:"
 msgstr ""
 
-#: methods/email.php:58
+#: methods/email.php:60
 #, php-format
 msgid "Your site's admin email address (%s) will be used."
 msgstr ""
 
-#: methods/email.php:58
+#: methods/email.php:60
 #, php-format
 msgid "For more options, use the \"%s\" add-on."
 msgstr ""
