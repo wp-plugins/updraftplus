@@ -2,7 +2,7 @@
 Contributors: Backup with UpdraftPlus, DavidAnderson
 Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, s3 compatible, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, ftp backup, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp, ftps, scp, migrate, duplicate, copy, updraft, schedule, mysql backup, database backup, db backup, website backup, wordpress backup, full backup
 Requires at least: 3.2
-Tested up to: 3.8.1
+Tested up to: 3.9
 Stable tag: 1.8.12
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
@@ -16,12 +16,13 @@ Easy and complete backups + restoration. Manual or automated backups (backup to 
 
 <strong>Top-quality:</strong> UpdraftPlus is the <a href="http://rankwp.com/plugins/updraftplus">highest-ranking backup plugin on rankwp.com</a> (ranks in the top 50 out of 30,000 WordPress plugins for quality on rankwp.com - last checked 8th January 2014).
 
-<strong>Tens of thousands of users:</strong> widely tested and reliable (over 650,000 downloads). Ranks in the top 100 most used of all WordPress plugins on rankwp.com. Millions of backups completed!
+<strong>Tens of thousands of users:</strong> widely tested and reliable (over 700,000 downloads). Ranks in the top 100 most used of all WordPress plugins on rankwp.com. Millions of backups completed!
 
 * Supports WordPress backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP and email. Also (via an add-on) FTP over SSL, SFTP, SCP and WebDAV (and compatible services, e.g. Yandex). (Note: Microsoft forbid OneDrive/SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
 * Quick restore (both file and database backups)
 * Backup automatically on a repeating schedule
 * Site duplicator/migrator: can copy sites, and (with add-on) move them to new locations
+* Restores backup sets from other backup plugins (Premium) (currently supported: BackupWordPress, Simple Backup)
 * Files and database backups can have separate schedules
 * Failed uploads are automatically resumed/retried
 * Large sites can be split into multiple archives
@@ -74,6 +75,7 @@ Many thanks to the existing translators:
 And to these (need updating or new translators; now less than 50% translated):
 
 * Magyar / Hungarian (hu_HU): Szépe Viktor - http://www.szepe.net
+* Turk / Turkish (tr_TR): Various translators - not yet complete
 
 = Other support =
 
@@ -140,19 +142,22 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
-= Development version (not yet released/supported) =
+= 1.9.0 - 2014/03/25 =
 
+* COMPATIBILITY: Tested on and updated for forthcoming WordPress 3.9
 * FIX: Prevent SQL errors on restore if SQL command was over-sized and split awkwardly (very hard to trigger)
 * FIX: Fix subtle race condition that prevented uploads of large archives on Amazon S3 in some very limited situations
-* FEATURE: Ability to restore and migrate from backups produced by other backup plugins (Premium) (supported: BackUpWordPress and Simple Backups (zip-based))
+* FEATURE: Ability to restore and migrate from backups produced by other backup plugins (Premium) (supported: BackUpWordPress and Simple Backups (zip-based; though, if you have a tar-backup, you can re-pack it easily))
 * FEATURE: Feature to re-scan remote storage (allows detection of existing backups after a restore to an earlier site version, and allows quicker moving of data from site to site when migrating)
 * FEATURE: SFTP add-on (http://updraftplus.com/shop/sftp/) now supports key-based logins (as well as password-based)
 * TWEAK: Add a warning message and link to helpful page for people whose WP schedulers don't seem to be working (at least 4 overdue jobs in the queue)
 * TWEAK: Introduce a filter allowing users to add a bespoke scheduling option (e.g. every 2 days)
 * TWEAK: When backup is sent by email attachment, the email now indicates the originating site more clearly
-* TRANSLATIONS: Updated Spanish translation (thanks to Pablo Laguna - laguna.sanchez at gmail.com)
+* TWEAK: Display a dashboard warning if you are using a version of UpdraftPlus that has not been tested on your current WordPress version
 * TRANSLATIONS: New Arabic translation (thanks to Omar Amassine - me at omar.ma, Ahmed Fahmy and Riyadh Altayib)
+* TRANSLATIONS: Updated Spanish translation (thanks to Pablo Laguna - laguna.sanchez at gmail.com)
 * TRANSLATIONS: Updated Nederlands / Dutch translation (thanks to Dennis Hunink - dennishunink at me.com)
+* TRANSLATIONS: New Turkish translation (various translators - not yet complete)
 
 = 1.8.13 - 2014/03/07 =
 
@@ -777,4 +782,4 @@ We recognise and thank the following for code and/or libraries used and/or modif
 Furthermore, reliance upon any non-English translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
 
 == Upgrade Notice ==
-* 1.8.12 : More exclusion + more files options; Amazon S3 RRS; various small tweaks for performance + usability
+* 1.9.0 : WordPress 3.9 compatibility; ability to re-scan remote storage; updated translations; new Importer add-on for restoring backups made by other plugins

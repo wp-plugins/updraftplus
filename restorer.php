@@ -48,7 +48,12 @@ class Updraft_Restorer extends WP_Upgrader {
 	private function unpack_package_zip($package, $delete_package = true) {
 
 		if (!empty($this->ud_foreign) && !empty($this->ud_foreign_working_dir)) {
-			return $this->ud_foreign_working_dir;
+			if (is_dir($this->ud_foreign_working_dir)) {
+				return $this->ud_foreign_working_dir;
+			} else {
+				global $updraftplus;
+				$updraftplus->log('Previously unpacked directory seems to have disappeared; will unpack again');
+			}
 		}
 
 		global $wp_filesystem;
@@ -696,11 +701,11 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		}
 
-		// Non-recursive, so the directory needs to be empty
-		$this->skin->feedback('cleaning_up');
-
 		$attempt_delete = true;
 		if (!empty($this->ud_foreign) && !$last_one) $attempt_delete = false;
+
+		// Non-recursive, so the directory needs to be empty
+		if ($attempt_delete) $this->skin->feedback('cleaning_up');
 
 		if ($attempt_delete && !$wp_filesystem->delete($working_dir, !empty($this->ud_foreign))) {
 
@@ -952,7 +957,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		// mysql_query will throw E_DEPRECATED from PHP 5.5, so we expect WordPress to have switched to something else by then
 // 			$use_wpdb = (version_compare(phpversion(), '5.5', '>=') || !function_exists('mysql_query') || !$wpdb->is_mysql || !$wpdb->ready) ? true : false;
 		// Seems not - PHP 5.5 is immanent for release
-		$this->use_wpdb = (!function_exists('mysql_query') || !$wpdb->is_mysql || !$wpdb->ready) ? true : false;
+		$this->use_wpdb = ((!function_exists('mysql_query') && !function_exists('mysqli_query')) || !$wpdb->is_mysql || !$wpdb->ready) ? true : false;
 
 		if (false == $this->use_wpdb) {
 			// We have our own extension which drops lots of the overhead on the query
@@ -962,13 +967,19 @@ class Updraft_Restorer extends WP_Upgrader {
 				$this->use_wpdb = true;
 			} else {
 				$this->mysql_dbh = $wpdb_obj->updraftplus_getdbh();
+				$this->use_mysqli = $wpdb_obj->updraftplus_use_mysqli();
 			}
 		}
 
 		if (true == $this->use_wpdb) {
 			$updraftplus->log_e('Database access: Direct MySQL access is not available, so we are falling back to wpdb (this will be considerably slower)');
 		} else {
-			@mysql_query('SET SESSION query_cache_type = OFF;', $this->mysql_dbh );
+			$updraftplus->log("Using direct MySQL access; value of use_mysqli is: ".($this->use_mysqli ? '1' : '0'));
+			if ($this->use_mysqli) {
+				@mysqli_query($this->mysql_dbh, 'SET SESSION query_cache_type = OFF;');
+			} else {
+				@mysql_query('SET SESSION query_cache_type = OFF;', $this->mysql_dbh );
+			}
 		}
 
 		// Find the supported engines - in case the dump had something else (case seen: saved from MariaDB with engine Aria; imported into plain MySQL without)
@@ -996,15 +1007,21 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		$this->last_error = '';
 		$random_table_name = 'updraft_tmp_'.rand(0,9999999).md5(microtime(true));
+
+		# The only purpose in funnelling queries directly here is to be able to get the error number
 		if ($this->use_wpdb) {
 			$req = $wpdb->query("CREATE TABLE $random_table_name");
 			if (!$req) $this->last_error = $wpdb->last_error;
 			$this->last_error_no = false;
 		} else {
-			$req = mysql_unbuffered_query("CREATE TABLE $random_table_name", $this->mysql_dbh );
+			if ($this->use_mysqli) {
+				$req = mysqli_query($this->mysql_dbh, "CREATE TABLE $random_table_name");
+			} else {
+				$req = mysql_unbuffered_query("CREATE TABLE $random_table_name", $this->mysql_dbh);
+			}
 			if (!$req) {
-				$this->last_error = mysql_error($this->mysql_dbh);
-				$this->last_error_no = mysql_errno($this->mysql_dbh);
+				$this->last_error = ($this->use_mysqli) ? mysqli_error($this->mysql_dbh) : mysql_error($this->mysql_dbh);
+				$this->last_error_no = ($this->use_mysqli) ? mysqli_errno($this->mysql_dbh) : mysql_errno($this->mysql_dbh);
 			}
 		}
 
@@ -1020,10 +1037,14 @@ class Updraft_Restorer extends WP_Upgrader {
 				if (!$req) $this->last_error = $wpdb->last_error;
 				$this->last_error_no = false;
 			} else {
-				$req = mysql_unbuffered_query("DROP TABLE $random_table_name", $this->mysql_dbh);
+				if ($this->use_mysqli) {
+					$req = mysqli_query($this->mysql_dbh, "DROP TABLE $random_table_name");
+				} else {
+					$req = mysql_unbuffered_query("DROP TABLE $random_table_name", $this->mysql_dbh);
+				}
 				if (!$req) {
-					$this->last_error = mysql_error($this->mysql_dbh);
-					$this->last_error_no = mysql_errno($this->mysql_dbh);
+					$this->last_error = ($this->use_mysqli) ? mysqli_error($this->mysql_dbh) : mysql_error($this->mysql_dbh);
+					$this->last_error_no = ($this->use_mysqli) ? mysqli_errno($this->mysql_dbh) : mysql_errno($this->mysql_dbh);
 				}
 			}
 			if (!$req && ($this->use_wpdb || $this->last_error_no === 1142)) {
@@ -1269,8 +1290,8 @@ class Updraft_Restorer extends WP_Upgrader {
 		}
 
 		global $wp_filesystem;
-		$wp_filesystem->delete($working_dir.'/'.$db_basename, false, true);
 
+		$wp_filesystem->delete($working_dir.'/'.$db_basename, false, 'f');
 		return true;
 
 	}
@@ -1293,7 +1314,11 @@ class Updraft_Restorer extends WP_Upgrader {
 				$req = $wpdb->query($sql_line);
 				if (!$req) $this->last_error = $wpdb->last_error;
 			} else {
-				$req = mysql_unbuffered_query( $sql_line, $this->mysql_dbh );
+				if ($this->use_mysqli) {
+					$req = mysqli_query($this->mysql_dbh, $sql_line);
+				} else {
+					$req = mysql_unbuffered_query($sql_line, $this->mysql_dbh);
+				}
 				if (!$req) $this->last_error = mysql_error($this->mysql_dbh);
 			}
 			$this->statements_run++;
@@ -1443,8 +1468,11 @@ class Updraft_Restorer extends WP_Upgrader {
 
 // Get a protected property
 class UpdraftPlus_WPDB extends wpdb {
-	function updraftplus_getdbh() {
+	public function updraftplus_getdbh() {
 		return $this->dbh;
+	}
+	public function updraftplus_use_mysqli() {
+		return $this->use_mysqli;
 	}
 }
 
