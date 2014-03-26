@@ -17,7 +17,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 
 	public function get_service($user, $apikey, $authurl, $useservercerts = false, $disablesslverify = null, $region = null) {
 
-		require_once(UPDRAFTPLUS_DIR.'/opencloud/autoload.php');
+		require_once(UPDRAFTPLUS_DIR.'/oc/autoload.php');
 
 		global $updraftplus;
 
@@ -26,9 +26,9 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 
 		if (null === $disablesslverify) $disablesslverify = UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify');
 
-		$updraftplus->log("Cloud Files authentication URL: ".$new_authurl);
-
 		if (empty($user) || empty($apikey)) throw new Exception(__('Authorisation failed (check your credentials)', 'updraftplus'));
+
+		$updraftplus->log("Cloud Files authentication URL: ".$new_authurl);
 
 		$client = new Rackspace($new_authurl, array(
 			'username' => $user,
@@ -84,7 +84,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 			$uploaded_size = $this->get_remote_size($file);
 
 			try {
-				if (1 === $updraftplus->chunked_upload($this, $file, "cloudfiles://".$this->container."/$file", 'Cloud Files', self::CHUNK_SIZE, $uploaded_size)) {
+				if (1 === $updraftplus->chunked_upload($this, $file, "cloudfiles://".$this->container."/$file", 'Cloud Files', UpdraftPlus_BackupModule_cloudfiles_opencloudsdk::CHUNK_SIZE, $uploaded_size)) {
 					try {
 						if (false !== ($data = fopen($updraftplus->backups_dir_location().'/'.$file, 'r+'))) {
 							$this->container_object->uploadObject($file, $data);
@@ -109,7 +109,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 
 	}
 
-	function get_remote_size($file) {
+	private function get_remote_size($file) {
 		try {
 			$response = $this->container_object->getClient()->head($this->container_object->getUrl($file))->send();
 			$response_object = $this->container_object->dataObject()->populateFromResponse($response)->setName($file);
@@ -120,7 +120,48 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 		}
 	}
 
-	function chunked_upload_finish($file) {
+	public function listfiles($match = 'backup_') {
+		$opts = $this->get_opts();
+		$container = $opts['path'];
+		$path = $container;
+
+		if (empty($opts['user']) || empty($opts['apikey'])) return new WP_Error('no_settings', __('No settings were found','updraftplus'));
+
+		try {
+			$service = $this->get_service($opts['user'], $opts['apikey'], $opts['authurl'], UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify'), $opts['region']);
+		} catch (Exception $e) {
+			return new WP_Error('no_access', __('Cloud Files error - failed to access the container', 'updraftplus').' ('.$e->getMessage().')');
+		}
+
+		# Get the container
+		try {
+			$container_object = $service->getContainer($container);
+		} catch (Exception $e) {
+			return new WP_Error('no_access', __('Cloud Files error - failed to access the container', 'updraftplus').' ('.$e->getMessage().')');
+		}
+
+		$results = array();
+		try {
+			$objects = $container_object->objectList(array('prefix' => $match));
+			$index = 0;
+			while (false !== ($file = $objects->offsetGet($index)) && !empty($file)) {
+				try {
+					if ((!is_object($file) || empty($file->name)) && (!isset($file->bytes) || $file->bytes >0)) continue;
+					$result = array('name' => $file->name);
+					if (isset($file->bytes)) $result['size'] = $file->bytes;
+					$results[] = $result;
+					#$container_object->dataObject()->setName($name)->delete();
+				} catch (Exception $e) {
+				}
+				$index++;
+			}
+		} catch (Exception $e) {
+		}
+
+		return $results;
+	}
+
+	public function chunked_upload_finish($file) {
 
 		$chunk_path = 'chunk-do-not-delete-'.$file;
 		try {
@@ -142,7 +183,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 		}
 	}
 
-	function chunked_upload($file, $fp, $i, $upload_size, $upload_start, $upload_end) {
+	public function chunked_upload($file, $fp, $i, $upload_size, $upload_start, $upload_end) {
 
 		global $updraftplus;
 
@@ -294,7 +335,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 
 	}
 
-	public static function chunked_download($file, $headers, $container_object) {
+	public function chunked_download($file, $headers, $container_object) {
 		try {
 			$dl = $container_object->getObject($file, $headers);
 		} catch (Exception $e) {
@@ -306,7 +347,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 		return $dl->getContent();
 	}
 
-	public static function credentials_test() {
+	public function credentials_test() {
 
 		if (empty($_POST['apikey'])) {
 			printf(__("Failure: No %s was given.",'updraftplus'),__('API key','updraftplus'));
@@ -391,7 +432,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 			return;
 		}
 
-		echo __('Success', 'updraftplus').": ${container_verb}".__('We accessed the container, and were able to create files within it.', 'updraftplus');
+		echo __('Success', 'updraftplus').": ".__('We accessed the container, and were able to create files within it.', 'updraftplus');
 
 		try {
 			if (!empty($object)) @$object->delete();
@@ -400,9 +441,9 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 
 	}
 
-	public static function config_print() {
+	public function config_print() {
 
-		$opts = self::get_opts();
+		$opts = $this->get_opts();
 
 		?>
 		<tr class="updraftplusmethod cloudfiles">

@@ -582,7 +582,7 @@ class UpdraftPlus_GDocs {
 	 */
 	public function get_upload_percentage() {
 		if ( isset( $this->file['path'] ) )
-			return $this->file['pointer'] * 100 / $this->file['size'];
+			return (0 == $this->file['size']) ? 100 : $this->file['pointer'] * 100 / $this->file['size'];
 		return 0;
 	}
 

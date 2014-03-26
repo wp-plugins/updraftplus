@@ -30,7 +30,13 @@ function updraft_restore_setoptions(entities) {
 			jQuery(y).attr('disabled','disabled').parent().hide();
 		}
 	});
-	var height = 276+howmany*20;
+	var dmatch = entities.match(/meta_foreign=([12])/);
+	if (dmatch) {
+		jQuery('#updraft_restore_meta_foreign').val(dmatch[1]);
+	} else {
+		jQuery('#updraft_restore_meta_foreign').val('0');
+	}
+	var height = 336+howmany*20;
 	jQuery('#updraft-restore-modal').dialog("option", "height", height);
 }
 
@@ -122,10 +128,11 @@ function updraft_showlastbackup(){
 }
 var updraft_historytimer = 0;
 var calculated_diskspace = 0;
+var updraft_historytimer_notbefore = 0;
 function updraft_historytimertoggle(forceon) {
 	if (!updraft_historytimer || forceon == 1) {
-		updraft_updatehistory(0);
-		updraft_historytimer = setInterval(function(){updraft_updatehistory(0);}, 30000);
+		updraft_updatehistory(0, 0);
+		updraft_historytimer = setInterval(function(){updraft_updatehistory(0, 0);}, 30000);
 		if (!calculated_diskspace) {
 			updraftplus_diskspace();
 			calculated_diskspace=1;
@@ -135,11 +142,27 @@ function updraft_historytimertoggle(forceon) {
 		updraft_historytimer = 0;
 	}
 }
-function updraft_updatehistory(rescan) {
-	if (rescan == 1) {
-		jQuery('#updraft_existing_backups').html('<p style="text-align:center;"><em>'+updraftlion.rescanning+'</em></p>');
+function updraft_updatehistory(rescan, remotescan) {
+	
+	var unixtime = Math.round(new Date().getTime() / 1000);
+	
+	if (1 == rescan || 1 == remotescan) {
+		updraft_historytimer_notbefore = unixtime + 30;
+	} else {
+		if (unixtime < updraft_historytimer_notbefore) {
+			console.log("Update history skipped: "+unixtime.toString()+" < "+updraft_historytimer_notbefore.toString());
+			return;
+		}
 	}
-	jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'historystatus', nonce: updraft_credentialtest_nonce, rescan: rescan }, function(response) {
+	
+	if (rescan == 1) {
+		if (remotescan == 1) {
+			jQuery('#updraft_existing_backups').html('<p style="text-align:center;"><em>'+updraftlion.rescanningremote+'</em></p>');
+		} else {
+			jQuery('#updraft_existing_backups').html('<p style="text-align:center;"><em>'+updraftlion.rescanning+'</em></p>');
+		}
+	}
+	jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'historystatus', nonce: updraft_credentialtest_nonce, rescan: rescan, remotescan: remotescan }, function(response) {
 		try {
 			resp = jQuery.parseJSON(response);
 			if (resp.n != null) { jQuery('#updraft_showbackups').html(resp.n); }
@@ -154,9 +177,9 @@ function updraft_check_same_times() {
 	var dbmanual = 0;
 	var file_interval = jQuery('#updraft_interval').val();
 	if (file_interval == 'manual') {
-		jQuery('#updraft_files_timings').css('opacity','0.25');
+		jQuery('#updraft_files_timings').css('opacity', '0.25');
 	} else {
-		jQuery('#updraft_files_timings').css('opacity',1);
+		jQuery('#updraft_files_timings').css('opacity', 1);
 	}
 	
 	if ('weekly' == file_interval || 'fortnightly' == file_interval || 'monthly' == file_interval) {
@@ -166,9 +189,9 @@ function updraft_check_same_times() {
 	}
 	
 	var db_interval = jQuery('#updraft_interval_database').val();
-	if ( db_interval == 'manual') {
+	if (db_interval == 'manual') {
 		dbmanual = 1;
-		jQuery('#updraft_db_timings').css('opacity','0.25');
+		jQuery('#updraft_db_timings').css('opacity', '0.25');
 	}
 	
 	if ('weekly' == db_interval || 'fortnightly' == db_interval || 'monthly' == db_interval) {
@@ -180,7 +203,7 @@ function updraft_check_same_times() {
 	if (db_interval == file_interval) {
 		jQuery('#updraft_db_timings').css('opacity','0.25');
 	} else {
-		if (0 == dbmanual) jQuery('#updraft_db_timings').css('opacity','1');
+		if (0 == dbmanual) jQuery('#updraft_db_timings').css('opacity', '1');
 	}
 }
 
@@ -213,7 +236,7 @@ function updraftplus_diskspace_entity(key) {
 }
 
 function updraft_iframe_modal(getwhat, title) {
-	jQuery('#updraft-iframe-modal-innards').html('<iframe width="100%" height="440px" src="'+ajaxurl+'?action=updraft_ajax&subaction='+getwhat+'&nonce='+updraft_credentialtest_nonce+'"></iframe>');
+	jQuery('#updraft-iframe-modal-innards').html('<iframe width="100%" height="430px" src="'+ajaxurl+'?action=updraft_ajax&subaction='+getwhat+'&nonce='+updraft_credentialtest_nonce+'"></iframe>');
 	jQuery('#updraft-iframe-modal').dialog('option', 'title', title).dialog('open');
 }
 
@@ -243,6 +266,7 @@ function updraftplus_deletefromserver(timestamp, type, findex) {
 function updraftplus_downloadstage2(timestamp, type, findex) {
 	location.href=ajaxurl+'?_wpnonce='+updraft_download_nonce+'&timestamp='+timestamp+'&type='+type+'&stage=2&findex='+findex+'&action=updraft_download_backup';
 }
+
 function updraft_downloader(base, nonce, what, whicharea, set_contents, prettydate, async) {
 	if (typeof set_contents !== "string") set_contents=set_contents.toString();
 	var set_contents = set_contents.split(',');
@@ -414,7 +438,7 @@ jQuery(document).ready(function($){
 
 	//setTimeout(function(){updraft_showlastlog(true);}, 1200);
 	setInterval(function() {updraft_activejobs_update(false);}, 1200);
-	
+
 	jQuery('.updraftplusmethod').hide();
 	
 	jQuery('#updraft_restore_db').change(function(){
@@ -430,7 +454,7 @@ jQuery(document).ready(function($){
 	var updraft_message_modal_buttons = {};
 	updraft_message_modal_buttons[updraftlion.close] = function() { jQuery(this).dialog("close"); };
 	jQuery( "#updraft-message-modal" ).dialog({
-		autoOpen: false, height: 200, width: 460, modal: true,
+		autoOpen: false, height: 300, width: 500, modal: true,
 		buttons: updraft_message_modal_buttons
 	});
 	
@@ -460,7 +484,7 @@ jQuery(document).ready(function($){
 	};
 	updraft_delete_modal_buttons[updraftlion.cancel] = function() { jQuery(this).dialog("close"); };
 	jQuery( "#updraft-delete-modal" ).dialog({
-		autoOpen: false, height: 230, width: 430, modal: true,
+		autoOpen: false, height: 262, width: 430, modal: true,
 		buttons: updraft_delete_modal_buttons
 	});
 
@@ -469,17 +493,36 @@ jQuery(document).ready(function($){
 		var anyselected = 0;
 		var whichselected = [];
 		// Make a list of what files we want
+		var already_added_wpcore = 0;
+		var meta_foreign = jQuery('#updraft_restore_meta_foreign').val();
 		jQuery('input[name="updraft_restore[]"]').each(function(x,y){
 			if (jQuery(y).is(':checked') && !jQuery(y).is(':disabled')) {
 				anyselected = 1;
 				var howmany = jQuery(y).data('howmany');
-				var restobj = [ jQuery(y).val(), howmany ];
-				whichselected.push(restobj);
-				//alert(jQuery(y).val());
+				var type = jQuery(y).val();
+				if (1 == meta_foreign || (2 == meta_foreign && 'db' != type)) { type = 'wpcore'; }
+				if ('wpcore' != type || already_added_wpcore == 0) {
+					var restobj = [ type, howmany ];
+					whichselected.push(restobj);
+					//alert(jQuery(y).val());
+					if ('wpcore' == type) { already_added_wpcore = 1; }
+				}
 			}
 		});
 		if (anyselected == 1) {
+			// Work out what to download
 			if (updraft_restore_stage == 1) {
+				// meta_foreign == 1 : All-in-one format: the only thing to download, always, is wpcore
+// 				if ('1' == meta_foreign) {
+// 					whichselected = [];
+// 					whichselected.push([ 'wpcore', 0 ]);
+// 				} else if ('2' == meta_foreign) {
+// 					jQuery(whichselected).each(function(x,y) {
+// 						restobj = whichselected[x];
+// 					});
+// 					whichselected = [];
+// 					whichselected.push([ 'wpcore', 0 ]);
+// 				}
 				jQuery('#updraft-restore-modal-stage1').slideUp('slow');
 				jQuery('#updraft-restore-modal-stage2').show();
 				updraft_restore_stage = 2;
@@ -551,7 +594,7 @@ jQuery(document).ready(function($){
 	var migrate_modal_buttons = {};
 	migrate_modal_buttons[updraftlion.close] = function() { jQuery(this).dialog("close"); };
 	jQuery( "#updraft-migrate-modal" ).dialog({
-		autoOpen: false, height: 265, width: 390, modal: true,
+		autoOpen: false, height: 295, width: 420, modal: true,
 		buttons: migrate_modal_buttons
 	});
 
@@ -568,7 +611,15 @@ jQuery(document).ready(function($){
 			jQuery('#updraft_include_others_exclude').slideUp();
 		}
 	});
-
+	
+	jQuery('#updraft_include_uploads').click(function() {
+		if (jQuery('#updraft_include_uploads').is(':checked')) {
+			jQuery('#updraft_include_uploads_exclude').slideDown();
+		} else {
+			jQuery('#updraft_include_uploads_exclude').slideUp();
+		}
+	});
+	
 	jQuery('#updraft-service').change(function() {
 		jQuery('.updraftplusmethod').hide();
 		var active_class = jQuery(this).val();
@@ -619,10 +670,25 @@ uploader.bind('FilesAdded', function(up, files){
 // 				var hundredmb = 100 * 1024 * 1024, max = parseInt(up.settings.max_file_size, 10);
 	
 	plupload.each(files, function(file){
+
 		if (! /^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i.test(file.name) && ! /^log\.([0-9a-f]{12})\.txt$/.test(file.name)) {
-			alert(file.name+": "+updraftlion.notarchive);
-			uploader.removeFile(file);
-			return;
+			var accepted_file = false;
+			for (var i = 0; i<updraft_accept_archivename.length; i++) {
+				if (updraft_accept_archivename[i].test(file.name)) {
+					var accepted_file = true;
+				}
+				//Do something
+			}
+			if (!accepted_file) {
+				if (/\.zip$/i.test(file.name) || /\.sql(\.gz)?$/i.test(file.name)) {
+					jQuery('#updraft-message-modal-innards').html('<p><strong>'+file.name+"</strong></p> "+updraftlion.notarchive2);
+					jQuery('#updraft-message-modal').dialog('open');
+				} else {
+					alert(file.name+": "+updraftlion.notarchive);
+				}
+				uploader.removeFile(file);
+				return;
+			}
 		}
 		
 		// a file was added, you may want to update your DOM here...
@@ -642,9 +708,7 @@ uploader.bind('UploadProgress', function(up, file) {
 });
 
 uploader.bind('Error', function(up, error) {
-	
 	alert(updraftlion.uploaderr+' (code '+error.code+') : '+error.message+' '+updraftlion.makesure);
-	
 });
 
 
@@ -653,15 +717,27 @@ uploader.bind('FileUploaded', function(up, file, response) {
 	
 	if (response.status == '200') {
 		// this is your ajax response, update the DOM with it or something...
-		if (response.response.substring(0,6) == 'ERROR:') {
-			alert(updraftlion.uploaderror+" "+response.response.substring(6));
-		} else if (response.response.substring(0,3) == 'OK:') {
-			updraft_updatehistory(1);
-		} else {
-			alert('Unknown server response: '+response.response);
+		try {
+			resp = jQuery.parseJSON(response.response);
+			if (resp.e) {
+				alert(updraftlion.uploaderror+" "+resp.e);
+			} else if (resp.dm) {
+				alert(resp.dm);
+				updraft_updatehistory(1, 0);
+			} else if (resp.m) {
+				updraft_updatehistory(1, 0);
+			} else {
+				alert('Unknown server response: '+response.response);
+			}
+			
+		} catch(err) {
+			console.log(response);
+			alert(updraftlion.jsonnotunderstood);
 		}
+
 	} else {
 		alert('Unknown server response status: '+response.code);
+		console.log(response);
 	}
 
 });
