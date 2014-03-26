@@ -1421,6 +1421,16 @@ class Updraft_Restorer extends WP_Upgrader {
 					update_option('cctm_data', $cctm_data);
 				}
 			}
+			# Another - http://www.elegantthemes.com/gallery/elegant-builder/
+			$elegant_data = $wpdb->get_row($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", 'et_images_temp_folder'));
+			if (!empty($elegant_data->option_value)) {
+				$dbase = basename($elegant_data->option_value);
+				$wp_upload_dir = wp_upload_dir();
+				$edir = $wp_upload_dir['basedir'];
+				if (!is_dir($edir.'/'.$dbase)) @mkdir($edir.'/'.$dbase);
+				$updraftplus->log_e("Elegant themes theme builder plugin data detected: resetting temporary folder");
+				update_option('et_images_temp_folder', $edir.'/'.$dbase);
+			}
 
 
 		} elseif ($table == $import_table_prefix.'usermeta' && $import_table_prefix != $old_table_prefix) {
@@ -1472,7 +1482,7 @@ class UpdraftPlus_WPDB extends wpdb {
 		return $this->dbh;
 	}
 	public function updraftplus_use_mysqli() {
-		return $this->use_mysqli;
+		return !empty($this->use_mysqli);
 	}
 }
 

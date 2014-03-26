@@ -3147,7 +3147,6 @@ ENDHERE;
 					foreach ($files as $entry) {
 						$n = $entry['name'];
 						if (!preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i', $n, $matches)) continue;
-						#echo "$method: ".$n."\n";
 						if (isset($remotefiles[$n])) {
 							$remotefiles[$n][] = $method;
 						} else {

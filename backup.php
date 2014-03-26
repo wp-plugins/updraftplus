@@ -1004,7 +1004,7 @@ class UpdraftPlus_Backup {
 			$updraftplus->jobdata_set('jobstatus', 'dbcreated');
 			$sha = sha1_file($backup_final_file_name);
 			$updraftplus->jobdata_set('sha1-db0', $sha);
-			$updraftplus->log("Total database tables backed up: $total_tables (".basename($backup_final_file_name).": checksum (SHA1): $sha)");
+			$updraftplus->log("Total database tables backed up: $total_tables (".basename($backup_final_file_name).", size: ".filesize($backup_final_file_name).", checksum (SHA1): $sha)");
 			return basename($backup_file_base.'-db.gz');
 		}
 

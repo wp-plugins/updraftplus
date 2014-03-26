@@ -16,6 +16,7 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // On plugins restore, don't let UD over-write itself - because this usually means a down-grade. Since upgrades are db-compatible, there's no reason to downgrade.
 // Schedule a task to report on failure
+// Copy.Com, Box
 // Check the timestamps used in filenames - they should be UTC
 // Get user to confirm if they check both the search/replace and wp-config boxes
 // Tweak the display so that users seeing resumption messages don't think it's stuck
@@ -253,16 +254,16 @@ class UpdraftPlus {
 
 	// Choices will be shown in the admin menu in the order used here
 	public $backup_methods = array(
-		"s3" => "Amazon S3",
-		"dropbox" => "Dropbox",
+		's3' => 'Amazon S3',
+		'dropbox' => 'Dropbox',
 		'cloudfiles' => 'Rackspace Cloud Files',
-		"googledrive" => "Google Drive",
-		"ftp" => "FTP",
+		'googledrive' => 'Google Drive',
+		'ftp' => 'FTP',
 		'sftp' => 'SFTP / SCP',
 		'webdav' => 'WebDAV',
 		's3generic' => 'S3-Compatible (Generic)',
 		'dreamobjects' => 'DreamObjects',
-		"email" => "Email"
+		'email' => 'Email'
 	);
 
 	public $errors = array();
@@ -284,7 +285,7 @@ class UpdraftPlus {
 	public $current_resumption;
 	public $newresumption_scheduled = false;
 
-	function __construct() {
+	public function __construct() {
 
 		// Initialisation actions - takes place on plugin load
 
@@ -469,7 +470,7 @@ class UpdraftPlus {
 		$updraftplus_admin->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus').'</strong> '.__('The given file could not be read.','updraftplus'));
 	}
 
-	function load_translations() {
+	public function load_translations() {
 		// Tell WordPress where to find the translations
 		load_plugin_textdomain('updraftplus', false, basename(dirname(__FILE__)).'/languages');
 	}
@@ -2035,6 +2036,9 @@ class UpdraftPlus {
 		if ($logit) $this->log("Exclusion option setting (others): ".$exclude);
 		$skip = array_flip(preg_split("/,/", $exclude));
 		$file_entities = $this->get_backupable_file_entities(false);
+
+		# Keys = directory names to avoid; values = the label for that directory (used only in log files)
+		#$avoid_these_dirs = array_flip($file_entities);
 		$avoid_these_dirs = array();
 		foreach ($file_entities as $type => $dirs) {
 			if (is_string($dirs)) {
@@ -2045,9 +2049,7 @@ class UpdraftPlus {
 				}
 			}
 		}
-		# Keys = directory names to avoid; values = the label for that directory (used only in log files)
-		$possible_backups_dirs = array_flip($file_entities);
-		return $this->compile_folder_list_for_backup(WP_CONTENT_DIR, $possible_backups_dirs, $skip);
+		return $this->compile_folder_list_for_backup(WP_CONTENT_DIR, $avoid_these_dirs, $skip);
 	}
 
 	// Add backquotes to tables and db-names in SQL queries. Taken from phpMyAdmin.
@@ -2057,10 +2059,10 @@ class UpdraftPlus {
 				$result = array();
 				reset($a_name);
 				while(list($key, $val) = each($a_name)) 
-					$result[$key] = '`' . $val . '`';
+					$result[$key] = '`'.$val.'`';
 				return $result;
 			} else {
-				return '`' . $a_name . '`';
+				return '`'.$a_name.'`';
 			}
 		} else {
 			return $a_name;
@@ -2239,7 +2241,6 @@ class UpdraftPlus {
 			add_action('http_api_curl', array($this, 'add_curl_capath'));
 			UpdraftPlus_BackupModule_googledrive::gdrive_auth_revoke(true);
 			remove_action('http_api_curl', array($this, 'add_curl_capath'));
-
 		}
 		return $client_id;
 	}

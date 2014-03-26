@@ -80,7 +80,8 @@ class UpdraftPlus_BackupModule_googledrive {
 
 	// Revoke a Google account refresh token
 	// Returns the parameter fed in, so can be used as a WordPress options filter
-	public function gdrive_auth_revoke() {
+	// Can be called statically from UpdraftPlus::googledrive_clientid_checkchange()
+	public static function gdrive_auth_revoke() {
 		$ignore = wp_remote_get('https://accounts.google.com/o/oauth2/revoke?token='.UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token'));
 		UpdraftPlus_Options::update_updraft_option('updraft_googledrive_token','');
 	}
@@ -113,13 +114,10 @@ class UpdraftPlus_BackupModule_googledrive {
 					 // Save token
 					UpdraftPlus_Options::update_updraft_option('updraft_googledrive_token', $json_values['refresh_token']);
 
-					if ( isset($json_values['access_token'])) {
-
+					if (isset($json_values['access_token'])) {
 						UpdraftPlus_Options::update_updraft_option('updraftplus_tmp_googledrive_access_token', $json_values['access_token']);
-
 						// We do this to clear the GET parameters, otherwise WordPress sticks them in the _wp_referer in the form and brings them back, leading to confusion + errors
 						header('Location: '.UpdraftPlus_Options::admin_page_url().'?action=updraftmethod-googledrive-auth&page=updraftplus&state=success');
-
 					}
 
 				} else {
@@ -146,9 +144,9 @@ class UpdraftPlus_BackupModule_googledrive {
 
 		$message = '';
 		try {
-			if( !class_exists('UpdraftPlus_GDocs')) require_once(UPDRAFTPLUS_DIR.'/includes/class-gdocs.php');
+			if(!class_exists('UpdraftPlus_GDocs')) require_once(UPDRAFTPLUS_DIR.'/includes/class-gdocs.php');
 			$x = new UpdraftPlus_BackupModule_googledrive;
-			if ( !is_wp_error( $e = $x->need_gdocs($updraftplus_tmp_access_token) ) ) {
+			if (!is_wp_error( $e = $x->need_gdocs($updraftplus_tmp_access_token) ) ) {
 				$quota_total = max($x->gdocs->get_quota_total(), 1);
 				$quota_used = $x->gdocs->get_quota_used();
 				if (is_numeric($quota_total) && is_numeric($quota_used)) {

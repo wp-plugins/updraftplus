@@ -142,7 +142,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
-= 1.9.0 - 2014/03/25 =
+= 1.9.0 - 2014/03/26 =
 
 * COMPATIBILITY: Tested on and updated for forthcoming WordPress 3.9
 * FIX: Prevent SQL errors on restore if SQL command was over-sized and split awkwardly (very hard to trigger)
@@ -154,6 +154,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Introduce a filter allowing users to add a bespoke scheduling option (e.g. every 2 days)
 * TWEAK: When backup is sent by email attachment, the email now indicates the originating site more clearly
 * TWEAK: Display a dashboard warning if you are using a version of UpdraftPlus that has not been tested on your current WordPress version
+* TWEAK: Add work-around for bad hard-coded data in Elegant Themes Theme Builder when restoring
 * TRANSLATIONS: New Arabic translation (thanks to Omar Amassine - me at omar.ma, Ahmed Fahmy and Riyadh Altayib)
 * TRANSLATIONS: Updated Spanish translation (thanks to Pablo Laguna - laguna.sanchez at gmail.com)
 * TRANSLATIONS: Updated Nederlands / Dutch translation (thanks to Dennis Hunink - dennishunink at me.com)
