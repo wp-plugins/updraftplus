@@ -2179,27 +2179,41 @@ class UpdraftPlus {
 	}
 
 	/*
-	this function is both the backup scheduler and ostensibly a filter callback for saving the option.
+	This function is both the backup scheduler and ostensibly a filter callback for saving the option.
 	it is called in the register_setting for the updraft_interval, which means when the admin settings 
-	are saved it is called.  it returns the actual result from wp_filter_nohtml_kses (a sanitization filter) 
-	so the option can be properly saved.
+	are saved it is called.
 	*/
 	public function schedule_backup($interval) {
-		//clear schedule and add new so we don't stack up scheduled backups
+
+		// Clear schedule so that we don't stack up scheduled backups
 		wp_clear_scheduled_hook('updraft_backup');
-		switch($interval) {
-			case 'every4hours':
-			case 'every8hours':
-			case 'twicedaily':
-			case 'daily':
-			case 'weekly':
-			case 'fortnightly':
-			case 'monthly':
-				$first_time = apply_filters('updraftplus_schedule_firsttime_files', time()+30);
-				wp_schedule_event($first_time, $interval, 'updraft_backup');
-			break;
-		}
-		return wp_filter_nohtml_kses($interval);
+		
+		if ('manual' == $interval) return 'manual';
+
+		$valid_schedules = wp_get_schedules();
+		if (empty($valid_schedules[$interval])) $interval = 'daily';
+
+		$first_time = apply_filters('updraftplus_schedule_firsttime_files', time()+30);
+		wp_schedule_event($first_time, $interval, 'updraft_backup');
+
+		return $interval;
+	}
+
+	public function schedule_backup_database($interval) {
+
+		// Clear schedule so that we don't stack up scheduled backups
+		wp_clear_scheduled_hook('updraft_backup_database');
+
+		if ('manual' == $interval) return 'manual';
+
+		$valid_schedules = wp_get_schedules();
+		if (empty($valid_schedules[$interval])) $interval = 'daily';
+
+		$first_time = apply_filters('updraftplus_schedule_firsttime_db', time()+30);
+		wp_schedule_event($first_time, $interval, 'updraft_backup_database');
+
+		return $interval;
+
 	}
 
 	public function deactivation () {
@@ -2216,24 +2230,6 @@ class UpdraftPlus {
 
 		}
 		return $client_id;
-	}
-
-	public function schedule_backup_database($interval) {
-		//clear schedule and add new so we don't stack up scheduled backups
-		wp_clear_scheduled_hook('updraft_backup_database');
-		switch($interval) {
-			case 'every4hours':
-			case 'every8hours':
-			case 'twicedaily':
-			case 'daily':
-			case 'weekly':
-			case 'fortnightly':
-			case 'monthly':
-				$first_time = apply_filters('updraftplus_schedule_firsttime_db', time()+30);
-				wp_schedule_event($first_time, $interval, 'updraft_backup_database');
-			break;
-		}
-		return wp_filter_nohtml_kses($interval);
 	}
 
 	//wp-cron only has hourly, daily and twicedaily, so we need to add some of our own
