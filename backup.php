@@ -259,7 +259,7 @@ class UpdraftPlus_Backup {
 			$method_include = UPDRAFTPLUS_DIR.'/methods/'.$service.'.php';
 			if (file_exists($method_include)) require_once($method_include);
 
-			if ($service == "none" || $service == "") {
+			if ($service == "none" || '' == $service) {
 				$updraftplus->log("No remote despatch: user chose no remote backup service");
 				$this->prune_retained_backups(array("none" => array(null, null)));
 			} else {

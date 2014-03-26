@@ -5,7 +5,6 @@ if (!defined('UPDRAFTPLUS_DIR')) die('No direct access.');
 # Converted to job_options: yes
 # Converted to array options: yes
 
-# New SDK code is not yet in use - always use old
 if (version_compare(phpversion(), '5.3.3', '>=') && (!defined('UPDRAFTPLUS_CLOUDFILES_USEOLDSDK') || UPDRAFTPLUS_CLOUDFILES_USEOLDSDK != true)) {
 	require_once(UPDRAFTPLUS_DIR.'/methods/cloudfiles-new.php');
 	class UpdraftPlus_BackupModule_cloudfiles extends UpdraftPlus_BackupModule_cloudfiles_opencloudsdk { }
@@ -36,7 +35,7 @@ class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 	private $cloudfiles_object;
 
 	// This function does not catch any exceptions - that should be done by the caller
-	function getCF($user, $apikey, $authurl, $useservercerts = false) {
+	private function getCF($user, $apikey, $authurl, $useservercerts = false) {
 		
 		global $updraftplus;
 
@@ -62,7 +61,7 @@ class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 		return array('updraft_cloudfiles');
 	}
 
-	protected function get_opts() {
+	public function get_opts() {
 		global $updraftplus;
 		$opts = $updraftplus->get_job_option('updraft_cloudfiles');
 		if (!is_array($opts)) $opts = array('user' => '', 'authurl' => 'https://auth.api.rackspacecloud.com', 'apikey' => '', 'path' => '');
@@ -447,8 +446,6 @@ class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 			};
 			jQuery.post(ajaxurl, data, function(response) {
 				jQuery('#updraft-cloudfiles-test').html('<?php echo esc_js(sprintf(__('Test %s Settings','updraftplus'),'Cloud Files'));?>');
-				//jQuery('#updraft-message-modal-innards').html('<?php echo esc_js(sprintf(__('%s settings test result:', 'updraftplus'), 'Cloud Files'));?> ' + response);
-				//jQuery('#updraft-message-modal').dialog('open');
 				alert('<?php echo esc_js(sprintf(__('%s settings test result:', 'updraftplus'), 'Cloud Files'));?> ' + response);
 			});
 		});

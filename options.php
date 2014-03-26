@@ -57,6 +57,7 @@ class UpdraftPlus_Options {
 		register_setting('updraft-options-group', 'updraft_dreamobjects');
 		register_setting('updraft-options-group', 'updraft_s3generic');
 		register_setting('updraft-options-group', 'updraft_cloudfiles');
+		register_setting('updraft-options-group', 'updraft_openstack');
 
 		register_setting('updraft-options-group', 'updraft_sftp_settings');
 		register_setting('updraft-options-group', 'updraft_webdav_settings', array($updraftplus, 'replace_http_with_webdav'));

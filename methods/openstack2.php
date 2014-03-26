@@ -3,17 +3,15 @@
 if (!defined('UPDRAFTPLUS_DIR')) die('No direct access allowed.');
 
 # SDK uses namespacing - requires PHP 5.3 (actually the SDK states its requirements as 5.3.3)
-use OpenCloud\Rackspace;
-
-# New SDK - https://github.com/rackspace/php-opencloud and http://docs.rackspace.com/sdks/guide/content/php.html
-# Uploading: https://github.com/rackspace/php-opencloud/blob/master/docs/userguide/ObjectStore/Storage/Object.md
+use OpenCloud\OpenStack;
 
 require_once(UPDRAFTPLUS_DIR.'/methods/openstack-base.php');
 
-class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_BackupModule_openstack_base {
+class UpdraftPlus_BackupModule_openstack extends UpdraftPlus_BackupModule_openstack_base {
 
 	public function __construct() {
-		parent::__construct('cloudfiles', 'Cloud Files', 'Rackspace Cloud Files', '/images/rackspacecloud-logo.png');
+		# 4th parameter is a relative (to UPDRAFTPLUS_DIR) logo URL, which should begin with /, should we get approved for use of the OpenStack logo in future (have requested info)
+		parent::__construct('openstack', 'OpenStack', 'OpenStack (Swift)', '');
 	}
 
 	public function get_service($opts, $useservercerts = false, $disablesslverify = null) {
@@ -56,12 +54,12 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 	}
 
 	public function get_credentials() {
-		return array('updraft_cloudfiles');
+		return array('updraft_openstack');
 	}
 
 	public function get_opts() {
 		global $updraftplus;
-		$opts = $updraftplus->get_job_option('updraft_cloudfiles');
+		$opts = $updraftplus->get_job_option('updraft_openstack');
 		if (!is_array($opts)) $opts = array('user' => '', 'authurl' => 'https://auth.api.rackspacecloud.com', 'apikey' => '', 'path' => '');
 		if (empty($opts['authurl'])) $opts['authurl'] = 'https://auth.api.rackspacecloud.com';
 		if (empty($opts['region'])) $opts['region'] = null;
@@ -74,9 +72,12 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 		<tr class="updraftplusmethod <?php echo $this->method;?>">
 		<th></th>
 			<td>
-				<p><?php _e('Get your API key <a href="https://mycloud.rackspace.com/">from your Rackspace Cloud console</a> (read instructions <a href="http://www.rackspace.com/knowledge_center/article/rackspace-cloud-essentials-1-generating-your-api-key">here</a>), then pick a container name to use for storage. This container will be created for you if it does not already exist.','updraftplus');?> <a href="http://updraftplus.com/faqs/there-appear-to-be-lots-of-extra-files-in-my-rackspace-cloud-files-container/"><?php _e('Also, you should read this important FAQ.', 'updraftplus'); ?></a></p>
+				<p><?php _e('Get your access credentials from your OpenStack Swift provider, and then pick a container name to use for storage. This container will be created for you if it does not already exist.','updraftplus');?> <a href="http://updraftplus.com/faqs/there-appear-to-be-lots-of-extra-files-in-my-rackspace-cloud-files-container/"><?php _e('Also, you should read this important FAQ.', 'updraftplus'); ?></a></p>
 			</td>
 		</tr>
+
+		<!-- TODO -->
+
 		<tr class="updraftplusmethod <?php echo $this->method;?>">
 			<th title="<?php _e('Accounts created at rackspacecloud.com are US accounts; accounts created at rackspace.co.uk are UK accounts.', 'updraftplus');?>"><?php _e('US or UK-based Rackspace Account','updraftplus');?>:</th>
 			<td>
