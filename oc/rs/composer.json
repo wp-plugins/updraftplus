@@ -17,7 +17,7 @@
     ],
     "autoload": {
         "psr-0": {
-            "OpenCloud": ["lib/", "tests/"]
+            "OpenCloud": ["lb2/", "tests/"]
         }
     },
     "require": {
