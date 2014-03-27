@@ -155,6 +155,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: When backup is sent by email attachment, the email now indicates the originating site more clearly
 * TWEAK: Display a dashboard warning if you are using a version of UpdraftPlus that has not been tested on your current WordPress version
 * TWEAK: Add work-around for bad hard-coded data in Elegant Themes Theme Builder when restoring
+* TWEAK: Log a message when Dropbox authentication completes (prevent user confusion if the most recent message is pre-success)
 * TRANSLATIONS: New Arabic translation (thanks to Omar Amassine - me at omar.ma, Ahmed Fahmy and Riyadh Altayib)
 * TRANSLATIONS: Updated Spanish translation (thanks to Pablo Laguna - laguna.sanchez at gmail.com)
 * TRANSLATIONS: Updated Nederlands / Dutch translation (thanks to Dennis Hunink - dennishunink at me.com)

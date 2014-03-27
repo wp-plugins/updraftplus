@@ -395,13 +395,15 @@ class UpdraftPlus_BackupModule_dropbox {
 	}
 
 	public function show_authed_admin_warning() {
-		global $updraftplus_admin;
+		global $updraftplus_admin, $updraftplus;
 
 		$dropbox = $this->bootstrap();
 		if (false === $dropbox) return false;
 		$accountInfo = $dropbox->accountInfo();
 
 		$message = "<strong>".__('Success','updraftplus').'</strong>: '.sprintf(__('you have authenticated your %s account','updraftplus'),'Dropbox');
+		# We log, because otherwise people get confused by the most recent log message of 'Parameter not found: oauth_token' and raise support requests
+		$updraftplus->log(__('Success','updraftplus').': '.sprintf(__('you have authenticated your %s account','updraftplus'),'Dropbox'));
 
 		if (empty($accountInfo['code']) || "200" != $accountInfo['code']) {
 			$message .= " (".__('though part of the returned information was not as expected - your mileage may vary','updraftplus').")". $accountInfo['code'];
