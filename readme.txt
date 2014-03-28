@@ -142,6 +142,10 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
+= Development version (not yet released / supported) =
+
+* FEATURE: Full support for OpenStack Swift storage
+
 = 1.9.0 - 2014/03/26 =
 
 * COMPATIBILITY: Tested on and updated for forthcoming WordPress 3.9

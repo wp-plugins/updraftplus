@@ -92,7 +92,7 @@ class UpdraftPlus_BackupModule_openstack_base {
 		$container = $opts['path'];
 		$path = $container;
 
-		if (empty($opts['user']) || empty($opts['apikey'])) return new WP_Error('no_settings', __('No settings were found','updraftplus'));
+		if (empty($opts['user']) || (empty($opts['apikey']) && empty($opts['password']))) return new WP_Error('no_settings', __('No settings were found','updraftplus'));
 
 		try {
 			$service = $this->get_service($opts, UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify'));
@@ -102,22 +102,28 @@ class UpdraftPlus_BackupModule_openstack_base {
 
 		# Get the container
 		try {
-			$container_object = $service->getContainer($container);
+			$this->container_object = $service->getContainer($container);
 		} catch (Exception $e) {
 			return new WP_Error('no_access', sprintf(__('%s error - failed to access the container', 'updraftplus'), $this->desc).' ('.$e->getMessage().')');
 		}
 
 		$results = array();
 		try {
-			$objects = $container_object->objectList(array('prefix' => $match));
+			$objects = $this->container_object->objectList(array('prefix' => $match));
 			$index = 0;
 			while (false !== ($file = $objects->offsetGet($index)) && !empty($file)) {
 				try {
-					if ((!is_object($file) || empty($file->name)) && (!isset($file->bytes) || $file->bytes >0)) continue;
-					$result = array('name' => $file->name);
-					if (isset($file->bytes)) $result['size'] = $file->bytes;
-					$results[] = $result;
-					#$container_object->dataObject()->setName($name)->delete();
+					if ((is_object($file) && !empty($file->name))) {
+						$result = array('name' => $file->name);
+						# Rackspace returns the size of a manifested file properly; other OpenStack implementations may not
+						if (!empty($file->bytes)) {
+							$result['size'] = $file->bytes;
+						} else {
+							$size = $this->get_remote_size($file->name);
+							if (false !== $size && $size > 0) $result['size'] = $size;
+						}
+						$results[] = $result;
+					}
 				} catch (Exception $e) {
 				}
 				$index++;
@@ -260,7 +266,7 @@ class UpdraftPlus_BackupModule_openstack_base {
 		return $ret;
 	}
 
-	public function config_print_javascript_onready() {
+	public function config_print_javascript_onready($keys = array()) {
 		?>
 		jQuery('#updraft-<?php echo $this->method;?>-test').click(function(){
 			jQuery(this).html('<?php echo esc_js(__('Testing - Please Wait...','updraftplus'));?>');
@@ -269,11 +275,12 @@ class UpdraftPlus_BackupModule_openstack_base {
 				subaction: 'credentials_test',
 				method: '<?php echo $this->method;?>',
 				nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce'); ?>',
-				apikey: jQuery('#updraft_<?php echo $this->method;?>_apikey').val(),
-				user: jQuery('#updraft_<?php echo $this->method;?>_user').val(),
 				path: jQuery('#updraft_<?php echo $this->method;?>_path').val(),
-				authurl: jQuery('#updraft_<?php echo $this->method;?>_authurl').val(),
-				region: jQuery('#updraft_<?php echo $this->method;?>_region').val(),
+				<?php
+					foreach ($keys as $key) {
+						echo "\t\t\t\t$key: jQuery('#updraft_".$this->method."_$key').val(),\n";
+					}
+				?>
 				useservercerts: jQuery('#updraft_ssl_useservercerts').val(),
 				disableverify: jQuery('#updraft_ssl_disableverify').val()
 			};
@@ -339,25 +346,7 @@ class UpdraftPlus_BackupModule_openstack_base {
 		return $dl->getContent();
 	}
 
-	public function credentials_test() {
-
-		if (empty($_POST['apikey'])) {
-			printf(__("Failure: No %s was given.",'updraftplus'),__('API key','updraftplus'));
-			die;
-		}
-
-		if (empty($_POST['user'])) {
-			printf(__("Failure: No %s was given.",'updraftplus'),__('Username','updraftplus'));
-			die;
-		}
-
-		$key = stripslashes($_POST['apikey']);
-		$user = $_POST['user'];
-		$path = $_POST['path'];
-		$authurl = $_POST['authurl'];
-		$useservercerts = $_POST['useservercerts'];
-		$disableverify = $_POST['disableverify'];
-		$region = (empty($_POST['region'])) ? null : $_POST['region'];
+	public function credentials_test_go($opts, $path, $useservercerts, $disableverify) {
 
 		if (preg_match("#^([^/]+)/(.*)$#", $path, $bmatches)) {
 			$container = $bmatches[1];
@@ -373,12 +362,6 @@ class UpdraftPlus_BackupModule_openstack_base {
 		}
 
 		try {
-			$opts = array(
-				'user' => $user,
-				'apikey' => $key,
-				'authurl' => $authurl,
-				'region' => $region
-			);
 			$service = $this->get_service($opts, $useservercerts, $disableverify);
 		} catch(Guzzle\Http\Exception\ClientErrorResponseException $e) {
 			$response = $e->getResponse();
@@ -426,13 +409,19 @@ class UpdraftPlus_BackupModule_openstack_base {
 			$object = $container_object->uploadObject($try_file, 'UpdraftPlus test file', array('content-type' => 'text/plain'));
 		} catch (Exception $e) {
 			echo sprintf(__('%s error - we accessed the container, but failed to create a file within it', 'updraftplus'), $this->desc).' ('.get_class($e).', '.$e->getMessage().')';
+			if (!empty($this->region)) echo ' '.sprintf(__('Region: %s', 'updraftplus'), $this->region);
 			return;
 		}
 
 		echo __('Success', 'updraftplus').": ".__('We accessed the container, and were able to create files within it.', 'updraftplus');
+		if (!empty($this->region)) echo ' '.sprintf(__('Region: %s', 'updraftplus'), $this->region);
 
 		try {
-			if (!empty($object)) @$object->delete();
+			if (!empty($object)) {
+				# One OpenStack server we tested on did not delete unless we slept... some kind of race condition at their end
+				sleep(1);
+				$object->delete();
+			}
 		} catch (Exception $e) {
 		}
 

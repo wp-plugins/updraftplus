@@ -262,10 +262,10 @@ class UpdraftPlus {
 		'sftp' => 'SFTP / SCP',
 		'webdav' => 'WebDAV',
 		's3generic' => 'S3-Compatible (Generic)',
+		'openstack' => 'OpenStack (Swift)',
 		'dreamobjects' => 'DreamObjects',
 		'email' => 'Email'
 	);
-// 		'openstack' => 'OpenStack (Swift)',
 
 	public $errors = array();
 	public $nonce;

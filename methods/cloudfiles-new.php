@@ -132,4 +132,30 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 
 	}
 
+	public function config_print_javascript_onready() {
+		parent::config_print_javascript_onready(array('apikey', 'user', 'region', 'authurl'));
+	}
+
+	public function credentials_test() {
+
+		if (empty($_POST['apikey'])) {
+			printf(__("Failure: No %s was given.",'updraftplus'),__('API key','updraftplus'));
+			die;
+		}
+
+		if (empty($_POST['user'])) {
+			printf(__("Failure: No %s was given.",'updraftplus'),__('Username','updraftplus'));
+			die;
+		}
+
+		$opts = array(
+			'user' => $_POST['user'],
+			'apikey' => stripslashes($_POST['apikey']),
+			'authurl' => $_POST['authurl'],
+			'region' => (empty($_POST['region'])) ? null : $_POST['region']
+		);
+
+		$this->credentials_test_go($opts, $_POST['path'], $_POST['useservercerts'], $_POST['disableverify']);
+	}
+
 }
