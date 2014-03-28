@@ -1,6 +1,6 @@
 === UpdraftPlus - WordPress Backup and Restoration ===
 Contributors: Backup with UpdraftPlus, DavidAnderson
-Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, s3 compatible, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, ftp backup, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp, ftps, scp, migrate, duplicate, copy, updraft, schedule, mysql backup, database backup, db backup, website backup, wordpress backup, full backup
+Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, s3 compatible, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, ftp backup, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp, ftps, scp, migrate, duplicate, copy, updraft, schedule, mysql backup, database backup, db backup, website backup, wordpress backup, full backup, openstack, swift
 Requires at least: 3.2
 Tested up to: 3.9
 Stable tag: 1.9.0
@@ -18,7 +18,7 @@ Easy and complete backups + restoration. Manual or automated backups (backup to 
 
 <strong>Tens of thousands of users:</strong> widely tested and reliable (over 700,000 downloads). Ranks in the top 100 most used of all WordPress plugins on rankwp.com. Millions of backups completed!
 
-* Supports WordPress backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP and email. Also (via an add-on) FTP over SSL, SFTP, SCP and WebDAV (and compatible services, e.g. Yandex). (Note: Microsoft forbid OneDrive/SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
+* Supports WordPress backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP, OpenStack (Swift) and email. Also (via an add-on) FTP over SSL, SFTP, SCP and WebDAV (and compatible services, e.g. Yandex). (Note: Microsoft forbid OneDrive/SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
 * Quick restore (both file and database backups)
 * Backup automatically on a repeating schedule
 * Site duplicator/migrator: can copy sites, and (with add-on) move them to new locations
@@ -123,7 +123,7 @@ No. Microsoft forbid the use of OneDrive/SkyDrive by backup utilities - see http
 
 = Any known bugs ? =
 
-Not a bug, but one issue to be aware of is that backups of very large sites (lots of uploaded media) are quite complex matters, given the limits of running inside WordPress on a huge variety of different web hosting setups. With large sites, you need to use S3 (Amazon or compatible), Google Drive, Dropbox, WebDAV, Rackspace Cloud Files, DreamObjects (since 1.6.6) or FTP (since 1.5.9) because these support chunked, resumable uploads. Other backup methods have code (since 0.9.0) to retry failed uploads of an archive, but the upload cannot be chunked, so if an archive is enormous (i.e. cannot be completely uploaded in the time that PHP is allowed for running on your web host) it cannot work. (Though as far as we're aware, no other cloud backup plugins support chunking, so you're still no worse off than with the alternatives).
+Not a bug, but one issue to be aware of is that backups of very large sites (lots of uploaded media) are quite complex matters, given the limits of running inside WordPress on a huge variety of different web hosting setups. With large sites, you need to use S3 (Amazon or compatible), Google Drive, Dropbox, WebDAV, Rackspace Cloud Files, OpenStack (Swift), DreamObjects or FTP because these support chunked, resumable uploads. Other backup methods have code (since 0.9.0) to retry failed uploads of an archive, but the upload cannot be chunked, so if an archive is enormous (i.e. cannot be completely uploaded in the time that PHP is allowed for running on your web host) it cannot work. (Though as far as we're aware, no other cloud backup plugins support chunking, so you're still no worse off than with the alternatives).
 
 = My site was hacked, and I have no backups! I thought UpdraftPlus was working! Can I kill you? =
 
@@ -144,7 +144,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 
 = Development version (not yet released / supported) =
 
-* FEATURE: Full support for OpenStack Swift storage
+* FEATURE: New remote storage back-end for OpenStack Swift
 
 = 1.9.0 - 2014/03/26 =
 
