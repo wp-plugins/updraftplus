@@ -58,4 +58,3 @@ class UpdraftPlus_BackupModule_s3generic extends UpdraftPlus_BackupModule_s3 {
 	}
 
 }
-?>

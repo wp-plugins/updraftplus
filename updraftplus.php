@@ -57,7 +57,6 @@ TODO - some of these are out of date/done, needs pruning
 // Take a look at logfile-to-examine.txt (stored), and the pattern of detection of zipfile contents
 // http://www.phpclasses.org/package/8269-PHP-Send-MySQL-database-backup-files-to-Ubuntu-One.html
 // Put the -old directories in updraft_dir instead of present location. Prevents file perms issues, and also will be automatically excluded from backups.
-// Add feature in Backup Now to skip cloud despatch for this backup
 // Test restores via cloud service for small $??? (Relevant: http://browshot.com/features) (per-day? per-install?)
 // Warn/prevent if trying to migrate between sub-domain/sub-folder based multisites
 // Don't perform pruning when doing auto-backup?
@@ -158,7 +157,6 @@ TODO - some of these are out of date/done, needs pruning
 // Move the inclusion, cloud and retention data into the backup job (i.e. don't read current config, make it an attribute of each job). In fact, everything should be. So audit all code for where get_option is called inside a backup run: it shouldn't happen.
 // Should we resume if the only errors were upon deletion (i.e. the backup itself was fine?) Presently we do, but it displays errors for the user to confuse them. Perhaps better to make pruning a separate scheuled task??
 // Create a "Want Support?" button/console, that leads them through what is needed, and performs some basic tests...
-// Chunking + resuming on SFTP
 // Add-on to check integrity of backups
 // Add-on to manage all your backups from a single dashboard
 // Provide backup/restoration for UpdraftPlus's settings, to allow 'bootstrap' on a fresh WP install - some kind of single-use code which a remote UpdraftPlus can use to authenticate
@@ -221,8 +219,10 @@ if (is_dir(UPDRAFTPLUS_DIR.'/addons') && $dir_handle = opendir(UPDRAFTPLUS_DIR.'
 		if (is_file(UPDRAFTPLUS_DIR.'/addons/'.$e) && preg_match('/\.php$/', $e)) {
 			$header = file_get_contents(UPDRAFTPLUS_DIR.'/addons/'.$e, false, null, -1, 1024);
 			$phprequires = (preg_match("/RequiresPHP: (\d[\d\.]+)/", $header, $matches)) ? $matches[1] : false;
+			$phpinclude = (preg_match("/IncludePHP: (\S+)/", $header, $matches)) ? $matches[1] : false;
 			if (false === $phprequires || version_compare(PHP_VERSION, $phprequires, '>=')) {
 				$updraftplus_have_addons++;
+				if ($phpinclude) require_once(UPDRAFTPLUS_DIR.'/'.$phpinclude);
 				include_once(UPDRAFTPLUS_DIR.'/addons/'.$e);
 			}
 		}

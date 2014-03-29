@@ -637,4 +637,3 @@ class UpdraftPlus_BackupModule_s3 {
 	}
 
 }
-?>

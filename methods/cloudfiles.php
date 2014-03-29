@@ -588,4 +588,3 @@ class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 	}
 
 }
-?>
