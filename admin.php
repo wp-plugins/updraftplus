@@ -3384,7 +3384,7 @@ ENDHERE;
 				if (!isset($entities_to_restore[$nkey])) {
 					$_POST['updraft_restore'][] = $nkey;
 					if (empty($backup_set['meta_foreign'])) {
-						$entities_to_restore[$nkey] = $entity;
+						$entities_to_restore[$nkey] = $nkey;
 					} else {
 						if ('db' == $entity && !empty($foreign_known[$backup_set['meta_foreign']]['separatedb'])) {
 							$entities_to_restore[$nkey] = 'db';
