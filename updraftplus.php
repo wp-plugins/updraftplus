@@ -317,9 +317,17 @@ class UpdraftPlus {
 		add_filter('cron_schedules', array($this,'modify_cron_schedules'), 30);
 		add_action('plugins_loaded', array($this, 'load_translations'));
 
+		add_filter('itsec_has_external_backup', array($this, 'return_true'), 999);
+		add_filter('itsec_external_backup_link', array($this, 'itsec_external_backup_link'), 999);
+		add_filter('itsec_scheduled_external_backup', array($this, 'itsec_scheduled_external_backup'), 999);
+
 		register_deactivation_hook(__FILE__, array($this, 'deactivation'));
 
 	}
+
+	public function itsec_scheduled_external_backup($x) { return (!wp_next_scheduled('updraft_backup')) ? false : true; }
+	public function itsec_external_backup_link($x) { return UpdraftPlus_Options::admin_page_url().'?page=updraftplus'; }
+	public function return_true($x) { return true; }
 
 	public function ensure_phpseclib($class = false, $class_path = false) {
 		if ($class && class_exists($class)) return;
