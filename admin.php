@@ -574,7 +574,7 @@ class UpdraftPlus_Admin {
 			if (!empty($_GET['downloaders'])) {
 				foreach(explode(':', $_GET['downloaders']) as $downloader) {
 					# prefix, timestamp, entity, index
-					if (preg_match('/^([^,]+),(\d+),([a-z]+),(\d+)$/', $downloader, $matches)) {
+					if (preg_match('/^([^,]+),(\d+),([-a-z]+),(\d+)$/', $downloader, $matches)) {
 						$updraftplus->nonce = $matches[2];
 						$status = $this->download_status($matches[2], $matches[3], $matches[4]);
 						if (is_array($status)) {
