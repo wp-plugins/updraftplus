@@ -16,7 +16,7 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // On plugins restore, don't let UD over-write itself - because this usually means a down-grade. Since upgrades are db-compatible, there's no reason to downgrade.
 // Schedule a task to report on failure
-// Copy.Com, Box
+// Copy.Com, Box, BitCasa
 // Check the timestamps used in filenames - they should be UTC
 // Get user to confirm if they check both the search/replace and wp-config boxes
 // Tweak the display so that users seeing resumption messages don't think it's stuck
@@ -106,7 +106,6 @@ TODO - some of these are out of date/done, needs pruning
 // Importer - import backup sets from another WP site directly via HTTP
 // Option to create new user for self post-restore
 // Auto-disable certain cacheing/minifying plugins post-restore
-// Enhance Google Drive support to not require registration, and to allow offline auth
 // Add note post-DB backup: you will need to log in using details from newly-imported DB
 // Make search+replace two-pass to deal with moving between exotic non-default moved-directory setups
 // Get link - http://www.rackspace.com/knowledge_center/article/how-to-use-updraftplus-to-back-up-cloud-sites-to-cloud-files
@@ -115,7 +114,6 @@ TODO - some of these are out of date/done, needs pruning
 // Encrypt archives - http://www.frostjedi.com/phpbb3/viewtopic.php?f=46&t=168508&p=391881&e=391881
 // Option for additive restores - i.e. add content (themes, plugins,...) instead of replacing
 // Testing framework - automated testing of all file upload / download / deletion methods
-// Though Google Drive code users WP's native HTTP functions, it seems to not work if WP natively uses something other than curl
 // Ginormous tables - need to make sure we "touch" the being-written-out-file (and double-check that we check for that) every 15 seconds - https://friendpaste.com/697eKEcWib01o6zT1foFIn
 // With ginormous tables, log how many times they've been attempted: after 3rd attempt, log a warning and move on. But first, batch ginormous tables (resumable)
 // Import single site into a multisite: http://codex.wordpress.org/Migrating_Multiple_Blogs_into_WordPress_3.0_Multisite, http://wordpress.org/support/topic/single-sites-to-multisite?replies=5, http://wpmu.org/import-export-wordpress-sites-multisite/
@@ -132,7 +130,6 @@ TODO - some of these are out of date/done, needs pruning
 // Restorations should be logged also
 // Log the restore operation
 // Migrator - list+download from remote, kick-off backup remotely
-// April 20, 2015: This is the date when the Google Documents API is likely to stop working (https://developers.google.com/google-apps/documents-list/terms)
 // Search for other TODO-s in the code
 // Opt-in non-personal stats + link to aggregated results
 // Stand-alone installer - take a look at this: http://wordpress.org/extend/plugins/duplicator/screenshots/
@@ -140,14 +137,13 @@ TODO - some of these are out of date/done, needs pruning
 // Unlimited customers should be auto-emailed each time they add a site (security)
 // Update all-features page at updraftplus.com (not updated after 1.5.5)
 // Save database encryption key inside backup history on per-db basis, so that if it changes we can still decrypt
-// Switch to Google Drive SDK. Google folders. https://developers.google.com/drive/folder
 // AJAX-ify restoration
 // Warn Premium users before de-activating not to update whilst inactive
 // Ability to re-scan existing cloud storage
 // Dropbox uses one mcrypt function - port to phpseclib for more portability
 // Store meta-data on which version of UD the backup was made with (will help if we ever introduce quirks that need ironing)
 // Send the user an email upon their first backup with tips on what to do (e.g. support/improve) (include legacy check to not bug existing users)
-// GoogleDrive +Rackspace folders
+// Rackspace folders
 //Do an automated test periodically for the success of loop-back connections
 //When a manual backup is run, use a timer to update the 'Download backups and logs' section, just like 'Last finished backup run'. Beware of over-writing anything that's in there from a resumable downloader.
 //Change DB encryption to not require whole gzip in memory (twice)
@@ -162,7 +158,6 @@ TODO - some of these are out of date/done, needs pruning
 // Provide backup/restoration for UpdraftPlus's settings, to allow 'bootstrap' on a fresh WP install - some kind of single-use code which a remote UpdraftPlus can use to authenticate
 // Multiple schedules
 // Allow connecting to remote storage, scanning + populating backup history from it
-// GoogleDrive in-dashboard download resumption loads the whole archive into memory - should instead either chunk or directly stream fo the file handle
 // Multisite add-on should allow restoring of each blog individually
 // Remove the recurrence of admin notices when settings are saved due to _wp_referer
 
@@ -266,6 +261,7 @@ class UpdraftPlus {
 		'dreamobjects' => 'DreamObjects',
 		'email' => 'Email'
 	);
+// 		'bitcasa' => 'Bitcasa',
 
 	public $errors = array();
 	public $nonce;
@@ -318,9 +314,18 @@ class UpdraftPlus {
 		add_filter('cron_schedules', array($this,'modify_cron_schedules'), 30);
 		add_action('plugins_loaded', array($this, 'load_translations'));
 
+		# Prevent iThemes Security from telling people that they have no backups (and advertising them another product on that basis!)
+		add_filter('itsec_has_external_backup', array($this, 'return_true'), 999);
+		add_filter('itsec_external_backup_link', array($this, 'itsec_external_backup_link'), 999);
+		add_filter('itsec_scheduled_external_backup', array($this, 'itsec_scheduled_external_backup'), 999);
+
 		register_deactivation_hook(__FILE__, array($this, 'deactivation'));
 
 	}
+
+	public function itsec_scheduled_external_backup($x) { return (!wp_next_scheduled('updraft_backup')) ? false : true; }
+	public function itsec_external_backup_link($x) { return UpdraftPlus_Options::admin_page_url().'?page=updraftplus'; }
+	public function return_true($x) { return true; }
 
 	public function ensure_phpseclib($class = false, $class_path = false) {
 		if ($class && class_exists($class)) return;
@@ -758,7 +763,7 @@ class UpdraftPlus {
 	}
 
 	// This function is used by cloud methods to provide standardised logging, but more importantly to help us detect that meaningful activity took place during a resumption run, so that we can schedule further resumptions if it is worthwhile
-	public function record_uploaded_chunk($percent, $extra, $file_path = false) {
+	public function record_uploaded_chunk($percent, $extra = '', $file_path = false) {
 
 		// Touch the original file, which helps prevent overlapping runs
 		if ($file_path) touch($file_path);
@@ -1497,7 +1502,7 @@ class UpdraftPlus {
 					$undone_files[$key.$findex] = $file;
 				} else {
 					$this->log("$file: $key: Note: This file was not marked as successfully uploaded, but does not exist on the local filesystem ($updraft_dir/$file)");
-					$this->uploaded_file($file, null, true);
+					$this->uploaded_file($file, true);
 				}
 			}
 		}
@@ -1880,7 +1885,7 @@ class UpdraftPlus {
 	}
 
 	// This should be called whenever a file is successfully uploaded
-	public function uploaded_file($file, $id = false, $force = false) {
+	public function uploaded_file($file, $force = false) {
 	
 		global $updraftplus_backup;
 
@@ -1904,12 +1909,13 @@ class UpdraftPlus {
 			$this->jobdata_set('uploading_substatus', $upload_status);
 		}
 
-		if ($id) {
-			$ids = UpdraftPlus_Options::get_updraft_option('updraft_file_ids', array() );
-			$ids[$file] = $id;
-			UpdraftPlus_Options::update_updraft_option('updraft_file_ids', $ids, false);
-			$this->log("Stored file<->id correlation in database ($file <-> $id)");
-		}
+		# This parameter no longer provided or used, from UD 1.9.1 onwards
+// 		if ($id) {
+// 			$ids = UpdraftPlus_Options::get_updraft_option('updraft_file_ids', array() );
+// 			$ids[$file] = $id;
+// 			UpdraftPlus_Options::update_updraft_option('updraft_file_ids', $ids, false);
+// 			$this->log("Stored file<->id correlation in database ($file <-> $id)");
+// 		}
 
 		// Delete local files immediately if the option is set
 		// Where we are only backing up locally, only the "prune" function should do deleting
@@ -2178,7 +2184,7 @@ class UpdraftPlus {
 		$file_size = file_exists($file) ? round(filesize($file)/1024,1). 'Kb' : 'n/a';
 		$this->log("Terminate: ".basename($file)." exists with activity within the last 30 seconds (time_mod=$time_mod, time_now=$time_now, diff=".(floor($time_now-$time_mod)).", size=$file_size). This likely means that another UpdraftPlus run is at work; so we will exit.");
 		$this->increase_resume_and_reschedule(120, true);
-		die;
+		if (!defined('UPDRAFTPLUS_ALLOW_RECENT_ACTIVITY') || true != UPDRAFTPLUS_ALLOW_RECENT_ACTIVITY) die;
 	}
 
 	# Replace last occurence
@@ -2236,23 +2242,31 @@ class UpdraftPlus {
 	}
 
 	// Acts as a WordPress options filter
-	public function googledrive_clientid_checkchange($client_id) {
-		if (UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token') != '' && UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid') != $client_id) {
+	public function googledrive_checkchange($google) {
+		$opts = UpdraftPlus_Options::get_updraft_option('updraft_googledrive');
+		if (!is_array($google)) return $opts;
+		$old_client_id = (empty($opts['clientid'])) ? '' : $opts['clientid'];
+		if (!empty($opts['token']) && $old_client_id != $google['clientid']) {
 			require_once(UPDRAFTPLUS_DIR.'/methods/googledrive.php');
 			add_action('http_api_curl', array($this, 'add_curl_capath'));
 			UpdraftPlus_BackupModule_googledrive::gdrive_auth_revoke(true);
 			remove_action('http_api_curl', array($this, 'add_curl_capath'));
 		}
-		return $client_id;
+		foreach ($google as $key => $value) { $opts[$key] = $value; }
+		if (isset($opts['folder'])) {
+			$opts['folder'] = apply_filters('updraftplus_options_googledrive_foldername', 'UpdraftPlus', $opts['folder']);
+			unset($opts['parentid']);
+		}
+		return $opts;
 	}
 
 	//wp-cron only has hourly, daily and twicedaily, so we need to add some of our own
 	public function modify_cron_schedules($schedules) {
-		$schedules['weekly'] = array( 'interval' => 604800, 'display' => 'Once Weekly' );
-		$schedules['fortnightly'] = array( 'interval' => 1209600, 'display' => 'Once Each Fortnight' );
-		$schedules['monthly'] = array( 'interval' => 2592000, 'display' => 'Once Monthly' );
-		$schedules['every4hours'] = array( 'interval' => 14400, 'display' => 'Every 4 hours' );
-		$schedules['every8hours'] = array( 'interval' => 28800, 'display' => 'Every 8 hours' );
+		$schedules['weekly'] = array('interval' => 604800, 'display' => 'Once Weekly');
+		$schedules['fortnightly'] = array('interval' => 1209600, 'display' => 'Once Each Fortnight');
+		$schedules['monthly'] = array('interval' => 2592000, 'display' => 'Once Monthly');
+		$schedules['every4hours'] = array('interval' => 14400, 'display' => 'Every 4 hours');
+		$schedules['every8hours'] = array('interval' => 28800, 'display' => 'Every 8 hours');
 		return $schedules;
 	}
 

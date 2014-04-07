@@ -406,7 +406,7 @@ class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 				$object->stream($fh, $headers);
 			} catch (Exception $e) {
 				$updraftplus->log("Cloud Files: Failed to download: $file (".$e->getMessage().")");
-				$updraftplus->log("$file: ".sprintf(__("%s Error",'updraftplus'), 'Cloud Files').": ".__('Error downloading remote file: Failed to download'.' ('.$e->getMessage().")",'updraftplus'), 'error');
+				$updraftplus->log("$file: ".sprintf(__("%s Error",'updraftplus'), 'Cloud Files').": ".__('Error downloading remote file: Failed to download','updraftplus').' ('.$e->getMessage().")", 'error');
 				return false;
 			}
 			

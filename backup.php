@@ -141,7 +141,8 @@ class UpdraftPlus_Backup {
 		$time_mod = (int)@filemtime($zip_name);
 		if (file_exists($zip_name) && $time_mod>100 && ($time_now-$time_mod)<30) {
 			$updraftplus->terminate_due_to_activity($zip_name, $time_now, $time_mod);
-		} elseif (file_exists($zip_name)) {
+		}
+		if (file_exists($zip_name)) {
 			$updraftplus->log("File exists ($zip_name), but was apparently not modified within the last 30 seconds, so we assume that any previous run has now terminated (time_mod=$time_mod, time_now=$time_now, diff=".($time_now-$time_mod).")");
 		}
 
@@ -860,6 +861,15 @@ class UpdraftPlus_Backup {
 			# Why not just fail now? We saw a bizarre case when the results of really_is_writable() changed during the run.
 		}
 
+		# This check doesn't strictly get all possible duplicates; it's only designed for the case that can happen when moving between deprecated Windows setups and Linux
+		$duplicate_tables_exist = false;
+		foreach ($all_tables as $table) {
+			if (strtolower($table) != $table && in_array(strtolower($table), $all_tables)) {
+				$duplicate_tables_exist = true;
+				$updraftplus->log("Tables with names differing only based on case-sensitivity exist in the MySQL database: $table / ".strtolower($table));
+			}
+		}
+
 		$stitch_files = array();
 
 		$how_many_tables = count($all_tables);
@@ -876,14 +886,14 @@ class UpdraftPlus_Backup {
 			// The table file may already exist if we have produced it on a previous run
 			$table_file_prefix = $file_base.'-db-table-'.$table.'.table';
 
-			if ($this->table_prefix_raw.'options' == $table) $found_options_table = true;
+			if (strtolower($this->table_prefix_raw.'options') == strtolower($table)) $found_options_table = true;
 
 			if (file_exists($this->updraft_dir.'/'.$table_file_prefix.'.gz')) {
 				$updraftplus->log("Table $table: corresponding file already exists; moving on");
 				$stitch_files[] = $table_file_prefix;
 			} else {
 				# === is needed, otherwise 'false' matches (i.e. prefix does not match)
-				if (empty($this->table_prefix) || strpos($table, $this->table_prefix) === 0 ) {
+				if (empty($this->table_prefix) || ($duplicate_tables_exist == false && stripos($table, $this->table_prefix) === 0 ) || ($duplicate_tables_exist == true && strpos($table, $this->table_prefix) === 0 )) {
 
 					// Open file, store the handle
 					$opened = $this->backup_db_open($this->updraft_dir.'/'.$table_file_prefix.'.tmp.gz', true);
@@ -905,9 +915,9 @@ class UpdraftPlus_Backup {
 					}
 
 					# Don't include the job data for any backups - so that when the database is restored, it doesn't continue an apparently incomplete backup
-					if  (!empty($this->table_prefix) && $this->table_prefix.'sitemeta' == $table) {
+					if  (!empty($this->table_prefix) && strtolower($this->table_prefix.'sitemeta') == strtolower($table)) {
 						$where = 'meta_key NOT LIKE "updraft_jobdata_%"';
-					} elseif (!empty($this->table_prefix) && $this->table_prefix.'options' == $table) {
+					} elseif (!empty($this->table_prefix) && strtolower($this->table_prefix.'options') == strtolower($table)) {
 						$where = 'option_name NOT LIKE "updraft_jobdata_%"';
 					} else {
 						$where = '';
@@ -957,11 +967,17 @@ class UpdraftPlus_Backup {
 		$time_mod = (int)@filemtime($backup_final_file_name);
 		if (file_exists($backup_final_file_name) && $time_mod>100 && ($time_now-$time_mod)<30) {
 			$updraftplus->terminate_due_to_activity($backup_final_file_name, $time_now, $time_mod);
-		} elseif (file_exists($backup_final_file_name)) {
+		}
+		if (file_exists($backup_final_file_name)) {
 			$updraftplus->log("The final database file ($backup_final_file_name) exists, but was apparently not modified within the last 30 seconds (time_mod=$time_mod, time_now=$time_now, diff=".($time_now-$time_mod)."). Thus we assume that another UpdraftPlus terminated; thus we will continue.");
 		}
 
 		// Finally, stitch the files together
+
+		if (!function_exists('gzopen')) {
+			$updraftplus->log("PHP function is disabled; abort expected: gzopen");
+		}
+
 		$opendb = $this->backup_db_open($backup_final_file_name, true);
 		if (false === $opendb) return false;
 		$this->backup_db_header();

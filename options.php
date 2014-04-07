@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) die ('No direct access allowed');
 class UpdraftPlus_Options {
 
 	public static function user_can_manage() {
-		return current_user_can('manage_options');
+		return current_user_can(apply_filters('option_page_capability_updraft-options-group', 'manage_options'));
 	}
 
 	public static function admin_page_url() {
@@ -31,7 +31,7 @@ class UpdraftPlus_Options {
 
 	public static function add_admin_pages() {
 		global $updraftplus_admin;
-		add_submenu_page('options-general.php', 'UpdraftPlus', __('UpdraftPlus Backups','updraftplus'), "manage_options", "updraftplus", array($updraftplus_admin, "settings_output"));
+		add_submenu_page('options-general.php', 'UpdraftPlus', __('UpdraftPlus Backups','updraftplus'), apply_filters('option_page_capability_updraft-options-group', 'manage_options'), "updraftplus", array($updraftplus_admin, "settings_output"));
 	}
 
 	public static function options_form_begin($settings_fields = 'updraft-options-group', $allow_autocomplete = true) {
@@ -58,6 +58,7 @@ class UpdraftPlus_Options {
 		register_setting('updraft-options-group', 'updraft_s3generic');
 		register_setting('updraft-options-group', 'updraft_cloudfiles');
 		register_setting('updraft-options-group', 'updraft_openstack');
+		register_setting('updraft-options-group', 'updraft_googledrive', array($updraftplus, 'googledrive_checkchange'));
 
 		register_setting('updraft-options-group', 'updraft_sftp_settings');
 		register_setting('updraft-options-group', 'updraft_webdav_settings', array($updraftplus, 'replace_http_with_webdav'));
@@ -70,10 +71,6 @@ class UpdraftPlus_Options {
 		register_setting('updraft-options-group', 'updraft_log_syslog', 'absint');
 		register_setting('updraft-options-group', 'updraft_ssl_useservercerts', 'absint');
 		register_setting('updraft-options-group', 'updraft_ssl_disableverify', 'absint');
-
-		register_setting('updraft-options-group', 'updraft_googledrive_clientid', array($updraftplus, 'googledrive_clientid_checkchange') );
-		register_setting('updraft-options-group', 'updraft_googledrive_secret');
-		register_setting('updraft-options-group', 'updraft_googledrive_remotepath', array($updraftplus_admin, 'googledrive_remove_folderurlprefix') );
 
 		register_setting('updraft-options-group', 'updraft_split_every', array($updraftplus_admin, 'optionfilter_split_every') );
 

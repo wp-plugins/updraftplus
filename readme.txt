@@ -60,17 +60,18 @@ Are you able to translate UpdraftPlus into another language? Are you ready to he
 Many thanks to the existing translators:
 
 * Arabic (ar): Omar Amassine (me at omar.ma), Ahmed Fahmy and Riyadh Altayib
+* Chinese (zh_CN): K L Wang - http://klwang.info
+* Deutsch / German (de_DE): Marcel Herrguth - mherrguth at mrgeneration.de
+* Czech (cs_CZ) : Martin Křížek - krizekmartin at gmail.com
+* Ελληνική  / Greek translation (el): Κώστας Θερμογιάννης (Kostas Thermoyiannis) - http://tovivlio.net
+* Español / Spanish (es_ES): Pablo Laguna - laguna.sanchez at gmail.com and Fernando Villasmil - villasmil.fernando at gmail.com
+* Français / French translation (fr_FR): ufo3D - http://ufo-3d.fr and Thomas Jacobsen - http://123informatique.ch - with help from Françoise Lhermitte - http://www.ajwan.net
+* Italiano / Italian (it_IT): Francesco Carpana - f.carpana at gmail.com
+* Nederlands / Dutch (nl_NL):  Dennis Hunink - dennishunink at me.com and Hans van der Vlist - hansvandervlist at gmail.com
+* Polski / Polish (pl_PL): Bartosz Kaczmarek - barth.kaczmarek at gmail.com
 * Português / Portuguese (Brazilian) (pt_BR): Lucien Raven (lucienraven at yahoo.com.br) and Tom Fonseca (tomfonseca at gmail.com)
 * русский / Russian (ru_RU): Илья Худолей (Ilya Khudoley) - ironman_c at icloud.com and Igor Ocheretny (http://wpsells.com) - also see Igor's free training videos at: http://goodbackup.wpsells.com/
-* Ελληνική  / Greek translation (el): Κώστας Θερμογιάννης (Kostas Thermoyiannis) - http://tovivlio.net
-* Français / French translation (fr_FR): ufo3D - http://ufo-3d.fr and Thomas Jacobsen - http://123informatique.ch - with help from Françoise Lhermitte - http://www.ajwan.net
 * Swedish / Svensk (sv_SE): Steve Sandström - http://www.brandicon.se
-* Polski / Polish (pl_PL): Bartosz Kaczmarek - barth.kaczmarek at gmail.com
-* Chinese (zh_CN): K L Wang - http://klwang.info
-* Italiano / Italian (it_IT): Francesco Carpana - f.carpana at gmail.com
-* Deutsch / German (de_DE): Marcel Herrguth - mherrguth at mrgeneration.de
-* Español / Spanish (es_ES): Pablo Laguna - laguna.sanchez at gmail.com and Fernando Villasmil - villasmil.fernando at gmail.com
-* Nederlands / Dutch (nl_NL):  Dennis Hunink - dennishunink at me.com and Hans van der Vlist - hansvandervlist at gmail.com
 
 And to these (need updating or new translators; now less than 50% translated):
 
@@ -145,6 +146,16 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 = Development version (not yet released / supported) =
 
 * FEATURE: New remote storage back-end for OpenStack Swift
+* FEATURE: New Google Drive back-end now uses new SDK; resulting new capabilities include ability to rescan remote storage, and chunked downloading for huge files; also requires a shorter list of permissions
+* FIX: WebDAV storage: remove requirement for PEAR to be pre-installed on server
+* FIX: Fix restoration on sites where WP did not have direct filesystem access
+* FIX: Fix regex which prevented download progress of mu-plugins zip displaying correctly
+* FIX: Fix issue preventing some useful information about URL changes being included in the migration log file
+* TWEAK: Add filter so that programmers can allow the options page to be shown to non-admins
+* TWEAK: Detect and adapt to cases where the site is moved to a system with different case-sensitivity and the database record of the theme is now wrong
+* TWEAK: AWS image in settings page will now use https if dashboard access is https - prevents non-https warnings in recent browsers
+* TWEAK: Hook into Better WP Security so that it doesn't tell the user that they have no backup plugin
+* TRANSLATION: New Czech (cs_CZ) translation; thanks to Martin Křížek
 
 = 1.9.0 - 2014/03/26 =
 
@@ -758,14 +769,14 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 We recognise and thank the following for code and/or libraries used and/or modified under the terms of their open source licences:
 
 * UpdraftPlus is derived from the original Updraft WordPress plugin by Paul Kehrer (Twitter: http://twitter.com/reaperhulk, Blog: http://langui.sh)
-* Sorin Iclanzan, http://profiles.wordpress.org/hel.io/
+* The Google PHP SDK developers, https://github.com/google/google-api-php-client
 * Ben Tadiar, https://github.com/BenTheDesigner/Dropbox
 * Beau Brownlee, http://www.solutionbot.com/2009/01/02/php-ftp-class/
 * Donovan Schonknecht, http://undesigned.org.za/2007/10/22/amazon-s3-php-class
 * Rackspace US, Inc., https://github.com/rackerlabs/php-cloudfiles
 * Jim Wigginton, http://phpseclib.sourceforge.net
 * Dave Coveney, https://github.com/interconnectit/Search-Replace-DB/
-
+* No longer used: Sorin Iclanzan, http://profiles.wordpress.org/hel.io/
 
 == License ==
 
