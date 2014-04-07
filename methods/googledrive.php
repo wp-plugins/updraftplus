@@ -1,9 +1,7 @@
 <?php
 
-// Test setting and changing settings on multisite, upgrading to Premium + down-grading
 // TODO: Now that we need less permissions, we can adjust the article accordingly
 // TODO: Add Google Enhanced add-on to shop (out-of-stock)
-# zugtest folder ID: 0B0MD5k9tlBpmTkl2WnBqaHgtT00
 
 if (!defined('UPDRAFTPLUS_DIR')) die('No direct access allowed.');
 
@@ -843,7 +841,7 @@ class UpdraftPlus_BackupModule_googledrive {
 
 			<tr class="updraftplusmethod googledrive">
 				<th><?php _e('Authenticate with Google');?>:</th>
-				<td><p><?php if (!empty($opts['token'])) echo __("<strong>(You appear to be already authenticated,</strong> though you can authenticate again to refresh your access if you've had a problem).",'updraftplus'); ?>
+				<td><p><?php if (!empty($opts['token'])) echo __("<strong>(You appear to be already authenticated,</strong> though you can authenticate again to refresh your access if you've had a problem).", 'updraftplus'); ?>
 
 				<?php
 				if (!empty($opts['ownername'])) {
