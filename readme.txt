@@ -146,6 +146,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 = Development version (not yet released / supported) =
 
 * FEATURE: New remote storage back-end for OpenStack Swift
+* FEATURE: New remote storage back-end for Bitcasa (Premium - http://updraftplus.com/shop/updraftplus-premium/)
 * FEATURE: New Google Drive back-end now uses new SDK; resulting new capabilities include ability to rescan remote storage, and chunked downloading for huge files; also requires a shorter list of permissions
 * FIX: WebDAV storage: remove requirement for PEAR to be pre-installed on server
 * FIX: Fix restoration on sites where WP did not have direct filesystem access

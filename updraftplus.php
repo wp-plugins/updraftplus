@@ -17,6 +17,7 @@ TODO - some of these are out of date/done, needs pruning
 // On plugins restore, don't let UD over-write itself - because this usually means a down-grade. Since upgrades are db-compatible, there's no reason to downgrade.
 // Schedule a task to report on failure
 // Copy.Com, Box, BitCasa
+// If ionice is available, then use it to limit I/O usage
 // Check the timestamps used in filenames - they should be UTC
 // Get user to confirm if they check both the search/replace and wp-config boxes
 // Tweak the display so that users seeing resumption messages don't think it's stuck
@@ -203,6 +204,9 @@ if (!defined('UPDRAFTPLUS_WARN_DB_ROWS')) define('UPDRAFTPLUS_WARN_DB_ROWS', 150
 # The smallest value (in megabytes) that the "split zip files at" setting is allowed to be set to
 if (!defined('UPDRAFTPLUS_SPLIT_MIN')) define('UPDRAFTPLUS_SPLIT_MIN', 25);
 
+# The maximum number of files to batch at one time when writing to the backup archive. You'd only be likely to want to raise (not lower) this.
+if (!defined('UPDRAFTPLUS_MAXBATCHFILES')) define('UPDRAFTPLUS_MAXBATCHFILES', 500);
+
 // Load add-ons and various files that may or may not be present, depending on where the plugin was distributed
 if (is_file(UPDRAFTPLUS_DIR.'/premium.php')) require_once(UPDRAFTPLUS_DIR.'/premium.php');
 if (is_file(UPDRAFTPLUS_DIR.'/autoload.php')) require_once(UPDRAFTPLUS_DIR.'/autoload.php');
@@ -256,12 +260,12 @@ class UpdraftPlus {
 		'ftp' => 'FTP',
 		'sftp' => 'SFTP / SCP',
 		'webdav' => 'WebDAV',
+		'bitcasa' => 'Bitcasa',
 		's3generic' => 'S3-Compatible (Generic)',
 		'openstack' => 'OpenStack (Swift)',
 		'dreamobjects' => 'DreamObjects',
 		'email' => 'Email'
 	);
-// 		'bitcasa' => 'Bitcasa',
 
 	public $errors = array();
 	public $nonce;
@@ -408,7 +412,7 @@ class UpdraftPlus {
 	}
 
 	// Handle actions passed on to method plugins; e.g. Google OAuth 2.0 - ?action=updraftmethod-googledrive-auth&page=updraftplus
-	// Nov 2013: Google's new cloud console, for reasons as yet unknown, only allows you to enter a redirect_uri with a single URL parameter... thus, we put page second, and re-add it if necessary
+	// Nov 2013: Google's new cloud console, for reasons as yet unknown, only allows you to enter a redirect_uri with a single URL parameter... thus, we put page second, and re-add it if necessary. Apr 2014: Bitcasa already do this, so perhaps it is part of the OAuth2 standard or best practice somewhere.
 	// Also handle action=downloadlog
 	public function handle_url_actions() {
 
@@ -417,13 +421,22 @@ class UpdraftPlus {
 		if (isset($_SERVER['REQUEST_METHOD']) && 'GET' == $_SERVER['REQUEST_METHOD'] && isset($_GET['action'])) {
 			if (preg_match("/^updraftmethod-([a-z]+)-([a-z]+)$/", $_GET['action'], $matches) && file_exists(UPDRAFTPLUS_DIR.'/methods/'.$matches[1].'.php') && UpdraftPlus_Options::user_can_manage()) {
 				$_GET['page'] = 'updraftplus';
+				$_REQUEST['page'] = 'updraftplus';
 				$method = $matches[1];
 				require_once(UPDRAFTPLUS_DIR.'/methods/'.$method.'.php');
 				$call_class = "UpdraftPlus_BackupModule_".$method;
 				$call_method = "action_".$matches[2];
 				$backup_obj = new $call_class;
 				add_action('http_api_curl', array($this, 'add_curl_capath'));
-				if (method_exists($backup_obj, $call_method)) call_user_func(array($backup_obj, $call_method));
+				try {
+					if (method_exists($backup_obj, $call_method)) {
+						call_user_func(array($backup_obj, $call_method));
+					} elseif (method_exists($backup_obj, 'action_handler')) {
+						call_user_func(array($backup_obj, 'action_handler'), $matches[2]);
+					}
+				} catch (Exception $e) {
+					$this->log(sprintf(__("%s error: %s", 'updraftplus'), $method, $e->getMessage().' ('.$e->getCode().')', 'error'));
+				}
 				remove_action('http_api_curl', array($this, 'add_curl_capath'));
 			} elseif (isset( $_GET['page'] ) && $_GET['page'] == 'updraftplus' && $_GET['action'] == 'downloadlog' && isset($_GET['updraftplus_backup_nonce']) && preg_match("/^[0-9a-f]{12}$/",$_GET['updraftplus_backup_nonce']) && UpdraftPlus_Options::user_can_manage()) {
 				// No WordPress nonce is needed here or for the next, since the backup is already nonce-based
@@ -709,10 +722,11 @@ class UpdraftPlus {
 		unset($this->errors[$uniq_id]);
 	}
 
-	public function log_wp_error($err, $echo = false) {
+	public function log_wp_error($err, $echo = false, $logerror = false) {
 		foreach ($err->get_error_messages() as $msg) {
 			$this->log("Error message: $msg");
 			if ($echo) echo sprintf(__('Error: %s', 'updraftplus'), htmlspecialchars($msg))."<br>";
+			if ($logerror) $this->log($msg, 'error');
 		}
 		$codes = $err->get_error_codes();
 		if (is_array($codes)) {
@@ -724,6 +738,8 @@ class UpdraftPlus {
 				}
 			}
 		}
+		# Returns false so that callers can return with false more efficiently if they wish
+		return false;
 	}
 
 	public function get_max_packet_size() {
@@ -861,7 +877,7 @@ class UpdraftPlus {
 			$start_offset = (file_exists($fullpath)) ? filesize($fullpath): 0;
 
 			if ($start_offset >= $remote_size) {
-				$this->log("Cloud Files: file is already completely downloaded ($start_offset/$remote_size)");
+				$this->log("File is already completely downloaded ($start_offset/$remote_size)");
 				return true;
 			}
 
@@ -895,8 +911,8 @@ class UpdraftPlus {
 			}
 
 		} catch(Exception $e) {
-			$updraftplus->log('Cloud Files error ('.get_class($e).') - failed to download the file ('.$e->getMessage().')');
-			$updraftplus->log(sprintf(__('Error - failed to download the file from %s','updraftplus'),'Cloud Files').' ('.$e->getMessage().')' ,'error');
+			$this->log('Error ('.get_class($e).') - failed to download the file ('.$e->getCode().', '.$e->getMessage().')');
+			$this->log("$file: ".__('Error - failed to download the file','updraftplus').' ('.$e->getCode().', '.$e->getMessage().')' ,'error');
 			return false;
 		}
 
@@ -2257,6 +2273,20 @@ class UpdraftPlus {
 			$opts['folder'] = apply_filters('updraftplus_options_googledrive_foldername', 'UpdraftPlus', $opts['folder']);
 			unset($opts['parentid']);
 		}
+		return $opts;
+	}
+
+	// Acts as a WordPress options filter
+	public function bitcasa_checkchange($bitcasa) {
+		$opts = UpdraftPlus_Options::get_updraft_option('updraft_bitcasa');
+		if (!is_array($opts)) $opts = array();
+		if (!is_array($bitcasa)) return $opts;
+		$old_client_id = (empty($opts['clientid'])) ? '' : $opts['clientid'];
+		if (!empty($opts['token']) && $old_client_id != $bitcasa['clientid']) {
+			unset($opts['token']);
+			unset($opts['ownername']);
+		}
+		foreach ($bitcasa as $key => $value) { $opts[$key] = $value; }
 		return $opts;
 	}
 

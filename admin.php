@@ -52,6 +52,11 @@ class UpdraftPlus_Admin {
 			add_action('all_admin_notices', array($this,'show_admin_warning_dropbox') );
 		}
 
+		if (UpdraftPlus_Options::user_can_manage() && ('bitcasa' === $service || is_array($service) && in_array('bitcasa', $service))) {
+			$opts = UpdraftPlus_Options::get_updraft_option('updraft_bitcasa');
+			if (!empty($opts['clientid']) && !empty($opts['secret']) && empty($opts['token'])) add_action('all_admin_notices', array($this,'show_admin_warning_bitcasa') );
+		}
+
 		if (UpdraftPlus_Options::user_can_manage() && $this->disk_space_check(1048576*35) === false) add_action('all_admin_notices', array($this, 'show_admin_warning_diskspace'));
 
 		// Next, the actions that only come on the UpdraftPlus page
@@ -138,7 +143,7 @@ class UpdraftPlus_Admin {
 
 	}
 
-	function core_upgrade_preamble() {
+	public function core_upgrade_preamble() {
 		if (!class_exists('UpdraftPlus_Addon_Autobackup')) {
 			if (defined('UPDRAFTPLUS_NOADS_A')) return;
 			# TODO: Remove legacy/wrong use of transient any time from 1 Jun 2014
@@ -381,6 +386,10 @@ class UpdraftPlus_Admin {
 
 	public function show_admin_warning_dropbox() {
 		$this->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus').'</strong> <a href="'.UpdraftPlus_Options::admin_page_url().'?page=updraftplus&action=updraftmethod-dropbox-auth&updraftplus_dropboxauth=doit">'.sprintf(__('Click here to authenticate your %s account (you will not be able to back up to %s without it).','updraftplus'),'Dropbox','Dropbox').'</a>');
+	}
+
+	public function show_admin_warning_bitcasa() {
+		$this->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus').'</strong> <a href="'.UpdraftPlus_Options::admin_page_url().'?page=updraftplus&action=updraftmethod-bitcasa-auth&updraftplus_bitcasaauth=doit">'.sprintf(__('Click here to authenticate your %s account (you will not be able to back up to %s without it).','updraftplus'),'Bitcasa','Bitcasa').'</a>');
 	}
 
 	public function show_admin_warning_googledrive() {
@@ -2026,9 +2035,9 @@ CREATE TABLE $wpdb->signups (
 			<?php if ($include_blurb) {
 			?>
 			<div id="updraft_delete_old_dirs_pagediv" class="updated" style="padding:8px;"><p> <?php _e('Your WordPress install has old directories from its state before you restored/migrated (technical information: these are suffixed with -old). You should press this button to delete them as soon as you have verified that the restoration worked.','updraftplus');?></p><?php } ?>
-			<form method="post" onsubmit="return updraft_delete_old_dirs();" action="<?php echo remove_query_arg(array('updraft_restore_success','action')) ?>">
+			<form method="post" onsubmit="return updraft_delete_old_dirs();" action="<?php echo add_query_arg(array('updraft_restore_success' => false, 'action' => false, 'page' => 'updraftplus')); ?>">
 				<?php wp_nonce_field('updraftplus-credentialtest-nonce'); ?>
-				<input type="hidden" name="action" value="updraft_delete_old_dirs" />
+				<input type="hidden" name="action" value="updraft_delete_old_dirs">
 				<input type="submit" class="button-primary" value="<?php echo esc_attr(__('Delete Old Directories', 'updraftplus'));?>"  />
 			</form>
 		<?php
@@ -2036,7 +2045,7 @@ CREATE TABLE $wpdb->signups (
 		}
 
 
-	function print_active_jobs() {
+	private function print_active_jobs() {
 		$cron = get_option('cron');
 		if (!is_array($cron)) $cron = array();
 // 		$found_jobs = 0;
@@ -2061,7 +2070,7 @@ CREATE TABLE $wpdb->signups (
 		return $ret;
 	}
 
-	function print_active_job($job_id, $is_oneshot = false, $time = false, $next_resumption = false) {
+	private function print_active_job($job_id, $is_oneshot = false, $time = false, $next_resumption = false) {
 
 		$ret = '';
 
@@ -2205,7 +2214,7 @@ CREATE TABLE $wpdb->signups (
 
 	}
 
-	function delete_old_dirs_go($show_return = true) {
+	private function delete_old_dirs_go($show_return = true) {
 		echo ($show_return) ? '<h1>UpdraftPlus - '.__('Remove old directories', 'updraftplus').'</h1>' : '<h2>'.__('Remove old directories', 'updraftplus').'</h2>';
 
 		if($this->delete_old_dirs()) {
@@ -2217,7 +2226,7 @@ CREATE TABLE $wpdb->signups (
 	}
 
 	//deletes the -old directories that are created when a backup is restored.
-	function delete_old_dirs() {
+	private function delete_old_dirs() {
 		global $wp_filesystem, $updraftplus;
 		$credentials = request_filesystem_credentials(wp_nonce_url(UpdraftPlus_Options::admin_page_url()."?page=updraftplus&action=updraft_delete_old_dirs", 'updraftplus-credentialtest-nonce')); 
 		WP_Filesystem($credentials);
@@ -2254,7 +2263,7 @@ CREATE TABLE $wpdb->signups (
 		return $ret && $ret3 && $ret4;
 	}
 
-	function delete_old_dirs_dir($dir, $wpfs = true) {
+	private function delete_old_dirs_dir($dir, $wpfs = true) {
 
 		$dir = trailingslashit($dir);
 
@@ -2295,7 +2304,7 @@ CREATE TABLE $wpdb->signups (
 	}
 
 	// The aim is to get a directory that is writable by the webserver, because that's the only way we can create zip files
-	function create_backup_dir() {
+	private function create_backup_dir() {
 
 		global $wp_filesystem, $updraftplus;
 
@@ -2349,7 +2358,7 @@ CREATE TABLE $wpdb->signups (
 	}
 
 	//scans the content dir to see if any -old dirs are present
-	function scan_old_dirs() {
+	private function scan_old_dirs() {
 		global $updraftplus;
 		$dirs = scandir(untrailingslashit(WP_CONTENT_DIR));
 		if (!is_array($dirs)) $dirs = array();
@@ -2359,6 +2368,15 @@ CREATE TABLE $wpdb->signups (
 		# No need to scan ABSPATH - we don't backup there
 		if (is_dir(untrailingslashit(WP_PLUGIN_DIR).'-old')) return true;
 		return false;
+	}
+
+	public function storagemethod_row($method, $header, $contents) {
+		?>
+			<tr class="updraftplusmethod <?php echo $method;?>">
+				<th><?php echo $header;?></th>
+				<td><?php echo $contents;?></td>
+			</tr>
+		<?php
 	}
 
 	private function last_backup_html() {
@@ -2759,7 +2777,7 @@ CREATE TABLE $wpdb->signups (
 		<?php
 	}
 
-	function show_double_warning($text, $extraclass = '') {
+	public function show_double_warning($text, $extraclass = '') {
 
 		?><div class="error updraftplusmethod <?php echo $extraclass; ?>"><p><?php echo $text; ?></p></div>
 
@@ -2769,13 +2787,13 @@ CREATE TABLE $wpdb->signups (
 
 	}
 
-	function optionfilter_split_every($value) {
-		$value=absint($value);
+	public function optionfilter_split_every($value) {
+		$value = absint($value);
 		if (!$value >= UPDRAFTPLUS_SPLIT_MIN) $value = UPDRAFTPLUS_SPLIT_MIN;
 		return $value;
 	}
 
-	function curl_check($service, $has_fallback = false, $extraclass = '') {
+	public function curl_check($service, $has_fallback = false, $extraclass = '') {
 		// Check requirements
 		if (!function_exists("curl_init") || !function_exists('curl_exec')) {
 		
@@ -3656,7 +3674,7 @@ ENDHERE;
 	private function get_settings_keys() {
 		return array('updraft_autobackup_default', 'updraftplus_googledrive', 'updraftplus_tmp_googledrive_access_token', 'updraftplus_dismissedautobackup', 'updraftplus_dismissedexpiry', 'updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_wpcore', 'updraft_include_wpcore_exclude', 'updraft_include_more', 'updraft_include_blogs', 'updraft_include_mu-plugins', 'updraft_include_others_exclude', 'updraft_include_uploads_exclude', 'updraft_lastmessage', 'updraft_googledrive_token',
 		'updraft_dropboxtk_request_token', 'updraft_dropboxtk_access_token', 'updraft_dropbox_folder',
-		'updraft_last_backup', 'updraft_starttime_files', 'updraft_starttime_db', 'updraft_startday_db', 'updraft_startday_files', 'updraft_sftp_settings', 'updraft_s3', 'updraft_s3generic', 'updraft_dreamhost', 'updraft_s3generic_login', 'updraft_s3generic_pass', 'updraft_s3generic_remote_path', 'updraft_s3generic_endpoint', 'updraft_webdav_settings', 'updraft_disable_ping', 'updraft_openstack', 'updraft_cloudfiles', 'updraft_cloudfiles_user', 'updraft_cloudfiles_apikey', 'updraft_cloudfiles_path', 'updraft_cloudfiles_authurl', 'updraft_ssl_useservercerts', 'updraft_ssl_disableverify', 'updraft_s3_login', 'updraft_s3_pass', 'updraft_s3_remote_path', 'updraft_dreamobjects_login', 'updraft_dreamobjects_pass', 'updraft_dreamobjects_remote_path', 'updraft_report_warningsonly', 'updraft_report_wholebackup', 'updraft_log_syslog');
+		'updraft_last_backup', 'updraft_starttime_files', 'updraft_starttime_db', 'updraft_startday_db', 'updraft_startday_files', 'updraft_sftp_settings', 'updraft_s3', 'updraft_s3generic', 'updraft_dreamhost', 'updraft_s3generic_login', 'updraft_s3generic_pass', 'updraft_s3generic_remote_path', 'updraft_s3generic_endpoint', 'updraft_webdav_settings', 'updraft_disable_ping', 'updraft_openstack', 'updraft_bitcasa', 'updraft_cloudfiles', 'updraft_cloudfiles_user', 'updraft_cloudfiles_apikey', 'updraft_cloudfiles_path', 'updraft_cloudfiles_authurl', 'updraft_ssl_useservercerts', 'updraft_ssl_disableverify', 'updraft_s3_login', 'updraft_s3_pass', 'updraft_s3_remote_path', 'updraft_dreamobjects_login', 'updraft_dreamobjects_pass', 'updraft_dreamobjects_remote_path', 'updraft_report_warningsonly', 'updraft_report_wholebackup', 'updraft_log_syslog');
 	}
 
 }
