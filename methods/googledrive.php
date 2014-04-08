@@ -1,8 +1,5 @@
 <?php
 
-// TODO: Now that we need less permissions, we can adjust the article accordingly
-// TODO: Add Google Enhanced add-on to shop (out-of-stock)
-
 if (!defined('UPDRAFTPLUS_DIR')) die('No direct access allowed.');
 
 # Converted to job_options: yes
@@ -397,6 +394,7 @@ class UpdraftPlus_BackupModule_googledrive {
 			} catch (Exception $e) {
 				$updraftplus->log("ERROR: Google Drive upload error: ".$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
 				$updraftplus->log("$file_name: ".sprintf(__('Failed to upload to %s','updraftplus'),__('Google Drive','updraftplus')), 'error');
+				$this->client->setDefer(false);
 			}
 		}
 

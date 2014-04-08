@@ -48,7 +48,7 @@ class UpdraftPlus_BackupModule_s3 {
 		$proxy = new WP_HTTP_Proxy();
 		$s3 = new UpdraftPlus_S3($key, $secret);
 
-		if ( $proxy->is_enabled()) {
+		if ($proxy->is_enabled()) {
 			# WP_HTTP_Proxy returns empty strings where we want nulls
 			$user = $proxy->username();
 			if (empty($user)) {

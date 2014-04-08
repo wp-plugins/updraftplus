@@ -351,8 +351,8 @@ class UpdraftPlus_BackupModule_dropbox {
 				echo apply_filters('updraftplus_dropbox_extra_config', $defmsg); ?>
 
 			<tr class="updraftplusmethod dropbox">
-				<th><?php _e('Authenticate with Dropbox','updraftplus');?>:</th>
-				<td><p><?php if (UpdraftPlus_Options::get_updraft_option('updraft_dropboxtk_request_token','') != '') echo "<strong>".__('(You appear to be already authenticated)','updraftplus').".</strong>"; ?> <a href="?page=updraftplus&action=updraftmethod-dropbox-auth&updraftplus_dropboxauth=doit"><?php echo __('<strong>After</strong> you have saved your settings (by clicking \'Save Changes\' below), then come back here once and click this link to complete authentication with Dropbox.','updraftplus');?></a>
+				<th><?php echo sprintf(__('Authenticate with %s', 'updraftplus'), __('Dropbox', 'updraftplus'));?>:</th>
+				<td><p><?php if (UpdraftPlus_Options::get_updraft_option('updraft_dropboxtk_request_token','') != '') echo "<strong>".__('(You appear to be already authenticated).','updraftplus').".</strong>"; ?> <a href="?page=updraftplus&action=updraftmethod-dropbox-auth&updraftplus_dropboxauth=doit"><?php echo sprintf(__('<strong>After</strong> you have saved your settings (by clicking \'Save Changes\' below), then come back here once and click this link to complete authentication with %s.','updraftplus'), __('Dropbox', 'updraftplus'));?></a>
 				</p>
 				</td>
 			</tr>
@@ -401,9 +401,9 @@ class UpdraftPlus_BackupModule_dropbox {
 		if (false === $dropbox) return false;
 		$accountInfo = $dropbox->accountInfo();
 
-		$message = "<strong>".__('Success','updraftplus').'</strong>: '.sprintf(__('you have authenticated your %s account','updraftplus'),'Dropbox');
+		$message = "<strong>".__('Success:','updraftplus').'</strong> '.sprintf(__('you have authenticated your %s account','updraftplus'),'Dropbox');
 		# We log, because otherwise people get confused by the most recent log message of 'Parameter not found: oauth_token' and raise support requests
-		$updraftplus->log(__('Success','updraftplus').': '.sprintf(__('you have authenticated your %s account','updraftplus'),'Dropbox'));
+		$updraftplus->log(__('Success:','updraftplus').' '.sprintf(__('you have authenticated your %s account','updraftplus'),'Dropbox'));
 
 		if (empty($accountInfo['code']) || "200" != $accountInfo['code']) {
 			$message .= " (".__('though part of the returned information was not as expected - your mileage may vary','updraftplus').")". $accountInfo['code'];

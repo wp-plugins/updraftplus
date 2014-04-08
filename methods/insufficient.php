@@ -8,10 +8,11 @@ class UpdraftPlus_BackupModule_insufficientphp {
 	private $error_msg;
 	private $method;
 
-	public function __construct($method, $desc, $php) {
+	public function __construct($method, $desc, $php, $image = null) {
 		$this->method = $method;
 		$this->desc = $desc;
 		$this->required_php = $php;
+		$this->image = $image;
 		$this->error_msg = 'This remote storage method ('.$this->desc.') requires PHP '.$this->required_php.' or later';
 		$this->error_msg_trans = sprintf(__('This remote storage method (%s) requires PHP %s or later.', 'updraftplus'), $this->desc, $this->required_php);
 	}
@@ -58,6 +59,7 @@ class UpdraftPlus_BackupModule_insufficientphp {
 			<th><?php echo htmlspecialchars($this->desc);?>:</th>
 			<td>
 				<em>
+					<?php echo ((!empty($this->image)) ? '<p><img src="'.UPDRAFTPLUS_URL.'/images/'.$this->image.'"></p>' : ''); ?>
 					<?php echo htmlspecialchars($this->error_msg_trans);?>
 					<?php echo htmlspecialchars(__('You will need to ask your web hosting company to upgrade.', 'updraftplus'));?>
 					<?php echo sprintf(__('Your %s version: %s.', 'updraftplus'), 'PHP', phpversion());?>

@@ -7,12 +7,17 @@ class UpdraftPlus_BackupModule_ViaAddon {
 	private $method;
 	private $description;
 
-	public function __construct($method, $description, $required_php = false) {
+	public function __construct($method, $description, $required_php = false, $image = null) {
 		$this->method = $method;
 		$this->description = $description;
 		$this->required_php = $required_php;
+		$this->image = $image;
 		$this->error_msg = 'This remote storage method ('.$this->description.') requires PHP '.$this->required_php.' or later';
 		$this->error_msg_trans = sprintf(__('This remote storage method (%s) requires PHP %s or later.', 'updraftplus'), $this->description, $this->required_php);
+	}
+
+	public function action_handler($action = '') {
+		return apply_filters('updraft_'.$this->method.'_action_'.$action, null);
 	}
 
 	public function backup($backup_array) {
@@ -69,7 +74,7 @@ class UpdraftPlus_BackupModule_ViaAddon {
 		$default = '
 		<tr class="updraftplusmethod '.$this->method.'">
 			<th>'.$this->description.':</th>
-			<td>'.$link.'</a></td>
+			<td>'.((!empty($this->image)) ? '<p><img src="'.UPDRAFTPLUS_URL.'/images/'.$this->image.'"></p>' : '').$link.'</a></td>
 			</tr>';
 
 		if (version_compare(phpversion(), $this->required_php, '<')) {
