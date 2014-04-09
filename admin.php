@@ -170,8 +170,6 @@ class UpdraftPlus_Admin {
 			'max_file_size' => '100Gb',
 			'chunk_size' => $chunk_size.'b',
 			'url' => admin_url('admin-ajax.php'),
-			'flash_swf_url' => includes_url('js/plupload/plupload.flash.swf'),
-			'silverlight_xap_url' => includes_url('js/plupload/plupload.silverlight.xap'),
 			'filters' => array(array('title' => __('Allowed Files'), 'extensions' => 'zip,gz,crypt,sql,txt')),
 			'multipart' => true,
 			'multi_selection' => true,
@@ -182,6 +180,19 @@ class UpdraftPlus_Admin {
 				'action' => 'plupload_action'
 			)
 		);
+
+		# WP 3.9 updated to plupload 2.0 - https://core.trac.wordpress.org/ticket/25663
+		if (is_file(ABSPATH.'wp-includes/js/plupload/Moxie.swf')) {
+			$plupload_init['flash_swf_url'] = includes_url('js/plupload/Moxie.swf');
+		} else {
+			$plupload_init['flash_swf_url'] = includes_url('js/plupload/plupload.flash.swf');
+		}
+
+		if (is_file(ABSPATH.'wp-includes/js/plupload/Moxie.xap')) {
+			$plupload_init['silverlight_xap_url'] = includes_url('js/plupload/Moxie.xap');
+		} else {
+			$plupload_init['silverlight_xap_url'] = includes_url('js/plupload/plupload.silverlight.swf');
+		}
 
 		?><script type="text/javascript">
 			var updraft_plupload_config=<?php echo json_encode($plupload_init); ?>;
