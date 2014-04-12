@@ -16,7 +16,7 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // On plugins restore, don't let UD over-write itself - because this usually means a down-grade. Since upgrades are db-compatible, there's no reason to downgrade.
 // Schedule a task to report on failure
-// Copy.Com, Box, BitCasa
+// Copy.Com, Box
 // If ionice is available, then use it to limit I/O usage
 // Check the timestamps used in filenames - they should be UTC
 // Get user to confirm if they check both the search/replace and wp-config boxes
@@ -111,7 +111,6 @@ TODO - some of these are out of date/done, needs pruning
 // Make search+replace two-pass to deal with moving between exotic non-default moved-directory setups
 // Get link - http://www.rackspace.com/knowledge_center/article/how-to-use-updraftplus-to-back-up-cloud-sites-to-cloud-files
 // 'Delete from your webserver' should trigger a rescan if the backup was local-only
-// Notify user only if backup fails
 // Encrypt archives - http://www.frostjedi.com/phpbb3/viewtopic.php?f=46&t=168508&p=391881&e=391881
 // Option for additive restores - i.e. add content (themes, plugins,...) instead of replacing
 // Testing framework - automated testing of all file upload / download / deletion methods
@@ -129,7 +128,6 @@ TODO - some of these are out of date/done, needs pruning
 // If migrating, warn about consequences of over-writing wp-config.php
 // Produce a command-line version of the restorer (so that people with shell access are immune from server-enforced timeouts)
 // Restorations should be logged also
-// Log the restore operation
 // Migrator - list+download from remote, kick-off backup remotely
 // Search for other TODO-s in the code
 // Opt-in non-personal stats + link to aggregated results
@@ -193,7 +191,7 @@ define('UPDRAFT_DEFAULT_UPLOADS_EXCLUDE','backup*,*backups,backwpup*,wp-clone');
 
 # The following can go in your wp-config.php
 # Tables whose data can be safed without significant loss, if (and only if) the attempt to back them up fails (e.g. bwps_log, from WordPress Better Security, is log data; but individual entries can be huge and cause out-of-memory fatal errors on low-resource environments). Comma-separate the table names (without the WordPress table prefix).
-if (!defined('UPDRAFTPLUS_DATA_OPTIONAL_TABLES')) define('UPDRAFTPLUS_DATA_OPTIONAL_TABLES', 'bwps_log,statpress');
+if (!defined('UPDRAFTPLUS_DATA_OPTIONAL_TABLES')) define('UPDRAFTPLUS_DATA_OPTIONAL_TABLES', 'bwps_log,statpress,slim_stats,redirection_logs');
 if (!defined('UPDRAFTPLUS_ZIP_EXECUTABLE')) define('UPDRAFTPLUS_ZIP_EXECUTABLE', "/usr/bin/zip,/bin/zip,/usr/local/bin/zip,/usr/sfw/bin/zip,/usr/xdg4/bin/zip,/opt/bin/zip");
 if (!defined('UPDRAFTPLUS_MYSQLDUMP_EXECUTABLE')) define('UPDRAFTPLUS_MYSQLDUMP_EXECUTABLE', "/usr/bin/mysqldump,/bin/mysqldump,/usr/local/bin/mysqldump,/usr/sfw/bin/mysqldump,/usr/xdg4/bin/mysqldump,/opt/bin/mysqldump");
 # If any individual file size is greater than this, then a warning is given
@@ -711,7 +709,7 @@ class UpdraftPlus {
 		}
 
 		if (defined('UPDRAFTPLUS_CONSOLELOG')) print $line."\n";
-		if (defined('UPDRAFTPLUS_BROWSERLOG')) print htmlentities($line)."\n";
+		if (defined('UPDRAFTPLUS_BROWSERLOG')) print htmlentities($line)."<br>\n";
 	}
 
 	public function log_removewarning($uniq_id) {
@@ -1665,8 +1663,6 @@ class UpdraftPlus {
 
 		// Some house-cleaning
 		$this->clean_temporary_files();
-		do_action('updraftplus_boot_backup');
-
 		// Log some information that may be helpful
 		$this->log("Tasks: Backup files: $backup_files (schedule: ".UpdraftPlus_Options::get_updraft_option('updraft_interval', 'unset').") Backup DB: $backup_database (schedule: ".UpdraftPlus_Options::get_updraft_option('updraft_interval_database', 'unset').")");
 
@@ -1693,6 +1689,11 @@ class UpdraftPlus {
 			update_option('updraftplus_unlocked_'.$semaphore, '1');
 			update_option('updraftplus_last_lock_time_'.$semaphore, current_time('mysql', 1));
 			update_option('updraftplus_semaphore_'.$semaphore, '0');
+		}
+
+		if (false == apply_filters('updraftplus_boot_backup', true, $backup_files, $backup_database, $one_shot)) {
+			$updraftplus->log("Backup aborted (via filter)");
+			return false;
 		}
 
 		if (!is_string($service) && !is_array($service)) $service = UpdraftPlus_Options::get_updraft_option('updraft_service');
@@ -2368,14 +2369,11 @@ class UpdraftPlus {
 
 			$len = filesize($fullpath);
 
-			$filearr = explode('.',$file);
-
-			$file_ext = array_pop($filearr);
 			header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
 			header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
 			header("Content-Length: $len;");
 
-			if ($file_ext == 'crypt') {
+			if ('.crypt' == substr($file, -6, 6)) {
 				if ($encryption == "") $encryption = UpdraftPlus_Options::get_updraft_option('updraft_encryptionphrase');
 				if ($encryption == "") {
 					header('Content-type: text/plain');
@@ -2394,8 +2392,14 @@ class UpdraftPlus {
 					}
 				}
 			} else {
-				if ($file_ext == 'zip') {
+				if ('.zip' == substr($file, -4, 4)) {
 					header('Content-type: application/zip');
+				} elseif ('.tar' == substr($file, -4, 4)) {
+					header('Content-type: application/x-tar');
+				} elseif ('.tar.gz' == substr($file, -7, 7)) {
+					header('Content-type: application/x-tgz');
+				} elseif ('.tar.bz2' == substr($file, -8, 8)) {
+					header('Content-type: application/x-bzip-compressed-tar');
 				} else {
 					// When we sent application/x-gzip, we found a case where the server compressed it a second time
 					header('Content-type: application/octet-stream');

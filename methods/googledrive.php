@@ -427,7 +427,7 @@ class UpdraftPlus_BackupModule_googledrive {
 		$config = new Google_Config();
 		$config->setClassConfig('Google_IO_Abstract', 'request_timeout_seconds', 15);
 		# In our testing, $service->about->get() fails if gzip is not disabled when using the stream wrapper
-		if (!function_exists('curl_version')) {
+		if (!function_exists('curl_version') || !function_exists('curl_exec')) {
 			$config->setClassConfig('Google_Http_Request', 'disable_gzip', true);
 		}
 
@@ -846,6 +846,8 @@ class UpdraftPlus_BackupModule_googledrive {
 					echo ' '.sprintf(__("Account holder's name: %s.", 'updraftplus'), htmlspecialchars($opts['ownername'])).' ';
 				}
 				?>
+				</p>
+				<p>
 
 				<a href="<?php echo UpdraftPlus_Options::admin_page_url();?>?action=updraftmethod-googledrive-auth&page=updraftplus&updraftplus_googleauth=doit"><?php print __('<strong>After</strong> you have saved your settings (by clicking \'Save Changes\' below), then come back here once and click this link to complete authentication with Google.','updraftplus');?></a>
 				</p>

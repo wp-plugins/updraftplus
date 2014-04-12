@@ -88,7 +88,7 @@ class UpdraftPlus_Admin {
 
 		if (version_compare($wp_version, '3.2', '<')) add_action('all_admin_notices', array($this, 'show_admin_warning_wordpressversion'));
 
-		wp_enqueue_script('updraftplus-admin-ui', UPDRAFTPLUS_URL.'/includes/updraft-admin-ui.js', array('jquery', 'jquery-ui-dialog', 'plupload-all'), '32');
+		wp_enqueue_script('updraftplus-admin-ui', UPDRAFTPLUS_URL.'/includes/updraft-admin-ui.js', array('jquery', 'jquery-ui-dialog', 'plupload-all'), '34');
 
 		wp_localize_script( 'updraftplus-admin-ui', 'updraftlion', array(
 			'sendonlyonwarnings' => __('Send a report only when there are warnings/errors', 'updraftplus'),
@@ -174,7 +174,7 @@ class UpdraftPlus_Admin {
  		$chunk_size = min(wp_max_upload_size()-1024, 1024*1024*2);
 
 		$plupload_init = array(
-			'runtimes' => 'html5,silverlight,flash,html4',
+			'runtimes' => 'html5,flash,silverlight,html4',
 			'browse_button' => 'plupload-browse-button',
 			'container' => 'plupload-upload-ui',
 			'drop_element' => 'drag-drop-area',
@@ -183,9 +183,7 @@ class UpdraftPlus_Admin {
 			'max_file_size' => '100Gb',
 			'chunk_size' => $chunk_size.'b',
 			'url' => admin_url('admin-ajax.php'),
-			'flash_swf_url' => includes_url('js/plupload/plupload.flash.swf'),
-			'silverlight_xap_url' => includes_url('js/plupload/plupload.silverlight.xap'),
-			'filters' => array(array('title' => __('Allowed Files'), 'extensions' => 'zip,gz,crypt,sql,txt')),
+			'filters' => array(array('title' => __('Allowed Files'), 'extensions' => 'zip,tar,gz,crypt,sql,txt')),
 			'multipart' => true,
 			'multi_selection' => true,
 			'urlstream_upload' => true,
@@ -195,6 +193,21 @@ class UpdraftPlus_Admin {
 				'action' => 'plupload_action'
 			)
 		);
+// 			'flash_swf_url' => includes_url('js/plupload/plupload.flash.swf'),
+// 			'silverlight_xap_url' => includes_url('js/plupload/plupload.silverlight.xap'),
+
+		# WP 3.9 updated to plupload 2.0 - https://core.trac.wordpress.org/ticket/25663
+		if (is_file(ABSPATH.'wp-includes/js/plupload/Moxie.swf')) {
+			$plupload_init['flash_swf_url'] = includes_url('js/plupload/Moxie.swf');
+		} else {
+			$plupload_init['flash_swf_url'] = includes_url('js/plupload/plupload.flash.swf');
+		}
+
+		if (is_file(ABSPATH.'wp-includes/js/plupload/Moxie.xap')) {
+			$plupload_init['silverlight_xap_url'] = includes_url('js/plupload/Moxie.xap');
+		} else {
+			$plupload_init['silverlight_xap_url'] = includes_url('js/plupload/plupload.silverlight.swf');
+		}
 
 		?><script type="text/javascript">
 			var updraft_plupload_config=<?php echo json_encode($plupload_init); ?>;
@@ -1172,7 +1185,7 @@ class UpdraftPlus_Admin {
 						//$mess[] = sprintf(__('%s version: %s', 'updraftplus'), 'WordPress', $old_wp_version);
 						$warn[] = sprintf(__('You are importing from a newer version of WordPress (%s) into an older one (%s). There are no guarantees that WordPress can handle this.', 'updraftplus'), $old_wp_version, $wp_version);
 					}
-				} elseif ('' == $old_table_prefix && preg_match('/^\# Table prefix: (\S+)$/', $buffer, $matches)) {
+				} elseif ('' == $old_table_prefix && (preg_match('/^\# Table prefix: (\S+)$/', $buffer, $matches) || preg_match('/^-- Table prefix: (\S+)$/i', $buffer, $matches))) {
 					$old_table_prefix = $matches[1];
 // 					echo '<strong>'.__('Old table prefix:', 'updraftplus').'</strong> '.htmlspecialchars($old_table_prefix).'<br>';
 				} elseif ($gathering_siteinfo && preg_match('/^\# Site info: (\S+)$/', $buffer, $matches)) {
@@ -1350,7 +1363,7 @@ CREATE TABLE $wpdb->signups (
 		add_filter('sanitize_file_name', array($this, 'sanitize_file_name'));
 		// handle file upload
 
-		$farray = array( 'test_form' => true, 'action' => 'plupload_action' );
+		$farray = array('test_form' => true, 'action' => 'plupload_action');
 
 		$farray['test_type'] = false;
 		$farray['ext'] = 'x-gzip';
@@ -1393,6 +1406,16 @@ CREATE TABLE $wpdb->signups (
 					}
 					fclose($wh);
 					$status['file'] = $updraft_dir.'/'.$final_file;
+					if ('.tar' == substr($final_file, -4, 4)) {
+						if (file_exists($status['file'].'.gz')) unlink($status['file'].'.gz');
+						if (file_exists($status['file'].'.bz2')) unlink($status['file'].'.bz2');
+					} elseif ('.tar.gz' == substr($final_file, -7, 7)) {
+						if (file_exists(substr($status['file'], 0, strlen($status['file'])-3))) unlink(substr($status['file'], 0, strlen($status['file'])-3));
+						if (file_exists(substr($status['file'], 0, strlen($status['file'])-3).'.bz2')) unlink(substr($status['file'], 0, strlen($status['file'])-3).'.bz2');
+					} elseif ('.tar.bz2' == substr($final_file, -8, 8)) {
+						if (file_exists(substr($status['file'], 0, strlen($status['file'])-4))) unlink(substr($status['file'], 0, strlen($status['file'])-4));
+						if (file_exists(substr($status['file'], 0, strlen($status['file'])-4).'.gz')) unlink(substr($status['file'], 0, strlen($status['file'])-3).'.gz');
+					}
 				}
 			}
 
@@ -1432,6 +1455,7 @@ CREATE TABLE $wpdb->signups (
 		exit;
 	}
 
+	# Database decrypter
 	public function plupload_action2() {
 
 		@set_time_limit(900);
@@ -1740,7 +1764,7 @@ CREATE TABLE $wpdb->signups (
 
 				<tr>
 					<th><?php echo htmlspecialchars(__('Backups, logs & restoring','updraftplus')); ?>:</th>
-					<td><a id="updraft_showbackups" href="#" title="<?php _e('Press to see available backups','updraftplus');?>" onclick="jQuery('.download-backups').fadeToggle(); updraft_historytimertoggle(0);"><?php echo sprintf(__('%d set(s) available', 'updraftplus'), count($backup_history)); ?></a></td>
+					<td><a id="updraft_showbackups" href="#" title="<?php _e('Press to see available backups','updraftplus');?>" onclick="jQuery('.download-backups').fadeToggle(); updraft_historytimertoggle(0); return false;"><?php echo sprintf(__('%d set(s) available', 'updraftplus'), count($backup_history)); ?></a></td>
 				</tr>
 				<?php
 					if (defined('UPDRAFTPLUS_EXPERIMENTAL_MISC') && UPDRAFTPLUS_EXPERIMENTAL_MISC == true) {

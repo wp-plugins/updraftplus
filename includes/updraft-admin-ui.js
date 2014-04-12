@@ -677,10 +677,9 @@ uploader.bind('FilesAdded', function(up, files){
 				if (updraft_accept_archivename[i].test(file.name)) {
 					var accepted_file = true;
 				}
-				//Do something
 			}
 			if (!accepted_file) {
-				if (/\.zip$/i.test(file.name) || /\.sql(\.gz)?$/i.test(file.name)) {
+				if (/\.(zip|tar|tar\.gz|tar\.bz2)$/i.test(file.name) || /\.sql(\.gz)?$/i.test(file.name)) {
 					jQuery('#updraft-message-modal-innards').html('<p><strong>'+file.name+"</strong></p> "+updraftlion.notarchive2);
 					jQuery('#updraft-message-modal').dialog('open');
 				} else {

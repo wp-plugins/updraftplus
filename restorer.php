@@ -42,10 +42,12 @@ class Updraft_Restorer extends WP_Upgrader {
 		$this->strings['move_failed'] = __('Could not move the files into place. Check your file permissions.','updraftplus');
 		$this->strings['delete_failed'] = __('Failed to delete working directory after restoring.','updraftplus');
 		$this->strings['multisite_error'] = __('You are running on WordPress multisite - but your backup is not of a multisite site.', 'updraftplus');
+		$this->strings['unpack_failed'] = __('Failed to unpack the archive', 'updraftplus');
 	}
 
 	# This function is copied from class WP_Upgrader (WP 3.8 - no significant changes since 3.2 at least); we only had to fork it because it hard-codes using the basename of the zip file as its unpack directory; which can be long; and then combining that with long pathnames in the zip being unpacked can overflow a 256-character path limit (yes, they apparently still exist - amazing!)
-	private function unpack_package_zip($package, $delete_package = true) {
+	# Subsequently, we have also added the ability to unpack tarballs
+	private function unpack_package_archive($package, $delete_package = true) {
 
 		if (!empty($this->ud_foreign) && !empty($this->ud_foreign_working_dir)) {
 			if (is_dir($this->ud_foreign_working_dir)) {
@@ -56,7 +58,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			}
 		}
 
-		global $wp_filesystem;
+		global $wp_filesystem, $updraftplus;
 
 		$this->skin->feedback($this->strings['unpack_package'].' ('.basename($package).')');
 
@@ -79,7 +81,58 @@ class Updraft_Restorer extends WP_Upgrader {
 			$wp_filesystem->delete($working_dir, true);
 
 		// Unzip package to working directory
-		$result = unzip_file( $package, $working_dir );
+		if ('.zip' == substr($package, -4, 4)) {
+			$result = unzip_file( $package, $working_dir );
+		} elseif ('.tar' == substr($package, -4, 4) || '.tar.gz' == substr($package, -7, 7) || '.tar.bz2' == substr($package, -8, 8)) {
+			if (!class_exists('UpdraftPlus_Archive_Tar')) {
+				if (false === strpos(get_include_path(), UPDRAFTPLUS_DIR.'/includes/PEAR')) set_include_path(UPDRAFTPLUS_DIR.'/includes/PEAR'.PATH_SEPARATOR.get_include_path());
+
+				require_once(UPDRAFTPLUS_DIR.'/includes/PEAR/Archive/Tar.php');
+				$p_compress = null;
+				if ('.tar.gz' == substr($package, -7, 7)) {
+					$p_compress = 'gz';
+				} elseif ('.tar.bz2' == substr($package, -8, 8)) {
+					$p_compress = 'bz2';
+				}
+
+				# It's not pretty. But it works.
+				if (is_a($wp_filesystem, 'WP_Filesystem_Direct')) {
+					$extract_dir = $working_dir;
+				} else {
+					$updraft_dir = $updraftplus->backups_dir_location();
+					if (!$updraftplus->really_is_writable($updraft_dir)) {
+						$updraftplus->log_e("Backup directory (%s) is not writable, or does not exist.", $updraft_dir);
+						$result = new WP_Error('unpack_failed', $this->strings['unpack_failed'], $tar->extract);
+					} else {
+						$extract_dir = $updraft_dir.'/'.basename($working_dir).'-old';
+						if (file_exists($extract_dir)) $updraftplus->remove_local_directory($extract_dir);
+						$updraftplus->log("Using a temporary folder to extract before moving over WPFS: $extract_dir");
+					}
+				}
+				# Slightly hackish - rather than re-write Archive_Tar to use wp_filesystem, we instead unpack into the location that we already require to be directly writable for other reasons, and then move from there.
+			
+				if (empty($result)) {
+					
+					$this->ud_extract_count = 0;
+					$this->ud_working_dir = trailingslashit($working_dir);
+					$this->ud_extract_dir = untrailingslashit($extract_dir);
+					$this->ud_made_dirs = array();
+					add_filter('updraftplus_tar_wrote', array($this, 'tar_wrote'), 10, 2);
+					$tar = new UpdraftPlus_Archive_Tar($package, $p_compress);
+					$result = $tar->extract($extract_dir, false);
+					if (!is_a($wp_filesystem, 'WP_Filesystem_Direct')) $updraftplus->remove_local_directory($extract_dir);
+					if (true != $result) {
+						$result = new WP_Error('unpack_failed', $this->strings['unpack_failed'], $result);
+					} else {
+						if (!is_a($wp_filesystem, 'WP_Filesystem_Direct')) {
+							$updraftplus->log('Moved unpacked tarball contents');
+						}
+					}
+					remove_filter('updraftplus_tar_wrote', array($this, 'tar_wrote'), 10, 2);
+				}
+
+			}
+		}
 
 		// Once extracted, delete the package if required.
 		if ( $delete_package )
@@ -98,6 +151,44 @@ class Updraft_Restorer extends WP_Upgrader {
 		return $working_dir;
 	}
 
+	public function tar_wrote($result, $file) {
+		if (0 !== strpos($file, $this->ud_extract_dir)) return false;
+		global $wp_filesystem, $updraftplus;
+		if (!is_a($wp_filesystem, 'WP_Filesystem_Direct')) {
+			$modint = 100;
+			$leaf = substr($file, strlen($this->ud_extract_dir));
+			$dirname = dirname($leaf);
+			$need_dirs = explode('/', $dirname);
+			if (empty($this->ud_made_dirs[$dirname])) {
+				$cdir = '';
+				foreach ($need_dirs as $ndir) {
+					$cdir .= ($cdir) ? '/'.$ndir : $ndir;
+					if (empty($this->ud_made_dirs[$cdir])) {
+						if ( !$wp_filesystem->mkdir( $this->ud_working_dir.$cdir, FS_CHMOD_DIR) && ! $wp_filesystem->is_dir($this->ud_working_dir.$cdir) ) {
+							$updraftplus->log("Failed to create WPFS directory: ".$this->ud_working_dir.$cdir);
+							return false;
+						} else {
+							$this->ud_made_dirs[$cdir] = true;
+						}
+					}
+				}
+			}
+			$put = $wp_filesystem->put_contents($this->ud_working_dir.$leaf, file_get_contents($file));
+			if (is_wp_error($put)) $updraftplus->log_wp_error($put);
+			@unlink($file);
+		} else {
+			$modint = 500;
+			$put = true;
+		}
+		if ($put) {
+			$this->ud_extract_count++;
+			if ($this->ud_extract_count % $modint == 0) {
+				$updraftplus->log_e("%s files have been extracted", $this->ud_extract_count);
+			}
+		}
+		return ($put == true);
+	}
+
 	// This returns a wp_filesystem location (and we musn't change that, as we must retain compatibility with the class parent)
 	function unpack_package($package, $delete_package = true) {
 
@@ -107,7 +198,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		// If not database, then it is a zip - unpack in the usual way
 		#if (!preg_match('/db\.gz(\.crypt)?$/i', $package)) return parent::unpack_package($updraft_dir.'/'.$package, $delete_package);
-		if (!preg_match('/db\.gz(\.crypt)?$/i', $package) && !preg_match('/\.sql(\.gz)?$/i', $package)) return $this->unpack_package_zip($updraft_dir.'/'.$package, $delete_package);
+		if (!preg_match('/db\.gz(\.crypt)?$/i', $package) && !preg_match('/\.sql(\.gz)?$/i', $package)) return $this->unpack_package_archive($updraft_dir.'/'.$package, $delete_package);
 
 		$backup_dir = $wp_filesystem->find_folder($updraft_dir);
 
@@ -182,7 +273,7 @@ class Updraft_Restorer extends WP_Upgrader {
 	// Must use only wp_filesystem
 	// $dest_dir must already have a trailing slash
 	// $preserve_existing: this setting only applies at the top level: 0 = overwrite with no backup; 1 = make backup of existing; 2 = do nothing if there is existing, 3 = do nothing to the top level directory, but do copy-in contents. Thus, on a multi-archive set where you want a backup, you'd do this: first call with $preserve_existing === 1, then on subsequent zips call with 3
-	function move_backup_in($working_dir, $dest_dir, $preserve_existing = 1, $do_not_overwrite = array('plugins', 'themes', 'uploads', 'upgrade'), $type = 'not-others', $send_actions = false, $force_local = false) {
+	public function move_backup_in($working_dir, $dest_dir, $preserve_existing = 1, $do_not_overwrite = array('plugins', 'themes', 'uploads', 'upgrade'), $type = 'not-others', $send_actions = false, $force_local = false) {
 
 		global $wp_filesystem, $updraftplus;
 		$updraft_dir = $updraftplus->backups_dir_location();
@@ -920,22 +1011,20 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		$db_basename = 'backup.db.gz';
 		if (!empty($this->ud_foreign)) {
-		
+
 			$plugins = apply_filters('updraftplus_accept_archivename', array());
 
 			if (empty($plugins[$this->ud_foreign])) return new WP_Error('unknown', sprintf(__('Backup created by unknown source (%s) - cannot be restored.', 'updraftplus'), $this->ud_foreign));
 
 			if (empty($plugins[$this->ud_foreign]['separatedb'])) {
-				$db_basename = $this->ud_backup_info['wpcore'];
-				if (is_array($db_basename)) $db_basename = array_shift($db_basename);
-				$db_basename = basename($db_basename, '.zip').'.sql';
+				$db_basename = apply_filters('updraftplus_foreign_separatedbname', false, $this->ud_foreign, $this->ud_backup_info, $working_dir_localpath);
 			} elseif (file_exists($working_dir_localpath.'/backup.db')) {
 				$db_basename = 'backup.db';
 			}
 		}
 
 		// wp_filesystem has no gzopen method, so we switch to using the local filesystem (which is harmless, since we are performing read-only operations)
-		if (!is_readable($working_dir_localpath.'/'.$db_basename)) return new WP_Error('dbopen_failed',__('Failed to find database file','updraftplus')." ($working_dir/".$db_basename.")");
+		if (false === $db_basename || !is_readable($working_dir_localpath.'/'.$db_basename)) return new WP_Error('dbopen_failed',__('Failed to find database file','updraftplus')." ($working_dir/".$db_basename.")");
 
 		global $wpdb, $updraftplus;
 		
@@ -1029,7 +1118,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			$this->create_forbidden = true;
 			# If we can't create, then there's no point dropping
 			$this->drop_forbidden = true;
-			echo '<strong>'.__('Warning:','updraftplus').'</strong> ';
+			echo '<strong>'.__('Warning:', 'updraftplus').'</strong> ';
 			$updraftplus->log_e('Your database user does not have permission to create tables. We will attempt to restore by simply emptying the tables; this should work as long as a) you are restoring from a WordPress version with the same database structure, and b) Your imported database does not contain any tables which are not already present on the importing site.', ' ('.$this->last_error.')');
 		} else {
 			if ($this->use_wpdb) {
@@ -1083,7 +1172,9 @@ class Updraft_Restorer extends WP_Upgrader {
 					echo '<strong>'.__('Content URL:', 'updraftplus').'</strong> '.htmlspecialchars($this->old_content).'<br>';
 					$updraftplus->log('Content URL: '.$this->old_content);
 					do_action('updraftplus_restore_db_record_old_content', $this->old_content);
-				} elseif ('' == $old_table_prefix && preg_match('/^\# Table prefix: (\S+)$/', $buffer, $matches)) {
+				} elseif ('' == $old_table_prefix && (preg_match('/^\# Table prefix: (\S+)$/', $buffer, $matches) || preg_match('/^-- Table Prefix: (\S+)$/i', $buffer, $matches))) {
+					# We also support backwpup style:
+					# -- Table Prefix: wp_
 					$old_table_prefix = $matches[1];
 					echo '<strong>'.__('Old table prefix:', 'updraftplus').'</strong> '.htmlspecialchars($old_table_prefix).'<br>';
 					$updraftplus->log("Old table prefix: ".$old_table_prefix);
@@ -1116,7 +1207,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			}
 			
 			// Detect INSERT commands early, so that we can split them if necessary
-			if ($sql_line && preg_match('/^\s*(insert into \`?([^\`]*)\`?\s+values)/i', $sql_line, $matches)) {
+			if ($sql_line && preg_match('/^\s*(insert into \`?([^\`]*)\`?\s+(values|\())/i', $sql_line, $matches)) {
 				$sql_type = 3;
 				$insert_prefix = $matches[1];
 			}
@@ -1261,17 +1352,21 @@ class Updraft_Restorer extends WP_Upgrader {
 				echo '<br>';
 				if ($engine_change_message) echo $engine_change_message;
 
-			} elseif (preg_match('/^\s*(insert into \`?([^\`]*)\`?\s+values)/i', $sql_line, $matches)) {
+			} elseif (preg_match('/^\s*(insert into \`?([^\`]*)\`?\s+(values|\())/i', $sql_line, $matches)) {
 				$sql_type = 3;
 				if ('' != $old_table_prefix && $import_table_prefix != $old_table_prefix) $sql_line = $updraftplus->str_replace_once($old_table_prefix, $import_table_prefix, $sql_line);
-			} elseif (preg_match('/^\s*(\/\*\!40000 alter|lock) tables? \`?([^\`\(]*)\`?\s+(write|disable|enable)/i', $sql_line, $matches)) {
+			} elseif (preg_match('/^\s*(\/\*\!40000 )?(alter|lock) tables? \`?([^\`\(]*)\`?\s+(write|disable|enable)/i', $sql_line, $matches)) {
 				# Only binary mysqldump produces this pattern (LOCK TABLES `table` WRITE, ALTER TABLE `table` (DISABLE|ENABLE) KEYS)
 				$sql_type = 4;
 				if ('' != $old_table_prefix && $import_table_prefix != $old_table_prefix) $sql_line = $updraftplus->str_replace_once($old_table_prefix, $import_table_prefix, $sql_line);
+			} elseif (preg_match('/^(un)?lock tables/i', $sql_line)) {
+				# BackWPup produces these
+				$sql_type = 5;
 			}
-
-			$do_exec = $this->sql_exec($sql_line, $sql_type);
-			if (is_wp_error($do_exec)) return $do_exec;
+// 			if (5 !== $sql_type) {
+				$do_exec = $this->sql_exec($sql_line, $sql_type);
+				if (is_wp_error($do_exec)) return $do_exec;
+// 			}
 
 			# Reset
 			$sql_line = '';
@@ -1316,10 +1411,11 @@ class Updraft_Restorer extends WP_Upgrader {
 			} else {
 				if ($this->use_mysqli) {
 					$req = mysqli_query($this->mysql_dbh, $sql_line);
+					if (!$req) $this->last_error = mysqli_error($this->mysql_dbh);
 				} else {
 					$req = mysql_unbuffered_query($sql_line, $this->mysql_dbh);
+					if (!$req) $this->last_error = mysql_error($this->mysql_dbh);
 				}
-				if (!$req) $this->last_error = mysql_error($this->mysql_dbh);
 			}
 			$this->statements_run++;
 		}

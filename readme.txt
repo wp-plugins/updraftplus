@@ -1,6 +1,6 @@
 === UpdraftPlus - WordPress Backup and Restoration ===
 Contributors: Backup with UpdraftPlus, DavidAnderson
-Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, s3 compatible, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, ftp backup, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp, ftps, scp, migrate, duplicate, copy, updraft, schedule, mysql backup, database backup, db backup, website backup, wordpress backup, full backup, openstack, swift
+Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, s3 compatible, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, ftp backup, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, bitcasa, back up, multisite, restoration, sftp, ftps, scp, migrate, duplicate, copy, updraft, schedule, mysql backup, database backup, db backup, website backup, wordpress backup, full backup, openstack, swift
 Requires at least: 3.2
 Tested up to: 3.9
 Stable tag: 1.9.0
@@ -12,17 +12,17 @@ Easy and complete backups + restoration. Manual or automated backups (backup to 
 
 == Description ==
 
-<a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3 (or compatible), Dropbox, Google Drive, Rackspace Cloud, DreamObjects, FTP, SFTP, SCP, WebDAV and email) and restore with a single click. Backups of files and database can have separate schedules.
+<a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3 (or compatible), Dropbox, Google Drive, Rackspace Cloud, DreamObjects, FTP, SFTP, SCP, WebDAV, OpenStack Swift, Bitcasa and email) and restore with a single click. Backups of files and database can have separate schedules.
 
 <strong>Top-quality:</strong> UpdraftPlus is the <a href="http://rankwp.com/plugins/updraftplus">highest-ranking backup plugin on rankwp.com</a> (ranks in the top 50 out of 30,000 WordPress plugins for quality on rankwp.com - last checked 8th January 2014).
 
 <strong>Tens of thousands of users:</strong> widely tested and reliable (over 700,000 downloads). Ranks in the top 100 most used of all WordPress plugins on rankwp.com. Millions of backups completed!
 
-* Supports WordPress backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP, OpenStack (Swift) and email. Also (via an add-on) FTP over SSL, SFTP, SCP and WebDAV (and compatible services, e.g. Yandex). (Note: Microsoft forbid OneDrive/SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
+* Supports WordPress backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP, OpenStack (Swift) and email. Also (via an add-on) FTP over SSL, SFTP, SCP, WebDAV (and compatible services, e.g. Yandex) and Bitcasa. (Note: Microsoft forbid OneDrive/SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
 * Quick restore (both file and database backups)
 * Backup automatically on a repeating schedule
 * Site duplicator/migrator: can copy sites, and (with add-on) move them to new locations
-* Restores backup sets from other backup plugins (Premium) (currently supported: BackupWordPress, Simple Backup)
+* Restores backup sets from other backup plugins (Premium) (currently supported: BackWPUp, BackupWordPress, Simple Backup)
 * Files and database backups can have separate schedules
 * Failed uploads are automatically resumed/retried
 * Large sites can be split into multiple archives
@@ -148,12 +148,16 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * FEATURE: New remote storage back-end for OpenStack Swift
 * FEATURE: New remote storage back-end for Bitcasa (Premium - http://updraftplus.com/shop/updraftplus-premium/)
 * FEATURE: New Google Drive back-end now uses new SDK; resulting new capabilities include ability to rescan remote storage, and chunked downloading for huge files; also requires a shorter list of permissions
+* FEATURE: Restore backups that were created by the plugin BackWPup (Premium - http://updraftplus.com/shop/updraftplus-premium/)
 * FIX: WebDAV storage: remove requirement for PEAR to be pre-installed on server
 * FIX: Fix restoration on sites where WP did not have direct filesystem access
 * FIX: Fix regex which prevented download progress of mu-plugins zip displaying correctly
 * FIX: Fix issue preventing some useful information about URL changes being included in the migration log file
+* FIX: New locations for plupload Flash/Silverlight widgets (for non-HTML5 browsers) in WP3.9+
 * TWEAK: Add filter so that programmers can allow the options page to be shown to non-admins
+* TWEAK: Add filter allowing programmers to forbid a backup
 * TWEAK: Detect and adapt to cases where the site is moved to a system with different case-sensitivity and the database record of the theme is now wrong
+* TWEAK: Reduce number of rows fetched from MySQL if no activity took place on the previous resumption
 * TWEAK: AWS image in settings page will now use https if dashboard access is https - prevents non-https warnings in recent browsers
 * TWEAK: Hook into Better WP Security so that it doesn't tell the user that they have no backup plugin
 * TRANSLATION: New Czech (cs_CZ) translation; thanks to Martin Křížek
