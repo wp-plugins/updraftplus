@@ -17,6 +17,8 @@ TODO - some of these are out of date/done, needs pruning
 // On plugins restore, don't let UD over-write itself - because this usually means a down-grade. Since upgrades are db-compatible, there's no reason to downgrade.
 // Schedule a task to report on failure
 // Copy.Com, Box
+// Get something to parse the 'Backups in progress' data, and if the 'next resumption' is far negative, and if also cron jobs appear to be not running, then call the action directly.
+// Check out whether tables like this can be skipped in search/replace: wp_ajyw_adrotate_stats
 // If ionice is available, then use it to limit I/O usage
 // Check the timestamps used in filenames - they should be UTC
 // Get user to confirm if they check both the search/replace and wp-config boxes
@@ -1904,7 +1906,20 @@ class UpdraftPlus {
 	// This should be called whenever a file is successfully uploaded
 	public function uploaded_file($file, $force = false) {
 	
-		global $updraftplus_backup;
+		global $updraftplus_backup, $wpdb;
+
+		$db_connected = -1;
+
+		# WP 3.9 onwards - https://core.trac.wordpress.org/browser/trunk/src/wp-includes/wp-db.php?rev=27925 - check_connection() allows us to get the database connection back if it had dropped
+		if (method_exists($wpdb, 'check_connection')) {
+			if (!$wpdb->check_connection(false)) {
+				$updraftplus->reschedule(60);
+				$updraftplus->log("It seems the database went away; scheduling a resumption and terminating for now");
+				$db_connected = false;
+			} else {
+				$db_connected = true;
+			}
+		}
 
 		$service = (empty($updraftplus_backup->current_service)) ? '' : $updraftplus_backup->current_service;
 		$shash = $service.'-'.md5($file);
@@ -1924,6 +1939,12 @@ class UpdraftPlus {
 			$upload_status['i']++;
 			$upload_status['p']=0;
 			$this->jobdata_set('uploading_substatus', $upload_status);
+		}
+
+		# Really, we could do this immediately when we realise the DB has gone away. This is just for the probably-impossible case that a DB write really can still succeed. But, we must abort before calling delete_local(), as the removal of the local file can cause it to be recreated if the DB is out of sync with the fact that it really is already uploaded
+		if (false === $db_connected) {
+			$updraftplus->record_still_alive();
+			die;
 		}
 
 		# This parameter no longer provided or used, from UD 1.9.1 onwards
@@ -2526,6 +2547,3 @@ class UpdraftPlus {
 	}
 
 }
-
-
-?>

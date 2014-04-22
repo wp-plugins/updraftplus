@@ -132,5 +132,3 @@ class UpdraftPlus_Options {
 
 add_action('admin_init', array('UpdraftPlus_Options', 'admin_init'));
 add_action('admin_menu', array('UpdraftPlus_Options', 'add_admin_pages'));
-
-?>

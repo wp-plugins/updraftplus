@@ -88,7 +88,26 @@ class UpdraftPlus_Admin {
 
 		if (version_compare($wp_version, '3.2', '<')) add_action('all_admin_notices', array($this, 'show_admin_warning_wordpressversion'));
 
-		wp_enqueue_script('updraftplus-admin-ui', UPDRAFTPLUS_URL.'/includes/updraft-admin-ui.js', array('jquery', 'jquery-ui-dialog', 'plupload-all'), '34');
+		add_action('admin_enqueue_scripts', array($this, 'admin_enqueue_scripts'));
+
+	}
+
+	public function admin_enqueue_scripts() {
+
+		wp_enqueue_style('jquery-ui', UPDRAFTPLUS_URL.'/includes/jquery-ui-1.8.22.custom.css'); 
+
+		global $wp_version;
+		if (version_compare($wp_version, '3.3', '<')) {
+			# Require a newer jQuery (3.2.1 has 1.6.1, so we go for something not too much newer). We use .on() in a way that is incompatible with < 1.7
+			wp_deregister_script('jquery');
+			wp_register_script('jquery', 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js', false, '1.7.2', false);
+			wp_enqueue_script('jquery');
+			# No plupload until 3.3
+			# Put in footer, to make sure that jQuery loads first
+			wp_enqueue_script('updraftplus-admin-ui', UPDRAFTPLUS_URL.'/includes/updraft-admin-ui.js', array('jquery', 'jquery-ui-dialog'), '35', true);
+		} else {
+			wp_enqueue_script('updraftplus-admin-ui', UPDRAFTPLUS_URL.'/includes/updraft-admin-ui.js', array('jquery', 'jquery-ui-dialog', 'plupload-all'), '35');
+		}
 
 		wp_localize_script( 'updraftplus-admin-ui', 'updraftlion', array(
 			'sendonlyonwarnings' => __('Send a report only when there are warnings/errors', 'updraftplus'),
@@ -140,7 +159,6 @@ class UpdraftPlus_Admin {
 			'close' => __('Close', 'updraftplus'),
 			'restore' => __('Restore', 'updraftplus'),
 		) );
-
 	}
 
 	public function core_upgrade_preamble() {
@@ -173,6 +191,9 @@ class UpdraftPlus_Admin {
 
  		$chunk_size = min(wp_max_upload_size()-1024, 1024*1024*2);
 
+		# The multiple_queues argument is ignored in plupload 2.x (WP3.9+) - http://make.wordpress.org/core/2014/04/11/plupload-2-x-in-wordpress-3-9/
+		# max_file_size is also in filters as of plupload 2.x, but in its default position is still supported for backwards-compatibility. Likewise, our use of filters.extensions below is supported by a backwards-compatibility option (the current way is filters.mime-types.extensions
+
 		$plupload_init = array(
 			'runtimes' => 'html5,flash,silverlight,html4',
 			'browse_button' => 'plupload-browse-button',
@@ -183,7 +204,7 @@ class UpdraftPlus_Admin {
 			'max_file_size' => '100Gb',
 			'chunk_size' => $chunk_size.'b',
 			'url' => admin_url('admin-ajax.php'),
-			'filters' => array(array('title' => __('Allowed Files'), 'extensions' => 'zip,tar,gz,crypt,sql,txt')),
+			'filters' => array(array('title' => __('Allowed Files'), 'extensions' => 'zip,tar,gz,bz2,crypt,sql,txt')),
 			'multipart' => true,
 			'multi_selection' => true,
 			'urlstream_upload' => true,
@@ -518,12 +539,7 @@ class UpdraftPlus_Admin {
 		$updraftplus->jobdata_set('dlfile_'.$timestamp.'_'.$type.'_'.$findex, "downloading:$known_size:$fullpath");
 
 		if ($needs_downloading) {
-			// Close browser connection so that it can resume AJAX polling
-			header('Content-Length: 0');
-			header('Connection: close');
-			header('Content-Encoding: none');
-			if (session_id()) session_write_close();
-			echo "\r\n\r\n";
+			$this->close_browser_connection();
 			$is_downloaded = false;
 			foreach ($services as $service) {
 				if ($is_downloaded) continue;
@@ -561,6 +577,16 @@ class UpdraftPlus_Admin {
 
 	}
 
+	private function close_browser_connection($txt = '') {
+		// Close browser connection so that it can resume AJAX polling
+		header('Content-Length: '.((!empty($txt)) ? 4+strlen($txt) : '0'));
+		header('Connection: close');
+		header('Content-Encoding: none');
+		if (session_id()) session_write_close();
+		echo "\r\n\r\n";
+		echo $txt;
+	}
+
 	# Pass only a single service, as a string, into this function
 	private function download_file($file, $service) {
 
@@ -592,7 +618,7 @@ class UpdraftPlus_Admin {
 
 		// Test the nonce
 		$nonce = (empty($_REQUEST['nonce'])) ? "" : $_REQUEST['nonce'];
-		if (! wp_verify_nonce($nonce, 'updraftplus-credentialtest-nonce') || empty($_REQUEST['subaction'])) die('Security check');
+		if (!wp_verify_nonce($nonce, 'updraftplus-credentialtest-nonce') || empty($_REQUEST['subaction'])) die('Security check');
 		if (isset($_REQUEST['subaction']) && 'lastlog' == $_REQUEST['subaction']) {
 			echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', '('.__('Nothing yet logged', 'updraftplus').')'));
 		} elseif (isset($_GET['subaction']) && 'activejobs_list' == $_GET['subaction']) {
@@ -624,6 +650,70 @@ class UpdraftPlus_Admin {
 				'j' => $active_jobs,
 				'ds' => $download_status
 			));
+		} elseif (isset($_REQUEST['subaction']) && 'callwpaction' == $_REQUEST['subaction'] && !empty($_REQUEST['wpaction'])) {
+			ob_start();
+
+			$res = '<em>Request received: </em>';
+
+			if (preg_match('/^([^:]+)+:(.*)$/', stripslashes($_REQUEST['wpaction']), $matches)) {
+				$action = $matches[1];
+				if (null === ($args = json_decode($matches[2], true))) {
+					$res .= "The parameters (should be JSON) could not be decoded";
+					$action = false;
+				} else {
+					$res .= "Will despatch action: ".htmlspecialchars($action).", parameters: ".htmlspecialchars(implode(',', $args));
+				}
+			} else {
+				$action = $_REQUEST['wpaction'];
+				$res .= "Will despatch action: ".htmlspecialchars($action).", no parameters";
+			}
+
+			echo json_encode(array('r' => $res));
+			$ret = ob_get_clean();
+			ob_end_clean();
+			$this->close_browser_connection($ret);
+			if (!empty($action)) {
+				if (!empty($args)) {
+					do_action_ref_array($action, $args);
+				} else {
+					do_action($action);
+				}
+			}
+			die;
+		} elseif (isset($_REQUEST['subaction']) && 'httpget' == $_REQUEST['subaction']) {
+			if (empty($_REQUEST['uri'])) {
+				echo json_encode(array('r' => ''));
+				die;
+			}
+			$uri = $_REQUEST['uri'];
+			if (!empty($_REQUEST['curl'])) {
+				if (!function_exists('curl_exec')) {
+					echo json_encode(array('e' => 'No Curl installed'));
+					die;
+				}
+				$ch = curl_init();
+				curl_setopt($ch, CURLOPT_URL, $uri);
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+				curl_setopt($ch, CURLOPT_FAILONERROR, true);
+				$output = curl_exec($ch);
+				$response = curl_exec($ch);
+				$error = curl_error($ch);
+				$getinfo = curl_getinfo($ch);
+				curl_close($ch);
+				if (false === $response) {
+					echo json_encode(array('e' => htmlspecialchars($error)));
+					die;
+				}
+				echo json_encode(array('r' => $getinfo['http_code'].': '.htmlspecialchars(substr($response, 0, 200))));
+			} else {
+				$response = wp_remote_get($uri, array('timeout' => 10));
+				if (is_wp_error($response)) {
+					echo json_encode(array('e' => htmlspecialchars($response->get_error_message())));
+					die;
+				}
+				echo json_encode(array('r' => $response['response']['code'].': '.htmlspecialchars(substr($response['body'], 0, 200))));
+			}
+			die;
 		} elseif (isset($_REQUEST['subaction']) && 'dismissautobackup' == $_REQUEST['subaction']) {
 			UpdraftPlus_Options::update_updraft_option('updraftplus_dismissedautobackup', time() + 84*86400);
 		} elseif (isset($_REQUEST['subaction']) && 'dismissexpiry' == $_REQUEST['subaction']) {
@@ -1542,8 +1632,6 @@ CREATE TABLE $wpdb->signups (
 
 		global $updraftplus;
 
-		wp_enqueue_style('jquery-ui', UPDRAFTPLUS_URL.'/includes/jquery-ui-1.8.22.custom.css'); 
-
 		/*
 		we use request here because the initial restore is triggered by a POSTed form. we then may need to obtain credentials 
 		for the WP_Filesystem. to do this WP outputs a form, but we don't pass our parameters via that. So the values are 
@@ -1809,17 +1897,26 @@ CREATE TABLE $wpdb->signups (
 
 						<div id="updraft-plupload-modal" title="<?php _e('UpdraftPlus - Upload backup files','updraftplus'); ?>" style="width: 75%; margin: 16px; display:none; margin-left: 100px;">
 						<p style="max-width: 610px;"><em><?php _e("Upload files into UpdraftPlus. Use this to import backups made on a different WordPress installation." ,'updraftplus');?> <?php echo htmlspecialchars(__('Or, you can place them manually into your UpdraftPlus directory (usually wp-content/updraft), e.g. via FTP, and then use the "rescan" link above.', 'updraftplus'));?></em></p>
-							<div id="plupload-upload-ui" style="width: 70%;">
-								<div id="drag-drop-area">
-									<div class="drag-drop-inside">
-									<p class="drag-drop-info"><?php _e('Drop backup files here', 'updraftplus'); ?></p>
-									<p><?php _ex('or', 'Uploader: Drop backup files here - or - Select Files'); ?></p>
-									<p class="drag-drop-buttons"><input id="plupload-browse-button" type="button" value="<?php esc_attr_e('Select Files'); ?>" class="button" /></p>
+							<?php
+							global $wp_version;
+							if (version_compare($wp_version, '3.3', '<')) {
+								echo '<em>'.sprintf(__('This feature requires %s version %s or later', 'updraftplus'), 'WordPress', '3.3').'</em>';
+							} else {
+								?>
+								<div id="plupload-upload-ui" style="width: 70%;">
+									<div id="drag-drop-area">
+										<div class="drag-drop-inside">
+										<p class="drag-drop-info"><?php _e('Drop backup files here', 'updraftplus'); ?></p>
+										<p><?php _ex('or', 'Uploader: Drop backup files here - or - Select Files'); ?></p>
+										<p class="drag-drop-buttons"><input id="plupload-browse-button" type="button" value="<?php esc_attr_e('Select Files'); ?>" class="button" /></p>
+										</div>
+									</div>
+									<div id="filelist">
 									</div>
 								</div>
-								<div id="filelist">
-								</div>
-							</div>
+								<?php 
+							}
+							?>
 
 						</div>
 
@@ -1985,7 +2082,17 @@ CREATE TABLE $wpdb->signups (
 				echo __('PHP memory limit','updraftplus').': '.ini_get('memory_limit').' <br/>';
 				echo sprintf(__('%s version:','updraftplus'), 'PHP').' '.phpversion().' - ';
 				echo '<a href="admin-ajax.php?page=updraftplus&action=updraft_ajax&subaction=phpinfo&nonce='.wp_create_nonce('updraftplus-credentialtest-nonce').'" id="updraftplus-phpinfo">'.__('show PHP information (phpinfo)', 'updraftplus').'</a><br/>';
-				echo sprintf(__('%s version:','updraftplus'), 'MySQL').' '.((function_exists('mysql_get_server_info')) ? mysql_get_server_info() : '?').'<br>';
+				global $wpdb;
+				echo sprintf(__('%s version:','updraftplus'), 'MySQL').' '.htmlspecialchars($wpdb->db_version()).'<br>';
+				echo sprintf(__('%s version:','updraftplus'), 'Curl').' ';
+				if (function_exists('curl_version') && function_exists('curl_exec')) {
+					$cv = curl_version();
+					echo $cv['version'].' / SSL: '.$cv['ssl_version'].' / libz: '.$cv['libz_version'];
+				} else {
+					echo '-';
+				}
+
+				echo '<br>';
 
 				if (version_compare(phpversion(), '5.2.0', '>=') && extension_loaded('zip')) {
 					$ziparchive_exists = __('Yes', 'updraftplus');
@@ -2009,6 +2116,17 @@ CREATE TABLE $wpdb->signups (
 				echo '<a href="admin-ajax.php?page=updraftplus&action=updraft_ajax&subaction=backuphistoryraw&nonce='.wp_create_nonce('updraftplus-credentialtest-nonce').'" id="updraftplus-rawbackuphistory">'.__('Show raw backup and file list', 'updraftplus').'</a><br/>';
 
 				echo __('Install plugins for debugging:', 'updraftplus').' <a href="'.wp_nonce_url(self_admin_url('update.php?action=install-plugin&updraftplus_noautobackup=1&plugin=wp-crontrol'), 'install-plugin_wp-crontrol').'">WP Crontrol</a> | <a href="'.wp_nonce_url(self_admin_url('update.php?action=install-plugin&updraftplus_noautobackup=1&plugin=sql-executioner'), 'install-plugin_sql-executioner').'">SQL Executioner</a> | <a href="'.wp_nonce_url(self_admin_url('update.php?action=install-plugin&updraftplus_noautobackup=1&plugin=advanced-code-editor'), 'install-plugin_advanced-code-editor').'">Advanced Code Editor</a> | <a href="'.wp_nonce_url(self_admin_url('update.php?action=install-plugin&updraftplus_noautobackup=1&plugin=wp-filemanager'), 'install-plugin_wp-filemanager').'">WP Filemanager</a><br>';
+
+				echo "HTTP Get: ";
+				echo '<input id="updraftplus_httpget_uri" type="text" style="width: 300px; height: 22px;"> ';
+				echo '<a href="#" id="updraftplus_httpget_go">'.__('Fetch', 'updraftplus').'</a> ';
+				echo '<a href="#" id="updraftplus_httpget_gocurl">'.__('Fetch', 'updraftplus').' (Curl)</a>';
+				echo '<p id="updraftplus_httpget_results"></p>';
+
+				echo "Call WordPress action: ";
+				echo '<input id="updraftplus_callwpaction" type="text" style="width: 300px; height: 22px;"> ';
+				echo '<a href="#" id="updraftplus_callwpaction_go">'.__('Call', 'updraftplus').'</a> ';
+				echo '<p id="updraftplus_callwpaction_results"></p>';
 
 				echo '<h3>'.__('Total (uncompressed) on-disk data:','updraftplus').'</h3>';
 				echo '<p style="clear: left; max-width: 600px;"><em>'.__('N.B. This count is based upon what was, or was not, excluded the last time you saved the options.', 'updraftplus').'</em></p>';
@@ -2571,6 +2689,14 @@ CREATE TABLE $wpdb->signups (
 
 				<div id="updraft-manualdecrypt-modal" style="width: 85%; margin: 16px; display:none; margin-left: 100px;">
 					<p><h3><?php _e("Manually decrypt a database backup file" ,'updraftplus');?></h3></p>
+
+					<?php
+					global $wp_version;
+					if (version_compare($wp_version, '3.3', '<')) {
+						echo '<em>'.sprintf(__('This feature requires %s version %s or later', 'updraftplus'), 'WordPress', '3.3').'</em>';
+					} else {
+					?>
+
 					<div id="plupload-upload-ui2" style="width: 80%;">
 						<div id="drag-drop-area2">
 							<div class="drag-drop-inside">
@@ -2583,6 +2709,8 @@ CREATE TABLE $wpdb->signups (
 						<div id="filelist2">
 						</div>
 					</div>
+
+					<?php } ?>
 
 				</div>
 
@@ -2817,7 +2945,8 @@ CREATE TABLE $wpdb->signups (
 		return $value;
 	}
 
-	public function curl_check($service, $has_fallback = false, $extraclass = '') {
+	public function curl_check($service, $has_fallback = false, $extraclass = '', $echo = true) {
+		if (!$echo) ob_start();
 		// Check requirements
 		if (!function_exists("curl_init") || !function_exists('curl_exec')) {
 		
@@ -2835,6 +2964,11 @@ CREATE TABLE $wpdb->signups (
 			} else {
 				?><p><em><?php echo sprintf(__("Good news: Your site's communications with %s can be encrypted. If you see any errors to do with encryption, then look in the 'Expert Settings' for more help.", 'updraftplus'),$service);?></em></p><?php
 			}
+		}
+		if (!$echo) {
+			$ret = ob_get_clean();
+			ob_end_clean();
+			return $ret;
 		}
 	}
 
@@ -3702,5 +3836,3 @@ ENDHERE;
 	}
 
 }
-
-?>

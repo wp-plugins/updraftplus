@@ -1641,5 +1641,3 @@ class Updraft_Restorer_Skin extends WP_Upgrader_Skin {
 		$updraftplus->log_e($string);
 	}
 }
-
-?>

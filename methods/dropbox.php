@@ -48,7 +48,7 @@ class UpdraftPlus_BackupModule_dropbox {
 			$dropbox = $this->bootstrap();
 			if (false === $dropbox) throw new Exception(__('You do not appear to be authenticated with Dropbox', 'updraftplus'));
 			$updraftplus->log("Dropbox: access gained");
-			$dropbox->setChunkSize(524288); // 512Kb
+			$dropbox->setChunkSize(1048576);
 		} catch (Exception $e) {
 			$updraftplus->log('Dropbox error when trying to gain access: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
 			$updraftplus->log(sprintf(__('Dropbox error: %s (see log file for more)','updraftplus'), $e->getMessage()), 'error');
@@ -132,7 +132,7 @@ class UpdraftPlus_BackupModule_dropbox {
 				}
 
 			} catch (Exception $e) {
-				$updraftplus->log("Dropbox chunked upload exception: ".$e->getMessage());
+				$updraftplus->log("Dropbox chunked upload exception (".get_class($e)."): ".$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
 				if (preg_match("/Submitted input out of alignment: got \[(\d+)\] expected \[(\d+)\]/i", $e->getMessage(), $matches)) {
 					// Try the indicated offset
 					$we_tried = $matches[1];
@@ -219,7 +219,7 @@ class UpdraftPlus_BackupModule_dropbox {
 	}
 
 	public function defaults() {
-		return array('Z3Q3ZmkwbnplNHA0Zzlx', 'bTY0bm9iNmY4eWhjODRt');
+		return apply_filters('updraftplus_dropbox_defaults', array('Z3Q3ZmkwbnplNHA0Zzlx', 'bTY0bm9iNmY4eWhjODRt'));
 	}
 
 	public function delete($files) {
@@ -352,7 +352,7 @@ class UpdraftPlus_BackupModule_dropbox {
 
 			<tr class="updraftplusmethod dropbox">
 				<th><?php echo sprintf(__('Authenticate with %s', 'updraftplus'), __('Dropbox', 'updraftplus'));?>:</th>
-				<td><p><?php if (UpdraftPlus_Options::get_updraft_option('updraft_dropboxtk_request_token','') != '') echo "<strong>".__('(You appear to be already authenticated).','updraftplus').".</strong>"; ?> <a href="?page=updraftplus&action=updraftmethod-dropbox-auth&updraftplus_dropboxauth=doit"><?php echo sprintf(__('<strong>After</strong> you have saved your settings (by clicking \'Save Changes\' below), then come back here once and click this link to complete authentication with %s.','updraftplus'), __('Dropbox', 'updraftplus'));?></a>
+				<td><p><?php if (UpdraftPlus_Options::get_updraft_option('updraft_dropboxtk_request_token','') != '') echo "<strong>".__('(You appear to be already authenticated).','updraftplus')."</strong>"; ?> <a href="?page=updraftplus&action=updraftmethod-dropbox-auth&updraftplus_dropboxauth=doit"><?php echo sprintf(__('<strong>After</strong> you have saved your settings (by clicking \'Save Changes\' below), then come back here once and click this link to complete authentication with %s.','updraftplus'), __('Dropbox', 'updraftplus'));?></a>
 				</p>
 				</td>
 			</tr>
@@ -474,6 +474,11 @@ class UpdraftPlus_BackupModule_dropbox {
 		// Get the DropBox API access details
 		list($d2, $d1) = $this->defaults();
 		if (empty($sec)) { $sec = base64_decode($d1); }; if (empty($key)) { $key = base64_decode($d2); }
+		$root = 'sandbox';
+		if ('dropbox:' == substr($sec, 0, 8)) {
+			$sec = substr($sec, 8);
+			$root = 'dropbox';
+		}
 
 		try {
 			$OAuth = new Dropbox_Curl($sec, $key, $storage, $callback);
@@ -484,7 +489,7 @@ class UpdraftPlus_BackupModule_dropbox {
 			return false;
 		}
 
-		$this->dropbox_object = new Dropbox_API($OAuth);
+		$this->dropbox_object = new Dropbox_API($OAuth, $root);
 
 		return $this->dropbox_object;
 	}

@@ -643,181 +643,254 @@ jQuery(document).ready(function($){
 	});
 
 	// Section: Plupload
+	try {
+		plupload_init();
+	} catch (err) {
+		console.log(err);
+	}
+	
+	function plupload_init() {
+	
+		// create the uploader and pass the config from above
+		var uploader = new plupload.Uploader(updraft_plupload_config);
 
-	// create the uploader and pass the config from above
-	var uploader = new plupload.Uploader(updraft_plupload_config);
-
-	// checks if browser supports drag and drop upload, makes some css adjustments if necessary
-	uploader.bind('Init', function(up){
-		var uploaddiv = $('#plupload-upload-ui');
-		
-		if(up.features.dragdrop){
-			uploaddiv.addClass('drag-drop');
-			$('#drag-drop-area')
-			.bind('dragover.wp-uploader', function(){ uploaddiv.addClass('drag-over'); })
-			.bind('dragleave.wp-uploader, drop.wp-uploader', function(){ uploaddiv.removeClass('drag-over'); });
+		// checks if browser supports drag and drop upload, makes some css adjustments if necessary
+		uploader.bind('Init', function(up){
+			var uploaddiv = $('#plupload-upload-ui');
 			
-		} else {
-			uploaddiv.removeClass('drag-drop');
-			$('#drag-drop-area').unbind('.wp-uploader');
-		}
-	});
+			if(up.features.dragdrop){
+				uploaddiv.addClass('drag-drop');
+				$('#drag-drop-area')
+				.bind('dragover.wp-uploader', function(){ uploaddiv.addClass('drag-over'); })
+				.bind('dragleave.wp-uploader, drop.wp-uploader', function(){ uploaddiv.removeClass('drag-over'); });
 				
-	uploader.init();
-
-// a file was added in the queue
-uploader.bind('FilesAdded', function(up, files){
-// 				var hundredmb = 100 * 1024 * 1024, max = parseInt(up.settings.max_file_size, 10);
-	
-	plupload.each(files, function(file){
-
-		if (! /^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i.test(file.name) && ! /^log\.([0-9a-f]{12})\.txt$/.test(file.name)) {
-			var accepted_file = false;
-			for (var i = 0; i<updraft_accept_archivename.length; i++) {
-				if (updraft_accept_archivename[i].test(file.name)) {
-					var accepted_file = true;
-				}
-			}
-			if (!accepted_file) {
-				if (/\.(zip|tar|tar\.gz|tar\.bz2)$/i.test(file.name) || /\.sql(\.gz)?$/i.test(file.name)) {
-					jQuery('#updraft-message-modal-innards').html('<p><strong>'+file.name+"</strong></p> "+updraftlion.notarchive2);
-					jQuery('#updraft-message-modal').dialog('open');
-				} else {
-					alert(file.name+": "+updraftlion.notarchive);
-				}
-				uploader.removeFile(file);
-				return;
-			}
-		}
-		
-		// a file was added, you may want to update your DOM here...
-		$('#filelist').append(
-			'<div class="file" id="' + file.id + '"><b>' +
-			file.name + '</b> (<span>' + plupload.formatSize(0) + '</span>/' + plupload.formatSize(file.size) + ') ' +
-			'<div class="fileprogress"></div></div>');
-	});
-		
-		up.refresh();
-		up.start();
-});
-	
-uploader.bind('UploadProgress', function(up, file) {
-	$('#' + file.id + " .fileprogress").width(file.percent + "%");
-	$('#' + file.id + " span").html(plupload.formatSize(parseInt(file.size * file.percent / 100)));
-});
-
-uploader.bind('Error', function(up, error) {
-	alert(updraftlion.uploaderr+' (code '+error.code+') : '+error.message+' '+updraftlion.makesure);
-});
-
-
-// a file was uploaded 
-uploader.bind('FileUploaded', function(up, file, response) {
-	
-	if (response.status == '200') {
-		// this is your ajax response, update the DOM with it or something...
-		try {
-			resp = jQuery.parseJSON(response.response);
-			if (resp.e) {
-				alert(updraftlion.uploaderror+" "+resp.e);
-			} else if (resp.dm) {
-				alert(resp.dm);
-				updraft_updatehistory(1, 0);
-			} else if (resp.m) {
-				updraft_updatehistory(1, 0);
 			} else {
-				alert('Unknown server response: '+response.response);
+				uploaddiv.removeClass('drag-drop');
+				$('#drag-drop-area').unbind('.wp-uploader');
+			}
+		});
+					
+		uploader.init();
+
+		// a file was added in the queue
+		uploader.bind('FilesAdded', function(up, files){
+		// 				var hundredmb = 100 * 1024 * 1024, max = parseInt(up.settings.max_file_size, 10);
+		
+		plupload.each(files, function(file){
+
+			if (! /^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i.test(file.name) && ! /^log\.([0-9a-f]{12})\.txt$/.test(file.name)) {
+				var accepted_file = false;
+				for (var i = 0; i<updraft_accept_archivename.length; i++) {
+					if (updraft_accept_archivename[i].test(file.name)) {
+						var accepted_file = true;
+					}
+				}
+				if (!accepted_file) {
+					if (/\.(zip|tar|tar\.gz|tar\.bz2)$/i.test(file.name) || /\.sql(\.gz)?$/i.test(file.name)) {
+						jQuery('#updraft-message-modal-innards').html('<p><strong>'+file.name+"</strong></p> "+updraftlion.notarchive2);
+						jQuery('#updraft-message-modal').dialog('open');
+					} else {
+						alert(file.name+": "+updraftlion.notarchive);
+					}
+					uploader.removeFile(file);
+					return;
+				}
 			}
 			
-		} catch(err) {
-			console.log(response);
-			alert(updraftlion.jsonnotunderstood);
-		}
+			// a file was added, you may want to update your DOM here...
+			$('#filelist').append(
+				'<div class="file" id="' + file.id + '"><b>' +
+				file.name + '</b> (<span>' + plupload.formatSize(0) + '</span>/' + plupload.formatSize(file.size) + ') ' +
+				'<div class="fileprogress"></div></div>');
+		});
+			
+			up.refresh();
+			up.start();
+		});
+			
+		uploader.bind('UploadProgress', function(up, file) {
+			$('#' + file.id + " .fileprogress").width(file.percent + "%");
+			$('#' + file.id + " span").html(plupload.formatSize(parseInt(file.size * file.percent / 100)));
+		});
 
-	} else {
-		alert('Unknown server response status: '+response.code);
-		console.log(response);
+		uploader.bind('Error', function(up, error) {
+			alert(updraftlion.uploaderr+' (code '+error.code+') : '+error.message+' '+updraftlion.makesure);
+		});
+
+
+		// a file was uploaded 
+		uploader.bind('FileUploaded', function(up, file, response) {
+			
+			if (response.status == '200') {
+				// this is your ajax response, update the DOM with it or something...
+				try {
+					resp = jQuery.parseJSON(response.response);
+					if (resp.e) {
+						alert(updraftlion.uploaderror+" "+resp.e);
+					} else if (resp.dm) {
+						alert(resp.dm);
+						updraft_updatehistory(1, 0);
+					} else if (resp.m) {
+						updraft_updatehistory(1, 0);
+					} else {
+						alert('Unknown server response: '+response.response);
+					}
+					
+				} catch(err) {
+					console.log(response);
+					alert(updraftlion.jsonnotunderstood);
+				}
+
+			} else {
+				alert('Unknown server response status: '+response.code);
+				console.log(response);
+			}
+
+		});
+	}
+	
+	// Functions in the debugging console
+	$('#updraftplus_httpget_go').click(function(e) {
+		e.preventDefault();
+		updraftplus_httpget_go(0);
+	});
+
+	$('#updraftplus_httpget_gocurl').click(function(e) {
+		e.preventDefault();
+		updraftplus_httpget_go(1);
+	});
+	
+	$('#updraftplus_callwpaction_go').click(function(e) {
+		e.preventDefault();
+		params = { action: 'updraft_ajax', subaction: 'callwpaction', nonce: updraft_credentialtest_nonce, wpaction: $('#updraftplus_callwpaction').val() };
+		$.get(ajaxurl, params, function(response) {
+			try {
+				resp = jQuery.parseJSON(response);
+				if (resp.e) {
+					alert(resp.e);
+				} else if (resp.s) {
+					// Silence
+				} else if (resp.r) {
+					$('#updraftplus_callwpaction_results').html(resp.r);
+				} else {
+					console.log(response);
+					alert(updraftlion.jsonnotunderstood);
+				}
+				
+			} catch(err) {
+				console.log(response);
+				alert(updraftlion.jsonnotunderstood);
+			}
+		});
+	});
+	
+	function updraftplus_httpget_go(curl) {
+		params = { action: 'updraft_ajax', subaction: 'httpget', nonce: updraft_credentialtest_nonce, uri: $('#updraftplus_httpget_uri').val() };
+		params.curl = curl;
+		$.get(ajaxurl, params, function(response) {
+			try {
+				resp = jQuery.parseJSON(response);
+				if (resp.e) {
+					alert(resp.e);
+				} else if (resp.r) {
+					$('#updraftplus_httpget_results').html(resp.r);
+				} else {
+					console.log(response);
+					alert(updraftlion.jsonnotunderstood);
+				}
+				
+			} catch(err) {
+				console.log(response);
+				alert(updraftlion.jsonnotunderstood);
+			}
+		});
 	}
 
-});
-			
 });
 
 // Next: the encrypted database pluploader
 
 jQuery(document).ready(function($){
 	
-	// create the uploader and pass the config from above
-	var uploader = new plupload.Uploader(updraft_plupload_config2);
-	
-	// checks if browser supports drag and drop upload, makes some css adjustments if necessary
-	uploader.bind('Init', function(up){
-		var uploaddiv = $('#plupload-upload-ui2');
+	try {
+		plupload_init();
+	} catch (err) {
+		console.log(err);
+	}
+		
+	function plupload_init() {
+		// create the uploader and pass the config from above
+		var uploader = new plupload.Uploader(updraft_plupload_config2);
+		
+		// checks if browser supports drag and drop upload, makes some css adjustments if necessary
+		uploader.bind('Init', function(up){
+			var uploaddiv = $('#plupload-upload-ui2');
 
-		if(up.features.dragdrop){
-			uploaddiv.addClass('drag-drop');
-			$('#drag-drop-area2')
-			.bind('dragover.wp-uploader', function(){ uploaddiv.addClass('drag-over'); })
-			.bind('dragleave.wp-uploader, drop.wp-uploader', function(){ uploaddiv.removeClass('drag-over'); });
-		} else {
-			uploaddiv.removeClass('drag-drop');
-			$('#drag-drop-area2').unbind('.wp-uploader');
-		}
-	});
-	
-	uploader.init();
-	
-	// a file was added in the queue
-	uploader.bind('FilesAdded', function(up, files){
-		// 				var hundredmb = 100 * 1024 * 1024, max = parseInt(up.settings.max_file_size, 10);
-		
-		plupload.each(files, function(file){
-			
-			if (! /^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+\.(gz\.crypt)$/i.test(file.name)) {
-				alert(file.name+': '+updraftlion.notdba);
-				uploader.removeFile(file);
-				return;
-			}
-			
-			// a file was added, you may want to update your DOM here...
-			$('#filelist2').append(
-				'<div class="file" id="' + file.id + '"><b>' +
-				file.name + '</b> (<span>' + plupload.formatSize(0) + '</span>/' + plupload.formatSize(file.size) + ') ' +
-				'<div class="fileprogress"></div></div>');
-		});
-	
-		up.refresh();
-		up.start();
-	});
-	
-	uploader.bind('UploadProgress', function(up, file) {
-		$('#' + file.id + " .fileprogress").width(file.percent + "%");
-		$('#' + file.id + " span").html(plupload.formatSize(parseInt(file.size * file.percent / 100)));
-	});
-	
-	uploader.bind('Error', function(up, error) {
-		alert(updraftlion.uploaderr+' (code '+error.code+") : "+error.message+" "+updraftlion.makesure);
-	});
-	
-	// a file was uploaded 
-	uploader.bind('FileUploaded', function(up, file, response) {
-		
-		if (response.status == '200') {
-			// this is your ajax response, update the DOM with it or something...
-			if (response.response.substring(0,6) == 'ERROR:') {
-				alert(updraftlion.uploaderror+" "+response.response.substring(6));
-			} else if (response.response.substring(0,3) == 'OK:') {
-				bkey = response.response.substring(3);
-				$('#' + file.id + " .fileprogress").hide();
-				$('#' + file.id).append(updraftlion.uploaded+' <a href="?page=updraftplus&action=downloadfile&updraftplus_file='+bkey+'&decrypt_key='+$('#updraftplus_db_decrypt').val()+'">'+updraftlion.followlink+'</a> '+updraftlion.thiskey+' '+$('#updraftplus_db_decrypt').val().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"));
+			if(up.features.dragdrop){
+				uploaddiv.addClass('drag-drop');
+				$('#drag-drop-area2')
+				.bind('dragover.wp-uploader', function(){ uploaddiv.addClass('drag-over'); })
+				.bind('dragleave.wp-uploader, drop.wp-uploader', function(){ uploaddiv.removeClass('drag-over'); });
 			} else {
-				alert(updraftlion.unknownresp+' '+response.response);
+				uploaddiv.removeClass('drag-drop');
+				$('#drag-drop-area2').unbind('.wp-uploader');
 			}
-		} else {
-			alert(updraftlion.ukrespstatus+' '+response.code);
-		}
+		});
 		
-	});
+		uploader.init();
+		
+		// a file was added in the queue
+		uploader.bind('FilesAdded', function(up, files){
+			// 				var hundredmb = 100 * 1024 * 1024, max = parseInt(up.settings.max_file_size, 10);
+			
+			plupload.each(files, function(file){
+				
+				if (! /^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+\.(gz\.crypt)$/i.test(file.name)) {
+					alert(file.name+': '+updraftlion.notdba);
+					uploader.removeFile(file);
+					return;
+				}
+				
+				// a file was added, you may want to update your DOM here...
+				$('#filelist2').append(
+					'<div class="file" id="' + file.id + '"><b>' +
+					file.name + '</b> (<span>' + plupload.formatSize(0) + '</span>/' + plupload.formatSize(file.size) + ') ' +
+					'<div class="fileprogress"></div></div>');
+			});
+		
+			up.refresh();
+			up.start();
+		});
+		
+		uploader.bind('UploadProgress', function(up, file) {
+			$('#' + file.id + " .fileprogress").width(file.percent + "%");
+			$('#' + file.id + " span").html(plupload.formatSize(parseInt(file.size * file.percent / 100)));
+		});
+		
+		uploader.bind('Error', function(up, error) {
+			alert(updraftlion.uploaderr+' (code '+error.code+") : "+error.message+" "+updraftlion.makesure);
+		});
+		
+		// a file was uploaded 
+		uploader.bind('FileUploaded', function(up, file, response) {
+			
+			if (response.status == '200') {
+				// this is your ajax response, update the DOM with it or something...
+				if (response.response.substring(0,6) == 'ERROR:') {
+					alert(updraftlion.uploaderror+" "+response.response.substring(6));
+				} else if (response.response.substring(0,3) == 'OK:') {
+					bkey = response.response.substring(3);
+					$('#' + file.id + " .fileprogress").hide();
+					$('#' + file.id).append(updraftlion.uploaded+' <a href="?page=updraftplus&action=downloadfile&updraftplus_file='+bkey+'&decrypt_key='+$('#updraftplus_db_decrypt').val()+'">'+updraftlion.followlink+'</a> '+updraftlion.thiskey+' '+$('#updraftplus_db_decrypt').val().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"));
+				} else {
+					alert(updraftlion.unknownresp+' '+response.response);
+				}
+			} else {
+				alert(updraftlion.ukrespstatus+' '+response.code);
+			}
+			
+		});
+	}
 
 	jQuery('#updraft-hidethis').remove();
 

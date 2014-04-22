@@ -842,6 +842,16 @@ class UpdraftPlus_Backup {
 
 		$total_tables = 0;
 
+		# WP 3.9 onwards - https://core.trac.wordpress.org/browser/trunk/src/wp-includes/wp-db.php?rev=27925 - check_connection() allows us to get the database connection back if it had dropped
+		if (method_exists($wpdb, 'check_connection')) {
+			if (!$wpdb->check_connection(false)) {
+				$updraftplus->reschedule(60);
+				$updraftplus->log("It seems the database went away; scheduling a resumption and terminating for now");
+				$updraftplus->record_still_alive();
+				die;
+			}
+		}
+
 		$all_tables = $wpdb->get_results("SHOW TABLES", ARRAY_N);
 		$all_tables = array_map(create_function('$a', 'return $a[0];'), $all_tables);
 
@@ -953,7 +963,7 @@ class UpdraftPlus_Backup {
 				# Have seen this happen; not sure how, but it was apparently deterministic; if the current process had been running for a long time, then apparently all database commands silently failed.
 				# If we have been running that long, then the resumption may be far off; bring it closer
 				$updraftplus->reschedule(60);
-				$updraftplus->log("Have been running very long, and it seems the database went away; terminating");
+				$updraftplus->log("Have been running very long, and it seems the database went away; scheduling a resumption and terminating for now");
 				$updraftplus->record_still_alive();
 				die;
 			}
@@ -1740,7 +1750,7 @@ class UpdraftPlus_Backup {
 						}
 					}
 					$zipfiles_added_thisbatch = 0;
-					
+
 					# This triggers a re-open, later
 					unset($zip);
 					$files_zipadded_since_open = array();

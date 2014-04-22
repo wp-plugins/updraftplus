@@ -153,13 +153,19 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * FIX: Fix restoration on sites where WP did not have direct filesystem access
 * FIX: Fix regex which prevented download progress of mu-plugins zip displaying correctly
 * FIX: Fix issue preventing some useful information about URL changes being included in the migration log file
-* FIX: New locations for plupload Flash/Silverlight widgets (for non-HTML5 browsers) in WP3.9+
+* FIX: Restore compatibility with WordPress 3.2 (if you're using that, you're overdue an upgrade by some years!)
+* TWEAK: Enable new locations for plupload Flash/Silverlight widgets (for non-HTML5 browsers) in WP3.9+ (later reverted by core devs, but is harmless in case they re-introduce)
+* TWEAK: Take advantage of WP 3.9+'s new method (if available) for maintaining DB connectivity on very long runs
 * TWEAK: Add filter so that programmers can allow the options page to be shown to non-admins
 * TWEAK: Add filter allowing programmers to forbid a backup
 * TWEAK: Detect and adapt to cases where the site is moved to a system with different case-sensitivity and the database record of the theme is now wrong
+* TWEAK: Introduce constant allowing users of pre-release WP installs to disable notices about using a version of WP that UpdraftPlus has not been tested on.
+* TWEAK: Make Dropbox uploads at least 25% faster (in our testing) by increasing the chunk size
 * TWEAK: Reduce number of rows fetched from MySQL if no activity took place on the previous resumption
 * TWEAK: AWS image in settings page will now use https if dashboard access is https - prevents non-https warnings in recent browsers
 * TWEAK: Hook into Better WP Security so that it doesn't tell the user that they have no backup plugin
+* TWEAK: New debugging tool to test remote HTTP connectivity
+* TWEAK: Tweak the MySQL version detection in the 'debug' section of the admin page to prevent a PHP message being thrown on PHP 5.5+/WP3.9+
 * TRANSLATION: New Czech (cs_CZ) translation; thanks to Martin Křížek
 
 = 1.9.0 - 2014/03/26 =

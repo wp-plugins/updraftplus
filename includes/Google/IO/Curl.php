@@ -54,6 +54,8 @@ class Google_IO_Curl extends Google_IO_Abstract
       curl_setopt($curl, CURLOPT_HTTPHEADER, $curlHeaders);
     }
 
+    curl_setopt($curl, CURLOPT_URL, $request->getUrl());
+
     curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $request->getRequestMethod());
     curl_setopt($curl, CURLOPT_USERAGENT, $request->getUserAgent());
 
@@ -62,7 +64,6 @@ class Google_IO_Curl extends Google_IO_Abstract
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($curl, CURLOPT_HEADER, true);
 
-    curl_setopt($curl, CURLOPT_URL, $request->getUrl());
 
     if ($request->canGzip()) {
       curl_setopt($curl, CURLOPT_ENCODING, 'gzip,deflate');
