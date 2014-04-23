@@ -1651,7 +1651,6 @@ class UpdraftPlus {
 
 		// Some house-cleaning
 		$this->clean_temporary_files();
-		do_action('updraftplus_boot_backup');
 
 		// Log some information that may be helpful
 		$this->log("Tasks: Backup files: $backup_files (schedule: ".UpdraftPlus_Options::get_updraft_option('updraft_interval', 'unset').") Backup DB: $backup_database (schedule: ".UpdraftPlus_Options::get_updraft_option('updraft_interval_database', 'unset').")");
@@ -1679,6 +1678,11 @@ class UpdraftPlus {
 			update_option('updraftplus_unlocked_'.$semaphore, '1');
 			update_option('updraftplus_last_lock_time_'.$semaphore, current_time('mysql', 1));
 			update_option('updraftplus_semaphore_'.$semaphore, '0');
+		}
+
+		if (false == apply_filters('updraftplus_boot_backup', true, $backup_files, $backup_database, $one_shot)) {
+			$updraftplus->log("Backup aborted (via filter)");
+			return false;
 		}
 
 		if (!is_string($service) && !is_array($service)) $service = UpdraftPlus_Options::get_updraft_option('updraft_service');
