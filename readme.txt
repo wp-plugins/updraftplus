@@ -159,6 +159,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Add filter so that programmers can allow the options page to be shown to non-admins
 * TWEAK: Add filter allowing programmers to forbid a backup
 * TWEAK: Detect and adapt to cases where the site is moved to a system with different case-sensitivity and the database record of the theme is now wrong
+* TWEAK: Prevent erroneous warning about a missing table in the database backup on some WPMU installs that began life as a very old WP version
 * TWEAK: Introduce constant allowing users of pre-release WP installs to disable notices about using a version of WP that UpdraftPlus has not been tested on.
 * TWEAK: Make Dropbox uploads at least 25% faster (in our testing) by increasing the chunk size
 * TWEAK: Reduce number of rows fetched from MySQL if no activity took place on the previous resumption
@@ -167,6 +168,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: New debugging tool to test remote HTTP connectivity
 * TWEAK: Tweak the MySQL version detection in the 'debug' section of the admin page to prevent a PHP message being thrown on PHP 5.5+/WP3.9+
 * TRANSLATION: New Czech (cs_CZ) translation; thanks to Martin Křížek
+* TRANSLATION: Updated Russian, Swedish, Dutch and Portuguese translations
 
 = 1.9.0 - 2014/03/26 =
 

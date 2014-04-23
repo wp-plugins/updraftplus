@@ -886,6 +886,8 @@ class UpdraftPlus_Backup {
 
 		$found_options_table = false;
 
+		$is_multisite = is_multisite();
+
 		foreach ($all_tables as $table) {
 
 			$manyrows_warning = false;
@@ -896,7 +898,7 @@ class UpdraftPlus_Backup {
 			// The table file may already exist if we have produced it on a previous run
 			$table_file_prefix = $file_base.'-db-table-'.$table.'.table';
 
-			if (strtolower($this->table_prefix_raw.'options') == strtolower($table)) $found_options_table = true;
+			if (strtolower($this->table_prefix_raw.'options') == strtolower($table) || ($is_multisite && strtolower($this->table_prefix_raw.'1_options') == strtolower($table))) $found_options_table = true;
 
 			if (file_exists($this->updraft_dir.'/'.$table_file_prefix.'.gz')) {
 				$updraftplus->log("Table $table: corresponding file already exists; moving on");
