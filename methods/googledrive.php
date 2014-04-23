@@ -233,12 +233,14 @@ class UpdraftPlus_BackupModule_googledrive {
 	// Revoke a Google account refresh token
 	// Returns the parameter fed in, so can be used as a WordPress options filter
 	// Can be called statically from UpdraftPlus::googledrive_clientid_checkchange()
-	public static function gdrive_auth_revoke() {
+	public static function gdrive_auth_revoke($unsetopt = true) {
 		$opts = self::get_opts();
 		$ignore = wp_remote_get('https://accounts.google.com/o/oauth2/revoke?token='.$opts['token']);
-		$opts['token'] = '';
-		unset($opts['ownername']);
-		UpdraftPlus_Options::update_updraft_option('updraft_googledrive', $opts);
+		if ($unsetopt) {
+			$opts['token'] = '';
+			unset($opts['ownername']);
+			UpdraftPlus_Options::update_updraft_option('updraft_googledrive', $opts);
+		}
 	}
 
 	// Get a Google account refresh token using the code received from gdrive_auth_request
@@ -506,7 +508,7 @@ class UpdraftPlus_BackupModule_googledrive {
 
 	# Returns Google_Service_Drive_DriveFile object
 	private function get_subitems($parent_id, $type = 'any', $match = 'backup_') {
-		$q = '"'.$parent_id.'" in parents';
+		$q = '"'.$parent_id.'" in parents and trashed = false';
 		if ('dir' == $type) {
 			$q .= ' and mimeType = "application/vnd.google-apps.folder"';
 		} elseif ('file' == $type) {
@@ -842,8 +844,8 @@ class UpdraftPlus_BackupModule_googledrive {
 				<td><p><?php if (!empty($opts['token'])) echo __("<strong>(You appear to be already authenticated,</strong> though you can authenticate again to refresh your access if you've had a problem).", 'updraftplus'); ?>
 
 				<?php
-				if (!empty($opts['ownername'])) {
-					echo ' '.sprintf(__("Account holder's name: %s.", 'updraftplus'), htmlspecialchars($opts['ownername'])).' ';
+				if (!empty($opts['token']) && !empty($opts['ownername'])) {
+					echo '<br>'.sprintf(__("Account holder's name: %s.", 'updraftplus'), htmlspecialchars($opts['ownername'])).' ';
 				}
 				?>
 				</p>

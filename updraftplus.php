@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.9.3
+Version: 1.9.4
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -2287,8 +2287,10 @@ class UpdraftPlus {
 		if (!empty($opts['token']) && $old_client_id != $google['clientid']) {
 			require_once(UPDRAFTPLUS_DIR.'/methods/googledrive.php');
 			add_action('http_api_curl', array($this, 'add_curl_capath'));
-			UpdraftPlus_BackupModule_googledrive::gdrive_auth_revoke(true);
+			UpdraftPlus_BackupModule_googledrive::gdrive_auth_revoke(false);
 			remove_action('http_api_curl', array($this, 'add_curl_capath'));
+			$google['token'] = '';
+			unset($opts['ownername']);
 		}
 		foreach ($google as $key => $value) { $opts[$key] = $value; }
 		if (isset($opts['folder'])) {
