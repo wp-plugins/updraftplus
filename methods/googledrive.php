@@ -419,7 +419,10 @@ class UpdraftPlus_BackupModule_googledrive {
 			}
 		}
 
-		if (false === strpos(get_include_path(), UPDRAFTPLUS_DIR.'/includes')) set_include_path(get_include_path().PATH_SEPARATOR.UPDRAFTPLUS_DIR.'/includes');
+		$included_paths = explode(PATH_SEPARATOR, get_include_path());
+		if (!in_array(UPDRAFTPLUS_DIR.'/includes', $included_paths)) {
+			set_include_path(get_include_path().PATH_SEPARATOR.UPDRAFTPLUS_DIR.'/includes');
+		}
 
 		if (!class_exists('Google_Config')) require_once 'Google/Config.php';
 		if (!class_exists('Google_Client')) require_once 'Google/Client.php';
