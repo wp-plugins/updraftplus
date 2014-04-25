@@ -2929,13 +2929,13 @@ CREATE TABLE $wpdb->signups (
 		<?php
 	}
 
-	public function show_double_warning($text, $extraclass = '') {
+	public function show_double_warning($text, $extraclass = '', $echo = true) {
 
-		?><div class="error updraftplusmethod <?php echo $extraclass; ?>"><p><?php echo $text; ?></p></div>
+		$ret = "<div class=\"error updraftplusmethod $extraclass\"><p>$text</p></div>";
+		$ret .= "<p style=\"border:1px solid; padding: 6px;\">$text</p>";
 
-		<p style="border:1px solid; padding: 6px;"><?php echo $text; ?></p>
-
-		<?php
+		if ($echo) echo $ret;
+		return $ret;
 
 	}
 
@@ -2946,28 +2946,30 @@ CREATE TABLE $wpdb->signups (
 	}
 
 	public function curl_check($service, $has_fallback = false, $extraclass = '', $echo = true) {
-		if (!$echo) ob_start();
+
+		$ret = '';
+
 		// Check requirements
 		if (!function_exists("curl_init") || !function_exists('curl_exec')) {
 		
-			$this->show_double_warning('<strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__('Your web server\'s PHP installation does not included a <strong>required</strong> (for %s) module (%s). Please contact your web hosting provider\'s support and ask for them to enable it.', 'updraftplus'), $service, 'Curl').' '.sprintf(__("Your options are 1) Install/enable %s or 2) Change web hosting companies - %s is a standard PHP component, and required by all cloud backup plugins that we know of.",'updraftplus'), 'Curl', 'Curl'), $extraclass);
+			$ret .= $this->show_double_warning('<strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__('Your web server\'s PHP installation does not included a <strong>required</strong> (for %s) module (%s). Please contact your web hosting provider\'s support and ask for them to enable it.', 'updraftplus'), $service, 'Curl').' '.sprintf(__("Your options are 1) Install/enable %s or 2) Change web hosting companies - %s is a standard PHP component, and required by all cloud backup plugins that we know of.",'updraftplus'), 'Curl', 'Curl'), $extraclass, false);
 
 		} else {
 			$curl_version = curl_version();
 			$curl_ssl_supported= ($curl_version['features'] & CURL_VERSION_SSL);
 			if (!$curl_ssl_supported) {
 				if ($has_fallback) {
-					?><p><strong><?php _e('Warning','updraftplus'); ?>:</strong> <?php echo sprintf(__("Your web server's PHP/Curl installation does not support https access. Communications with %s will be unencrypted. ask your web host to install Curl/SSL in order to gain the ability for encryption (via an add-on).",'updraftplus'),$service);?></p><?php
+					$ret .= '<p><strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__("Your web server's PHP/Curl installation does not support https access. Communications with %s will be unencrypted. ask your web host to install Curl/SSL in order to gain the ability for encryption (via an add-on).",'updraftplus'),$service).'</p>';
 				} else {
-					$this->show_double_warning('<p><strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__("Your web server's PHP/Curl installation does not support https access. We cannot access %s without this support. Please contact your web hosting provider's support. %s <strong>requires</strong> Curl+https. Please do not file any support requests; there is no alternative.",'updraftplus'),$service).'</p>', $extraclass);
+					$ret .= $this->show_double_warning('<p><strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__("Your web server's PHP/Curl installation does not support https access. We cannot access %s without this support. Please contact your web hosting provider's support. %s <strong>requires</strong> Curl+https. Please do not file any support requests; there is no alternative.",'updraftplus'),$service).'</p>', $extraclass, false);
 				}
 			} else {
-				?><p><em><?php echo sprintf(__("Good news: Your site's communications with %s can be encrypted. If you see any errors to do with encryption, then look in the 'Expert Settings' for more help.", 'updraftplus'),$service);?></em></p><?php
+				$ret .= '<p><em>'.sprintf(__("Good news: Your site's communications with %s can be encrypted. If you see any errors to do with encryption, then look in the 'Expert Settings' for more help.", 'updraftplus'),$service).'</em></p>';
 			}
 		}
-		if (!$echo) {
-			$ret = ob_get_clean();
-			ob_end_clean();
+		if ($echo) {
+			echo $ret;
+		} else {
 			return $ret;
 		}
 	}
