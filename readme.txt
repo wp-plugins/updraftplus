@@ -144,7 +144,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
 = 1.9.5 - 2014/04/25 =
-* FIX: Backups were not uploaded successfully if you were using both an encrypted database and Google Drive storage
+* FIX: Backups were not uploaded successfully in 1.9.4 if you were using both an encrypted database and Google Drive storage
 
 = 1.9.4 - 2014/04/23 =
 
@@ -815,4 +815,4 @@ We recognise and thank the following for code and/or libraries used and/or modif
 Furthermore, reliance upon any non-English translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
 
 == Upgrade Notice ==
-* 1.9.4 : New back-ends for GoogleDrive, Bitcasa and OpenStack. Restore BackWPup backups. Various tweaks + bugfixes. Translations updated. Recommended update for all. 1.9.5: Essential fix for uploading your backup to Google Drive if your database was encrypted.
+* 1.9.4 : New back-ends for GoogleDrive, Bitcasa and OpenStack. Restore BackWPup backups. Various tweaks + bugfixes. Translations updated. Recommended update for all. 1.9.5: Essential fix for 1.9.4 for uploading your backup to Google Drive if your database was encrypted.
