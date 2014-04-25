@@ -491,7 +491,7 @@ class UpdraftPlus {
 
 	public function load_translations() {
 		// Tell WordPress where to find the translations
-		load_plugin_textdomain('updraftplus', false, basename(dirname(__FILE__)).'/languages');
+		load_plugin_textdomain('updraftplus', false, basename(dirname(__FILE__)).'/languages/');
 	}
 
 	// Cleans up temporary files found in the updraft directory (and some in the site root - pclzip)
@@ -506,6 +506,7 @@ class UpdraftPlus {
 			foreach ($all_jobs as $job) {
 				$val = maybe_unserialize($job['option_value']);
 				# TODO: Can simplify this after a while (now all jobs use job_time_ms) - 1 Jan 2014
+				# TODO: This will need changing when incremental backups are introduced
 				if (!empty($val['backup_time_ms']) && time() > $val['backup_time_ms'] + 86400) {
 					delete_option($job['option_name']);
 				} elseif (!empty($val['job_time_ms']) && time() > $val['job_time_ms'] + 86400) {

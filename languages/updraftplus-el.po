@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the UpdraftPlus package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-04-23 10:18:32+0000\n"
+"PO-Revision-Date: 2014-04-25 12:24:00+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -204,195 +204,195 @@ msgstr "Κλήση"
 
 #: admin.php:1903 admin.php:2696
 msgid "This feature requires %s version %s or later"
-msgstr ""
+msgstr "Αυτή η λειτουργία απαιτεί την έκδοση %s %s ή νεότερη "
 
 #: restorer.php:1530
 msgid "Elegant themes theme builder plugin data detected: resetting temporary folder"
-msgstr ""
+msgstr "Ανιχνεύθηκε το πρόσθετο Elegant themes theme builder: γίνεται επαναφορά του προσωρινού φάκελου"
 
 #: restorer.php:45
 msgid "Failed to unpack the archive"
-msgstr ""
+msgstr "Αποτυχία αποσυμπίεσης του αρχείου"
 
 #: restorer.php:186
 msgid "%s files have been extracted"
-msgstr ""
+msgstr "%s αρχεία έχουν εξαχθεί "
 
 #: updraftplus.php:915
 msgid "Error - failed to download the file"
-msgstr ""
+msgstr "Σφάλμα - αδυναμία μεταφόρτωσης του αρχείου"
 
 #: admin.php:1883
 msgid "Rescan local folder for new backup sets"
-msgstr ""
+msgstr "Επανάληψη σάρωσης του τοπικού φακέλου για εύρεση νέων σετ αντιγράφων ασφαλείας"
 
 #: udaddons/updraftplus-addons.php:132
 msgid "You should update UpdraftPlus to make sure that you have a version that has been tested for compatibility."
-msgstr ""
+msgstr "Θα πρέπει να ενημερώσετε το UpdraftPlus για να είστε βέβαιοι ότι έχετε μια έκδοση που έχει ελεγχθεί για συμβατότητα."
 
 #: udaddons/updraftplus-addons.php:132
 msgid "The installed version of UpdraftPlus Backup/Restore has not been tested on your version of WordPress (%s)."
-msgstr ""
+msgstr "Η εγκατεστημένη έκδοση του UpdraftPlus Backup/Restore δεν έχει δοκιμαστεί στην έκδοση του WordPress που έχετε (%s)."
 
 #: udaddons/updraftplus-addons.php:132
 msgid "It has been tested up to version %s."
-msgstr ""
+msgstr "Έχει δοκιμαστεί μέχρι την έκδοση %s."
 
 #: addons/sftp.php:423
 msgid "password/key"
-msgstr ""
+msgstr "κωδικός/κλειδί"
 
 #: addons/sftp.php:48
 msgid "SCP/SFTP password/key"
-msgstr ""
+msgstr "κωδικός/κλειδί SCP/SFTP"
 
 #: addons/sftp.php:276
 msgid "The key provided was not in a valid format, or was corrupt."
-msgstr ""
+msgstr "Το κλειδί που δώσατε δεν ήταν σε έγκυρη μορφή, ή ήταν κατεστραμμένο."
 
 #: addons/sftp.php:339
 msgid "Your login may be either password or key-based - you only need to enter one, not both."
-msgstr ""
+msgstr "Η σύνδεσή σας μπορεί να γίνει είτε τον κωδικό ή με κλειδί - χρειάζεται να εισάγετε ένα από τα δύο, όχι και τα δύο."
 
 #: addons/sftp.php:344
 msgid "Key"
-msgstr ""
+msgstr "Κλειδί"
 
 #: addons/sftp.php:347
 msgid "PKCS1 (PEM header: BEGIN RSA PRIVATE KEY), XML and PuTTY format keys are accepted."
-msgstr ""
+msgstr "Τα κλειδιά σε μορφή PKCS1 (PEM header: BEGIN RSA PRIVATE KEY), XML και PuTTY είναι αποδεκτά."
 
 #: admin.php:3146 admin.php:3374
 msgid "Backup created by: %s."
-msgstr ""
+msgstr "Το αντίγραφο ασφαλείας δημιουργήθηκε από: %s."
 
 #: admin.php:3153
 msgid "Files and database WordPress backup (created by %s)"
-msgstr ""
+msgstr "Αντίγραφο ασφαλείας αρχείων και βάσης δεδομένων του WordPress (δημιουργήθηκε από %s)"
 
 #: admin.php:3153
 msgid "Files backup (created by %s)"
-msgstr ""
+msgstr "Αντίγραφο ασφαλείας αρχείων (δημιουργήθηκε από %s) "
 
 #: admin.php:3100 admin.php:3148
 msgid "unknown source"
-msgstr ""
+msgstr "άγνωστη πηγή"
 
 #: admin.php:3103
 msgid "Database (created by %s)"
-msgstr ""
+msgstr "Βάσης δεδομένων (δημιουργήθηκε από %s) "
 
 #: admin.php:1884
 msgid "Rescan remote storage"
-msgstr ""
+msgstr "Επανασάρωση της απομακρυσμένης θέσης αποθήκευσης"
 
 #: admin.php:1882
 msgid "Upload backup files"
-msgstr ""
+msgstr "Ανέβασμα αρχείων αντιγράφου ασφαλείας"
 
 #: admin.php:1525
 msgid "This backup was created by %s, and can be imported."
-msgstr ""
+msgstr "Αυτό το αντίγραφο ασφαλείας δημιουργήθηκε από %s, και μπορεί να εισαχθεί."
 
 #: admin.php:416
 msgid "WordPress has a number (%d) of scheduled tasks which are overdue. Unless this is a development site, this probably means that the scheduler in your WordPress install is not working."
-msgstr ""
+msgstr "Το WordPress έχει έναν αριθμό (%d) των προγραμματισμένων εργασιών που έχουν καθυστερήσει.  Αυτό σημαίνει κατά πάσα πιθανότητα ότι το χρονοδιάγραμμα στην εγκατάσταση σας του WordPress δεν λειτουργεί, εκτός κι αν αυτή είναι μια σελίδα εξέλιξης "
 
 #: admin.php:416
 msgid "Read this page for a guide to possible causes and how to fix it."
-msgstr ""
+msgstr "Διαβάστε αυτή τη σελίδα για δείτε έναν οδηγό για τις πιθανές αιτίες και πώς μπορεί να διορθωθεί."
 
 #: admin.php:144 admin.php:145 admin.php:3381
 msgid "This file does not appear to be an UpdraftPlus backup archive (such files are .zip or .gz files which have a name like: backup_(time)_(site name)_(code)_(type).(zip|gz))."
-msgstr ""
+msgstr "Αυτό το αρχείο δε μοιάζει να είναι ένα αρχείο αντιγράφων ασφαλείας του UpdraftPlus (τέτοια είναι τα .zip or .gz αρχεία που μπορεί να έχουν ένα όνομα του τύπου: backup_(time)_(site name)_(code)_(type).(zip|gz))."
 
 #: admin.php:144
 msgid "However, UpdraftPlus archives are standard zip/SQL files - so if you are sure that your file has the right format, then you can rename it to match that pattern."
-msgstr ""
+msgstr "Ωστόσο, τα αρχεία του UpdraftPlus είναι σύμφωνα με το πρότυπο αρχείων zip/SQL - οπότε αν είστε βέβαιοι ότι το αρχείο σας έχει τη σωστή μορφή, τότε μπορείτε να το μετονομάσετε για να ταιριάζει με αυτό το μοτίβο."
 
 #: admin.php:145 admin.php:3381
 msgid "If this is a backup created by a different backup plugin, then UpdraftPlus Premium may be able to help you."
-msgstr ""
+msgstr "Εάν αυτό είναι ένα αντίγραφο ασφαλείας που δημιουργήθηκε από ένα διαφορετικό πρόσθετο λήψης αντιγράφων ασφαλείας, τότε το UpdraftPlus Premium μπορεί να είναι σε θέση να σας βοηθήσει."
 
 #: restorer.php:1017 admin.php:768 admin.php:3149
 msgid "Backup created by unknown source (%s) - cannot be restored."
-msgstr ""
+msgstr "Το αντίγραφο ασφαλείας δημιουργήθηκε από άγνωστη πηγή (%s) - δεν μπορεί να αποκατασταθεί."
 
 #: restorer.php:666 restorer.php:768
 msgid "The WordPress content folder (wp-content) was not found in this zip file."
-msgstr ""
+msgstr "Ο φάκελος περιεχομένων του WordPress (wp-content) δε βρέθηκε σ' αυτό το αρχείο zip."
 
 #: restorer.php:530
 msgid "This version of UpdraftPlus does not know how to handle this type of foreign backup"
-msgstr ""
+msgstr "Αυτή η έκδοση του UpdraftPlus δεν μπορεί να διαχειριστεί αυτό το είδος των ξένων αντιγράφων ασφαλείας"
 
 #: methods/dropbox.php:192
 msgid "%s returned an unexpected HTTP response: %s"
-msgstr ""
+msgstr "%s επέστρεψε μη αναμενόμενη απάντηση HTTP: %s"
 
 #: addons/sftp.php:879
 msgid "The UpdraftPlus module for this file access method (%s) does not support listing files"
-msgstr ""
+msgstr "Η μονάδα του UpdraftPlus γι' αυτή τη μέθοδο πρόσβασης στο αρχείο (%s) δεν υποστηρίζει την καταχώριση αρχείων"
 
 #: methods/openstack-base.php:95 methods/cloudfiles.php:234 methods/s3.php:41
 msgid "No settings were found"
-msgstr ""
+msgstr "Δε βρέθηκαν ρυθμίσεις"
 
 #: admin.php:3239
 msgid "(backup set imported from remote storage)"
-msgstr ""
+msgstr "(το σετ αντιγράφων ασφαλείας έχει εισαχθεί από το σημείο απομακρυσμένης αποθήκευσης)"
 
 #: admin.php:3470
 msgid "One or more backups has been added from scanning remote storage; note that these backups will not be automatically deleted through the \"retain\" settings; if/when you wish to delete them then you must do so manually."
-msgstr ""
+msgstr "Ένα ή περισσότερα αντίγραφα ασφαλείας έχουν προστεθεί από τη σάρωση του σημείου απομακρυσμένης αποθήκευσης. Σημειώστε ότι αυτά τα αντίγραφα ασφαλείας δεν θα  διαγράφονται αυτόματα μέσω των ρυθμίσεων \"διατήρησης\". Αν ή όταν θέλετε να τα διαγράψετε θα πρέπει να το κάνετε χειροκίνητα."
 
 #: admin.php:1941
 msgid "Are you sure that you wish to remove this backup set from UpdraftPlus?"
-msgstr ""
+msgstr "Είστε σίγουροι πως θέλετε να διαγράψετε αυτό το σετ αντιγράφων ασφαλείας από το UpdraftPlus;"
 
 #: admin.php:1884
 msgid "Press here to look inside any remote storage methods for any existing backup sets."
-msgstr ""
+msgstr "Πατήστε εδώ για να δείτε κάποια μέθοδο απομακρυσμένης αποθήκευσης για τυχόν υπάρχοντα σύνολα αντιγράφων ασφαλείας."
 
 #: admin.php:751
 msgid "This backup set was not known by UpdraftPlus to be created by the current WordPress installation, but was found in remote storage."
-msgstr ""
+msgstr "Αυτό το σετ αντιγράφων ασφαλείας δεν συμπεραίνεται από το UpdraftPlus πως έχει δημιουργηθεί από την τρέχουσα εγκατάσταση WordPress, αλλά βρέθηκε στο σημείο της απομακρυσμένης αποθήκευσης."
 
 #: admin.php:751
 msgid "You should make sure that this really is a backup set intended for use on this website, before you restore (rather than a backup set of an unrelated website that was using the same storage location)."
-msgstr ""
+msgstr "Θα πρέπει να βεβαιωθείτε ότι αυτό είναι πραγματικά ένα σύνολο αντιγράφων ασφαλείας που προορίζεται για χρήση σε αυτή την ιστοσελίδα πριν να κάνετε την επαναφορά (αντί για ένα σετ αντιγράφων ασφαλείας από μια άσχετη ιστοσελίδα που χρησιμοποιεί την ίδια θέση αποθήκευσης)."
 
 #: admin.php:117
 msgid "Rescanning remote and local storage for backup sets..."
-msgstr ""
+msgstr "Σάρωση ξανά της απομακρυσμένης και τοπικής θέσης αποθήκευσης για εύρεση σετ αντιγράφων ασφαλείας σετ ..."
 
 #: addons/s3-enhanced.php:26
 msgid "(Read more)"
-msgstr ""
+msgstr "(Διαβάστε περισσότερα)"
 
 #: addons/s3-enhanced.php:27
 msgid "Check this box to use Amazon's reduced redundancy storage and tariff"
-msgstr ""
+msgstr "Επιλέξτε αυτό το πλαίσιο για να χρησιμοποιήσετε μειωμένη αποθήκευση και διατίμηση της Amazon"
 
 #: addons/s3-enhanced.php:26
 msgid "Reduced redundancy storage"
-msgstr ""
+msgstr "Μειωμένη αποθήκευση"
 
 #: addons/migrator.php:406
 msgid "Adjusting multisite paths"
-msgstr ""
+msgstr "Ρύθμιση διαδρομών φακέλων σε multisite"
 
 #: addons/reporting.php:360
 msgid "Log all messages to syslog (only server admins are likely to want this)"
-msgstr ""
+msgstr "Συνδέστε όλα τα μηνύματα στο syslog (μόνο οι διαχειριστές των server είναι πιθανό να το θέλουν αυτό)"
 
 #: addons/morefiles.php:178
 msgid "Add another..."
-msgstr ""
+msgstr "Προσθέστε ένα ακόμα..."
 
 #: addons/morefiles.php:279
 msgid "No backup of directory: there was nothing found to back up"
-msgstr ""
+msgstr "Δεν υπάρχει αντίγραφο ασφαλείας του καταλόγου: δεν βρέθηκε τίποτε για να δημιουργήσετε αντίγραφα ασφαλείας"
 
 #: addons/morefiles.php:173 addons/morefiles.php:184
 msgid "Remove"
