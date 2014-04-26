@@ -76,9 +76,16 @@ class Google_IO_Stream extends Google_IO_Abstract
 //       $requestSslContext["cafile"] = dirname(__FILE__) . '/cacerts.pem';
 //     }
 
+
+    $url = $request->getUrl();
+
+    if (preg_match('#^https?://([^/]+)/#', $url, $umatches)) { $cname = $umatches[1]; } else { $cname = false; }
+
 // Added
 if (empty($this->options['disable_verify_peer'])) {
 	$requestSslContext['verify_peer'] = true;
+	if (!empty($cname)) $requestSslContext['CN_match'] = $cname;
+} else {
 	$requestSslContext['allow_self_signed'] = true;
 }
 if (!empty($this->options['cafile'])) $requestSslContext['cafile'] = $this->options['cafile'];
@@ -95,8 +102,6 @@ if (!empty($this->options['cafile'])) $requestSslContext['cafile'] = $this->opti
     );
 
     $context = stream_context_create($options);
-
-    $url = $request->getUrl();
 
     if ($request->canGzip()) {
       $url = self::ZLIB . $url;

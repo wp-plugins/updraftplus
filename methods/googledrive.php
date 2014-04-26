@@ -466,7 +466,7 @@ class UpdraftPlus_BackupModule_googledrive {
 		} elseif (is_a($io, 'Google_IO_Stream')) {
 			$setopts['timeout'] = 15;
 			# We had to modify the SDK to support this
-			if (!UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts')) $setopts['cacert'] = UPDRAFTPLUS_DIR.'/includes/cacert.pem';
+			if (!UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts') || (version_compare(PHP_VERSION, '5.6.0', '<'))) $setopts['cafile'] = UPDRAFTPLUS_DIR.'/includes/cacert.pem';
 			if (UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify')) $setopts['disable_verify_peer'] = true;
 		}
 
