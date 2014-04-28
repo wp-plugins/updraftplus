@@ -1239,7 +1239,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 			# We now have a complete line - process it
 
-			if (3 == $sql_type && $sql_line && strlen($sql_line.$buffer) > $max_allowed_packet) {
+			if (3 == $sql_type && $sql_line && strlen($sql_line) > $max_allowed_packet) {
 				$logit = substr($sql_line.$buffer, 0, 100);
 				$updraftplus->log(sprintf("An SQL line that is larger than the maximum packet size and cannot be split was found: %s", '('.strlen($sql_line).', '.strlen($buffer).', '.$logit.' ...)'));
 
