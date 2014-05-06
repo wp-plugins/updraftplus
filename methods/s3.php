@@ -65,23 +65,25 @@ class UpdraftPlus_BackupModule_s3 {
 
 		if (!$nossl) {
 			$curl_version = (function_exists('curl_version')) ? curl_version() : array('features' => null);
-			$curl_ssl_supported= ($curl_version['features'] & CURL_VERSION_SSL);
+			$curl_ssl_supported = ($curl_version['features'] & CURL_VERSION_SSL);
 			if ($curl_ssl_supported) {
-				$s3->useSSL = true;
 				if ($disableverify) {
-					$s3->useSSLValidation = false;
+					$s3->setSSL(true, false);
 					$updraftplus->log("S3: Disabling verification of SSL certificates");
+				} else {
+					$s3->setSSL(true, true);
 				}
 				if ($useservercerts) {
 					$updraftplus->log("S3: Using the server's SSL certificates");
 				} else {
-					$s3->SSLCACert = UPDRAFTPLUS_DIR.'/includes/cacert.pem';
+					$s3->setSSLAuth(null, null, UPDRAFTPLUS_DIR.'/includes/cacert.pem');
 				}
 			} else {
+				$s3->setSSL(false, false);
 				$updraftplus->log("S3: Curl/SSL is not available. Communications will not be encrypted.");
 			}
 		} else {
-			$s3->useSSL = false;
+			$s3->setSSL(false, false);
 			$updraftplus->log("SSL was disabled via the user's preference. Communications will not be encrypted.");
 		}
 
@@ -622,7 +624,7 @@ class UpdraftPlus_BackupModule_s3 {
 				} else {
 					echo  __('Success','updraftplus').": ${bucket_verb}".__('We accessed the bucket, and were able to create files within it.','updraftplus').' ';
 					$comm_with = ($config['key'] == 's3generic') ? $endpoint : $config['whoweare_long'];
-					if ($s3->useSSL) {
+					if ($s3->getuseSSL()) {
 						echo sprintf(__('The communication with %s was encrypted.', 'updraftplus'), $comm_with);
 					} else {
 						echo sprintf(__('The communication with %s was not encrypted.', 'updraftplus'), $comm_with);
