@@ -297,7 +297,16 @@ class UpdraftPlus_Backup {
 	// Services *must* be an array
 	public function prune_retained_backups($services) {
 
-		global $updraftplus;
+		global $updraftplus, $wpdb;
+
+		if (method_exists($wpdb, 'check_connection')) {
+			if (!$wpdb->check_connection(false)) {
+				$updraftplus->reschedule(60);
+				$updraftplus->log("It seems the database went away; scheduling a resumption and terminating for now");
+				$updraftplus->record_still_alive();
+				die;
+			}
+		}
 
 		// If they turned off deletion on local backups, then there is nothing to do
 		if (UpdraftPlus_Options::get_updraft_option('updraft_delete_local') == 0 && count($services) == 1 && in_array('none', $services)) {
