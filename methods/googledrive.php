@@ -346,6 +346,7 @@ class UpdraftPlus_BackupModule_googledrive {
 			$parent_id = $this->get_parent_id($opts);
 		} catch (Exception $e) {
 			$updraftplus->log("Google Drive delete: failed to access parent folder: ".$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
+			$updraftplus->log(sprintf(__('Failed to upload to %s','updraftplus'),__('Google Drive','updraftplus')).': '.__('failed to access parent folder', 'updraftplus').' ('.$e->getMessage().')', 'error');
 			return false;
 		}
 
