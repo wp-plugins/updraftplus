@@ -744,7 +744,7 @@ class UpdraftPlus_Admin {
 				$max_execution_time = (int)@ini_get('max_execution_time');
 
 				if ($max_execution_time>0 && $max_execution_time<61) {
-					$warn[] = __('The PHP setup on this webserver allows only %s seconds for PHP to run, and does not allow this limit to be raised. If you have a lot of data to import, and if the restore operation times out, then you will need to ask your web hosting company for ways to raise this limit (or attempt the restoration piece-by-piece).', 'updraftplus');
+					$warn[] = sprintf(__('The PHP setup on this webserver allows only %s seconds for PHP to run, and does not allow this limit to be raised. If you have a lot of data to import, and if the restore operation times out, then you will need to ask your web hosting company for ways to raise this limit (or attempt the restoration piece-by-piece).', 'updraftplus'), $max_execution_time);
 				}
 
 				if (isset($backups[$timestamp]['native']) && false == $backups[$timestamp]['native']) {
