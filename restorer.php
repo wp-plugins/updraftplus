@@ -1006,7 +1006,6 @@ class Updraft_Restorer extends WP_Upgrader {
 		# The 'off' check is for badly configured setups - http://wordpress.org/support/topic/plugin-wp-super-cache-warning-php-safe-mode-enabled-but-safe-mode-is-off
 		if (@ini_get('safe_mode') && 'off' != strtolower(@ini_get('safe_mode'))) {
 			echo "<p>".__('Warning: PHP safe_mode is active on your server. Timeouts are much more likely. If these happen, then you will need to manually restore the file via phpMyAdmin or another method.', 'updraftplus')."</p><br/>";
-			return false;
 		}
 
 		$db_basename = 'backup.db.gz';
