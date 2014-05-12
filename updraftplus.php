@@ -493,7 +493,11 @@ class UpdraftPlus {
 		// Tell WordPress where to find the translations
 		load_plugin_textdomain('updraftplus', false, basename(dirname(__FILE__)).'/languages/');
 		# The Google Analyticator plugin does something horrible: loads an old version of the Google SDK on init, always - which breaks us
-		if ((defined('DOING_CRON') && DOING_CRON) || (isset($_GET['page']) && $_GET['page'] == 'updraftplus')) remove_action('init', 'ganalyticator_stats_init');
+		if ((defined('DOING_CRON') && DOING_CRON) || (isset($_GET['page']) && $_GET['page'] == 'updraftplus')) {
+			remove_action('init', 'ganalyticator_stats_init');
+			# Appointments+ does the same; but provides a cleaner way to disable it
+			define('APP_GCAL_DISABLE', true);
+		}
 	}
 
 	// Cleans up temporary files found in the updraft directory (and some in the site root - pclzip)
