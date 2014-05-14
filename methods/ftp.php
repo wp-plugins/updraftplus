@@ -95,7 +95,7 @@ class UpdraftPlus_BackupModule_ftp {
 		if (!$ftp->connect()) return new WP_Error('ftp_login_failed', sprintf(__("%s login failure",'updraftplus'), 'FTP'));
 
 		$ftp_remote_path = $updraftplus->get_job_option('updraft_ftp_remote_path');
-		if ($ftp_remote_path) $ftp_remote_path = trailingslashit($ftp_remove_path);
+		if ($ftp_remote_path) $ftp_remote_path = trailingslashit($ftp_remote_path);
 
 		$dirlist = $ftp->dir_list($ftp_remote_path);
 
