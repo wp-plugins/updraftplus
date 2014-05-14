@@ -845,7 +845,7 @@ jQuery(document).ready(function($){
 			
 			plupload.each(files, function(file){
 				
-				if (! /^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+\.(gz\.crypt)$/i.test(file.name)) {
+				if (! /^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-db([0-9]+)?\.(gz\.crypt)$/i.test(file.name)) {
 					alert(file.name+': '+updraftlion.notdba);
 					uploader.removeFile(file);
 					return;

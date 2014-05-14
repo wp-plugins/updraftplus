@@ -2,7 +2,7 @@
 Contributors: Backup with UpdraftPlus, DavidAnderson
 Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, s3 compatible, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, ftp backup, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, bitcasa, back up, multisite, restoration, sftp, ftps, scp, migrate, duplicate, copy, updraft, schedule, mysql backup, database backup, db backup, website backup, wordpress backup, full backup, openstack, swift
 Requires at least: 3.2
-Tested up to: 3.9
+Tested up to: 3.9.1
 Stable tag: 1.9.5
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
@@ -33,7 +33,7 @@ Easy and complete backups + restoration. Manual or automated backups (backup to 
 * Debug mode that gives full logging of the backup
 * Internationalised (translations very welcome - see below)
 * <a href="http://updraftplus.com">Premium version and support available - http://updraftplus.com</a>
-* Tested and supported on all current PHP versions (5.2, 5.3, 5.4)
+* Tested and supported on all current PHP versions (5.2, 5.3, 5.4, 5.5)
 
 = Don't Risk Anything Less =
 
@@ -143,7 +143,27 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
+= Development version - not yet released/supported =
+
+* FEATURE: Google Drive now works without the PHP curl module being needed
+* FEATURE: UpdraftPlus Premium can now back up non-WordPress tables and external databases; database encryption is also now a Premium feature; see: http://updraftplus.com/backing-external-databases/
+* FIX: Work around conflicts with the Google Analyticator and Appointments+ plugins when using Google Drive since 1.9.4 (see: http://wordpress.org/support/topic/dont-unconditionally-load-old-google-sdk)
+* FIX: Work around conflict with some XCache setups that prevented activation since 1.9.4
+* FIX: Make all S3 SSL settings take effect
+* FIX: Fix packet size calculation issue upon restore that could cause false detection of over-large packets
+* FIX: Prevent unnecessary abortion of restore if PHP's (deprecated) safe_mode is on (PHP 5.3 and below)
+* FIX: When migrating a multisite with a different table prefix, make sure the user role list is maintained on each site
+* FIX: Rescan of remote FTP storage was not using configured path
+* TWEAK: Now tested on PHP 5.5
+* TWEAK: Migrator can now cope with situations where the development site was developed under multiple URLs without the developer cleaning up
+* TWEAK: Remove several PHP strict coding standards messages
+* TWEAK: Add Counterize tables to the custom lists of tables that do not need search/replacing upon migration / are non-vital data
+* TWEAK: Check for DB connection having been dropped before pruning old backups (WP 3.9+)
+* TWEAK: Make sure that if the user has not configured the Google Drive API in their Google account, then they are alerted
+* TRANSLATIONS: Updated Greek translation
+
 = 1.9.5 - 2014/04/25 =
+
 * FIX: Backups were not uploaded successfully if you were using both an encrypted database and Google Drive storage in 1.9.4
 
 = 1.9.4 - 2014/04/23 =

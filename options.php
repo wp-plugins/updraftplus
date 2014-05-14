@@ -54,6 +54,7 @@ class UpdraftPlus_Options {
 		register_setting('updraft-options-group', 'updraft_service', array($updraftplus, 'just_one'));
 
 		register_setting('updraft-options-group', 'updraft_s3');
+		register_setting('updraft-options-group', 'updraft_ftp', array($updraftplus, 'ftp_sanitise'));
 		register_setting('updraft-options-group', 'updraft_dreamobjects');
 		register_setting('updraft-options-group', 'updraft_s3generic');
 		register_setting('updraft-options-group', 'updraft_cloudfiles');
@@ -75,11 +76,6 @@ class UpdraftPlus_Options {
 
 		register_setting('updraft-options-group', 'updraft_split_every', array($updraftplus_admin, 'optionfilter_split_every') );
 
-		register_setting('updraft-options-group', 'updraft_ftp_login' );
-		register_setting('updraft-options-group', 'updraft_ftp_pass' );
-		register_setting('updraft-options-group', 'updraft_ftp_remote_path' );
-
-		register_setting('updraft-options-group', 'updraft_server_address' );
 		register_setting('updraft-options-group', 'updraft_dir', array($updraftplus_admin, 'prune_updraft_dir_prefix') );
 		register_setting('updraft-options-group', 'updraft_email', array($updraftplus, 'just_one_email'));
 
@@ -88,6 +84,8 @@ class UpdraftPlus_Options {
 
 		register_setting('updraft-options-group', 'updraft_delete_local', 'absint' );
 		register_setting('updraft-options-group', 'updraft_debug_mode', 'absint' );
+		register_setting('updraft-options-group', 'updraft_extradbs');
+		register_setting('updraft-options-group', 'updraft_backupdb_nonwp', 'absint');
 
 		register_setting('updraft-options-group', 'updraft_include_plugins', 'absint' );
 		register_setting('updraft-options-group', 'updraft_include_themes', 'absint' );

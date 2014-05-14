@@ -131,7 +131,6 @@ class UpdraftPlus_S3
 		self::$useSSLValidation = $validate;
 	}
 
-
 	/**
 	* Set SSL client certificates (experimental)
 	*
@@ -976,6 +975,7 @@ class UpdraftPlus_S3
 	*/
 	public static function getBucketLocation($bucket)
 	{
+
 		$rest = new UpdraftPlus_S3Request('GET', $bucket, '', self::$endpoint);
 		$rest->setParameter('location', null);
 		$rest = $rest->getResponse();
@@ -2001,7 +2001,7 @@ final class UpdraftPlus_S3Request
 		if (UpdraftPlus_S3::$useSSL)
 		{
 			// SSL Validation can now be optional for those with broken OpenSSL installations
-			curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, UpdraftPlus_S3::$useSSLValidation ? 1 : 0);
+			curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, UpdraftPlus_S3::$useSSLValidation ? 2 : 0);
 			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, UpdraftPlus_S3::$useSSLValidation ? 1 : 0);
 
 			if (UpdraftPlus_S3::$sslKey !== null) curl_setopt($curl, CURLOPT_SSLKEY, UpdraftPlus_S3::$sslKey);

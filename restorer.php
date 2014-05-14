@@ -1,12 +1,12 @@
 <?php
 if (!defined ('ABSPATH')) die('No direct access allowed');
 
-# TODO: unpack_package() needs to handle tar files, and compressed tar files, as well as zips.
-
 if(!class_exists('WP_Upgrader')) require_once(ABSPATH.'wp-admin/includes/class-wp-upgrader.php');
 class Updraft_Restorer extends WP_Upgrader {
 
 	public $ud_backup_is_multisite = -1;
+
+	private $is_multisite;
 
 	// This is just used so far for detecting whether we're on the second run for an entity or not.
 	public $been_restored = array();
@@ -23,6 +23,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		parent::__construct($skin);
 		$this->init();
 		$this->backup_strings();
+		$this->is_multisite = is_multisite();
 	}
 
 	function backup_strings() {
@@ -263,6 +264,8 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		// Once extracted, delete the package if required (non-recursive, is a file)
 		if ($delete_package) $wp_filesystem->delete($backup_dir.$package, false, true);
+
+		$updraftplus->log("Database successfully unpacked");
 
 		return $working_dir;
 
@@ -1006,7 +1009,6 @@ class Updraft_Restorer extends WP_Upgrader {
 		# The 'off' check is for badly configured setups - http://wordpress.org/support/topic/plugin-wp-super-cache-warning-php-safe-mode-enabled-but-safe-mode-is-off
 		if (@ini_get('safe_mode') && 'off' != strtolower(@ini_get('safe_mode'))) {
 			echo "<p>".__('Warning: PHP safe_mode is active on your server. Timeouts are much more likely. If these happen, then you will need to manually restore the file via phpMyAdmin or another method.', 'updraftplus')."</p><br/>";
-			return false;
 		}
 
 		$db_basename = 'backup.db.gz';
@@ -1076,6 +1078,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		$this->errors = 0;
 		$this->statements_run = 0;
+		$this->insert_statements_run = 0;
 		$this->tables_created = 0;
 
 		$sql_line = "";
@@ -1114,7 +1117,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			}
 		}
 
-		if (!$req && ($this->use_wpdb || $this->last_error_no === 1142)) {
+		if (!$req && ($this->use_wpdb || 1142 === $this->last_error_no)) {
 			$this->create_forbidden = true;
 			# If we can't create, then there's no point dropping
 			$this->drop_forbidden = true;
@@ -1145,7 +1148,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		$restoring_table = '';
 
-		$max_allowed_packet = $updraftplus->get_max_packet_size();
+		$this->max_allowed_packet = $updraftplus->get_max_packet_size();
 
 		while (($is_plain && !feof($dbhandle)) || (!$is_plain && !gzeof($dbhandle))) {
 			// Up to 1Mb
@@ -1214,18 +1217,18 @@ class Updraft_Restorer extends WP_Upgrader {
 
 			# Deal with case where adding this line will take us over the MySQL max_allowed_packet limit - must split, if we can (if it looks like consecutive rows)
 			# ALlow a 100-byte margin for error (including searching/replacing table prefix)
-			if (3 == $sql_type && $sql_line && strlen($sql_line.$buffer) > ($max_allowed_packet - 100) && preg_match('/,\s*$/', $sql_line) && preg_match('/^\s*\(/', $buffer)) {
+			if (3 == $sql_type && $sql_line && strlen($sql_line.$buffer) > ($this->max_allowed_packet - 100) && preg_match('/,\s*$/', $sql_line) && preg_match('/^\s*\(/', $buffer)) {
 				// Remove the final comma; replace with semi-colon
 				$sql_line = substr(rtrim($sql_line), 0, strlen($sql_line)-1).';';
 				if ('' != $old_table_prefix && $import_table_prefix != $old_table_prefix) $sql_line = $updraftplus->str_replace_once($old_table_prefix, $import_table_prefix, $sql_line);
 				# Run the SQL command; then set up for the next one.
 				$this->line++;
-				echo __("Split line to avoid exceeding maximum packet size", 'updraftplus')." (".strlen($sql_line)." + ".strlen($buffer)." : $max_allowed_packet)<br>";
-				$updraftplus->log("Split line to avoid exceeding maximum packet size (".strlen($sql_line)." + ".strlen($buffer)." : $max_allowed_packet)");
-				$do_exec = $this->sql_exec($sql_line, $sql_type);
+				echo __("Split line to avoid exceeding maximum packet size", 'updraftplus')." (".strlen($sql_line)." + ".strlen($buffer)." : ".$this->max_allowed_packet.")<br>";
+				$updraftplus->log("Split line to avoid exceeding maximum packet size (".strlen($sql_line)." + ".strlen($buffer)." : ".$this->max_allowed_packet.")");
+				$do_exec = $this->sql_exec($sql_line, $sql_type, $import_table_prefix);
+				if (is_wp_error($do_exec)) return $do_exec;
 				# Reset, then carry on
 				$sql_line = $insert_prefix." ";
-				if (is_wp_error($do_exec)) return $do_exec;
 			}
 
 			$sql_line .= $buffer;
@@ -1239,14 +1242,15 @@ class Updraft_Restorer extends WP_Upgrader {
 
 			# We now have a complete line - process it
 
-			if (3 == $sql_type && $sql_line && strlen($sql_line.$buffer) > $max_allowed_packet) {
-				$logit = substr($sql_line.$buffer, 0, 100);
-				$updraftplus->log(sprintf("An SQL line that is larger than the maximum packet size and cannot be split was found: %s", '('.strlen($sql_line).', '.strlen($buffer).', '.$logit.' ...)'));
-
-				echo '<strong>'.__('Warning:', 'updraftplus').'</strong> '.sprintf(__("An SQL line that is larger than the maximum packet size and cannot be split was found; this line will not be processed, but will be dropped: %s", 'updraftplus'), '('.strlen($sql_line).', '.strlen($buffer).', '.$logit.' ...)')."<br>";
+			if (3 == $sql_type && $sql_line && strlen($sql_line) > $this->max_allowed_packet) {
+				$this->log_oversized_packet($sql_line);
 				# Reset
 				$sql_line = '';
 				$sql_type = -1;
+				# If this is the very first SQL line of the options table, we need to bail; it's essential
+				if (0 == $this->insert_statements_run && $restoring_table && $restoring_table == $import_table_prefix.'options') {
+					return new WP_Error('initial_db_error', sprintf(__('An error occurred on the first %s command - aborting run','updraftplus'), 'INSERT (options)'));
+				}
 				continue;
 			}
 
@@ -1278,6 +1282,8 @@ class Updraft_Restorer extends WP_Upgrader {
 			} elseif (preg_match('/^\s*create table \`?([^\`\(]*)\`?\s*\(/i', $sql_line, $matches)) {
 
 				$sql_type = 2;
+				$this->insert_statements_run = 0;
+				$this->table_name = $matches[1];
 
 				// MySQL 4.1 outputs TYPE=, but accepts ENGINE=; 5.1 onwards accept *only* ENGINE=
 				$sql_line = $updraftplus->str_lreplace('TYPE=', 'ENGINE=', $sql_line);
@@ -1287,6 +1293,8 @@ class Updraft_Restorer extends WP_Upgrader {
 					if (false===$import_table_prefix || is_wp_error($import_table_prefix)) return $import_table_prefix;
 					$printed_new_table_prefix = true;
 				}
+
+				$this->new_table_name = ($old_table_prefix) ? $updraftplus->str_replace_once($old_table_prefix, $import_table_prefix, $this->table_name) : $this->table_name;
 
 				// This CREATE TABLE command may be the de-facto mark for the end of processing a previous table (which is so if this is not the first table in the SQL dump)
 				if ($restoring_table) {
@@ -1391,20 +1399,39 @@ class Updraft_Restorer extends WP_Upgrader {
 
 	}
 
-	# UPDATE is sql_type=5 (not used in the function, but used in Migrator and so noted for reference)
-	public function sql_exec($sql_line, $sql_type) {
+	private function log_oversized_packet($sql_line) {
+		global $updraftplus;
+		$logit = substr($sql_line, 0, 100);
+		$updraftplus->log(sprintf("An SQL line that is larger than the maximum packet size and cannot be split was found: %s", '('.strlen($sql_line).', '.$logit.' ...)'));
+		echo '<strong>'.__('Warning:', 'updraftplus').'</strong> '.sprintf(__("An SQL line that is larger than the maximum packet size and cannot be split was found; this line will not be processed, but will be dropped: %s", 'updraftplus'), '('.strlen($sql_line).', '.$this->max_allowed_packet.', '.$logit.' ...)')."<br>";
+	}
+
+	# UPDATE is sql_type=5 (not used in the function, but used in Migrator and so noted here for reference)
+	# $import_table_prefix is only use in one place in this function, and otherwise need/should not be supplied
+	public function sql_exec($sql_line, $sql_type, $import_table_prefix = '') {
 
 		global $wpdb, $updraftplus;
 		$ignore_errors = false;
-		if ($sql_type == 2 && $this->create_forbidden) {
+		if (2 == $sql_type && $this->create_forbidden) {
 			$updraftplus->log_e('Cannot create new tables, so skipping this command (%s)', htmlspecialchars($sql_line));
 			$req = true;
 		} else {
-			if ($sql_type == 1 && $this->drop_forbidden) {
+			if (1 == $sql_type && $this->drop_forbidden) {
 				$sql_line = "DELETE FROM ".$updraftplus->backquote($this->new_table_name);
 				$updraftplus->log_e('Cannot drop tables, so deleting instead (%s)', $sql_line);
 				$ignore_errors = true;
 			}
+
+			if (3 == $sql_type && $sql_line && strlen($sql_line) > $this->max_allowed_packet) {
+				$this->log_oversized_packet($sql_line);
+				# If this is the very first SQL line of the options table, we need to bail; it's essential
+				$this->errors++;
+				if (0 == $this->insert_statements_run && $this->new_table_name && $this->new_table_name == $import_table_prefix.'options') {
+					return new WP_Error('initial_db_error', sprintf(__('An error occurred on the first %s command - aborting run','updraftplus'), 'INSERT (options)'));
+				}
+				return false;
+			}
+
 			if ($this->use_wpdb) {
 				$req = $wpdb->query($sql_line);
 				if (!$req) $this->last_error = $wpdb->last_error;
@@ -1417,6 +1444,7 @@ class Updraft_Restorer extends WP_Upgrader {
 					if (!$req) $this->last_error = mysql_error($this->mysql_dbh);
 				}
 			}
+			if (3 == $sql_type) $this->insert_statements_run++;
 			$this->statements_run++;
 		}
 
@@ -1427,7 +1455,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			$updraftplus->log("An error (".$this->errors.") occurred: ".$this->last_error." - SQL query was: ".substr($sql_line, 0, 65536));
 			// First command is expected to be DROP TABLE
 			if (1 == $this->errors && 2 == $sql_type && 0 == $this->tables_created) {
-				return new WP_Error('initial_db_error', __('An error occurred on the first CREATE TABLE command - aborting run','updraftplus'));
+				return new WP_Error('initial_db_error', sprintf(__('An error occurred on the first %s command - aborting run','updraftplus'), 'CREATE TABLE'));
 			}
 			if ($this->errors>49) {
 				return new WP_Error('too_many_db_errors', __('Too many database errors have occurred - aborting restoration (you will need to restore manually)','updraftplus'));
@@ -1483,56 +1511,69 @@ class Updraft_Restorer extends WP_Upgrader {
 		global $wpdb, $updraftplus;
 
 		// WordPress has an option name predicated upon the table prefix. Yuk.
-		if ($table == $import_table_prefix.'options') {
+// 		if ($table == $import_table_prefix.'options') {
+		if (preg_match('/^([\d+]_)?options$/', substr($table, strlen($import_table_prefix)), $matches)) {
+			if (($this->is_multisite && !empty($matches[1])) || !$this->is_multisite && $table == $import_table_prefix.'options') {
 
-			if ($import_table_prefix != $old_table_prefix) {
-				echo sprintf(__('Table prefix has changed: changing %s table field(s) accordingly:', 'updraftplus'),'option').' ';
-				if (false === $wpdb->query("UPDATE $wpdb->options SET option_name='${import_table_prefix}user_roles' WHERE option_name='${old_table_prefix}user_roles' LIMIT 1")) {
-					echo __('Error','updraftplus');
-				} else {
-					echo __('OK', 'updraftplus');
-				}
-				echo '<br>';
+				if ($import_table_prefix != $old_table_prefix) {
+					$updraftplus->log("Table prefix has changed: changing options table field(s) accordingly (".$matches[1]."options)");
+					echo sprintf(__('Table prefix has changed: changing %s table field(s) accordingly:', 'updraftplus'),'option').' ';
+					if (false === $wpdb->query("UPDATE ${import_table_prefix}".$matches[1]."options SET option_name='${import_table_prefix}".$matches[1]."user_roles' WHERE option_name='${old_table_prefix}".$matches[1]."user_roles' LIMIT 1")) {
+						echo __('Error','updraftplus');
+						$updraftplus->log("Error when changing options table fields");
+					} else {
+						$updraftplus->log("Options table fields changed OK");
+						echo __('OK', 'updraftplus');
+					}
+					echo '<br>';
 
-				// Now deal with the situation where the imported database sets a new over-ride upload_path that is absolute - which may not be wanted
-				$new_upload_path = $wpdb->get_row($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", 'upload_path'));
-				$new_upload_path = (is_object($new_upload_path)) ? $new_upload_path->option_value : '';
-				// The danger situation is absolute and points somewhere that is now perhaps not accessible at all
-				if (!empty($new_upload_path) && $new_upload_path != $this->prior_upload_path && strpos($new_upload_path, '/') === 0) {
-					if (!file_exists($new_upload_path)) {
-						$updraftplus->log_e("Uploads path (%s) does not exist - resetting (%s)", $new_upload_path, $this->prior_upload_path);
-						if (false === $wpdb->query("UPDATE $wpdb->options SET option_value='".esc_sql($this->prior_upload_path)."' WHERE option_name='upload_path' LIMIT 1")) {
-							echo __('Error','updraftplus');
-							$updraftplus->log("Failed");
+					// Now deal with the situation where the imported database sets a new over-ride upload_path that is absolute - which may not be wanted
+					$new_upload_path = $wpdb->get_row($wpdb->prepare("SELECT option_value FROM ${import_table_prefix}".$matches[1]."options WHERE option_name = %s LIMIT 1", 'upload_path'));
+					$new_upload_path = (is_object($new_upload_path)) ? $new_upload_path->option_value : '';
+					// The danger situation is absolute and points somewhere that is now perhaps not accessible at all
+					if (!empty($new_upload_path) && $new_upload_path != $this->prior_upload_path && strpos($new_upload_path, '/') === 0) {
+						if (!file_exists($new_upload_path)) {
+							$updraftplus->log_e("Uploads path (%s) does not exist - resetting (%s)", $new_upload_path, $this->prior_upload_path);
+							if (false === $wpdb->query("UPDATE ${import_table_prefix}".$matches[1]."options SET option_value='".esc_sql($this->prior_upload_path)."' WHERE option_name='upload_path' LIMIT 1")) {
+								echo __('Error','updraftplus');
+								$updraftplus->log("Failed");
+							}
+							#update_option('upload_path', $this->prior_upload_path);
 						}
-						#update_option('upload_path', $this->prior_upload_path);
+					}
+				}
+
+				# TODO: Do on all WPMU tables
+				if ($table == $import_table_prefix.'options') {
+					# Bad plugin that hard-codes path references - https://wordpress.org/plugins/custom-content-type-manager/
+					$cctm_data = $wpdb->get_row($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", 'cctm_data'));
+					if (!empty($cctm_data->option_value)) {
+						$cctm_data = maybe_unserialize($cctm_data->option_value);
+						if (is_array($cctm_data) && !empty($cctm_data['cache']) && is_array($cctm_data['cache'])) {
+							$cctm_data['cache'] = array();
+							$updraftplus->log_e("Custom content type manager plugin data detected: clearing option cache");
+							update_option('cctm_data', $cctm_data);
+						}
+					}
+					# Another - http://www.elegantthemes.com/gallery/elegant-builder/
+					$elegant_data = $wpdb->get_row($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", 'et_images_temp_folder'));
+					if (!empty($elegant_data->option_value)) {
+						$dbase = basename($elegant_data->option_value);
+						$wp_upload_dir = wp_upload_dir();
+						$edir = $wp_upload_dir['basedir'];
+						if (!is_dir($edir.'/'.$dbase)) @mkdir($edir.'/'.$dbase);
+						$updraftplus->log_e("Elegant themes theme builder plugin data detected: resetting temporary folder");
+						update_option('et_images_temp_folder', $edir.'/'.$dbase);
 					}
 				}
 			}
 
-			# Bad plugin that hard-codes path references - https://wordpress.org/plugins/custom-content-type-manager/
-			$cctm_data = $wpdb->get_row($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", 'cctm_data'));
-			if (!empty($cctm_data->option_value)) {
-				$cctm_data = maybe_unserialize($cctm_data->option_value);
-				if (is_array($cctm_data) && !empty($cctm_data['cache']) && is_array($cctm_data['cache'])) {
-					$cctm_data['cache'] = array();
-					$updraftplus->log_e("Custom content type manager plugin data detected: clearing option cache");
-					update_option('cctm_data', $cctm_data);
-				}
-			}
-			# Another - http://www.elegantthemes.com/gallery/elegant-builder/
-			$elegant_data = $wpdb->get_row($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", 'et_images_temp_folder'));
-			if (!empty($elegant_data->option_value)) {
-				$dbase = basename($elegant_data->option_value);
-				$wp_upload_dir = wp_upload_dir();
-				$edir = $wp_upload_dir['basedir'];
-				if (!is_dir($edir.'/'.$dbase)) @mkdir($edir.'/'.$dbase);
-				$updraftplus->log_e("Elegant themes theme builder plugin data detected: resetting temporary folder");
-				update_option('et_images_temp_folder', $edir.'/'.$dbase);
-			}
+// 		} elseif (preg_match('/^([\d+]_)?usermeta/', substr($table, strlen($import_table_prefix)), $matches)) {
+		} elseif ($table == $import_table_prefix.'usermeta') {
 
-		} elseif ($table == $import_table_prefix.'usermeta' && $import_table_prefix != $old_table_prefix) {
+			# This table is not a per-site table, but per-install
 
+			$updraftplus->log("Table prefix has changed: changing usermeta table field(s) accordingly");
 			echo sprintf(__('Table prefix has changed: changing %s table field(s) accordingly:', 'updraftplus'),'usermeta').' ';
 
 			$um_sql = "SELECT umeta_id, meta_key 
@@ -1557,8 +1598,10 @@ class Updraft_Restorer extends WP_Upgrader {
 			}
 
 			if ($errors_occurred) {
+				$updraftplus->log("Error when changing usermeta table fields");
 				echo __('Error', 'updraftplus');
 			} else {
+				$updraftplus->log("Usermeta table fields changed OK");
 				echo __('OK', 'updraftplus');
 			}
 			echo "<br>";

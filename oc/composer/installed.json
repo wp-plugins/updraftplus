@@ -289,7 +289,7 @@
         "autoload": {
             "psr-0": {
                 "OpenCloud": [
-                    "lb2/",
+                    "lib/",
                     "tests/"
                 ]
             }

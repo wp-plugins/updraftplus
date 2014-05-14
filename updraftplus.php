@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.9.5
+Version: 1.9.10
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -15,8 +15,11 @@ Author URI: http://updraftplus.com
 /*
 TODO - some of these are out of date/done, needs pruning
 // On plugins restore, don't let UD over-write itself - because this usually means a down-grade. Since upgrades are db-compatible, there's no reason to downgrade.
+// Alert user if they enter http(s):(etc) as their Dropbox path - seen one user do it
 // Schedule a task to report on failure
 // Copy.Com, Box
+// With Google Drive, log the name of the folder in use
+// Switch 'Backup Now' to call the WP action via AJAX instead of via Cron - then test on hosts who deny all cron (e.g. Heart)
 // Get something to parse the 'Backups in progress' data, and if the 'next resumption' is far negative, and if also cron jobs appear to be not running, then call the action directly.
 // Check out whether tables like this can be skipped in search/replace: wp_ajyw_adrotate_stats
 // If ionice is available, then use it to limit I/O usage
@@ -44,6 +47,7 @@ TODO - some of these are out of date/done, needs pruning
 // Add some kind of automated scan for post content (e.g. images) that has the same URL base, but is not part of WP. There's an example of such a site in tmp-rich.
 // Free/premium comparison page
 // Complete the tweak to bring the delete-old-dirs within a dialog (just needed to deal wtih case of needing credentials more elegantly).
+// On free version, add note to restore page/to "delete-old-dirs" section
 // Add note to support page requesting that non-English be translated
 // More locking: lock the resumptions too (will need to manage keys to make sure junk data is not left behind)
 // See: ftp-logins.log - would help if we retry FTP logins after 10 second delay (not on testing), to lessen chances of 'too many users - try again later' being terminal. Also, can we log the login error?
@@ -113,7 +117,6 @@ TODO - some of these are out of date/done, needs pruning
 // Make search+replace two-pass to deal with moving between exotic non-default moved-directory setups
 // Get link - http://www.rackspace.com/knowledge_center/article/how-to-use-updraftplus-to-back-up-cloud-sites-to-cloud-files
 // 'Delete from your webserver' should trigger a rescan if the backup was local-only
-// Encrypt archives - http://www.frostjedi.com/phpbb3/viewtopic.php?f=46&t=168508&p=391881&e=391881
 // Option for additive restores - i.e. add content (themes, plugins,...) instead of replacing
 // Testing framework - automated testing of all file upload / download / deletion methods
 // Ginormous tables - need to make sure we "touch" the being-written-out-file (and double-check that we check for that) every 15 seconds - https://friendpaste.com/697eKEcWib01o6zT1foFIn
@@ -147,7 +150,7 @@ TODO - some of these are out of date/done, needs pruning
 // Rackspace folders
 //Do an automated test periodically for the success of loop-back connections
 //When a manual backup is run, use a timer to update the 'Download backups and logs' section, just like 'Last finished backup run'. Beware of over-writing anything that's in there from a resumable downloader.
-//Change DB encryption to not require whole gzip in memory (twice)
+//Change DB encryption to not require whole gzip in memory (twice) http://www.frostjedi.com/phpbb3/viewtopic.php?f=46&t=168508&p=391881&e=391881
 //Add YouSendIt/Hightail, Copy.Com, Box.Net, SugarSync, Me.Ga support??
 //Make it easier to find add-ons
 // On restore, move in data, not the whole directory (gives more flexibility on file permissions)
@@ -161,8 +164,6 @@ TODO - some of these are out of date/done, needs pruning
 // Allow connecting to remote storage, scanning + populating backup history from it
 // Multisite add-on should allow restoring of each blog individually
 // Remove the recurrence of admin notices when settings are saved due to _wp_referer
-
-Encrypt filesystem, if memory allows (and have option for abort if not)
 // New sub-module to verify that the backups are there, independently of backup thread
 */
 
@@ -193,7 +194,7 @@ define('UPDRAFT_DEFAULT_UPLOADS_EXCLUDE','backup*,*backups,backwpup*,wp-clone');
 
 # The following can go in your wp-config.php
 # Tables whose data can be safed without significant loss, if (and only if) the attempt to back them up fails (e.g. bwps_log, from WordPress Better Security, is log data; but individual entries can be huge and cause out-of-memory fatal errors on low-resource environments). Comma-separate the table names (without the WordPress table prefix).
-if (!defined('UPDRAFTPLUS_DATA_OPTIONAL_TABLES')) define('UPDRAFTPLUS_DATA_OPTIONAL_TABLES', 'bwps_log,statpress,slim_stats,redirection_logs');
+if (!defined('UPDRAFTPLUS_DATA_OPTIONAL_TABLES')) define('UPDRAFTPLUS_DATA_OPTIONAL_TABLES', 'bwps_log,statpress,slim_stats,redirection_logs,Counterize,Counterize_Referers,Counterize_UserAgents');
 if (!defined('UPDRAFTPLUS_ZIP_EXECUTABLE')) define('UPDRAFTPLUS_ZIP_EXECUTABLE', "/usr/bin/zip,/bin/zip,/usr/local/bin/zip,/usr/sfw/bin/zip,/usr/xdg4/bin/zip,/opt/bin/zip");
 if (!defined('UPDRAFTPLUS_MYSQLDUMP_EXECUTABLE')) define('UPDRAFTPLUS_MYSQLDUMP_EXECUTABLE', "/usr/bin/mysqldump,/bin/mysqldump,/usr/local/bin/mysqldump,/usr/sfw/bin/mysqldump,/usr/xdg4/bin/mysqldump,/opt/bin/mysqldump");
 # If any individual file size is greater than this, then a warning is given
@@ -305,17 +306,17 @@ class UpdraftPlus {
 		add_action(apply_filters('updraft_admin_menu_hook', 'admin_menu'), array($this, 'admin_menu'), 9);
 		# Not a mistake: admin-ajax.php calls only admin_init and not admin_menu
 		add_action('admin_init', array($this, 'admin_menu'), 9);
-		add_action('updraft_backup', array($this,'backup_files'));
-		add_action('updraft_backup_database', array($this,'backup_database'));
-		add_action('updraft_backupnow_backup', array($this,'backupnow_files'));
-		add_action('updraft_backupnow_backup_database', array($this,'backupnow_database'));
-		add_action('updraft_backupnow_backup_all', array($this,'backup_all'));
+		add_action('updraft_backup', array($this, 'backup_files'));
+		add_action('updraft_backup_database', array($this, 'backup_database'));
+		add_action('updraft_backupnow_backup', array($this, 'backupnow_files'));
+		add_action('updraft_backupnow_backup_database', array($this, 'backupnow_database'));
+		add_action('updraft_backupnow_backup_all', array($this, 'backup_all'));
 		# backup_all as an action is legacy (Oct 2013) - there may be some people who wrote cron scripts to use it
-		add_action('updraft_backup_all', array($this,'backup_all'));
+		add_action('updraft_backup_all', array($this, 'backup_all'));
 		# this is our runs-after-backup event, whose purpose is to see if it succeeded or failed, and resume/mom-up etc.
-		add_action('updraft_backup_resume', array($this,'backup_resume'), 10, 3);
+		add_action('updraft_backup_resume', array($this, 'backup_resume'), 10, 3);
 		# http://codex.wordpress.org/Plugin_API/Filter_Reference/cron_schedules. Raised priority because some plugins wrongly over-write all prior schedule changes (including BackupBuddy!)
-		add_filter('cron_schedules', array($this,'modify_cron_schedules'), 30);
+		add_filter('cron_schedules', array($this, 'modify_cron_schedules'), 30);
 		add_action('plugins_loaded', array($this, 'load_translations'));
 
 		# Prevent iThemes Security from telling people that they have no backups (and advertising them another product on that basis!)
@@ -449,7 +450,7 @@ class UpdraftPlus {
 				} else {
 					add_action('all_admin_notices', array($this,'show_admin_warning_unreadablelog') );
 				}
-			} elseif (isset( $_GET['page'] ) && $_GET['page'] == 'updraftplus' && $_GET['action'] == 'downloadfile' && isset($_GET['updraftplus_file']) && preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+\.(gz\.crypt)$/i', $_GET['updraftplus_file']) && UpdraftPlus_Options::user_can_manage()) {
+			} elseif (isset( $_GET['page'] ) && $_GET['page'] == 'updraftplus' && $_GET['action'] == 'downloadfile' && isset($_GET['updraftplus_file']) && preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-db([0-9]+)?+\.(gz\.crypt)$/i', $_GET['updraftplus_file']) && UpdraftPlus_Options::user_can_manage()) {
 				$updraft_dir = $this->backups_dir_location();
 				$spool_file = $updraft_dir.'/'.basename($_GET['updraftplus_file']);
 				if (is_readable($spool_file)) {
@@ -492,6 +493,12 @@ class UpdraftPlus {
 	public function load_translations() {
 		// Tell WordPress where to find the translations
 		load_plugin_textdomain('updraftplus', false, basename(dirname(__FILE__)).'/languages/');
+		# The Google Analyticator plugin does something horrible: loads an old version of the Google SDK on init, always - which breaks us
+		if ((defined('DOING_CRON') && DOING_CRON) || (isset($_GET['page']) && $_GET['page'] == 'updraftplus')) {
+			remove_action('init', 'ganalyticator_stats_init');
+			# Appointments+ does the same; but providers a cleaner way to disable it
+			define('APP_GCAL_DISABLE', true);
+		}
 	}
 
 	// Cleans up temporary files found in the updraft directory (and some in the site root - pclzip)
@@ -723,7 +730,15 @@ class UpdraftPlus {
 		unset($this->errors[$uniq_id]);
 	}
 
+	# For efficiency, you can also feed false or a string into this function
 	public function log_wp_error($err, $echo = false, $logerror = false) {
+		if (false === $err) return false;
+		if (is_string($err)) {
+			$this->log("Error message: $err");
+			if ($echo) echo sprintf(__('Error: %s', 'updraftplus'), htmlspecialchars($err))."<br>";
+			if ($logerror) $this->log($err, 'error');
+			return false;
+		}
 		foreach ($err->get_error_messages() as $msg) {
 			$this->log("Error message: $msg");
 			if ($echo) echo sprintf(__('Error: %s', 'updraftplus'), htmlspecialchars($msg))."<br>";
@@ -927,21 +942,6 @@ class UpdraftPlus {
 		$rijndael = new Crypt_Rijndael();
 		$rijndael->setKey($key);
 		return (false == $ciphertext) ? $rijndael->decrypt(file_get_contents($fullpath)) : $rijndael->decrypt($ciphertext);
-	}
-
-	public function encrypt($fullpath, $key, $rformat = 'inline') {
-		if (!function_exists('mcrypt_encrypt')) {
-			$this->log(sprintf(__('Your web-server does not have the %s module installed.', 'updraftplus'), 'mcrypt').' '.__('Without it, encryption will be a lot slower.', 'updraftplus'), 'warning', 'nomcrypt');
-		}
-		if ($this->have_addons < 10) {
-			$this->log(__("A future release of UpdraftPlus will move the encryption feature into an add-on (and add more features to it).", 'updraftplus').' '.sprintf(__('See: %s', 'updraftplus'), 'http://updraftplus.com/next-updraftplus-release-ready-testing/'), 'warning', 'needpremiumforcrypt');
-		}
-		$this->ensure_phpseclib('Crypt_Rijndael', 'Crypt/Rijndael');
-		$rijndael = new Crypt_Rijndael();
-		$rijndael->setKey($key);
-		if ('inline' === $rformat) {
-			return $rijndael->encrypt(file_get_contents($fullpath));
-		}
 	}
 
 	function detect_safe_mode() {
@@ -1455,47 +1455,85 @@ class UpdraftPlus {
 
 		}
 
-		$backup_database = $this->jobdata_get('backup_database');
+		$backup_databases = $this->jobdata_get('backup_database');
 
-		// The value of jobdata['backup_database'] is read and written below (instead of using the existing variable) so that we can copy-and-paste this part as needed.
-		if ('begun' == $backup_database || 'finished' == $backup_database || 'encrypted' == $backup_database) {
-			if ($backup_database == "begun") {
-				if ($resumption_no > 0) {
-					$this->log("Resuming creation of database dump");
-				} else {
-					$this->log("Beginning creation of database dump");
-				}
-			} elseif ($backup_database == 'encrypted') {
-				$this->log("Database dump: Creation and encryption were completed already");
+		if (!is_array($backup_databases)) $backup_databases = array('wp' => $backup_databases);
+
+		foreach ($backup_databases as $whichdb => $backup_database) {
+
+			if (is_array($backup_database)) {
+				$dbinfo = $backup_database['dbinfo'];
+				$backup_database = $backup_database['status'];
 			} else {
-				$this->log("Database dump: Creation was completed already");
+				$dbinfo = array();
 			}
 
-			$db_backup = $updraftplus_backup->backup_db($backup_database);
-			if(is_array($our_files) && is_string($db_backup)) $our_files['db'] = $db_backup;
+			$tindex = ('wp' == $whichdb) ? 'db' : 'db'.$whichdb;
 
-			if ($backup_database != 'encrypted') $this->jobdata_set('backup_database', 'finished');
-		} elseif ('no' == $backup_database) {
-			$this->log('No database backup - not part of this run');
-		} else {
-			$this->log("Unrecognised data when trying to ascertain if the database was backed up ($backup_database)");
-		}
+			if ('begun' == $backup_database || 'finished' == $backup_database || 'encrypted' == $backup_database) {
 
-		// Save this to our history so we can track backups for the retain feature
-		$this->log("Saving backup history");
-		// This is done before cloud despatch, because we want a record of what *should* be in the backup. Whether it actually makes it there or not is not yet known.
-		$this->save_backup_history($our_files);
+				if ('wp' == $whichdb) {
+					$db_descrip = 'WordPress DB';
+				} else {
+					if (!empty($dbinfo) && is_array($dbinfo) && !empty($dbinfo['host'])) {
+						$db_descrip = "External DB $whichdb - ".$dbinfo['user'].'@'.$dbinfo['host'].'/'.$dbinfo['name'];
+					} else {
+						$db_descrip = "External DB $whichdb - details appear to be missing";
+					}
+				}
 
-		// Potentially encrypt the database if it is not already
-		if (isset($our_files['db']) && !preg_match("/\.crypt$/", $our_files['db'])) {
-			$our_files['db'] = $updraftplus_backup->encrypt_file($our_files['db']);
-			// No need to save backup history now, as it will happen in a few lines time
-			if (preg_match("/\.crypt$/", $our_files['db'])) $this->jobdata_set('backup_database', 'encrypted');
-		}
+				if ('begun' == $backup_database) {
+					if ($resumption_no > 0) {
+						$this->log("Resuming creation of database dump ($db_descrip)");
+					} else {
+						$this->log("Beginning creation of database dump ($db_descrip)");
+					}
+				} elseif ('encrypted' == $backup_database) {
+					$this->log("Database dump ($db_descrip): Creation and encryption were completed already");
+				} else {
+					$this->log("Database dump ($db_descrip): Creation was completed already");
+				}
 
-		if (isset($our_files['db']) && file_exists($updraft_dir.'/'.$our_files['db'])) {
-			$our_files['db-size'] = filesize($updraft_dir.'/'.$our_files['db']);
+				if ('wp' != $whichdb && (empty($dbinfo) || !is_array($dbinfo) || empty($dbinfo['host']))) {
+					unset($backup_databases[$whichdb]);
+					$this->jobdata_set('backup_database', $backup_databases);
+					continue;
+				}
+
+				$db_backup = $updraftplus_backup->backup_db($backup_database, $whichdb, $dbinfo);
+
+				if(is_array($our_files) && is_string($db_backup)) $our_files[$tindex] = $db_backup;
+
+				if ('encrypted' != $backup_database) {
+					$backup_databases[$whichdb] = array('status' => 'finished', 'dbinfo' => $dbinfo);
+					$this->jobdata_set('backup_database', $backup_databases);
+				}
+			} elseif ('no' == $backup_database) {
+				$this->log("No database backup ($whichdb) - not part of this run");
+			} else {
+				$this->log("Unrecognised data when trying to ascertain if the database ($whichdb) was backed up (".serialize($backup_database).")");
+			}
+
+			// Save this to our history so we can track backups for the retain feature
+			$this->log("Saving backup history");
+			// This is done before cloud despatch, because we want a record of what *should* be in the backup. Whether it actually makes it there or not is not yet known.
 			$this->save_backup_history($our_files);
+
+			// Potentially encrypt the database if it is not already
+			if (isset($our_files[$tindex]) && !preg_match("/\.crypt$/", $our_files[$tindex])) {
+				$our_files[$tindex] = $updraftplus_backup->encrypt_file($our_files[$tindex]);
+				// No need to save backup history now, as it will happen in a few lines time
+				if (preg_match("/\.crypt$/", $our_files[$tindex])) {
+					$backup_databases[$whichdb] = array('status' => 'encrypted', 'dbinfo' => $dbinfo);
+					$this->jobdata_set('backup_database', $backup_databases);
+				}
+			}
+
+			if (isset($our_files[$tindex]) && file_exists($updraft_dir.'/'.$our_files[$tindex])) {
+				$our_files[$tindex.'-size'] = filesize($updraft_dir.'/'.$our_files[$tindex]);
+				$this->save_backup_history($our_files);
+			}
+
 		}
 
 		$backupable_entities = $this->get_backupable_file_entities(true);
@@ -1505,7 +1543,7 @@ class UpdraftPlus {
 		# Queue files for upload
 		foreach ($our_files as $key => $files) {
 			// Only continue if the stored info was about a dump
-			if (!isset($backupable_entities[$key]) && $key != 'db') continue;
+			if (!isset($backupable_entities[$key]) && ('db' != substr($key, 0, 2) || '-size' == substr($key, -5, 5))) continue;
 			if (is_string($files)) $files = array($files);
 			foreach ($files as $findex => $file) {
 				$sha = $this->jobdata_get('sha1-'.$key.$findex);
@@ -1769,7 +1807,18 @@ class UpdraftPlus {
 		if ($one_shot) update_site_option('updraft_oneshotnonce', $this->nonce);
 
 		// Save what *should* be done, to make it resumable from this point on
-		array_push($initial_jobdata, 'backup_database', (($backup_database) ? 'begun' : 'no'));
+		if ($backup_database) {
+			$dbs = apply_filters('updraft_backup_databases', array('wp' => 'begun'));
+			if (is_array($dbs)) {
+				foreach ($dbs as $key => $db) {
+					if ('wp' != $key && (!is_array($db) || empty($db['dbinfo']) || !is_array($db['dbinfo']) || empty($db['dbinfo']['host']))) unset($dbs[$key]);
+				}
+			}
+		} else {
+			$dbs = "no";
+		}
+
+		array_push($initial_jobdata, 'backup_database', $dbs);
 		array_push($initial_jobdata, 'backup_files', (($backup_files) ? 'begun' : 'no'));
 
 		// Use of jobdata_set_multi saves around 200ms
@@ -2301,6 +2350,13 @@ class UpdraftPlus {
 		return $opts;
 	}
 
+	public function ftp_sanitise($ftp) {
+		if (is_array($ftp) && !empty($ftp['host']) && preg_match('#ftp(es|s)?://(.*)#i', $ftp['host'], $matches)) {
+			$ftp['host'] = untrailingslashit($matches[2]);
+		}
+		return $ftp;
+	}
+
 	// Acts as a WordPress options filter
 	public function bitcasa_checkchange($bitcasa) {
 		$opts = UpdraftPlus_Options::get_updraft_option('updraft_bitcasa');
@@ -2383,52 +2439,56 @@ class UpdraftPlus {
 		return $updraft_dir;
 	}
 
-	public function spool_file($type, $fullpath, $encryption = "") {
+	private function spool_crypted_file($fullpath, $encryption) {
+		if ('' == $encryption) $encryption = UpdraftPlus_Options::get_updraft_option('updraft_encryptionphrase');
+		if ('' == $encryption) {
+			header('Content-type: text/plain');
+			_e("Decryption failed. The database file is encrypted, but you have no encryption key entered.", 'updraftplus');
+			$this->log('Decryption of database failed: the database file is encrypted, but you have no encryption key entered.', 'error');
+		} else {
+			$ciphertext = $this->decrypt($fullpath, $encryption);
+			if ($ciphertext) {
+				header('Content-type: application/x-gzip');
+				header("Content-Disposition: attachment; filename=\"".substr(basename($fullpath), 0, -6)."\";");
+				header("Content-Length: ".strlen($ciphertext));
+				print $ciphertext;
+			} else {
+				header('Content-type: text/plain');
+				echo __("Decryption failed. The most likely cause is that you used the wrong key.",'updraftplus')." ".__('The decryption key used:','updraftplus').' '.$encryption;
+				
+			}
+		}
+		return true;
+	}
 
+	public function spool_file($type, $fullpath, $encryption = "") {
 		@set_time_limit(900);
 
 		if (file_exists($fullpath)) {
 
-			$file = basename($fullpath);
-
-			$len = filesize($fullpath);
-
 			header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
 			header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
-			header("Content-Length: $len;");
 
-			if ('.crypt' == substr($file, -6, 6)) {
-				if ($encryption == "") $encryption = UpdraftPlus_Options::get_updraft_option('updraft_encryptionphrase');
-				if ($encryption == "") {
-					header('Content-type: text/plain');
-					_e("Decryption failed. The database file is encrypted, but you have no encryption key entered.",'updraftplus');
-					$this->log('Decryption of database failed: the database file is encrypted, but you have no encryption key entered.', 'error');
-				} else {
-					$ciphertext = $this->decrypt($fullpath, $encryption);
-					if ($ciphertext) {
-						header('Content-type: application/x-gzip');
-						header("Content-Disposition: attachment; filename=\"".substr($file,0,-6)."\";");
-						print $ciphertext;
-					} else {
-						header('Content-type: text/plain');
-						echo __("Decryption failed. The most likely cause is that you used the wrong key.",'updraftplus')." ".__('The decryption key used:','updraftplus').' '.$encryption;
-						
-					}
-				}
-			} else {
-				if ('.zip' == substr($file, -4, 4)) {
+			$spooled = false;
+			if ('.crypt' == substr($fullpath, -6, 6)) $spooled = $this->spool_crypted_file($fullpath, $encryption);
+
+			if (!$spooled) {
+
+				header("Content-Length: ".filesize($fullpath));
+
+				if ('.zip' == substr($fullpath, -4, 4)) {
 					header('Content-type: application/zip');
-				} elseif ('.tar' == substr($file, -4, 4)) {
+				} elseif ('.tar' == substr($fullpath, -4, 4)) {
 					header('Content-type: application/x-tar');
-				} elseif ('.tar.gz' == substr($file, -7, 7)) {
+				} elseif ('.tar.gz' == substr($fullpath, -7, 7)) {
 					header('Content-type: application/x-tgz');
-				} elseif ('.tar.bz2' == substr($file, -8, 8)) {
+				} elseif ('.tar.bz2' == substr($fullpath, -8, 8)) {
 					header('Content-type: application/x-bzip-compressed-tar');
 				} else {
 					// When we sent application/x-gzip, we found a case where the server compressed it a second time
 					header('Content-type: application/octet-stream');
 				}
-				header("Content-Disposition: attachment; filename=\"$file\";");
+				header("Content-Disposition: attachment; filename=\"".basename($fullpath)."\";");
 				# Prevent the file being read into memory
 				@ob_end_flush();
 				readfile($fullpath);

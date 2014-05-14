@@ -136,7 +136,8 @@ class UpdraftPlus_BackupModule_openstack extends UpdraftPlus_BackupModule_openst
 		<?php
 	}
 
-	public function config_print_javascript_onready() {
+	// The default value is needed only to satisfy PHP strict standards
+	public function config_print_javascript_onready($keys = array()) {
 		parent::config_print_javascript_onready(array('tenant', 'user', 'password', 'authurl', 'region'));
 	}
 

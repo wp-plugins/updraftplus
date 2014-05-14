@@ -321,6 +321,26 @@ class UpdraftPlus_BackupModule_googledrive {
 				}
 			}
 		} catch (Exception $e) {
+			if (is_a($e, 'Google_Service_Exception')) {
+				$errs = $e->getErrors();
+				$message .= __('However, subsequent access attempts failed:', 'updraftplus');
+				if (is_array($errs)) {
+					$message .= '<ul style="list-style: disc inside;">';
+					foreach ($errs as $err) {
+						$message .= '<li>';
+						if (!empty($err['reason'])) $message .= '<strong>'.htmlspecialchars($err['reason']).':</strong> ';
+						if (!empty($err['message'])) {
+							$message .= htmlspecialchars($err['message']);
+						} else {
+							$message .= htmlspecialchars(serialize($err));
+						}
+						$message .= '</li>';
+					}
+					$message .= '</ul>';
+				} else {
+					$message .= htmlspecialchars(serialize($errs));
+				}
+			}
 		}
 
 		$updraftplus_admin->show_admin_warning(__('Success', 'updraftplus').': '.sprintf(__('you have authenticated your %s account.', 'updraftplus'),__('Google Drive','updraftplus')).' '.((!empty($username)) ? sprintf(__('Name: %s.', 'updraftplus'), $username).' ' : '').$message);
@@ -345,7 +365,8 @@ class UpdraftPlus_BackupModule_googledrive {
 		try {
 			$parent_id = $this->get_parent_id($opts);
 		} catch (Exception $e) {
-			$updraftplus->log("Google Drive delete: failed to access parent folder: ".$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
+			$updraftplus->log("Google Drive upload: failed to access parent folder: ".$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
+			$updraftplus->log(sprintf(__('Failed to upload to %s','updraftplus'),__('Google Drive','updraftplus')).': '.__('failed to access parent folder', 'updraftplus').' ('.$e->getMessage().')', 'error');
 			return false;
 		}
 
@@ -421,7 +442,7 @@ class UpdraftPlus_BackupModule_googledrive {
 
 		$included_paths = explode(PATH_SEPARATOR, get_include_path());
 		if (!in_array(UPDRAFTPLUS_DIR.'/includes', $included_paths)) {
-			set_include_path(get_include_path().PATH_SEPARATOR.UPDRAFTPLUS_DIR.'/includes');
+			set_include_path(UPDRAFTPLUS_DIR.'/includes'.PATH_SEPARATOR.get_include_path());
 		}
 
 		if (!class_exists('Google_Config')) require_once 'Google/Config.php';
@@ -466,7 +487,8 @@ class UpdraftPlus_BackupModule_googledrive {
 		} elseif (is_a($io, 'Google_IO_Stream')) {
 			$setopts['timeout'] = 15;
 			# We had to modify the SDK to support this
-			if (!UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts')) $setopts['cacert'] = UPDRAFTPLUS_DIR.'/includes/cacert.pem';
+			# https://wiki.php.net/rfc/tls-peer-verification - before PHP 5.6, there is no default CA file
+			if (!UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts') || (version_compare(PHP_VERSION, '5.6.0', '<'))) $setopts['cafile'] = UPDRAFTPLUS_DIR.'/includes/cacert.pem';
 			if (UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify')) $setopts['disable_verify_peer'] = true;
 		}
 
@@ -802,7 +824,7 @@ class UpdraftPlus_BackupModule_googledrive {
 			<th></th>
 			<td>
 			<p><a href="http://updraftplus.com/support/configuring-google-drive-api-access-in-updraftplus/"><strong><?php _e('For longer help, including screenshots, follow this link. The description below is sufficient for more expert users.','updraftplus');?></strong></a></p>
-			<p><a href="https://console.developers.google.com"><?php _e('Follow this link to your Google API Console, and there create a Client ID in the API Access section.','updraftplus');?></a> <?php _e("Select 'Web Application' as the application type.",'updraftplus');?></p><p><?php echo htmlspecialchars(__('You must add the following as the authorised redirect URI (under "More Options") when asked','updraftplus'));?>: <kbd><?php echo UpdraftPlus_Options::admin_page_url().'?action=updraftmethod-googledrive-auth'; ?></kbd> <?php _e('N.B. If you install UpdraftPlus on several WordPress sites, then you cannot re-use your client ID; you must create a new one from your Google API console for each site.','updraftplus');?>
+			<p><a href="https://console.developers.google.com"><?php _e('Follow this link to your Google API Console, and there activate the Drive API and create a Client ID in the API Access section.','updraftplus');?></a> <?php _e("Select 'Web Application' as the application type.",'updraftplus');?></p><p><?php echo htmlspecialchars(__('You must add the following as the authorised redirect URI (under "More Options") when asked','updraftplus'));?>: <kbd><?php echo UpdraftPlus_Options::admin_page_url().'?action=updraftmethod-googledrive-auth'; ?></kbd> <?php _e('N.B. If you install UpdraftPlus on several WordPress sites, then you cannot re-use your client ID; you must create a new one from your Google API console for each site.','updraftplus');?>
 
 			</p>
 			</td>

@@ -132,7 +132,8 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 
 	}
 
-	public function config_print_javascript_onready() {
+	# The default parameter here is only to satisfy Strict Standards
+	public function config_print_javascript_onready($keys = array()) {
 		parent::config_print_javascript_onready(array('apikey', 'user', 'region', 'authurl'));
 	}
 
