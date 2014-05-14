@@ -624,7 +624,7 @@ class UpdraftPlus_BackupModule_s3 {
 				} else {
 					echo  __('Success','updraftplus').": ${bucket_verb}".__('We accessed the bucket, and were able to create files within it.','updraftplus').' ';
 					$comm_with = ($config['key'] == 's3generic') ? $endpoint : $config['whoweare_long'];
-					if ($s3->useSSL) {
+					if ($s3->getuseSSL()) {
 						echo sprintf(__('The communication with %s was encrypted.', 'updraftplus'), $comm_with);
 					} else {
 						echo sprintf(__('The communication with %s was not encrypted.', 'updraftplus'), $comm_with);

@@ -131,6 +131,10 @@ class UpdraftPlus_S3
 		self::$useSSLValidation = $validate;
 	}
 
+	public static function getuseSSL() {
+		return self::$useSSL;
+	}
+
 	/**
 	* Set SSL client certificates (experimental)
 	*
