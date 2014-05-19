@@ -143,7 +143,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
-= 1.9.12 - 2014/05/19 =
+= 1.9.13 - 2014/05/19 =
 
 * FEATURE: Google Drive now works without the PHP curl module being needed
 * FEATURE: UpdraftPlus Premium can now back up non-WordPress tables and external databases; database encryption is also now a Premium feature; see: http://updraftplus.com/backing-external-databases/
@@ -835,4 +835,4 @@ We recognise and thank the following for code and/or libraries used and/or modif
 Furthermore, reliance upon any non-English translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
 
 == Upgrade Notice ==
-* 1.9.12 : Various small tweaks and fixes. More database backup options (Premium). Translations updated. Recommended update for all.
+* 1.9.13 : Various small tweaks and fixes. More database backup options (Premium). Translations updated. Recommended update for all.
