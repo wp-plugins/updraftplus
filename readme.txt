@@ -3,7 +3,7 @@ Contributors: Backup with UpdraftPlus, DavidAnderson
 Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, s3 compatible, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, ftp backup, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, bitcasa, back up, multisite, restoration, sftp, ftps, scp, migrate, duplicate, copy, updraft, schedule, mysql backup, database backup, db backup, website backup, wordpress backup, full backup, openstack, swift
 Requires at least: 3.2
 Tested up to: 3.9.1
-Stable tag: 1.9.5
+Stable tag: 1.9.13
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -160,7 +160,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Add Counterize tables to the custom lists of tables that do not need search/replacing upon migration / are non-vital data
 * TWEAK: Check for DB connection having been dropped before pruning old backups (WP 3.9+)
 * TWEAK: Make sure that if the user has not configured the Google Drive API in their Google account, then they are alerted
-* TRANSLATIONS: Updated Greek translation
+* TRANSLATIONS: Updated Greek, Czech, German, Spanish, French, Dutch, Portuguese (Brazilian), Russian, Swedish and Turkish translations
 
 = 1.9.5 - 2014/04/25 =
 
