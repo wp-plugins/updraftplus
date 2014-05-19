@@ -155,7 +155,11 @@ class UpdraftPlus_BinZip extends UpdraftPlus_PclZip {
 			$ret = proc_close($process);
 
 			if ($ret != 0 && $ret != 12) {
-				$updraftplus->log("Binary zip: error (code: $ret - look it up in the Diagnostics section at http://www.info-zip.org/mans/zip.html for interpretation... and also check that your hosting account quota is not full)");
+				if ($ret < 128) {
+					$updraftplus->log("Binary zip: error (code: $ret - look it up in the Diagnostics section of the zip manual at http://www.info-zip.org/mans/zip.html for interpretation... and also check that your hosting account quota is not full)");
+				} else {
+					$updraftplus->log("Binary zip: error (code: $ret - a code above 127 normally means that the zip process was deliberately killed ... and also check that your hosting account quota is not full)");
+				}
 				if (!empty($w) && !$updraftplus_backup->debug) $updraftplus->log("Last output from zip: ".trim($w), 'debug');
 				return false;
 			}
