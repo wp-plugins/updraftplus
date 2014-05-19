@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the UpdraftPlus package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-05-19 09:15:40+0000\n"
+"PO-Revision-Date: 2014-05-19 21:52:43+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -365,107 +365,107 @@ msgstr "Error - fallo el download (bajada) del archivo"
 
 #: admin.php:1892
 msgid "Rescan local folder for new backup sets"
-msgstr ""
+msgstr "Re- escanear carpeta local para los nuevos sets de respaldos"
 
 #: udaddons/updraftplus-addons.php:132
 msgid "You should update UpdraftPlus to make sure that you have a version that has been tested for compatibility."
-msgstr ""
+msgstr "Debe actualizar UpodraftPlus para asegurarse que obtenga la ultima versión con probada compatibilidad."
 
 #: udaddons/updraftplus-addons.php:132
 msgid "The installed version of UpdraftPlus Backup/Restore has not been tested on your version of WordPress (%s)."
-msgstr ""
+msgstr "La versión instalada de UpdraftPlus Respaldos/Restauraciones no ha sido probada en esta versión de WordPress (%s)."
 
 #: udaddons/updraftplus-addons.php:132
 msgid "It has been tested up to version %s."
-msgstr ""
+msgstr "Ha sido comprobado hasta la versión %s."
 
 #: addons/sftp.php:423
 msgid "password/key"
-msgstr ""
+msgstr "clave/Key(llave)"
 
 #: addons/sftp.php:48
 msgid "SCP/SFTP password/key"
-msgstr ""
+msgstr "SCP/SFTP clave/Key(llave)"
 
 #: addons/sftp.php:276
 msgid "The key provided was not in a valid format, or was corrupt."
-msgstr ""
+msgstr "La Key(llave) introducida no esta en un formato valido, o esta corrupto."
 
 #: addons/sftp.php:339
 msgid "Your login may be either password or key-based - you only need to enter one, not both."
-msgstr ""
+msgstr "Su ingreso podrá ser con clave o por Key-based (llave) - usted solo necesita una, no las dos."
 
 #: addons/sftp.php:344
 msgid "Key"
-msgstr ""
+msgstr "Key (llave)"
 
 #: addons/sftp.php:347
 msgid "PKCS1 (PEM header: BEGIN RSA PRIVATE KEY), XML and PuTTY format keys are accepted."
-msgstr ""
+msgstr "PKCS1 (Encabezado PEM: INICIA KEY(LLAVE) RSA PRIVADA), formatos de keys(llaves) XML y PuTTY son aceptados."
 
 #: admin.php:3216 admin.php:3448 addons/importer.php:77
 msgid "Backup created by: %s."
-msgstr ""
+msgstr "Respaldo creado por: %s."
 
 #: admin.php:3223
 msgid "Files and database WordPress backup (created by %s)"
-msgstr ""
+msgstr "Respaldo de archivos y base de datos (creado por %s) "
 
 #: admin.php:3223
 msgid "Files backup (created by %s)"
-msgstr ""
+msgstr "Archivos del respaldo (creado por %s)"
 
 #: admin.php:3156 admin.php:3218
 msgid "unknown source"
-msgstr ""
+msgstr "fuente desconocida "
 
 #: admin.php:3159
 msgid "Database (created by %s)"
-msgstr ""
+msgstr "Base de datos (creada por %s)"
 
 #: admin.php:1893
 msgid "Rescan remote storage"
-msgstr ""
+msgstr "Re-escaneando almacenamiento remoto"
 
 #: admin.php:1891
 msgid "Upload backup files"
-msgstr ""
+msgstr "Subir (upload) archivos del respaldo"
 
 #: admin.php:1537
 msgid "This backup was created by %s, and can be imported."
-msgstr ""
+msgstr "Este respaldo fue creado por %s y pueden ser importados."
 
 #: admin.php:418
 msgid "WordPress has a number (%d) of scheduled tasks which are overdue. Unless this is a development site, this probably means that the scheduler in your WordPress install is not working."
-msgstr ""
+msgstr "WordPress tiene (%d) de tareas programadas sin ejecutar. A menos que este sea un sitio en desarrollo, esto probablemente quiere decir que su programador en WordPress no esta funcionando."
 
 #: admin.php:418
 msgid "Read this page for a guide to possible causes and how to fix it."
-msgstr ""
+msgstr "Lea esta guía para probables causas y como arreglarlas."
 
 #: admin.php:146 admin.php:147 admin.php:3455
 msgid "This file does not appear to be an UpdraftPlus backup archive (such files are .zip or .gz files which have a name like: backup_(time)_(site name)_(code)_(type).(zip|gz))."
-msgstr ""
+msgstr "Este archivo no parece ser de un archivo de respaldo de UpdraftPlus (estos son archivos .zip or .gz  y tienen nombres como: backup_(time)_(site name)_(code)_(type).(zip|gz))."
 
 #: admin.php:146
 msgid "However, UpdraftPlus archives are standard zip/SQL files - so if you are sure that your file has the right format, then you can rename it to match that pattern."
-msgstr ""
+msgstr "Sin embargo, los archivos de UpdraftPlus son archivos zip/SQL - así que si esta seguro que son del el formato correcto podrá re-nombrarlos para  igualar nuestro patrón de formato."
 
 #: admin.php:147 admin.php:3455
 msgid "If this is a backup created by a different backup plugin, then UpdraftPlus Premium may be able to help you."
-msgstr ""
+msgstr "Si este respaldo fue creado por un plugin diferente, entonces UpdraftPlus Premium podrá ayudarlo. "
 
 #: restorer.php:1019 admin.php:776 admin.php:3219
 msgid "Backup created by unknown source (%s) - cannot be restored."
-msgstr ""
+msgstr "Respaldo creado por una fuente desconocida (%s) - y no podrá ser restaurada.  "
 
 #: restorer.php:669 restorer.php:771
 msgid "The WordPress content folder (wp-content) was not found in this zip file."
-msgstr ""
+msgstr "La carpeta (wp-content) de WordPress no se encontró en este archivo zip."
 
 #: restorer.php:533
 msgid "This version of UpdraftPlus does not know how to handle this type of foreign backup"
-msgstr ""
+msgstr "Esta versión de UpdraftPlus no sabe como manejar esta versión de respaldo foráneo"
 
 #: methods/dropbox.php:192
 msgid "%s returned an unexpected HTTP response: %s"
