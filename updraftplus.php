@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.9.11
+Version: 1.9.12
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -14,19 +14,20 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
+// On free version, add note to restore page/to "delete-old-dirs" section
+// Make SFTP chunked (there is a new stream wrapper)
+// Store/show current Dropbox account
 // On plugins restore, don't let UD over-write itself - because this usually means a down-grade. Since upgrades are db-compatible, there's no reason to downgrade.
+// Renewal links should redirect to login and redirect to relevant page after
 // Alert user if they enter http(s):(etc) as their Dropbox path - seen one user do it
 // Schedule a task to report on failure
 // Copy.Com, Box
-// With Google Drive, log the name of the folder in use
 // Switch 'Backup Now' to call the WP action via AJAX instead of via Cron - then test on hosts who deny all cron (e.g. Heart)
 // Get something to parse the 'Backups in progress' data, and if the 'next resumption' is far negative, and if also cron jobs appear to be not running, then call the action directly.
-// Check out whether tables like this can be skipped in search/replace: wp_ajyw_adrotate_stats
 // If ionice is available, then use it to limit I/O usage
 // Check the timestamps used in filenames - they should be UTC
 // Get user to confirm if they check both the search/replace and wp-config boxes
 // Tweak the display so that users seeing resumption messages don't think it's stuck
-// Store/show current Dropbox account
 // A search/replace console without needing to restore
 // On restore, check for some 'standard' PHP modules (prevents support requests related to them) -e.g. GD, Curl
 // Recognise known huge non-core tables on restore, and postpone them to the end (AJAX method?)
@@ -36,8 +37,6 @@ TODO - some of these are out of date/done, needs pruning
 // Integrate jstree for a nice files-chooser; use https://wordpress.org/plugins/dropbox-photo-sideloader/ to see how it's done
 // Verify that attempting to bring back a MS backup on a non-MS install warns the user
 // Pre-schedule resumptions that we know will be scheduled later
-// Make SFTP chunked (there is a new stream wrapper)
-// If we're on the last resumption, zipping, and nothing's succeeded for a while, then auto-split
 // Change add-ons screen, to be less confusing for people who haven't yet updated but have connected
 // Change migrate window: 1) Retain link to article 2) Have selector to choose which backup set to migrate - or a fresh one 3) Have option for FTP/SFTP/SCP despatch 4) Have big "Go" button. Have some indication of what happens next. Test the login first. Have the remote site auto-scan its directory + pick up new sets. Have a way of querying the remote site for its UD-dir. Have a way of saving the settings as a 'profile'. Or just save the last set of settings (since mostly will be just one place to send to). Implement an HTTP/JSON method for sending files too.
 // Post restore, do an AJAX get for the site; if this results in a 500, then auto-turn-on WP_DEBUG
@@ -47,7 +46,6 @@ TODO - some of these are out of date/done, needs pruning
 // Add some kind of automated scan for post content (e.g. images) that has the same URL base, but is not part of WP. There's an example of such a site in tmp-rich.
 // Free/premium comparison page
 // Complete the tweak to bring the delete-old-dirs within a dialog (just needed to deal wtih case of needing credentials more elegantly).
-// On free version, add note to restore page/to "delete-old-dirs" section
 // Add note to support page requesting that non-English be translated
 // More locking: lock the resumptions too (will need to manage keys to make sure junk data is not left behind)
 // See: ftp-logins.log - would help if we retry FTP logins after 10 second delay (not on testing), to lessen chances of 'too many users - try again later' being terminal. Also, can we log the login error?
@@ -951,7 +949,7 @@ class UpdraftPlus {
 	public function find_working_sqldump($logit = true, $cacheit = true) {
 
 		// The hosting provider may have explicitly disabled the popen or proc_open functions
-		if ($this->detect_safe_mode() || !function_exists('popen')) {
+		if ($this->detect_safe_mode() || !function_exists('popen') || !function_exists('escapeshellarg')) {
 			if ($cacheit) $this->jobdata_set('binsqldump', false);
 			return false;
 		}
@@ -1007,7 +1005,7 @@ class UpdraftPlus {
 	function find_working_bin_zip($logit = true, $cacheit = true) {
 		if ($this->detect_safe_mode()) return false;
 		// The hosting provider may have explicitly disabled the popen or proc_open functions
-		if (!function_exists('popen') || !function_exists('proc_open')) {
+		if (!function_exists('popen') || !function_exists('proc_open') || !function_exists('escapeshellarg')) {
 			if ($cacheit) $this->jobdata_set('binzip', false);
 			return false;
 		}

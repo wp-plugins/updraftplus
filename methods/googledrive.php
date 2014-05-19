@@ -387,7 +387,7 @@ class UpdraftPlus_BackupModule_googledrive {
 
 			$file_path = $updraft_dir.$file;
 			$file_name = basename($file_path);
-			$updraftplus->log("$file_name: Attempting to upload to Google Drive");
+			$updraftplus->log("$file_name: Attempting to upload to Google Drive (into folder id: $parent_id)");
 
 			$filesize = filesize($file_path);
 			$already_failed = false;
