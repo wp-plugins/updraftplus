@@ -160,7 +160,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Add Counterize tables to the custom lists of tables that do not need search/replacing upon migration / are non-vital data
 * TWEAK: Check for DB connection having been dropped before pruning old backups (WP 3.9+)
 * TWEAK: Make sure that if the user has not configured the Google Drive API in their Google account, then they are alerted
-* TRANSLATIONS: Updated Greek translation
+* TRANSLATIONS: Updated Greek, Czech, German, Spanish, French, Dutch, Portuguese (Brazilian), Russian, Swedish and Turkish translations
 
 = 1.9.5 - 2014/04/25 =
 
