@@ -935,21 +935,6 @@ class UpdraftPlus {
 		return (false == $ciphertext) ? $rijndael->decrypt(file_get_contents($fullpath)) : $rijndael->decrypt($ciphertext);
 	}
 
-	public function encrypt($fullpath, $key, $rformat = 'inline') {
-		if (!function_exists('mcrypt_encrypt')) {
-			$this->log(sprintf(__('Your web-server does not have the %s module installed.', 'updraftplus'), 'mcrypt').' '.__('Without it, encryption will be a lot slower.', 'updraftplus'), 'warning', 'nomcrypt');
-		}
-		if ($this->have_addons < 10) {
-			$this->log(__("A future release of UpdraftPlus will move the encryption feature into an add-on (and add more features to it).", 'updraftplus').' '.sprintf(__('See: %s', 'updraftplus'), 'http://updraftplus.com/next-updraftplus-release-ready-testing/'), 'warning', 'needpremiumforcrypt');
-		}
-		$this->ensure_phpseclib('Crypt_Rijndael', 'Crypt/Rijndael');
-		$rijndael = new Crypt_Rijndael();
-		$rijndael->setKey($key);
-		if ('inline' === $rformat) {
-			return $rijndael->encrypt(file_get_contents($fullpath));
-		}
-	}
-
 	function detect_safe_mode() {
 		return (@ini_get('safe_mode') && strtolower(@ini_get('safe_mode')) != "off") ? 1 : 0;
 	}
