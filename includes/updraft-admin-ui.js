@@ -568,20 +568,18 @@ jQuery(document).ready(function($){
 		
 		jQuery(this).dialog("close");
 		jQuery('#updraft_backup_started').html('<em>'+updraftlion.requeststart+'</em>').slideDown('');
+		setTimeout(function() {
+			jQuery('#updraft_lastlogmessagerow').fadeOut('slow', function() {
+				jQuery(this).fadeIn('slow');
+			});
+		}, 1000);
+		setTimeout(function() {updraft_activejobs_update(true);}, 1000);
+		setTimeout(function() {jQuery('#updraft_backup_started').fadeOut('slow');}, 75000);
 		jQuery.post(ajaxurl, { action: 'updraft_ajax', subaction: 'backupnow', nonce: updraft_credentialtest_nonce, backupnow_nodb: backupnow_nodb, backupnow_nofiles: backupnow_nofiles, backupnow_nocloud: backupnow_nocloud }, function(response) {
 			jQuery('#updraft_backup_started').html(response);
 			// Kick off some activity to get WP to get the scheduled task moving as soon as possible
-			setTimeout(function() {jQuery.get(updraft_siteurl);}, 5100);
-			setTimeout(function() {jQuery.get(updraft_siteurl+'/wp-cron.php');}, 13500);
-			//setTimeout(function() {updraft_showlastlog();}, 6000);
-			setTimeout(function() {updraft_activejobs_update(true);}, 6000);
-			setTimeout(function() {
-				jQuery('#updraft_lastlogmessagerow').fadeOut('slow', function() {
-					jQuery(this).fadeIn('slow');
-				});
-			}, 3200);
-				setTimeout(function() {jQuery('#updraft_backup_started').fadeOut('slow');}, 75000);
-				// Should be redundant (because of the polling for the last log line), but harmless (invokes page load)
+// 			setTimeout(function() {jQuery.get(updraft_siteurl);}, 5100);
+// 			setTimeout(function() {jQuery.get(updraft_siteurl+'/wp-cron.php');}, 13500);
 		});
 	};
 	backupnow_modal_buttons[updraftlion.cancel] = function() { jQuery(this).dialog("close"); };

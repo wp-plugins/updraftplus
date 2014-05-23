@@ -145,7 +145,11 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 
 = Development version (not yet released / supported)
 
+* TWEAK: "Backup Now" now avoids the WordPress scheduler - thus meaning it can work on sites where the WordPress scheduler is broken (e.g. Heart Internet)
 * TWEAK: Amend SQL which prevented options/sitemeta tables backing up at full speed on large sites
+* TWEAK: Dropbox will now display some error messages more prominently, where relevant
+* TWEAK: Dropbox account user's name is stored when you authorise
+* FIX: Reporting add-on could mis-display number of warnings when saying "X errors, Y warnings".
 
 = 1.9.13 - 2014/05/19 =
 

@@ -60,14 +60,11 @@ class UpdraftPlus_Options {
 		register_setting('updraft-options-group', 'updraft_cloudfiles');
 		register_setting('updraft-options-group', 'updraft_bitcasa', array($updraftplus, 'bitcasa_checkchange'));
 		register_setting('updraft-options-group', 'updraft_openstack');
+		register_setting('updraft-options-group', 'updraft_dropbox', array($updraftplus, 'dropbox_checkchange'));
 		register_setting('updraft-options-group', 'updraft_googledrive', array($updraftplus, 'googledrive_checkchange'));
 
 		register_setting('updraft-options-group', 'updraft_sftp_settings');
 		register_setting('updraft-options-group', 'updraft_webdav_settings', array($updraftplus, 'replace_http_with_webdav'));
-
-		register_setting('updraft-options-group', 'updraft_dropbox_appkey');
-		register_setting('updraft-options-group', 'updraft_dropbox_secret');
-		register_setting('updraft-options-group', 'updraft_dropbox_folder');
 
 		register_setting('updraft-options-group', 'updraft_ssl_nossl', 'absint');
 		register_setting('updraft-options-group', 'updraft_log_syslog', 'absint');

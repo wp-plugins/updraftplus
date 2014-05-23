@@ -16,16 +16,11 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // On free version, add note to restore page/to "delete-old-dirs" section
 // Make SFTP chunked (there is a new stream wrapper)
-// A few users have done this - make the error to be stated more prominently
-0409.334 (1) Unexpected HTTP code returned from Dropbox: 401 (a:3:{s:4:"code";s:3:"401";s:4:"body";O:8:"stdClass":1:{s:5:"error";N;}s:7:"headers";a:6:{s:6:"server";s:5:"nginx";s:4:"date";s:29:"Tue, 20 May 2014 02:07:29 GMT";s:12:"content-type";s:16:"application/json";s:17:"transfer-encoding";s:7:"chunked";s:10:"connection";s:10:"keep-alive";s:16:"www-authenticate";s:38:"OAuth realm="https://api.dropbox.com/"";}})
-0409.362 (1) [Warning] Dropbox did not return the expected response - check your log file for more details
-// Store/show current Dropbox account
 // On plugins restore, don't let UD over-write itself - because this usually means a down-grade. Since upgrades are db-compatible, there's no reason to downgrade.
 // Renewal links should redirect to login and redirect to relevant page after
 // Alert user if they enter http(s):(etc) as their Dropbox path - seen one user do it
 // Schedule a task to report on failure
-// Copy.Com, Box
-// Switch 'Backup Now' to call the WP action via AJAX instead of via Cron - then test on hosts who deny all cron (e.g. Heart)
+// Copy.Com
 // Get something to parse the 'Backups in progress' data, and if the 'next resumption' is far negative, and if also cron jobs appear to be not running, then call the action directly.
 // If ionice is available, then use it to limit I/O usage
 // Check the timestamps used in filenames - they should be UTC
@@ -495,9 +490,9 @@ class UpdraftPlus {
 		// Tell WordPress where to find the translations
 		load_plugin_textdomain('updraftplus', false, basename(dirname(__FILE__)).'/languages/');
 		# The Google Analyticator plugin does something horrible: loads an old version of the Google SDK on init, always - which breaks us
-		if ((defined('DOING_CRON') && DOING_CRON) || (isset($_GET['page']) && $_GET['page'] == 'updraftplus')) {
+		if ((defined('DOING_CRON') && DOING_CRON) || (defined('DOING_AJAX') && DOING_AJAX && isset($_REQUEST['subaction']) && 'backupnow' == $_REQUEST['subaction']) || (isset($_GET['page']) && $_GET['page'] == 'updraftplus')) {
 			remove_action('init', 'ganalyticator_stats_init');
-			# Appointments+ does the same; but providers a cleaner way to disable it
+			# Appointments+ does the same; but provides a cleaner way to disable it
 			define('APP_GCAL_DISABLE', true);
 		}
 	}
@@ -1591,7 +1586,7 @@ class UpdraftPlus {
 
 	}
 
-	function max_time_passed($time_passed, $upto) {
+	public function max_time_passed($time_passed, $upto) {
 		$max_time = 0;
 		$timings_string = "";
 		$run_times_known=0;
@@ -1608,25 +1603,25 @@ class UpdraftPlus {
 		return array($max_time, $timings_string, $run_times_known);
 	}
 
-	function backup_all($skip_cloud) {
+	public function backup_all($skip_cloud) {
 		$this->boot_backup(1, 1, false, false, ($skip_cloud) ? 'none' : false);
 	}
 	
-	function backup_files() {
+	public function backup_files() {
 		# Note that the "false" for database gets over-ridden automatically if they turn out to have the same schedules
 		$this->boot_backup(true, false);
 	}
 	
-	function backup_database() {
+	public function backup_database() {
 		# Note that nothing will happen if the file backup had the same schedule
 		$this->boot_backup(false, true);
 	}
 
-	function backupnow_files($skip_cloud) {
+	public function backupnow_files($skip_cloud) {
 		$this->boot_backup(1, 0, false, false, ($skip_cloud) ? 'none' : false);
 	}
 	
-	function backupnow_database($skip_cloud) {
+	public function backupnow_database($skip_cloud) {
 		$this->boot_backup(0, 1, false, false, ($skip_cloud) ? 'none' : false);
 	}
 
@@ -2369,6 +2364,15 @@ class UpdraftPlus {
 			unset($opts['ownername']);
 		}
 		foreach ($bitcasa as $key => $value) { $opts[$key] = $value; }
+		return $opts;
+	}
+
+	// Acts as a WordPress options filter
+	public function dropbox_checkchange($dropbox) {
+		$opts = UpdraftPlus_Options::get_updraft_option('updraft_dropbox');
+		if (!is_array($opts)) $opts = array();
+		if (!is_array($dropbox)) return $opts;
+		foreach ($dropbox as $key => $value) { $opts[$key] = $value; }
 		return $opts;
 	}
 

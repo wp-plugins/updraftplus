@@ -50,8 +50,11 @@ class UpdraftPlus_Admin {
 			if (!empty($clientid) && empty($token)) add_action('all_admin_notices', array($this,'show_admin_warning_googledrive'));
 		}
 
-		if (UpdraftPlus_Options::user_can_manage() && ('dropbox' === $service || is_array($service) && in_array('dropbox', $service)) && UpdraftPlus_Options::get_updraft_option('updraft_dropboxtk_request_token','') == '') {
-			add_action('all_admin_notices', array($this,'show_admin_warning_dropbox') );
+		if (UpdraftPlus_Options::user_can_manage() && ('dropbox' === $service || is_array($service) && in_array('dropbox', $service))) {
+			$opts = UpdraftPlus_Options::get_updraft_option('updraft_dropbox');
+			if (empty($opts['tk_request_token'])) {
+				add_action('all_admin_notices', array($this,'show_admin_warning_dropbox') );
+			}
 		}
 
 		if (UpdraftPlus_Options::user_can_manage() && ('bitcasa' === $service || is_array($service) && in_array('bitcasa', $service))) {
@@ -1008,13 +1011,21 @@ class UpdraftPlus_Admin {
 			echo '<strong>',__('Schedule backup','updraftplus').':</strong> ';
 			$backupnow_nocloud = (empty($_REQUEST['backupnow_nocloud'])) ? false : true;
 			$event = (!empty($_REQUEST['backupnow_nofiles'])) ? 'updraft_backupnow_backup_database' : ((!empty($_REQUEST['backupnow_nodb'])) ? 'updraft_backupnow_backup' : 'updraft_backupnow_backup_all');
-			if (wp_schedule_single_event(time()+5, $event, array($backupnow_nocloud)) === false) {
-				$updraftplus->log("A backup run failed to schedule");
-				echo __("Failed.",'updraftplus')."</div>";
-			} else {
-				echo htmlspecialchars(__('OK. You should soon see activity in the "Last log message" field below.','updraftplus'))." <a href=\"http://updraftplus.com/faqs/my-scheduled-backups-and-pressing-backup-now-does-nothing-however-pressing-debug-backup-does-produce-a-backup/\"><br>".__('Nothing happening? Follow this link for help.','updraftplus')."</a></div>";
-				$updraftplus->log("A backup run has been scheduled");
-			}
+
+			$msg = htmlspecialchars(__('OK. You should soon see activity in the "Last log message" field below.','updraftplus'));
+			$updraftplus->log("A backup run has been started");
+			$this->close_browser_connection($msg);
+			do_action($event, array($backupnow_nocloud));
+
+			# Old-style: schedule an event in 5 seconds time. This has the advantage of testing out the scheduler, and alerting the user if it doesn't work... but has the disadvantage of not working in that case.
+			# I don't think the </div>s should be here - in case this is ever re-activated
+// 			if (wp_schedule_single_event(time()+5, $event, array($backupnow_nocloud)) === false) {
+// 				$updraftplus->log("A backup run failed to schedule");
+// 				echo __("Failed.", 'updraftplus')."</div>";
+// 			} else {
+// 				echo htmlspecialchars(__('OK. You should soon see activity in the "Last log message" field below.','updraftplus'))." <a href=\"http://updraftplus.com/faqs/my-scheduled-backups-and-pressing-backup-now-does-nothing-however-pressing-debug-backup-does-produce-a-backup/\"><br>".__('Nothing happening? Follow this link for help.','updraftplus')."</a></div>";
+// 				$updraftplus->log("A backup run has been scheduled");
+// 			}
 
 		} elseif (isset($_GET['subaction']) && 'lastbackup' == $_GET['subaction']) {
 			echo $this->last_backup_html();
@@ -3908,8 +3919,9 @@ ENDHERE;
 		return $input;
 	}
 
+	# TODO: Remove legacy storage setting keys from here
 	private function get_settings_keys() {
-		return array('updraft_autobackup_default', 'updraft_googledrive', 'updraftplus_tmp_googledrive_access_token', 'updraftplus_dismissedautobackup', 'updraftplus_dismissedexpiry', 'updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_wpcore', 'updraft_include_wpcore_exclude', 'updraft_include_more', 'updraft_include_blogs', 'updraft_include_mu-plugins', 'updraft_include_others_exclude', 'updraft_include_uploads_exclude', 'updraft_lastmessage', 'updraft_googledrive_token',
+		return array('updraft_autobackup_default', 'updraft_dropbox', 'updraft_googledrive', 'updraftplus_tmp_googledrive_access_token', 'updraftplus_dismissedautobackup', 'updraftplus_dismissedexpiry', 'updraft_interval', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_wpcore', 'updraft_include_wpcore_exclude', 'updraft_include_more', 'updraft_include_blogs', 'updraft_include_mu-plugins', 'updraft_include_others_exclude', 'updraft_include_uploads_exclude', 'updraft_lastmessage', 'updraft_googledrive_token',
 		'updraft_dropboxtk_request_token', 'updraft_dropboxtk_access_token', 'updraft_dropbox_folder',
 		'updraft_last_backup', 'updraft_starttime_files', 'updraft_starttime_db', 'updraft_startday_db', 'updraft_startday_files', 'updraft_sftp_settings', 'updraft_s3', 'updraft_s3generic', 'updraft_dreamhost', 'updraft_s3generic_login', 'updraft_s3generic_pass', 'updraft_s3generic_remote_path', 'updraft_s3generic_endpoint', 'updraft_webdav_settings', 'updraft_disable_ping', 'updraft_openstack', 'updraft_bitcasa', 'updraft_cloudfiles', 'updraft_cloudfiles_user', 'updraft_cloudfiles_apikey', 'updraft_cloudfiles_path', 'updraft_cloudfiles_authurl', 'updraft_ssl_useservercerts', 'updraft_ssl_disableverify', 'updraft_s3_login', 'updraft_s3_pass', 'updraft_s3_remote_path', 'updraft_dreamobjects_login', 'updraft_dreamobjects_pass', 'updraft_dreamobjects_remote_path', 'updraft_report_warningsonly', 'updraft_report_wholebackup', 'updraft_log_syslog', 'updraft_extradatabases');
 	}
