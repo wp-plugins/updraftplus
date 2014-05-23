@@ -572,7 +572,7 @@ jQuery(document).ready(function($){
 			jQuery('#updraft_lastlogmessagerow').fadeOut('slow', function() {
 				jQuery(this).fadeIn('slow');
 			});
-		}, 1000);
+		}, 1700);
 		setTimeout(function() {updraft_activejobs_update(true);}, 1000);
 		setTimeout(function() {jQuery('#updraft_backup_started').fadeOut('slow');}, 75000);
 		jQuery.post(ajaxurl, { action: 'updraft_ajax', subaction: 'backupnow', nonce: updraft_credentialtest_nonce, backupnow_nodb: backupnow_nodb, backupnow_nofiles: backupnow_nofiles, backupnow_nocloud: backupnow_nocloud }, function(response) {
