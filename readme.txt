@@ -16,7 +16,7 @@ Easy and complete backups + restoration. Manual or automated backups (backup to 
 
 <strong>Top-quality:</strong> UpdraftPlus is the <a href="http://rankwp.com/plugins/updraftplus">highest-ranking backup plugin on rankwp.com</a> (ranks in the top 50 out of 30,000 WordPress plugins for quality on rankwp.com - last checked 8th January 2014).
 
-<strong>Tens of thousands of users:</strong> widely tested and reliable (over 850,000 downloads). Ranks in the top 100 most used of all WordPress plugins on rankwp.com. Millions of backups completed!
+<strong>Tens of thousands of users:</strong> widely tested and reliable (over 875,000 downloads). Ranks in the top 100 most used of all WordPress plugins on rankwp.com. Millions of backups completed!
 
 * Supports WordPress backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP, OpenStack (Swift) and email. Also (via an add-on) FTP over SSL, SFTP, SCP, WebDAV (and compatible services, e.g. Yandex) and Bitcasa. (Note: Microsoft forbid OneDrive/SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
 * Quick restore (both file and database backups)
@@ -142,6 +142,10 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 == Changelog ==
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
+
+= Development version (not yet released / supported)
+
+* TWEAK: Amend SQL which prevented options/sitemeta tables backing up at full speed on large sites
 
 = 1.9.13 - 2014/05/19 =
 

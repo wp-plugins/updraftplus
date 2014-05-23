@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.9.13
+Version: 1.9.14
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -16,6 +16,9 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // On free version, add note to restore page/to "delete-old-dirs" section
 // Make SFTP chunked (there is a new stream wrapper)
+// A few users have done this - make the error to be stated more prominently
+0409.334 (1) Unexpected HTTP code returned from Dropbox: 401 (a:3:{s:4:"code";s:3:"401";s:4:"body";O:8:"stdClass":1:{s:5:"error";N;}s:7:"headers";a:6:{s:6:"server";s:5:"nginx";s:4:"date";s:29:"Tue, 20 May 2014 02:07:29 GMT";s:12:"content-type";s:16:"application/json";s:17:"transfer-encoding";s:7:"chunked";s:10:"connection";s:10:"keep-alive";s:16:"www-authenticate";s:38:"OAuth realm="https://api.dropbox.com/"";}})
+0409.362 (1) [Warning] Dropbox did not return the expected response - check your log file for more details
 // Store/show current Dropbox account
 // On plugins restore, don't let UD over-write itself - because this usually means a down-grade. Since upgrades are db-compatible, there's no reason to downgrade.
 // Renewal links should redirect to login and redirect to relevant page after
