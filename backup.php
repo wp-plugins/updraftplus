@@ -1085,7 +1085,7 @@ class UpdraftPlus_Backup {
 		$pfile = md5(time().rand()).'.tmp';
 		file_put_contents($this->updraft_dir.'/'.$pfile, "[mysqldump]\npassword=".$this->dbinfo['pass']."\n");
 
-		if ($where) $where="--where='".escapeshellarg($where)."'";
+		if ($where) $where="--where=".escapeshellarg($where);
 
 		$exec = "cd ".escapeshellarg($this->updraft_dir)."; $potsql  --defaults-file=$pfile $where --max_allowed_packet=1M --quote-names --add-drop-table --skip-comments --skip-set-charset --allow-keywords --dump-date --extended-insert --user=".escapeshellarg($this->dbinfo['user'])." --host=".escapeshellarg($this->dbinfo['host'])." ".$this->dbinfo['name']." ".escapeshellarg($table_name);
 
