@@ -748,7 +748,7 @@ class UpdraftPlus {
 				$data = $err->get_error_data($code);
 				if (!empty($data)) {
 					$ll = (is_string($data)) ? $data : serialize($data);
-					$this->log("Error data: ".$ll);
+					$this->log("Error data (".$code."): ".$ll);
 				}
 			}
 		}
