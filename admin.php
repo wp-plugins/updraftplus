@@ -3339,6 +3339,7 @@ ENDHERE;
 
 		global $updraftplus;
 		$messages = array();
+		$gmt_offset = get_option('gmt_offset');
 
 		$known_files = array();
 		$known_nonces = array();
@@ -3437,7 +3438,12 @@ ENDHERE;
 			$potmessage = false;
 			if ('.' == $entry || '..' == $entry) continue;
 			if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i', $entry, $matches)) {
-				$btime = strtotime($matches[1]);
+
+				// Interpret the time as one from the blog's local timezone, rather than as UTC
+				# $matches[1] is YYYY-MM-DD-HHmm, to be interpreted as being the local timezone
+				$btime2 = strtotime($matches[1]);
+				$btime = (!empty($offset)) ? $btime2 - $gmt_offset*3600 : $btime2;
+
 				$nonce = $matches[2];
 				$type = $matches[3];
 				if ('db' == $type) {
@@ -3533,7 +3539,9 @@ ENDHERE;
 					$index = (empty($matches[4])) ? '0' : (max((int)$matches[4]-1,0));
 				}
 				$itext = ($index == 0) ? '' : $index;
-				$btime = strtotime($matches[1]);
+				$btime2 = strtotime($matches[1]);
+				$btime = (!empty($offset)) ? $btime2 - $gmt_offset*3600 : $btime2;
+
 				if (isset($known_nonces[$nonce])) $btime = $known_nonces[$nonce];
 				if ($btime <= 100) continue;
 				# Remember that at this point, we already know that the file is not known about locally
@@ -3846,6 +3854,9 @@ ENDHERE;
 						}
 					}
 					echo '</div>'; //close the updraft_restore_progress div even if we error
+					if (false !== strpos($val->get_error_data(), 'PCLZIP_ERR_BAD_FORMAT (-10)')) {
+						echo '<a href="http://updraftplus.com/faqs/error-message-pclzip_err_bad_format-10-invalid-archive-structure-mean/"><strong>'.__('Please consult this FAQ for help on what to do about it.', 'updraftplus').'</strong></a><br>';
+					}
 					restore_error_handler();
 					return $val;
 				} elseif (false === $val) {

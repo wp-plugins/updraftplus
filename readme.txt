@@ -149,6 +149,9 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Amend SQL which prevented options/sitemeta tables backing up at full speed on large sites
 * TWEAK: Dropbox will now display some error messages more prominently, where relevant
 * TWEAK: Dropbox account user's name is stored when you authorise
+* TWEAK: Show link to FAQ if user's zip upload is corrupt
+* TWEAK: Interpret time in imported backup sets as being in destination WP install's timezone
+* TWEAK: Auto-correct Dropbox folder configuration if the user erroneously enters a full URL instead of a folder path
 * FIX: Reporting add-on could mis-display number of warnings when saying "X errors, Y warnings".
 
 = 1.9.13 - 2014/05/19 =

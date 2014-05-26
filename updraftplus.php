@@ -14,23 +14,20 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
+// Bring down interval if we are already in upload time (since zip delays are no longer possible). See: options-general-11-23.txt
 // On free version, add note to restore page/to "delete-old-dirs" section
 // Make SFTP chunked (there is a new stream wrapper)
 // On plugins restore, don't let UD over-write itself - because this usually means a down-grade. Since upgrades are db-compatible, there's no reason to downgrade.
-// Renewal links should redirect to login and redirect to relevant page after
-// Alert user if they enter http(s):(etc) as their Dropbox path - seen one user do it
 // Schedule a task to report on failure
 // Copy.Com
 // Get something to parse the 'Backups in progress' data, and if the 'next resumption' is far negative, and if also cron jobs appear to be not running, then call the action directly.
 // If ionice is available, then use it to limit I/O usage
-// Check the timestamps used in filenames - they should be UTC
 // Get user to confirm if they check both the search/replace and wp-config boxes
 // Tweak the display so that users seeing resumption messages don't think it's stuck
 // A search/replace console without needing to restore
 // On restore, check for some 'standard' PHP modules (prevents support requests related to them) -e.g. GD, Curl
 // Recognise known huge non-core tables on restore, and postpone them to the end (AJAX method?)
 // Add a cart notice if people have DBSF=quantity1
-// Pre-restore actually unpack the zips if they are not insanely big (to prevent the restore crashing at this stage if there's a problem)
 // Include in email report the list of "more" directories: http://updraftplus.com/forums/support-forum-group1/paid-support-forum-forum2/wordpress-multi-sites-thread121/
 // Integrate jstree for a nice files-chooser; use https://wordpress.org/plugins/dropbox-photo-sideloader/ to see how it's done
 // Verify that attempting to bring back a MS backup on a non-MS install warns the user
@@ -40,7 +37,6 @@ TODO - some of these are out of date/done, needs pruning
 // Post restore, do an AJAX get for the site; if this results in a 500, then auto-turn-on WP_DEBUG
 // Place in maintenance mode during restore - ?
 // Test Azure: https://blogs.technet.com/b/blainbar/archive/2013/08/07/article-create-a-wordpress-site-using-windows-azure-read-on.aspx?Redirected=true
-// Seen during autobackup on 1.8.2: Warning: Invalid argument supplied for foreach() in /home/infinite/public_html/new/wp-content/plugins/updraftplus/updraftplus.php on line 1652
 // Add some kind of automated scan for post content (e.g. images) that has the same URL base, but is not part of WP. There's an example of such a site in tmp-rich.
 // Free/premium comparison page
 // Complete the tweak to bring the delete-old-dirs within a dialog (just needed to deal wtih case of needing credentials more elegantly).
@@ -48,7 +44,6 @@ TODO - some of these are out of date/done, needs pruning
 // More locking: lock the resumptions too (will need to manage keys to make sure junk data is not left behind)
 // See: ftp-logins.log - would help if we retry FTP logins after 10 second delay (not on testing), to lessen chances of 'too many users - try again later' being terminal. Also, can we log the login error?
 // Deal with missing plugins/themes/uploads directory when installing
-// Bring down interval if we are already in upload time (since zip delays are no longer possible). See: options-general-11-23.txt
 // Add FAQ - can I get it to save automatically to my computer?
 // Pruner assumes storage is same as current - ?
 // Include blog feed in basic email report
@@ -746,7 +741,7 @@ class UpdraftPlus {
 				$data = $err->get_error_data($code);
 				if (!empty($data)) {
 					$ll = (is_string($data)) ? $data : serialize($data);
-					$this->log("Error data: ".$ll);
+					$this->log("Error data (".$code."): ".$ll);
 				}
 			}
 		}
@@ -1736,6 +1731,7 @@ class UpdraftPlus {
 		if (!is_string($service) && !is_array($service)) $service = UpdraftPlus_Options::get_updraft_option('updraft_service');
 		$service = $this->just_one($service);
 		if (is_string($service)) $service = array($service);
+		if (is_bool($service)) $service = array();
 
 		$option_cache = array();
 		foreach ($service as $serv) {
@@ -2373,6 +2369,7 @@ class UpdraftPlus {
 		if (!is_array($opts)) $opts = array();
 		if (!is_array($dropbox)) return $opts;
 		foreach ($dropbox as $key => $value) { $opts[$key] = $value; }
+		if (preg_match('#^https?://(www.)dropbox\.com/home/Apps/UpdraftPlus([^/]*)/(.*)$#i', $opts['folder'], $matches)) $opts['folder'] = $matches[3];
 		return $opts;
 	}
 
