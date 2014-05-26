@@ -3835,6 +3835,9 @@ ENDHERE;
 						}
 					}
 					echo '</div>'; //close the updraft_restore_progress div even if we error
+					if (false !== strpos($val->get_error_data(), 'PCLZIP_ERR_BAD_FORMAT (-10)')) {
+						echo '<a href="http://updraftplus.com/faqs/error-message-pclzip_err_bad_format-10-invalid-archive-structure-mean/"><strong>'.__('Please consult this FAQ for help on what to do about it.', 'updraftplus').'</strong></a><br>';
+					}
 					restore_error_handler();
 					return $val;
 				} elseif (false === $val) {
