@@ -9,6 +9,19 @@ function updraft_delete(key, nonce, showremote) {
 	jQuery('#updraft-delete-modal').dialog('open');
 }
 
+function updraft_openrestorepanel(toggly) {
+	//jQuery('.download-backups').slideDown(); updraft_historytimertoggle(1); jQuery('html,body').animate({scrollTop: jQuery('#updraft_lastlogcontainer').offset().top},'slow');
+	updraft_historytimertoggle(toggly);
+	jQuery('#updraft-navtab-status-content').hide();
+	jQuery('#updraft-navtab-expert-content').hide();
+	jQuery('#updraft-navtab-settings-content').hide();
+	jQuery('#updraft-navtab-backups-content').show();
+	jQuery('#updraft-navtab-backups').addClass('nav-tab-active');
+	jQuery('#updraft-navtab-expert').removeClass('nav-tab-active');
+	jQuery('#updraft-navtab-settings').removeClass('nav-tab-active');
+	jQuery('#updraft-navtab-status').removeClass('nav-tab-active');
+}
+
 function updraft_delete_old_dirs() {
 	//jQuery('#updraft_delete_old_dirs_pagediv').slideUp().remove();
 	//updraft_iframe_modal('delete_old_dirs', updraftlion.delete_old_dirs);
@@ -88,7 +101,6 @@ function updraft_activejobs_update(force) {
 			if (resp.ds != null && resp.ds != '') {
 				jQuery(resp.ds).each(function(x, dstatus){
 					if (dstatus.base != '') {
-//trycatch
 						updraft_downloader_status_update(dstatus.base, dstatus.timestamp, dstatus.what, dstatus.findex, dstatus, response);
 					}
 				});
@@ -634,6 +646,44 @@ jQuery(document).ready(function($){
 		updraft_iframe_modal('rawbackuphistory', updraftlion.raw);
 	});
 
+	jQuery('#updraft-navtab-status').click(function(e) {
+		e.preventDefault();
+		jQuery(this).addClass('nav-tab-active');
+		jQuery('#updraft-navtab-expert-content').hide();
+		jQuery('#updraft-navtab-settings-content').hide();
+		jQuery('#updraft-navtab-backups-content').hide();
+		jQuery('#updraft-navtab-status-content').show();
+		jQuery('#updraft-navtab-expert').removeClass('nav-tab-active');
+		jQuery('#updraft-navtab-backups').removeClass('nav-tab-active');
+		jQuery('#updraft-navtab-settings').removeClass('nav-tab-active');
+	});
+	jQuery('#updraft-navtab-expert').click(function(e) {
+		e.preventDefault();
+		jQuery(this).addClass('nav-tab-active');
+		jQuery('#updraft-navtab-settings-content').hide();
+		jQuery('#updraft-navtab-status-content').hide();
+		jQuery('#updraft-navtab-backups-content').hide();
+		jQuery('#updraft-navtab-expert-content').show();
+		jQuery('#updraft-navtab-status').removeClass('nav-tab-active');
+		jQuery('#updraft-navtab-backups').removeClass('nav-tab-active');
+		jQuery('#updraft-navtab-settings').removeClass('nav-tab-active');
+	});
+	jQuery('#updraft-navtab-settings, #updraft-navtab-settings2').click(function(e) {
+		e.preventDefault();
+		jQuery('#updraft-navtab-status-content').hide();
+		jQuery('#updraft-navtab-backups-content').hide();
+		jQuery('#updraft-navtab-expert-content').hide();
+		jQuery('#updraft-navtab-settings-content').show();
+		jQuery('#updraft-navtab-settings').addClass('nav-tab-active');
+		jQuery('#updraft-navtab-expert').removeClass('nav-tab-active');
+		jQuery('#updraft-navtab-backups').removeClass('nav-tab-active');
+		jQuery('#updraft-navtab-status').removeClass('nav-tab-active');
+	});
+	jQuery('#updraft-navtab-backups').click(function(e) {
+		e.preventDefault();
+		updraft_openrestorepanel(1);
+	});
+	
 	jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'ping', nonce: updraft_credentialtest_nonce }, function(data, response) {
 		if ('success' == response && data != 'pong' && data.indexOf('pong')>=0) {
 			jQuery('#ud-whitespace-warning').show();

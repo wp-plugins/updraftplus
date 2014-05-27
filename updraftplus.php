@@ -1989,14 +1989,6 @@ class UpdraftPlus {
 			die;
 		}
 
-		# This parameter no longer provided or used, from UD 1.9.1 onwards
-// 		if ($id) {
-// 			$ids = UpdraftPlus_Options::get_updraft_option('updraft_file_ids', array() );
-// 			$ids[$file] = $id;
-// 			UpdraftPlus_Options::update_updraft_option('updraft_file_ids', $ids, false);
-// 			$this->log("Stored file<->id correlation in database ($file <-> $id)");
-// 		}
-
 		// Delete local files immediately if the option is set
 		// Where we are only backing up locally, only the "prune" function should do deleting
 		if (!empty($updraftplus_backup->last_service) && ($this->jobdata_get('service') !== '' && ((is_array($this->jobdata_get('service')) && count($this->jobdata_get('service')) >0) || (is_string($this->jobdata_get('service')) && $this->jobdata_get('service') !== 'none')))) {

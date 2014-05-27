@@ -37,7 +37,7 @@ class UpdraftPlus_Options {
 	public static function options_form_begin($settings_fields = 'updraft-options-group', $allow_autocomplete = true) {
 		global $pagenow;
 		echo '<form method="post" ';
-		if ($pagenow == 'options-general.php') echo 'action="options.php"';
+		if ('options-general.php' == $pagenow) echo 'action="options.php"';
 		if (!$allow_autocomplete) echo ' autocomplete="off"';
 		echo '>';
 		if ($settings_fields) settings_fields('updraft-options-group');
