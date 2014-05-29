@@ -145,6 +145,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 
 = Development version (not yet released / supported)
 
+* FEATURE: New search/replace expert tool (Premium)
 * TWEAK: UI has been simplified - see: http://updraftplus.com/gentle-re-design/
 * TWEAK: "Backup Now" now avoids the WordPress scheduler - thus meaning it can work on sites where the WordPress scheduler is broken (e.g. Heart Internet)
 * TWEAK: Amend SQL which prevented options/sitemeta tables backing up at full speed on large sites

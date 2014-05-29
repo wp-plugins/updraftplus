@@ -17,7 +17,25 @@ class Updraft_Restorer extends WP_Upgrader {
 	private $ud_backup_info;
 	public $ud_foreign;
 
-	public function __construct($skin = null, $info = null) {
+	public function __construct($skin = null, $info = null, $shortinit = false) {
+
+		global $wpdb;
+		// Line up a wpdb-like object to use
+		$this->use_wpdb = ((!function_exists('mysql_query') && !function_exists('mysqli_query')) || !$wpdb->is_mysql || !$wpdb->ready) ? true : false;
+
+		if (false == $this->use_wpdb) {
+			// We have our own extension which drops lots of the overhead on the query
+			$wpdb_obj = new UpdraftPlus_WPDB(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST);
+			// Was that successful?
+			if (!$wpdb_obj->is_mysql || !$wpdb_obj->ready) {
+				$this->use_wpdb = true;
+			} else {
+				$this->mysql_dbh = $wpdb_obj->updraftplus_getdbh();
+				$this->use_mysqli = $wpdb_obj->updraftplus_use_mysqli();
+			}
+		}
+
+		if ($shortinit) return;
 		$this->ud_backup_info = $info;
 		$this->ud_foreign = (empty($info['meta_foreign'])) ? false : $info['meta_foreign'];
 		parent::__construct($skin);
@@ -1044,24 +1062,6 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		$this->line = 0;
 
-		// Line up a wpdb-like object to use
-		// mysql_query will throw E_DEPRECATED from PHP 5.5, so we expect WordPress to have switched to something else by then
-// 			$use_wpdb = (version_compare(phpversion(), '5.5', '>=') || !function_exists('mysql_query') || !$wpdb->is_mysql || !$wpdb->ready) ? true : false;
-		// Seems not - PHP 5.5 is immanent for release
-		$this->use_wpdb = ((!function_exists('mysql_query') && !function_exists('mysqli_query')) || !$wpdb->is_mysql || !$wpdb->ready) ? true : false;
-
-		if (false == $this->use_wpdb) {
-			// We have our own extension which drops lots of the overhead on the query
-			$wpdb_obj = new UpdraftPlus_WPDB(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST);
-			// Was that successful?
-			if (!$wpdb_obj->is_mysql || !$wpdb_obj->ready) {
-				$this->use_wpdb = true;
-			} else {
-				$this->mysql_dbh = $wpdb_obj->updraftplus_getdbh();
-				$this->use_mysqli = $wpdb_obj->updraftplus_use_mysqli();
-			}
-		}
-
 		if (true == $this->use_wpdb) {
 			$updraftplus->log_e('Database access: Direct MySQL access is not available, so we are falling back to wpdb (this will be considerably slower)');
 		} else {
@@ -1458,7 +1458,7 @@ class Updraft_Restorer extends WP_Upgrader {
 				return new WP_Error('initial_db_error', sprintf(__('An error occurred on the first %s command - aborting run','updraftplus'), 'CREATE TABLE'));
 			}
 			if ($this->errors>49) {
-				return new WP_Error('too_many_db_errors', __('Too many database errors have occurred - aborting restoration (you will need to restore manually)','updraftplus'));
+				return new WP_Error('too_many_db_errors', __('Too many database errors have occurred - aborting','updraftplus'));
 			}
 		} elseif ($sql_type == 2) {
 			$this->tables_created++;
@@ -1477,7 +1477,7 @@ class Updraft_Restorer extends WP_Upgrader {
 // 		return false;
 // 	}
 
-	function flush_rewrite_rules() {
+	private function flush_rewrite_rules() {
 
 		// We have to deal with the fact that the procedures used call get_option, which could be looking at the wrong table prefix, or have the wrong thing cached
 
@@ -1617,18 +1617,11 @@ class Updraft_Restorer extends WP_Upgrader {
 
 }
 
-// Get a protected property
-class UpdraftPlus_WPDB extends wpdb {
-	public function updraftplus_getdbh() {
-		return $this->dbh;
-	}
-	public function updraftplus_use_mysqli() {
-		return !empty($this->use_mysqli);
-	}
-}
-
 // The purpose of this is that, in a certain case, we want to forbid the "move" operation from doing a copy/delete if a direct move fails... because we have our own method for retrying (and don't want to risk copying a tonne of data if we can avoid it)
-if (!class_exists('WP_Filesystem_Direct')) require_once(ABSPATH.'wp-admin/includes/class-wp-filesystem-direct.php');
+if (!class_exists('WP_Filesystem_Direct')) {
+	if (!class_exists('WP_Filesystem_Base')) require_once(ABSPATH.'wp-admin/includes/class-wp-filesystem-base.php');
+	require_once(ABSPATH.'wp-admin/includes/class-wp-filesystem-direct.php');
+}
 class UpdraftPlus_WP_Filesystem_Direct extends WP_Filesystem_Direct {
 
 	function move($source, $destination, $overwrite = false) {
@@ -1682,5 +1675,15 @@ class Updraft_Restorer_Skin extends WP_Upgrader_Skin {
 
 		global $updraftplus;
 		$updraftplus->log_e($string);
+	}
+}
+
+// Get a protected property
+class UpdraftPlus_WPDB extends wpdb {
+	public function updraftplus_getdbh() {
+		return $this->dbh;
+	}
+	public function updraftplus_use_mysqli() {
+		return !empty($this->use_mysqli);
 	}
 }

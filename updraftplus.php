@@ -14,7 +14,6 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
-// Include blog feed in basic email report
 // If a current backup has a "next resumption" that is heavily negative, then provide a link for kick-starting it (i.e. to run the next resumption action via AJAX)
 // Bring down interval if we are already in upload time (since zip delays are no longer possible). See: options-general-11-23.txt
 // On free version, add note to restore page/to "delete-old-dirs" section
@@ -22,9 +21,9 @@ TODO - some of these are out of date/done, needs pruning
 // On plugins restore, don't let UD over-write itself - because this usually means a down-grade. Since upgrades are db-compatible, there's no reason to downgrade.
 // Schedule a task to report on failure
 // Copy.Com
-// Get something to parse the 'Backups in progress' data, and if the 'next resumption' is far negative, and if also cron jobs appear to be not running, then call the action directly.
 // If ionice is available, then use it to limit I/O usage
 // Get user to confirm if they check both the search/replace and wp-config boxes
+// Display "Migrate" instead of "Restore" for non-native backups
 // Tweak the display so that users seeing resumption messages don't think it's stuck
 // A search/replace console without needing to restore
 // On restore, check for some 'standard' PHP modules (prevents support requests related to them) -e.g. GD, Curl
@@ -42,7 +41,6 @@ TODO - some of these are out of date/done, needs pruning
 // Add some kind of automated scan for post content (e.g. images) that has the same URL base, but is not part of WP. There's an example of such a site in tmp-rich.
 // Free/premium comparison page
 // Complete the tweak to bring the delete-old-dirs within a dialog (just needed to deal wtih case of needing credentials more elegantly).
-// Add note to support page requesting that non-English be translated
 // More locking: lock the resumptions too (will need to manage keys to make sure junk data is not left behind)
 // See: ftp-logins.log - would help if we retry FTP logins after 10 second delay (not on testing), to lessen chances of 'too many users - try again later' being terminal. Also, can we log the login error?
 // Deal with missing plugins/themes/uploads directory when installing
@@ -63,15 +61,12 @@ TODO - some of these are out of date/done, needs pruning
 // Pre-check the search/replace box if migration detected
 // Can some tables be omitted from the search/replace on a migrate? i.e. Special knowledge?
 // Put a 'what do I get if I upgrade?' link into the mix
-// Add to admin bar (and make it something that can be turned off)
 // If migrated database from somewhere else, then add note about revising UD settings
 // Strategy for what to do if the updraft_dir contains untracked backups. Automatically rescan?
 // MySQL manual: See Section 8.2.2.1, Speed of INSERT Statements.
 // Exempt UD itself from a plugins restore? (will options be out-of-sync? exempt options too?)
 // Post restore/migrate, check updraft_dir, and reset if non-existent
 // Auto-empty caches post-restore/post-migration (prevent support requests from people with state/wrong cacheing data)
-// Show 'Migrate' instead of 'Restore' on the button if relevant
-// Test with: http://wordpress.org/plugins/wp-db-driver/
 // Backup notes
 // Automatically re-count folder usage after doing a delete
 // Switch zip engines earlier if no progress - see log.cfd793337563_hostingfails.txt
@@ -83,7 +78,7 @@ TODO - some of these are out of date/done, needs pruning
 // On multisite, the settings should be in the network panel. Connection settings need migrating into site options.
 // On restore, raise a warning for ginormous zips
 // Detect double-compressed files when they are uploaded (need a way to detect gz compression in general)
-// Log migrations/restores, and have an option for auto-emailing the log
+// On migrations/restores, have an option for auto-emailing the log
 # Email backup method should be able to force split limit down to something manageable - or at least, should make the option display. (Put it in email class. Tweak the storage dropdown to not hide stuff also in expert class if expert is shown).
 // What happens if you restore with a database that then changes the setting for updraft_dir ? Should be safe, as the setting is cached during a run: double-check.
 // Multi-site manager at updraftplus.com
@@ -95,7 +90,6 @@ TODO - some of these are out of date/done, needs pruning
 // Detect CloudFlare output in attempts to connect - detecting cloudflare.com should be sufficient
 // Bring multisite shop page up to date
 // Re-do pricing + support packages
-// More files: back up multiple directories, not just one
 // Give a help page to go with the message: A zip error occurred - check your log for more details (reduce support requests)
 // Exclude .git and .svn by default from wpcore
 // Add option to add, not just replace entities on restore/migrate

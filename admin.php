@@ -2,7 +2,7 @@
 
 if (!defined ('ABSPATH')) die('No direct access allowed');
 
-// For the purposes of improving site performance (don't load in 10s of Kilobytes of un-needed code on every page load), admin-area code is being progressively moved here.
+// For the purposes of improving site performance (don't load in 10s of Kilobytes of un-needed code on every page load), admin-area code lives here
 
 // This gets called in admin_menu, earlier than admin_init
 
@@ -13,11 +13,11 @@ class UpdraftPlus_Admin {
 
 	public $logged = array();
 
-	function __construct() {
+	public function __construct() {
 		$this->admin_init();
 	}
 
-	function admin_init() {
+	private function admin_init() {
 
 		add_action('core_upgrade_preamble', array($this, 'core_upgrade_preamble'));
 		add_action('admin_action_upgrade-plugin', array($this, 'admin_action_upgrade_pluginortheme'));
@@ -286,13 +286,11 @@ class UpdraftPlus_Admin {
 			}
 			.updraft_debugrow th {
 				text-align: right;
-				vertical-align: top;
 				font-weight: bold;
 				padding-right: 8px;
 				min-width: 140px;
 			}
 			.updraft_debugrow td {
-				vertical-align: top;
 				min-width: 300px;
 			}
 			.updraftplus-morefiles-row-delete {
@@ -1719,22 +1717,29 @@ CREATE TABLE $wpdb->signups (
 			return;
 		}
 
+		if(!empty($_REQUEST['action']) && 'updraftplus_broadcastaction' == $_REQUEST['action'] && !empty($_REQUEST['subaction'])) {
+			$nonce = (empty($_REQUEST['nonce'])) ? "" : $_REQUEST['nonce'];
+			if (!wp_verify_nonce($nonce, 'updraftplus-credentialtest-nonce')) die('Security check');
+			do_action($_REQUEST['subaction']);
+			return;
+		}
+
 		if(isset($_GET['error'])) $this->show_admin_warning(htmlspecialchars($_GET['error']), 'error');
 		if(isset($_GET['message'])) $this->show_admin_warning(htmlspecialchars($_GET['message']));
 
 		if(isset($_GET['action']) && $_GET['action'] == 'updraft_create_backup_dir' && isset($_GET['nonce']) && wp_verify_nonce($_GET['nonce'], 'create_backup_dir')) {
 			$created = $this->create_backup_dir();
 			if(is_wp_error($created)) {
-				echo '<p>'.__('Backup directory could not be created','updraftplus').'...<br/>';
+				echo '<p>'.__('Backup directory could not be created', 'updraftplus').'...<br/>';
 				echo '<ul style="list-style: disc inside;">';
 				foreach ($created->get_error_messages() as $key => $msg) {
 					echo '<li>'.htmlspecialchars($msg).'</li>';
 				}
 				echo '</ul></p>';
 			} elseif ($created !== false) {
-				echo '<p>'.__('Backup directory successfully created.','updraftplus').'</p><br/>';
+				echo '<p>'.__('Backup directory successfully created.', 'updraftplus').'</p><br/>';
 			}
-			echo '<b>'.__('Actions','updraftplus').':</b> <a href="'.UpdraftPlus_Options::admin_page_url().'?page=updraftplus">'.__('Return to UpdraftPlus Configuration','updraftplus').'</a>';
+			echo '<b>'.__('Actions','updraftplus').':</b> <a href="'.UpdraftPlus_Options::admin_page_url().'?page=updraftplus">'.__('Return to UpdraftPlus Configuration', 'updraftplus').'</a>';
 			return;
 		}
 
@@ -2156,7 +2161,7 @@ CREATE TABLE $wpdb->signups (
 	<?php
 	}
 
-	private function settings_debugrow($head, $content) {
+	public function settings_debugrow($head, $content) {
 		echo "<tr class=\"updraft_debugrow\"><th>$head</th><td>$content</td></tr>";
 	}
 
@@ -2213,6 +2218,7 @@ CREATE TABLE $wpdb->signups (
 
 				echo '</table>';
 
+				do_action('updraftplus_debugtools_dashboard');
 
 				echo '<h3>'.__('Total (uncompressed) on-disk data:','updraftplus').'</h3>';
 				echo '<p style="clear: left; max-width: 600px;"><em>'.__('N.B. This count is based upon what was, or was not, excluded the last time you saved the options.', 'updraftplus').'</em></p><table>';
