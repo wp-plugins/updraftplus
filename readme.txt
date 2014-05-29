@@ -153,6 +153,8 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Show link to FAQ if user's zip upload is corrupt
 * TWEAK: Interpret time in imported backup sets as being in destination WP install's timezone
 * TWEAK: Auto-correct Dropbox folder configuration if the user erroneously enters a full URL instead of a folder path
+* TWEAK: Bitcasa back-end now checks account quota and logs a warning if it looks like it will be exceeded
+* TWEAK: Email reports created by UpdraftPlus (free) now include the latest blog headlines from updraftplus.com
 * FIX: Reporting add-on could mis-display number of warnings when saying "X errors, Y warnings".
 
 = 1.9.13 - 2014/05/19 =

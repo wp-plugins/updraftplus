@@ -1914,14 +1914,24 @@ CREATE TABLE $wpdb->signups (
 					<td><a id="updraft_showbackups" href="#" title="<?php _e('Press to see available backups','updraftplus');?>" onclick="updraft_openrestorepanel(0); return false;"><?php echo sprintf(__('%d set(s) available', 'updraftplus'), count($backup_history)); ?></a></td>
 				</tr>
 				<?php
-					if (defined('UPDRAFTPLUS_EXPERIMENTAL_MISC') && UPDRAFTPLUS_EXPERIMENTAL_MISC == true) {
-				?>
-				<tr>
-					<th><?php echo __('Latest UpdraftPlus.com news:', 'updraftplus'); ?></th>
-					<td>Blah blah blah. Move to right-hand col?</td>
-				</tr>
-				<?php } ?>
-
+				# Currently disabled - not sure who we want to show this to
+				if (1==0 && !defined('UPDRAFTPLUS_NOADS_A')) {
+					$feed = $updraftplus->get_updraftplus_rssfeed();
+					if (is_a($feed, 'SimplePie')) {
+						echo '<tr><th style="vertical-align:top;">'.__('Latest UpdraftPlus.com news:', 'updraftplus').'</th><td style="vertical-align:top;">';
+						echo '<ul style="list-style: disc inside;">';
+						foreach ($feed->get_items(0, 5) as $item) {
+							echo '<li>';
+							echo '<a href="'.esc_attr($item->get_permalink()).'">';
+							echo htmlspecialchars($item->get_title());
+							# D, F j, Y H:i
+							echo "</a> (".htmlspecialchars($item->get_date('j F Y')).")";
+							echo '</li>';
+						}
+						echo '</ul></td></tr>';
+					}
+				}
+			?>
 			</table>
 
 <div id="updraft-migrate-modal" title="<?php _e('Migrate Site', 'updraftplus'); ?>">
@@ -3353,7 +3363,7 @@ ENDHERE;
 				$ret .= '<td>';
 				if (isset($backup['nonce']) && preg_match("/^[0-9a-f]{12}$/",$backup['nonce']) && is_readable($updraft_dir.'/log.'.$backup['nonce'].'.txt')) {
 					$nval = $backup['nonce'];
-					$lt = __('Backup Log','updraftplus');
+					$lt = esc_attr(__('Backup Log','updraftplus'));
 					$url = UpdraftPlus_Options::admin_page();
 					$ret .= <<<ENDHERE
 					<form action="$url" method="get">

@@ -14,6 +14,8 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
+// Include blog feed in basic email report
+// If a current backup has a "next resumption" that is heavily negative, then provide a link for kick-starting it (i.e. to run the next resumption action via AJAX)
 // Bring down interval if we are already in upload time (since zip delays are no longer possible). See: options-general-11-23.txt
 // On free version, add note to restore page/to "delete-old-dirs" section
 // Make SFTP chunked (there is a new stream wrapper)
@@ -46,7 +48,6 @@ TODO - some of these are out of date/done, needs pruning
 // Deal with missing plugins/themes/uploads directory when installing
 // Add FAQ - can I get it to save automatically to my computer?
 // Pruner assumes storage is same as current - ?
-// Include blog feed in basic email report
 // Detect, and show prominent error in admin area, if the slug is not updraftplus/updraftplus.php (one Mac user in the wild managed to upload as updraftplus-2).
 // Pre-schedule future resumptions that we know will be scheduled; helps deal with WP's dodgy scheduler skipping some. (Then need to un-schedule if job finishes).
 // Dates in the progress box are apparently untranslated
@@ -2559,6 +2560,11 @@ class UpdraftPlus {
 
 	private function url_end($urls,$url) {
 		return ($urls) ? '</a>' : " (http://$url)";
+	}
+
+	public function get_updraftplus_rssfeed() {
+		if (!function_exists('fetch_feed')) require(ABSPATH . WPINC . '/feed.php');
+		return fetch_feed('http://feeds.feedburner.com/updraftplus/');
 	}
 
 	public function wordshell_random_advert($urls) {
