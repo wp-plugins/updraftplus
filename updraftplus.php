@@ -15,6 +15,7 @@ Author URI: http://updraftplus.com
 /*
 TODO - some of these are out of date/done, needs pruning
 // If a current backup has a "next resumption" that is heavily negative, then provide a link for kick-starting it (i.e. to run the next resumption action via AJAX)
+// Deploy FUE addon
 // Bring down interval if we are already in upload time (since zip delays are no longer possible). See: options-general-11-23.txt
 // On free version, add note to restore page/to "delete-old-dirs" section
 // Make SFTP chunked (there is a new stream wrapper)
@@ -25,7 +26,6 @@ TODO - some of these are out of date/done, needs pruning
 // Get user to confirm if they check both the search/replace and wp-config boxes
 // Display "Migrate" instead of "Restore" for non-native backups
 // Tweak the display so that users seeing resumption messages don't think it's stuck
-// A search/replace console without needing to restore
 // On restore, check for some 'standard' PHP modules (prevents support requests related to them) -e.g. GD, Curl
 // Recognise known huge non-core tables on restore, and postpone them to the end (AJAX method?)
 // Add a cart notice if people have DBSF=quantity1
@@ -59,7 +59,6 @@ TODO - some of these are out of date/done, needs pruning
 // Don't perform pruning when doing auto-backup?
 // Post-migrate, notify the user if on Apache but without mod_rewrite (has been seen in the wild)
 // Pre-check the search/replace box if migration detected
-// Can some tables be omitted from the search/replace on a migrate? i.e. Special knowledge?
 // Put a 'what do I get if I upgrade?' link into the mix
 // If migrated database from somewhere else, then add note about revising UD settings
 // Strategy for what to do if the updraft_dir contains untracked backups. Automatically rescan?

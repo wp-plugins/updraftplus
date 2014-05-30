@@ -72,6 +72,7 @@ Many thanks to the existing translators:
 * Português / Portuguese (Brazilian) (pt_BR): Lucien Raven (lucienraven at yahoo.com.br) and Tom Fonseca (tomfonseca at gmail.com)
 * русский / Russian (ru_RU): Илья Худолей (Ilya Khudoley) - ironman_c at icloud.com and Igor Ocheretny (http://wpsells.com) - also see Igor's free training videos at: http://goodbackup.wpsells.com/
 * Swedish / Svensk (sv_SE): Steve Sandström - http://www.brandicon.se
+* Tagalog (tl): Kristen Macasero / Mads Phikamphon - http://www.findhold.dk
 
 And to these (need updating or new translators; now less than 50% translated):
 
@@ -157,6 +158,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Bitcasa back-end now checks account quota and logs a warning if it looks like it will be exceeded
 * TWEAK: Email reports created by UpdraftPlus (free) now include the latest blog headlines from updraftplus.com
 * FIX: Reporting add-on could mis-display number of warnings when saying "X errors, Y warnings".
+* TRANSLATION: New Tagalog translation (thanks to Kristen Macasero)
 
 = 1.9.13 - 2014/05/19 =
 
