@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: UpdraftPlus\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-05-29 21:59+0100\n"
-"PO-Revision-Date: 2014-05-29 21:59+0100\n"
+"POT-Creation-Date: 2014-05-31 23:52+0100\n"
+"PO-Revision-Date: 2014-05-31 23:52+0100\n"
 "Last-Translator: David Anderson <contact@updraftplus.com>\n"
 "Language-Team:  <contact@updraftplus.com>\n"
 "MIME-Version: 1.0\n"
@@ -19,21 +19,21 @@ msgstr ""
 msgid "UpdraftPlus Backups"
 msgstr ""
 
-#: options.php:123
+#: options.php:124
 msgid "UpdraftPlus warning:"
 msgstr ""
 
-#: options.php:123
+#: options.php:124
 msgid "This is a WordPress multi-site (a.k.a. network) installation."
 msgstr ""
 
-#: options.php:123
+#: options.php:124
 msgid ""
 "WordPress Multisite is supported, with extra features, by UpdraftPlus "
 "Premium, or the Multisite add-on."
 msgstr ""
 
-#: options.php:123
+#: options.php:124
 msgid ""
 "Without upgrading, UpdraftPlus allows <strong>every</strong> blog admin who "
 "can modify plugin settings to back up (and hence access the data, including "
@@ -41,7 +41,7 @@ msgid ""
 "changed passwords) <strong>the entire network</strong>."
 msgstr ""
 
-#: options.php:123
+#: options.php:124
 msgid ""
 "(This applies to all WordPress backup plugins unless they have been "
 "explicitly coded for multisite compatibility)."
@@ -117,7 +117,7 @@ msgid "%s error - failed to re-assemble chunks"
 msgstr ""
 
 #: updraftplus.php:889 restorer.php:1522 restorer.php:1538 restorer.php:1602
-#: admin.php:1086 admin.php:3828 methods/stream-base.php:190
+#: admin.php:1086 admin.php:3834 methods/stream-base.php:190
 #: methods/addon-base.php:75 methods/addon-base.php:80
 #: methods/addon-base.php:193
 msgid "Error"
@@ -610,10 +610,10 @@ msgstr ""
 msgid "Please supply the requested information, and then continue."
 msgstr ""
 
-#: restorer.php:991 admin.php:142 admin.php:3845 admin.php:3875
+#: restorer.php:991 admin.php:142 admin.php:3851 admin.php:3881
 #: addons/cloudfiles-enhanced.php:79 addons/sftp.php:730
-#: addons/migrator.php:225 addons/migrator.php:458 addons/migrator.php:643
-#: addons/migrator.php:695 addons/migrator.php:755 addons/migrator.php:932
+#: addons/migrator.php:226 addons/migrator.php:459 addons/migrator.php:644
+#: addons/migrator.php:696 addons/migrator.php:756 addons/migrator.php:933
 msgid "Error:"
 msgstr ""
 
@@ -629,7 +629,7 @@ msgid ""
 "phpMyAdmin or another method."
 msgstr ""
 
-#: restorer.php:1037 admin.php:803 admin.php:3308
+#: restorer.php:1037 admin.php:803 admin.php:3314
 #, php-format
 msgid "Backup created by unknown source (%s) - cannot be restored."
 msgstr ""
@@ -642,14 +642,14 @@ msgstr ""
 msgid "Failed to open database file"
 msgstr ""
 
-#: restorer.php:1066 addons/migrator.php:315
+#: restorer.php:1066 addons/migrator.php:316
 msgid ""
 "Database access: Direct MySQL access is not available, so we are falling "
 "back to wpdb (this will be considerably slower)"
 msgstr ""
 
 #: restorer.php:1124 restorer.php:1144 restorer.php:1406 admin.php:1776
-#: addons/migrator.php:131
+#: addons/migrator.php:132
 msgid "Warning:"
 msgstr ""
 
@@ -751,7 +751,7 @@ msgstr ""
 msgid "An error (%s) occurred:"
 msgstr ""
 
-#: restorer.php:1454 addons/migrator.php:755
+#: restorer.php:1454 addons/migrator.php:756
 msgid "the database query being run was:"
 msgstr ""
 
@@ -770,7 +770,7 @@ msgid "Table prefix has changed: changing %s table field(s) accordingly:"
 msgstr ""
 
 #: restorer.php:1526 restorer.php:1605 admin.php:2516 admin.php:2550
-#: admin.php:2554 admin.php:3830 admin.php:3843
+#: admin.php:2554 admin.php:3836 admin.php:3849
 msgid "OK"
 msgstr ""
 
@@ -872,7 +872,7 @@ msgstr ""
 msgid "Warnings:"
 msgstr ""
 
-#: admin.php:140 addons/migrator.php:723
+#: admin.php:140 addons/migrator.php:724
 msgid "Errors:"
 msgstr ""
 
@@ -922,7 +922,7 @@ msgstr ""
 msgid "Raw backup history"
 msgstr ""
 
-#: admin.php:153 admin.php:154 admin.php:3550
+#: admin.php:153 admin.php:154 admin.php:3556
 msgid ""
 "This file does not appear to be an UpdraftPlus backup archive (such files "
 "are .zip or .gz files which have a name like: backup_(time)_(site "
@@ -936,7 +936,7 @@ msgid ""
 "that pattern."
 msgstr ""
 
-#: admin.php:154 admin.php:3550
+#: admin.php:154 admin.php:3556
 msgid ""
 "If this is a backup created by a different backup plugin, then UpdraftPlus "
 "Premium may be able to help you."
@@ -1005,7 +1005,7 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
-#: admin.php:169 admin.php:1831 admin.php:3402
+#: admin.php:169 admin.php:1831 admin.php:3408
 msgid "Restore"
 msgstr ""
 
@@ -1066,7 +1066,7 @@ msgid ""
 msgstr ""
 
 #: admin.php:420 admin.php:424 admin.php:428 admin.php:432 admin.php:436
-#: admin.php:445 admin.php:2011 admin.php:3092 admin.php:3099 admin.php:3101
+#: admin.php:445 admin.php:2011 admin.php:3098 admin.php:3105 admin.php:3107
 #: udaddons/updraftplus-addons.php:132 methods/openstack-base.php:453
 #: methods/cloudfiles.php:473 methods/s3.php:508 methods/dropbox.php:384
 #: methods/ftp.php:299
@@ -1188,8 +1188,8 @@ msgid ""
 "external database manually."
 msgstr ""
 
-#: admin.php:798 admin.php:1879 admin.php:2134 admin.php:2137 admin.php:3239
-#: admin.php:3248 admin.php:3910 addons/reporting.php:165
+#: admin.php:798 admin.php:1879 admin.php:2134 admin.php:2137 admin.php:3245
+#: admin.php:3254 admin.php:3916 addons/reporting.php:165
 #: addons/moredatabase.php:178
 msgid "Database"
 msgstr ""
@@ -1403,7 +1403,7 @@ msgid "Actions"
 msgstr ""
 
 #: admin.php:1696 admin.php:1705 admin.php:1742 admin.php:2484
-#: addons/migrator.php:108
+#: addons/migrator.php:97 addons/migrator.php:109
 msgid "Return to UpdraftPlus Configuration"
 msgstr ""
 
@@ -1664,7 +1664,7 @@ msgid ""
 "This can corrupt backups that you download from here."
 msgstr ""
 
-#: admin.php:2011 admin.php:3935
+#: admin.php:2011 admin.php:3941
 msgid "Please consult this FAQ for help on what to do about it."
 msgstr ""
 
@@ -1773,7 +1773,7 @@ msgid ""
 "content/updraft), e.g. via FTP, and then use the \"rescan\" link above."
 msgstr ""
 
-#: admin.php:2043 admin.php:2812
+#: admin.php:2043 admin.php:2818
 #, php-format
 msgid "This feature requires %s version %s or later"
 msgstr ""
@@ -1782,7 +1782,7 @@ msgstr ""
 msgid "Drop backup files here"
 msgstr ""
 
-#: admin.php:2050 admin.php:2820
+#: admin.php:2050 admin.php:2826
 msgid "or"
 msgstr ""
 
@@ -2138,51 +2138,44 @@ msgstr ""
 msgid "No backup has been completed."
 msgstr ""
 
-#: admin.php:2696
-msgid "File backup intervals"
-msgstr ""
-
-#: admin.php:2700
+#: admin.php:2689
 msgid "Manual"
 msgstr ""
 
-#: admin.php:2701
-msgid "Every 4 hours"
+#: admin.php:2690 admin.php:2691 admin.php:2692
+#, php-format
+msgid "Every %s hours"
 msgstr ""
 
-#: admin.php:2702
-msgid "Every 8 hours"
-msgstr ""
-
-#: admin.php:2703
-msgid "Every 12 hours"
-msgstr ""
-
-#: admin.php:2704
+#: admin.php:2693
 msgid "Daily"
 msgstr ""
 
-#: admin.php:2705
+#: admin.php:2694
 msgid "Weekly"
 msgstr ""
 
-#: admin.php:2706
+#: admin.php:2695
 msgid "Fortnightly"
 msgstr ""
 
-#: admin.php:2707
+#: admin.php:2696
 msgid "Monthly"
 msgstr ""
 
-#: admin.php:2717 admin.php:2735
+#: admin.php:2709
+msgid "File backup intervals"
+msgstr ""
+
+#: admin.php:2722 admin.php:2741
 msgid "and retain this many backups"
 msgstr ""
 
-#: admin.php:2724
+#: admin.php:2730
 msgid "Database backup intervals"
 msgstr ""
 
-#: admin.php:2742
+#: admin.php:2748
 msgid ""
 "If you would like to automatically schedule backups, choose schedules from "
 "the dropdowns above. Backups will occur at the intervals specified. If the "
@@ -2191,131 +2184,131 @@ msgid ""
 "whenever you wish a backup to occur."
 msgstr ""
 
-#: admin.php:2743
+#: admin.php:2749
 msgid "To fix the time at which a backup should take place,"
 msgstr ""
 
-#: admin.php:2743
+#: admin.php:2749
 msgid "e.g. if your server is busy at day and you want to run overnight"
 msgstr ""
 
-#: admin.php:2743
+#: admin.php:2749
 msgid "use UpdraftPlus Premium"
 msgstr ""
 
-#: admin.php:2747
+#: admin.php:2753
 msgid "Include in files backup"
 msgstr ""
 
-#: admin.php:2759
+#: admin.php:2765
 #, php-format
 msgid "Your wp-content directory server path: %s"
 msgstr ""
 
-#: admin.php:2759
+#: admin.php:2765
 msgid "Any other directories found inside wp-content"
 msgstr ""
 
-#: admin.php:2765 addons/morefiles.php:218
+#: admin.php:2771 addons/morefiles.php:218
 msgid "Exclude these:"
 msgstr ""
 
-#: admin.php:2767 addons/morefiles.php:220
+#: admin.php:2773 addons/morefiles.php:220
 msgid ""
 "If entering multiple files/directories, then separate them with commas. For "
 "entities at the top level, you can use a * at the start or end of the entry "
 "as a wildcard."
 msgstr ""
 
-#: admin.php:2779
+#: admin.php:2785
 msgid ""
 "The above directories are everything, except for WordPress core itself which "
 "you can download afresh from WordPress.org."
 msgstr ""
 
-#: admin.php:2779
+#: admin.php:2785
 msgid "See also the \"More Files\" add-on from our shop."
 msgstr ""
 
-#: admin.php:2780
+#: admin.php:2786
 msgid "Use WordShell for automatic backup, version control and patching"
 msgstr ""
 
-#: admin.php:2786
+#: admin.php:2792
 msgid "Database Options"
 msgstr ""
 
-#: admin.php:2791
+#: admin.php:2797
 msgid "Database encryption phrase"
 msgstr ""
 
-#: admin.php:2795
+#: admin.php:2801
 msgid ""
 "Don't want to be spied on? UpdraftPlus Premium can encrypt your database "
 "backup."
 msgstr ""
 
-#: admin.php:2795
+#: admin.php:2801
 msgid "It can also backup external databases."
 msgstr ""
 
-#: admin.php:2804
+#: admin.php:2810
 msgid "You can manually decrypt an encrypted database here."
 msgstr ""
 
-#: admin.php:2807
+#: admin.php:2813
 msgid "Manually decrypt a database backup file"
 msgstr ""
 
-#: admin.php:2819
+#: admin.php:2825
 msgid ""
 "Drop encrypted database files (db.gz.crypt files) here to upload them for "
 "decryption"
 msgstr ""
 
-#: admin.php:2822
+#: admin.php:2828
 msgid "First, enter the decryption key"
 msgstr ""
 
-#: admin.php:2844
+#: admin.php:2850
 msgid "Back up more databases"
 msgstr ""
 
-#: admin.php:2859 methods/email.php:60
+#: admin.php:2865 methods/email.php:60
 msgid "Reporting"
 msgstr ""
 
-#: admin.php:2871 udaddons/options.php:111
+#: admin.php:2877 udaddons/options.php:111
 msgid "Email"
 msgstr ""
 
-#: admin.php:2876
+#: admin.php:2882
 #, php-format
 msgid ""
 "Check this box to have a basic report sent to your site's admin address (%s)."
 msgstr ""
 
-#: admin.php:2878
+#: admin.php:2884
 msgid "For more reporting features, use the Reporting add-on."
 msgstr ""
 
-#: admin.php:2887
+#: admin.php:2893
 msgid "Copying Your Backup To Remote Storage"
 msgstr ""
 
-#: admin.php:2897
+#: admin.php:2903
 msgid "Choose your remote storage"
 msgstr ""
 
-#: admin.php:2906 addons/reporting.php:153
+#: admin.php:2912 addons/reporting.php:153
 msgid "None"
 msgstr ""
 
-#: admin.php:2917
+#: admin.php:2923
 msgid "You can send a backup to more than one destination with an add-on."
 msgstr ""
 
-#: admin.php:2926
+#: admin.php:2932
 msgid ""
 "If you choose no remote storage, then the backups remain on the web-server. "
 "This is not recommended (unless you plan to manually copy them to your "
@@ -2323,45 +2316,45 @@ msgid ""
 "the backups in one event."
 msgstr ""
 
-#: admin.php:2975
+#: admin.php:2981
 msgid "Advanced / Debugging Settings"
 msgstr ""
 
-#: admin.php:2979
+#: admin.php:2985
 msgid "Expert settings"
 msgstr ""
 
-#: admin.php:2980
+#: admin.php:2986
 msgid "Show expert settings"
 msgstr ""
 
-#: admin.php:2980
+#: admin.php:2986
 msgid ""
 "click this to show some further options; don't bother with this unless you "
 "have a problem or are curious."
 msgstr ""
 
-#: admin.php:2990
+#: admin.php:2996
 msgid "Debug mode"
 msgstr ""
 
-#: admin.php:2991
+#: admin.php:2997
 msgid ""
 "Check this to receive more information and emails on the backup process - "
 "useful if something is going wrong."
 msgstr ""
 
-#: admin.php:2991
+#: admin.php:2997
 msgid ""
 "This will also cause debugging output from all plugins to be shown upon this "
 "screen - please do not be surprised to see these."
 msgstr ""
 
-#: admin.php:2995
+#: admin.php:3001
 msgid "Split archives every:"
 msgstr ""
 
-#: admin.php:2996
+#: admin.php:3002
 msgid ""
 "UpdraftPlus will split up backup archives when they exceed this file size. "
 "The default value is 800 megabytes. Be careful to leave some margin if your "
@@ -2369,11 +2362,11 @@ msgid ""
 "bit servers/file systems)."
 msgstr ""
 
-#: admin.php:3000
+#: admin.php:3006
 msgid "Delete local backup"
 msgstr ""
 
-#: admin.php:3001
+#: admin.php:3007
 msgid ""
 "Check this to delete any superfluous backup files from your server after the "
 "backup run finishes (i.e. if you uncheck, then any files despatched remotely "
@@ -2381,58 +2374,58 @@ msgid ""
 "subject to the retention limits)."
 msgstr ""
 
-#: admin.php:3005
+#: admin.php:3011
 msgid "Backup directory"
 msgstr ""
 
-#: admin.php:3012
+#: admin.php:3018
 msgid "Backup directory specified is writable, which is good."
 msgstr ""
 
-#: admin.php:3016
+#: admin.php:3022
 msgid "Backup directory specified does <b>not</b> exist."
 msgstr ""
 
-#: admin.php:3018
+#: admin.php:3024
 msgid "Backup directory specified exists, but is <b>not</b> writable."
 msgstr ""
 
-#: admin.php:3020
+#: admin.php:3026
 msgid "Click here to attempt to create the directory and set the permissions"
 msgstr ""
 
-#: admin.php:3020
+#: admin.php:3026
 msgid "or, to reset this option"
 msgstr ""
 
-#: admin.php:3020
+#: admin.php:3026
 msgid "click here"
 msgstr ""
 
-#: admin.php:3020
+#: admin.php:3026
 msgid ""
 "If that is unsuccessful check the permissions on your server or change it to "
 "another directory that is writable by your web server process."
 msgstr ""
 
-#: admin.php:3023
+#: admin.php:3029
 msgid ""
 "This is where UpdraftPlus will write the zip files it creates initially.  "
 "This directory must be writable by your web server. It is relative to your "
 "content directory (which by default is called wp-content)."
 msgstr ""
 
-#: admin.php:3023
+#: admin.php:3029
 msgid ""
 "<b>Do not</b> place it inside your uploads or plugins directory, as that "
 "will cause recursion (backups of backups of backups of...)."
 msgstr ""
 
-#: admin.php:3027
+#: admin.php:3033
 msgid "Use the server's SSL certificates"
 msgstr ""
 
-#: admin.php:3028
+#: admin.php:3034
 msgid ""
 "By default UpdraftPlus uses its own store of SSL certificates to verify the "
 "identity of remote sites (i.e. to make sure it is talking to the real "
@@ -2441,11 +2434,11 @@ msgid ""
 "UpdraftPlus to use your web server's collection instead) may help."
 msgstr ""
 
-#: admin.php:3032
+#: admin.php:3038
 msgid "Do not verify SSL certificates"
 msgstr ""
 
-#: admin.php:3033
+#: admin.php:3039
 msgid ""
 "Choosing this option lowers your security by stopping UpdraftPlus from "
 "verifying the identity of encrypted sites that it connects to (e.g. Dropbox, "
@@ -2453,17 +2446,17 @@ msgid ""
 "encryption of traffic, and not for authentication."
 msgstr ""
 
-#: admin.php:3033
+#: admin.php:3039
 msgid ""
 "Note that not all cloud backup methods are necessarily using SSL "
 "authentication."
 msgstr ""
 
-#: admin.php:3037
+#: admin.php:3043
 msgid "Disable SSL entirely where possible"
 msgstr ""
 
-#: admin.php:3038
+#: admin.php:3044
 msgid ""
 "Choosing this option lowers your security by stopping UpdraftPlus from using "
 "SSL for authentication and encrypted transport at all, where possible. Note "
@@ -2471,15 +2464,15 @@ msgid ""
 "those providers this setting will have no effect."
 msgstr ""
 
-#: admin.php:3038
+#: admin.php:3044
 msgid "See this FAQ also."
 msgstr ""
 
-#: admin.php:3062
+#: admin.php:3068
 msgid "Save Changes"
 msgstr ""
 
-#: admin.php:3092
+#: admin.php:3098
 #, php-format
 msgid ""
 "Your web server's PHP installation does not included a <strong>required</"
@@ -2487,7 +2480,7 @@ msgid ""
 "support and ask for them to enable it."
 msgstr ""
 
-#: admin.php:3092
+#: admin.php:3098
 #, php-format
 msgid ""
 "Your options are 1) Install/enable %s or 2) Change web hosting companies - "
@@ -2495,7 +2488,7 @@ msgid ""
 "that we know of."
 msgstr ""
 
-#: admin.php:3099
+#: admin.php:3105
 #, php-format
 msgid ""
 "Your web server's PHP/Curl installation does not support https access. "
@@ -2503,7 +2496,7 @@ msgid ""
 "Curl/SSL in order to gain the ability for encryption (via an add-on)."
 msgstr ""
 
-#: admin.php:3101
+#: admin.php:3107
 #, php-format
 msgid ""
 "Your web server's PHP/Curl installation does not support https access. We "
@@ -2512,7 +2505,7 @@ msgid ""
 "file any support requests; there is no alternative."
 msgstr ""
 
-#: admin.php:3104
+#: admin.php:3110
 #, php-format
 msgid ""
 "Good news: Your site's communications with %s can be encrypted. If you see "
@@ -2520,185 +2513,185 @@ msgid ""
 "more help."
 msgstr ""
 
-#: admin.php:3209
+#: admin.php:3215
 msgid "You have not yet made any backups."
 msgstr ""
 
-#: admin.php:3221
+#: admin.php:3227
 msgid "Delete this backup set"
 msgstr ""
 
-#: admin.php:3230
+#: admin.php:3236
 msgid ""
 "If you are seeing more backups than you expect, then it is probably because "
 "the deletion of old backup sets does not happen until a fresh backup "
 "completes."
 msgstr ""
 
-#: admin.php:3230
+#: admin.php:3236
 msgid "(Not finished)"
 msgstr ""
 
-#: admin.php:3245 admin.php:3307
+#: admin.php:3251 admin.php:3313
 msgid "unknown source"
 msgstr ""
 
-#: admin.php:3248
+#: admin.php:3254
 #, php-format
 msgid "Database (created by %s)"
 msgstr ""
 
-#: admin.php:3260 admin.php:3363
+#: admin.php:3266 admin.php:3369
 #, php-format
 msgid "(No %s)"
 msgstr ""
 
-#: admin.php:3260
+#: admin.php:3266
 msgid "database"
 msgstr ""
 
-#: admin.php:3265
+#: admin.php:3271
 msgid "External database"
 msgstr ""
 
-#: admin.php:3305 admin.php:3543 addons/importer.php:77
+#: admin.php:3311 admin.php:3549 addons/importer.php:77
 #, php-format
 msgid "Backup created by: %s."
 msgstr ""
 
-#: admin.php:3312
+#: admin.php:3318
 #, php-format
 msgid "Files and database WordPress backup (created by %s)"
 msgstr ""
 
-#: admin.php:3312
+#: admin.php:3318
 #, php-format
 msgid "Files backup (created by %s)"
 msgstr ""
 
-#: admin.php:3335
+#: admin.php:3341
 msgid "Press here to download"
 msgstr ""
 
-#: admin.php:3341
+#: admin.php:3347
 #, php-format
 msgid "(%d archive(s) in set)."
 msgstr ""
 
-#: admin.php:3344
+#: admin.php:3350
 msgid ""
 "You appear to be missing one or more archives from this multi-archive set."
 msgstr ""
 
-#: admin.php:3372
+#: admin.php:3378
 msgid "Backup Log"
 msgstr ""
 
-#: admin.php:3397
+#: admin.php:3403
 msgid "(backup set imported from remote storage)"
 msgstr ""
 
-#: admin.php:3400
+#: admin.php:3406
 msgid ""
 "After pressing this button, you will be given the option to choose which "
 "components you wish to restore"
 msgstr ""
 
-#: admin.php:3646
+#: admin.php:3652
 msgid ""
 "One or more backups has been added from scanning remote storage; note that "
 "these backups will not be automatically deleted through the \"retain\" "
 "settings; if/when you wish to delete them then you must do so manually."
 msgstr ""
 
-#: admin.php:3670
+#: admin.php:3676
 msgid ""
 "This backup does not exist in the backup history - restoration aborted. "
 "Timestamp:"
 msgstr ""
 
-#: admin.php:3671
+#: admin.php:3677
 msgid "Backup does not exist in the backup history"
 msgstr ""
 
-#: admin.php:3709
+#: admin.php:3715
 msgid "UpdraftPlus Restoration: Progress"
 msgstr ""
 
-#: admin.php:3711
+#: admin.php:3717
 msgid ""
 "Follow this link to download the log file for this restoration (needed for "
 "any support requests)."
 msgstr ""
 
-#: admin.php:3755
+#: admin.php:3761
 msgid "ABORT: Could not find the information on which entities to restore."
 msgstr ""
 
-#: admin.php:3756
+#: admin.php:3762
 msgid "If making a request for support, please include this information:"
 msgstr ""
 
-#: admin.php:3781
+#: admin.php:3787
 msgid "Final checks"
 msgstr ""
 
-#: admin.php:3808
+#: admin.php:3814
 msgid ""
 "Skipping restoration of WordPress core when importing a single site into a "
 "multisite installation. If you had anything necessary in your WordPress "
 "directory then you will need to re-add it manually from the zip file."
 msgstr ""
 
-#: admin.php:3819
+#: admin.php:3825
 #, php-format
 msgid "Looking for %s archive: file name: %s"
 msgstr ""
 
-#: admin.php:3824
+#: admin.php:3830
 msgid "File is not locally present - needs retrieving from remote storage"
 msgstr ""
 
-#: admin.php:3840
+#: admin.php:3846
 msgid "Archive is expected to be size:"
 msgstr ""
 
-#: admin.php:3845
+#: admin.php:3851
 msgid "file is size:"
 msgstr ""
 
-#: admin.php:3848
+#: admin.php:3854
 msgid ""
 "The backup records do not contain information about the proper size of this "
 "file."
 msgstr ""
 
-#: admin.php:3851 admin.php:3852
+#: admin.php:3857 admin.php:3858
 msgid "Could not find one of the files for restoration"
 msgstr ""
 
-#: admin.php:3898
+#: admin.php:3904
 msgid ""
 "Will not delete any archives after unpacking them, because there was no "
 "cloud storage for this backup"
 msgstr ""
 
-#: admin.php:3921
+#: admin.php:3927
 msgid "Error message"
 msgstr ""
 
-#: admin.php:3929
+#: admin.php:3935
 msgid "Error data:"
 msgstr ""
 
-#: admin.php:3962
+#: admin.php:3968
 #, php-format
 msgid ""
 "Theme directory (%s) not found, but lower-case version exists; updating "
 "database option accordingly"
 msgstr ""
 
-#: admin.php:3972
+#: admin.php:3978
 msgid ""
 "The current theme was not found; to prevent this stopping the site from "
 "loading, your theme has been reverted to the default theme"
@@ -2872,11 +2865,11 @@ msgstr ""
 msgid "Forgotten your details?"
 msgstr ""
 
-#: udaddons/options.php:169 addons/multisite.php:160
+#: udaddons/options.php:169 addons/multisite.php:161
 msgid "You do not have permission to access this page."
 msgstr ""
 
-#: udaddons/options.php:190 addons/multisite.php:141
+#: udaddons/options.php:190 addons/multisite.php:142
 msgid "You do not have sufficient permissions to access this page."
 msgstr ""
 
@@ -3142,7 +3135,7 @@ msgstr ""
 #: methods/openstack2.php:157 methods/openstack2.php:162 addons/webdav.php:50
 #: addons/sftp.php:415 addons/sftp.php:419 addons/sftp.php:423
 #: addons/moredatabase.php:37 addons/moredatabase.php:39
-#: addons/moredatabase.php:41 addons/migrator.php:93
+#: addons/moredatabase.php:41 addons/migrator.php:96
 #, php-format
 msgid "Failure: No %s was given."
 msgstr ""
@@ -4588,18 +4581,16 @@ msgstr ""
 msgid "Errors have occurred:"
 msgstr ""
 
-#: addons/autobackup.php:221
-msgid ""
-"Backup succeeded <a href=\"#updraftplus-autobackup-log\" onclick="
-"\"jQuery('#updraftplus-autobackup-log').slideToggle();\">(view log...)</a> - "
-"now proceeding with the updates..."
+#: addons/autobackup.php:221 addons/autobackup.php:223
+msgid "Backup succeeded"
 msgstr ""
 
-#: addons/autobackup.php:223
-msgid ""
-"Backup succeeded <a href=\"#updraftplus-autobackup-log\" onclick=\"var s = "
-"document.getElementById('updraftplus-autobackup-log'); s.style.display = "
-"'block';\">(view log...)</a> - now proceeding with the updates..."
+#: addons/autobackup.php:221 addons/autobackup.php:223
+msgid "(view log...)"
+msgstr ""
+
+#: addons/autobackup.php:221 addons/autobackup.php:223
+msgid "now proceeding with the updates..."
 msgstr ""
 
 #: addons/autobackup.php:300
@@ -4615,15 +4606,15 @@ msgstr ""
 msgid "Proceed with update"
 msgstr ""
 
-#: addons/multisite.php:135
+#: addons/multisite.php:136
 msgid "Multisite Install"
 msgstr ""
 
-#: addons/multisite.php:250
+#: addons/multisite.php:251
 msgid "Must-use plugins"
 msgstr ""
 
-#: addons/multisite.php:257
+#: addons/multisite.php:258
 msgid "Blog uploads"
 msgstr ""
 
@@ -4741,208 +4732,208 @@ msgstr ""
 msgid "%s: Skipping cache file (does not already exist)"
 msgstr ""
 
-#: addons/migrator.php:93
-msgid "search term"
-msgstr ""
-
-#: addons/migrator.php:96 addons/migrator.php:114
+#: addons/migrator.php:92 addons/migrator.php:115
 msgid "Search / replace database"
 msgstr ""
 
-#: addons/migrator.php:97 addons/migrator.php:121
+#: addons/migrator.php:93 addons/migrator.php:122
 msgid "Search for"
 msgstr ""
 
-#: addons/migrator.php:98 addons/migrator.php:122
+#: addons/migrator.php:94 addons/migrator.php:123
 msgid "Replace with"
 msgstr ""
 
-#: addons/migrator.php:115
-msgid "This can easily destroy your site; so, use it with care!"
+#: addons/migrator.php:96
+msgid "search term"
 msgstr ""
 
 #: addons/migrator.php:116
+msgid "This can easily destroy your site; so, use it with care!"
+msgstr ""
+
+#: addons/migrator.php:117
 msgid "A search/replace cannot be undone - are you sure you want to do this?"
 msgstr ""
 
-#: addons/migrator.php:123
+#: addons/migrator.php:124
 msgid "Go"
 msgstr ""
 
-#: addons/migrator.php:131
+#: addons/migrator.php:132
 msgid ""
 "This looks like a migration (the backup is from a site with a different "
 "address/URL), but you did not check the option to search-and-replace the "
 "database. That is usually a mistake."
 msgstr ""
 
-#: addons/migrator.php:135
+#: addons/migrator.php:136
 msgid "Processed plugin:"
 msgstr ""
 
-#: addons/migrator.php:146
+#: addons/migrator.php:147
 msgid "Network activating theme:"
 msgstr ""
 
-#: addons/migrator.php:180
+#: addons/migrator.php:181
 msgid "Information needed to continue:"
 msgstr ""
 
-#: addons/migrator.php:181
+#: addons/migrator.php:182
 msgid "Please supply the following information:"
 msgstr ""
 
-#: addons/migrator.php:183
+#: addons/migrator.php:184
 msgid ""
 "Enter details for where this new site is to live within your multisite "
 "install:"
 msgstr ""
 
-#: addons/migrator.php:192
+#: addons/migrator.php:193
 msgid "Site Name:"
 msgstr ""
 
-#: addons/migrator.php:194
+#: addons/migrator.php:195
 msgid "Site Domain:"
 msgstr ""
 
-#: addons/migrator.php:211
+#: addons/migrator.php:212
 msgid "Migrated site (from UpdraftPlus)"
 msgstr ""
 
-#: addons/migrator.php:240
+#: addons/migrator.php:241
 msgid "<strong>ERROR</strong>: Site URL already taken."
 msgstr ""
 
-#: addons/migrator.php:247
+#: addons/migrator.php:248
 msgid "New site:"
 msgstr ""
 
-#: addons/migrator.php:264
+#: addons/migrator.php:265
 #, php-format
 msgid ""
 "All references to the site location in the database will be replaced with "
 "your current site URL, which is: %s"
 msgstr ""
 
-#: addons/migrator.php:264
+#: addons/migrator.php:265
 msgid "Search and replace site location in the database (migrate)"
 msgstr ""
 
-#: addons/migrator.php:264
+#: addons/migrator.php:265
 msgid "(learn more)"
 msgstr ""
 
-#: addons/migrator.php:369
+#: addons/migrator.php:370
 #, php-format
 msgid ""
 "Skipping this table: data in this table (%s) should not be search/replaced"
 msgstr ""
 
-#: addons/migrator.php:377
+#: addons/migrator.php:378
 #, php-format
 msgid "Replacing in blogs/site table: from: %s to: %s"
 msgstr ""
 
-#: addons/migrator.php:445
+#: addons/migrator.php:446
 msgid "Adjusting multisite paths"
 msgstr ""
 
-#: addons/migrator.php:464 addons/migrator.php:701
+#: addons/migrator.php:465 addons/migrator.php:702
 #, php-format
 msgid "Failed: the %s operation was not able to start."
 msgstr ""
 
-#: addons/migrator.php:464 addons/migrator.php:466
+#: addons/migrator.php:465 addons/migrator.php:467
 msgid "search and replace"
 msgstr ""
 
-#: addons/migrator.php:466 addons/migrator.php:703
+#: addons/migrator.php:467 addons/migrator.php:704
 #, php-format
 msgid "Failed: we did not understand the result returned by the %s operation."
 msgstr ""
 
-#: addons/migrator.php:524
+#: addons/migrator.php:525
 msgid "Database: search and replace site URL"
 msgstr ""
 
-#: addons/migrator.php:528
+#: addons/migrator.php:529
 msgid "This option was not selected."
 msgstr ""
 
-#: addons/migrator.php:560 addons/migrator.php:564 addons/migrator.php:568
-#: addons/migrator.php:573 addons/migrator.php:577 addons/migrator.php:581
+#: addons/migrator.php:561 addons/migrator.php:565 addons/migrator.php:569
+#: addons/migrator.php:574 addons/migrator.php:578 addons/migrator.php:582
 #, php-format
 msgid "Error: unexpected empty parameter (%s, %s)"
 msgstr ""
 
-#: addons/migrator.php:587
+#: addons/migrator.php:588
 #, php-format
 msgid "Nothing to do: the site URL is already: %s"
 msgstr ""
 
-#: addons/migrator.php:596
+#: addons/migrator.php:597
 #, php-format
 msgid ""
 "Warning: the database's site URL (%s) is different to what we expected (%s)"
 msgstr ""
 
-#: addons/migrator.php:601
+#: addons/migrator.php:602
 #, php-format
 msgid ""
 "Warning: the database's home URL (%s) is different to what we expected (%s)"
 msgstr ""
 
-#: addons/migrator.php:612
+#: addons/migrator.php:613
 #, php-format
 msgid "Database search and replace: replace %s in backup dump with %s"
 msgstr ""
 
-#: addons/migrator.php:643
+#: addons/migrator.php:644
 msgid "Could not get list of tables"
 msgstr ""
 
-#: addons/migrator.php:680
+#: addons/migrator.php:681
 #, php-format
 msgid "<strong>Search and replacing table:</strong> %s: already done"
 msgstr ""
 
-#: addons/migrator.php:719
+#: addons/migrator.php:720
 msgid "Tables examined:"
 msgstr ""
 
-#: addons/migrator.php:720
+#: addons/migrator.php:721
 msgid "Rows examined:"
 msgstr ""
 
-#: addons/migrator.php:721
+#: addons/migrator.php:722
 msgid "Changes made:"
 msgstr ""
 
-#: addons/migrator.php:722
+#: addons/migrator.php:723
 msgid "SQL update commands run:"
 msgstr ""
 
-#: addons/migrator.php:724
+#: addons/migrator.php:725
 msgid "Time taken (seconds):"
 msgstr ""
 
-#: addons/migrator.php:782
+#: addons/migrator.php:783
 #, php-format
 msgid "<strong>Search and replacing table:</strong> %s"
 msgstr ""
 
-#: addons/migrator.php:812
+#: addons/migrator.php:813
 #, php-format
 msgid "rows: %d"
 msgstr ""
 
-#: addons/migrator.php:826
+#: addons/migrator.php:827
 #, php-format
 msgid "Searching and replacing reached row: %d"
 msgstr ""
 
-#: addons/migrator.php:932
+#: addons/migrator.php:933
 #, php-format
 msgid "\"%s\" has no primary key, manual change needed on row %s."
 msgstr ""
