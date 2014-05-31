@@ -48,6 +48,7 @@ class UpdraftPlus_Options {
 		global $updraftplus, $updraftplus_admin;
 		register_setting('updraft-options-group', 'updraft_interval', array($updraftplus, 'schedule_backup') );
 		register_setting('updraft-options-group', 'updraft_interval_database', array($updraftplus, 'schedule_backup_database') );
+		register_setting('updraft-options-group', 'updraft_interval_increments');
 		register_setting('updraft-options-group', 'updraft_retain', array($updraftplus, 'retain_range') );
 		register_setting('updraft-options-group', 'updraft_retain_db', array($updraftplus, 'retain_range') );
 		register_setting('updraft-options-group', 'updraft_encryptionphrase');

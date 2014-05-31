@@ -16,6 +16,7 @@ Author URI: http://updraftplus.com
 TODO - some of these are out of date/done, needs pruning
 // If a current backup has a "next resumption" that is heavily negative, then provide a link for kick-starting it (i.e. to run the next resumption action via AJAX)
 // Deploy FUE addon
+// Make 'more files' restorable - require them to select a directory first
 // Bring down interval if we are already in upload time (since zip delays are no longer possible). See: options-general-11-23.txt
 // On free version, add note to restore page/to "delete-old-dirs" section
 // Make SFTP chunked (there is a new stream wrapper)
