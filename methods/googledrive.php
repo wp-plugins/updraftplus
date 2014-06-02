@@ -540,7 +540,11 @@ class UpdraftPlus_BackupModule_googledrive {
 			$q .= ' and mimeType != "application/vnd.google-apps.folder"';
 		}
 		if (!empty($match)) {
-			$q .= " and title contains '$match'";
+			if ('backup_' == $match) {
+				$q .= " and title contains '$match'";
+			} else {
+				$q .= " and title = '$match'";
+			}
 		}
 		return $this->service->files->listFiles(array('q' => $q))->getItems();
     }
