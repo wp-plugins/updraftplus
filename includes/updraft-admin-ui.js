@@ -38,7 +38,11 @@ function updraft_restore_setoptions(entities) {
 		if (ematch) {
 			jQuery(y).removeAttr('disabled').data('howmany', ematch[1]).parent().show();
 			howmany++;
-			if (entity == 'db') { howmany += 4.5;}
+			if ('db' == entity) { howmany += 4.5;}
+			if (jQuery(y).is(':checked')) {
+				// This element may or may not exist. The purpose of explicitly calling show() is that Firefox, when reloading (including via forwards/backwards navigation) will remember checkbox states, but not which DOM elements were showing/hidden - which can result in some being hidden when they should be shown, and the user not seeing the options that are/are not checked.
+				jQuery('#updraft_restorer_'+entity+'options').show();
+			}
 		} else {
 			jQuery(y).attr('disabled','disabled').parent().hide();
 		}
@@ -313,10 +317,10 @@ function updraft_downloader(base, nonce, what, whicharea, set_contents, prettyda
 jQuery(document).ajaxError(function( event, jqxhr, settings, exception ) {
 	if (exception == null || exception == '') return;
 	if (jqxhr.responseText == null || jqxhr.responseText == '') return;
-	console.log("Error caught by UpdraftPlus ajaxError handler (follows)");
+	console.log("Error caught by UpdraftPlus ajaxError handler (follows) for "+settings.url);
 	console.log(exception);
 	if (settings.url.search(ajaxurl) == 0) {
-		if (settings.url.search('subaction=downloadstatus')) {
+		if (settings.url.search('subaction=downloadstatus') >= 0) {
 			var timestamp = settings.url.match(/timestamp=\d+/);
 			var type = settings.url.match(/type=[a-z]+/);
 			var findex = settings.url.match(/findex=\d+/);
@@ -329,6 +333,9 @@ jQuery(document).ajaxError(function( event, jqxhr, settings, exception ) {
 				var stid = base+timestamp+'_'+type+'_'+findex;
 				jQuery('#'+stid+' .raw').html('<strong>'+updraftlion.error+'</strong> '+updraftlion.servererrorcode);
 			}
+		} else if (settings.url.search('subaction=restore_alldownloaded') >= 0) {
+			//var timestamp = settings.url.match(/timestamp=\d+/);
+			jQuery('#updraft-restore-modal-stage2a').append('<br><strong>'+updraftlion.error+'</strong> '+updraftlion.servererrorcode+': '+exception);
 		}
 	}
 });

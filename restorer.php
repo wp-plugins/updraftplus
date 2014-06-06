@@ -79,7 +79,9 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		global $wp_filesystem, $updraftplus;
 
-		$this->skin->feedback($this->strings['unpack_package'].' ('.basename($package).')');
+		$packsize = round(filesize($package)/1048576, 1).' Mb';
+
+		$this->skin->feedback($this->strings['unpack_package'].' ('.basename($package).', '.$packsize.')');
 
 		$upgrade_folder = $wp_filesystem->wp_content_dir() . 'upgrade/';
 

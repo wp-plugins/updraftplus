@@ -1209,7 +1209,7 @@ class UpdraftPlus_Admin {
 		return $response;
 	}
 
-	function analyse_db_file($timestamp, $res) {
+	private function analyse_db_file($timestamp, $res) {
 
 		$mess = array(); $warn = array(); $err = array();
 
@@ -1411,6 +1411,13 @@ CREATE TABLE $wpdb->signups (
 	}
 
 	private function gzopen_for_read($file, &$warn, &$err) {
+		if (!function_exists('gzopen') || !function_exists('gzread')) {
+			$missing = '';
+			if (!function_exists('gzopen')) $missing .= 'gzopen';
+			if (!function_exists('gzread')) $missing .= ($missing) ? ', gzread' : 'gzread';
+			$err[] = sprintf(__("Your web server's PHP installation has these functions disabled: %s.", 'updraftplus'), implode(', ', $missing)).' '.sprintf(__('Your hosting company must enable these functions before %s can work.', 'updraftplus'), __('restoration', 'updraftplus'));
+			return false;
+		}
 		if (false === ($dbhandle = gzopen($file, 'r'))) return false;
 		if (false === ($bytes = gzread($dbhandle, 3))) return false;
 		# Double-gzipped?
@@ -1984,7 +1991,7 @@ CREATE TABLE $wpdb->signups (
 		</div>
 
 		<div id="updraft-navtab-backups-content" style="display:none;">
-			<?php $this->settings_downloadingandrestoring(); ?>
+			<?php $this->settings_downloadingandrestoring($backup_history); ?>
 		</div>
 
 		<div id="updraft-navtab-settings-content" style="display:none;">
@@ -2001,7 +2008,7 @@ CREATE TABLE $wpdb->signups (
 		<?php
 	}
 
-	private function settings_downloadingandrestoring() {
+	private function settings_downloadingandrestoring($backup_history = array()) {
 		global $updraftplus;
 	//<td class="download-backups" style="display:none; border: 2px dashed #aaa;">
 	?>
@@ -2184,6 +2191,7 @@ CREATE TABLE $wpdb->signups (
 				$memory_usage = memory_get_usage(true)/1024/1024;
 				$this->settings_debugrow(__('Peak memory usage','updraftplus').':', $peak_memory_usage.' MB');
 				$this->settings_debugrow(__('Current memory usage','updraftplus').':', $memory_usage.' MB');
+				$this->settings_debugrow(__('Memory limit', 'updraftplus').':', htmlspecialchars(ini_get('memory_limit')));
 				$this->settings_debugrow(sprintf(__('%s version:','updraftplus'), 'PHP'), htmlspecialchars(phpversion()).' - <a href="admin-ajax.php?page=updraftplus&action=updraft_ajax&subaction=phpinfo&nonce='.wp_create_nonce('updraftplus-credentialtest-nonce').'" id="updraftplus-phpinfo">'.__('show PHP information (phpinfo)', 'updraftplus').'</a>');
 				$this->settings_debugrow(sprintf(__('%s version:','updraftplus'), 'MySQL'), htmlspecialchars($wpdb->db_version()));
 				if (function_exists('curl_version') && function_exists('curl_exec')) {
@@ -4015,8 +4023,8 @@ ENDHERE;
 
 	# TODO: Remove legacy storage setting keys from here
 	private function get_settings_keys() {
-		return array('updraft_autobackup_default', 'updraft_dropbox', 'updraft_googledrive', 'updraftplus_tmp_googledrive_access_token', 'updraftplus_dismissedautobackup', 'updraftplus_dismissedexpiry', 'updraft_interval', 'updraft_interval_increments', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_wpcore', 'updraft_include_wpcore_exclude', 'updraft_include_more', 'updraft_include_blogs', 'updraft_include_mu-plugins', 'updraft_include_others_exclude', 'updraft_include_uploads_exclude', 'updraft_lastmessage', 'updraft_googledrive_token',
-		'updraft_dropboxtk_request_token', 'updraft_dropboxtk_access_token', 'updraft_dropbox_folder',
+		return array('updraft_autobackup_default', 'updraft_dropbox', 'updraft_googledrive', 'updraftplus_tmp_googledrive_access_token', 'updraftplus_dismissedautobackup', 'updraftplus_dismissedexpiry', 'updraft_interval', 'updraft_interval_increments', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_wpcore', 'updraft_include_wpcore_exclude', 'updraft_include_more', 'updraft_include_blogs', 'updraft_include_mu-plugins', 'updraft_include_others_exclude', 'updraft_include_uploads_exclude',
+		'updraft_lastmessage', 'updraft_googledrive_token', 'updraft_dropboxtk_request_token', 'updraft_dropboxtk_access_token', 'updraft_dropbox_folder',
 		'updraft_last_backup', 'updraft_starttime_files', 'updraft_starttime_db', 'updraft_startday_db', 'updraft_startday_files', 'updraft_sftp_settings', 'updraft_s3', 'updraft_s3generic', 'updraft_dreamhost', 'updraft_s3generic_login', 'updraft_s3generic_pass', 'updraft_s3generic_remote_path', 'updraft_s3generic_endpoint', 'updraft_webdav_settings', 'updraft_disable_ping', 'updraft_openstack', 'updraft_bitcasa', 'updraft_cloudfiles', 'updraft_cloudfiles_user', 'updraft_cloudfiles_apikey', 'updraft_cloudfiles_path', 'updraft_cloudfiles_authurl', 'updraft_ssl_useservercerts', 'updraft_ssl_disableverify', 'updraft_s3_login', 'updraft_s3_pass', 'updraft_s3_remote_path', 'updraft_dreamobjects_login', 'updraft_dreamobjects_pass', 'updraft_dreamobjects_remote_path', 'updraft_report_warningsonly', 'updraft_report_wholebackup', 'updraft_log_syslog', 'updraft_extradatabases');
 	}
 

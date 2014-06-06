@@ -149,14 +149,17 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * FEATURE: New search/replace expert tool (Premium)
 * TWEAK: UI has been simplified - see: http://updraftplus.com/gentle-re-design/
 * TWEAK: "Backup Now" now avoids the WordPress scheduler - thus meaning it can work on sites where the WordPress scheduler is broken (e.g. Heart Internet)
+* TWEAK: Make sure that server HTTP-level errors are shown directly to the user at the 'Processing files...' stage of a restore
 * TWEAK: Amend SQL which prevented options/sitemeta tables backing up at full speed on large sites
 * TWEAK: Dropbox will now display some error messages more prominently, where relevant
 * TWEAK: Dropbox account user's name is stored when you authorise
 * TWEAK: Show link to FAQ if user's zip upload is corrupt
+* TWEAK: Work around annoying Google Drive issue whereby Google's end sometimes returns an incomplete list of folders
 * TWEAK: Interpret time in imported backup sets as being in destination WP install's timezone
 * TWEAK: Auto-correct Dropbox folder configuration if the user erroneously enters a full URL instead of a folder path
 * TWEAK: Bitcasa back-end now checks account quota and logs a warning if it looks like it will be exceeded
 * TWEAK: Email reports created by UpdraftPlus (free) now include the latest blog headlines from updraftplus.com
+* TWEAK: Make sure all relevant restoration options in restore dialogue are shown (works around Firefox issue upon page reload/navigation)
 * FIX: Reporting add-on could mis-display number of warnings when saying "X errors, Y warnings".
 * TRANSLATION: New Tagalog translation (thanks to Kristen Macasero)
 
