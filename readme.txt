@@ -1,6 +1,6 @@
-=== UpdraftPlus Backup ===
+=== UpdraftPlus Backup and Restoration for WordPress ===
 Contributors: Backup with UpdraftPlus, DavidAnderson
-Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, s3 compatible, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, ftp backup, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, bitcasa, back up, multisite, restoration, sftp, ftps, scp, migrate, duplicate, copy, updraft, schedule, mysql backup, database backup, db backup, website backup, wordpress backup, full backup, openstack, swift
+Tags: backup, backups, restore, amazon, s3 backup, dropbox, google drive, rackspace cloud files, rackspace backup, cloud files, dreamhost, dreamobjects, ftp backup, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, bitcasa, back up, multisite, restoration, sftp backup, ftps, scp, migrate, duplicate, copy, updraft, mysql backup, database backup, db backup, website backup, wordpress backup, full backup, openstack, swift
 Requires at least: 3.2
 Tested up to: 3.9.1
 Stable tag: 1.9.5
