@@ -8,7 +8,7 @@ Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
-Easy and complete backups + restoration. Manual or automated backups (backup to S3, Dropbox, Google Drive, Rackspace, FTP, SFTP, email + others).
+Backup and restoration made easy. Complete backups; manual or on a schedule (backup to S3, Dropbox, Google Drive, Rackspace, FTP, SFTP, email + others).
 
 == Description ==
 
@@ -41,7 +41,7 @@ Your WordPress backups are worth the same as your entire investment in your webs
 
 = UpdraftPlus Addons And Premium =
 
-UpdraftPlus is not crippled in any way - it is fully functional, with no annoying omissions. What we do have is various extra features, and guaranteed support, available <a href="http://updraftplus.com/">from our website, updraftplus.com</a>.
+UpdraftPlus Backup/Restore is not crippled in any way - it is fully functional, with no annoying omissions. What we do have is various extra features, and guaranteed support, available <a href="http://updraftplus.com/">from our website, updraftplus.com</a>.
 
 If you need WordPress multisite compatibility (you'll know if you do), <a href="http://updraftplus.com/shop/">then you need UpdraftPlus Premium</a>.
 
