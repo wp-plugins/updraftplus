@@ -1,4 +1,4 @@
-=== UpdraftPlus Backup and Restoration for WordPress ===
+=== UpdraftPlus Backup - Backup and Restoration Plugin for WordPress ===
 Contributors: Backup with UpdraftPlus, DavidAnderson
 Tags: backup, backups, restore, database, rackspace, amazon, s3, amazon s3, s3 compatible, dropbox, google drive, rackspace cloud files, rackspace, cloud files, dreamhost, dreamobjects, ftp, ftp backup, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, bitcasa, back up, multisite, restoration, sftp, ftps, scp, migrate, duplicate, copy, updraft, schedule, mysql backup, database backup, db backup, website backup, wordpress backup, full backup, openstack, swift
 Requires at least: 3.2
