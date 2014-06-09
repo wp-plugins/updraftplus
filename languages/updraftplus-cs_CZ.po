@@ -1,0 +1,4087 @@
+# Translation of UpdraftPlus in Czech
+# This file is distributed under the same license as the UpdraftPlus package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2014-05-19 09:16:23+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"X-Generator: GlotPress/0.1\n"
+"Project-Id-Version: UpdraftPlus\n"
+
+#: addons/moredatabase.php:276
+msgid "If you enter text here, it is used to encrypt database backups (Rijndael). <strong>Do make a separate record of it and do not lose it, or all your backups <em>will</em> be useless.</strong> This is also the key used to decrypt backups from this admin interface (so if you change it, then automatic decryption will not work until you change it back)."
+msgstr "Pokud sem vložíte text, bude použit k šifrování zálohy databáze (Rijndael). <strong>Zaznamenejte si ho a neztraťte ho, nebo <em>budou</em> vaše zálohy k ničemu.</strong> Je to zároveň klíč k dešifrování záloh z tohoto admin prostředí (takže pokud ho změníte, nebude automatické dešifrování fungovat, dokud ho nezměníte zpět)."
+
+#: addons/moredatabase.php:179
+msgid "Table prefix"
+msgstr "Prefix tabulky"
+
+#: addons/moredatabase.php:180
+msgid "Test connection..."
+msgstr "Test spojení..."
+
+#: addons/moredatabase.php:193
+msgid "Testing..."
+msgstr "Testuji..."
+
+#: addons/moredatabase.php:120
+msgid "Backup non-WordPress tables contained in the same database as WordPress"
+msgstr "Záloha ne-WordPressových tabulek obsažených ve stejné databázi, jako WordPress"
+
+#: addons/moredatabase.php:121
+msgid "If your database includes extra tables that are not part of this WordPress site (you will know if this is the case), then activate this option to also back them up."
+msgstr "Pokud vaše databáze obsahuje extra tabulky, které nejsou součástí této WordPress instalace (měli byste vědět, jestli tomu tak je), pak aktivujte tuto možnost, abyste je také zazálohovaly."
+
+#: addons/moredatabase.php:125
+msgid "Add an external database to backup..."
+msgstr "Přidat externí databázi do zálohy..."
+
+#: addons/moredatabase.php:173
+msgid "Backup external database"
+msgstr "Zálohovat externí databázi"
+
+#: addons/moredatabase.php:79
+msgid "%s table(s) found."
+msgstr "Tabulek nalezeno: %s."
+
+#: addons/moredatabase.php:85
+msgid "%s total table(s) found; %s with the indicated prefix."
+msgstr "%s tabulek nalezeno celkem; %s s daným prefixem."
+
+#: addons/moredatabase.php:103
+msgid "Connection succeeded."
+msgstr "Spojení úspěšné."
+
+#: addons/moredatabase.php:105
+msgid "Connection failed."
+msgstr "Spojení se nezdařilo."
+
+#: addons/moredatabase.php:120
+msgid "This option will cause tables stored in the MySQL database which do not belong to WordPress (identified by their lacking the configured WordPress prefix, %s) to also be backed up."
+msgstr "Tato možnost způsobí, že budou zazálohovány i tabulky v MySQL databázi, které nepatří k WordPressu (identifikace je provedena pomocí chybějícího WordPress prefixu %s)."
+
+#: addons/moredatabase.php:37
+msgid "user"
+msgstr "uživatel"
+
+#: addons/moredatabase.php:39
+msgid "host"
+msgstr "host"
+
+#: addons/moredatabase.php:41
+msgid "database name"
+msgstr "jméno databáze"
+
+#: addons/moredatabase.php:52
+msgid "database connection attempt failed"
+msgstr "selhal pokus o připojení k databázi"
+
+#: addons/reporting.php:283
+msgid "External database (%s)"
+msgstr "Externí databáze (%s)"
+
+#: methods/googledrive.php:827
+msgid "Follow this link to your Google API Console, and there activate the Drive API and create a Client ID in the API Access section."
+msgstr "Následujte tento odkaz do vaší Google API konzole a aktivujte tam Drive API a vytvořte Client ID v sekci API Access."
+
+#: methods/googledrive.php:369
+msgid "failed to access parent folder"
+msgstr "nepodařilo se přistoupit k nadřazené složce"
+
+#: methods/googledrive.php:326
+msgid "However, subsequent access attempts failed:"
+msgstr "Nicméně následné pokusy o připojení selhaly:"
+
+#: admin.php:3176
+msgid "External database"
+msgstr "Externí databáze"
+
+#: admin.php:2896
+msgid "This will also cause debugging output from all plugins to be shown upon this screen - please do not be surprised to see these."
+msgstr "Způsobí to, že se zde zobrazí i debug výstup ostatních pluginů - nebuďte proto překvapeni, že tomu tak je."
+
+#: admin.php:2761
+msgid "Back up more databases"
+msgstr "Zálohovat více databází"
+
+#: admin.php:2712
+msgid "Don't want to be spied on? UpdraftPlus Premium can encrypt your database backup."
+msgstr "Nechcete být špehování? UpdraftPlus Premium dokáže zálohu databáze šifrovat."
+
+#: admin.php:2712
+msgid "It can also backup external databases."
+msgstr "Dokáže také zálohovat externí databáze."
+
+#: admin.php:2721
+msgid "You can manually decrypt an encrypted database here."
+msgstr "Zde můžete ručně dešifrovat šifrovanou databázi."
+
+#: admin.php:2739
+msgid "First, enter the decryption key"
+msgstr "Nejprve vložte dešifrovací klíč"
+
+#: admin.php:2703
+msgid "Database options"
+msgstr "Možnosti databáze"
+
+#: admin.php:2660
+msgid "use UpdraftPlus Premium"
+msgstr "použít UpdraftPlus Premium"
+
+#: admin.php:1205
+msgid "Decryption failed. The database file is encrypted."
+msgstr "Dešifrování selhalo. Soubor databáze je šifrován."
+
+#: admin.php:764
+msgid "Only the WordPress database can be restored; you will need to deal with the external database manually."
+msgstr "Obnovena může být pouze WordPress databáze; s externí databází si budete muset poradit ručně."
+
+#: restorer.php:1252 restorer.php:1430 restorer.php:1458
+msgid "An error occurred on the first %s command - aborting run"
+msgstr "Při prvním %s příkazu nastala chyba - ruším běh"
+
+#: backup.php:860
+msgid "database connection attempt failed."
+msgstr "pokus o připojení k databázi selhal."
+
+#: backup.php:860 addons/moredatabase.php:60
+msgid "Connection failed: check your access details, that the database server is up, and that the network connection is not firewalled."
+msgstr "Připojení selhalo: zkontrolujte přístupové údaje, jestli server s databází běží a zda nebrání síťovému běhu firewall."
+
+#: addons/google-enhanced.php:75
+msgid "In %s, path names are case sensitive."
+msgstr "V %s u cesty záleží na velikosti písmen."
+
+#: addons/migrator.php:561
+msgid "Warning: the database's home URL (%s) is different to what we expected (%s)"
+msgstr "Varování: domovská URL databáze (%s) je jiná, než jsme očekávali (%s)"
+
+#: addons/bitcasa.php:208 addons/bitcasa.php:302
+msgid "You have not yet configured and saved your %s credentials"
+msgstr "Zatím jste ještě nenastavili a neuložili své přihlašovací údaje pro %s"
+
+#: addons/bitcasa.php:325
+msgid "To get your credentials, log in at the Bitcasa developer portal."
+msgstr "K získání přihlašovacích údajů se přihlašte na vývojářském portálu Bitcasa."
+
+#: addons/bitcasa.php:326
+msgid "After logging in, create a sandbox app. You can leave all of the questions for creating an app blank (except for the app's name)."
+msgstr "Po přihlášení vytvořte sandbox aplikaci. Všechny otázky (kromě jména aplikace) můžete nechat prázdné."
+
+#: addons/bitcasa.php:344 addons/google-enhanced.php:73
+msgid "Enter the path of the %s folder you wish to use here."
+msgstr "Vložte cestu k %s složce, kterou zde chcete použít."
+
+#: addons/bitcasa.php:344 addons/google-enhanced.php:73
+msgid "If the folder does not already exist, then it will be created."
+msgstr "Pokud složka neexistuje, bude vytvořena."
+
+#: addons/bitcasa.php:344 addons/google-enhanced.php:73
+msgid "e.g. %s"
+msgstr "např. %s"
+
+#: addons/bitcasa.php:344 addons/google-enhanced.php:73
+msgid "If you leave it blank, then the backup will be placed in the root of your %s"
+msgstr "Pokud ji necháte prázdnou, bude záloha uložena do kořene vaší %s"
+
+#: addons/bitcasa.php:349 addons/bitcasa.php:352
+msgid "Bitcasa"
+msgstr "Bitcasa"
+
+#: methods/openstack2.php:107
+msgid "Follow this link for more information"
+msgstr "Pro více informací následujte tento odkaz"
+
+#: methods/openstack2.php:107
+msgid "Tenant"
+msgstr "Nájemník"
+
+#: methods/openstack2.php:116
+msgid "Leave this blank, and a default will be chosen."
+msgstr "Pro zvolení výchozího nechte prázdné."
+
+#: methods/openstack2.php:133
+msgid "Container"
+msgstr "Kontejner"
+
+#: methods/openstack2.php:157
+msgid "tenant"
+msgstr "nájemník"
+
+#: methods/addon-base.php:101
+msgid "failed to list files"
+msgstr "nepodařilo se získat seznam souborů"
+
+#: methods/addon-base.php:186
+msgid "Failed to download"
+msgstr "Stahování se nezdařilo"
+
+#: methods/addon-base.php:193
+msgid "Failed to download %s"
+msgstr "Stahování %s se nezdařilo"
+
+#: methods/openstack2.php:94
+msgid "Get your access credentials from your OpenStack Swift provider, and then pick a container name to use for storage. This container will be created for you if it does not already exist."
+msgstr "Získejte přihlašovací údaje od svého poskytovatele OpenStack Swift a pak vyberte jméno kontejneru, který chcete použít jako uložiště. Pokud daný kontejner neexistuje, bude pro vás vytvořen."
+
+#: methods/openstack2.php:99 methods/openstack2.php:162
+msgid "authentication URI"
+msgstr "ověřovací URI"
+
+#: methods/openstack2.php:102
+msgid "This needs to be a v2 (Keystone) authentication URI; v1 (Swauth) is not supported."
+msgstr "Musí se jednat o v2 (Keystone) ověřovací URI; v1 (Swauth) není podporováno."
+
+#: methods/addon-base.php:75 methods/addon-base.php:80
+msgid "Failed to upload %s"
+msgstr "Nahrání %s se nezdařilo"
+
+#: methods/dropbox.php:404 methods/dropbox.php:406 addons/bitcasa.php:256
+#: addons/bitcasa.php:258
+msgid "Success:"
+msgstr "Úspěch:"
+
+#: methods/dropbox.php:354 methods/dropbox.php:355
+msgid "Dropbox"
+msgstr "Dropbox"
+
+#: methods/dropbox.php:355 addons/bitcasa.php:350
+msgid "(You appear to be already authenticated)."
+msgstr "(Vypadá to, že již jste ověřeni)."
+
+#: methods/dropbox.php:355 addons/bitcasa.php:352
+msgid "<strong>After</strong> you have saved your settings (by clicking 'Save Changes' below), then come back here once and click this link to complete authentication with %s."
+msgstr "<strong>Poté</strong> co uložíte nastavení (kliknutím na \"Uložit změny\" níže), vraťte se sem a klikněte na tento odkaz pro dokončení ověření s %s."
+
+#: methods/dropbox.php:354 addons/bitcasa.php:349
+msgid "Authenticate with %s"
+msgstr "Ověření s %s"
+
+#: methods/cloudfiles.php:409
+msgid "Error downloading remote file: Failed to download"
+msgstr "Chyba při stahování vzdáleného souboru: Nepodařilo se ho stáhnout"
+
+#: methods/openstack-base.php:329 addons/bitcasa.php:78
+msgid "The %s object was not found"
+msgstr "Objekt %s nebyl nalezen"
+
+#: methods/openstack-base.php:411
+msgid "%s error - we accessed the container, but failed to create a file within it"
+msgstr "%s chyba - přistoupili jsme ke kontejneru, ale nepodařilo se nám v něm vytvořit soubor"
+
+#: methods/openstack-base.php:412 methods/openstack-base.php:417
+msgid "Region: %s"
+msgstr "Oblast: %s"
+
+#: methods/openstack-base.php:44 methods/openstack-base.php:226
+#: methods/openstack-base.php:321
+msgid "Could not access %s container"
+msgstr "Nepodařilo se přistoupit ke kontejneru %s"
+
+#: methods/googledrive.php:873 addons/bitcasa.php:351
+msgid "Account holder's name: %s."
+msgstr "Jméno držitele účtu: %s."
+
+#: methods/openstack-base.php:36 methods/openstack-base.php:100
+#: methods/openstack-base.php:107 methods/openstack-base.php:218
+#: methods/openstack-base.php:309
+msgid "%s error - failed to access the container"
+msgstr "%s chyba - nepodařilo se přistoupit ke kontejneru"
+
+#: methods/googledrive.php:853
+msgid "<strong>This is NOT a folder name</strong>."
+msgstr "<strong>Toto NENÍ název složky</strong>."
+
+#: methods/googledrive.php:853
+msgid "It is an ID number internal to Google Drive"
+msgstr "Je to vnitřní ID Google Disku"
+
+#: methods/googledrive.php:862
+msgid "To be able to set a custom folder name, use UpdraftPlus Premium."
+msgstr "Pokud chcete moct nastavit vlastní název složky, použijte UpdraftPlus Premium."
+
+#: methods/googledrive.php:849 methods/googledrive.php:859
+#: addons/bitcasa.php:343 addons/google-enhanced.php:72
+msgid "Folder"
+msgstr "Složka"
+
+#: methods/googledrive.php:346
+msgid "Name: %s."
+msgstr "Jméno: %s."
+
+#: methods/googledrive.php:793
+msgid "%s download: failed: file not found"
+msgstr "%s stahování: selhalo: soubor nenalezen"
+
+#: methods/insufficient.php:17 methods/viaaddon-base.php:16
+msgid "This remote storage method (%s) requires PHP %s or later."
+msgstr "Toto vzdálené uložiště (%s) vyžaduje PHP %s, nebo novější."
+
+#: methods/insufficient.php:64 methods/viaaddon-base.php:86
+msgid "You will need to ask your web hosting company to upgrade."
+msgstr "Budete muset požádat svého poskytovatele o aktualizaci."
+
+#: methods/insufficient.php:65 methods/viaaddon-base.php:87
+msgid "Your %s version: %s."
+msgstr "Vaše %s verze: %s."
+
+#: methods/googledrive.php:145
+msgid "Google Drive list files: failed to access parent folder"
+msgstr "Seznam souborů Google Disku: nelze přistoupit k rodičovské složce"
+
+#: admin.php:3863
+msgid "Theme directory (%s) not found, but lower-case version exists; updating database option accordingly"
+msgstr "Složka tématu (%s) nebyla nalezena, ale existuje její verze s malými písmeny; patřičně upravuji možnost databáze"
+
+#: admin.php:2131 admin.php:2132
+msgid "Fetch"
+msgstr "Přinést"
+
+#: admin.php:2137
+msgid "Call"
+msgstr "Zavolat"
+
+#: admin.php:1912 admin.php:2729
+msgid "This feature requires %s version %s or later"
+msgstr "Tato vlastnost vyžaduje %s verzi %s, nebo novější"
+
+#: restorer.php:1565
+msgid "Elegant themes theme builder plugin data detected: resetting temporary folder"
+msgstr "Detekován Elegant themes theme builder plugin: resetuji dočasnou složku"
+
+#: restorer.php:46
+msgid "Failed to unpack the archive"
+msgstr "Nepodařilo se rozbalit archiv"
+
+#: restorer.php:187
+msgid "%s files have been extracted"
+msgstr "%s souborů bylo rozbaleno"
+
+#: updraftplus.php:931
+msgid "Error - failed to download the file"
+msgstr "Chyba - nepodařilo se stáhnout soubor"
+
+#: admin.php:1892
+msgid "Rescan local folder for new backup sets"
+msgstr "Vyhledat nové zálohy v lokální složce"
+
+#: udaddons/updraftplus-addons.php:132
+msgid "You should update UpdraftPlus to make sure that you have a version that has been tested for compatibility."
+msgstr "Pro zajištění kompatibility byste měli aktualizovat UpdraftPlus."
+
+#: udaddons/updraftplus-addons.php:132
+msgid "The installed version of UpdraftPlus Backup/Restore has not been tested on your version of WordPress (%s)."
+msgstr "Nainstalovaná verze UpdraftPlus Backup/Restore nebyla testována na vaší verzi WordPressu (%s)."
+
+#: udaddons/updraftplus-addons.php:132
+msgid "It has been tested up to version %s."
+msgstr "Byla testována do verze %s."
+
+#: addons/sftp.php:423
+msgid "password/key"
+msgstr "heslo/klíč"
+
+#: addons/sftp.php:48
+msgid "SCP/SFTP password/key"
+msgstr "SCP/SFTP heslo/klíč"
+
+#: addons/sftp.php:276
+msgid "The key provided was not in a valid format, or was corrupt."
+msgstr "Vložený klíč není ve správném formátu, nebo je poškozen."
+
+#: addons/sftp.php:339
+msgid "Your login may be either password or key-based - you only need to enter one, not both."
+msgstr "Vaše přihlášení může být založeno pouze na heslu, nebo klíči - vložte pouze jedno, ne oboje."
+
+#: addons/sftp.php:344
+msgid "Key"
+msgstr "Klíč"
+
+#: addons/sftp.php:347
+msgid "PKCS1 (PEM header: BEGIN RSA PRIVATE KEY), XML and PuTTY format keys are accepted."
+msgstr "PKCS1 (PEM hlavička: BEGIN RSA PRIVATE KEY), jsou povoleny formáty klíče XML a PuTTY."
+
+#: admin.php:3216 admin.php:3448 addons/importer.php:77
+msgid "Backup created by: %s."
+msgstr "Zálohu vytvořil: %s."
+
+#: admin.php:3223
+msgid "Files and database WordPress backup (created by %s)"
+msgstr "Záloha souborů a databáze WordPressu (vytvořil %s)"
+
+#: admin.php:3223
+msgid "Files backup (created by %s)"
+msgstr "Záloha souborů (vytvořil %s)"
+
+#: admin.php:3156 admin.php:3218
+msgid "unknown source"
+msgstr "neznámý zdroj"
+
+#: admin.php:3159
+msgid "Database (created by %s)"
+msgstr "Databáze (vytvořil %s)"
+
+#: admin.php:1893
+msgid "Rescan remote storage"
+msgstr "Znovu prohledat vzdálené uložiště"
+
+#: admin.php:1891
+msgid "Upload backup files"
+msgstr "Nahrát soubory zálohy"
+
+#: admin.php:1537
+msgid "This backup was created by %s, and can be imported."
+msgstr "Tuto zálohu vytvořil %s a může být importována."
+
+#: admin.php:418
+msgid "WordPress has a number (%d) of scheduled tasks which are overdue. Unless this is a development site, this probably means that the scheduler in your WordPress install is not working."
+msgstr "WordPress má {%d} zpožděných naplánovaných úkolů. Pokud není tato stránka vývojářská, je pravděpodobné, že plánovač ve vašem WordPressu nefunguje."
+
+#: admin.php:418
+msgid "Read this page for a guide to possible causes and how to fix it."
+msgstr "Na této stránce je návod s možnými příčinami a opravami."
+
+#: admin.php:146 admin.php:147 admin.php:3455
+msgid "This file does not appear to be an UpdraftPlus backup archive (such files are .zip or .gz files which have a name like: backup_(time)_(site name)_(code)_(type).(zip|gz))."
+msgstr "Tento soubor nevypadá jako archiv se zálohou UpdraftPlus (takové soubory jsou .zip, nebo .gz soubory, které mají jméno ve tvaru: backup_(čas)_(název stránky)_(kód)_(typ).(zip|gz))."
+
+#: admin.php:146
+msgid "However, UpdraftPlus archives are standard zip/SQL files - so if you are sure that your file has the right format, then you can rename it to match that pattern."
+msgstr "Nicméně archivy UpdraftPlus jsou běžné zip/SQL soubory - takže pokud si jste jisti, že má váš soubor správný formát, můžete ho přejmenovat, aby odpovídal danému vzoru."
+
+#: admin.php:147 admin.php:3455
+msgid "If this is a backup created by a different backup plugin, then UpdraftPlus Premium may be able to help you."
+msgstr "Pokud je toto záloha vytvořená jiným pluginem pro zálohu, pak by vám mohl pomoci UpdraftPlus Premium."
+
+#: restorer.php:1019 admin.php:776 admin.php:3219
+msgid "Backup created by unknown source (%s) - cannot be restored."
+msgstr "Záloha vytvořena neznámým zdrojem (%s) - nemůže být obnovena."
+
+#: restorer.php:669 restorer.php:771
+msgid "The WordPress content folder (wp-content) was not found in this zip file."
+msgstr "Složka WordPressu s obsahem (wp-content) nebyla v tomto zip souboru nalezena."
+
+#: restorer.php:533
+msgid "This version of UpdraftPlus does not know how to handle this type of foreign backup"
+msgstr "Tato verze UpdraftPlus neví, jak zpracovat tento typ cizí zálohy"
+
+#: methods/dropbox.php:192
+msgid "%s returned an unexpected HTTP response: %s"
+msgstr "%s vrátil neočekávanou HTTP odpověď: %s"
+
+#: addons/sftp.php:879
+msgid "The UpdraftPlus module for this file access method (%s) does not support listing files"
+msgstr "UpdraftPlus modul pro tento typ přístupu k souborům (%s) nepodporuje výpis souborů"
+
+#: methods/openstack-base.php:95 methods/cloudfiles.php:234 methods/s3.php:41
+#: methods/dropbox.php:173
+msgid "No settings were found"
+msgstr "Nebylo nalezeno žádné nastavení"
+
+#: admin.php:3308
+msgid "(backup set imported from remote storage)"
+msgstr "(záloha byla importována ze vzdáleného uložiště)"
+
+#: admin.php:3549
+msgid "One or more backups has been added from scanning remote storage; note that these backups will not be automatically deleted through the \"retain\" settings; if/when you wish to delete them then you must do so manually."
+msgstr "Jedna nebo více záloh byla přidána z prohledání vzdáleného uložiště; Upozorňujeme, že tyto zálohy nebudou automaticky smazány skrze \"ponechat\" nastavení; Pokud je budete chtít smazat, musíte to udělat ručně."
+
+#: admin.php:1950
+msgid "Are you sure that you wish to remove this backup set from UpdraftPlus?"
+msgstr "Jste si jisti, že chcete tuto zálohu smazat z UpdraftPlus?"
+
+#: admin.php:1893
+msgid "Press here to look inside any remote storage methods for any existing backup sets."
+msgstr "Pro nahlédnutí do některé z metod vzdáleného uložiště a zobrazení existujících záloh klikněte zde."
+
+#: admin.php:753
+msgid "This backup set was not known by UpdraftPlus to be created by the current WordPress installation, but was found in remote storage."
+msgstr "O této záloze si Updraft myslím, že nebyla vytvořena v současné instalaci WordPressu, ale byla nalezena ve vzdáleném uložišti."
+
+#: admin.php:753
+msgid "You should make sure that this really is a backup set intended for use on this website, before you restore (rather than a backup set of an unrelated website that was using the same storage location)."
+msgstr "Předtím, než provedete obnovu, byste se měli ujistit, že se opravdu jedná o zálohu provedenou pro tento web (než pro nějakou nesouvisející stránku, která pouze používá stejné uložiště)."
+
+#: admin.php:119
+msgid "Rescanning remote and local storage for backup sets..."
+msgstr "Prohledávám vzdálená a lokální uložiště kvůli zálohám..."
+
+#: addons/s3-enhanced.php:26
+msgid "(Read more)"
+msgstr "(Číst více)"
+
+#: addons/s3-enhanced.php:27
+msgid "Check this box to use Amazon's reduced redundancy storage and tariff"
+msgstr "Zaškrtněte pro použití omezení nadbytečného uložiště (RRS) a tarifu od Amazonu"
+
+#: addons/s3-enhanced.php:26
+msgid "Reduced redundancy storage"
+msgstr "Omezení nadbytečného uložiště (RRS)"
+
+#: addons/migrator.php:405
+msgid "Adjusting multisite paths"
+msgstr "Nastavování vícestránkových (WPMU) cest"
+
+#: addons/reporting.php:367
+msgid "Log all messages to syslog (only server admins are likely to want this)"
+msgstr "Logovat veškeré zprávy do syslogu (nastavení pouze pro správce serveru)"
+
+#: addons/morefiles.php:178
+msgid "Add another..."
+msgstr "Přidat další..."
+
+#: addons/morefiles.php:279
+msgid "No backup of directory: there was nothing found to back up"
+msgstr "Žádná záloha složky: nebylo nalezeno nic, co by se dalo zálohovat"
+
+#: addons/morefiles.php:173 addons/morefiles.php:184
+#: addons/moredatabase.php:172
+msgid "Remove"
+msgstr "Odstranit"
+
+#: methods/s3.php:518
+msgid "Other %s FAQs."
+msgstr "Ostatní frekventované otázky ohledně %s."
+
+#: admin.php:2896
+msgid "Check this to receive more information and emails on the backup process - useful if something is going wrong."
+msgstr "Zaškrtněte, pokud chcete dostávat více informací a mailů o procesu záloh - užitečné pokud se něco pokazí."
+
+#: admin.php:2684 addons/morefiles.php:220
+msgid "If entering multiple files/directories, then separate them with commas. For entities at the top level, you can use a * at the start or end of the entry as a wildcard."
+msgstr "Při vkládání více souborů/složek, je oddělujte čárkou. Pro objekty vrchní úrovně můžete na začátku, nebo na konci použít zástupný znak *."
+
+#: admin.php:2127
+msgid "Install plugins for debugging:"
+msgstr "Instalovat pluginy pro debugování:"
+
+#: restorer.php:1554
+msgid "Custom content type manager plugin data detected: clearing option cache"
+msgstr "Detekován plugin pro režii vlastního obsahu: mažu možnost cache"
+
+#: methods/ftp.php:296
+msgid "encrypted FTP (explicit encryption)"
+msgstr "šifrované FTP (explicitní šifrování)"
+
+#: methods/ftp.php:299
+msgid "Your web server's PHP installation has these functions disabled: %s."
+msgstr "Instalace PHP na serveru má zakázány následující funkce: %s."
+
+#: methods/ftp.php:299
+msgid "Your hosting company must enable these functions before %s can work."
+msgstr "Dokud váš provozovatel hostingu nepovolí tyto funkce, nebude %s pracovat."
+
+#: admin.php:2055
+msgid "Don't send this backup to remote storage"
+msgstr "Neodesílat tuto zálohu na vzdálené uložiště"
+
+#: methods/ftp.php:294
+msgid "regular non-encrypted FTP"
+msgstr "běžné nešifrované FTP"
+
+#: methods/ftp.php:295
+msgid "encrypted FTP (implicit encryption)"
+msgstr "šifrované FTP (implicitní šifrování)"
+
+#: restorer.php:1164
+msgid "Backup created by:"
+msgstr "Zálohu vytvořil:"
+
+#: udaddons/options.php:431
+msgid "Available to claim on this site"
+msgstr "Dostupné pro tuto stránku"
+
+#: udaddons/updraftplus-addons.php:153
+msgid "To maintain your access to support, please renew."
+msgstr "Pro udržení přístupu k podpoře, ho prosím obnovte."
+
+#: udaddons/updraftplus-addons.php:141
+msgid "Your paid access to UpdraftPlus updates for %s add-ons on this site has expired."
+msgstr "Váš placený přístup k aktualizacím UpdraftPlus add-onů %s na této stránce vypršel."
+
+#: udaddons/updraftplus-addons.php:145
+msgid "Your paid access to UpdraftPlus updates for %s of the %s add-ons on this site will soon expire."
+msgstr "Váš placený přístup k UpdraftPlus aktualizacím pro %s z %s add-onů na této stránce brzy vyprší."
+
+#: udaddons/updraftplus-addons.php:145 udaddons/updraftplus-addons.php:147
+msgid "To retain your access, and maintain access to updates (including future features and compatibility with future WordPress releases) and support, please renew."
+msgstr "K zachování přístupu a udržení přístupu k aktualizacím (včetně budoucích novinek a kompatibility s budoucími vydáními WordPressu) a podpoře, ho prosím obnovte."
+
+#: udaddons/updraftplus-addons.php:147
+msgid "Your paid access to UpdraftPlus updates for this site will soon expire."
+msgstr "Placený přístup k aktualizacím UpdraftPlus na těchto stránkách brzy vyprší."
+
+#: udaddons/updraftplus-addons.php:151
+msgid "Your paid access to UpdraftPlus support has expired."
+msgstr "Váš placený přístup k podpoře UpdraftPlus vypršel."
+
+#: udaddons/updraftplus-addons.php:151
+msgid "To regain your access, please renew."
+msgstr "K obnovení přístupu, ho prosím obnovte."
+
+#: udaddons/updraftplus-addons.php:153
+msgid "Your paid access to UpdraftPlus support will soon expire."
+msgstr "Placený přístup k UpdraftPlus podpoře brzy vyprší."
+
+#: udaddons/updraftplus-addons.php:114
+msgid "Dismiss from main dashboard (for %s weeks)"
+msgstr "Odstranit z hlavní nástěnky (na %s týdnů)"
+
+#: udaddons/updraftplus-addons.php:139
+msgid "Your paid access to UpdraftPlus updates for this site has expired. You will no longer receive updates to UpdraftPlus."
+msgstr "Placený přístup k UpdraftPlus aktualizacím pro tuto stránku vypršel. Nadále nebudete dostávat aktualizace pro UpdraftPlus."
+
+#: udaddons/updraftplus-addons.php:139 udaddons/updraftplus-addons.php:141
+msgid "To regain access to updates (including future features and compatibility with future WordPress releases) and support, please renew."
+msgstr "Pro obnovení přístupu k aktualizacím (včetně budoucích novinek a kompatibility s budoucími vydáními WordPressu) a podpoře, ho prosím obnovte."
+
+#: admin.php:1393
+msgid "The database file appears to have been compressed twice - probably the website you downloaded it from had a mis-configured webserver."
+msgstr "Databázový soubor se zdá být dvakrát komprimovaný - stránka z které jste ho stáhli měl pravděpodobně špatně nastavený webserver."
+
+#: admin.php:1400 admin.php:1422
+msgid "The attempt to undo the double-compression failed."
+msgstr "Pokus o dvojitou dekompresi selhal."
+
+#: admin.php:1424
+msgid "The attempt to undo the double-compression succeeded."
+msgstr "Pokus o dvojitou dekompresi byl úspěšný."
+
+#: admin.php:995
+msgid "Constants"
+msgstr "Konstanty"
+
+#: backup.php:1043
+msgid "Failed to open database file for reading:"
+msgstr "Otevření souboru pro čtení selhalo:"
+
+#: backup.php:897
+msgid "please wait for the rescheduled attempt"
+msgstr "prosím počkejte na přeložený pokus"
+
+#: backup.php:899
+msgid "No database tables found"
+msgstr "V databázi nebyla nalezena žádná tabulka."
+
+#: addons/reporting.php:136
+msgid "Note that warning messages are advisory - the backup process does not stop for them. Instead, they provide information that you might find useful, or that may indicate the source of a problem if the backup did not succeed."
+msgstr "Berte na vědomí, že varovné zprávy jsou doporučené - proces zálohy se kvůli nim nezastaví. Místo toho poskytnou informace, které pro vás mohou být užitečné, nebo mohou poskytnout původce problému, pokud se záloha nezdaří."
+
+#: restorer.php:1469
+msgid "Database queries processed: %d in %.2f seconds"
+msgstr "Zpracováno databázových dotazů: %d během %.2f vteřin"
+
+#: addons/migrator.php:775
+msgid "Searching and replacing reached row: %d"
+msgstr "Hledání a nahrazení dosáhlo řádek: %d"
+
+#: methods/dropbox.php:116
+msgid "Account full: your %s account has only %d bytes left, but the file to be uploaded has %d bytes remaining (total size: %d bytes)"
+msgstr "Plný účet: na Vašem %s účtu zbývá pouze %d bytů prostoru, nahrávanému souboru zbývá %d bytů k úplnému nahrání (celková velikost: %d bytů)"
+
+#: addons/migrator.php:329
+msgid "Skipping this table: data in this table (%s) should not be search/replaced"
+msgstr "Přeskakuji tuto tabulku: data v této tabulce (%s) by neměly být vyhledány/změněny"
+
+#: udaddons/updraftplus-addons.php:283 udaddons/updraftplus-addons.php:286
+msgid "Errors occurred:"
+msgstr "Objevily se chyby:"
+
+#: admin.php:3614
+msgid "Follow this link to download the log file for this restoration (needed for any support requests)."
+msgstr "Pro stažení log souboru tohoto obnovení pokračujte zde (je třeba pro jakýkoliv požadavek podpory)."
+
+#: admin.php:2953
+msgid "See this FAQ also."
+msgstr "Podívejte se i na tyto často kladené otázky."
+
+#: admin.php:2843
+msgid "If you choose no remote storage, then the backups remain on the web-server. This is not recommended (unless you plan to manually copy them to your computer), as losing the web-server would mean losing both your website and the backups in one event."
+msgstr "Pokud si nezvolíte žádné vzdálené uložiště, zůstanou zálohy na tomto webserveru. To se nedoporučuje (pokud je ovšem nemáte v plánu ručně stáhnout do počítače), protože ztráta/zničení webserveru by znamenala ztracení jak webu, tak i záloh najednou."
+
+#: admin.php:1970
+msgid "Retrieving (if necessary) and preparing backup files..."
+msgstr "Získávám (pokud je potřeba) a připravuji soubory k zálohování..."
+
+#: admin.php:749
+msgid "The PHP setup on this webserver allows only %s seconds for PHP to run, and does not allow this limit to be raised. If you have a lot of data to import, and if the restore operation times out, then you will need to ask your web hosting company for ways to raise this limit (or attempt the restoration piece-by-piece)."
+msgstr "PHP nastavení na tomto webserveru umožňuje, aby PHP běželo pouze %s sekund a nedovoluje, aby byl limit zvýšen. Pokud budete importovat velké množství dat a čas pro operaci obnovy vyprší, pak budete muset požádat svého poskytovatele hostingu o způsob, jak navýšit tento limit (nebo se pokusíte o obnovení kousek po kousku)."
+
+#: restorer.php:515
+msgid "Existing unremoved folders from a previous restore exist (please use the \"Delete Old Directories\" button to delete them before trying again): %s"
+msgstr "Existují nesmazané složky z předchozí obnovy (Než to zkusíte znovu, zmáčkněte prosím tlačítko \"Smazat staré složky\"): %s"
+
+#: updraftplus.php:2590
+msgid "Need high-quality WordPress hosting from WordPress specialists? (Including automatic backups and 1-click installer). Get it from the creators of UpdraftPlus."
+msgstr "Potřebujete kvalitní hosting pro WordPress od WordPress specialistů? (Včetně automatických záloh a instalací na jedno kliknutí.) Získejte ho od tvůrců UpdraftPlus."
+
+#: updraftplus.php:630 admin.php:393
+msgid "The amount of time allowed for WordPress plugins to run is very low (%s seconds) - you should increase it to avoid backup failures due to time-outs (consult your web hosting company for more help - it is the max_execution_time PHP setting; the recommended value is %s seconds or more)"
+msgstr "Čas, po který mohou pluginy WordPressu běžet je velmi malý (%s sekund) - měli byste zvýšit limit, abyste se vyhnuli chybám při zálohách způsobených nedostatkem času (pomoc konzultujte s vaším poskytovatelem hostingu - jde o nastavení PHP max_execution_time; doporučená hodnota je minimálně %s sekund)"
+
+#: addons/migrator.php:337
+msgid "Replacing in blogs/site table: from: %s to: %s"
+msgstr "Nahrazení v tabulce blogu/stránky: z: %s na: %s"
+
+#: addons/migrator.php:71
+msgid "Disabled this plugin: %s: re-activate it manually when you are ready."
+msgstr "Deaktivován plugin: %s: až budete připraveni, plugin opět ručně aktivujte."
+
+#: addons/migrator.php:84
+msgid "%s: Skipping cache file (does not already exist)"
+msgstr "%s: Přeskočen cache soubor (ještě neexistuje)"
+
+#: includes/ftp.class.php:39 includes/ftp.class.php:42 addons/sftp.php:634
+#: addons/sftp.php:637
+msgid "The %s connection timed out; if you entered the server correctly, then this is usually caused by a firewall blocking the connection - you should check with your web hosting company."
+msgstr "Připojení %s vypršel čas; pokud jste server zadali správně, pak je tato chyba běžně způsobena blokací firewallu - doporučujeme konzultaci s poskytovatelem hostingu."
+
+#: admin.php:3873
+msgid "The current theme was not found; to prevent this stopping the site from loading, your theme has been reverted to the default theme"
+msgstr "Aktuální téma nebylo nalezeno; aby nedošlo k zastavení načítání stránky, bylo vaše téma vráceno zpět na původní"
+
+#: admin.php:1665
+msgid "Restore failed..."
+msgstr "Obnova selhala..."
+
+#: admin.php:1095 addons/moredatabase.php:92
+msgid "Messages:"
+msgstr "Zprávy:"
+
+#: restorer.php:1406
+msgid "An SQL line that is larger than the maximum packet size and cannot be split was found; this line will not be processed, but will be dropped: %s"
+msgstr "Byl nalezen řádek SQL, který nemůže být rozdělen a je větší, než maximální velikost paketu; tento řádek nebude proveden, ale bude vypuštěn: %s"
+
+#: restorer.php:298
+msgid "The directory does not exist"
+msgstr "Složka neexistuje"
+
+#: addons/cloudfiles-enhanced.php:238
+msgid "New User's Username"
+msgstr "Přihlašovací jméno nového uživatele"
+
+#: addons/cloudfiles-enhanced.php:239
+msgid "New User's Email Address"
+msgstr "E-mailová adresa nového uživatele"
+
+#: addons/cloudfiles-enhanced.php:216
+msgid "Enter your Rackspace admin username/API key (so that Rackspace can authenticate your permission to create new users), and enter a new (unique) username and email address for the new user and a container name."
+msgstr "Vložte Rackspace administrátorské jméno/API klíč (takže Rackspace může ověřit vaše právo vytváření nových uživatelů) a vložte nové (jedinečné) uživatelské jméno a mailovou adresu pro nového uživatele a název kontejneru."
+
+#: addons/cloudfiles-enhanced.php:222
+msgid "US or UK Rackspace Account"
+msgstr "Účet na US nebo UK Rackspace"
+
+#: addons/cloudfiles-enhanced.php:236
+msgid "Admin Username"
+msgstr "Uživatelské jméno administrátora"
+
+#: addons/cloudfiles-enhanced.php:237
+msgid "Admin API Key"
+msgstr "API klíč administrátora"
+
+#: addons/cloudfiles-enhanced.php:52
+msgid "You need to enter a new username"
+msgstr "Musíte zadat nové uživatelské jméno"
+
+#: addons/cloudfiles-enhanced.php:56
+msgid "You need to enter a container"
+msgstr "Musíte zadat kontejner"
+
+#: addons/cloudfiles-enhanced.php:61
+msgid "You need to enter a valid new email address"
+msgstr "Musíte zadat správnou e-mailovou adresu"
+
+#: addons/cloudfiles-enhanced.php:143
+msgid "Conflict: that user or email address already exists"
+msgstr "Konflikt: tento uživatel nebo e-mailová adresa již existuje"
+
+#: addons/cloudfiles-enhanced.php:145 addons/cloudfiles-enhanced.php:149
+#: addons/cloudfiles-enhanced.php:154 addons/cloudfiles-enhanced.php:175
+#: addons/cloudfiles-enhanced.php:183 addons/cloudfiles-enhanced.php:188
+msgid "Cloud Files operation failed (%s)"
+msgstr "Neúspěšná operace s Cloud Files (%s)"
+
+#: addons/cloudfiles-enhanced.php:200
+msgid "Username: %s"
+msgstr "Uživatelské jméno: %s"
+
+#: addons/cloudfiles-enhanced.php:200
+msgid "Password: %s"
+msgstr "Heslo: %s"
+
+#: addons/cloudfiles-enhanced.php:200
+msgid "API Key: %s"
+msgstr "API klíč: %s"
+
+#: addons/cloudfiles-enhanced.php:213
+msgid "Create new API user and container"
+msgstr "Vytvořit nového API uživatele a kontejner"
+
+#: addons/cloudfiles-enhanced.php:26
+msgid "Rackspace Cloud Files, enhanced"
+msgstr "Rackspace Cloud Files, vylepšeno"
+
+#: addons/cloudfiles-enhanced.php:27
+msgid "Adds enhanced capabilities for Rackspace Cloud Files users"
+msgstr "Přidejte vylepšené možnosti pro Rackspace Cloud Files uživatele"
+
+#: addons/cloudfiles-enhanced.php:38
+msgid "Create a new API user with access to only this container (rather than your whole account)"
+msgstr "Vytvořte nového API uživatele s přístupem pouze k tomuto kontejneru (spíš, než váš celý účet)"
+
+#: addons/cloudfiles-enhanced.php:44
+msgid "You need to enter an admin username"
+msgstr "Je potřeba zadat uživatelské jméno administrátora"
+
+#: addons/cloudfiles-enhanced.php:48
+msgid "You need to enter an admin API key"
+msgstr "Je potřeba zadat administrátorský API klíč"
+
+#: methods/cloudfiles-new.php:99 addons/cloudfiles-enhanced.php:248
+msgid "Northern Virginia (IAD)"
+msgstr "Severní Virginia (IAD)"
+
+#: methods/cloudfiles-new.php:100 addons/cloudfiles-enhanced.php:249
+msgid "Hong Kong (HKG)"
+msgstr "Hong Kong (HKG)"
+
+#: methods/cloudfiles-new.php:101
+msgid "London (LON)"
+msgstr "Londýn (LON)"
+
+#: methods/cloudfiles-new.php:115
+msgid "Cloud Files Username"
+msgstr "Uživatelské jméno ke Cloud Files"
+
+#: methods/cloudfiles-new.php:118
+msgid "To create a new Rackspace API sub-user and API key that has access only to this Rackspace container, use this add-on."
+msgstr "K vytvoření nového Rackspace API pod-uživatele a API klíče, který má přístup pouze k tomuto Rackspace kontejneru, použijte tento add-on."
+
+#: methods/cloudfiles-new.php:123
+msgid "Cloud Files API Key"
+msgstr "API klíč Cloud Files"
+
+#: methods/cloudfiles-new.php:128 addons/cloudfiles-enhanced.php:260
+msgid "Cloud Files Container"
+msgstr "Kontejner Cloud Files"
+
+#: methods/cloudfiles-new.php:81
+msgid "US or UK-based Rackspace Account"
+msgstr "US nebo UK účet Rackspace"
+
+#: methods/cloudfiles-new.php:83
+msgid "Accounts created at rackspacecloud.com are US-accounts; accounts created at rackspace.co.uk are UK-based"
+msgstr "Účty vytvořené na rackspacecloud.com jsou US účty; účty vytvořené na rackspace.co.uk jsou UK účty"
+
+#: methods/cloudfiles-new.php:91 addons/cloudfiles-enhanced.php:241
+msgid "Cloud Files Storage Region"
+msgstr "Region Cloud Files úložiště"
+
+#: methods/cloudfiles-new.php:96 addons/cloudfiles-enhanced.php:245
+msgid "Dallas (DFW) (default)"
+msgstr "Dallas (DFW) (výchozí)"
+
+#: methods/cloudfiles-new.php:97 addons/cloudfiles-enhanced.php:246
+msgid "Sydney (SYD)"
+msgstr "Sydney (SYD)"
+
+#: methods/cloudfiles-new.php:98 addons/cloudfiles-enhanced.php:247
+msgid "Chicago (ORD)"
+msgstr "Chicago (ORD)"
+
+#: methods/cloudfiles-new.php:35 methods/openstack-base.php:371
+#: methods/openstack-base.php:373 methods/openstack-base.php:393
+#: methods/openstack2.php:25 addons/cloudfiles-enhanced.php:140
+msgid "Authorisation failed (check your credentials)"
+msgstr "Ověření selhalo (zkontrolujte Vaše údaje)"
+
+#: methods/cloudfiles-new.php:81 addons/cloudfiles-enhanced.php:223
+msgid "Accounts created at rackspacecloud.com are US accounts; accounts created at rackspace.co.uk are UK accounts."
+msgstr "Účty vytvořené na rackspacecloud.com jsou US účty; účty vytvořené na rackspace.co.uk jsou UK účty"
+
+#: udaddons/options.php:239
+msgid "An unknown error occurred when trying to connect to UpdraftPlus.Com"
+msgstr "Vyskytla se neznámá chyba při pokusu o připojení k UpdraftPlus.Com"
+
+#: admin.php:160
+msgid "Create"
+msgstr "Vytvořit"
+
+#: restorer.php:1454
+msgid "An error (%s) occurred:"
+msgstr "Vyskytla se chyba (%s):"
+
+#: admin.php:125
+msgid "The new user's RackSpace console password is (this will not be shown again):"
+msgstr "Konzolové heslo (již nebude znovu zobrazeno) nového uživatele RackSpace:"
+
+#: admin.php:126
+msgid "Trying..."
+msgstr "Zkouším..."
+
+#: backup.php:1000
+msgid "The database backup appears to have failed - the options table was not found"
+msgstr "Záloha databáze nebyla provedena - zvolené tabulky nebyly nalezeny"
+
+#: addons/reporting.php:295
+msgid "(when decrypted)"
+msgstr "(po dešifrování)"
+
+#: admin.php:3833
+msgid "Error data:"
+msgstr "Chybová data:"
+
+#: admin.php:3574
+msgid "Backup does not exist in the backup history"
+msgstr "Záloha neexistuje v historii záloh"
+
+#: admin.php:1827
+msgid "This button is disabled because your backup directory is not writable (see the setting futher down the page)."
+msgstr "Toto tlačítko je neaktivní, protože do vaší složky pro zálohy nelze zapisovat (zkontrolujte nastavení níže na stránce)."
+
+#: admin.php:2188
+msgid "Your WordPress install has old directories from its state before you restored/migrated (technical information: these are suffixed with -old). You should press this button to delete them as soon as you have verified that the restoration worked."
+msgstr "Vaše WordPress instalace obsahuje staré složky ze stavu před obnovením/migrací (technická informace: tyto jsou označeny příponou -old). Jakmile ověříte, že obnova proběhla správně, měli byste je vymazat zmáčknutím tohoto tlačítka."
+
+#: restorer.php:1226
+msgid "Split line to avoid exceeding maximum packet size"
+msgstr "Abyste se vyhnuli překročení limitu pro velikost paketu, rozdělte řádek"
+
+#: restorer.php:1145
+msgid "Your database user does not have permission to drop tables. We will attempt to restore by simply emptying the tables; this should work as long as you are restoring from a WordPress version with the same database structure (%s)"
+msgstr "Váš uživatel databáze nemá oprávnění k mazání složek (příkaz DROP). Pokusíme se o obnovu jejich pouhým vyprázdněním; to by se mělo podařit, pokud obnovujete WordPress se stejnou databázovou strukturou (%s)"
+
+#: restorer.php:1160
+msgid "<strong>Backup of:</strong> %s"
+msgstr "<strong>Záloha:</strong> %s"
+
+#: restorer.php:978
+msgid "New table prefix: %s"
+msgstr "Předpona nové tabulky: %s"
+
+#: restorer.php:701 restorer.php:715
+msgid "%s: This directory already exists, and will be replaced"
+msgstr "%s: Tato složka již existuje a bude nahrazena"
+
+#: restorer.php:731
+msgid "File permissions do not allow the old data to be moved and retained; instead, it will be deleted."
+msgstr "Oprávnění souborů nedovoluje, aby byla stará data přesunuta a zachována; místo toho budou smazána."
+
+#: restorer.php:43
+msgid "Could not move the files into place. Check your file permissions."
+msgstr "Nemohu přesunout soubory na místo. Zkontrolujte oprávnění souborů."
+
+#: restorer.php:36
+msgid "Moving old data out of the way..."
+msgstr "Přesouvám stará data z cesty..."
+
+#: restorer.php:40
+msgid "Could not move old files out of the way."
+msgstr "Nemohu přesunout stará data z cesty."
+
+#: restorer.php:42
+msgid "Could not move new files into place. Check your wp-content/upgrade folder."
+msgstr "Nemohu přesunout nová data na místo. Zkontrolujte vaši složku wp-content/upgrade."
+
+#: addons/reporting.php:345
+msgid "Enter addresses here to have a report sent to them when a backup job finishes."
+msgstr "Pokud chcete poslat report zálohy po jejím skončení, vložte adresy."
+
+#: addons/reporting.php:358
+msgid "Add another address..."
+msgstr "Přidat další adresu..."
+
+#: addons/reporting.php:210
+msgid " (with errors (%s))"
+msgstr "(s chybami (%s))"
+
+#: addons/reporting.php:212
+msgid " (with warnings (%s))"
+msgstr "(s varováními (%s))"
+
+#: addons/reporting.php:242
+msgid "Use the \"Reporting\" section to configure the email addresses to be used."
+msgstr "V sekci \"Reportování\" můžete nastavit mailové adresy, které se mají použít."
+
+#: addons/reporting.php:268
+msgid "files: %s"
+msgstr "souborů: %s"
+
+#: addons/reporting.php:286
+msgid "Size: %s Mb"
+msgstr "Velikost: %s Mb"
+
+#: addons/reporting.php:291 addons/reporting.php:296
+msgid "%s checksum: %s"
+msgstr "%s kontrolní součet: %s"
+
+#: addons/reporting.php:318
+msgid "Email reports"
+msgstr "Reporty pro mail"
+
+#: addons/reporting.php:115
+msgid "Errors"
+msgstr "Chyby"
+
+#: addons/reporting.php:131
+msgid "Warnings"
+msgstr "Varování"
+
+#: addons/reporting.php:140
+msgid "Time taken:"
+msgstr "Potřebný čas:"
+
+#: addons/reporting.php:141
+msgid "Uploaded to:"
+msgstr "Nahráno do:"
+
+#: addons/reporting.php:172
+msgid "Debugging information"
+msgstr "Debug informace"
+
+#: addons/reporting.php:82
+msgid "%d errors, %d warnings"
+msgstr "%d chyb, %d varování"
+
+#: addons/reporting.php:96
+msgid "%d hours, %d minutes, %d seconds"
+msgstr "%d hodin, %d minut, %d vteřin"
+
+#: addons/reporting.php:101
+msgid "Backup Report"
+msgstr "Zpráva o záloze"
+
+#: addons/reporting.php:109
+msgid "Backup began:"
+msgstr "Začátek zálohování:"
+
+#: addons/reporting.php:110
+msgid "Contains:"
+msgstr "Obsahuje:"
+
+#: addons/reporting.php:111
+msgid "Errors / warnings:"
+msgstr "Chyby/varování:"
+
+#: methods/dropbox.php:392 addons/bitcasa.php:221 addons/bitcasa.php:245
+msgid "%s authentication"
+msgstr "%s ověření"
+
+#: updraftplus.php:439 methods/dropbox.php:392 methods/dropbox.php:488
+#: addons/bitcasa.php:221 addons/bitcasa.php:245
+msgid "%s error: %s"
+msgstr "%s chyby: %s"
+
+#: methods/dropbox.php:325
+msgid "%s logo"
+msgstr "%s logo"
+
+#: methods/email.php:60
+msgid "Your site's admin email address (%s) will be used."
+msgstr "Bude použit mail administrátora vašich stránek (%s)."
+
+#: methods/email.php:60
+msgid "For more options, use the \"%s\" add-on."
+msgstr "Pro více možností použijte \"%s\" add-on."
+
+#: methods/dropbox.php:37
+msgid "The required %s PHP module is not installed - ask your web hosting company to enable it"
+msgstr "Požadovaný %s modul PHP není nainstalován - požádejte svého poskytovatele hostingu, aby ho povolil"
+
+#: methods/dropbox.php:131
+msgid "%s did not return the expected response - check your log file for more details"
+msgstr "%s nevrátil požadovanou odpověď - pro více informací zkontrolujte log soubor"
+
+#: udaddons/options.php:72
+msgid "You also need to connect to receive future updates to UpdraftPlus."
+msgstr "Pro budoucí aktualizace UpdraftPlus se musíte připojit."
+
+#: udaddons/options.php:219
+msgid "Connect"
+msgstr "Připojit"
+
+#: admin.php:2793
+msgid "Check this box to have a basic report sent to your site's admin address (%s)."
+msgstr "Zaškrtněte, pokud chcete dostat základní report do schránky administrátora stránek (%s)."
+
+#: admin.php:2795
+msgid "For more reporting features, use the Reporting add-on."
+msgstr "Pro více reportovacích možností použijte Reporting add-on."
+
+#: admin.php:1268
+msgid "(version: %s)"
+msgstr "(verze: %s)"
+
+#: admin.php:117 methods/email.php:61 addons/reporting.php:391
+msgid "Be aware that mail servers tend to have size limits; typically around %s Mb; backups larger than any limits will likely not arrive."
+msgstr "Mějte na vědomí, že mailové servery mívají limity pro velikost příloh; typicky okolo %s Mb; zálohy větší, než jakýkoliv limit pravděpodobně nedorazí."
+
+#: admin.php:116 addons/reporting.php:391
+msgid "When the Email storage method is enabled, also send the entire backup"
+msgstr "Pokud je povoleno uložiště přes mail, poslat zároveň celou zálohu"
+
+#: backup.php:486
+msgid "Unknown/unexpected error - please raise a support request"
+msgstr "Neznámá/nečekaná chyba - prosím kontaktujte podporu"
+
+#: backup.php:522 addons/reporting.php:169
+msgid "The log file has been attached to this email."
+msgstr "K tomuto mailu byl připojen log soubor."
+
+#: backup.php:528
+msgid "Backed up: %s"
+msgstr "Zálohováno: %s"
+
+#: backup.php:530
+msgid "Backup contains:"
+msgstr "Záloha obsahuje:"
+
+#: backup.php:530 addons/reporting.php:108
+msgid "Latest status:"
+msgstr "Poslední stav:"
+
+#: backup.php:480
+msgid "Files and database"
+msgstr "Soubory a databáze"
+
+#: backup.php:482
+msgid "Files (database backup has not completed)"
+msgstr "Soubory (záloha databáze nebyla dokončena)"
+
+#: backup.php:482
+msgid "Files only (database was not part of this particular schedule)"
+msgstr "Pouze soubory (tento plán neobsahoval zálohu databáze)"
+
+#: backup.php:484
+msgid "Database (files backup has not completed)"
+msgstr "Databáze (záloha souboru nebyla dokončena)"
+
+#: backup.php:484
+msgid "Database only (files were not part of this particular schedule)"
+msgstr "Pouze databáze (tento plán neobsahoval zálohu souborů)"
+
+#: options.php:126
+msgid "This is a WordPress multi-site (a.k.a. network) installation."
+msgstr "Toto je WPMU (síťová) instalace."
+
+#: options.php:126
+msgid "WordPress Multisite is supported, with extra features, by UpdraftPlus Premium, or the Multisite add-on."
+msgstr "WPMU je podporováno s extra funkcemi prostřednictvím UpdraftPlus Premium, nebo Multisite add-onem."
+
+#: options.php:126
+msgid "Without upgrading, UpdraftPlus allows <strong>every</strong> blog admin who can modify plugin settings to back up (and hence access the data, including passwords, from) and restore (including with customised modifications, e.g. changed passwords) <strong>the entire network</strong>."
+msgstr "Bez upgradu dovoluje UpdraftPlus <strong>každému</strong> administrátorovi blogu, který může upravovat nastavení pluginu, zálohovat (a nakládat s daty, včetně hesel) a obnovovat (zahrnuje vlastní úpravy, třeba změnu hesel) <strong>celou síť</strong>."
+
+#: options.php:126
+msgid "(This applies to all WordPress backup plugins unless they have been explicitly coded for multisite compatibility)."
+msgstr "(Toto se vztahuje na všechny pluginy WordPressu, pokud nebyly speciálně naprogramovány s WPMU podporou.)"
+
+#: options.php:126
+msgid "UpdraftPlus warning:"
+msgstr "Varování UpdraftPlus:"
+
+#: udaddons/options.php:437
+msgid "(or connect using the form on this page if you have already purchased it)"
+msgstr "(nebo se připojte pomocí formuláře na této stránce, pokud jste se již zakoupili)"
+
+#: udaddons/options.php:406
+msgid "You've got it"
+msgstr "Máte to"
+
+#: udaddons/options.php:408
+msgid "Your version: %s"
+msgstr "Vaše verze: %s"
+
+#: udaddons/options.php:410 udaddons/options.php:412
+msgid "latest"
+msgstr "nedávné"
+
+#: udaddons/options.php:420
+msgid "please follow this link to update the plugin in order to get it"
+msgstr "Pokud chcete získat aktualizaci pluginu, následujte tento odkaz"
+
+#: udaddons/options.php:423
+msgid "please  follow this link to update the plugin in order to activate it"
+msgstr "Pokud chcete aktivovat aktualizaci pluginu, následujte tento odkaz"
+
+#: udaddons/updraftplus-addons.php:180 udaddons/options.php:334
+msgid "UpdraftPlus Addons"
+msgstr "UpdraftPlus Addony"
+
+#: udaddons/options.php:345
+msgid "An update containing your addons is available for UpdraftPlus - please follow this link to get it."
+msgstr "Je k dispozici aktualizace pro UpdraftPlus addony, které používáte - pro získání následujte odkaz."
+
+#: udaddons/options.php:387
+msgid "UpdraftPlus Support"
+msgstr "Podpora UpdraftPlus"
+
+#: udaddons/updraftplus-addons.php:541
+msgid "UpdraftPlus.Com responded, but we did not understand the response"
+msgstr "UpdraftPlus.Com odpověděl, ale odpovědi jsme nerozuměli"
+
+#: udaddons/updraftplus-addons.php:574
+msgid "UpdraftPlus.Com returned a response which we could not understand (data: %s)"
+msgstr "UpdraftPlus.Com vrátil odpověď, které nerozumíme (data: %s)"
+
+#: udaddons/updraftplus-addons.php:597
+msgid "Your email address and password were not recognised by UpdraftPlus.Com"
+msgstr "UpdraftPlus.Com nerozpoznal vaši mailovou adresu a heslo"
+
+#: udaddons/updraftplus-addons.php:602
+msgid "UpdraftPlus.Com returned a response, but we could not understand it"
+msgstr "UpdraftPlus.Com vrátil odpověď, které nerozumíme"
+
+#: udaddons/options.php:68
+msgid "An update is available for UpdraftPlus - please follow this link to get it."
+msgstr "Je k dospozici aktualizace UpdraftPlus - pro získání následujte tento odkaz."
+
+#: udaddons/updraftplus-addons.php:539
+msgid "We failed to successfully connect to UpdraftPlus.Com"
+msgstr "Nepodařilo se nám připojit k UpdraftPlus.Com"
+
+#: admin.php:2776 methods/email.php:60
+msgid "Reporting"
+msgstr "Reportování"
+
+#: admin.php:970
+msgid "Options (raw)"
+msgstr "Možnosti (holé)"
+
+#: admin.php:115 addons/reporting.php:389
+msgid "Send a report only when there are warnings/errors"
+msgstr "Poslat report pouze pokud nastanou varování/chyby"
+
+#: restorer.php:1175
+msgid "Content URL:"
+msgstr "URL obsahu:"
+
+#: restorer.php:40
+msgid "You should check the file permissions in your WordPress installation"
+msgstr "Doporučujeme zkontrolovat nastavení oprávnění souborů ve vaší WordPress instalaci"
+
+#: admin.php:2696
+msgid "See also the \"More Files\" add-on from our shop."
+msgstr "Podívejte se také na \"More Files\" add-on z našeho obchodu."
+
+#: admin.php:2122
+msgid "Free disk space in account: %s (%s used)"
+msgstr "Uvolněte místa na disku pro účet: %s (%s použito)"
+
+#: updraftplus.php:649
+msgid "Your free space in your hosting account is very low - only %s Mb remain"
+msgstr "Máte velmi málo volného místa na vašem hostingovém účtu - zbývá pouze %s Mb"
+
+#: updraftplus.php:627
+msgid "The amount of memory (RAM) allowed for PHP is very low (%s Mb) - you should increase it to avoid failures due to insufficient memory (consult your web hosting company for more help)"
+msgstr "Množství paměti (RAM) povolené pro PHP je velmi malé (%s Mb) - pokud se chcete vyhnout chybám způsobeným nedostatečnou pamětí, zvyšte ji (pro více pomoci kontaktujte vašeho správce hostingu)"
+
+#: udaddons/options.php:433
+msgid "You have an inactive purchase"
+msgstr "Máte neaktivní objednávku"
+
+#: udaddons/options.php:431 udaddons/options.php:433
+msgid "activate it on this site"
+msgstr "aktivujte ji na této stránce"
+
+#: udaddons/options.php:437
+msgid "Get it from the UpdraftPlus.Com Store"
+msgstr "Získat z obchodu UpdraftPlus.Com"
+
+#: udaddons/options.php:438
+msgid "Buy It"
+msgstr "Koupit"
+
+#: udaddons/options.php:461
+msgid "Manage Addons"
+msgstr "Spravovat addony"
+
+#: udaddons/options.php:304
+msgid "An unknown response was received. Response was:"
+msgstr "Byla přijata neznámá odpověď. Odpověď byla:"
+
+#: udaddons/options.php:371
+msgid "An error occurred when trying to retrieve your add-ons."
+msgstr "Při obnově vašich add-onů došlo k chybě."
+
+#: udaddons/options.php:389
+msgid "Need to get support?"
+msgstr "Potřebujete podporu?"
+
+#: udaddons/options.php:389
+msgid "Go here"
+msgstr "Jděte sem"
+
+#: udaddons/options.php:414
+msgid "(apparently a pre-release or withdrawn release)"
+msgstr "(zřejmě před-verze, nebo uzavřená verze)"
+
+#: udaddons/options.php:420
+msgid "Available for this site (via your all-addons purchase)"
+msgstr "Povolit pro tuto stránku (skrze vaši objednávku add-onů)"
+
+#: udaddons/options.php:423
+msgid "Assigned to this site"
+msgstr "Přiděleno této stránce"
+
+#: udaddons/options.php:217
+msgid "Interested in knowing about your UpdraftPlus.Com password security? Read about it here."
+msgstr "Chcete vědět o bezpečí vašeho hesla u UpdraftPlus.Com? Čtěte zde."
+
+#: udaddons/options.php:245
+msgid "You are presently <strong>connected</strong> to an UpdraftPlus.Com account."
+msgstr "Právě <strong>jste připojeni</strong> ke svému UpDraftPlus.Com účtu."
+
+#: udaddons/options.php:246
+msgid "If you bought new add-ons, then follow this link to refresh your connection"
+msgstr "Pokud jste si koupili nové add-ony, následujte tento odkaz k obnově vašeho připojení"
+
+#: udaddons/options.php:248
+msgid "You are presently <strong>not connected</strong> to an UpdraftPlus.Com account."
+msgstr "Právě <strong>nejste připojeni</strong> ke svému UpDraftPlus.Com účtu."
+
+#: udaddons/options.php:254
+msgid "Errors occurred when trying to connect to UpdraftPlus.Com:"
+msgstr "Při snaza o připojení k UpdraftPlus.Com nastaly tyto chyby:"
+
+#: udaddons/options.php:301
+msgid "Please wait whilst we make the claim..."
+msgstr "Vytváříme požadavek, prosím čekejte..."
+
+#: udaddons/options.php:302
+msgid "Claim not granted - perhaps you have already used this purchase somewhere else?"
+msgstr "Povolení nebylo uděleno - možná jste tuto objednávku již použili jinde?"
+
+#: udaddons/options.php:303
+msgid "Claim not granted - your account login details were wrong"
+msgstr "Povolení nebylo uděleno - vaše přihlašovací údaje nebyly správné"
+
+#: udaddons/options.php:89
+msgid "Your web server's version of PHP is too old ("
+msgstr "Verze PHP na vašem webserveru je příliš stará ("
+
+#: udaddons/options.php:109
+msgid "Connect with your UpdraftPlus.Com account"
+msgstr "Spojit s vaším UpdraftPlus.Com účtem"
+
+#: udaddons/options.php:134
+msgid "Not yet got an account (it's free)? Go get one!"
+msgstr "Stále ještě nemáte účet (je zdarma)? Získejte ho!"
+
+#: udaddons/options.php:144
+msgid "Forgotten your details?"
+msgstr "Zapomněli jste své údaje?"
+
+#: udaddons/options.php:72
+msgid "You have not yet connected with your UpdraftPlus.Com account, to enable you to list your purchased add-ons."
+msgstr "K tomu abyste mohli procházet zakoupené add-ony se musíte přihlásit vaším UpdraftPlus.Com účtem."
+
+#: udaddons/options.php:72
+msgid "Go here to connect."
+msgstr "Pro připojení jděte sem."
+
+#: udaddons/options.php:78
+msgid "UpdraftPlus is not yet activated."
+msgstr "UpdraftPlus stále není aktivován."
+
+#: udaddons/options.php:79
+msgid "Go here to activate it."
+msgstr "Pro aktivaci jděte sem."
+
+#: udaddons/options.php:82
+msgid "UpdraftPlus is not yet installed."
+msgstr "UpdraftPlus ještě není nainstalován."
+
+#: udaddons/options.php:82
+msgid "Go here to begin installing it."
+msgstr "Chcete-li začít instalaci, jděte sem."
+
+#: udaddons/options.php:83
+msgid "You do seem to have the obsolete Updraft plugin installed - perhaps you got them confused?"
+msgstr "Zdá se, že máte nainstalovaný zastaralý Updraft plugin - možná zmatení?"
+
+#: admin.php:1741
+msgid "If your restore included files, then your old (themes, uploads, plugins, whatever) directories have been retained with \"-old\" appended to their name. Remove them when you are satisfied that the backup worked properly."
+msgstr "Pokud obnovíte přiložené soubory, pak budou vaše staré složky (themes, uploads, plugins, cokoliv dalšího) přejmenovány. Za jejich jméno se přidá \"-old\". Až se ujistíte, že obnova proběhla v pořádku, odstraňte je."
+
+#: addons/moredatabase.php:271 addons/moredatabase.php:302
+msgid "Your web-server does not have the %s module installed."
+msgstr "Váš webserver nemá nainstalovaný %s modul."
+
+#: addons/moredatabase.php:271 addons/moredatabase.php:302
+msgid "Without it, encryption will be a lot slower."
+msgstr "Bez něho bude šifrování mnohem pomalejší."
+
+#: admin.php:1918
+msgid "Drop backup files here"
+msgstr "Sem přesuňte soubory zálohy"
+
+#: methods/googledrive.php:869
+msgid "<strong>(You appear to be already authenticated,</strong> though you can authenticate again to refresh your access if you've had a problem)."
+msgstr "(<strong>Zdá se, že jste již byli ověřeni,</strong> ale můžete být ověřeni znovu k obnově vašeho přístupu, pokud máte problém.)"
+
+#: updraftplus.php:2575
+msgid "Want more features or paid, guaranteed support? Check out UpdraftPlus.Com"
+msgstr "Chcete více funkcí, nebo placenou garantovanou podporu? Pak jděte na UpdraftPlus.Com"
+
+#: updraftplus.php:2584
+msgid "Check out WordShell"
+msgstr "Podívejte se na WordShell"
+
+#: updraftplus.php:2584
+msgid "manage WordPress from the command line - huge time-saver"
+msgstr "správa WordPressu přes příkazový řádek - velký spořič času"
+
+#: admin.php:2058
+msgid "Does nothing happen when you attempt backups?"
+msgstr "Když jste se pokusili o zálohu, nic se nestalo?"
+
+#: admin.php:2053
+msgid "Don't include the database in the backup"
+msgstr "Nezálohovat databázi"
+
+#: admin.php:2054
+msgid "Don't include any files in the backup"
+msgstr "Nezálohovat žádné soubory"
+
+#: admin.php:1887
+msgid "Restoring:"
+msgstr "Obnovování:"
+
+#: admin.php:1887
+msgid "Press the Restore button next to the chosen backup set."
+msgstr "Zmáčkněte tlačítko Obnovit vedle vybrané zálohy."
+
+#: admin.php:122
+msgid "The restore operation has begun. Do not press stop or close your browser until it reports itself as having finished."
+msgstr "Proces obnovy začal. Nemačkejte stop, ani nezavírejte prohlížeč, dokud se proces neoznačí za dokončený."
+
+#: admin.php:124
+msgid "The web server returned an error code (try again, or check your web server logs)"
+msgstr "Webserver vrátil chybový kód (zkuste to znovu, nebo zkontrolujte logy webserveru)"
+
+#: admin.php:121
+msgid "If you exclude both the database and the files, then you have excluded everything!"
+msgstr "Pokud ze zálohy vyjmete databázi i soubory, pak jste vyjmuli všechno!"
+
+#: restorer.php:1169
+msgid "Site home:"
+msgstr "Úvodní stránka:"
+
+#: addons/morestorage.php:88
+msgid "Remote Storage Options"
+msgstr "Možnosti vzdáleného uložiště"
+
+#: addons/autobackup.php:31 addons/autobackup.php:304
+msgid "Remember this choice for next time (you will still have the chance to change it)"
+msgstr "Zapamatovat tuto volbu pro příště (stále budete mít možnost ji změnit)"
+
+#: addons/autobackup.php:66 addons/autobackup.php:150
+msgid "(logs can be found in the UpdraftPlus settings page as normal)..."
+msgstr "(logy jsou k dispozici v stránce nastavení UpdraftPlus jako normálně)..."
+
+#: methods/stream-base.php:124
+msgid "Upload failed"
+msgstr "Nahrávání selhalo"
+
+#: admin.php:2834
+msgid "You can send a backup to more than one destination with an add-on."
+msgstr "S add-onem můžete zálohu odeslat na více, než jedno místo."
+
+#: admin.php:2372
+msgid "Note: the progress bar below is based on stages, NOT time. Do not stop the backup simply because it seems to have remained in the same place for a while - that is normal."
+msgstr "Poznámka: ukazatel postupu je založen na fázích, NE čase. Nezastavujte zálohu jen proto, že to vypadá, že se nic neděje - to je normální."
+
+#: admin.php:2274
+msgid "(%s%%, file %s of %s)"
+msgstr "(%s%%, soubor %s z %s)"
+
+#: addons/sftp.php:481
+msgid "Failed: We were able to log in and move to the indicated directory, but failed to successfully create a file in that location."
+msgstr "Chyba: Byli jsme schopni se přihlásit a přesunout se do dané složky, ale nemohli jsme vytvořit soubor."
+
+#: addons/sftp.php:483
+msgid "Failed: We were able to log in, but failed to successfully create a file in that location."
+msgstr "Chyba: Byli jsme schopni se přihlásit, ale nemohli jsme vytvořit soubor."
+
+#: addons/autobackup.php:31 addons/autobackup.php:304
+msgid "Read more about how this works..."
+msgstr "Jak toto funguje? Čtěte více..."
+
+#: addons/sftp.php:370
+msgid "Use SCP instead of SFTP"
+msgstr "Použijte SCP místo SFTP"
+
+#: addons/sftp.php:46
+msgid "SCP/SFTP host setting"
+msgstr "SCP/SFTP nastavení hosta"
+
+#: addons/sftp.php:47
+msgid "SCP/SFTP user setting"
+msgstr "SCP/SFTP nastavení uživatele"
+
+#: methods/email.php:39
+msgid "Backup is of: %s."
+msgstr "Záloha je z: %s."
+
+#: methods/email.php:47
+msgid "The attempt to send the backup via email failed (probably the backup was too large for this method)"
+msgstr "Pokus o odeslání zálohy mailem selhal (pravděpodobně byla záloha pro tuto metodu příliš velká)"
+
+#: methods/openstack-base.php:289 methods/cloudfiles.php:449
+#: methods/stream-base.php:211 methods/s3.php:467 methods/addon-base.php:246
+#: methods/ftp.php:265 addons/sftp.php:404 addons/sftp.php:406
+msgid "%s settings test result:"
+msgstr "%s nastavení testovací výsledek:"
+
+#: admin.php:3141
+msgid "If you are seeing more backups than you expect, then it is probably because the deletion of old backup sets does not happen until a fresh backup completes."
+msgstr "Pokud vidíte více záloh, než byste chtěli, je to pravděpodobně proto, že se staré zálohy nesmažou, dokud není nová hotová."
+
+#: admin.php:3141
+msgid "(Not finished)"
+msgstr "(Neskončeno)"
+
+#: admin.php:2938
+msgid "This is where UpdraftPlus will write the zip files it creates initially.  This directory must be writable by your web server. It is relative to your content directory (which by default is called wp-content)."
+msgstr "Sem bude UpdraftPlus ukládat zip soubory, které bude vytvářet. Do složky musí být povolený zápis. Umístění je relativní vzhledem ke složce obsahu (v základu ke složce wp-content)."
+
+#: admin.php:2938
+msgid "<b>Do not</b> place it inside your uploads or plugins directory, as that will cause recursion (backups of backups of backups of...)."
+msgstr "<b>Neumisťujte</b> ji do složky uploads, nebo plugins, protože by to způsobilo rekurzi (záloha zálohy zálohy zálohy...)"
+
+#: admin.php:2911
+msgid "UpdraftPlus will split up backup archives when they exceed this file size. The default value is 800 megabytes. Be careful to leave some margin if your web-server has a hard size limit (e.g. the 2 Gb / 2048 Mb limit on some 32-bit servers/file systems)."
+msgstr "Pokud soubor se zálohou překročí danou velikost, UpdraftPlus ho rozdělí. Výchozí hodnota je 800 MB. Pokud má váš webserver napevno nastavený limit, nezapomeňte na jeho mírné zmenšení (například 2Gb / 2048 Mb na některých serverech/souborových systémech)."
+
+#: admin.php:2283
+msgid "Waiting until scheduled time to retry because of errors"
+msgstr "Došlo k chybám, s dalším pokusem čekám na naplánovaný čas"
+
+#: admin.php:2288
+msgid "Backup finished"
+msgstr "Záloha dokončena"
+
+#: admin.php:2338
+msgid "Unknown"
+msgstr "Neznámý"
+
+#: admin.php:2355
+msgid "next resumption: %d (after %ss)"
+msgstr "další pokračování: %d (po %ss)"
+
+#: admin.php:2356
+msgid "last activity: %ss ago"
+msgstr "poslední aktivita: před %ss"
+
+#: admin.php:2366
+msgid "Job ID: %s"
+msgstr "ID operace: %s"
+
+#: admin.php:2315
+msgid "table: %s"
+msgstr "tabulka: %s"
+
+#: admin.php:2302
+msgid "Created database backup"
+msgstr "Záloha databáze vytvořena"
+
+#: admin.php:2328
+msgid "Encrypting database"
+msgstr "Šifrování databáze"
+
+#: admin.php:2336
+msgid "Encrypted database"
+msgstr "Databáze zašifrována"
+
+#: admin.php:2267
+msgid "Uploading files to remote storage"
+msgstr "Nahrávám soubory do vzdáleného uložiště"
+
+#: admin.php:2279
+msgid "Pruning old backup sets"
+msgstr "Odstraňuji staré zálohy"
+
+#: admin.php:2248
+msgid "Creating file backup zips"
+msgstr "Vytvářím zálohové zip soubory"
+
+#: admin.php:2261
+msgid "Created file backup zips"
+msgstr "Zálohové zip soubory vytvořeny"
+
+#: admin.php:2313
+msgid "Creating database backup"
+msgstr "Vytvářím zálohu databáze"
+
+#: admin.php:2243
+msgid "Backup begun"
+msgstr "Záloha začala"
+
+#: admin.php:1850
+msgid "Backups in progress:"
+msgstr "Průběh zálohy:"
+
+#: admin.php:397
+msgid "The scheduler is disabled in your WordPress install, via the DISABLE_WP_CRON setting. No backups can run (even &quot;Backup Now&quot;) unless either you have set up a facility to call the scheduler manually, or until it is enabled."
+msgstr "Ve vaší instalaci WordPressu je pomocí DISABLE_WP_CRON zakázán plánovač. Nemůže být provedena žádná záloha (dokonce ani &quot;Zálohovat nyní&quot;), pokud nespouštíte plánovač ručně, nebo dokud ho nepovolíte."
+
+#: restorer.php:487 restorer.php:494
+msgid "UpdraftPlus needed to create a %s in your content directory, but failed - please check your file permissions and enable the access (%s)"
+msgstr "UpdraftPlus potřebuje vytvořit ve složce obsahu %s, ale selhal - zkontrolujte prosím oprávnění souborů a povolte přístup (%s)"
+
+#: restorer.php:487
+msgid "folder"
+msgstr "složka"
+
+#: restorer.php:494
+msgid "file"
+msgstr "soubor"
+
+#: backup.php:1429
+msgid "Failed to open directory (check the file permissions): %s"
+msgstr "Nepovedlo se otevřít složku (zkontrolujte oprávnění): %s"
+
+#: backup.php:1423
+msgid "%s: unreadable file - could not be backed up (check the file permissions)"
+msgstr "%s: nečitelný soubor - nemohl být zálohován (zkontrolujte oprávnění souboru)"
+
+#: updraftplus.php:1891
+msgid "The backup has not finished; a resumption is scheduled"
+msgstr "Záloha nebyla dokončena; pokračování je naplánováno"
+
+#: updraftplus.php:1371
+msgid "Your website is visited infrequently and UpdraftPlus is not getting the resources it hoped for; please read this page:"
+msgstr "Vaše stránka je navštěvována nepravidelně a UpdraftPlus nezískal výsledek v jaký doufal; prosím přečtěte si tuto stránku:"
+
+#: includes/Dropbox/OAuth/Consumer/ConsumerAbstract.php:89
+#: methods/googledrive.php:227 addons/bitcasa.php:310
+msgid "The %s authentication could not go ahead, because something else on your site is breaking it. Try disabling your other plugins and switching to a default theme. (Specifically, you are looking for the component that sends output (most likely PHP warnings/errors) before the page begins. Turning off any debugging settings may also help)."
+msgstr "%s autentifikace nemohla proběhnout, protože ji přerušilo něco na vaší stránce. Zkuste zakázat ostatní pluginy a přepnout na základní téma. (Zaměřte se hlavně na komponenty, které vyvolávají výstup (nejspíše PHP varování/chyby) před začátkem stránky. Vypnutí veškerých nastavení debugu může také pomoct.)"
+
+#: admin.php:1748
+msgid "Your PHP memory limit (set by your web hosting company) is very low. UpdraftPlus attempted to raise it but was unsuccessful. This plugin may struggle with a memory limit of less than 64 Mb  - especially if you have very large files uploaded (though on the other hand, many sites will be successful with a 32Mb limit - your experience may vary)."
+msgstr "Limit paměti pro PHP (nastavený poskytovatelem hostingu) je velmi nízký. UpdraftPlus se ho pokusil zvýšit, ale neuspěl. Tento plugin může mít problémy, pokud je limit nastavený na hodnotu menší, než 64 Mb - obzvláště, pokud nahráváte velké soubory (na druhou stranu stačí mnoha webům pouze 32 Mb - záleží na konkrétním případu)."
+
+#: addons/autobackup.php:223
+msgid "Backup succeeded <a href=\"#updraftplus-autobackup-log\" onclick=\"var s = document.getElementById('updraftplus-autobackup-log'); s.style.display = 'block';\">(view log...)</a> - now proceeding with the updates..."
+msgstr "Záloha byla úspěšná <a href=\"#updraftplus-autobackup-log\" onclick=\"var s = document.getElementById('updraftplus-autobackup-log'); s.style.display = 'block';\">(zobrazit log...)</a> - pokračovat s aktualizacemi..."
+
+#: addons/autobackup.php:300
+msgid "UpdraftPlus Automatic Backups"
+msgstr "Automatické zálohy UpdraftPlus"
+
+#: addons/autobackup.php:305
+msgid "Do not abort after pressing Proceed below - wait for the backup to complete."
+msgstr "Po stisku tlačítka Pokračovat počkejte na dokončení zálohy a nepřerušujte ji."
+
+#: addons/autobackup.php:306
+msgid "Proceed with update"
+msgstr "Pokračovat s aktualizací"
+
+#: addons/autobackup.php:70 addons/autobackup.php:157
+msgid "Starting automatic backup..."
+msgstr "Zahajuji automatickou zálohu..."
+
+#: addons/autobackup.php:115
+msgid "plugins"
+msgstr "pluginy"
+
+#: addons/autobackup.php:120
+msgid "themes"
+msgstr "témata"
+
+#: addons/autobackup.php:140
+msgid "You do not have sufficient permissions to update this site."
+msgstr "K aktualizaci této stránky nemáte dostatečná oprávnění."
+
+#: addons/autobackup.php:150
+msgid "Creating database backup with UpdraftPlus..."
+msgstr "Vytvářím zálohu databáze pomocí UpdraftPlus..."
+
+#: addons/autobackup.php:159 addons/autobackup.php:249
+#: addons/autobackup.php:288
+msgid "Automatic Backup"
+msgstr "Automatická záloha"
+
+#: addons/autobackup.php:201
+msgid "Creating backup with UpdraftPlus..."
+msgstr "Vytvářím zálohu pomocí UpdraftPlus..."
+
+#: addons/autobackup.php:208
+msgid "Errors have occurred:"
+msgstr "Objevily se chyby:"
+
+#: addons/autobackup.php:221
+msgid "Backup succeeded <a href=\"#updraftplus-autobackup-log\" onclick=\"jQuery('#updraftplus-autobackup-log').slideToggle();\">(view log...)</a> - now proceeding with the updates..."
+msgstr "Záloha byla úspěšná <a href=\"#updraftplus-autobackup-log\" onclick=\"jQuery('#updraftplus-autobackup-log').slideToggle();\">(zobrazit log...)</a> - pokračovat s aktualizacemi..."
+
+#: addons/autobackup.php:31 addons/autobackup.php:304
+msgid "Automatically backup (where relevant) plugins, themes and the WordPress database with UpdraftPlus before updating"
+msgstr "Před aktualizací automaticky zálohovat (kde je to relevantní) pluginy, témata a databázi WordPressu pomocí UpdraftPlus"
+
+#: addons/autobackup.php:66
+msgid "Creating %s and database backup with UpdraftPlus..."
+msgstr "Vytvářím %s a zálohu databáze pomocí UpdraftPlus..."
+
+#: addons/morefiles.php:103
+msgid "Unable to read zip file (%s) - could not pre-scan it to check its integrity."
+msgstr "Nepodařilo se přečíst zip soubor (%s) - nepodařilo se provést před-sken pro zkontrolování integrity."
+
+#: addons/morefiles.php:108
+msgid "Unable to open zip file (%s) - could not pre-scan it to check its integrity."
+msgstr "Nepodařilo se otevřít zip soubor (%s) - nepodařilo se provést před-sken pro zkontrolování integrity."
+
+#: addons/morefiles.php:127 addons/morefiles.php:128
+msgid "This does not look like a valid WordPress core backup - the file %s was missing."
+msgstr "Toto nevypadá jako správná záloha jádra WordPressu - soubor %s chybí."
+
+#: addons/morefiles.php:127 addons/morefiles.php:128
+msgid "If you are not sure then you should stop; otherwise you may destroy this WordPress installation."
+msgstr "Pokud si nejste jisti, měli byste přestat, jinak si můžete zničit vaši WordPress instalaci."
+
+#: admin.php:1730
+msgid "Support"
+msgstr "Podpora"
+
+#: admin.php:1730
+msgid "More plugins"
+msgstr "Víc pluginů"
+
+#: admin.php:1288
+msgid "You are importing from a newer version of WordPress (%s) into an older one (%s). There are no guarantees that WordPress can handle this."
+msgstr "Importujete z novější verze WordPressu (%s) na starší (%s). Není žádná záruka, že to WordPress zvládne."
+
+#: admin.php:1366
+msgid "This database backup is missing core WordPress tables: %s"
+msgstr "V této záloze databáze chybí základní WordPress tabulky: %s"
+
+#: admin.php:1370
+msgid "UpdraftPlus was unable to find the table prefix when scanning the database backup."
+msgstr "UpdraftPlus nedokázal při skenu zálohy databáze najít prefix tabulek."
+
+#: admin.php:1227
+msgid "The database is too small to be a valid WordPress database (size: %s Kb)."
+msgstr "Databáze je příliš malá na to, aby se mohlo jednat o správnou WordPress databázi (velikost: %s Kb)."
+
+#: admin.php:179 admin.php:382
+msgid "UpdraftPlus Premium can  <strong>automatically</strong> take a backup of your plugins or themes and database before you update."
+msgstr "UpdraftPlus Premium může provést <strong>automatickou</strong> zálohu pluginů, témat a databáze před aktualizací."
+
+#: admin.php:179 admin.php:382
+msgid "Be safe every time, without needing to remember - follow this link to learn more."
+msgstr "Buďte vždy v bezpečí, aniž byste si museli pamatovat - pro zjištění více informací následujte odkaz."
+
+#: admin.php:367 addons/autobackup.php:236
+msgid "Update Plugin"
+msgstr "Aktualizace pluginu"
+
+#: admin.php:371 addons/autobackup.php:276
+msgid "Update Theme"
+msgstr "Aktualizace tématu"
+
+#: admin.php:177 admin.php:380
+msgid "Dismiss (for %s weeks)"
+msgstr "Zrušit (na %s týdnů)"
+
+#: admin.php:178 admin.php:381 addons/autobackup.php:303
+msgid "Be safe with an automatic backup"
+msgstr "Buďte v bezpečí s automatickou zálohou"
+
+#: restorer.php:1536
+msgid "Uploads path (%s) does not exist - resetting (%s)"
+msgstr "Cesta nahrávání (%s) neexistuje - resetuji (%s)"
+
+#: admin.php:1734
+msgid "If you can still read these words after the page finishes loading, then there is a JavaScript or jQuery problem in the site."
+msgstr "Pokud můžete přečíst tato slova i poté, co se stránka načte, je na stránce problém s JavaScriptem, nebo JQuery."
+
+#: admin.php:152
+msgid "Follow this link to attempt decryption and download the database file to your computer."
+msgstr "Chcete-li zkusit dešifrovat a stáhnout databázi do počítače, klikněte sem."
+
+#: admin.php:153
+msgid "This decryption key will be attempted:"
+msgstr "Bude použit tento dešifrovací klíč:"
+
+#: admin.php:154 addons/bitcasa.php:219
+msgid "Unknown server response:"
+msgstr "Neznámá odpověď serveru:"
+
+#: admin.php:155
+msgid "Unknown server response status:"
+msgstr "Neznámý status odpovědi serveru:"
+
+#: admin.php:156
+msgid "The file was uploaded."
+msgstr "Soubor byl nahrán."
+
+#: admin.php:148
+msgid "(make sure that you were trying to upload a zip file previously created by UpdraftPlus)"
+msgstr "(ujistěte se, že se pokoušíte nahrát zip soubor, který byl vytvořen UpdraftPlus)"
+
+#: admin.php:149
+msgid "Upload error:"
+msgstr "Chyba nahrávání:"
+
+#: admin.php:150
+msgid "This file does not appear to be an UpdraftPlus encrypted database archive (such files are .gz.crypt files which have a name like: backup_(time)_(site name)_(code)_db.crypt.gz)."
+msgstr "Tento soubor zřejmě není databáze šifrovaná UpdraftPlus (takové soubory jsou .gz.crypt s jménem podle vzoru: backup_(čas)_(název stránky)_(kód)_db.crypt.gz)."
+
+#: admin.php:151
+msgid "Upload error"
+msgstr "Chyba nahrávání"
+
+#: admin.php:138
+msgid "Delete from your web server"
+msgstr "Smazat z webserveru"
+
+#: admin.php:139
+msgid "Download to your computer"
+msgstr "Stáhnout do počítače"
+
+#: admin.php:140
+msgid "and then, if you wish,"
+msgstr "A pak, až skončíte,"
+
+#: methods/s3.php:489
+msgid "Examples of S3-compatible storage providers:"
+msgstr "Příklady S3-kompatibilních poskytovatelů uložišť:"
+
+#: methods/googledrive.php:405
+msgid "Upload expected to fail: the %s limit for any single file is %s, whereas this file is %s Gb (%d bytes)"
+msgstr "Nahrávání selže: %s limit pro jednotlivé soubory je %s, kdežto tento soubor má %s Gb (%d bytů)"
+
+#: backup.php:908
+msgid "The backup directory is not writable - the database backup is expected to shortly fail."
+msgstr "Do složky pro zálohy nelze zapisovat - záloha databáze brzy selže."
+
+#: admin.php:3802
+msgid "Will not delete any archives after unpacking them, because there was no cloud storage for this backup"
+msgstr "Pro tuto zálohu nebylo vybráno žádné vzdálené uložiště a proto nebudou archivy po rozbalení smazány"
+
+#: admin.php:3252
+msgid "(%d archive(s) in set)."
+msgstr "(%d archiv(ů) v záloze)"
+
+#: admin.php:3255
+msgid "You appear to be missing one or more archives from this multi-archive set."
+msgstr "Zdá se, že v této více archivní záloze chybí jeden, nebo více archivů."
+
+#: admin.php:2910
+msgid "Split archives every:"
+msgstr "Rozdělit archivy každých:"
+
+#: admin.php:131
+msgid "Error: the server sent an empty response."
+msgstr "Chyba: server poslal prázdnou odpověď."
+
+#: admin.php:132
+msgid "Warnings:"
+msgstr "Varování:"
+
+#: admin.php:134 addons/moredatabase.php:212
+msgid "Error: the server sent us a response (JSON) which we did not understand."
+msgstr "Chyba: server zaslal odpověď (JSON) které systém nerozumí."
+
+#: admin.php:1548
+msgid "This looks like a file created by UpdraftPlus, but this install does not know about this type of object: %s. Perhaps you need to install an add-on?"
+msgstr "Zdá se, že jde o soubor vytvořený UpdraftPlus, ale instalace nezná tento typ objektu: %s. Možná potřebujete nainstalovat nějaký add-on?"
+
+#: admin.php:823
+msgid "The backup archive files have been successfully processed. Now press Restore again to proceed."
+msgstr "Archivy zálohy byly úspěšně zpracovány. Klikněte znovu na Obnovit pro pokračování."
+
+#: admin.php:825
+msgid "The backup archive files have been processed, but with some warnings. If all is well, then now press Restore again to proceed. Otherwise, cancel and correct any problems first."
+msgstr "Archivy zálohy byly zpracovány s varováními. Pokud je vše v pořádku, klikněte znovu na Obnovit pro pokračování. Jinak operaci zrušte a opravte problémy."
+
+#: admin.php:827
+msgid "The backup archive files have been processed, but with some errors. You will need to cancel and correct any problems before retrying."
+msgstr "Archivy zálohy byly zpracovány s chybami. Před pokračováním musíte zrušit operaci a opravit veškeré problémy."
+
+#: admin.php:610
+msgid "The backup archive for this file could not be found. The remote storage method in use (%s) does not allow us to retrieve files. To perform any restoration using UpdraftPlus, you will need to obtain a copy of this file and place it inside UpdraftPlus's working folder"
+msgstr "Archiv zálohy pro tento soubor nebyl nalezen. Vzdáleného uložiště (%s) nám nedovoluje získat soubory. K provedení obnovy pomocí UpdraftPlus budete potřebovat zkopírovat tento soubor do pracovní složky UpdraftPlus"
+
+#: admin.php:730
+msgid "No such backup set exists"
+msgstr "Žádná taková záloha neexistuje"
+
+#: admin.php:796
+msgid "File not found (you need to upload it): %s"
+msgstr "Soubor nenalezen (musíte ho nahrát): %s"
+
+#: admin.php:798
+msgid "File was found, but is zero-sized (you need to re-upload it): %s"
+msgstr "Soubor byl nalezen, ale má nulovou velikost (musíte ho nahrát znovu): %s"
+
+#: admin.php:803
+msgid "File (%s) was found, but has a different size (%s) from what was expected (%s) - it may be corrupt."
+msgstr "Soubor (%s) byl nalezen, ale má jinou velikost (%s), než byla předpokládána (%s) - zřejmě je poškozen."
+
+#: admin.php:818
+msgid "This multi-archive backup set appears to have the following archives missing: %s"
+msgstr "Zdá se, že v této záloze s více archivy nejsou následující archivy: %s"
+
+#: restorer.php:436
+msgid "Failed to move directory (check your file permissions and disk quota): %s"
+msgstr "Nelze přesunout složku (zkontrolujte oprávnění souboru a kvótu disku): %s"
+
+#: restorer.php:427
+msgid "Failed to move file (check your file permissions and disk quota): %s"
+msgstr "Nelze přesunout soubor (zkontrolujte oprávnění souboru a kvótu disku): %s"
+
+#: restorer.php:37
+msgid "Moving unpacked backup into place..."
+msgstr "Přesouvání rozbalené zálohy na místo..."
+
+#: backup.php:1726 backup.php:1963
+msgid "Failed to open the zip file (%s) - %s"
+msgstr "Nelze otevřít soubor zip (%s) - %s"
+
+#: addons/morefiles.php:88
+msgid "WordPress root directory server path: %s"
+msgstr "serverová cesta ke kořenové složce WordPressu: %s"
+
+#: methods/s3.php:497
+msgid "... and many more!"
+msgstr "... a mnoho dalšího!"
+
+#: methods/s3.php:522
+msgid "%s end-point"
+msgstr "%s koncový bod"
+
+#: admin.php:3728
+msgid "File is not locally present - needs retrieving from remote storage"
+msgstr "Soubor není lokálně dostupný - musí být obnoven ze vzdáleného uložiště"
+
+#: methods/s3generic.php:41 methods/s3generic.php:49
+msgid "S3 (Compatible)"
+msgstr "S3 (Kompatibilní)"
+
+#: admin.php:3685
+msgid "Final checks"
+msgstr "Závěrečná kontrola"
+
+#: admin.php:3723
+msgid "Looking for %s archive: file name: %s"
+msgstr "Hledám archiv %s: jméno souboru: %s"
+
+#: admin.php:2916
+msgid "Check this to delete any superfluous backup files from your server after the backup run finishes (i.e. if you uncheck, then any files despatched remotely will also remain locally, and any files being kept locally will not be subject to the retention limits)."
+msgstr "Zaškrtněte, pokud chcete po dokončení zálohy smazat všechny nadbytečné zálohy (tj. pokud odškrtnete, pak veškeré soubory, které budou odeslány na vzdálené uložiště zůstanou i lokálně a lokální soubory nejsou zahrnuty do limitu počtu záloh)."
+
+#: admin.php:2736
+msgid "Drop encrypted database files (db.gz.crypt files) here to upload them for decryption"
+msgstr "přesuňte sem šifrované databázové soubory (db.gz.crypt soubory) k jejich nahrání a dešifrování"
+
+#: admin.php:2676
+msgid "Your wp-content directory server path: %s"
+msgstr "Serverová cesta k vaší složce wp-content: %s"
+
+#: admin.php:145
+msgid "Raw backup history"
+msgstr "Prostá historie zálohování"
+
+#: admin.php:2125
+msgid "Show raw backup and file list"
+msgstr "Zobrazit prostou zálohu a seznam souborů"
+
+#: admin.php:130
+msgid "Processing files - please wait..."
+msgstr "Zpracovávám soubory - prosím čekejte..."
+
+#: admin.php:1882
+msgid "Your WordPress installation has a problem with outputting extra whitespace. This can corrupt backups that you download from here."
+msgstr "Vaše instalace WordPressu má problém s výstupem mezer navíc. To může poškodit zálohy, které odsud stáhnete."
+
+#: admin.php:1882
+msgid "Please consult this FAQ for help on what to do about it."
+msgstr "Kontaktujte prosím často kladené otázky pro pomoc s tímto problémem."
+
+#: admin.php:1235
+msgid "Failed to open database file."
+msgstr "Nepodařilo se otevřít soubor databáze."
+
+#: admin.php:1215
+msgid "Failed to write out the decrypted database to the filesystem."
+msgstr "Chyba při zápisu dešifrované databáze do systému souborů."
+
+#: admin.php:942
+msgid "Known backups (raw)"
+msgstr "Známé zálohy (prosté)"
+
+#: restorer.php:954
+msgid "Using directory from backup: %s"
+msgstr "Použít složku ze zálohy: %s"
+
+#: restorer.php:823
+msgid "Files found:"
+msgstr "Nalezené soubory:"
+
+#: restorer.php:829
+msgid "Unable to enumerate files in that directory."
+msgstr "Ze zadané složky nelze vyčíst soubory."
+
+#: restorer.php:1337
+msgid "Requested table engine (%s) is not present - changing to MyISAM."
+msgstr "Požadovaný engine tabulky (%s) není přítomen - měním na MyISAM."
+
+#: restorer.php:1348
+msgid "Restoring table (%s)"
+msgstr "Obnovuji tabulku (%s)"
+
+#: backup.php:1780 backup.php:1973
+msgid "A zip error occurred - check your log for more details."
+msgstr "Nastala chyba zip souboru - pro bližší informace zkontrolujte log soubor."
+
+#: addons/migrator.php:91
+msgid "This looks like a migration (the backup is from a site with a different address/URL), but you did not check the option to search-and-replace the database. That is usually a mistake."
+msgstr "Zdá se, že jde o migraci (záloha je ze stránek s jinou adresou/URL), ale nezaškrtli jste možnost najít a nahradit databázi. To je obvykle chyba."
+
+#: admin.php:3749
+msgid "file is size:"
+msgstr "velikost souboru je:"
+
+#: admin.php:3171
+msgid "database"
+msgstr "databáze"
+
+#: admin.php:397 admin.php:1734
+msgid "Go here for more information."
+msgstr "Pro více informací jděte sem."
+
+#: admin.php:129
+msgid "Some files are still downloading or being processed - please wait."
+msgstr "Některé soubory jsou stále stahovány, nebo zpracovávány - prosím čekejte."
+
+#: admin.php:1272 admin.php:1280
+msgid "This backup set is from a different site - this is not a restoration, but a migration. You need the Migrator add-on in order to make this work."
+msgstr "Tato záloha pochází z jiné stránky - nejde o obnovu, ale migraci. K pokračování potřebujete Migrator add-on."
+
+#: methods/ftp.php:78 methods/ftp.php:127 methods/ftp.php:228
+msgid "%s login failure"
+msgstr "%s přihlášení selhalo"
+
+#: methods/ftp.php:105
+msgid "%s upload failed"
+msgstr "%s nahrávání selhalo"
+
+#: addons/fixtime.php:120 addons/fixtime.php:129
+msgid "Enter in format HH:MM (e.g. 14:22)."
+msgstr "Vložte ve formátu HH:MM (například 14:22)."
+
+#: addons/fixtime.php:120 addons/fixtime.php:129
+msgid "The time zone used is that from your WordPress settings, in Settings -> General."
+msgstr "Časová zóna je převzatá z nastavení WordPressu, Nastavení -> Obecné."
+
+#: methods/dropbox.php:54
+msgid "Dropbox error: %s (see log file for more)"
+msgstr "Chyba Dropboxu: %s (pro více informací se podívejte do logu)"
+
+#: methods/dropbox.php:232
+msgid "You do not appear to be authenticated with %s (whilst deleting)"
+msgstr "Zdá se, že nejste ověřeni s %s (při mazání)"
+
+#: methods/dropbox.php:240
+msgid "Failed to access %s when deleting (see log file for more)"
+msgstr "Při mazání se nepodařilo získat přístup k %s (pro více informací se podívejte do log souboru)"
+
+#: methods/dropbox.php:271
+msgid "You do not appear to be authenticated with %s"
+msgstr "Zdá se, že nejste ověřeni s %s"
+
+#: methods/cloudfiles.php:418
+msgid "Error - no such file exists at %s"
+msgstr "Chyba - v %s takový soubor neexistuje"
+
+#: methods/cloudfiles.php:422
+msgid "Error - failed to download the file from %s"
+msgstr "Chyba - selhalo stažení souboru z %s"
+
+#: methods/openstack-base.php:70 methods/cloudfiles.php:219
+msgid "%s error - failed to upload file"
+msgstr "%s chyba - nepovedlo se nahrát soubor"
+
+#: methods/googledrive.php:753 methods/openstack-base.php:343
+#: methods/cloudfiles.php:392 methods/cloudfiles.php:409
+#: methods/stream-base.php:274 methods/stream-base.php:281
+#: methods/stream-base.php:294 methods/addon-base.php:186
+msgid "%s Error"
+msgstr "%s Chyba"
+
+#: methods/openstack-base.php:32 methods/openstack-base.php:214
+#: methods/openstack-base.php:305 methods/openstack-base.php:377
+#: methods/openstack-base.php:380 methods/openstack-base.php:397
+#: methods/openstack-base.php:402 methods/cloudfiles.php:95
+#: methods/cloudfiles.php:99 methods/cloudfiles.php:240
+#: methods/cloudfiles.php:285 methods/cloudfiles.php:336
+#: methods/cloudfiles.php:340
+msgid "%s authentication failed"
+msgstr "%s ověření selhalo"
+
+#: updraftplus.php:875 methods/cloudfiles.php:211
+msgid "%s error - failed to re-assemble chunks"
+msgstr "%s chyba - nepodařilo se složit kousky dohromady"
+
+#: updraftplus.php:738 updraftplus.php:744 restorer.php:817 admin.php:1203
+#: admin.php:1205 admin.php:1300 admin.php:1305 admin.php:1540 admin.php:1548
+#: methods/googledrive.php:287
+msgid "Error: %s"
+msgstr "Chyba: %s"
+
+#: admin.php:2933
+msgid "Backup directory specified exists, but is <b>not</b> writable."
+msgstr "Složka pro zálohy existuje, ale <b>nelze</b> do ní zapisovat."
+
+#: admin.php:2931
+msgid "Backup directory specified does <b>not</b> exist."
+msgstr "Složka pro zálohy <b>neexistuje</b>."
+
+#: admin.php:1272 admin.php:1280 admin.php:2377 admin.php:2577
+msgid "Warning: %s"
+msgstr "Varování: %s"
+
+#: admin.php:1820
+msgid "Last backup job run:"
+msgstr "Poslední záloha proběhla:"
+
+#: backup.php:1449 backup.php:1467
+msgid "%s: unreadable file - could not be backed up"
+msgstr "%s: nečitelný soubor - nemůže být zálohován"
+
+#: backup.php:1740
+msgid "A very large file was encountered: %s (size: %s Mb)"
+msgstr "Byl zaznamenán velmi velký soubor: %s (velikost: %s Mb)"
+
+#: backup.php:960
+msgid "Table %s has very many rows (%s) - we hope your web hosting company gives you enough resources to dump out that table in the backup"
+msgstr "Tabulka %s má velmi mnoho řádků (%s) - doufáme, že vám poskytovatel hostingu dal dostatek prostředků záloze této tabulky"
+
+#: backup.php:1060
+msgid "An error occurred whilst closing the final database file"
+msgstr "Při zavírání posledního souboru databáze se vyskytla chyba"
+
+#: backup.php:513
+msgid "Warnings encountered:"
+msgstr "Vzniklá varování:"
+
+#: updraftplus.php:1881
+msgid "The backup apparently succeeded (with warnings) and is now complete"
+msgstr "Záloha by zřejmě vytvořena (s varováními)"
+
+#: updraftplus.php:661
+msgid "Your free disk space is very low - only %s Mb remain"
+msgstr "Na disku je velmi málo volného místa - zbývá pouze %s Mb"
+
+#: addons/migrator.php:731
+msgid "<strong>Search and replacing table:</strong> %s"
+msgstr "<strong>Vyhledávání a nahrazování tabulky:</strong> %s"
+
+#: addons/migrator.php:152
+msgid "Site Name:"
+msgstr "Název stránek:"
+
+#: addons/migrator.php:154
+msgid "Site Domain:"
+msgstr "Doména stránek:"
+
+#: addons/migrator.php:171
+msgid "Migrated site (from UpdraftPlus)"
+msgstr "Migrovaná stránka (z UpdraftPlus)"
+
+#: addons/migrator.php:200
+msgid "<strong>ERROR</strong>: Site URL already taken."
+msgstr "<strong>CHYBA</strong>: URL adresa je již zabraná."
+
+#: addons/migrator.php:207
+msgid "New site:"
+msgstr "Nový web:"
+
+#: addons/migrator.php:140
+msgid "Information needed to continue:"
+msgstr "Pro pokračování jsou potřeba informace:"
+
+#: addons/migrator.php:141
+msgid "Please supply the following information:"
+msgstr "Poskytněte prosím následující informace:"
+
+#: addons/migrator.php:143
+msgid "Enter details for where this new site is to live within your multisite install:"
+msgstr "Vložte podrobnosti kde ve vaší multisite instalaci tato stránka leží:"
+
+#: addons/migrator.php:95
+msgid "Processed plugin:"
+msgstr "Zpracováván plugin:"
+
+#: addons/migrator.php:106
+msgid "Network activating theme:"
+msgstr "Aktivační téma pro síť:"
+
+#: addons/sftp.php:39
+msgid "Some servers advertise encrypted FTP as available, but then time-out (after a long time) when you attempt to use it. If you find this happenning, then go into the \"Expert Options\" (below) and turn off SSL there."
+msgstr "Některé servery doporučují šifrované FTP, ale poté nastává time-out (po dlouhém čase), když se ho pokoušíte použít. Pokud se vám to stane, jděte do \"Nastavení pro experty\" (níže) a vypněte tam SSL."
+
+#: addons/sftp.php:75
+msgid "Check your file permissions: Could not successfully create and enter directory:"
+msgstr "Zkontrolujte práva souborů: Nepodařilo se vytvořit složku a vstoupit do ní:"
+
+#: methods/dropbox.php:337
+msgid "Your web server's PHP installation does not included a required module (%s). Please contact your web hosting provider's support and ask for them to enable it."
+msgstr "Vaše instalace PHP neobsahuje požadovaný modul (%s). Zkontaktujte prosím svého poskytovatele hostingu a požádejte ho o povolení tohoto modulu."
+
+#: methods/s3.php:635
+msgid "Please check your access credentials."
+msgstr "Zkontrolujte si prosím své přístupové údaje."
+
+#: methods/s3.php:613
+msgid "The error reported by %s was:"
+msgstr "Chyba ohlášená %s byla:"
+
+#: restorer.php:970
+msgid "Please supply the requested information, and then continue."
+msgstr "Prosím vložte požadované informace a pokračujte."
+
+#: restorer.php:1421
+msgid "Cannot drop tables, so deleting instead (%s)"
+msgstr "Nelze smazat tabulky, takže je vymazávám (%s)"
+
+#: restorer.php:1195 admin.php:1305
+msgid "To import an ordinary WordPress site into a multisite installation requires both the multisite and migrator add-ons."
+msgstr "K vložení běžné WordPress stránky do multisite instalace je požadováno obojí. Multisite a Migrator add-on."
+
+#: restorer.php:1201 admin.php:1313
+msgid "Site information:"
+msgstr "Informace o stránce:"
+
+#: restorer.php:1416
+msgid "Cannot create new tables, so skipping this command (%s)"
+msgstr "Nelze vytvořit nové tabulky, takže tento příkaz přeskakuji (%s)"
+
+#: restorer.php:1124 restorer.php:1144 restorer.php:1406 admin.php:1734
+#: addons/migrator.php:91
+msgid "Warning:"
+msgstr "Varování:"
+
+#: restorer.php:1125
+msgid "Your database user does not have permission to create tables. We will attempt to restore by simply emptying the tables; this should work as long as a) you are restoring from a WordPress version with the same database structure, and b) Your imported database does not contain any tables which are not already present on the importing site."
+msgstr "Váš uživatel databáze nemá povolení k tvorbě tabulek. Pokusíme se je obnovit pomocí jejich vyprázdnění; to by mělo fungovat pokud a) obnovujete WordPress se stejnou tabulkovou strukturou a b) vaše importovaná databáze neobsahuje žádné tabulky, které by už nebyly vytvořeny."
+
+#: restorer.php:45 admin.php:1300
+msgid "You are running on WordPress multisite - but your backup is not of a multisite site."
+msgstr "Používáte WordPress multisite, ale vaše záloha není záloha multisite stránky."
+
+#: admin.php:3712
+msgid "Skipping restoration of WordPress core when importing a single site into a multisite installation. If you had anything necessary in your WordPress directory then you will need to re-add it manually from the zip file."
+msgstr "Přeskakuji obnovu jádra WordPressu při importu jednotlivé stránky do multisite instalace. Pokud máte ve složce s WordPressem něco důležitého, pak to musíte obnovit ze zip souboru ručně."
+
+#: admin.php:3007
+msgid "Your web server's PHP installation does not included a <strong>required</strong> (for %s) module (%s). Please contact your web hosting provider's support and ask for them to enable it."
+msgstr "Vaše instalace PHP neobsahuje <strong>požadovaný</strong> (pro %s) modul (%s). Prosím kontaktujte svého poskytovatele hostingu a požádejte ho o povolení tohoto modulu."
+
+#: admin.php:3007
+msgid "Your options are 1) Install/enable %s or 2) Change web hosting companies - %s is a standard PHP component, and required by all cloud backup plugins that we know of."
+msgstr "Vaše možnosti jsou 1) Instalovat/povolit %s nebo 2) změnit poskytovatele hostingu - %s je standardní komponenta PHP a je požadována všemi pluginy zálohujícími do cloudu o kterých víme."
+
+#: admin.php:161
+msgid "Close"
+msgstr "Zavřít"
+
+#: admin.php:123 addons/autobackup.php:72 addons/autobackup.php:154
+msgid "Unexpected response:"
+msgstr "Neočekávaná odpověď:"
+
+#: admin.php:120 addons/reporting.php:387
+msgid "To send to more than one address, separate each address with a comma."
+msgstr "K odeslání na více než jednu adresu, oddělte adresy čárkou."
+
+#: admin.php:143
+msgid "PHP information"
+msgstr "PHP informace"
+
+#: admin.php:2093
+msgid "show PHP information (phpinfo)"
+msgstr "Ukázat PHP informace (phpinfo)"
+
+#: admin.php:2117
+msgid "zip executable found:"
+msgstr "nalezen spustitelný zip:"
+
+#: admin.php:2032
+msgid "Migrate Site"
+msgstr "Migrovaná stránka"
+
+#: admin.php:2036
+msgid "Migration of data from another site happens through the \"Restore\" button. A \"migration\" is ultimately the same as a restoration - but using backup archives that you import from another site. UpdraftPlus modifies the restoration operation appropriately, to fit the backup data to the new site."
+msgstr "Migrace dat z jedné stránky na jinou probíhá přes tlačítko \"Obnovit\". \"Migrace\" je v zásadě to samé jako obnova - ale jde o soubory zálohy z jiných stránek. UpdraftPlus patřičně upraví operace obnovy, aby proběhla obnova dat na nové stránce."
+
+#: admin.php:2036
+msgid "<a href=\"%s\">Read this article to see step-by-step how it's done.</a>"
+msgstr "<a href=\"%s\">V tomto článku se dočtete, jak je to uděláno krok po kroku.</a>"
+
+#: admin.php:2038
+msgid "Do you want to migrate or clone/duplicate a site?"
+msgstr "Chcete migrovat, nebo klonovat/duplikovat stránku?"
+
+#: admin.php:2038
+msgid "Then, try out our \"Migrator\" add-on. After using it once, you'll have saved the purchase price compared to the time needed to copy a site by hand."
+msgstr "Pak zkuste náš \"Migrator\" add-on. Po prvním použití se vám, v porovnání s časem potřebným pro ruční kopírování, jeho cena vyplatí."
+
+#: admin.php:2038
+msgid "Get it here."
+msgstr "Získejte ho zde."
+
+#: admin.php:1959
+msgid "Deleting... please allow time for the communications with the remote storage to complete."
+msgstr "Mažu... prosím nechte nějaký čas pro dokončení komunikace se vzdáleným uložištěm."
+
+#: admin.php:1958
+msgid "Also delete from remote storage"
+msgstr "Smazat i ze vzdáleného uložiště"
+
+#: admin.php:1870
+msgid "Latest UpdraftPlus.com news:"
+msgstr "Poslední novinky z UpdraftPlus.com:"
+
+#: admin.php:1841
+msgid "Clone/Migrate"
+msgstr "Klonovat/Migrovat"
+
+#: admin.php:1730
+msgid "News"
+msgstr "Novinky"
+
+#: admin.php:1730
+msgid "Premium"
+msgstr "Premium"
+
+#: admin.php:927
+msgid "Local archives deleted: %d"
+msgstr "Místní archivy smazány: %d"
+
+#: admin.php:928
+msgid "Remote archives deleted: %d"
+msgstr "Vzdálené archivy smazány: %d"
+
+#: backup.php:116
+msgid "%s - could not back this entity up; the corresponding directory does not exist (%s)"
+msgstr "%s - nelze zazálohovat tuto entitu; odpovídající složka neexistuje (%s)"
+
+#: admin.php:842
+msgid "Backup set not found"
+msgstr "Soubory zálohy nebyly nalezeny"
+
+#: admin.php:926
+msgid "The backup set has been removed."
+msgstr "Záloha byla odstraněna."
+
+#: updraftplus.php:2601
+msgid "Subscribe to the UpdraftPlus blog to get up-to-date news and offers"
+msgstr "Na UpdraftPlus blogu se přihlašte k odběru novinek a nabídek"
+
+#: updraftplus.php:2601
+msgid "Blog link"
+msgstr "Odkaz blogu"
+
+#: updraftplus.php:2601
+msgid "RSS link"
+msgstr "Odkaz RSS"
+
+#: methods/stream-base.php:201 methods/s3.php:451 methods/addon-base.php:236
+#: methods/ftp.php:249 addons/sftp.php:385
+msgid "Testing %s Settings..."
+msgstr "Testování %s nastavení..."
+
+#: admin.php:1908
+msgid "Or, you can place them manually into your UpdraftPlus directory (usually wp-content/updraft), e.g. via FTP, and then use the \"rescan\" link above."
+msgstr "Nebo můžete vložit ručně do UpdraftPlus složky (obvykle wp-content/updraft), například přes FTP, a pak kliknout na odkaz \"skenovat znovu\"."
+
+#: admin.php:413
+msgid "Notice"
+msgstr "Oznámení"
+
+#: admin.php:413
+msgid "UpdraftPlus's debug mode is on. You may see debugging notices on this page not just from UpdraftPlus, but from any other plugin installed. Please try to make sure that the notice you are seeing is from UpdraftPlus before you raise a support request."
+msgstr "Debug mód UpdraftPlus je zapnutý. Na této stránce můžete vidět debug zprávy nejen z UpdraftPlus, ale i z jakéhokoliv jiného nainstalovaného pluginu. Než požádáte o podporu, tak se prosím přesvědčte, že zprávy patří UpdraftPlus."
+
+#: backup.php:495
+msgid "Errors encountered:"
+msgstr "Narazili jsme na problémy:"
+
+#: admin.php:118
+msgid "Rescanning (looking for backups that you have uploaded manually into the internal backup store)..."
+msgstr "Skenuji znovu (dívám se po zálohách ručně nahraných do uložiště záloh)..."
+
+#: admin.php:128
+msgid "Begun looking for this entity"
+msgstr "Začal jsem hledat tuto entitu"
+
+#: addons/migrator.php:671
+msgid "SQL update commands run:"
+msgstr "Běh SQL příkazu update:"
+
+#: admin.php:133 addons/migrator.php:672
+msgid "Errors:"
+msgstr "Chyby:"
+
+#: addons/migrator.php:673
+msgid "Time taken (seconds):"
+msgstr "Čas běhu (sekundy):"
+
+#: addons/migrator.php:761
+msgid "rows: %d"
+msgstr "řádků: %d"
+
+#: addons/migrator.php:881
+msgid "\"%s\" has no primary key, manual change needed on row %s."
+msgstr "\"%s\" nemá primární klíč, je vyžadována ruční změna na řádku %s."
+
+#: addons/dropbox-folders.php:24
+msgid "Store at"
+msgstr "Uložit na"
+
+#: addons/migrator.php:547
+msgid "Nothing to do: the site URL is already: %s"
+msgstr "Není co udělat: URL stránky již je: %s"
+
+#: addons/migrator.php:556
+msgid "Warning: the database's site URL (%s) is different to what we expected (%s)"
+msgstr "Varování: URL databáze stránky (%s) je jiná, než jsme očekávali (%s)"
+
+#: addons/migrator.php:572
+msgid "Database search and replace: replace %s in backup dump with %s"
+msgstr "Hledání a nahrazení databáze: nahrazení %s ve výpisu zálohy za %s"
+
+#: addons/migrator.php:594
+msgid "Could not get list of tables"
+msgstr "Nemohu získat seznam tabulek"
+
+#: addons/migrator.php:629
+msgid "<strong>Search and replacing table:</strong> %s: already done"
+msgstr "<strong>Hledání a nahrazení tabulky:</strong> %s: již hotovo"
+
+#: addons/migrator.php:668
+msgid "Tables examined:"
+msgstr "Prozkoumané tabulky:"
+
+#: addons/migrator.php:669
+msgid "Rows examined:"
+msgstr "Prozkoumané řádky:"
+
+#: addons/migrator.php:670
+msgid "Changes made:"
+msgstr "Provedeno změn:"
+
+#: addons/sftp.php:250
+msgid "%s Error: Failed to download"
+msgstr "%s Chyba: Stahování se nepodařilo"
+
+#: addons/sftp.php:310
+msgid "Resuming partial uploads is not supported, so you will need to ensure that your webserver allows PHP processes to run long enough to upload your largest backup file."
+msgstr "pokračování částečného nahrávání není podporováno, takže se budete muset ujistit, že váš webserver dovoluje PHP běžet dostatečně dlouho, aby se nahrál váš největší soubor zálohy."
+
+#: addons/sftp.php:315 addons/moredatabase.php:175
+msgid "Host"
+msgstr "Host"
+
+#: addons/sftp.php:322
+msgid "Port"
+msgstr "Port"
+
+#: udaddons/options.php:113 methods/openstack2.php:127 addons/sftp.php:336
+#: addons/moredatabase.php:177
+msgid "Password"
+msgstr "Heslo"
+
+#: addons/sftp.php:361
+msgid "Directory path"
+msgstr "Cesta složky"
+
+#: addons/sftp.php:363
+msgid "Where to change directory to after logging in - often this is relative to your home directory."
+msgstr "Kde změnit adresář po přihlášení - často jde o relativní cestu k domovské složce."
+
+#: addons/sftp.php:415
+msgid "host name"
+msgstr "Jméno hosta"
+
+#: methods/openstack2.php:147 addons/sftp.php:419
+msgid "username"
+msgstr "přihlašovací jméno"
+
+#: methods/openstack2.php:152
+msgid "password"
+msgstr "heslo"
+
+#: addons/sftp.php:428
+msgid "Failure: Port must be an integer."
+msgstr "Chyba: Port musí být celé číslo."
+
+#: addons/fixtime.php:120 addons/fixtime.php:129
+msgid "starting from next time it is"
+msgstr "počínaje od příště je to"
+
+#: addons/multisite.php:139
+msgid "Multisite Install"
+msgstr "Multisite instalace"
+
+#: udaddons/options.php:190 addons/multisite.php:145
+msgid "You do not have sufficient permissions to access this page."
+msgstr "K přístupu na tuto stránku nemáte dostatečná oprávnění."
+
+#: udaddons/options.php:169 addons/multisite.php:164
+msgid "You do not have permission to access this page."
+msgstr "K přístupu na tuto stránku nemáte oprávnění."
+
+#: addons/multisite.php:252
+msgid "Must-use plugins"
+msgstr "Musíte vyzkoušet pluginy"
+
+#: addons/multisite.php:259
+msgid "Blog uploads"
+msgstr "Nahrávání blogu"
+
+#: addons/migrator.php:224
+msgid "All references to the site location in the database will be replaced with your current site URL, which is: %s"
+msgstr "Všechny odkaz na umístění stránky v databázi byly změněny na vaši současnou URL adresu, což je: %s"
+
+#: addons/migrator.php:224
+msgid "Search and replace site location in the database (migrate)"
+msgstr "Hledat a nahradit umístění stránky v databázi (migrace)"
+
+#: addons/migrator.php:224
+msgid "(learn more)"
+msgstr "(dozvědět se více)"
+
+#: addons/migrator.php:424 addons/migrator.php:650
+msgid "Failed: the %s operation was not able to start."
+msgstr "Chyba: %s operace nemohla začít."
+
+#: addons/migrator.php:426 addons/migrator.php:652
+msgid "Failed: we did not understand the result returned by the %s operation."
+msgstr "Chyba: nerozumíme výsledku, který vrátila %s operace."
+
+#: addons/migrator.php:484
+msgid "Database: search and replace site URL"
+msgstr "Databáze: najít a nahradit URL stránky"
+
+#: addons/migrator.php:488
+msgid "This option was not selected."
+msgstr "Tato možnost nebyla vybrána."
+
+#: addons/migrator.php:520 addons/migrator.php:524 addons/migrator.php:528
+#: addons/migrator.php:533 addons/migrator.php:537 addons/migrator.php:541
+msgid "Error: unexpected empty parameter (%s, %s)"
+msgstr "Chyba: neočekávaný prázdný parametr (%s, %s)"
+
+#: addons/morefiles.php:80
+msgid "The above files comprise everything in a WordPress installation."
+msgstr "Soubory výše obsahují celou WordPress instalaci."
+
+#: addons/morefiles.php:87
+msgid "WordPress core (including any additions to your WordPress root directory)"
+msgstr "Jádro WordPressu (včetně všech přídavků v kořenové složce WordPressu)"
+
+#: addons/morefiles.php:142
+msgid "Any other directory on your server that you wish to back up"
+msgstr "Další složky na serveru, které si přejete zálohovat"
+
+#: addons/morefiles.php:143
+msgid "More Files"
+msgstr "Více souborů"
+
+#: addons/morefiles.php:172 addons/morefiles.php:183
+msgid "Enter the directory:"
+msgstr "Vložte složku:"
+
+#: addons/morefiles.php:161
+msgid "If you are not sure what this option is for, then you will not want it, and should turn it off."
+msgstr "Pokud nevíte k čemu tato možnost slouží, tak ji nechcete a měla by být vypnuta."
+
+#: addons/morefiles.php:161
+msgid "If using it, enter an absolute path (it is not relative to your WordPress install)."
+msgstr "Pokud ji použijete, vložte absolutní adresu (nejde o relativní cestu k vaší instalaci WordPressu)."
+
+#: addons/morefiles.php:163
+msgid "Be careful what you enter - if you enter / then it really will try to create a zip containing your entire webserver."
+msgstr "Dávejte pozor co vkládáte - pokud vložíte / pak se vážně pokusíme vytvořit zip soubor obsahující váš celý webserver."
+
+#: addons/morefiles.php:384
+msgid "No backup of %s directories: there was nothing found to back up"
+msgstr "Žádná záloha %s složek: nebylo zde nalezeno nic k zálohování"
+
+#: addons/sftp.php:39
+msgid "Encrypted FTP is available, and will be automatically tried first (before falling back to non-encrypted if it is not successful), unless you disable it using the expert options. The 'Test FTP Login' button will tell you what type of connection is in use."
+msgstr "Šifrované FTP je dostupné a bude automaticky vyzkoušeno jako první (před přepnutím zpět na nešifrované při neúspěchu), pokud ho v nastavení pro experty nevypnete. Tlačítko \"Test FTP přihlášení\" vám řekne, jakou verzi připojení používáte."
+
+#: addons/sftp.php:39
+msgid "Explicit encryption is used by default. To force implicit encryption (port 990), add :990 to your FTP server below."
+msgstr "V základu je použito explicitní šifrování. Pro vnucení implicitního šifrování (port 990), přidejte :990 k vašemu FTP serveru níže."
+
+#: addons/sftp.php:46 addons/sftp.php:47 addons/sftp.php:48
+msgid "No %s found"
+msgstr "%s nenalezeno"
+
+#: addons/sftp.php:458
+msgid "Check your file permissions: Could not successfully create and enter:"
+msgstr "Zkontrolujte oprávnění pro soubory: Nepovedlo se úspěšně vytvořit a vstoupit:"
+
+#: methods/ftp.php:322
+msgid "FTP Server"
+msgstr "FTP server"
+
+#: methods/ftp.php:326
+msgid "FTP Login"
+msgstr "FTP jméno"
+
+#: methods/ftp.php:330
+msgid "FTP Password"
+msgstr "FTP heslo"
+
+#: methods/ftp.php:334
+msgid "Remote Path"
+msgstr "Vzdálená cesta"
+
+#: methods/ftp.php:335
+msgid "Needs to already exist"
+msgstr "Je třeba, aby již existoval"
+
+#: methods/ftp.php:360
+msgid "Failure: No server details were given."
+msgstr "Chyba: Nebyly vloženy detaily o serveru."
+
+#: methods/ftp.php:377
+msgid "Failure: we did not successfully log in with those credentials."
+msgstr "Chyba: s těmito přihlašovacími údaji se nám nepodařilo připojit."
+
+#: methods/ftp.php:385
+msgid "Failure: an unexpected internal UpdraftPlus error occurred when testing the credentials - please contact the developer"
+msgstr "Chyba: při kontrole přihlašovacích údajů nastala neočekávaná vnitřní chyba UpdraftPlus - kontaktujte prosím vývojáře"
+
+#: methods/ftp.php:389
+msgid "Success: we successfully logged in, and confirmed our ability to create a file in the given directory (login type:"
+msgstr "Úspěch: úspěšně jsme se přihlásili a potvrdili naši schopnost vytvořit soubor v dané složce (typ připojení:"
+
+#: methods/ftp.php:392
+msgid "Failure: we successfully logged in, but were not able to create a file in the given directory."
+msgstr "Chyba: úspěšně jsme se přihlásili, ale nepodařilo se nám vytvořit soubor v dané složce."
+
+#: methods/googledrive.php:134 methods/stream-base.php:32
+#: methods/stream-base.php:139 methods/stream-base.php:174
+#: methods/stream-base.php:258 methods/addon-base.php:56
+#: methods/addon-base.php:92 methods/addon-base.php:117
+#: methods/addon-base.php:165 methods/addon-base.php:260 methods/ftp.php:28
+#: addons/sftp.php:44
+msgid "No %s settings were found"
+msgstr "Nebylo nalezeno žádné %s nastavení"
+
+#: methods/stream-base.php:108 methods/stream-base.php:112
+msgid "Chunk %s: A %s error occurred"
+msgstr "Část %s: Nastala chyba %s"
+
+#: methods/stream-base.php:281
+msgid "Error opening remote file: Failed to download"
+msgstr "Chyba při otevření vzdáleného souboru: Soubor nelze stáhnout"
+
+#: methods/stream-base.php:294
+msgid "Local write failed: Failed to download"
+msgstr "Chyba lokálního zápisu: Stahování se nezdařilo"
+
+#: addons/webdav.php:36
+msgid "WebDAV URL"
+msgstr "WebDAV URL"
+
+#: addons/webdav.php:40
+msgid "Enter a complete URL, beginning with webdav:// or webdavs:// and including path, username, password and port as required - e.g.%s"
+msgstr "Vložte celou URL adresu, začíná webdav://, nebo webdavs:// a obsahuje cestu, uživatelské jméno, heslo a port - například %s"
+
+#: admin.php:2430 admin.php:2465 admin.php:2474 methods/stream-base.php:310
+#: methods/addon-base.php:279 addons/sftp.php:445
+msgid "Failed"
+msgstr "Selhání"
+
+#: methods/stream-base.php:324 methods/addon-base.php:289
+msgid "Failed: We were not able to place a file in that directory - please check your credentials."
+msgstr "Selhání: Do dané složky se nám nepodařilo umístit soubor - zkontrolujte prosím přihlašovací údaje."
+
+#: addons/morefiles.php:57 addons/morefiles.php:384
+msgid "WordPress Core"
+msgstr "Jádro WordPressu"
+
+#: addons/morefiles.php:61
+msgid "Over-write wp-config.php"
+msgstr "Přepsání wp-config.php"
+
+#: addons/morefiles.php:61
+msgid "(learn more about this important option)"
+msgstr "(dozvědět se víc o této důležité možnosti)"
+
+#: methods/dropbox.php:404 methods/dropbox.php:406 addons/bitcasa.php:256
+#: addons/bitcasa.php:258
+msgid "you have authenticated your %s account"
+msgstr "účet %s je ověřený"
+
+#: methods/dropbox.php:409 addons/bitcasa.php:264
+msgid "though part of the returned information was not as expected - your mileage may vary"
+msgstr "přesto, že část vrácených informací nebyla taková, jak bylo očekáváno - může to záviset na vaší vzdálenosti"
+
+#: methods/dropbox.php:412 addons/bitcasa.php:275
+msgid "Your %s account name: %s"
+msgstr "Vaše %s jméno účtu: %s"
+
+#: methods/ftp.php:318
+msgid "Only non-encrypted FTP is supported by regular UpdraftPlus."
+msgstr "základní UpdraftPlus podporuje pouze nešifrované FTP."
+
+#: methods/ftp.php:318
+msgid "If you want encryption (e.g. you are storing sensitive business data), then an add-on is available."
+msgstr "Pokud chcete šifrování (například ukládáte citlivá obchodní data), pak je pro vás k dispozici add-on."
+
+#: methods/s3.php:432
+msgid "%s Error: Failed to download %s. Check your permissions and credentials."
+msgstr "Chyba %s:Nepodařilo se stáhnout %s. Zkontrolujte vaše přihlašovací údaje a oprávnění."
+
+#: methods/s3.php:306 methods/s3.php:368 methods/s3.php:437
+msgid "%s Error: Failed to access bucket %s. Check your permissions and credentials."
+msgstr "Chyba %s: Nelze přistoupit k bucketu %s. Zkontrolujte oprávnění a přihlašovací údaje."
+
+#: methods/s3.php:518
+msgid "Get your access key and secret key <a href=\"%s\">from your %s console</a>, then pick a (globally unique - all %s users) bucket name (letters and numbers) (and optionally a path) to use for storage. This bucket will be created for you if it does not already exist."
+msgstr "Získejte přístupový klíč a tajný klíč <a href=\"%s\">z vaší %s konzole</a>, pak vyberte (zcela unikátní - pro všechny %s uživatele) jméno bucketu (písmena a čísla) (a volitelně i cestu) k použití uložiště. Pokud tento bucket ještě neexistuje, bude pro vás vytvořen."
+
+#: methods/s3.php:518
+msgid "If you see errors about SSL certificates, then please go here for help."
+msgstr "Pokud uvidíte chybu ohledně SSL certifikátů, pak klikněte sem pro pomoc."
+
+#: methods/s3.php:529
+msgid "%s access key"
+msgstr "%s přístupový klíč"
+
+#: methods/s3.php:533
+msgid "%s secret key"
+msgstr "%s tajný klíč"
+
+#: methods/s3.php:537
+msgid "%s location"
+msgstr "%s umístění"
+
+#: methods/s3.php:538
+msgid "Enter only a bucket name or a bucket and path. Examples: mybucket, mybucket/mypath"
+msgstr "Vložte pouze jméno bucketu, nebo bucket a cestu. Příklad: můjbucket, můjbucket/mojecesta"
+
+#: methods/s3.php:560
+msgid "API secret"
+msgstr "tajné API"
+
+#: methods/s3.php:581
+msgid "Failure: No bucket details were given."
+msgstr "Selhání: nejsou k dispozici žádné detaily o bucketu."
+
+#: methods/s3.php:594 methods/openstack2.php:113
+msgid "Region"
+msgstr "Oblast"
+
+#: methods/s3.php:612
+msgid "Failure: We could not successfully access or create such a bucket. Please check your access credentials, and if those are correct then try another bucket name (as another %s user may already have taken your name)."
+msgstr "Selhání: Nepodařilo se nám přistoupit k takovému bucketu, nebo ho vytvořit. Zkontrolujte prosím přihlašovací údaje a pokud jsou správné, zkuste jiné jméno bucketu (protože některý jiný %s uživatel již mohl toto jméno použít)."
+
+#: methods/s3.php:623 methods/s3.php:635
+msgid "Failure"
+msgstr "Selhání"
+
+#: methods/s3.php:623 methods/s3.php:635
+msgid "We successfully accessed the bucket, but the attempt to create a file in it failed."
+msgstr "Podařilo se nám přistoupit k bucketu, ale nepodařilo se nám v něm vytvořit soubor."
+
+#: methods/s3.php:625
+msgid "We accessed the bucket, and were able to create files within it."
+msgstr "Podařilo se nám přistoupit k bucketu a vytvořit v něm soubory."
+
+#: methods/s3.php:628
+msgid "The communication with %s was encrypted."
+msgstr "Komunikace s %s byla šifrována."
+
+#: methods/s3.php:630
+msgid "The communication with %s was not encrypted."
+msgstr "Komunikace s %s nebyla šifrována."
+
+#: methods/dropbox.php:43 methods/dropbox.php:49
+msgid "You do not appear to be authenticated with Dropbox"
+msgstr "Zdá se, že nejste ověřeni Dropboxem"
+
+#: methods/dropbox.php:145 methods/dropbox.php:150
+msgid "error: failed to upload file to %s (see log file for more)"
+msgstr "chyba: nepodařilo se nahrát soubor do %s (pro podrobnosti se podívejte do logu)"
+
+#: methods/dropbox.php:349
+msgid "Need to use sub-folders?"
+msgstr "Potřebujete vytvořit podsložky?"
+
+#: methods/dropbox.php:349
+msgid "Backups are saved in"
+msgstr "Zálohy jsou uloženy v"
+
+#: methods/dropbox.php:349
+msgid "If you back up several sites into the same Dropbox and want to organise with sub-folders, then "
+msgstr "Pokud chcete zálohovat několik stránek do jednoho Dropboxu a chcete je organizovat do podsložek, pak"
+
+#: methods/dropbox.php:349
+msgid "there's an add-on for that."
+msgstr "je tu k tomu add-on."
+
+#: methods/cloudfiles.php:487
+msgid "US or UK Cloud"
+msgstr "US, nebo UK Cloud"
+
+#: methods/cloudfiles-new.php:84 methods/cloudfiles.php:490
+#: addons/cloudfiles-enhanced.php:226
+msgid "US (default)"
+msgstr "US (výchozí)"
+
+#: methods/cloudfiles-new.php:85 methods/cloudfiles.php:491
+#: addons/cloudfiles-enhanced.php:227
+msgid "UK"
+msgstr "UK"
+
+#: methods/cloudfiles.php:507
+msgid "Cloud Files username"
+msgstr "Cloud Files uživatelské jméno"
+
+#: methods/cloudfiles.php:511
+msgid "Cloud Files API key"
+msgstr "Cloud Files API klíč"
+
+#: methods/cloudfiles.php:515
+msgid "Cloud Files container"
+msgstr "Cloud Files kontejner"
+
+#: methods/openstack-base.php:453 methods/cloudfiles.php:473 methods/s3.php:508
+msgid "UpdraftPlus's %s module <strong>requires</strong> %s. Please do not file any support requests; there is no alternative."
+msgstr "%s modul UpdraftPlus <strong>vyžaduje</strong> %s. Prosím nezakládejte požadavky na podporu; není žádná jiná možnost."
+
+#: methods/cloudfiles-new.php:143 methods/cloudfiles-new.php:148
+#: methods/cloudfiles.php:529 methods/cloudfiles.php:534 methods/s3.php:556
+#: methods/s3.php:560 methods/addon-base.php:272 methods/ftp.php:364
+#: methods/ftp.php:368 methods/openstack2.php:147 methods/openstack2.php:152
+#: methods/openstack2.php:157 methods/openstack2.php:162 addons/webdav.php:50
+#: addons/sftp.php:415 addons/sftp.php:419 addons/sftp.php:423
+#: addons/moredatabase.php:37 addons/moredatabase.php:39
+#: addons/moredatabase.php:41
+msgid "Failure: No %s was given."
+msgstr "Selhání: Nebylo dáno %s."
+
+#: methods/cloudfiles-new.php:143 methods/cloudfiles.php:529 methods/s3.php:556
+msgid "API key"
+msgstr "API klíč"
+
+#: methods/cloudfiles-new.php:148 methods/cloudfiles.php:534
+#: methods/openstack2.php:121 addons/sftp.php:329 addons/moredatabase.php:176
+msgid "Username"
+msgstr "Uživatelské jméno"
+
+#: methods/openstack-base.php:360 methods/cloudfiles.php:554
+msgid "Failure: No container details were given."
+msgstr "Selhání: Nebyly dány žádné detaily kontejneru."
+
+#: methods/cloudfiles.php:581
+msgid "Cloud Files error - we accessed the container, but failed to create a file within it"
+msgstr "Cloud Files chyba - přistoupili jsme ke kontejneru, ale nepodařilo se nám v něm vytvořit soubor"
+
+#: methods/openstack-base.php:416 methods/cloudfiles.php:585
+msgid "We accessed the container, and were able to create files within it."
+msgstr "Přistoupili jsme ke kontejneru a podařilo se nám v něm vytvořit soubory."
+
+#: methods/email.php:37
+msgid "WordPress Backup"
+msgstr "Záloha WordPressu"
+
+#: methods/email.php:58
+msgid "Note:"
+msgstr "Poznámka:"
+
+#: methods/s3.php:207
+msgid "%s upload: getting uploadID for multipart upload failed - see log file for more details"
+msgstr "%s nahrávání: selhalo získání uploadID pro nahrání více částí - pro bližší informace se podívejte do logu"
+
+#: methods/s3.php:230
+msgid "%s error: file %s was shortened unexpectedly"
+msgstr "%s chyba: soubor %s byl neočekávaně zkrácen"
+
+#: methods/s3.php:240
+msgid "%s chunk %s: upload failed"
+msgstr "%s kus %s: selhalo nahrávání"
+
+#: methods/s3.php:254
+msgid "%s upload (%s): re-assembly failed (see log for more details)"
+msgstr "%s nahrávání (%s): znovu sestavení selhalo (pro bližší informace se podívejte do logu)"
+
+#: methods/s3.php:258
+msgid "%s re-assembly error (%s): (see log file for more)"
+msgstr "%s chyba znovu sestavení (%s): (podívejte se do logu pro více informací)"
+
+#: methods/s3.php:270
+msgid "%s Error: Failed to create bucket %s. Check your permissions and credentials."
+msgstr "%s Chyba: Nepodařilo se vytvořit bucket %s. Zkontrolujte přihlašovací údaje a oprávnění."
+
+#: methods/googledrive.php:826
+msgid "For longer help, including screenshots, follow this link. The description below is sufficient for more expert users."
+msgstr "Pro delší podporu, včetně snímků obrazovky, následujte tento odkaz. Popis níže je dostatečný pro zkušenější uživatele."
+
+#: methods/googledrive.php:827
+msgid "Select 'Web Application' as the application type."
+msgstr "Vyberte \"Webová aplikace\" jako typ aplikace."
+
+#: methods/googledrive.php:827
+msgid "You must add the following as the authorised redirect URI (under \"More Options\") when asked"
+msgstr "Pokud budete dotázáni, musíte přidat následující do autorizovaných přesměrovacích URI (pod \"Více možností\")"
+
+#: methods/googledrive.php:827
+msgid "N.B. If you install UpdraftPlus on several WordPress sites, then you cannot re-use your client ID; you must create a new one from your Google API console for each site."
+msgstr "Pozn. Pokud máte UpdraftPlus na několika WordPress stránkách, nemůžete znovu použít vaše klientské ID; v Google API konzoli musíte vytvořit nové pro každou stránku."
+
+#: methods/googledrive.php:834 addons/bitcasa.php:331
+msgid "Client ID"
+msgstr "Klientské ID"
+
+#: methods/googledrive.php:835
+msgid "If Google later shows you the message \"invalid_client\", then you did not enter a valid client ID here."
+msgstr "Pokud vám Google později ukáže zprávu \"invalid_client\", pak jste sem vložili špatné klientské ID."
+
+#: methods/googledrive.php:838 addons/bitcasa.php:337
+msgid "Client Secret"
+msgstr "Tajemství klienta"
+
+#: methods/googledrive.php:868
+msgid "Authenticate with Google"
+msgstr "Autorizováno s Googlem"
+
+#: methods/googledrive.php:879
+msgid "<strong>After</strong> you have saved your settings (by clicking 'Save Changes' below), then come back here once and click this link to complete authentication with Google."
+msgstr "<strong>Poté</strong> co uložíte nastavení (kliknutím na \"Uložit změny\" níže), vraťte se sem a klikněte na odkaz k dokončení ověření s Googlem."
+
+#: methods/cloudfiles.php:564 methods/cloudfiles.php:567
+#: methods/cloudfiles.php:570 addons/cloudfiles-enhanced.php:76
+#: addons/cloudfiles-enhanced.php:115 addons/cloudfiles-enhanced.php:120
+msgid "Cloud Files authentication failed"
+msgstr "Ověření Cloud Files selhalo"
+
+#: methods/cloudfiles.php:103 methods/cloudfiles.php:344
+#: methods/cloudfiles.php:363
+msgid "Cloud Files error - failed to create and access the container"
+msgstr "Chyba Cloud Files - nepodařilo se vytvořit kontejner a přistoupit k němu"
+
+#: updraftplus.php:832 methods/googledrive.php:672 methods/googledrive.php:677
+#: methods/cloudfiles.php:130
+msgid "%s Error: Failed to open local file"
+msgstr "%s Chyba: Nepodařilo se otevřít lokální soubor"
+
+#: methods/openstack-base.php:65 methods/openstack-base.php:188
+#: methods/cloudfiles.php:147 methods/cloudfiles.php:189 methods/s3.php:181
+#: methods/s3.php:187 methods/s3.php:188 addons/sftp.php:117
+#: addons/sftp.php:127
+msgid "%s Error: Failed to upload"
+msgstr "%s Chyba: Nahrávání se nezdařilo"
+
+#: methods/cloudfiles.php:218
+msgid "Cloud Files error - failed to upload file"
+msgstr "Cloud Files chyba - nepodařilo se nahrát soubor"
+
+#: updraftplus.php:903 methods/cloudfiles.php:392 methods/stream-base.php:274
+msgid "Error opening local file: Failed to download"
+msgstr "Chyba při otevírání lokálního souboru: Nepodařilo se ho stáhnout"
+
+#: methods/openstack-base.php:343
+msgid "Error downloading remote file: Failed to download ("
+msgstr "Chyba při stahování vzdáleného souboru: Stahování se nezdařilo ("
+
+#: methods/openstack-base.php:272 methods/cloudfiles.php:433
+msgid "Testing - Please Wait..."
+msgstr "Testuji - Prosím čekejte..."
+
+#: methods/openstack-base.php:288 methods/openstack-base.php:464
+#: methods/cloudfiles.php:448 methods/cloudfiles.php:521
+#: methods/stream-base.php:210 methods/stream-base.php:232 methods/s3.php:466
+#: methods/s3.php:543 methods/addon-base.php:222 methods/addon-base.php:245
+#: methods/ftp.php:264 methods/ftp.php:339 addons/sftp.php:376
+#: addons/sftp.php:402
+msgid "Test %s Settings"
+msgstr "Test %s nastavení"
+
+#: methods/cloudfiles-new.php:77 methods/cloudfiles.php:483
+msgid "Get your API key <a href=\"https://mycloud.rackspace.com/\">from your Rackspace Cloud console</a> (read instructions <a href=\"http://www.rackspace.com/knowledge_center/article/rackspace-cloud-essentials-1-generating-your-api-key\">here</a>), then pick a container name to use for storage. This container will be created for you if it does not already exist."
+msgstr "Získejte API klíč <a href=\"https://mycloud.rackspace.com/\">z vaší Rackspace Cloud konzole</a> (přečtěte si instrukce <a href=\"http://www.rackspace.com/knowledge_center/article/rackspace-cloud-essentials-1-generating-your-api-key\">zde</a>), pak vyberte název kontejneru pro uložiště. Pokud takový kontejner ještě neexistuje, bude vytvořen."
+
+#: methods/cloudfiles-new.php:77 methods/cloudfiles.php:483
+#: methods/openstack2.php:94
+msgid "Also, you should read this important FAQ."
+msgstr "Také byste si měli přečíst tyto často kladené otázky."
+
+#: methods/googledrive.php:398
+msgid "Account full: your %s account has only %d bytes left, but the file to be uploaded is %d bytes"
+msgstr "Účet je plný: váš %s účet má pouze %d bytů volného místa, ale soubor k nahrání má %d bytů"
+
+#: methods/googledrive.php:369 methods/googledrive.php:415
+#: methods/googledrive.php:419 methods/stream-base.php:190
+msgid "Failed to upload to %s"
+msgstr "Chyba při nahrávání do %s"
+
+#: methods/googledrive.php:438 methods/googledrive.php:439
+msgid "Account is not authorized."
+msgstr "Účet není ověřen."
+
+#: methods/googledrive.php:819 methods/openstack-base.php:443
+#: methods/cloudfiles.php:463 methods/stream-base.php:225 methods/s3.php:486
+#: methods/dropbox.php:326 methods/addon-base.php:209 methods/ftp.php:313
+msgid "%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your site is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts."
+msgstr "%s je skvělá volba, protože UpdraftPlus podporuje rozkouskované nahrávání - bez ohledu na to, jak jsou vaše stránky velké, UpdraftPlus dokáže nahrávat pomalu v čase bez hrozby přerušení kvůli vypršení času."
+
+#: restorer.php:1352
+msgid "will restore as:"
+msgstr "se obnoví jako:"
+
+#: restorer.php:1454 addons/migrator.php:704
+msgid "the database query being run was:"
+msgstr "byl spuštěn databázový dotaz:"
+
+#: restorer.php:1461
+msgid "Too many database errors have occurred - aborting restoration (you will need to restore manually)"
+msgstr "Nastalo příliš mnoho chyb v databázi - ruším obnovu (musíte obnovit ručně)"
+
+#: restorer.php:1388
+msgid "Finished: lines processed: %d in %.2f seconds"
+msgstr "Skončeno: zpracováno řádků: %d v %.2f sekundách"
+
+#: restorer.php:1520 restorer.php:1577
+msgid "Table prefix has changed: changing %s table field(s) accordingly:"
+msgstr "Prefix tabulek se změnil: Měním patřičně pole %s tabulky:"
+
+#: restorer.php:1526 restorer.php:1605 admin.php:2433 admin.php:2467
+#: admin.php:2471 admin.php:3734 admin.php:3747
+msgid "OK"
+msgstr "OK"
+
+#: includes/Dropbox/OAuth/Consumer/ConsumerAbstract.php:97
+msgid "You need to re-authenticate with %s, as your existing credentials are not working."
+msgstr "Jelikož vaše současné přihlašovací údaje nefungují, potřebujete nové ověření s %s."
+
+#: methods/viaaddon-base.php:29 methods/viaaddon-base.php:43
+#: methods/viaaddon-base.php:52 methods/viaaddon-base.php:62
+msgid "You do not have the UpdraftPlus %s add-on installed - get it from %s"
+msgstr "Nemáte nainstalovaný UpdraftPlus %s add-on - získejte ho z %s"
+
+#: methods/viaaddon-base.php:72
+msgid "%s support is available as an add-on"
+msgstr "%s podpora je dostupná ve formě add-onu"
+
+#: methods/viaaddon-base.php:72
+msgid "follow this link to get it"
+msgstr "pro získání následujte tento odkaz"
+
+#: methods/googledrive.php:285
+msgid "No refresh token was received from Google. This often means that you entered your client secret wrongly, or that you have not yet re-authenticated (below) since correcting it. Re-check it, then follow the link to authenticate again. Finally, if that does not work, then use expert mode to wipe all your settings, create a new Google client ID/secret, and start again."
+msgstr "Od Googlu nebyl přijat žádný obnovovací token. Často to znamená, že jste špatně vložili klientovo tajemství, nebo že jste neprovedli nové ověření (níže) po jeho opravení. Překontrolujte ho a pak klikněte na odkaz k novému ověření. Pokud to nepomůže, použijte expert mód k vymazání všech vašich nastavení, založte nové Google klient ID/tajemství a začněte znovu."
+
+#: methods/googledrive.php:293
+msgid "Authorization failed"
+msgstr "Ověření selhalo"
+
+#: methods/googledrive.php:320 methods/dropbox.php:421 addons/bitcasa.php:282
+msgid "Your %s quota usage: %s %% used, %s available"
+msgstr "Vaše %s kvóta používání: %s %% použito, %s dostupné"
+
+#: methods/googledrive.php:346 methods/openstack-base.php:416
+#: methods/cloudfiles.php:585 methods/stream-base.php:321 methods/s3.php:625
+#: methods/addon-base.php:286 addons/sftp.php:478
+msgid "Success"
+msgstr "Úspěch"
+
+#: methods/googledrive.php:346
+msgid "you have authenticated your %s account."
+msgstr "Ověřili jste svůj %s účet."
+
+#: methods/googledrive.php:472
+msgid "Have not yet obtained an access token from Google - you need to authorise or re-authorise your connection to Google Drive."
+msgstr "Neobdrželi jsme přístupový token od Googlu - musíte autorizovat, nebo re-autorizovat vaše připojení ke Google Disku."
+
+#: restorer.php:340
+msgid "wp-config.php from backup: restoring (as per user's request)"
+msgstr "wp-config.php ze zálohy: obnovuji (dle přání uživatele)"
+
+#: restorer.php:1011
+msgid "Warning: PHP safe_mode is active on your server. Timeouts are much more likely. If these happen, then you will need to manually restore the file via phpMyAdmin or another method."
+msgstr "Varování: PHP safe_mode je na vašem serveru aktivní. Vypršení času je mnohem pravděpodobnější. Pokud se to stane, budete muset ručně obnovit soubor přes phpMyAdmin nebo jinou metodou."
+
+#: restorer.php:1029
+msgid "Failed to find database file"
+msgstr "Nepodařilo se najít soubor databáze"
+
+#: restorer.php:1043
+msgid "Failed to open database file"
+msgstr "Nepodařilo se otevřít soubor databáze"
+
+#: restorer.php:1066 addons/migrator.php:275
+msgid "Database access: Direct MySQL access is not available, so we are falling back to wpdb (this will be considerably slower)"
+msgstr "Přístup k databázi: Přímý přístup k MySQL není k dispozici, takže jsme se vrátili do wpdb (což bude výrazně pomalejší)"
+
+#: backup.php:530 admin.php:1268 addons/reporting.php:107
+msgid "Backup of:"
+msgstr "Záloha:"
+
+#: restorer.php:1182 restorer.php:1273
+msgid "Old table prefix:"
+msgstr "Starý prefix tabulky:"
+
+#: admin.php:3744
+msgid "Archive is expected to be size:"
+msgstr "Předpokládaná velikost archivu:"
+
+#: admin.php:3752
+msgid "The backup records do not contain information about the proper size of this file."
+msgstr "Záznamy zálohy neobsahují informaci o správné velikosti tohoto souboru."
+
+#: admin.php:3825
+msgid "Error message"
+msgstr "Chybová zpráva"
+
+#: admin.php:3755 admin.php:3756
+msgid "Could not find one of the files for restoration"
+msgstr "Nelze najít jeden ze souborů k obnově"
+
+#: restorer.php:30
+msgid "UpdraftPlus is not able to directly restore this kind of entity. It must be restored manually."
+msgstr "UpdraftPlus nedokáže přímo obnovit tento druh entity. Musí být obnovena ručně."
+
+#: restorer.php:31
+msgid "Backup file not available."
+msgstr "Soubor se zálohou není dostupný."
+
+#: restorer.php:32
+msgid "Copying this entity failed."
+msgstr "Kopírování této entity selhalo."
+
+#: restorer.php:33
+msgid "Unpacking backup..."
+msgstr "Rozbalování zálohy..."
+
+#: restorer.php:34
+msgid "Decrypting database (can take a while)..."
+msgstr "Dešifrování databáze (může chvíli trvat)..."
+
+#: restorer.php:35
+msgid "Database successfully decrypted."
+msgstr "Databáze úspěšně dešifrována."
+
+#: restorer.php:38
+msgid "Restoring the database (on a large site this can take a long time - if it times out (which can happen if your web hosting company has configured your hosting to limit resources) then you should use a different method, such as phpMyAdmin)..."
+msgstr "Obnovování databáze (na větší stránce to může trvat dlouho - pokud čas vyprší (což může nastat, pokud vám váš poskytovatel hostingu omezil zdroje) pak byste měli použít jinou metodu, jako například phpMyAdmina)..."
+
+#: restorer.php:39
+msgid "Cleaning up rubbish..."
+msgstr "Uklízím smetí..."
+
+#: restorer.php:41
+msgid "Could not delete old directory."
+msgstr "Nelze smazat starou složku."
+
+#: restorer.php:44
+msgid "Failed to delete working directory after restoring."
+msgstr "Nelze smazat pracovní složku po obnově."
+
+#: restorer.php:229
+msgid "Failed to create a temporary directory"
+msgstr "Nelze založit dočasnou složku"
+
+#: restorer.php:242
+msgid "Failed to write out the decrypted database to the filesystem"
+msgstr "Nepovedlo se zapsat dešifrovanou databázi do systému souborů"
+
+#: restorer.php:335
+msgid "wp-config.php from backup: will restore as wp-config-backup.php"
+msgstr "wp-config.php ze zálohy: bude obnoven jako wp-config-backup.php"
+
+#: admin.php:2953
+msgid "Choosing this option lowers your security by stopping UpdraftPlus from using SSL for authentication and encrypted transport at all, where possible. Note that some cloud storage providers do not allow this (e.g. Dropbox), so with those providers this setting will have no effect."
+msgstr "Vybráním této možnosti snížíte zabezpečení tím, že úplně zakážete UpdraftPlus používat SSL pro ověření a šifrovaný přenos, kde by možný.Uvědomte si, že někteří poskytovatelé cloudových uložišť toto nedovolují (například Dropbox), takže s těmito poskytovateli nebude mít tato možnost žádný efekt."
+
+#: admin.php:2977
+msgid "Save Changes"
+msgstr "Uložit změny"
+
+#: methods/openstack-base.php:453 methods/cloudfiles.php:473 methods/s3.php:508
+msgid "Your web server's PHP installation does not included a required module (%s). Please contact your web hosting provider's support."
+msgstr "Instalace PHP na vašem serveru nemá požadovaný modul (%s). Kontaktujte prosím svého poskytovatele webu."
+
+#: admin.php:3014
+msgid "Your web server's PHP/Curl installation does not support https access. Communications with %s will be unencrypted. ask your web host to install Curl/SSL in order to gain the ability for encryption (via an add-on)."
+msgstr "Vaše instalace PHP/Curl nepodporuje https přístup. Komunikace s %s bude nešifrovaná. Požádejte svého poskytovatele web, aby nainstaloval Curl/SSL, abyste mohli získat možnost pro šifrování (pomocí add-onu)."
+
+#: admin.php:3016
+msgid "Your web server's PHP/Curl installation does not support https access. We cannot access %s without this support. Please contact your web hosting provider's support. %s <strong>requires</strong> Curl+https. Please do not file any support requests; there is no alternative."
+msgstr "Vaše instalace PHP/Curl nepodporuje https přístup. Bez této podpory nemůžeme přistoupit k %s. Kontaktujte prosím svého poskytovatele webu. %s <strong>vyžaduje</strong> Curl + https. Prosím nekontaktujte naši podporu; neexistuje jiná alternativa."
+
+#: admin.php:3019
+msgid "Good news: Your site's communications with %s can be encrypted. If you see any errors to do with encryption, then look in the 'Expert Settings' for more help."
+msgstr "Dobré zprávy: Komunikace vašich stránek s %s může být šifrovaná. Pokud uvidíte nějakou chybu týkající se šifrování, podívejte se do \"Pokročilého nastavení\"."
+
+#: admin.php:3132
+msgid "Delete this backup set"
+msgstr "Smazat tuto zálohu"
+
+#: admin.php:3246
+msgid "Press here to download"
+msgstr "Klikněte sem pro stažení"
+
+#: admin.php:3171 admin.php:3274
+msgid "(No %s)"
+msgstr "(Žádný %s)"
+
+#: admin.php:3283
+msgid "Backup Log"
+msgstr "Log zálohy"
+
+#: admin.php:3311
+msgid "After pressing this button, you will be given the option to choose which components you wish to restore"
+msgstr "Po stisku tohoto tlačítka dostane možnost vybrat si komponenty, které chcete obnovit"
+
+#: admin.php:3573
+msgid "This backup does not exist in the backup history - restoration aborted. Timestamp:"
+msgstr "tato záloha neexistuje v historii záloh - obnova zrušena. Časová značka:"
+
+#: admin.php:3612
+msgid "UpdraftPlus Restoration: Progress"
+msgstr "UpdraftPlus obnova: Průběh"
+
+#: admin.php:3659
+msgid "ABORT: Could not find the information on which entities to restore."
+msgstr "ZRUŠENO: Nenalezena informace o tom, které entity obnovit."
+
+#: admin.php:3660
+msgid "If making a request for support, please include this information:"
+msgstr "Pokud budete žádat o pomoc podporu, vložte prosím tuto informaci:"
+
+#: admin.php:2947
+msgid "Do not verify SSL certificates"
+msgstr "Neověřovat SSL certifikáty"
+
+#: admin.php:2948
+msgid "Choosing this option lowers your security by stopping UpdraftPlus from verifying the identity of encrypted sites that it connects to (e.g. Dropbox, Google Drive). It means that UpdraftPlus will be using SSL only for encryption of traffic, and not for authentication."
+msgstr "Vybráním této možnosti snížíte zabezpečení, protože zastavíte UpdraftPlus v používání šifrování při připojování na stránky (jako je Dropbox, nebo Google Disk). To znamená, že bude UpdraftPlus používat SSL pouze pro šifrování přenosu data a ne pro přihlášení."
+
+#: admin.php:2948
+msgid "Note that not all cloud backup methods are necessarily using SSL authentication."
+msgstr "Uvědomte si, že ne všechny metody zálohy do cloudu musí nutně vyžadovat SSL ověření."
+
+#: admin.php:2952
+msgid "Disable SSL entirely where possible"
+msgstr "Pokud je to možné, zakázat SSL úplně"
+
+#: admin.php:2899
+msgid "Expert settings"
+msgstr "Pokročilé nastavení"
+
+#: admin.php:2900
+msgid "Show expert settings"
+msgstr "Ukázat pokročilé nastavení"
+
+#: admin.php:2900
+msgid "click this to show some further options; don't bother with this unless you have a problem or are curious."
+msgstr "klikněte sem pro zobrazení dalších možností; nezatěžujte se s nimi, pokud nemáte problém, nebo nejste zvědaví."
+
+#: admin.php:2915
+msgid "Delete local backup"
+msgstr "Smazat místní zálohu"
+
+#: admin.php:2920
+msgid "Backup directory"
+msgstr "Složka zálohy"
+
+#: admin.php:2927
+msgid "Backup directory specified is writable, which is good."
+msgstr "Do složka zálohy lze zapisovat, což je dobře."
+
+#: admin.php:2935
+msgid "Click here to attempt to create the directory and set the permissions"
+msgstr "Klikněte sem pro pokus o vytvoření složky a nastavení práv"
+
+#: admin.php:2935
+msgid "or, to reset this option"
+msgstr "nebo pro reset možnosti"
+
+#: admin.php:2935
+msgid "click here"
+msgstr "klikněte sem"
+
+#: admin.php:2935
+msgid "If that is unsuccessful check the permissions on your server or change it to another directory that is writable by your web server process."
+msgstr "Pokud se akce nezdařila, zkontrolujte oprávnění na serveru, nebo nastavení změňte na složku do které může zapisovat proces webserveru."
+
+#: admin.php:2942
+msgid "Use the server's SSL certificates"
+msgstr "Použít SSL certifikáty serveru"
+
+#: admin.php:2943
+msgid "By default UpdraftPlus uses its own store of SSL certificates to verify the identity of remote sites (i.e. to make sure it is talking to the real Dropbox, Amazon S3, etc., and not an attacker). We keep these up to date. However, if you get an SSL error, then choosing this option (which causes UpdraftPlus to use your web server's collection instead) may help."
+msgstr "V základu požívá UpdraftPlus svůj vlastní seznam SSL certifikátů k ověření identity vzdálených stránek (například k ověření, že se připojuje ke skutečnému Dropboxu, Amazon S3, atd. a ne k útočníkovi). Tento seznam udržujeme aktualizovaný. Nicméně pokud dostanete SSl chybu, pak vybrání této možnosti (která způsobí, že místo toho UpdraftPlus použije seznam vašeho webserveru) může pomoci."
+
+#: admin.php:2697
+msgid "Use WordShell for automatic backup, version control and patching"
+msgstr "Použijte WordShell pro automatické zálohy, kontroly verzí a patchování"
+
+#: admin.php:2788 udaddons/options.php:111
+msgid "Email"
+msgstr "Email"
+
+#: admin.php:2708
+msgid "Database encryption phrase"
+msgstr "Fráze pro šifrování databáze"
+
+#: admin.php:2724
+msgid "Manually decrypt a database backup file"
+msgstr "Ručně dešifrovat soubor databáze"
+
+#: admin.php:2804
+msgid "Copying Your Backup To Remote Storage"
+msgstr "Kopírovat vaši zálohu do vzdáleného uložiště"
+
+#: admin.php:2814
+msgid "Choose your remote storage"
+msgstr "Vybrat vaše vzdálené uložiště"
+
+#: admin.php:2823 addons/reporting.php:153
+msgid "None"
+msgstr "Žádné"
+
+#: admin.php:158
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: admin.php:142
+msgid "Requesting start of backup..."
+msgstr "Požaduji začátek zálohy..."
+
+#: admin.php:2892
+msgid "Advanced / Debugging Settings"
+msgstr "Pokročilé / Debug nastavení"
+
+#: admin.php:2895
+msgid "Debug mode"
+msgstr "Debug mód"
+
+#: admin.php:2696
+msgid "The above directories are everything, except for WordPress core itself which you can download afresh from WordPress.org."
+msgstr "Složky výše jsou všechno, kromě jádra WordPressu, které můžete kdykoliv stáhnout aktuální z WordPress.org."
+
+#: admin.php:2621
+msgid "Daily"
+msgstr "Denně"
+
+#: admin.php:2622
+msgid "Weekly"
+msgstr "Týdně"
+
+#: admin.php:2623
+msgid "Fortnightly"
+msgstr "Dvoutýdně"
+
+#: admin.php:2624
+msgid "Monthly"
+msgstr "Měsíčně"
+
+#: admin.php:2634 admin.php:2652
+msgid "and retain this many backups"
+msgstr "a udržovat tolik záloh"
+
+#: admin.php:2641
+msgid "Database backup intervals"
+msgstr "Interval záloh databáze"
+
+#: admin.php:2659
+msgid "If you would like to automatically schedule backups, choose schedules from the dropdowns above. Backups will occur at the intervals specified. If the two schedules are the same, then the two backups will take place together. If you choose \"manual\" then you must click the \"Backup Now\" button whenever you wish a backup to occur."
+msgstr "Pokud chcete naplánovat automatické zálohy, vyberte plány z rozevíracích menu výše. Zálohy budou tvořeny ve zvolených intervalech. Pokud jsou oba plány shodné, pak budou zálohovány společně. Pokud zvolíte \"manuálně\", pak musíte kliknout na tlačítko \"Zálohovat nyní\", kdykoliv budete chtít provést zálohu."
+
+#: admin.php:2660
+msgid "To fix the time at which a backup should take place,"
+msgstr "K opravě času, kdy se má záloha provést,"
+
+#: admin.php:2660
+msgid "e.g. if your server is busy at day and you want to run overnight"
+msgstr "například pokud je váš server zatížen přes den a chcete aby záloha běžela přes noc"
+
+#: admin.php:2664
+msgid "Include in files backup"
+msgstr "Zahrnout do souborů zálohy"
+
+#: admin.php:2676
+msgid "Any other directories found inside wp-content"
+msgstr "Jakoukoliv další složku nalezenou ve wp-content"
+
+#: admin.php:2682 addons/morefiles.php:218
+msgid "Exclude these:"
+msgstr "Kromě těchto:"
+
+#: admin.php:2167
+msgid "Debug Database Backup"
+msgstr "Debug zálohy databáze"
+
+#: admin.php:2167
+msgid "This will cause an immediate DB backup. The page will stall loading until it finishes (ie, unscheduled). The backup may well run out of time; really this button is only helpful for checking that the backup is able to get through the initial stages, or for small WordPress sites.."
+msgstr "Toto způsobí okamžitou zálohu databáze. Stránka se bude načítat, doku nebude dokončena (případně nezruší). Záloze může snadno vypršet čas; toto tlačítko je opravdu pomocné pouze pro zjištění, zda se záloha dokáže dostat přes úvodní fáze, nebo pro malé WordPress stránky..."
+
+#: admin.php:2173
+msgid "Wipe Settings"
+msgstr "Vymazat nastavení"
+
+#: admin.php:2174
+msgid "This button will delete all UpdraftPlus settings (but not any of your existing backups from your cloud storage). You will then need to enter all your settings again. You can also do this before deactivating/deinstalling UpdraftPlus if you wish."
+msgstr "Toto tlačítko smaže všechno UpdraftPlus nastavení (ale ne žádnou z vašich existujících záloh z cloudového uložiště). Poté budete muset všechno nastavení zadat znovu. Pokud chcete, můžete to provést také před deaktivací/odinstalací UpdraftPlus."
+
+#: admin.php:2177
+msgid "Wipe All Settings"
+msgstr "Smazat všechno nastavení"
+
+#: admin.php:2177
+msgid "This will delete all your UpdraftPlus settings - are you sure you want to do this?"
+msgstr "Toto smaže vaše veškeré nastavení UpdraftPlus - jste si jisti, že chcete pokračovat?"
+
+#: admin.php:2370
+msgid "show log"
+msgstr "ukázat log"
+
+#: admin.php:2372
+msgid "delete schedule"
+msgstr "smazat plán"
+
+#: admin.php:159 admin.php:2427 admin.php:2460
+msgid "Delete"
+msgstr "Smazat"
+
+#: admin.php:2511
+msgid "The request to the filesystem to create the directory failed."
+msgstr "Žádost souborovému systému o vytvoření složky selhal."
+
+#: admin.php:2525
+msgid "The folder was created, but we had to change its file permissions to 777 (world-writable) to be able to write to it. You should check with your hosting provider that this will not cause any problems"
+msgstr "Složka byla vytvořena, ale museli jsme změnit její oprávnění na 777 (všemi zapisovatelné), abychom do ní mohli zapsat. Měli byste si u poskytovatele hostingu ověřit, že to nezpůsobí žádný problém"
+
+#: admin.php:2529
+msgid "The folder exists, but your webserver does not have permission to write to it."
+msgstr "Složka existuje, ale váš webserver nemá oprávnění, aby do ní mohl zapisovat."
+
+#: admin.php:2529
+msgid "You will need to consult with your web hosting provider to find out to set permissions for a WordPress plugin to write to the directory."
+msgstr "S vaším poskytovatelem hostingu budete muset konzultovat nastavení oprávnění, aby mohl do složky zapisovat WordPress plugin."
+
+#: admin.php:2593
+msgid "Download log file"
+msgstr "Stáhnout log soubor"
+
+#: admin.php:2597
+msgid "No backup has been completed."
+msgstr "Záloha byla dokončena."
+
+#: admin.php:2613
+msgid "File backup intervals"
+msgstr "Interval zálohy souborů"
+
+#: admin.php:2617
+msgid "Manual"
+msgstr "Manuálně"
+
+#: admin.php:2618
+msgid "Every 4 hours"
+msgstr "Každé 4 hodiny"
+
+#: admin.php:2619
+msgid "Every 8 hours"
+msgstr "Každých 8 hodin"
+
+#: admin.php:2620
+msgid "Every 12 hours"
+msgstr "Každých 12 hodin"
+
+#: admin.php:2050
+msgid "To proceed, press 'Backup Now'. Then, watch the 'Last Log Message' field for activity after about 10 seconds. WordPress should start the backup running in the background."
+msgstr "K pokračování stiskněte \"Zálohovat nyní\". Pak se podívejte na pole \"Poslední log zprávy\" po aktivitě na asi 10 sekund. WordPress by měl spustit zálohu na pozadí."
+
+#: admin.php:2058
+msgid "Go here for help."
+msgstr "Pro pomoc jděte sem."
+
+#: admin.php:2064
+msgid "Multisite"
+msgstr "Multisite"
+
+#: admin.php:2068
+msgid "Do you need WordPress Multisite support?"
+msgstr "Potřebujete WodPress Multisite podporu?"
+
+#: admin.php:2068
+msgid "Please check out UpdraftPlus Premium, or the stand-alone Multisite add-on."
+msgstr "Podívejte se prosím na UpdraftPlus Premium, nebo samostatný Multisite add-on."
+
+#: admin.php:2073
+msgid "Configure Backup Contents And Schedule"
+msgstr "Nastavit obsah zálohy a její plán"
+
+#: admin.php:2079
+msgid "Debug Information And Expert Options"
+msgstr "Debug informace a pokročilé nastavení"
+
+#: admin.php:2082
+msgid "Web server:"
+msgstr "Web server:"
+
+#: admin.php:2089
+msgid "Peak memory usage"
+msgstr "Špičkové použití paměti"
+
+#: admin.php:2090
+msgid "Current memory usage"
+msgstr "Současné použití paměti"
+
+#: admin.php:2091
+msgid "PHP memory limit"
+msgstr "Limit paměti pro PHP"
+
+#: admin.php:2092 admin.php:2095 admin.php:2096
+msgid "%s version:"
+msgstr "%s verze:"
+
+#: admin.php:2107 admin.php:2110 admin.php:2117
+msgid "Yes"
+msgstr "Ano"
+
+#: admin.php:2110 admin.php:2117
+msgid "No"
+msgstr "Ne"
+
+#: admin.php:2113
+msgid "PHP has support for ZipArchive::addFile:"
+msgstr "PHP má podporu pro ZipArchive::addFile:"
+
+#: admin.php:2140
+msgid "Total (uncompressed) on-disk data:"
+msgstr "Celkem (nezabalených) dat na disku:"
+
+#: admin.php:2141
+msgid "N.B. This count is based upon what was, or was not, excluded the last time you saved the options."
+msgstr "Pozn. Tento počet je založen na tom, co bylo, nebo nebylo vyjmuto, když jste naposledy ukládali možnosti."
+
+#: admin.php:2148
+msgid "count"
+msgstr "počet"
+
+#: admin.php:2154
+msgid "The buttons below will immediately execute a backup run, independently of WordPress's scheduler. If these work whilst your scheduled backups and the \"Backup Now\" button do absolutely nothing (i.e. not even produce a log file), then it means that your scheduler is broken. You should then disable all your other plugins, and try the \"Backup Now\" button. If that fails, then contact your web hosting company and ask them if they have disabled wp-cron. If it succeeds, then re-activate your other plugins one-by-one, and find the one that is the problem and report a bug to them."
+msgstr "Tlačítka níže okamžitě provedou zálohu, nezávisle na plánu WordPressu. Pokud poběží plánovaná záloha a tlačítko \"Zálohovat nyní\" neudělá nic (ani nevygeneruje log soubor), pak to znamená, že máte rozbitý plánovač. Měli byste zakázat všechny pluginy a poté zkusit \"Zálohovat nyní\" znovu. Pokud to selže, kontaktujte svého poskytovatele hostingu a zeptejte se, zda máte zakázaný wp-cron. Pokud to uspěje, znovu aktivujte pluginy jeden po druhém a najděte ten problémový a oznamte to jeho tvůrci."
+
+#: admin.php:2162
+msgid "Debug Full Backup"
+msgstr "Debug plné zálohy"
+
+#: admin.php:2162
+msgid "This will cause an immediate backup. The page will stall loading until it finishes (ie, unscheduled)."
+msgstr "Toto způsobí okamžitou zálohu. Stránka se bude načítat, doku nebude dokončena (případně se záloha nezruší)."
+
+#: admin.php:1907
+msgid "UpdraftPlus - Upload backup files"
+msgstr "UpdraftPlus - nahrávám soubory zálohy"
+
+#: admin.php:1908
+msgid "Upload files into UpdraftPlus. Use this to import backups made on a different WordPress installation."
+msgstr "Nahrát soubory do UpdraftPlus. Použijte to pro vložení záloh provedených na jiné instalaci WordPressu."
+
+#: admin.php:1919 admin.php:2737
+msgid "or"
+msgstr "nebo"
+
+#: admin.php:127
+msgid "calculating..."
+msgstr "počítám..."
+
+#: restorer.php:973 admin.php:135 admin.php:3749 admin.php:3779
+#: addons/cloudfiles-enhanced.php:79 addons/sftp.php:730
+#: addons/migrator.php:185 addons/migrator.php:418 addons/migrator.php:594
+#: addons/migrator.php:644 addons/migrator.php:704 addons/migrator.php:881
+msgid "Error:"
+msgstr "Chyba:"
+
+#: admin.php:137
+msgid "You should:"
+msgstr "Měli byste:"
+
+#: admin.php:141
+msgid "Download error: the server sent us a response which we did not understand."
+msgstr "Chyba stahování: server nám zaslal odpověď, které nerozumíme."
+
+#: admin.php:1947
+msgid "Delete backup set"
+msgstr "Smazat zálohu"
+
+#: admin.php:1965
+msgid "Restore backup"
+msgstr "Obnovit zálohu"
+
+#: admin.php:1966
+msgid "Restore backup from"
+msgstr "Obnovit zálohu z"
+
+#: admin.php:1978
+msgid "Restoring will replace this site's themes, plugins, uploads, database and/or other content directories (according to what is contained in the backup set, and your selection)."
+msgstr "Obnova nahradí na této stránce témata, pluginy, nahrané soubory, databázi a/nebo ostatní obsah složek (podle toho, co je obsaženo v záloze a co zvolíte)."
+
+#: admin.php:1978
+msgid "Choose the components to restore"
+msgstr "Vybrat komponenty k obnově"
+
+#: admin.php:1988
+msgid "Your web server has PHP's so-called safe_mode active."
+msgstr "Váš webserver má aktivní takzvaný PHP safe_mode."
+
+#: admin.php:1988
+msgid "This makes time-outs much more likely. You are recommended to turn safe_mode off, or to restore only one entity at a time, <a href=\"http://updraftplus.com/faqs/i-want-to-restore-but-have-either-cannot-or-have-failed-to-do-so-from-the-wp-admin-console/\">or to restore manually</a>."
+msgstr "To velmi pravděpodobně způsobí vypršení času. Doporučujeme vypnout safe_mode, nebo obnovit pouze jednu entitu najednou, <a href=\"http://updraftplus.com/faqs/i-want-to-restore-but-have-either-cannot-or-have-failed-to-do-so-from-the-wp-admin-console/\">nebo obnovit ručně</a>."
+
+#: admin.php:2001
+msgid "The following entity cannot be restored automatically: \"%s\"."
+msgstr "Tato entita nemůže být automaticky obnovena: \"%s\"."
+
+#: admin.php:2001
+msgid "You will need to restore it manually."
+msgstr "Budete ji muset obnovit ručně."
+
+#: admin.php:2008 addons/morefiles.php:57
+msgid "%s restoration options:"
+msgstr "%s možnosti obnovy:"
+
+#: admin.php:2016
+msgid "You can search and replace your database (for migrating a website to a new location/URL) with the Migrator add-on - follow this link for more information"
+msgstr "Pro databázi můžete použít najít a nahradit (pro migraci stránek na nové umístění/URL) pomocí Migrator add-onu - následujte odkaz pro více informací"
+
+#: admin.php:2027
+msgid "Do read this helpful article of useful things to know before restoring."
+msgstr "Před obnovou si přečtěte tento článek plný užitečných věcí."
+
+#: admin.php:2049
+msgid "Perform a one-time backup"
+msgstr "Provést jednorázovou zálohu"
+
+#: admin.php:1815
+msgid "Time now"
+msgstr "Čas nyní"
+
+#: admin.php:157 admin.php:1827
+msgid "Backup Now"
+msgstr "Zálohovat nyní"
+
+#: admin.php:162 admin.php:1838 admin.php:3313
+msgid "Restore"
+msgstr "Obnovit"
+
+#: admin.php:1855 addons/autobackup.php:67 addons/autobackup.php:152
+msgid "Last log message"
+msgstr "Poslední log zpráva"
+
+#: admin.php:1857
+msgid "(Nothing yet logged)"
+msgstr "(Zatím nebylo nic logováno)"
+
+#: admin.php:1858
+msgid "Download most recently modified log file"
+msgstr "Stáhnout naposledy upravený log soubor"
+
+#: admin.php:1863
+msgid "Backups, logs & restoring"
+msgstr "Zálohy, logy & obnova"
+
+#: admin.php:1864
+msgid "Press to see available backups"
+msgstr "Klikněte pro zobrazení dostupných záloh"
+
+#: admin.php:983 admin.php:1072 admin.php:1864
+msgid "%d set(s) available"
+msgstr "%d dostupných záloh"
+
+#: admin.php:1880
+msgid "Downloading and restoring"
+msgstr "Stahování a obnova"
+
+#: admin.php:1885
+msgid "Downloading"
+msgstr "Stahování"
+
+#: admin.php:1885
+msgid "Pressing a button for Database/Plugins/Themes/Uploads/Others will make UpdraftPlus try to bring the backup file back from the remote storage (if any - e.g. Amazon S3, Dropbox, Google Drive, FTP) to your webserver. Then you will be allowed to download it to your computer. If the fetch from the remote storage stops progressing (wait 30 seconds to make sure), then press again to resume. Remember that you can also visit the cloud storage vendor's website directly."
+msgstr "Zmáčknutí tlačítka pro databázi/pluginy/témata/nahrané soubory/ostatní se UpdraftPlus pokusí přenést soubory zálohy ze vzdáleného uložiště (například Amazon S3, Dropbox, Google Disk, FTP) na váš webserver. Pak je budete moct stáhnout do počítače. Pokud se průběh ze vzdáleného uložiště zastaví (počkejte 30 sekund abyste si byli jisti), pak klikněte znovu pro pokračování. Nezapomeňte, že také můžete přímo navštívit poskytovatele cloudového uložiště."
+
+#: admin.php:1890
+msgid "More tasks:"
+msgstr "Více úkolů:"
+
+#: admin.php:1892
+msgid "Press here to look inside your UpdraftPlus directory (in your web hosting space) for any new backup sets that you have uploaded. The location of this directory is set in the expert settings, below."
+msgstr "Klikněte zde pro prozkoumání UpdraftPlus složky (ve vašem web hostingovém prostoru) po nových zálohách, které jste nahráli. Umístění této složky je nastaveno v pokročilých možnostech níže."
+
+#: admin.php:1897
+msgid "Opera web browser"
+msgstr "Prohlížeč Opera"
+
+#: admin.php:1897
+msgid "If you are using this, then turn Turbo/Road mode off."
+msgstr "Pokud ho používáte, vypněte režim Turbo/Na cestách."
+
+#: admin.php:1902 methods/googledrive.php:134 methods/googledrive.php:346
+#: methods/googledrive.php:369 methods/googledrive.php:398
+#: methods/googledrive.php:405 methods/googledrive.php:415
+#: methods/googledrive.php:419 methods/googledrive.php:818
+#: methods/googledrive.php:834 methods/googledrive.php:838
+#: methods/googledrive.php:849 methods/googledrive.php:859
+#: addons/google-enhanced.php:72
+msgid "Google Drive"
+msgstr "Google Disk"
+
+#: admin.php:1902
+msgid "Google changed their permissions setup recently (April 2013). To download or restore from Google Drive, you <strong>must</strong> first re-authenticate (using the link in the Google Drive configuration section)."
+msgstr "Google nedávno změnil své nastavení povolení (Duben 2013). Ke stažení, nebo obnovení z Google Disku <strong>musíte</strong> nejprve provést nové ověření (použitím odkaz v konfiguraci Google Disku)."
+
+#: admin.php:1905
+msgid "This is a count of the contents of your Updraft directory"
+msgstr "Totoje počet obsahů ve vaší UpdraftPlus složce"
+
+#: admin.php:1905
+msgid "Web-server disk space in use by UpdraftPlus"
+msgstr "UpdraftPlusem využité místo na webserverovém disku"
+
+#: admin.php:1905
+msgid "refresh"
+msgstr "obnovit"
+
+#: admin.php:1730
+msgid "By UpdraftPlus.Com"
+msgstr "Od UpdraftPlus.Com"
+
+#: admin.php:1730
+msgid "Lead developer's homepage"
+msgstr "Domácí stránka vedoucího vývojáře"
+
+#: admin.php:1730
+msgid "Donate"
+msgstr "Darovat"
+
+#: admin.php:1730
+msgid "Version"
+msgstr "Verze"
+
+#: admin.php:1741
+msgid "Your backup has been restored."
+msgstr "Vaše záloha byla obnovena."
+
+#: admin.php:1748
+msgid "Current limit is:"
+msgstr "Současný limit je:"
+
+#: admin.php:144 admin.php:2192
+msgid "Delete Old Directories"
+msgstr "Smazat staré složky"
+
+#: admin.php:1759
+msgid "Existing Schedule And Backups"
+msgstr "Existující plán a zálohy"
+
+#: admin.php:1766
+msgid "JavaScript warning"
+msgstr "JavaScript varování"
+
+#: admin.php:1767
+msgid "This admin interface uses JavaScript heavily. You either need to activate it within your browser, or to use a JavaScript-capable browser."
+msgstr "Toto administrátorské prostředí využívá JavaScript. Buď ho ve svém prohlížeči musíte povolit, nebo použít prohlížeč, který podporuje JavaScript."
+
+#: admin.php:1780 admin.php:1793
+msgid "Nothing currently scheduled"
+msgstr "V současnosti není nic naplánováno"
+
+#: admin.php:1785
+msgid "At the same time as the files backup"
+msgstr "Ve stejné době, jako záloha souborů"
+
+#: admin.php:1807
+msgid "All the times shown in this section are using WordPress's configured time zone, which you can set in Settings -> General"
+msgstr "Všechny zde zobrazené časy požívají nastavenou časovou zónu WordPressu, kterou můžete změnit v Nastavení -> Obecné"
+
+#: admin.php:1807
+msgid "Next scheduled backups"
+msgstr "Další naplánované zálohy"
+
+#: admin.php:1811
+msgid "Files"
+msgstr "Soubory"
+
+#: admin.php:771 admin.php:1813 admin.php:2005 admin.php:2008 admin.php:3150
+#: admin.php:3159 admin.php:3814 addons/reporting.php:165
+#: addons/moredatabase.php:178
+msgid "Database"
+msgstr "Databáze"
+
+#: admin.php:409
+msgid "Your website is hosted using the %s web server."
+msgstr "Vaše stránky jsou hostovány pomocí %s webserveru."
+
+#: admin.php:409
+msgid "Please consult this FAQ if you have problems backing up."
+msgstr "Pokud máte problém se zálohováním, pročtěte si tyto často kladené otázky."
+
+#: admin.php:424 admin.php:428 admin.php:432
+msgid "Click here to authenticate your %s account (you will not be able to back up to %s without it)."
+msgstr "Pro ověření %s účtu klikněte sem (bez ověření nebudete moct na %s zálohovat)."
+
+#: admin.php:625 admin.php:651
+msgid "Nothing yet logged"
+msgstr "Zatím nebylo nic zalogováno"
+
+#: admin.php:1008
+msgid "Schedule backup"
+msgstr "Naplánovat zálohu"
+
+#: admin.php:1013
+msgid "Failed."
+msgstr "Selhání."
+
+#: admin.php:1015
+msgid "OK. You should soon see activity in the \"Last log message\" field below."
+msgstr "Dobře. Brzy byste měli vidět aktivitu v poli \"Poslední log zpráva\" níže."
+
+#: admin.php:1015
+msgid "Nothing happening? Follow this link for help."
+msgstr "Nic se nestalo? Pro pomoc jděte na tento odkaz."
+
+#: admin.php:1031
+msgid "Job deleted"
+msgstr "Práce smazána"
+
+#: admin.php:1038
+msgid "Could not find that job - perhaps it has already finished?"
+msgstr "Nemohu najít danou práci - možná už je skončená?"
+
+#: updraftplus.php:903 restorer.php:1522 restorer.php:1538 restorer.php:1602
+#: admin.php:1051 admin.php:3732 methods/stream-base.php:190
+#: methods/addon-base.php:75 methods/addon-base.php:80
+#: methods/addon-base.php:193
+msgid "Error"
+msgstr "Chyba"
+
+#: admin.php:1139
+msgid "Download failed"
+msgstr "Stahování selhalo"
+
+#: admin.php:136 admin.php:1157
+msgid "File ready."
+msgstr "Soubor je připraven."
+
+#: admin.php:1165
+msgid "Download in progress"
+msgstr "Probíhá stahování"
+
+#: admin.php:1168
+msgid "No local copy present."
+msgstr "Není dostupná lokální kopie."
+
+#: admin.php:1540
+msgid "Bad filename format - this does not look like a file created by UpdraftPlus"
+msgstr "Špatný formát názvu souboru - nezdá se, že jde o soubor vytvořený UpdraftPlus"
+
+#: admin.php:1630
+msgid "Bad filename format - this does not look like an encrypted database file created by UpdraftPlus"
+msgstr "Špatný formát názvu souboru - nezdá se, že jde o šifrovaný databázový soubor vytvořený UpdraftPlus"
+
+#: admin.php:1658
+msgid "Restore successful!"
+msgstr "Obnova byla úspěšná!"
+
+#: admin.php:1661 admin.php:1670 admin.php:1700 admin.php:2401
+msgid "Actions"
+msgstr "Akce"
+
+#: admin.php:1661 admin.php:1670 admin.php:1700 admin.php:2401
+msgid "Return to UpdraftPlus Configuration"
+msgstr "Vracím se do konfigurace UpdraftPlus"
+
+#: admin.php:2394
+msgid "Remove old directories"
+msgstr "Smazat staré složky"
+
+#: admin.php:2397
+msgid "Old directories successfully removed."
+msgstr "Staré složky byly úspěšně smazány."
+
+#: admin.php:2399
+msgid "Old directory removal failed for some reason. You may want to do this manually."
+msgstr "Z nějakého důvodu se nepodařilo odstranit staré složky. Budete to muset udělat ručně."
+
+#: admin.php:1691
+msgid "Backup directory could not be created"
+msgstr "Složka pro zálohu nemohla být vytvořena."
+
+#: admin.php:1698
+msgid "Backup directory successfully created."
+msgstr "Složka pro zálohu byla úspěšně vytvořena."
+
+#: admin.php:1723
+msgid "Your settings have been wiped."
+msgstr "Vaše nastavení bylo vymazáno."
+
+#: updraftplus.php:2581 updraftplus.php:2587
+msgid "Please help UpdraftPlus by giving a positive review at wordpress.org"
+msgstr "Prosím pomozte UpdraftPlus tím, že mu dáte pozitivní hodnocení na wordpress.org"
+
+#: updraftplus.php:2594
+msgid "Need even more features and support? Check out UpdraftPlus Premium"
+msgstr "Potřebujete ještě více funkcí a podpory? Zkuste UpdraftPlus Premium"
+
+#: updraftplus.php:2604
+msgid "Check out UpdraftPlus.Com for help, add-ons and support"
+msgstr "Pro pomoc, add-ony a podporu běžte na UpdraftPlus.Com"
+
+#: updraftplus.php:2607
+msgid "Want to say thank-you for UpdraftPlus?"
+msgstr "Chcete poděkovat za UpdraftPlus?"
+
+#: updraftplus.php:2607
+msgid "Please buy our very cheap 'no adverts' add-on."
+msgstr "Kupte si prosím náš velmi levný add-on \"No adverts\"."
+
+#: backup.php:1403
+msgid "Infinite recursion: consult your log for more information"
+msgstr "Nekonečná rekurze: pro více informací se podívejte do logu"
+
+#: backup.php:184
+msgid "Could not create %s zip. Consult the log file for more information."
+msgstr "%s zip soubor nelze vytvořit. Pro více informací se podívejte do logu."
+
+#: admin.php:209 admin.php:246
+msgid "Allowed Files"
+msgstr "Povolené soubory"
+
+#: admin.php:346
+msgid "Settings"
+msgstr "Nastavení"
+
+#: admin.php:350
+msgid "Add-Ons / Pro Support"
+msgstr "Add-ony / Pro podpora"
+
+#: admin.php:393 admin.php:397 admin.php:401 admin.php:405 admin.php:409
+#: admin.php:418 admin.php:1882 admin.php:3007 admin.php:3014 admin.php:3016
+#: udaddons/updraftplus-addons.php:132 methods/openstack-base.php:453
+#: methods/cloudfiles.php:473 methods/s3.php:508 methods/dropbox.php:337
+#: methods/ftp.php:299
+msgid "Warning"
+msgstr "Varování"
+
+#: admin.php:401
+msgid "You have less than %s of free disk space on the disk which UpdraftPlus is configured to use to create backups. UpdraftPlus could well run out of space. Contact your the operator of your server (e.g. your web hosting company) to resolve this issue."
+msgstr "Na disku, který máte nastavený pro zálohy UpdraftPlus máte méně než %s volného místa. Mohlo by se stát, že UpdraftPlus zaplní zbytek volného místa. Pro vyřešení tohoto problému kontaktujte svého poskytovatele hostingu."
+
+#: admin.php:405
+msgid "UpdraftPlus does not officially support versions of WordPress before %s. It may work for you, but if it does not, then please be aware that no support is available until you upgrade WordPress."
+msgstr "UpdraftPlus oficiálně nepodporuje WordPress verze nižší, než %s. Vše může fungovat, ale nebude vám poskytnuta žádná podpora, než si aktualizujete WordPress."
+
+#: backup.php:530
+msgid "WordPress backup is complete"
+msgstr "Záloha WordPressu provedena"
+
+#: backup.php:658 restorer.php:105
+msgid "Backup directory (%s) is not writable, or does not exist."
+msgstr "Do složky zálohy (%s) nelze zapisovat, nebo neexistuje."
+
+#: updraftplus.php:2229
+msgid "Could not read the directory"
+msgstr "Nelze přečíst složku"
+
+#: updraftplus.php:2246
+msgid "Could not save backup history because we have no backup array. Backup probably failed."
+msgstr "Jelikož nemám pole zálohy, nelze uložit historii záloh. Záloha pravděpodobně selhala."
+
+#: backup.php:1314
+msgid "Could not open the backup file for writing"
+msgstr "Soubor zálohy nelze otevřít pro zápis"
+
+#: updraftplus.php:2446 restorer.php:235 admin.php:1203
+msgid "Decryption failed. The database file is encrypted, but you have no encryption key entered."
+msgstr "Dešifrování selhalo. Soubor databáze je šifrovaný, ale nevložili jste žádný šifrovací klíč."
+
+#: updraftplus.php:2457 restorer.php:245 admin.php:1220
+msgid "Decryption failed. The most likely cause is that you used the wrong key."
+msgstr "Dešifrování selhalo. Nejpravděpodobněji jste zadali špatný klíč."
+
+#: updraftplus.php:2457
+msgid "The decryption key used:"
+msgstr "Použitý dešifrovací klíč:"
+
+#: updraftplus.php:2497 methods/googledrive.php:753
+msgid "File not found"
+msgstr "Soubor nenalezen"
+
+#: updraftplus.php:2579
+msgid "Can you translate? Want to improve UpdraftPlus for speakers of your language?"
+msgstr "Umíte překládat? Chcete vylepšit UpdraftPlus pro lidi mluvící vaším jazykem?"
+
+#: updraftplus.php:2581 updraftplus.php:2587
+msgid "Like UpdraftPlus and can spare one minute?"
+msgstr "Líbí se vám UpdraftPlus a můžete postrádat minutku?"
+
+#: updraftplus.php:1197
+msgid "Themes"
+msgstr "Témata"
+
+#: updraftplus.php:1198
+msgid "Uploads"
+msgstr "Nahrané soubory"
+
+#: updraftplus.php:1213
+msgid "Others"
+msgstr "Ostatní"
+
+#: updraftplus.php:1701
+msgid "Could not create files in the backup directory. Backup aborted - check your UpdraftPlus settings."
+msgstr "Ve složce pro zálohy nelze vytvořit soubory zálohy. Záloha zrušena - zkontrolujte UpdraftPlus nastavení."
+
+#: addons/moredatabase.php:260
+msgid "Encryption error occurred when encrypting database. Encryption aborted."
+msgstr "Nastala chyba šifrování při šifrování databáze. Šifrování zrušeno."
+
+#: updraftplus.php:1875
+msgid "The backup apparently succeeded and is now complete"
+msgstr "Záloha se zřejmě podařila a je hotová"
+
+#: updraftplus.php:1888
+msgid "The backup attempt has finished, apparently unsuccessfully"
+msgstr "Pokus zálohu skončil, zřejmě neúspěchem"
+
+#: options.php:34 addons/multisite.php:60
+msgid "UpdraftPlus Backups"
+msgstr "UpdraftPlus zálohy"
+
+#: updraftplus.php:480 updraftplus.php:485 updraftplus.php:490 admin.php:424
+#: admin.php:428 admin.php:432
+msgid "UpdraftPlus notice:"
+msgstr "UpdraftPlus poznámka:"
+
+#: updraftplus.php:480
+msgid "The log file could not be read."
+msgstr "Nelze přečíst soubor logu."
+
+#: updraftplus.php:485
+msgid "No log files were found."
+msgstr "Nebyl nalezen žádný log soubor."
+
+#: updraftplus.php:490
+msgid "The given file could not be read."
+msgstr "Daný soubor nelze přečíst."
+
+#: updraftplus.php:1196
+msgid "Plugins"
+msgstr "Pluginy"

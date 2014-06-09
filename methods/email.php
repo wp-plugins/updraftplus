@@ -1,5 +1,7 @@
 <?php
 
+if (!defined('UPDRAFTPLUS_DIR')) die('No direct access allowed.');
+
 // Files can easily get too big for this method
 
 class UpdraftPlus_BackupModule_email {
@@ -32,7 +34,9 @@ class UpdraftPlus_BackupModule_email {
 					$updraftplus->log("$file: email to: $send_short");
 					$any_attempted = true;
 
-					$sent = wp_mail(trim($sendmail_addr), __("WordPress Backup", 'updraftplus')." ".get_date_from_gmt(gmdate('Y-m-d H:i:s', $updraftplus->backup_time), 'Y-m-d H:i'), sprintf(__("Backup is of: %s.",'updraftplus'), $descrip_type).' '.__('Be wary; email backups may fail because of file size limitations on mail servers.','updraftplus'), null, array($fullpath));
+					$subject = __("WordPress Backup", 'updraftplus').': '.get_bloginfo('name').' (UpdraftPlus '.$updraftplus->version.') '.get_date_from_gmt(gmdate('Y-m-d H:i:s', $updraftplus->backup_time), 'Y-m-d H:i');
+
+					$sent = wp_mail(trim($sendmail_addr), $subject, sprintf(__("Backup is of: %s.",'updraftplus'), site_url().' ('.$descrip_type.')'), null, array($fullpath));
 					if ($sent) $any_sent = true;
 				}
 			}
@@ -48,7 +52,7 @@ class UpdraftPlus_BackupModule_email {
 		return null;
 	}
 
-	public static function config_print() {
+	public function config_print() {
 		?>
 		<tr class="updraftplusmethod email">
 			<th><?php _e('Note:', 'updraftplus');?></th>
