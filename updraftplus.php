@@ -1419,10 +1419,8 @@ class UpdraftPlus {
 
 		global $updraftplus_backup;
 		// Bring in all the backup routines
-		if (!is_a($updraftplus_backup, 'UpdraftPlus_Backup')) {
-			require_once(UPDRAFTPLUS_DIR.'/backup.php');
-			$updraftplus_backup = new UpdraftPlus_Backup($backup_files);
-		}
+		require_once(UPDRAFTPLUS_DIR.'/backup.php');
+		$updraftplus_backup = new UpdraftPlus_Backup($backup_files, apply_filters('updraftplus_files_altered_since', -1));
 
 		$undone_files = array();
 

@@ -23,6 +23,7 @@ class UpdraftPlus_Backup {
 
 	private $dbhandle;
 	private $dbhandle_isgz;
+	private $altered_since = -1;
 
 	private $use_zip_object = 'UpdraftPlus_ZipArchive';
 	public $debug = false;
@@ -32,7 +33,7 @@ class UpdraftPlus_Backup {
 	private $wpdb_obj;
 	private $job_file_entities = array();
 
-	public function __construct($backup_files) {
+	public function __construct($backup_files, $altered_since = -1) {
 
 		global $updraftplus;
 
@@ -50,6 +51,8 @@ class UpdraftPlus_Backup {
 			$this->use_zip_object = 'UpdraftPlus_PclZip';
 			return;
 		}
+
+		$this->altered_since = $altered_since;
 
 		// false means 'tried + failed'; whereas 0 means 'not yet tried'
 		// Disallow binzip on OpenVZ when we're not sure there's plenty of memory
@@ -1449,6 +1452,9 @@ class UpdraftPlus_Backup {
 				$updraftplus->log(sprintf(__("Failed to open directory (check the file permissions): %s",'updraftplus'), $fullpath), 'error');
 				return false;
 			}
+
+			# TODO: Implement altered_since
+
 			while (false !== ($e = readdir($dir_handle))) {
 				if ($e != '.' && $e != '..') {
 					if (is_link($fullpath.'/'.$e)) {
