@@ -502,14 +502,16 @@ class UpdraftPlus {
 			foreach ($all_jobs as $job) {
 				$val = maybe_unserialize($job['option_value']);
 				# TODO: Can simplify this after a while (now all jobs use job_time_ms) - 1 Jan 2014
-				# TODO: This will need changing when incremental backups are introduced
+				# TODO: This will need changing when incremental backups are introduced (job_type = increment)
+				$delete = false;
 				if (!empty($val['backup_time_ms']) && time() > $val['backup_time_ms'] + 86400) {
-					delete_option($job['option_name']);
+					$delete = true;
 				} elseif (!empty($val['job_time_ms']) && time() > $val['job_time_ms'] + 86400) {
-					delete_option($job['option_name']);
-				} elseif (empty($val['backup_time_ms']) && empty($val['job_time_ms']) && !empty($val['job_type']) && $val['job_type'] != 'backup') {
-					delete_option($job['option_name']);
+					$delete = true;
+				} elseif (!empty($val['job_type']) && 'backup' != $val['job_type'] && empty($val['backup_time_ms']) && empty($val['job_time_ms'])) {
+					$delete = true;
 				}
+				if ($delete) delete_option($job['option_name']);
 			}
 			
 		}
@@ -1280,13 +1282,8 @@ class UpdraftPlus {
 		if ($resumption_no > 0) {
 			$this->nonce = $bnonce;
 			$this->backup_time = $this->jobdata_get('backup_time');
-			# TODO: Remove legacy use of backup_time_ms after 1 Jan 2014
-			$bts = $this->jobdata_get('backup_time_ms');
-			if (!empty($bts)) {
-				$this->job_time_ms = $this->jobdata_get('backup_time_ms');
-			} else {
-				$this->job_time_ms = $this->jobdata_get('job_time_ms');
-			}
+
+			$this->job_time_ms = $this->jobdata_get('job_time_ms');
 			# Get the warnings before opening the log file, as opening the log file may generate new ones (which then leads to $this->errors having duplicate entries when they are copied over below)
 			$warnings = $this->jobdata_get('warnings');
 			$this->logfile_open($bnonce);
@@ -1319,12 +1316,13 @@ class UpdraftPlus {
 			
 
 			# This is just a simple test to catch restorations of old backup sets where the backup includes a resumption of the backup job
-			if ($time_now - $this->backup_time > 172800) {
-				$this->log('This backup began over 2 days ago: aborting');
+			if ($time_now - $this->backup_time > 172800 && true == apply_filters('updraftplus_check_obsolete_backup', true, $time_now)) {
+				$this->log('This backup task began over 2 days ago: aborting');
 				die;
 			}
 
 		}
+
 		$this->last_successful_resumption = $last_successful_resumption;
 
 		$runs_started[$resumption_no] = $time_now;
@@ -1345,7 +1343,7 @@ class UpdraftPlus {
 
 		// This works round a bizarre bug seen in one WP install, where delete_transient and wp_clear_scheduled_hook both took no effect, and upon 'resumption' the entire backup would repeat.
 		// Argh. In fact, this has limited effect, as apparently (at least on another install seen), the saving of the updated transient via jobdata_set() also took no effect. Still, it does not hurt.
-		if (($resumption_no >= 1 && 'finished' == $this->jobdata_get('jobstatus')) || (!empty($this->backup_is_already_complete))) {
+		if (($resumption_no >= 1 && 'finished' == $this->jobdata_get('jobstatus')) || ('backup' == $job_type && !empty($this->backup_is_already_complete))) {
 			$this->log('Terminate: This backup job is already finished.');
 			die;
 		}
@@ -1354,12 +1352,15 @@ class UpdraftPlus {
 			$our_expected_start = $runs_started[$prev_resumption] + $resume_interval;
 			# If the previous run increased the resumption time, then it is timed from the end of the previous run, not the start
 			if (isset($time_passed[$prev_resumption]) && $time_passed[$prev_resumption]>0) $our_expected_start += $time_passed[$prev_resumption];
+			$our_expected_start = apply_filters('updraftplus_expected_start', $our_expected_start, $job_type);
 			# More than 12 minutes late?
 			if ($time_now > $our_expected_start + 720) {
 				$this->log('Long time past since expected resumption time: approx expected='.round($our_expected_start,1).", now=".round($time_now, 1).", diff=".round($time_now-$our_expected_start,1));
 				$this->log(__('Your website is visited infrequently and UpdraftPlus is not getting the resources it hoped for; please read this page:', 'updraftplus').' http://updraftplus.com/faqs/why-am-i-getting-warnings-about-my-site-not-having-enough-visitors/', 'warning', 'infrequentvisits');
 			}
 		}
+
+		# TODO: The hard-coded numbers here need to be filterable, to work with increments
 
 		// We just do this once, as we don't want to be in permanent conflict with the overlap detector
 		if ($resumption_no >= 8 && $resumption_no < 15 && $resume_interval >= 300) {
@@ -1382,8 +1383,9 @@ class UpdraftPlus {
 
 		// A different argument than before is needed otherwise the event is ignored
 		$next_resumption = $resumption_no+1;
+		# TODO: increments: need to make the hard-coded number here filterable
 		if ($next_resumption < 10) {
-			if ($this->jobdata_get('one_shot') === true) {
+			if (true === $this->jobdata_get('one_shot')) {
 				$this->log('We are in "one shot" mode - no resumptions will be scheduled');
 			} else {
 				$schedule_resumption = true;
@@ -1509,7 +1511,7 @@ class UpdraftPlus {
 			$this->save_backup_history($our_files);
 
 			// Potentially encrypt the database if it is not already
-			if (isset($our_files[$tindex]) && !preg_match("/\.crypt$/", $our_files[$tindex])) {
+			if ('no' != $backup_database && isset($our_files[$tindex]) && !preg_match("/\.crypt$/", $our_files[$tindex])) {
 				$our_files[$tindex] = $updraftplus_backup->encrypt_file($our_files[$tindex]);
 				// No need to save backup history now, as it will happen in a few lines time
 				if (preg_match("/\.crypt$/", $our_files[$tindex])) {
@@ -1518,7 +1520,7 @@ class UpdraftPlus {
 				}
 			}
 
-			if (isset($our_files[$tindex]) && file_exists($updraft_dir.'/'.$our_files[$tindex])) {
+			if ('no' != $backup_database && isset($our_files[$tindex]) && file_exists($updraft_dir.'/'.$our_files[$tindex])) {
 				$our_files[$tindex.'-size'] = filesize($updraft_dir.'/'.$our_files[$tindex]);
 				$this->save_backup_history($our_files);
 			}
@@ -1559,7 +1561,7 @@ class UpdraftPlus {
 		// We finished; so, low memory was not a problem
 		$this->log_removewarning('lowram');
 
-		if (count($undone_files) == 0) {
+		if (0 == count($undone_files)) {
 			$this->log("Resume backup ($bnonce, $resumption_no): finish run");
 			$this->log("There were no more files that needed uploading; backup job is complete");
 			// No email, as the user probably already got one if something else completed the run
@@ -1821,7 +1823,7 @@ class UpdraftPlus {
 
 	}
 
-	function backup_finish($cancel_event, $do_cleanup, $allow_email, $resumption_no) {
+	private function backup_finish($cancel_event, $do_cleanup, $allow_email, $resumption_no) {
 
 		if (!empty($this->semaphore)) $this->semaphore->unlock();
 
@@ -1830,7 +1832,7 @@ class UpdraftPlus {
 		// The valid use of $do_cleanup is to indicate if in fact anything exists to clean up (if no job really started, then there may be nothing)
 
 		// In fact, leaving the hook to run (if debug is set) is harmless, as the resume job should only do tasks that were left unfinished, which at this stage is none.
-		if ($this->error_count() == 0) {
+		if (0 == $this->error_count()) {
 			if ($do_cleanup) {
 				$this->log("There were no errors in the uploads, so the 'resume' event ($cancel_event) is being unscheduled");
 				# This apparently-worthless setting of metadata before deleting it is for the benefit of a WP install seen where wp_clear_scheduled_hook() and delete_transient() apparently did nothing (probably a faulty cache)
@@ -1994,12 +1996,12 @@ class UpdraftPlus {
 		}
 	}
 
-	function is_uploaded($file, $service = '') {
+	public function is_uploaded($file, $service = '') {
 		$hash = $service.(('' == $service) ? '' : '-').md5($file);
 		return ($this->jobdata_get("uploaded_$hash") === "yes") ? true : false;
 	}
 
-	function delete_local($file) {
+	private function delete_local($file) {
 		if(UpdraftPlus_Options::get_updraft_option('updraft_delete_local')) {
 			$log = "Deleting local file: $file: ";
 		//need error checking so we don't delete what isn't successfully uploaded?
@@ -2215,7 +2217,7 @@ class UpdraftPlus {
 
 	}
 
-	function save_backup_history($backup_array) {
+	private function save_backup_history($backup_array) {
 		if(is_array($backup_array)) {
 			$backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
 			$backup_history = (is_array($backup_history)) ? $backup_history : array();
