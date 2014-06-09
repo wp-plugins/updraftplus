@@ -8,7 +8,7 @@ Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 
-Backup and restoration made easy. Complete backups; manual or on a schedule (backup to S3, Dropbox, Google Drive, Rackspace, FTP, SFTP, email + others).
+Backup and restoration made easy. Complete backups; manual or scheduled (backup to S3, Dropbox, Google Drive, Rackspace, FTP, SFTP, email + others).
 
 == Description ==
 
