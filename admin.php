@@ -2317,12 +2317,14 @@ CREATE TABLE $wpdb->signups (
 		$ret = '';
 
 		global $updraftplus;
-		$backupable_entities = $updraftplus->get_backupable_file_entities(true, true);
 
 		$jobdata = $updraftplus->jobdata_getarray($job_id);
+		if (false == apply_filters('updraftplus_print_active_job_continue', true, $is_oneshot, $next_resumption, $jobdata)) return '';
 
 		#if (!is_array($jobdata)) $jobdata = array();
 		if (!isset($jobdata['backup_time'])) return '';
+
+		$backupable_entities = $updraftplus->get_backupable_file_entities(true, true);
 
 		$began_at = (isset($jobdata['backup_time'])) ? get_date_from_gmt(gmdate('Y-m-d H:i:s', (int)$jobdata['backup_time']), 'D, F j, Y H:i') : '?';
 

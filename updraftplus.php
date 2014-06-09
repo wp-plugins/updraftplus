@@ -1335,6 +1335,8 @@ class UpdraftPlus {
 		$btime = $this->backup_time;
 		$job_type = $this->jobdata_get('job_type');
 
+		do_action('updraftplus_resume_backup_'.$job_type);
+
 		$updraft_dir = $this->backups_dir_location();
 
 		$time_ago = time()-$btime;
@@ -1676,10 +1678,9 @@ class UpdraftPlus {
 	public function boot_backup($backup_files, $backup_database, $restrict_files_to_override = false, $one_shot = false, $service = false) {
 
 		@ignore_user_abort(true);
-		// 15 minutes
 		@set_time_limit(900);
 
-		//generate backup information
+		// Generate backup information
 		$this->backup_time_nonce();
 		// The current_resumption is consulted within logfile_open()
 		$this->current_resumption = 0;
