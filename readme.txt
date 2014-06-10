@@ -816,7 +816,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 
 == Screenshots ==
 
-1. Main dashboard
+1. Main dashboard - all screenshots are from UpdraftPlus Premium, so may shown some features that are not shown in the free version
 
 2. Configuration page
 
