@@ -816,11 +816,13 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 
 == Screenshots ==
 
-1. Configuration page
+1. Main dashboard
 
-2. Restoring from a backup
+2. Configuration page
 
-3. Showing and downloading backup sets
+3. Restoring from a backup
+
+4. Showing and downloading backup sets
 
 We recognise and thank the following for code and/or libraries used and/or modified under the terms of their open source licences:
 
