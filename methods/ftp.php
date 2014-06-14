@@ -381,11 +381,11 @@ class UpdraftPlus_BackupModule_ftp {
 
 		$file = md5(rand(0,99999999)).'.tmp';
 		$fullpath = trailingslashit($path).$file;
-		if (!file_exists(ABSPATH.'wp-includes/version.php')) {
+		if (!file_exists(ABSPATH.WPINC.'/version.php')) {
 			_e("Failure: an unexpected internal UpdraftPlus error occurred when testing the credentials - please contact the developer");
 			return;
 		}
-		if ($ftp->put(ABSPATH.'wp-includes/version.php', $fullpath, FTP_BINARY, false, true)) {
+		if ($ftp->put(ABSPATH.WPINC.'/version.php', $fullpath, FTP_BINARY, false, true)) {
 			echo __("Success: we successfully logged in, and confirmed our ability to create a file in the given directory (login type:",'updraftplus')." ".$ftp->login_type.')';
 			@$ftp->delete($fullpath);
 		} else {

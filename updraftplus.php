@@ -587,7 +587,7 @@ class UpdraftPlus {
 		$this->opened_log_time = microtime(true);
 		$this->log('Opened log file at time: '.date('r').' on '.site_url());
 		global $wp_version;
-		@include(ABSPATH.'wp-includes/version.php');
+		@include(ABSPATH.WPINC.'/version.php');
 
 		// Will need updating when WP stops being just plain MySQL
 		$mysql_version = (function_exists('mysql_get_server_info')) ? @mysql_get_server_info() : '?';
@@ -1156,7 +1156,7 @@ class UpdraftPlus {
 
 		$this->something_useful_happened = true;
 
-		if ($this->current_resumption >= 9 && $this->newresumption_scheduled == false) {
+		if ($this->current_resumption >= 9 && false == $this->newresumption_scheduled) {
 			$this->log("This is resumption ".$this->current_resumption.", but meaningful activity is still taking place; so a new one will be scheduled");
 			// We just use max here to make sure we get a number at all
 			$resume_interval = max($this->jobdata_get('resume_interval'), 75);
@@ -1278,6 +1278,7 @@ class UpdraftPlus {
 		$resumption_extralog = '';
 		$prev_resumption = $resumption_no - 1;
 		$last_successful_resumption = -1;
+		$job_type = 'backup';
 
 		if ($resumption_no > 0) {
 			$this->nonce = $bnonce;
@@ -1422,7 +1423,7 @@ class UpdraftPlus {
 		global $updraftplus_backup;
 		// Bring in all the backup routines
 		require_once(UPDRAFTPLUS_DIR.'/backup.php');
-		$updraftplus_backup = new UpdraftPlus_Backup($backup_files, apply_filters('updraftplus_files_altered_since', -1));
+		$updraftplus_backup = new UpdraftPlus_Backup($backup_files, apply_filters('updraftplus_files_altered_since', -1, $job_type));
 
 		$undone_files = array();
 
@@ -2369,8 +2370,8 @@ class UpdraftPlus {
 		$schedules['weekly'] = array('interval' => 604800, 'display' => 'Once Weekly');
 		$schedules['fortnightly'] = array('interval' => 1209600, 'display' => 'Once Each Fortnight');
 		$schedules['monthly'] = array('interval' => 2592000, 'display' => 'Once Monthly');
-		$schedules['every4hours'] = array('interval' => 14400, 'display' => 'Every 4 hours');
-		$schedules['every8hours'] = array('interval' => 28800, 'display' => 'Every 8 hours');
+		$schedules['every4hours'] = array('interval' => 14400, 'display' => sprintf(__('Every %s hours', 'updraftplus'), 4));
+		$schedules['every8hours'] = array('interval' => 28800, 'display' => sprintf(__('Every %s hours', 'updraftplus'), 8));
 		return $schedules;
 	}
 

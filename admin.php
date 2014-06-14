@@ -227,13 +227,13 @@ class UpdraftPlus_Admin {
 // 			'silverlight_xap_url' => includes_url('js/plupload/plupload.silverlight.xap'),
 
 		# WP 3.9 updated to plupload 2.0 - https://core.trac.wordpress.org/ticket/25663
-		if (is_file(ABSPATH.'wp-includes/js/plupload/Moxie.swf')) {
+		if (is_file(ABSPATH.WPINC.'/js/plupload/Moxie.swf')) {
 			$plupload_init['flash_swf_url'] = includes_url('js/plupload/Moxie.swf');
 		} else {
 			$plupload_init['flash_swf_url'] = includes_url('js/plupload/plupload.flash.swf');
 		}
 
-		if (is_file(ABSPATH.'wp-includes/js/plupload/Moxie.xap')) {
+		if (is_file(ABSPATH.WPINC.'/js/plupload/Moxie.xap')) {
 			$plupload_init['silverlight_xap_url'] = includes_url('js/plupload/Moxie.xap');
 		} else {
 			$plupload_init['silverlight_xap_url'] = includes_url('js/plupload/plupload.silverlight.swf');
@@ -1140,7 +1140,7 @@ class UpdraftPlus_Admin {
 
 	public function howmany_overdue_crons() {
 		$how_many_overdue = 0;
-		if (function_exists('_get_cron_array') || (is_file(ABSPATH.'wp-includes/cron.php') && include_once(ABSPATH.'wp-includes/cron.php') && function_exists('_get_cron_array'))) {
+		if (function_exists('_get_cron_array') || (is_file(ABSPATH.WPINC.'/cron.php') && include_once(ABSPATH.WPINC.'/cron.php') && function_exists('_get_cron_array'))) {
 			$crons = _get_cron_array();
 			if (is_array($crons)) {
 				$timenow = time();
@@ -1214,7 +1214,7 @@ class UpdraftPlus_Admin {
 		$mess = array(); $warn = array(); $err = array();
 
 		global $updraftplus, $wp_version;
-		include(ABSPATH.'wp-includes/version.php');
+		include(ABSPATH.WPINC.'/version.php');
 
 		# This attempts to raise the maximum packet size. This can't be done within the session, only globally. Therefore, it has to be done before the session starts; in our case, during the pre-analysis.
 		$updraftplus->get_max_packet_size();
@@ -1865,7 +1865,7 @@ CREATE TABLE $wpdb->signups (
 						// Convert to blog time zone
 						$next_scheduled_backup_database = get_date_from_gmt($next_scheduled_backup_database_gmt, 'D, F j, Y H:i');
 					} else {
-						$next_scheduled_backup_database = __('Nothing currently scheduled','updraftplus');
+						$next_scheduled_backup_database = __('Nothing currently scheduled', 'updraftplus');
 					}
 				}
 				$current_time = get_date_from_gmt(gmdate('Y-m-d H:i:s'), 'D, F j, Y H:i');
@@ -1877,7 +1877,7 @@ CREATE TABLE $wpdb->signups (
 				<script>var lastbackup_laststatus = '<?php echo esc_js($last_backup_html);?>';</script>
 
 				<tr>
-					<th><span title="<?php _e('All the times shown in this section are using WordPress\'s configured time zone, which you can set in Settings -> General', 'updraftplus'); ?>"><?php _e('Next scheduled backups','updraftplus');?>:</span></th>
+					<th><span title="<?php _e('All the times shown in this section are using WordPress\'s configured time zone, which you can set in Settings -> General', 'updraftplus'); ?>"><?php _e('Next scheduled backups', 'updraftplus');?>:</span></th>
 					<td>
 						<table style="border: 0px; padding: 0px; margin: 0 10px 0 0;">
 						<tr>
@@ -3974,7 +3974,7 @@ ENDHERE;
 		foreach (array('template', 'stylesheet', 'template_root', 'stylesheet_root') as $opt) {
 			add_filter('pre_option_'.$opt, array($this, 'option_filter_'.$opt));
 		}
-		if (!function_exists('validate_current_theme')) require_once(ABSPATH.'wp-includes/themes');
+		if (!function_exists('validate_current_theme')) require_once(ABSPATH.WPINC.'/themes');
 
 			# Have seen a case where the current theme in the DB began with a capital, but not on disk - and this breaks migrating from Windows to a case-sensitive system
 			$template = get_option('template');

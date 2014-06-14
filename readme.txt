@@ -144,6 +144,10 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
+= Development version (not yet released/supported) =
+
+* TWEAK: Prevent spurious messages about quota for users who have upgraded their Bitcasa account to infinite storage
+
 = 1.9.15 - 2014/09/06 =
 
 * FEATURE: New search/replace expert tool (Premium)

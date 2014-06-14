@@ -24,6 +24,7 @@ class UpdraftPlus_Backup {
 	private $dbhandle;
 	private $dbhandle_isgz;
 	private $altered_since = -1;
+	private $makezip_if_altered_since = -1;
 
 	private $use_zip_object = 'UpdraftPlus_ZipArchive';
 	public $debug = false;
@@ -549,7 +550,9 @@ class UpdraftPlus_Backup {
 			$feed .= "\r\n\r\n";
 		}
 
-		$body = apply_filters('updraft_report_body', __('Backup of:').' '.site_url()."\r\nUpdraftPlus ".__('WordPress backup is complete','updraftplus').".\r\n".__('Backup contains:','updraftplus').' '.$backup_contains."\r\n".__('Latest status:', 'updraftplus').' '.$final_message."\r\n\r\n".$feed.$updraftplus->wordshell_random_advert(0)."\r\n".$append_log, $final_message, $backup_contains, $updraftplus->errors, $warnings);
+		$backup_type = ('backup' == $updraftplus->jobdata_get('job_type')) ? __('Full backup', 'updraftplus') : __('Incremental', 'updraftplus');
+
+		$body = apply_filters('updraft_report_body', __('Backup of:').' '.site_url()."\r\nUpdraftPlus ".__('WordPress backup is complete','updraftplus').".\r\n".__('Backup contains:','updraftplus').' '.$backup_contains."\r\n".__('Backup type:', 'updraftplus').' '.$backup_type."\r\n".__('Latest status:', 'updraftplus').' '.$final_message."\r\n\r\n".$feed.$updraftplus->wordshell_random_advert(0)."\r\n".$append_log, $final_message, $backup_contains, $updraftplus->errors, $warnings);
 
 		$this->attachments = apply_filters('updraft_report_attachments', $attachments);
 
@@ -1353,7 +1356,7 @@ class UpdraftPlus_Backup {
 
 	private function backup_db_header() {
 
-		@include(ABSPATH.'wp-includes/version.php');
+		@include(ABSPATH.WPINC.'/version.php');
 		global $wp_version, $updraftplus;
 
 		$mysql_version = $this->wpdb_obj->db_version();
@@ -1453,10 +1456,10 @@ class UpdraftPlus_Backup {
 				return false;
 			}
 
-			# TODO: Implement altered_since
+			$if_altered_since = $this->makezip_if_altered_since;
 
 			while (false !== ($e = readdir($dir_handle))) {
-				if ($e != '.' && $e != '..') {
+				if ('.' != $e && '..' != $e ) {
 					if (is_link($fullpath.'/'.$e)) {
 						$deref = realpath($fullpath.'/'.$e);
 						if (is_file($deref)) {
@@ -1466,9 +1469,12 @@ class UpdraftPlus_Backup {
 									$updraftplus->log("Entity excluded by configuration option: $use_stripped");
 									unset($exclude[$fkey]);
 								} else {
-									$this->zipfiles_batched[$deref] = $use_path_when_storing.'/'.$e;
-									$this->makezip_recursive_batchedbytes += @filesize($deref);
-									#@touch($zipfile);
+									$mtime = filemtime($deref);
+									if ($mtime > 0 && $mtime > $if_altered_since) {
+										$this->zipfiles_batched[$deref] = $use_path_when_storing.'/'.$e;
+										$this->makezip_recursive_batchedbytes += @filesize($deref);
+										#@touch($zipfile);
+									}
 								}
 							} else {
 								$updraftplus->log("$deref: unreadable file");
@@ -1484,9 +1490,12 @@ class UpdraftPlus_Backup {
 								$updraftplus->log("Entity excluded by configuration option: $use_stripped");
 								unset($exclude[$fkey]);
 							} else {
-								$this->zipfiles_batched[$fullpath.'/'.$e] = $use_path_when_storing.'/'.$e;
-								$this->makezip_recursive_batchedbytes += @filesize($fullpath.'/'.$e);
-								#@touch($zipfile);
+								$mtime = filemtime($fullpath.'/'.$e);
+								if ($mtime > 0 && $mtime > $if_altered_since) {
+									$this->zipfiles_batched[$fullpath.'/'.$e] = $use_path_when_storing.'/'.$e;
+									$this->makezip_recursive_batchedbytes += @filesize($fullpath.'/'.$e);
+									#@touch($zipfile);
+								}
 							}
 						} else {
 							$updraftplus->log("$fullpath/$e: unreadable file");
@@ -1605,12 +1614,9 @@ class UpdraftPlus_Backup {
 		$this->zipfiles_dirbatched = array();
 		$this->zipfiles_batched = array();
 		$this->zipfiles_lastwritetime = time();
-
 		$this->zip_basename = $this->updraft_dir.'/'.$backup_file_basename.'-'.$whichone;
 
-		if (!empty($do_bump_index)) {
-			$this->bump_index();
-		}
+		if (!empty($do_bump_index)) $this->bump_index();
 
 		$error_occurred = false;
 
@@ -1622,6 +1628,14 @@ class UpdraftPlus_Backup {
 		if (!is_array($source)) $source=array($source);
 
 		$exclude = $updraftplus->get_exclude($whichone);
+
+		$files_enumerated_at = $updraftplus->jobdata_get('files_enumerated_at');
+		if (!is_array($files_enumerated_at)) $files_enumerated_at = array();
+		$files_enumerated_at[$whichone] = time();
+		$updraftplus->jobdata_set('files_enumerated_at', $files_enumerated_at);
+
+		$this->makezip_if_altered_since = (is_array($this->altered_since)) ? (isset($this->altered_since[$whichone]) ? $this->altered_since[$whichone] : -1) : -1;
+
 		foreach ($source as $element) {
 			#makezip_recursive_add($fullpath, $use_path_when_storing, $original_fullpath, $startlevels = 1, $exclude_array)
 			if ('uploads' == $whichone) {
