@@ -147,6 +147,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 = Development version (not yet released/supported) =
 
 * TWEAK: Prevent spurious messages about quota for users who have upgraded their Bitcasa account to infinite storage
+* TWEAK: Dropbox now supports use of WP_PROXY_ settings
 
 = 1.9.15 - 2014/09/06 =
 

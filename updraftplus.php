@@ -15,6 +15,7 @@ Author URI: http://updraftplus.com
 /*
 TODO - some of these are out of date/done, needs pruning
 // If a current backup has a "next resumption" that is heavily negative, then provide a link for kick-starting it (i.e. to run the next resumption action via AJAX)
+// If importing full WPMU backup into non-WPMU, check that they are clearly warned this is usually wrong
 // Deploy FUE addon
 // More complex pruning options - search archive for retain/billion/complex for ideas
 // Feature to despatch any not-yet-despatched backups to remote storage

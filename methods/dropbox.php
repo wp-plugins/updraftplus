@@ -516,7 +516,7 @@ class UpdraftPlus_BackupModule_dropbox {
 
 		if (!empty($this->dropbox_object) && !is_wp_error($this->dropbox_object)) return $this->dropbox_object;
 
-		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/API.php'	);
+		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/API.php');
 		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/Exception.php');
 		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/API.php');
 		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Consumer/ConsumerAbstract.php');
