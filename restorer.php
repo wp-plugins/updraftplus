@@ -1,7 +1,8 @@
 <?php
-if (!defined ('ABSPATH')) die('No direct access allowed');
+if (!defined('UPDRAFTPLUS_DIR')) die('No direct access allowed');
 
-if(!class_exists('WP_Upgrader')) require_once(ABSPATH.'wp-admin/includes/class-wp-upgrader.php');
+if (!class_exists('WP_Upgrader')) require_once(ABSPATH.'wp-admin/includes/class-wp-upgrader.php');
+
 class Updraft_Restorer extends WP_Upgrader {
 
 	public $ud_backup_is_multisite = -1;
@@ -10,6 +11,8 @@ class Updraft_Restorer extends WP_Upgrader {
 
 	// This is just used so far for detecting whether we're on the second run for an entity or not.
 	public $been_restored = array();
+	private $tables_been_dropped = array();
+
 	public $delete = false;
 
 	private $created_by_version = false;
@@ -438,7 +441,7 @@ class Updraft_Restorer extends WP_Upgrader {
 	}
 
 	# $dest_dir must already exist
-	function copy_files_in($source_dir, $dest_dir, $files, $chmod = false, $deletesource = false) {
+	private function copy_files_in($source_dir, $dest_dir, $files, $chmod = false, $deletesource = false) {
 		global $wp_filesystem, $updraftplus;
 		foreach ($files as $rname => $rfile) {
 			if ('d' != $rfile['type']) {
@@ -557,7 +560,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		return $ret_val;
 	}
 
-	function get_wp_filesystem_dir($path) {
+	private function get_wp_filesystem_dir($path) {
 		global $wp_filesystem;
 		// Get the wp_filesystem location for the folder on the local install
 		switch ($path) {
@@ -892,7 +895,7 @@ class Updraft_Restorer extends WP_Upgrader {
 	}
 
 	# Returns an octal string (but not an octal number)
-	function get_current_chmod($file, $wpfs = false) {
+	private function get_current_chmod($file, $wpfs = false) {
 		if (false == $wpfs) {
 			global $wp_filesystem;
 			$wpfs = $wp_filesystem;
@@ -924,7 +927,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 	# "If needed" means, "If the permissions are not already more permissive than this". i.e. This will not tighten permissions from what the user had before (we trust them)
 	# $chmod should be an octal - i.e. the same as you'd pass to chmod()
-	function chmod_if_needed($dir, $chmod, $recursive = false, $wpfs = false, $suppress = true) {
+	private function chmod_if_needed($dir, $chmod, $recursive = false, $wpfs = false, $suppress = true) {
 
 		# Do nothing on Windows
 		if (strtoupper(substr(php_uname('s'), 0, 3)) === 'WIN') return true;
@@ -981,7 +984,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		return $move_from;
 	}
 
-	function pre_sql_actions($import_table_prefix) {
+	private function pre_sql_actions($import_table_prefix) {
 
 		$import_table_prefix = apply_filters('updraftplus_restore_set_table_prefix', $import_table_prefix, $this->ud_backup_is_multisite);
 
@@ -1281,18 +1284,27 @@ class Updraft_Restorer extends WP_Upgrader {
 				if ('' != $old_table_prefix && $import_table_prefix != $old_table_prefix) {
 					$sql_line = $updraftplus->str_replace_once($old_table_prefix, $import_table_prefix, $sql_line);
 				}
+				$this->tables_been_dropped[] = $this->new_table_name;
+
 			} elseif (preg_match('/^\s*create table \`?([^\`\(]*)\`?\s*\(/i', $sql_line, $matches)) {
 
 				$sql_type = 2;
 				$this->insert_statements_run = 0;
 				$this->table_name = $matches[1];
 
+				// Legacy, less reliable - in case it was not caught before. We added it in here (CREATE) as well as in DROP because of SQL dumps which lack DROP statements.
+				if ('' == $old_table_prefix && preg_match('/^([a-z0-9]+)_.*$/i', $this->table_name, $tmatches)) {
+					$old_table_prefix = $tmatches[1].'_';
+					echo '<strong>'.__('Old table prefix:', 'updraftplus').'</strong> '.htmlspecialchars($old_table_prefix).'<br>';
+					$updraftplus->log("Old table prefix: $old_table_prefix");
+				}
+
 				// MySQL 4.1 outputs TYPE=, but accepts ENGINE=; 5.1 onwards accept *only* ENGINE=
 				$sql_line = $updraftplus->str_lreplace('TYPE=', 'ENGINE=', $sql_line);
 
-				if (!isset($printed_new_table_prefix)) {
+				if (empty($printed_new_table_prefix)) {
 					$import_table_prefix = $this->pre_sql_actions($import_table_prefix);
-					if (false===$import_table_prefix || is_wp_error($import_table_prefix)) return $import_table_prefix;
+					if (false === $import_table_prefix || is_wp_error($import_table_prefix)) return $import_table_prefix;
 					$printed_new_table_prefix = true;
 				}
 
@@ -1350,15 +1362,12 @@ class Updraft_Restorer extends WP_Upgrader {
 				echo '<strong>'.sprintf(__('Restoring table (%s)','updraftplus'), $engine).":</strong> ".htmlspecialchars($this->table_name);
 				$logline = "Restoring table ($engine): ".$this->table_name;
 				if ('' != $old_table_prefix && $import_table_prefix != $old_table_prefix) {
-					$new_table_name = $updraftplus->str_replace_once($old_table_prefix, $import_table_prefix, $this->table_name);
-					echo ' - '.__('will restore as:', 'updraftplus').' '.htmlspecialchars($new_table_name);
-					$logline .= " - will restore as: ".$new_table_name;
+					echo ' - '.__('will restore as:', 'updraftplus').' '.htmlspecialchars($this->new_table_name);
+					$logline .= " - will restore as: ".$this->new_table_name;
 					$sql_line = $updraftplus->str_replace_once($old_table_prefix, $import_table_prefix, $sql_line);
-				} else {
-					$new_table_name = $this->table_name;
 				}
 				$updraftplus->log($logline);
-				$restoring_table = $new_table_name;
+				$restoring_table = $this->new_table_name;
 				echo '<br>';
 				if ($engine_change_message) echo $engine_change_message;
 
@@ -1372,11 +1381,20 @@ class Updraft_Restorer extends WP_Upgrader {
 			} elseif (preg_match('/^(un)?lock tables/i', $sql_line)) {
 				# BackWPup produces these
 				$sql_type = 5;
+			} elseif (preg_match('/^(create|drop) database /i', $sql_line)) {
+				# WPB2D produces these, as do some phpMyAdmin dumps
+				$sql_type = 6;
+			} elseif (preg_match('/^use /i', $sql_line)) {
+				# WPB2D produces these, as do some phpMyAdmin dumps
+				$sql_type = 7;
 			}
 // 			if (5 !== $sql_type) {
+			if ($sql_type < 6) {
 				$do_exec = $this->sql_exec($sql_line, $sql_type);
 				if (is_wp_error($do_exec)) return $do_exec;
-// 			}
+			} else {
+				$updraftplus->log("Skipped SQL statement (unwanted type=$sql_type): $sql_line");
+			}
 
 			# Reset
 			$sql_line = '';
@@ -1409,15 +1427,28 @@ class Updraft_Restorer extends WP_Upgrader {
 	}
 
 	# UPDATE is sql_type=5 (not used in the function, but used in Migrator and so noted here for reference)
-	# $import_table_prefix is only use in one place in this function, and otherwise need/should not be supplied
+	# $import_table_prefix is only use in one place in this function (long INSERTs), and otherwise need/should not be supplied
 	public function sql_exec($sql_line, $sql_type, $import_table_prefix = '') {
 
 		global $wpdb, $updraftplus;
 		$ignore_errors = false;
+		# Type 2 = CREATE TABLE
 		if (2 == $sql_type && $this->create_forbidden) {
 			$updraftplus->log_e('Cannot create new tables, so skipping this command (%s)', htmlspecialchars($sql_line));
 			$req = true;
 		} else {
+
+			if (2 == $sql_type && !$this->drop_forbidden) {
+				# We choose, for now, to be very conservative - we only do the apparently-missing drop if we have never seen any drop - i.e. assume that in SQL dumps with missing DROPs, that it's because there are no DROPs at all
+				if (!in_array($this->new_table_name, $this->tables_been_dropped)) {
+					$updraftplus->log_e('Table to be implicitly dropped: %s', $this->new_table_name);
+					# TODO: Actually drop
+					$this->sql_exec('DROP TABLE IF EXISTS '.esc_sql($this->new_table_name), 1);
+					$this->tables_been_dropped[] = $this->new_table_name;
+				}
+			}
+
+			# Type 1 = DROP TABLE
 			if (1 == $sql_type && $this->drop_forbidden) {
 				$sql_line = "DELETE FROM ".$updraftplus->backquote($this->new_table_name);
 				$updraftplus->log_e('Cannot drop tables, so deleting instead (%s)', $sql_line);
@@ -1447,6 +1478,7 @@ class Updraft_Restorer extends WP_Upgrader {
 				}
 			}
 			if (3 == $sql_type) $this->insert_statements_run++;
+			if (1 == $sql_type) $this->tables_been_dropped[] = $this->new_table_name;
 			$this->statements_run++;
 		}
 
@@ -1517,10 +1549,12 @@ class Updraft_Restorer extends WP_Upgrader {
 		if (preg_match('/^([\d+]_)?options$/', substr($table, strlen($import_table_prefix)), $matches)) {
 			if (($this->is_multisite && !empty($matches[1])) || !$this->is_multisite && $table == $import_table_prefix.'options') {
 
+				$mprefix = (empty($matches[1])) ? '' : $matches[1];
+
 				if ($import_table_prefix != $old_table_prefix) {
-					$updraftplus->log("Table prefix has changed: changing options table field(s) accordingly (".$matches[1]."options)");
+					$updraftplus->log("Table prefix has changed: changing options table field(s) accordingly (".$mprefix."options)");
 					echo sprintf(__('Table prefix has changed: changing %s table field(s) accordingly:', 'updraftplus'),'option').' ';
-					if (false === $wpdb->query("UPDATE ${import_table_prefix}".$matches[1]."options SET option_name='${import_table_prefix}".$matches[1]."user_roles' WHERE option_name='${old_table_prefix}".$matches[1]."user_roles' LIMIT 1")) {
+					if (false === $wpdb->query("UPDATE ${import_table_prefix}".$mprefix."options SET option_name='${import_table_prefix}".$mprefix."user_roles' WHERE option_name='${old_table_prefix}".$mprefix."user_roles' LIMIT 1")) {
 						echo __('Error','updraftplus');
 						$updraftplus->log("Error when changing options table fields");
 					} else {
@@ -1530,13 +1564,13 @@ class Updraft_Restorer extends WP_Upgrader {
 					echo '<br>';
 
 					// Now deal with the situation where the imported database sets a new over-ride upload_path that is absolute - which may not be wanted
-					$new_upload_path = $wpdb->get_row($wpdb->prepare("SELECT option_value FROM ${import_table_prefix}".$matches[1]."options WHERE option_name = %s LIMIT 1", 'upload_path'));
+					$new_upload_path = $wpdb->get_row($wpdb->prepare("SELECT option_value FROM ${import_table_prefix}".$mprefix."options WHERE option_name = %s LIMIT 1", 'upload_path'));
 					$new_upload_path = (is_object($new_upload_path)) ? $new_upload_path->option_value : '';
 					// The danger situation is absolute and points somewhere that is now perhaps not accessible at all
 					if (!empty($new_upload_path) && $new_upload_path != $this->prior_upload_path && strpos($new_upload_path, '/') === 0) {
 						if (!file_exists($new_upload_path)) {
 							$updraftplus->log_e("Uploads path (%s) does not exist - resetting (%s)", $new_upload_path, $this->prior_upload_path);
-							if (false === $wpdb->query("UPDATE ${import_table_prefix}".$matches[1]."options SET option_value='".esc_sql($this->prior_upload_path)."' WHERE option_name='upload_path' LIMIT 1")) {
+							if (false === $wpdb->query("UPDATE ${import_table_prefix}".$mprefix."options SET option_value='".esc_sql($this->prior_upload_path)."' WHERE option_name='upload_path' LIMIT 1")) {
 								echo __('Error','updraftplus');
 								$updraftplus->log("Failed");
 							}

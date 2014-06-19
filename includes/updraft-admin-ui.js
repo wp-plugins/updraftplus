@@ -473,7 +473,7 @@ jQuery(document).ready(function($){
 	var updraft_message_modal_buttons = {};
 	updraft_message_modal_buttons[updraftlion.close] = function() { jQuery(this).dialog("close"); };
 	jQuery( "#updraft-message-modal" ).dialog({
-		autoOpen: false, height: 300, width: 500, modal: true,
+		autoOpen: false, height: 350, width: 520, modal: true,
 		buttons: updraft_message_modal_buttons
 	});
 	
