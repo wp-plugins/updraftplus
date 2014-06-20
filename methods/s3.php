@@ -44,7 +44,7 @@ class UpdraftPlus_BackupModule_s3 {
 
 		if (!class_exists('UpdraftPlus_S3')) require_once(UPDRAFTPLUS_DIR.'/includes/S3.php');
 
-		if (!class_exists('WP_HTTP_Proxy')) require_once(ABSPATH.'wp-includes/class-http.php');
+		if (!class_exists('WP_HTTP_Proxy')) require_once(ABSPATH.WPINC.'/class-http.php');
 		$proxy = new WP_HTTP_Proxy();
 		$s3 = new UpdraftPlus_S3($key, $secret);
 
@@ -414,6 +414,7 @@ class UpdraftPlus_BackupModule_s3 {
 			UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify'),
 			UpdraftPlus_Options::get_updraft_option('updraft_ssl_nossl')
 		);
+		if (is_wp_error($s3)) return $updraftplus->log_wp_error($s3, false, true);
 
 		$bucket_name = untrailingslashit($config['path']);
 		$bucket_path = "";
