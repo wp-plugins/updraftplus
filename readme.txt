@@ -22,7 +22,7 @@ Backup and restoration made easy. Complete backups; manual or scheduled (backup 
 * Quick restore (both file and database backups)
 * Backup automatically on a repeating schedule
 * Site duplicator/migrator: can copy sites, and (with add-on) move them to new locations
-* Restores and migrates backup sets from other backup plugins (Premium) (currently supported: BackWPUp, BackupWordPress, Simple Backup, WordPress Backup 2 Dropbox)
+* Restores and migrates backup sets from other backup plugins (Premium) (currently supported: BackWPUp, BackupWordPress, Simple Backup, WordPress Backup To Dropbox)
 * Files and database backups can have separate schedules
 * Failed uploads are automatically resumed/retried
 * Large sites can be split into multiple archives
@@ -121,7 +121,7 @@ UpdraftPlus supports resuming backup runs right from the beginning, so that it d
 
 = Will you support Windows Live OneDrive (f.k.a. SkyDrive)? =
 
-No. Microsoft forbid the use of OneDrive/SkyDrive by backup utilities - see http://msdn.microsoft.com/en-us/library/live/hh826521.aspx ("Here are some examples of nonconforming apps: Apps that automatically back up files or folders to SkyDrive.").
+No. Microsoft forbid the use of OneDrive/SkyDrive by backup utilities - see http://msdn.microsoft.com/en-us/library/hh826521 ("Here are some examples of nonconforming apps: Apps that automatically back up files or folders to OneDrive.").
 
 = Any known bugs ? =
 
@@ -148,8 +148,9 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 
 * FEATURE: Can now import/restore/migrate backups created by WordPress Backup 2 Dropbox (Premium)
 * FIX: Fix bug in Importer add-on that prevented some potential warnings about the integrity of the 3rd party backup zip being displayed
+* FIX: Some errors upon S3 downloads were not being passed back up to the settings page for display
 * TWEAK: Prevent spurious messages about quota for users who have upgraded their Bitcasa account to infinite storage
-* TWEAK: Dropbox now supports use of WP_PROXY_ settings
+* TWEAK: Dropbox now supports use of WP_PROXY_ settings (proxy needs to support HTTP GET/POST/PUT)
 
 = 1.9.15 - 2014/09/06 =
 

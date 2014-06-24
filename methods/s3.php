@@ -414,6 +414,7 @@ class UpdraftPlus_BackupModule_s3 {
 			UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify'),
 			UpdraftPlus_Options::get_updraft_option('updraft_ssl_nossl')
 		);
+		if (is_wp_error($s3)) return $updraftplus->log_wp_error($s3, false, true);
 
 		$bucket_name = untrailingslashit($config['path']);
 		$bucket_path = "";

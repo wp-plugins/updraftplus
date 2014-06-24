@@ -807,8 +807,8 @@ class UpdraftPlus_Backup {
 				foreach ($files as $file) $updraftplus->check_recent_modification($this->updraft_dir.'/'.$file);
 			}
 		} elseif ('begun' == $bfiles_status) {
-			# TODO: Modify for incremental runs
-			if ($resumption_no>0) {
+			$first_run = apply_filters('updraftplus_filerun_firstrun', 0);
+			if ($resumption_no > $first_run) {
 				$updraftplus->log("Creation of backups of directories: had begun; will resume");
 			} else {
 				$updraftplus->log("Creation of backups of directories: beginning");

@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.9.15
+Version: 1.9.16
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -1751,10 +1751,7 @@ class UpdraftPlus {
 		$option_cache = apply_filters('updraftplus_job_option_cache', $option_cache);
 
 		# If nothing to be done, then just finish
-		if (!$backup_files && !$backup_database) {
-			$this->backup_finish(1, false, false, 0);
-			return;
-		}
+		if (!$backup_files && !$backup_database) return $this->backup_finish(1, false, false, 0);
 
 		require_once(UPDRAFTPLUS_DIR.'/includes/class-semaphore.php');
 		$this->semaphore = UpdraftPlus_Semaphore::factory();
@@ -1816,7 +1813,7 @@ class UpdraftPlus {
 		array_push($initial_jobdata, 'backup_files', (($backup_files) ? 'begun' : 'no'));
 
 		// Use of jobdata_set_multi saves around 200ms
-		call_user_func_array(array($this, 'jobdata_set_multi'), $initial_jobdata);
+		call_user_func_array(array($this, 'jobdata_set_multi'), apply_filters('updraftplus_initial_jobdata', $initial_jobdata));
 
 		// Everything is set up; now go
 		$this->backup_resume(0, $this->nonce);
@@ -1865,8 +1862,8 @@ class UpdraftPlus {
 		// Make sure that the final status is shown
 		if (0 == $this->error_count()) {
 			$send_an_email = true;
-			if ($this->error_count('warning') == 0) {
-				$final_message = __('The backup apparently succeeded and is now complete','updraftplus');
+			if (0 == $this->error_count('warning')) {
+				$final_message = __('The backup apparently succeeded and is now complete', 'updraftplus');
 				# Ensure it is logged in English. Not hugely important; but helps with a tiny number of really broken setups in which the options cacheing is broken
 				if ('The backup apparently succeeded and is now complete' != $final_message) {
 					$this->log('The backup apparently succeeded and is now complete');
@@ -1877,6 +1874,7 @@ class UpdraftPlus {
 					$this->log('The backup apparently succeeded (with warnings) and is now complete');
 				}
 			}
+			if ($do_cleanup) do_action('updraftplus_backup_complete');
 		} elseif (false == $this->newresumption_scheduled) {
 			$send_an_email = true;
 			$final_message = __('The backup attempt has finished, apparently unsuccessfully', 'updraftplus');

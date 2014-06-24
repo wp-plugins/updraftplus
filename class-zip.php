@@ -180,11 +180,17 @@ class UpdraftPlus_PclZip {
 	protected $addfiles;
 	protected $adddirs;
 	private $statindex;
+	private $include_mtime = false;
 	public $last_error;
 
-	function __construct() {
+	public function __construct() {
 		$this->addfiles = array();
 		$this->adddirs = array();
+	}
+
+	# Used to include mtime in statindex (by default, not done - to save memory; probably a bit paranoid)
+	public function ud_include_mtime() {
+		$this->include_mtime = true;
 	}
 
 	public function __get($name) {
@@ -215,7 +221,9 @@ class UpdraftPlus_PclZip {
 
 	public function statIndex($i) {
 		if (empty($this->statindex[$i])) return array('name' => null, 'size' => 0);
-		return array('name' => $this->statindex[$i]['filename'], 'size' => $this->statindex[$i]['size']);
+		$v = array('name' => $this->statindex[$i]['filename'], 'size' => $this->statindex[$i]['size']);
+		if ($this->include_mtime) $v['mtime'] = $this->statindex[$i]['mtime'];
+		return $v;
 	}
 
 	public function open($path, $flags = 0) {
