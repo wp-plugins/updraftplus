@@ -2292,7 +2292,6 @@ CREATE TABLE $wpdb->signups (
 		$cron = get_option('cron');
 		if (!is_array($cron)) $cron = array();
 // 		$found_jobs = 0;
-
 		$ret = '';
 
 		foreach ($cron as $time => $job) {
@@ -2307,9 +2306,7 @@ CREATE TABLE $wpdb->signups (
 			}
 		}
 
-// 		if (0 == $found_jobs) {
-// 			$ret .= '<p><em>'.__('(None)', 'updraftplus').'</em></p>';
-// 		}
+// 		if (0 == $found_jobs) $ret .= '<p><em>'.__('(None)', 'updraftplus').'</em></p>';
 		return $ret;
 	}
 

@@ -146,13 +146,13 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 
 = Development version (not yet released/supported) =
 
-* FEATURE: Can now import/restore/migrate backups created by WordPress Backup 2 Dropbox (Premium)
+* FEATURE: Can now import/restore/migrate backups created by WordPress Backup To Dropbox (Premium)
 * FIX: Fix bug in Importer add-on that prevented some potential warnings about the integrity of the 3rd party backup zip being displayed
 * FIX: Some errors upon S3 downloads were not being passed back up to the settings page for display
 * TWEAK: Prevent spurious messages about quota for users who have upgraded their Bitcasa account to infinite storage
 * TWEAK: Dropbox now supports use of WP_PROXY_ settings (proxy needs to support HTTP GET/POST/PUT)
 
-= 1.9.15 - 2014/09/06 =
+= 1.9.15 - 2014/06/09 =
 
 * FEATURE: New search/replace expert tool (Premium)
 * TWEAK: UI has been simplified - see: http://updraftplus.com/gentle-re-design/

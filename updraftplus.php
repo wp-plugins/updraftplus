@@ -18,6 +18,7 @@ TODO - some of these are out of date/done, needs pruning
 // If a current backup has a "next resumption" that is heavily negative, then provide a link for kick-starting it (i.e. to run the next resumption action via AJAX)
 // If importing full WPMU backup into non-WPMU, check that they are clearly warned this is usually wrong
 // Deploy FUE addon
+// Check what happens on renewals-of-renewals - are they detected?
 // More complex pruning options - search archive for retain/billion/complex for ideas
 // Feature to despatch any not-yet-despatched backups to remote storage
 // Make 'more files' restorable - require them to select a directory first
@@ -498,15 +499,17 @@ class UpdraftPlus {
 	// Also cleans out old job data older than 12 hours old (immutable value)
 	public function clean_temporary_files($match = '', $older_than = 43200) {
 		# Clean out old job data
-		if ($older_than >10000) {
+		if ($older_than > 10000) {
 			global $wpdb;
+			
 			$all_jobs = $wpdb->get_results("SELECT option_name, option_value FROM $wpdb->options WHERE option_name LIKE 'updraft_jobdata_%'", ARRAY_A);
 			foreach ($all_jobs as $job) {
 				$val = maybe_unserialize($job['option_value']);
 				# TODO: Can simplify this after a while (now all jobs use job_time_ms) - 1 Jan 2014
-				# TODO: This will need changing when incremental backups are introduced (job_type = increment)
 				$delete = false;
-				if (!empty($val['backup_time_ms']) && time() > $val['backup_time_ms'] + 86400) {
+				if (!empty($val['next_increment_start_scheduled_for'])) {
+					if (time() > $val['next_increment_start_scheduled_for'] + 86400) $delete = true;
+				} if (!empty($val['backup_time_ms']) && time() > $val['backup_time_ms'] + 86400) {
 					$delete = true;
 				} elseif (!empty($val['job_time_ms']) && time() > $val['job_time_ms'] + 86400) {
 					$delete = true;
