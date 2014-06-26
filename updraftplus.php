@@ -1369,6 +1369,7 @@ class UpdraftPlus {
 		}
 
 		# TODO: The hard-coded numbers here need to be filterable, to work with increments
+		# TODO: Also, $run_times_known needs to not start from 0, but from a filterable offset
 
 		// We just do this once, as we don't want to be in permanent conflict with the overlap detector
 		if ($resumption_no >= 8 && $resumption_no < 15 && $resume_interval >= 300) {
