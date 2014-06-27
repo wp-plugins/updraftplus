@@ -897,6 +897,7 @@ class UpdraftPlus_Backup {
 		$file_base = 'backup_'.get_date_from_gmt(gmdate('Y-m-d H:i:s', $updraftplus->backup_time), 'Y-m-d-Hi').'_'.$this->blog_name.'_'.$updraftplus->nonce;
 		$backup_file_base = $this->updraft_dir.'/'.$file_base;
 
+		if ('finished' == $already_done) return basename($backup_file_base).'-db'.(('wp' == $whichdb) ? '' : $whichdb).'.gz';
 		if ('encrypted' == $already_done) return basename($backup_file_base).'-db'.(('wp' == $whichdb) ? '' : $whichdb).'.gz.crypt';
 
 		$updraftplus->jobdata_set('jobstatus', 'dbcreating'.$this->whichdb_suffix);

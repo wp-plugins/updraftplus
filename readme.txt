@@ -150,6 +150,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * FIX: Fix bug in Importer add-on that prevented some potential warnings about the integrity of the 3rd party backup zip being displayed
 * FIX: Some errors upon S3 downloads were not being passed back up to the settings page for display
 * TWEAK: Prevent spurious messages about quota for users who have upgraded their Bitcasa account to infinite storage
+* TWEAK: Prevent some unnecessary duplication of work when resuming a database backup (since 1.9.13)
 * TWEAK: Dropbox now supports use of WP_PROXY_ settings (proxy needs to support HTTP GET/POST/PUT)
 
 = 1.9.15 - 2014/06/09 =
