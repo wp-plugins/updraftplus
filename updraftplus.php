@@ -186,7 +186,7 @@ define('UPDRAFT_DEFAULT_UPLOADS_EXCLUDE','backup*,*backups,backwpup*,wp-clone');
 
 # The following can go in your wp-config.php
 # Tables whose data can be safed without significant loss, if (and only if) the attempt to back them up fails (e.g. bwps_log, from WordPress Better Security, is log data; but individual entries can be huge and cause out-of-memory fatal errors on low-resource environments). Comma-separate the table names (without the WordPress table prefix).
-if (!defined('UPDRAFTPLUS_DATA_OPTIONAL_TABLES')) define('UPDRAFTPLUS_DATA_OPTIONAL_TABLES', 'bwps_log,statpress,slim_stats,redirection_logs,Counterize,Counterize_Referers,Counterize_UserAgents,wbz404_logs,wbz404_redirects');
+if (!defined('UPDRAFTPLUS_DATA_OPTIONAL_TABLES')) define('UPDRAFTPLUS_DATA_OPTIONAL_TABLES', 'bwps_log,statpress,slim_stats,redirection_logs,Counterize,Counterize_Referers,Counterize_UserAgents,wbz404_logs,wbz404_redirects,tts_trafficstats,tts_referrer_stats');
 if (!defined('UPDRAFTPLUS_ZIP_EXECUTABLE')) define('UPDRAFTPLUS_ZIP_EXECUTABLE', "/usr/bin/zip,/bin/zip,/usr/local/bin/zip,/usr/sfw/bin/zip,/usr/xdg4/bin/zip,/opt/bin/zip");
 if (!defined('UPDRAFTPLUS_MYSQLDUMP_EXECUTABLE')) define('UPDRAFTPLUS_MYSQLDUMP_EXECUTABLE', "/usr/bin/mysqldump,/bin/mysqldump,/usr/local/bin/mysqldump,/usr/sfw/bin/mysqldump,/usr/xdg4/bin/mysqldump,/opt/bin/mysqldump");
 # If any individual file size is greater than this, then a warning is given
@@ -298,14 +298,20 @@ class UpdraftPlus {
 		add_action(apply_filters('updraft_admin_menu_hook', 'admin_menu'), array($this, 'admin_menu'), 9);
 		# Not a mistake: admin-ajax.php calls only admin_init and not admin_menu
 		add_action('admin_init', array($this, 'admin_menu'), 9);
+
+		# The two actions which we schedule upon
 		add_action('updraft_backup', array($this, 'backup_files'));
 		add_action('updraft_backup_database', array($this, 'backup_database'));
+
+		# The three actions that can be called from "Backup Now"
 		add_action('updraft_backupnow_backup', array($this, 'backupnow_files'));
 		add_action('updraft_backupnow_backup_database', array($this, 'backupnow_database'));
 		add_action('updraft_backupnow_backup_all', array($this, 'backup_all'));
+
 		# backup_all as an action is legacy (Oct 2013) - there may be some people who wrote cron scripts to use it
 		add_action('updraft_backup_all', array($this, 'backup_all'));
-		# this is our runs-after-backup event, whose purpose is to see if it succeeded or failed, and resume/mom-up etc.
+
+		# This is our runs-after-backup event, whose purpose is to see if it succeeded or failed, and resume/mom-up etc.
 		add_action('updraft_backup_resume', array($this, 'backup_resume'), 10, 3);
 		# http://codex.wordpress.org/Plugin_API/Filter_Reference/cron_schedules. Raised priority because some plugins wrongly over-write all prior schedule changes (including BackupBuddy!)
 		add_filter('cron_schedules', array($this, 'modify_cron_schedules'), 30);
@@ -518,7 +524,6 @@ class UpdraftPlus {
 				}
 				if ($delete) delete_option($job['option_name']);
 			}
-			
 		}
 		$updraft_dir = $this->backups_dir_location();
 		$now_time=time();
@@ -1286,9 +1291,9 @@ class UpdraftPlus {
 		$job_type = 'backup';
 
 		if ($resumption_no > 0) {
+
 			$this->nonce = $bnonce;
 			$this->backup_time = $this->jobdata_get('backup_time');
-
 			$this->job_time_ms = $this->jobdata_get('job_time_ms');
 			# Get the warnings before opening the log file, as opening the log file may generate new ones (which then leads to $this->errors having duplicate entries when they are copied over below)
 			$warnings = $this->jobdata_get('warnings');
@@ -1368,17 +1373,16 @@ class UpdraftPlus {
 			}
 		}
 
-		# TODO: The hard-coded numbers here need to be filterable, to work with increments
-		# TODO: Also, $run_times_known needs to not start from 0, but from a filterable offset
+		$first_run = apply_filters('updraftplus_filerun_firstrun', 0);
 
 		// We just do this once, as we don't want to be in permanent conflict with the overlap detector
-		if ($resumption_no >= 8 && $resumption_no < 15 && $resume_interval >= 300) {
+		if ($resumption_no >= $first_run + 8 && $resumption_no < $first_run + 15 && $resume_interval >= 300) {
 
 			// $time_passed is set earlier
-			list($max_time, $timings_string, $run_times_known) = $this->max_time_passed($time_passed, $resumption_no - 1);
+			list($max_time, $timings_string, $run_times_known) = $this->max_time_passed($time_passed, $resumption_no - 1, $first_run);
 
 			# Do this on resumption 8, or the first time that we have 6 data points
-			if ((8 == $resumption_no && $run_times_known >= 6) || (6 == $run_times_known && !empty($time_passed[$prev_resumption]))) {
+			if (($first_run + 8 == $resumption_no && $run_times_known >= 6) || (6 == $run_times_known && !empty($time_passed[$prev_resumption]))) {
 				$this->log("Time passed on previous resumptions: $timings_string (known: $run_times_known, max: $max_time)");
 				// Remember that 30 seconds is used as the 'perhaps something is still running' detection threshold, and that 45 seconds is used as the 'the next resumption is approaching - reschedule!' interval
 				if ($max_time + 52 < $resume_interval) {
@@ -1392,8 +1396,7 @@ class UpdraftPlus {
 
 		// A different argument than before is needed otherwise the event is ignored
 		$next_resumption = $resumption_no+1;
-		# TODO: increments: need to make the hard-coded number here filterable
-		if ($next_resumption < 10) {
+		if ($next_resumption < $first_run + 10) {
 			if (true === $this->jobdata_get('one_shot')) {
 				$this->log('We are in "one shot" mode - no resumptions will be scheduled');
 			} else {
@@ -1588,11 +1591,11 @@ class UpdraftPlus {
 
 	}
 
-	public function max_time_passed($time_passed, $upto) {
+	public function max_time_passed($time_passed, $upto, $first_run) {
 		$max_time = 0;
 		$timings_string = "";
 		$run_times_known=0;
-		for ($i=0; $i<=$upto; $i++) {
+		for ($i=$first_run; $i<=$upto; $i++) {
 			$timings_string .= "$i:";
 			if (isset($time_passed[$i])) {
 				$timings_string .=  round($time_passed[$i], 1).' ';
@@ -1603,28 +1606,6 @@ class UpdraftPlus {
 			}
 		}
 		return array($max_time, $timings_string, $run_times_known);
-	}
-
-	public function backup_all($skip_cloud) {
-		$this->boot_backup(1, 1, false, false, ($skip_cloud) ? 'none' : false);
-	}
-	
-	public function backup_files() {
-		# Note that the "false" for database gets over-ridden automatically if they turn out to have the same schedules
-		$this->boot_backup(true, false);
-	}
-	
-	public function backup_database() {
-		# Note that nothing will happen if the file backup had the same schedule
-		$this->boot_backup(false, true);
-	}
-
-	public function backupnow_files($skip_cloud) {
-		$this->boot_backup(1, 0, false, false, ($skip_cloud) ? 'none' : false);
-	}
-	
-	public function backupnow_database($skip_cloud) {
-		$this->boot_backup(0, 1, false, false, ($skip_cloud) ? 'none' : false);
 	}
 
 	public function jobdata_getarray($non) {
@@ -1680,6 +1661,44 @@ class UpdraftPlus {
 		return (isset($this->jobdata[$key])) ? $this->jobdata[$key] : $default;
 	}
 
+	private function ensure_semaphore_exists($semaphore) {
+		// Make sure the options for semaphores exist
+		global $wpdb;
+		$results = $wpdb->get_results("
+			SELECT option_id
+				FROM $wpdb->options
+				WHERE option_name IN ('updraftplus_locked_$semaphore', 'updraftplus_unlocked_$semaphore')
+		");
+		// Use of update_option() is correct here - since it is what is used in class-semaphore.php
+		if (!count($results)) {
+			update_option('updraftplus_unlocked_'.$semaphore, '1');
+			update_option('updraftplus_last_lock_time_'.$semaphore, current_time('mysql', 1));
+			update_option('updraftplus_semaphore_'.$semaphore, '0');
+		}
+	}
+
+	public function backup_files() {
+		# Note that the "false" for database gets over-ridden automatically if they turn out to have the same schedules
+		$this->boot_backup(true, false);
+	}
+	
+	public function backup_database() {
+		# Note that nothing will happen if the file backup had the same schedule
+		$this->boot_backup(false, true);
+	}
+
+	public function backup_all($skip_cloud) {
+		$this->boot_backup(1, 1, false, false, ($skip_cloud) ? 'none' : false);
+	}
+	
+	public function backupnow_files($skip_cloud) {
+		$this->boot_backup(1, 0, false, false, ($skip_cloud) ? 'none' : false);
+	}
+	
+	public function backupnow_database($skip_cloud) {
+		$this->boot_backup(0, 1, false, false, ($skip_cloud) ? 'none' : false);
+	}
+
 	// This procedure initiates a backup run
 	// $backup_files/$backup_database: true/false = yes/no (over-write allowed); 1/0 = yes/no (force)
 	public function boot_backup($backup_files, $backup_database, $restrict_files_to_override = false, $one_shot = false, $service = false) {
@@ -1714,20 +1733,7 @@ class UpdraftPlus {
 		}
 
 		$semaphore = (($backup_files) ? 'f' : '') . (($backup_database) ? 'd' : '');
-
-		// Make sure the options for semaphores exist
-		global $wpdb;
-		$results = $wpdb->get_results("
-			SELECT option_id
-				FROM $wpdb->options
-				WHERE option_name IN ('updraftplus_locked_$semaphore', 'updraftplus_unlocked_$semaphore')
-		");
-		// Use of update_option() is correct here - since it is what is used in class-semaphore.php
-		if (!count($results)) {
-			update_option('updraftplus_unlocked_'.$semaphore, '1');
-			update_option('updraftplus_last_lock_time_'.$semaphore, current_time('mysql', 1));
-			update_option('updraftplus_semaphore_'.$semaphore, '0');
-		}
+		$this->ensure_semaphore_exists($semaphore);
 
 		if (false == apply_filters('updraftplus_boot_backup', true, $backup_files, $backup_database, $one_shot)) {
 			$updraftplus->log("Backup aborted (via filter)");
@@ -1784,6 +1790,8 @@ class UpdraftPlus {
 			}
 		}
 
+		$followups_allowed = (((!$one_shot && defined('DOING_CRON') && DOING_CRON)) || (defined('UPDRAFTPLUS_FOLLOWUPS_ALLOWED') && UPDRAFTPLUS_FOLLOWUPS_ALLOWED));
+
 		$initial_jobdata = array(
 			'resume_interval', $resume_interval,
 			'job_type', 'backup',
@@ -1796,7 +1804,8 @@ class UpdraftPlus {
 			'job_file_entities', $job_file_entities,
 			'option_cache', $option_cache,
 			'uploaded_lastreset', 9,
-			'one_shot', $one_shot
+			'one_shot', $one_shot,
+			'followsups_allowed', $followups_allowed
 		);
 
 		if ($one_shot) update_site_option('updraft_oneshotnonce', $this->nonce);
@@ -1862,6 +1871,8 @@ class UpdraftPlus {
 		// - It was the tenth resumption; everything failed
 
 		$send_an_email = false;
+		# Save the jobdata's state for the reporting - because it might get changed (e.g. incremental backup is scheduled)
+		$jobdata_as_was = $this->jobdata;
 
 		// Make sure that the final status is shown
 		if (0 == $this->error_count()) {
@@ -1878,7 +1889,7 @@ class UpdraftPlus {
 					$this->log('The backup apparently succeeded (with warnings) and is now complete');
 				}
 			}
-			if ($do_cleanup) do_action('updraftplus_backup_complete');
+			if ($do_cleanup) $delete_jobdata = apply_filters('updraftplus_backup_complete', $delete_jobdata);
 		} elseif (false == $this->newresumption_scheduled) {
 			$send_an_email = true;
 			$final_message = __('The backup attempt has finished, apparently unsuccessfully', 'updraftplus');
@@ -1905,7 +1916,7 @@ class UpdraftPlus {
 		}
 
 		global $updraftplus_backup;
-		if ($send_an_email) $updraftplus_backup->send_results_email($final_message);
+		if ($send_an_email) $updraftplus_backup->send_results_email($final_message, $jobdata_as_was);
 
 		# Make sure this is the final message logged (so it remains on the dashboard)
 		$this->log($final_message);
@@ -2033,7 +2044,7 @@ class UpdraftPlus {
 		}
 	}
 
-	function reschedule($how_far_ahead) {
+	public function reschedule($how_far_ahead) {
 		// Reschedule - remove presently scheduled event
 		$next_resumption = $this->current_resumption + 1;
 		wp_clear_scheduled_hook('updraft_backup_resume', array($next_resumption, $this->nonce));
@@ -2045,7 +2056,7 @@ class UpdraftPlus {
 		$this->newresumption_scheduled = $schedule_for;
 	}
 
-	function increase_resume_and_reschedule($howmuch = 120, $force_schedule = false) {
+	private function increase_resume_and_reschedule($howmuch = 120, $force_schedule = false) {
 
 		$resume_interval = max(intval($this->jobdata_get('resume_interval')), 300);
 
@@ -2276,9 +2287,9 @@ class UpdraftPlus {
 	}
 
 	/*
-	This function is both the backup scheduler and ostensibly a filter callback for saving the option.
-	it is called in the register_setting for the updraft_interval, which means when the admin settings 
-	are saved it is called.
+	This function is both the backup scheduler and a filter callback for saving the option.
+	It is called in the register_setting for the updraft_interval, which means when the
+	admin settings are saved it is called.
 	*/
 	public function schedule_backup($interval) {
 
