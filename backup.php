@@ -561,7 +561,25 @@ class UpdraftPlus_Backup {
 			$feed .= "\r\n\r\n";
 		}
 
-		$body = apply_filters('updraft_report_body', __('Backup of:').' '.site_url()."\r\nUpdraftPlus ".__('WordPress backup is complete','updraftplus').".\r\n".__('Backup contains:','updraftplus')." $backup_contains\r\n".__('Latest status:', 'updraftplus').' '.$final_message."\r\n\r\n".$feed.$updraftplus->wordshell_random_advert(0)."\r\n".$append_log, $final_message, $backup_contains, $updraftplus->errors, $warnings, $jobdata);
+		$extra_messages = apply_filters('updraftplus_report_extramessages', array());
+		$extra_msg = '';
+		if (is_array($extra_messages)) {
+			foreach ($extra_messages as $msg) {
+				$extra_msg .= '<strong>'.$msg['key'].'</strong>: '.$msg['val']."\r\n";
+			}
+		}
+
+		$body = apply_filters('updraft_report_body',
+			__('Backup of:').' '.site_url()."\r\n".
+			"UpdraftPlus ".__('WordPress backup is complete','updraftplus').".\r\n".
+			__('Backup contains:','updraftplus')." $backup_contains\r\n".
+			__('Latest status:', 'updraftplus').' '.$final_message."\r\n".
+			$extra_msg.
+			"\r\n".
+			$feed.
+			$updraftplus->wordshell_random_advert(0)."\r\n".
+			$append_log,
+		$final_message, $backup_contains, $updraftplus->errors, $warnings, $jobdata);
 
 		$this->attachments = apply_filters('updraft_report_attachments', $attachments);
 
