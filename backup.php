@@ -33,7 +33,7 @@ class UpdraftPlus_Backup {
 	private $use_zip_object = 'UpdraftPlus_ZipArchive';
 	public $debug = false;
 
-	private $updraft_dir;
+	public $updraft_dir;
 	private $blog_name;
 	private $wpdb_obj;
 	private $job_file_entities = array();
@@ -487,10 +487,13 @@ class UpdraftPlus_Backup {
 		if (is_array($backup_db)) $backup_db = $backup_db['wp'];
 		if (is_array($backup_db)) $backup_db = $backup_db['status'];
 
+		$backup_type = ('backup' == $jobdata['job_type']) ? __('Full backup', 'updraftplus') : __('Incremental', 'updraftplus');
+
 		if ('finished' == $backup_files && ('finished' == $backup_db || 'encrypted' == $backup_db)) {
-			$backup_contains = __("Files and database", 'updraftplus');
+			$backup_contains = __("Files and database", 'updraftplus')." ($backup_type)";
 		} elseif ('finished' == $backup_files) {
 			$backup_contains = ($backup_db == "begun") ? __("Files (database backup has not completed)", 'updraftplus') : __("Files only (database was not part of this particular schedule)", 'updraftplus');
+			$backup_contains .= " ($backup_type)";
 		} elseif ($backup_db == 'finished' || $backup_db == 'encrypted') {
 			$backup_contains = ($backup_files == "begun") ? __("Database (files backup has not completed)", 'updraftplus') : __("Database only (files were not part of this particular schedule)", 'updraftplus');
 		} else {
@@ -558,9 +561,7 @@ class UpdraftPlus_Backup {
 			$feed .= "\r\n\r\n";
 		}
 
-		$backup_type = ('backup' == $jobdata['job_type']) ? __('Full backup', 'updraftplus') : __('Incremental', 'updraftplus');
-
-		$body = apply_filters('updraft_report_body', __('Backup of:').' '.site_url()."\r\nUpdraftPlus ".__('WordPress backup is complete','updraftplus').".\r\n".__('Backup contains:','updraftplus').' '.$backup_contains."\r\n".__('Backup type:', 'updraftplus').' '.$backup_type."\r\n".__('Latest status:', 'updraftplus').' '.$final_message."\r\n\r\n".$feed.$updraftplus->wordshell_random_advert(0)."\r\n".$append_log, $final_message, $backup_contains, $updraftplus->errors, $warnings, $jobdata);
+		$body = apply_filters('updraft_report_body', __('Backup of:').' '.site_url()."\r\nUpdraftPlus ".__('WordPress backup is complete','updraftplus').".\r\n".__('Backup contains:','updraftplus')." $backup_contains\r\n".__('Latest status:', 'updraftplus').' '.$final_message."\r\n\r\n".$feed.$updraftplus->wordshell_random_advert(0)."\r\n".$append_log, $final_message, $backup_contains, $updraftplus->errors, $warnings, $jobdata);
 
 		$this->attachments = apply_filters('updraft_report_attachments', $attachments);
 
@@ -707,7 +708,7 @@ class UpdraftPlus_Backup {
 				$zip_file = $this->updraft_dir.'/'.$backup_file_basename.'-'.$youwhat.$indextext.'.zip';
 
 				# Split needed?
-				$split_every=max((int)$updraftplus->jobdata_get('split_every'), 250);
+				$split_every = max((int)$updraftplus->jobdata_get('split_every'), 250);
 				if (file_exists($zip_file) && filesize($zip_file) > $split_every*1048576) {
 					$index++;
 					$this->job_file_entities[$youwhat]['index'] = $index;
@@ -715,7 +716,7 @@ class UpdraftPlus_Backup {
 				}
 
 				// Populate prior parts of array, if we're on a subsequent zip file
-				if ($index >0) {
+				if ($index > 0) {
 					for ($i=0; $i<$index; $i++) {
 						$itext = (0 == $i) ? '' : ($i+1);
 						$backup_array[$youwhat][$i] = $backup_file_basename.'-'.$youwhat.$itext.'.zip';
@@ -1013,7 +1014,7 @@ class UpdraftPlus_Backup {
 
 					// Close file
 
-					$this->close($this->dbhandle);
+					$this->close();
 
 					$updraftplus->log("Table $table: finishing file (${table_file_prefix}.gz - ".round(filesize($this->updraft_dir.'/'.$table_file_prefix.'.tmp.gz')/1024,1)." Kb)");
 
@@ -1062,7 +1063,7 @@ class UpdraftPlus_Backup {
 			$updraftplus->log("PHP function is disabled; abort expected: gzopen");
 		}
 
-		if (false === ($opendb = $this->backup_db_open($backup_final_file_name, true))) return false;
+		if (false === $this->backup_db_open($backup_final_file_name, true)) return false;
 
 		$this->backup_db_header();
 
@@ -1089,7 +1090,7 @@ class UpdraftPlus_Backup {
 		}
 
 		$updraftplus->log($file_base.'-db'.$this->whichdb_suffix.'.gz: finished writing out complete database file ('.round(filesize($backup_final_file_name)/1024,1).' Kb)');
-		if (!$this->close($this->dbhandle)) {
+		if (!$this->close()) {
 			$updraftplus->log('An error occurred whilst closing the final database file');
 			$updraftplus->log(__('An error occurred whilst closing the final database file', 'updraftplus'), 'error');
 			$errors++;
@@ -1326,16 +1327,12 @@ class UpdraftPlus_Backup {
 		}
 	}
 
-	private function close($handle) {
-		if ($this->dbhandle_isgz) {
-			return gzclose($handle);
-		} else {
-			return fclose($handle);
-		}
+	public function close() {
+		return ($this->dbhandle_isgz) ? gzclose($this->dbhandle) : fclose($this->dbhandle);
 	}
 
 	// Open a file, store its filehandle
-	private function backup_db_open($file, $allow_gz = true) {
+	public function backup_db_open($file, $allow_gz = true) {
 		if (function_exists('gzopen') && $allow_gz == true) {
 			$this->dbhandle = @gzopen($file, 'w');
 			$this->dbhandle_isgz = true;
@@ -1351,16 +1348,17 @@ class UpdraftPlus_Backup {
 		return $this->dbhandle;
 	}
 
-	private function stow($query_line) {
+	public function stow($query_line) {
 		if ($this->dbhandle_isgz) {
-			if(! @gzwrite($this->dbhandle, $query_line)) {
+			if(false == ($ret = @gzwrite($this->dbhandle, $query_line))) {
 				//$updraftplus->log(__('There was an error writing a line to the backup script:','wp-db-backup') . '  ' . $query_line . '  ' . $php_errormsg, 'error');
 			}
 		} else {
-			if(false === @fwrite($this->dbhandle, $query_line)) {
+			if(false == ($ret = @fwrite($this->dbhandle, $query_line))) {
 				//$updraftplus->log(__('There was an error writing a line to the backup script:','wp-db-backup') . '  ' . $query_line . '  ' . $php_errormsg, 'error');
 			}
 		}
+		return $ret;
 	}
 
 	private function backup_db_header() {
@@ -1454,6 +1452,7 @@ class UpdraftPlus_Backup {
 				$mtime = filemtime($fullpath);
 				$key = ($fullpath == $original_fullpath) ? ((2 == $startlevels) ? $use_path_when_storing : basename($fullpath)) : $use_path_when_storing.'/'.basename($fullpath);
 				if ($mtime > 0 && $mtime > $if_altered_since) {
+					$this->zipfiles_batched[$fullpath] = $key;
 					$this->makezip_recursive_batchedbytes += @filesize($fullpath);
 					#@touch($zipfile);
 				} else {
@@ -1994,6 +1993,7 @@ class UpdraftPlus_Backup {
 				$this->bump_index();
 				$zipfile = $this->zip_basename.($this->index+1).'.zip.tmp';
 			}
+
 			if (empty($zip)) {
 				$zip = new $this->use_zip_object;
 
@@ -2023,6 +2023,8 @@ class UpdraftPlus_Backup {
 				$updraftplus->log("File: ".$ffile['addas']." (exists: ".(int)@file_exists($ffile['file']).", size: ".@filesize($ffile['file']).')');
 			}
 		}
+
+		do_action("updraftplus_makezip_addfiles_finished", $this, $this->whichone);
 
 		$this->zipfiles_lastwritetime = time();
 		# May not exist if the last thing we did was bump

@@ -153,6 +153,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Prevent some unnecessary duplication of work when resuming a database backup (since 1.9.13)
 * TWEAK: Dropbox now supports use of WP_PROXY_ settings (proxy needs to support HTTP GET/POST/PUT)
 * TWEAK: Add work-around for "Google Drive as CDN" plugin's inclusion of incompatible Google SDK
+* TWEAK: "More Files" add-on now lets you list single files for inclusion
 
 = 1.9.15 - 2014/06/09 =
 
@@ -844,6 +845,7 @@ We recognise and thank the following for code and/or libraries used and/or modif
 * Rackspace US, Inc., https://github.com/rackerlabs/php-cloudfiles
 * Jim Wigginton, http://phpseclib.sourceforge.net
 * Dave Coveney, https://github.com/interconnectit/Search-Replace-DB/
+* Richard Adams, https://github.com/richadams/jquery-tripleclick/
 * No longer used: Sorin Iclanzan, http://profiles.wordpress.org/hel.io/
 
 == License ==

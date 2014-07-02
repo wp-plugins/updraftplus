@@ -1008,7 +1008,8 @@ class UpdraftPlus_Admin {
 		} elseif ('countbackups' == $_REQUEST['subaction']) {
 			$backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
 			$backup_history = (is_array($backup_history))?$backup_history:array();
-			echo sprintf(__('%d set(s) available', 'updraftplus'), count($backup_history));
+			#echo sprintf(__('%d set(s) available', 'updraftplus'), count($backup_history));
+			echo __('Existing Backups', 'updraftplus').' ('.count($backup_history).')';
 		} elseif ('ping' == $_REQUEST['subaction']) {
 			// The purpose of this is to detect brokenness caused by extra line feeds in plugins/themes - before it breaks other AJAX operations and leads to support requests
 			echo 'pong';
@@ -1105,7 +1106,8 @@ class UpdraftPlus_Admin {
 				$output = $noutput.$output;
 			}
 
-			echo json_encode(array('n' => sprintf(__('%d set(s) available', 'updraftplus'), count($backup_history)), 't' => $output));
+// 			echo @json_encode(array('n' => sprintf(__('%d set(s) available', 'updraftplus'), count($backup_history)), 't' => $output));
+			echo @json_encode(array('n' => sprintf(__('Existing Backups', 'updraftplus').' (%d)', count($backup_history)), 't' => $output));
 		} elseif (isset($_GET['subaction']) && 'downloadstatus' == $_GET['subaction'] && isset($_GET['timestamp']) && isset($_GET['type'])) {
 
 			$findex = (isset($_GET['findex'])) ? $_GET['findex'] : '0';
@@ -1797,17 +1799,26 @@ CREATE TABLE $wpdb->signups (
 				<div class="updated" style="padding:8px;"><?php _e("Your PHP memory limit (set by your web hosting company) is very low. UpdraftPlus attempted to raise it but was unsuccessful. This plugin may struggle with a memory limit of less than 64 Mb  - especially if you have very large files uploaded (though on the other hand, many sites will be successful with a 32Mb limit - your experience may vary).",'updraftplus');?> <?php _e('Current limit is:','updraftplus');?> <?php echo $updraftplus->memory_check_current(); ?> Mb</div>
 			<?php
 			}
+
 			if($this->scan_old_dirs()) $this->print_delete_old_dirs_form();
+
 			if(!empty($updraftplus->errors)) {
 				echo '<div class="error fade" style="padding:8px;">';
 				$updraftplus->list_errors();
 				echo '</div>';
 			}
+
+			$backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
+			if (empty($backup_history)) {
+				$this->rebuild_backup_history();
+				$backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
+			}
+			$backup_history = (is_array($backup_history))?$backup_history:array();
 			?>
 
 		<h2 class="nav-tab-wrapper" style="margin: 14px 0px;">
 		<a class="nav-tab nav-tab-active" href="#updraft-navtab-status-content" id="updraft-navtab-status"><?php _e('Current Status', 'updraftplus');?></a>
-		<a class="nav-tab" href="#updraft-navtab-backups-contents" id="updraft-navtab-backups"><?php _e('Existing Backups', 'updraftplus');?></a>
+		<a class="nav-tab" href="#updraft-navtab-backups-contents" id="updraft-navtab-backups"><?php echo __('Existing Backups', 'updraftplus').' ('.count($backup_history).')';?></a>
 		<a class="nav-tab" id="updraft-navtab-settings" href="#updraft-navtab-settings-content"><?php _e('Settings', 'updraftplus');?></a>
 		<a class="nav-tab" id="updraft-navtab-expert" href="#updraft-navtab-expert-content"><?php _e('Debugging / Expert Tools', 'updraftplus');?></a>
 		</h2>
@@ -1896,15 +1907,6 @@ CREATE TABLE $wpdb->signups (
 				</tr>
 			</table>
 
-			<?php
-				$backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
-				if (empty($backup_history)) {
-					$this->rebuild_backup_history();
-					$backup_history = UpdraftPlus_Options::get_updraft_option('updraft_backup_history');
-				}
-				$backup_history = (is_array($backup_history))?$backup_history:array();
-			?>
-
 			<br style="clear:both" />
 			<table class="form-table">
 
@@ -1922,10 +1924,11 @@ CREATE TABLE $wpdb->signups (
 					</td>
 				</tr>
 
-				<tr>
+				<!--<tr>
 					<th><?php echo htmlspecialchars(__('Backups, logs & restoring','updraftplus')); ?>:</th>
 					<td><a id="updraft_showbackups" href="#" title="<?php _e('Press to see available backups','updraftplus');?>" onclick="updraft_openrestorepanel(0); return false;"><?php echo sprintf(__('%d set(s) available', 'updraftplus'), count($backup_history)); ?></a></td>
-				</tr>
+				</tr>-->
+
 				<?php
 				# Currently disabled - not sure who we want to show this to
 				if (1==0 && !defined('UPDRAFTPLUS_NOADS_A')) {
@@ -2178,7 +2181,7 @@ CREATE TABLE $wpdb->signups (
 		$backupable_entities = $updraftplus->get_backupable_file_entities(true, true);
 		?>
 			<div class="expertmode">
-				<!-- <h2><?php _e('Debug Information And Expert Options','updraftplus');?></h2> -->
+				<p><em><?php _e('Unless you have a problem, you can completely ignore everything here.', 'updraftplus');?></em></p>
 				<table>
 				<?php
 
@@ -3242,15 +3245,23 @@ CREATE TABLE $wpdb->signups (
 			$entities = '';
 			$sval = ((isset($backup['service']) && $backup['service'] != 'email' && $backup['service'] != 'none')) ? '1' : '0';
 			$title = __('Delete this backup set', 'updraftplus');
-			$non=$backup['nonce'];
+			$non = $backup['nonce'];
+			$rawbackup = "<h2>$esc_pretty_date ($key)</h2><pre><p>".esc_attr(print_r($backup, true));
+			if (!empty($non)) {
+				$jd = $updraftplus->jobdata_getarray($non);
+				if (!empty($jd) && is_array($jd)) {
+					$rawbackup .= '</p><p>'.esc_attr(print_r($jd, true));
+				}
+			}
+			$rawbackup .= '</p></pre>';
 			$ret .= <<<ENDHERE
 		<tr id="updraft_existing_backups_row_$key">
-			<td><div class="updraftplus-remove" style="width: 19px; height: 19px; padding-top:0px; font-size: 18px; text-align:center;font-weight:bold; border-radius: 7px;"><a style="text-decoration:none;" href="javascript:updraft_delete('$key', '$non', $sval);" title="$title">×</a></div></td><td><b>$pretty_date</b>
+			<td><div class="updraftplus-remove" style="width: 19px; height: 19px; padding-top:0px; font-size: 18px; text-align:center;font-weight:bold; border-radius: 7px;"><a style="text-decoration:none;" href="javascript:updraft_delete('$key', '$non', $sval);" title="$title">×</a></div></td><td class="updraft_existingbackup_date" data-rawbackup="$rawbackup"><b>$pretty_date</b>
 ENDHERE;
 
 			$jobdata = $updraftplus->jobdata_getarray($non);
 			if (is_array($jobdata) && !empty($jobdata['resume_interval']) && (empty($jobdata['jobstatus']) || 'finished' != $jobdata['jobstatus'])) {
-				$ret .= "<br><span title=\"".esc_attr(__('If you are seeing more backups than you expect, then it is probably because the deletion of old backup sets does not happen until a fresh backup completes.', 'updraftplus'))."\">".__('(Not finished)', 'updraftplus').'</span>';
+				$ret .= apply_filters('updraftplus_msg_unfinishedbackup', "<br><span title=\"".esc_attr(__('If you are seeing more backups than you expect, then it is probably because the deletion of old backup sets does not happen until a fresh backup completes.', 'updraftplus'))."\">".__('(Not finished)', 'updraftplus').'</span>', $jobdata, $non);
 			}
 
 			$ret .= "</td>\n";
@@ -3260,7 +3271,6 @@ ENDHERE;
 				if (isset($backup['db'])) {
 					$entities .= '/db=0/';
 					$sdescrip = preg_replace('/ \(.*\)$/', '', __('Database','updraftplus'));
-					
 
 					if (isset($accept[$backup['meta_foreign']])) {
 						$desc_source = $accept[$backup['meta_foreign']]['desc'];

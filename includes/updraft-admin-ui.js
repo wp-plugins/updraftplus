@@ -181,10 +181,12 @@ function updraft_updatehistory(rescan, remotescan) {
 	jQuery.get(ajaxurl, { action: 'updraft_ajax', subaction: 'historystatus', nonce: updraft_credentialtest_nonce, rescan: rescan, remotescan: remotescan }, function(response) {
 		try {
 			resp = jQuery.parseJSON(response);
-			if (resp.n != null) { jQuery('#updraft_showbackups').html(resp.n); }
+// 			if (resp.n != null) { jQuery('#updraft_showbackups').html(resp.n); }
+			if (resp.n != null) { jQuery('#updraft-navtab-backups').html(resp.n); }
 			if (resp.t != null) { jQuery('#updraft_existing_backups').html(resp.t); }
 		} catch(err) {
 			console.log(updraftlion.unexpectedresponse+' '+response);
+			console.log(err);
 		}
 	});
 }
@@ -253,6 +255,11 @@ function updraftplus_diskspace_entity(key) {
 
 function updraft_iframe_modal(getwhat, title) {
 	jQuery('#updraft-iframe-modal-innards').html('<iframe width="100%" height="430px" src="'+ajaxurl+'?action=updraft_ajax&subaction='+getwhat+'&nonce='+updraft_credentialtest_nonce+'"></iframe>');
+	jQuery('#updraft-iframe-modal').dialog('option', 'title', title).dialog('open');
+}
+
+function updraft_html_modal(showwhat, title) {
+	jQuery('#updraft-iframe-modal-innards').html(showwhat);
 	jQuery('#updraft-iframe-modal').dialog('option', 'title', title).dialog('open');
 }
 
@@ -493,7 +500,8 @@ jQuery(document).ready(function($){
 				if (resp.result == 'error') {
 					alert(updraftlion.error+' '+resp.message);
 				} else if (resp.result == 'success') {
-					jQuery('#updraft_showbackups').load(ajaxurl+'?action=updraft_ajax&subaction=countbackups&nonce='+updraft_credentialtest_nonce);
+					//jQuery('#updraft_showbackups').load(ajaxurl+'?action=updraft_ajax&subaction=countbackups&nonce='+updraft_credentialtest_nonce);
+					jQuery('#updraft-navtab-backups').load(ajaxurl+'?action=updraft_ajax&subaction=countbackups&nonce='+updraft_credentialtest_nonce);
 					jQuery('#updraft_existing_backups_row_'+timestamp).slideUp().remove();
 					jQuery("#updraft-delete-modal").dialog('close');
 					alert(resp.message);
@@ -860,7 +868,15 @@ jQuery(document).ready(function($){
 			}
 		});
 	}
-
+	// , 
+	jQuery('#updraft_existing_backups').on('tripleclick', '.updraft_existingbackup_date', { threshold: 500 }, function(e) {
+		e.preventDefault();
+		var data = jQuery(this).data('rawbackup');
+		if (data != null && data != '') {
+			updraft_html_modal(data, updraftlion.raw);
+		}
+	});
+	
 });
 
 // Next: the encrypted database pluploader
@@ -950,3 +966,73 @@ jQuery(document).ready(function($){
 	jQuery('#updraft-hidethis').remove();
 
 });
+
+// https://github.com/richadams/jquery-tripleclick/
+// @author Rich Adams <rich@richadams.me>
+// Implements a triple-click event. Click (or touch) three times within 1s on the element to trigger.
+
+;(function($)
+{
+	// Default options
+	var defaults = {
+		threshold: 1000, // ms
+	}
+	
+	function tripleHandler(event)
+	{
+		var $elem = jQuery(this);
+		
+		// Merge the defaults and any user defined settings.
+		settings = jQuery.extend({}, defaults, event.data);
+		
+		// Get current values, or 0 if they don't yet exist.
+		var clicks = $elem.data("triclick_clicks") || 0;
+		var start = $elem.data("triclick_start") || 0;
+		
+		// If first click, register start time.
+		if (clicks === 0) { start = event.timeStamp; }
+		
+		// If we have a start time, check it's within limit
+		if (start != 0
+			&& event.timeStamp > start + settings.threshold)
+		{
+			// Tri-click failed, took too long.
+			clicks = 0;
+			start = event.timeStamp;
+		}
+		
+		// Increment counter, and do finish action.
+		clicks += 1;
+		if (clicks === 3)
+		{
+			clicks = 0;
+			start = 0;
+			event.type = "tripleclick";
+			
+			// Let jQuery handle the triggering of "tripleclick" event handlers
+			if (jQuery.event.handle === undefined) {
+				jQuery.event.dispatch.apply(this, arguments);
+			}
+			else {
+				// for jQuery before 1.9
+				jQuery.event.handle.apply(this, arguments);
+			}
+		}
+		
+		// Update object data
+		$elem.data("triclick_clicks", clicks);
+		$elem.data("triclick_start", start);
+	}
+	
+	var tripleclick = $.event.special.tripleclick =
+	{
+		setup: function(data, namespaces)
+		{
+			$(this).bind("touchstart click.triple", data, tripleHandler);
+		},
+  teardown: function(namespaces)
+  {
+	  $(this).unbind("touchstart click.triple", data, tripleHandler);
+  }
+	};
+})(jQuery);

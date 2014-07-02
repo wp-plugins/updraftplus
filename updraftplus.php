@@ -14,7 +14,6 @@ Author URI: http://updraftplus.com
 
 /*
 TODO - some of these are out of date/done, needs pruning
-// Create: http://updraftplus.com/renaming-third-party-backups/
 // If a current backup has a "next resumption" that is heavily negative, then provide a link for kick-starting it (i.e. to run the next resumption action via AJAX)
 // If importing full WPMU backup into non-WPMU, check that they are clearly warned this is usually wrong
 // Deploy FUE addon
@@ -515,7 +514,7 @@ class UpdraftPlus {
 				$delete = false;
 				if (!empty($val['next_increment_start_scheduled_for'])) {
 					if (time() > $val['next_increment_start_scheduled_for'] + 86400) $delete = true;
-				} if (!empty($val['backup_time_ms']) && time() > $val['backup_time_ms'] + 86400) {
+				} elseif (!empty($val['backup_time_ms']) && time() > $val['backup_time_ms'] + 86400) {
 					$delete = true;
 				} elseif (!empty($val['job_time_ms']) && time() > $val['job_time_ms'] + 86400) {
 					$delete = true;
@@ -529,6 +528,7 @@ class UpdraftPlus {
 		$now_time=time();
 		if ($handle = opendir($updraft_dir)) {
 			while (false !== ($entry = readdir($handle))) {
+				$manifest_match = preg_match("/^udmanifest$match\.json$/i", $entry);
 				// This match is for files created internally by zipArchive::addFile
 				$ziparchive_match = preg_match("/$match([0-9]+)?\.zip\.tmp\.([A-Za-z0-9]){6}?$/i", $entry);
 				// zi followed by 6 characters is the pattern used by /usr/bin/zip on Linux systems. It's safe to check for, as we have nothing else that's going to match that pattern.
@@ -536,9 +536,9 @@ class UpdraftPlus {
 				# Temporary files from the database dump process - not needed, as is caught by the catch-all
 				# $table_match = preg_match("/${match}-table-(.*)\.table(\.tmp)?\.gz$/i", $entry);
 				# The gz goes in with the txt, because we *don't* want to reap the raw .txt files
-				if ((preg_match("/$match\.(tmp|table|txt\.gz)(\.gz)?$/i", $entry) || $ziparchive_match || $binzip_match) && is_file($updraft_dir.'/'.$entry)) {
+				if ((preg_match("/$match\.(tmp|table|txt\.gz)(\.gz)?$/i", $entry) || $ziparchive_match || $binzip_match || $manifest_match) && is_file($updraft_dir.'/'.$entry)) {
 					// We delete if a parameter was specified (and either it is a ZipArchive match or an order to delete of whatever age), or if over 12 hours old
-					if (($match && ($ziparchive_match || $binzip_match || 0 == $older_than) && $now_time-filemtime($updraft_dir.'/'.$entry) >= $older_than) || $now_time-filemtime($updraft_dir.'/'.$entry)>43200) {
+					if (($match && ($ziparchive_match || $binzip_match || $manifest_match || 0 == $older_than) && $now_time-filemtime($updraft_dir.'/'.$entry) >= $older_than) || $now_time-filemtime($updraft_dir.'/'.$entry)>43200) {
 						$this->log("Deleting old temporary file: $entry");
 						@unlink($updraft_dir.'/'.$entry);
 					}
@@ -767,7 +767,7 @@ class UpdraftPlus {
 		# 32Mb
 		if ($mp < 33554432) {
 			$save = $wpdb->show_errors(false);
-			$req = $wpdb->query("SET GLOBAL max_allowed_packet=33554432");
+			$req = @$wpdb->query("SET GLOBAL max_allowed_packet=33554432");
 			$wpdb->show_errors($save);
 			if (!$req) $updraftplus->log("Tried to raise max_allowed_packet from ".round($mp/1048576,1)." Mb to 32 Mb, but failed (".$wpdb->last_error.", ".serialize($req).")");
 			$mp = (int)$wpdb->get_var("SELECT @@session.max_allowed_packet");
@@ -821,7 +821,7 @@ class UpdraftPlus {
 
 	}
 
-	function chunked_upload($caller, $file, $cloudpath, $logname, $chunk_size, $uploaded_size) {
+	public function chunked_upload($caller, $file, $cloudpath, $logname, $chunk_size, $uploaded_size) {
 
 		$fullpath = $this->backups_dir_location().'/'.$file;
 		$orig_file_size = filesize($fullpath);
@@ -1294,6 +1294,7 @@ class UpdraftPlus {
 
 			$this->nonce = $bnonce;
 			$this->backup_time = $this->jobdata_get('backup_time');
+
 			$this->job_time_ms = $this->jobdata_get('job_time_ms');
 			# Get the warnings before opening the log file, as opening the log file may generate new ones (which then leads to $this->errors having duplicate entries when they are copied over below)
 			$warnings = $this->jobdata_get('warnings');
@@ -1328,7 +1329,7 @@ class UpdraftPlus {
 
 			# This is just a simple test to catch restorations of old backup sets where the backup includes a resumption of the backup job
 			if ($time_now - $this->backup_time > 172800 && true == apply_filters('updraftplus_check_obsolete_backup', true, $time_now)) {
-				$this->log('This backup task began over 2 days ago: aborting');
+				$this->log("This backup task began over 2 days ago: aborting ($time_now, ".$this->backup_time.")");
 				die;
 			}
 
@@ -1344,6 +1345,7 @@ class UpdraftPlus {
 		$resume_interval = max(intval($this->jobdata_get('resume_interval')), 100);
 
 		$btime = $this->backup_time;
+
 		$job_type = $this->jobdata_get('job_type');
 
 		do_action('updraftplus_resume_backup_'.$job_type);
@@ -1372,6 +1374,8 @@ class UpdraftPlus {
 				$this->log(__('Your website is visited infrequently and UpdraftPlus is not getting the resources it hoped for; please read this page:', 'updraftplus').' http://updraftplus.com/faqs/why-am-i-getting-warnings-about-my-site-not-having-enough-visitors/', 'warning', 'infrequentvisits');
 			}
 		}
+
+		$this->jobdata_set('current_resumption', $resumption_no);
 
 		$first_run = apply_filters('updraftplus_filerun_firstrun', 0);
 
@@ -1954,7 +1958,7 @@ class UpdraftPlus {
 		echo '</ul>';
 	}
 
-	function save_last_backup($backup_array) {
+	private function save_last_backup($backup_array) {
 		$success = ($this->error_count() == 0) ? 1 : 0;
 		$last_backup = array('backup_time'=>$this->backup_time, 'backup_array'=>$backup_array, 'success'=>$success, 'errors'=>$this->errors, 'backup_nonce' => $this->nonce);
 		UpdraftPlus_Options::update_updraft_option('updraft_last_backup', $last_backup, false);
@@ -2029,7 +2033,7 @@ class UpdraftPlus {
 	}
 
 	// This function is not needed for backup success, according to the design, but it helps with efficient scheduling
-	function reschedule_if_needed() {
+	private function reschedule_if_needed() {
 		// If nothing is scheduled, then return
 		if (empty($this->newresumption_scheduled)) return;
 		$time_now = time();
@@ -2185,8 +2189,13 @@ class UpdraftPlus {
 
 		$this->log('Looking for candidates to back up in: '.$backup_from_inside_dir);
 		$updraft_dir = $this->backups_dir_location();
-		if ($handle = opendir($backup_from_inside_dir)) {
-		
+
+		if (is_file($backup_from_inside_dir)) {
+			array_push($dirlist, $backup_from_inside_dir);
+			$added++;
+			$this->log("finding files: $backup_from_inside_dir: adding to list ($added)");
+		} elseif ($handle = opendir($backup_from_inside_dir)) {
+			
 			while (false !== ($entry = readdir($handle))) {
 				// $candidate: full path; $entry = one-level
 				$candidate = $backup_from_inside_dir.'/'.$entry;
