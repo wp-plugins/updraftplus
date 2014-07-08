@@ -127,6 +127,7 @@ class UpdraftPlus_Backup {
 			return false;
 		}
 
+		# TODO: Make compatible with filenames which indicate increments
 		$itext = (empty($index)) ? '' : ($index+1);
 		$base_path = $backup_file_basename.'-'.$whichone.$itext.'.zip';
 		$full_path = $this->updraft_dir.'/'.$base_path;
@@ -143,6 +144,7 @@ class UpdraftPlus_Backup {
 					$updraftplus->terminate_due_to_activity($base_path, $time_now, $time_mod);
 				}
 				$index++;
+				# TODO: Make compatible with filenames which indicate increments
 				$base_path = $backup_file_basename.'-'.$whichone.$index.'.zip';
 				$full_path = $this->updraft_dir.'/'.$base_path;
 			}
@@ -169,6 +171,7 @@ class UpdraftPlus_Backup {
 		$match = '_'.$updraftplus->nonce."-".$whichone;
 		while (false !== ($e = $d->read())) {
 			if ('.' == $e || '..' == $e || !is_file($this->updraft_dir.'/'.$e)) continue;
+			# TODO: Make compatible with filenames which indicate increments
 			$ziparchive_match = preg_match("/$match([0-9]+)?\.zip\.tmp\.([A-Za-z0-9]){6}?$/i", $e);
 			$binzip_match = preg_match("/^zi([A-Za-z0-9]){6}$/", $e);
 			if ($time_now-filemtime($this->updraft_dir.'/'.$e) < 30 && ($ziparchive_match || (0 != $updraftplus->current_resumption && $binzip_match))) {
@@ -196,6 +199,7 @@ class UpdraftPlus_Backup {
 			return false;
 		} else {
 			$itext = (empty($this->index)) ? '' : ($this->index+1);
+			# TODO: Make compatible with filenames which indicate increments
 			$full_path = $this->updraft_dir.'/'.$backup_file_basename.'-'.$whichone.$itext.'.zip';
 			if (file_exists($full_path.'.tmp')) {
 				if (@filesize($full_path.'.tmp') === 0) {
@@ -221,6 +225,7 @@ class UpdraftPlus_Backup {
 			$updraftplus->clean_temporary_files('_'.$updraftplus->nonce."-$whichone", 0);
 		}
 
+		# TODO: Make compatible with indication of increments in filename
 		# Create the results array to send back (just the new ones, not any prior ones)
 		$files_existing = array();
 		$res_index = 0;
@@ -723,6 +728,7 @@ class UpdraftPlus_Backup {
 				$index = (int)$this->job_file_entities[$youwhat]['index'];
 				if (empty($index)) $index=0;
 				$indextext = (0 == $index) ? '' : (1+$index);
+				# TODO: Make compatible with filenames which indicate increments
 				$zip_file = $this->updraft_dir.'/'.$backup_file_basename.'-'.$youwhat.$indextext.'.zip';
 
 				# Split needed?
@@ -733,6 +739,7 @@ class UpdraftPlus_Backup {
 					$updraftplus->jobdata_set('job_file_entities', $this->job_file_entities);
 				}
 
+				# TODO: Make compatible with filenames which indicate increments
 				// Populate prior parts of array, if we're on a subsequent zip file
 				if ($index > 0) {
 					for ($i=0; $i<$index; $i++) {
@@ -747,6 +754,7 @@ class UpdraftPlus_Backup {
 				if ('finished' == $job_status) {
 					// Add the final part of the array
 					if ($index >0) {
+						# TODO: Make compatible with filenames which indicate increments
 						$fbase = $backup_file_basename.'-'.$youwhat.($index+1).'.zip';
 						$z = $this->updraft_dir.'/'.$fbase;
 						if (file_exists($z)) {
@@ -1440,6 +1448,7 @@ class UpdraftPlus_Backup {
 	// $exclude is passed by reference so that we can remove elements as they are matched - saves time checking against already-dealt-with objects
 	private function makezip_recursive_add($fullpath, $use_path_when_storing, $original_fullpath, $startlevels = 1, &$exclude) {
 
+		# TODO: Make compatible with filenames which indicate increments
 		$zipfile = $this->zip_basename.(($this->index == 0) ? '' : ($this->index+1)).'.zip.tmp';
 
 		global $updraftplus;
@@ -1557,6 +1566,7 @@ class UpdraftPlus_Backup {
 
 		$original_index = $this->index;
 
+		# TODO: Make compatible with filenames which indicate increments
 		$itext = (empty($this->index)) ? '' : ($this->index+1);
 		$destination_base = $backup_file_basename.'-'.$whichone.$itext.'.zip.tmp';
 		$destination = $this->updraft_dir.'/'.$destination_base;
@@ -1583,6 +1593,7 @@ class UpdraftPlus_Backup {
 		// Enumerate existing files
 		for ($j=0; $j<=$this->index; $j++) {
 			$jtext = ($j == 0) ? '' : ($j+1);
+			# TODO: Make compatible with filenames which indicate increments
 			$examine_zip = $this->updraft_dir.'/'.$backup_file_basename.'-'.$whichone.$jtext.'.zip'.(($j == $this->index) ? '.tmp' : '');
 
 			// If the file exists, then we should grab its index of files inside, and sizes
@@ -1692,6 +1703,7 @@ class UpdraftPlus_Backup {
 		# Reset these variables because the index may have changed since we began
 
 		$itext = (empty($this->index)) ? '' : ($this->index+1);
+		# TODO: Make compatible with filenames which indicate increments
 		$destination_base = $backup_file_basename.'-'.$whichone.$itext.'.zip.tmp';
 		$destination = $this->updraft_dir.'/'.$destination_base;
 
@@ -1727,6 +1739,7 @@ class UpdraftPlus_Backup {
 		# Used to detect requests to bump the size
 		$bump_index = false;
 
+		# TODO: Make compatible with filenames which indicate increments
 		$zipfile = $this->zip_basename.(($this->index == 0) ? '' : ($this->index+1)).'.zip.tmp';
 
 		$maxzipbatch = $updraftplus->jobdata_get('maxzipbatch', 26214400);
@@ -2009,6 +2022,7 @@ class UpdraftPlus_Backup {
 				$updraftplus->log(sprintf("Zip size is at/near split limit (%s Mb / %s Mb) - bumping index (from: %d)", $bumped_at, round($this->zip_split_every/1048576, 1), $this->index));
 				$bump_index = false;
 				$this->bump_index();
+				# TODO: Make compatible with filenames which indicate increments
 				$zipfile = $this->zip_basename.($this->index+1).'.zip.tmp';
 			}
 
@@ -2074,6 +2088,7 @@ class UpdraftPlus_Backup {
 		# We touch the next zip before renaming the temporary file; this indicates that the backup for the entity is not *necessarily* finished
 		touch($next_full_path.'.tmp');
 
+		# TODO: Make compatible with filenames which indicate increments
 		@rename($full_path.'.tmp', $full_path);
 		$kbsize = filesize($full_path)/1024;
 		$rate = round($kbsize/$timetaken, 1);

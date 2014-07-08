@@ -1536,7 +1536,7 @@ CREATE TABLE $wpdb->signups (
 
 		// If this was the chunk, then we should instead be concatenating onto the final file
 		if (isset($_POST['chunks']) && isset($_POST['chunk']) && preg_match('/^[0-9]+$/',$_POST['chunk'])) {
-			$final_file = $_POST['name'];
+			$final_file = basename($_POST['name']);
 			rename($status['file'], $updraft_dir.'/'.$final_file.'.'.$_POST['chunk'].'.zip.tmp');
 			$status['file'] = $updraft_dir.'/'.$final_file.'.'.$_POST['chunk'].'.zip.tmp';
 
@@ -1571,6 +1571,7 @@ CREATE TABLE $wpdb->signups (
 		$response = array();
 		if (!isset($_POST['chunks']) || (isset($_POST['chunk']) && $_POST['chunk'] == $_POST['chunks']-1)) {
 			$file = basename($status['file']);
+			# TODO: Make compatible with incremental naming scheme
 			if (!preg_match('/^log\.[a-f0-9]{12}\.txt/', $file) && !preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i', $file, $matches)) {
 				$accept = apply_filters('updraftplus_accept_archivename', array());
 				if (is_array($accept)) {
@@ -1645,7 +1646,7 @@ CREATE TABLE $wpdb->signups (
 
 		// If this was the chunk, then we should instead be concatenating onto the final file
 		if (isset($_POST['chunks']) && isset($_POST['chunk']) && preg_match('/^[0-9]+$/',$_POST['chunk'])) {
-			$final_file = $_POST['name'];
+			$final_file = basename($_POST['name']);
 			rename($status['file'], $updraft_dir.'/'.$final_file.'.'.$_POST['chunk'].'.zip.tmp');
 			$status['file'] = $updraft_dir.'/'.$final_file.'.'.$_POST['chunk'].'.zip.tmp';
 
@@ -1779,7 +1780,7 @@ CREATE TABLE $wpdb->signups (
 		<div class="wrap" id="updraft-wrap">
 			<h1><?php echo $updraftplus->plugin_title; ?></h1>
 
-			<?php _e('By UpdraftPlus.Com','updraftplus')?> ( <a href="http://updraftplus.com">UpdraftPlus.Com</a> | <a href="http://updraftplus.com/news/"><?php _e('News','updraftplus');?></a> | <?php if (!defined('UPDRAFTPLUS_NOADS_A')) { ?><a href="http://updraftplus.com/shop/updraftplus-premium/"><?php _e("Premium",'updraftplus');?></a>  | <?php } ?><a href="http://updraftplus.com/support/"><?php _e("Support",'updraftplus');?></a> | <a href="http://david.dw-perspective.org.uk"><?php _e("Lead developer's homepage",'updraftplus');?></a> | <?php if (1==0 && !defined('UPDRAFTPLUS_NOADS_A')) { ?><a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate"><?php _e('Donate', 'updraftplus');?></a> | <?php } ?><a href="http://updraftplus.com/support/frequently-asked-questions/">FAQs</a> | <a href="https://www.simbahosting.co.uk/s3/shop/"><?php _e('More plugins', 'updraftplus');?></a> ) <?php _e('Version','updraftplus');?>: <?php echo $updraftplus->version; ?>
+			<a href="http://updraftplus.com">UpdraftPlus.Com</a> | <a href="http://updraftplus.com/news/"><?php _e('News','updraftplus');?></a> | <?php if (!defined('UPDRAFTPLUS_NOADS_A')) { ?><a href="http://updraftplus.com/shop/updraftplus-premium/"><?php _e("Premium",'updraftplus');?></a>  | <?php } ?><a href="http://updraftplus.com/support/"><?php _e("Support",'updraftplus');?></a> | <a href="http://david.dw-perspective.org.uk"><?php _e("Lead developer's homepage",'updraftplus');?></a> | <?php if (1==0 && !defined('UPDRAFTPLUS_NOADS_A')) { ?><a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate"><?php _e('Donate', 'updraftplus');?></a> | <?php } ?><a href="http://updraftplus.com/support/frequently-asked-questions/">FAQs</a> | <a href="https://www.simbahosting.co.uk/s3/shop/"><?php _e('More plugins', 'updraftplus');?></a> - <?php _e('Version','updraftplus');?>: <?php echo $updraftplus->version; ?>
 			<br>
 
 			<div id="updraft-hidethis">
@@ -2770,7 +2771,7 @@ CREATE TABLE $wpdb->signups (
 				</div></td>
 			</tr>
 			<tr>
-				<th><?php _e('Include in files backup','updraftplus');?>:</th>
+				<th><?php _e('Include in files backup', 'updraftplus');?>:</th>
 				<td>
 
 			<?php
@@ -3254,12 +3255,15 @@ CREATE TABLE $wpdb->signups (
 				}
 			}
 			$rawbackup .= '</p></pre>';
-			$ret .= <<<ENDHERE
-		<tr id="updraft_existing_backups_row_$key">
-			<td><div class="updraftplus-remove" style="width: 19px; height: 19px; padding-top:0px; font-size: 18px; text-align:center;font-weight:bold; border-radius: 7px;"><a style="text-decoration:none;" href="javascript:updraft_delete('$key', '$non', $sval);" title="$title">×</a></div></td><td class="updraft_existingbackup_date" data-rawbackup="$rawbackup"><b>$pretty_date</b>
-ENDHERE;
 
 			$jobdata = $updraftplus->jobdata_getarray($non);
+			$datespan = apply_filters('updraftplus_showbackup_date', $pretty_date, $backup, $jobdata);
+
+			$ret .= <<<ENDHERE
+		<tr id="updraft_existing_backups_row_$key">
+			<td><div class="updraftplus-remove" style="width: 19px; height: 19px; padding-top:0px; font-size: 18px; text-align:center;font-weight:bold; border-radius: 7px;"><a style="text-decoration:none;" href="javascript:updraft_delete('$key', '$non', $sval);" title="$title">×</a></div></td><td class="updraft_existingbackup_date" data-rawbackup="$rawbackup"><b>$datespan</b>
+ENDHERE;
+
 			if (is_array($jobdata) && !empty($jobdata['resume_interval']) && (empty($jobdata['jobstatus']) || 'finished' != $jobdata['jobstatus'])) {
 				$ret .= apply_filters('updraftplus_msg_unfinishedbackup', "<br><span title=\"".esc_attr(__('If you are seeing more backups than you expect, then it is probably because the deletion of old backup sets does not happen until a fresh backup completes.', 'updraftplus'))."\">".__('(Not finished)', 'updraftplus').'</span>', $jobdata, $non);
 			}
@@ -3447,6 +3451,8 @@ ENDHERE;
 	// This function examines inside the updraft directory to see if any new archives have been uploaded. If so, it adds them to the backup set. (Non-present items are also removed, only if the service is 'none').
 	// If $remotescan is set, then remote storage is also scanned
 	public function rebuild_backup_history($remotescan = false) {
+
+		# TODO: Make compatible with incremental naming scheme
 
 		global $updraftplus;
 		$messages = array();
@@ -3693,7 +3699,7 @@ ENDHERE;
 	}
 
 	// Return values: false = 'not yet' (not necessarily terminal); WP_Error = terminal failure; true = success
-	function restore_backup($timestamp) {
+	private function restore_backup($timestamp) {
 
 		@set_time_limit(900);
 
