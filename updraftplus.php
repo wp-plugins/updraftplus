@@ -1729,7 +1729,7 @@ class UpdraftPlus {
 		if (!is_string($service) && !is_array($service)) $service = UpdraftPlus_Options::get_updraft_option('updraft_service');
 		$service = $this->just_one($service);
 		if (is_string($service)) $service = array($service);
-		if (is_bool($service)) $service = array();
+		if (!is_array($service)) $service = array();
 
 		$option_cache = array();
 		foreach ($service as $serv) {

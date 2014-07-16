@@ -1095,7 +1095,7 @@ class UpdraftPlus_Admin {
 			$backup_history = (is_array($backup_history)) ? $backup_history : array();
 			$output = $this->existing_backup_table($backup_history);
 
-			if (is_array($messages) && !empty($messages)) {
+			if (!empty($messages) && is_array($messages)) {
 				$noutput = '<div style="margin-left: 100px; margin-top: 10px;"><ul style="list-style: disc inside;">';
 				foreach ($messages as $msg) {
 					$noutput .= '<li>'.(($msg['desc']) ? $msg['desc'].': ' : '').'<em>'.$msg['message'].'</em></li>';
