@@ -1785,7 +1785,6 @@ CREATE TABLE $wpdb->signups (
 
 			<div id="updraft-hidethis">
 			<p><strong><?php _e('Warning:', 'updraftplus'); ?> <?php _e("If you can still read these words after the page finishes loading, then there is a JavaScript or jQuery problem in the site.", 'updraftplus'); ?> <a href="http://updraftplus.com/do-you-have-a-javascript-or-jquery-error/"><?php _e('Go here for more information.', 'updraftplus'); ?></a></strong></p>
-			</p>
 			</div>
 
 			<?php
@@ -3276,7 +3275,7 @@ ENDHERE;
 					$entities .= '/db=0/';
 					$sdescrip = preg_replace('/ \(.*\)$/', '', __('Database','updraftplus'));
 
-					if (isset($accept[$backup['meta_foreign']])) {
+					if (!empty($backup['meta_foreign']) && isset($accept[$backup['meta_foreign']])) {
 						$desc_source = $accept[$backup['meta_foreign']]['desc'];
 					} else {
 						$desc_source = __('unknown source', 'updraftplus');
@@ -3316,7 +3315,7 @@ ENDHERE;
 				$entities = '/db=0/meta_foreign=1/';
 			}
 
-			if (!empty($backup['meta_foreign']) && !empty($accept[$backup['meta_foreign']]['separatedb'])) {
+			if (!empty($backup['meta_foreign']) && !empty($accept[$backup['meta_foreign']]) && !empty($accept[$backup['meta_foreign']]['separatedb'])) {
 				$entities .= '/meta_foreign=2/';
 			}
 
@@ -3764,7 +3763,7 @@ ENDHERE;
 			if (empty($backup_set['meta_foreign'])) {
 				$entities_to_restore[$entity] = $entity;
 			} else {
-				if ('db' == $entity && !empty($foreign_known[$backup_set['meta_foreign']]['separatedb'])) {
+				if ('db' == $entity && !empty($foreign_known[$backup_set['meta_foreign']]) && !empty($foreign_known[$backup_set['meta_foreign']]['separatedb'])) {
 					$entities_to_restore[$entity] = 'db';
 				} else {
 					$entities_to_restore[$entity] = 'wpcore';
@@ -3966,13 +3965,13 @@ ENDHERE;
 							if (!empty($data)) {
 								$pdata = (is_string($data)) ? $data : serialize($data);
 								echo '<strong>'.__('Error data:', 'updraftplus').'</strong> '.htmlspecialchars($pdata).'<br>';
+								if (false !== strpos($pdata, 'PCLZIP_ERR_BAD_FORMAT (-10)')) {
+									echo '<a href="http://updraftplus.com/faqs/error-message-pclzip_err_bad_format-10-invalid-archive-structure-mean/"><strong>'.__('Please consult this FAQ for help on what to do about it.', 'updraftplus').'</strong></a><br>';
+								}
 							}
 						}
 					}
 					echo '</div>'; //close the updraft_restore_progress div even if we error
-					if (false !== strpos($val->get_error_data(), 'PCLZIP_ERR_BAD_FORMAT (-10)')) {
-						echo '<a href="http://updraftplus.com/faqs/error-message-pclzip_err_bad_format-10-invalid-archive-structure-mean/"><strong>'.__('Please consult this FAQ for help on what to do about it.', 'updraftplus').'</strong></a><br>';
-					}
 					restore_error_handler();
 					return $val;
 				} elseif (false === $val) {

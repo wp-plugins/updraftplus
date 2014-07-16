@@ -149,6 +149,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * FEATURE: Can now import/restore/migrate backups created by WordPress Backup To Dropbox (Premium)
 * FIX: Fix bug in Importer add-on that prevented some potential warnings about the integrity of the 3rd party backup zip being displayed
 * FIX: Some errors upon S3 downloads were not being passed back up to the settings page for display
+* FIX: Update "Rackspace Enhanced" add-on for compatibility with current Rackspace API
 * TWEAK: Prevent spurious messages about quota for users who have upgraded their Bitcasa account to infinite storage
 * TWEAK: Prevent some unnecessary duplication of work when resuming a database backup (since 1.9.13)
 * TWEAK: Dropbox now supports use of WP_PROXY_ settings (proxy needs to support HTTP GET/POST/PUT)

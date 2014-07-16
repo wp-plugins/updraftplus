@@ -16,6 +16,10 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 		parent::__construct('cloudfiles', 'Cloud Files', 'Rackspace Cloud Files', '/images/rackspacecloud-logo.png');
 	}
 
+	public function get_client() {
+		return $this->client;
+	}
+
 	public function get_service($opts, $useservercerts = false, $disablesslverify = null) {
 
 		$user = $opts['user'];
