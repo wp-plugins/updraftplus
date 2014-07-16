@@ -144,7 +144,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
-= Development version (not yet released/supported) =
+= 1.9.17 - 2014/07/16 =
 
 * FEATURE: Can now import/restore/migrate backups created by WordPress Backup To Dropbox (Premium)
 * FIX: Fix bug in Importer add-on that prevented some potential warnings about the integrity of the 3rd party backup zip being displayed
