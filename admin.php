@@ -3139,7 +3139,7 @@ CREATE TABLE $wpdb->signups (
 	}
 
 	# If $basedirs is passed as an array, then $directorieses must be too
-	function recursive_directory_size($directorieses, $exclude = array(), $basedirs = '') {
+	private function recursive_directory_size($directorieses, $exclude = array(), $basedirs = '') {
 
 		$size = 0;
 
@@ -3178,13 +3178,14 @@ CREATE TABLE $wpdb->signups (
 
 	}
 
-	function recursive_directory_size_raw($prefix_directory, &$exclude = array(), $suffix_directory = '') {
+	private function recursive_directory_size_raw($prefix_directory, &$exclude = array(), $suffix_directory = '') {
 
 		$directory = $prefix_directory.('' == $suffix_directory ? '' : '/'.$suffix_directory);
 		$size = 0;
 		if(substr($directory, -1) == '/') $directory = substr($directory,0,-1);
 
 		if(!file_exists($directory) || !is_dir($directory) || !is_readable($directory)) return -1;
+		if (file_exists($directory.'/.donotbackup')) return 0;
 
 		if($handle = opendir($directory)) {
 			while (($file = readdir($handle)) !== false) {

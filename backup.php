@@ -1490,6 +1490,10 @@ class UpdraftPlus_Backup {
 				$updraftplus->log(sprintf(__("%s: unreadable file - could not be backed up (check the file permissions)", 'updraftplus'), $fullpath), 'warning');
 			}
 		} elseif (is_dir($fullpath)) {
+			if (file_exists($fullpath.'/.donotbackup')) {
+				$updraftplus->log("Skip directory (.donotbackup file found): $use_path_when_storing");
+				return true;
+			}
 			if (!isset($this->existing_files[$use_path_when_storing])) $this->zipfiles_dirbatched[] = $use_path_when_storing;
 			if (!$dir_handle = @opendir($fullpath)) {
 				$updraftplus->log("Failed to open directory: $fullpath");

@@ -144,6 +144,10 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
+= Development version (not yet released/supported)
+
+* FEATURE: Omit any directory from the backup (recursively) by creating a file called .donotbackup within it
+
 = 1.9.17 - 2014/07/16 =
 
 * FEATURE: Can now import/restore/migrate backups created by WordPress Backup To Dropbox (Premium)
