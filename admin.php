@@ -3159,10 +3159,8 @@ CREATE TABLE $wpdb->signups (
 				if (is_file($dir)) {
 					$size += @filesize($dir);
 				} else {
-					if (!file_exists($dir.'/.donotbackup')) {
-						$suffix = ('' != $basedir) ? ((0 === strpos($dir, $basedir.'/')) ? substr($dir, 1+strlen($basedir)) : '') : '';
-						$size += $this->recursive_directory_size_raw($basedir, $exclude, $suffix);
-					}
+					$suffix = ('' != $basedir) ? ((0 === strpos($dir, $basedir.'/')) ? substr($dir, 1+strlen($basedir)) : '') : '';
+					$size += $this->recursive_directory_size_raw($basedir, $exclude, $suffix);
 				}
 			}
 
@@ -3187,6 +3185,7 @@ CREATE TABLE $wpdb->signups (
 		if(substr($directory, -1) == '/') $directory = substr($directory,0,-1);
 
 		if(!file_exists($directory) || !is_dir($directory) || !is_readable($directory)) return -1;
+		if (file_exists($directory.'/.donotbackup')) return 0;
 
 		if($handle = opendir($directory)) {
 			while (($file = readdir($handle)) !== false) {
