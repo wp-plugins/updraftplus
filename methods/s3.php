@@ -293,7 +293,7 @@ class UpdraftPlus_BackupModule_s3 {
 		$bucket_name = untrailingslashit($config['path']);
 		$bucket_path = '';
 
-		if (preg_match("#^([^/]+)/(.*)$#",$bucket_name,$bmatches)) {
+		if (preg_match("#^([^/]+)/(.*)$#", $bucket_name, $bmatches)) {
 			$bucket_name = $bmatches[1];
 			$bucket_path = trailingslashit($bmatches[2]);
 		}

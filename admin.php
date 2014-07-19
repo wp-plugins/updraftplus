@@ -3459,7 +3459,9 @@ ENDHERE;
 		$messages = array();
 		$gmt_offset = get_option('gmt_offset');
 
+		# Array of nonces keyed by filename
 		$known_files = array();
+		# Array of backup times keyed by nonce
 		$known_nonces = array();
 		$changes = false;
 
@@ -3472,7 +3474,7 @@ ENDHERE;
 
 		$accept = apply_filters('updraftplus_accept_archivename', array());
 		if (!is_array($accept)) $accept = array();
-		// Accumulate a list of known files in the database backup history
+		// Process what is known from the database backup history; this means populating $known_files and $known_nonces
 		foreach ($backup_history as $btime => $bdata) {
 			$found_file = false;
 			foreach ($bdata as $key => $values) {
@@ -3497,6 +3499,7 @@ ENDHERE;
 						}
 						if (!empty($accepted) && (false != ($btime = apply_filters('updraftplus_foreign_gettime', false, $fkey, $val))) && $btime > 0) {
 							$found_file = true;
+							# Generate a nonce; this needs to be deterministic and based on the filename only
 							$nonce = substr(md5($val), 0, 12);
 							$known_files[$val] = $nonce;
 							$known_nonces[$nonce] = $btime;
@@ -3514,6 +3517,7 @@ ENDHERE;
 		$remotefiles = array();
 		$remotesizes = array();
 		# Scan remote storage and get back lists of files and their sizes
+		# TODO: Make compatible with incremental naming
 		if ($remotescan) {
 			foreach ($updraftplus->backup_methods as $method => $desc) {
 				require_once(UPDRAFTPLUS_DIR.'/methods/'.$method.'.php');
@@ -3555,6 +3559,7 @@ ENDHERE;
 			$accepted_foreign = false;
 			$potmessage = false;
 			if ('.' == $entry || '..' == $entry) continue;
+			# TODO: Make compatible with Incremental naming
 			if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i', $entry, $matches)) {
 
 				// Interpret the time as one from the blog's local timezone, rather than as UTC
@@ -3595,7 +3600,19 @@ ENDHERE;
 				continue;
 			}
 			// The time from the filename does not include seconds. Need to identify the seconds to get the right time
-			if (isset($known_nonces[$nonce])) $btime = $known_nonces[$nonce];
+			if (isset($known_nonces[$nonce])) {
+				$btime_exact = $known_nonces[$nonce];
+				# TODO: If the btime we had was more than 60 seconds earlier, then this must be an increment - we then need to change the $backup_history array accordingly. We can pad the '60 second' test, as there's no option to run an increment more frequently than every 4 hours (though someone could run one manually from the CLI)
+				if ($btime > 100 && $btime_exact - $btime > 60 && !empty($backup_history[$btime_exact])) {
+					# TODO: This needs testing
+					# The code below assumes that $backup_history[$btime] is presently empty
+					# Re-key array, indicating the newly-found time to be the start of the backup set
+					$backup_history[$btime] = $backup_history[$btime_exact];
+					unset($backup_history[$btime_exact]);
+					$btime_exact = $btime;
+				}
+				$btime = $btime_exact;
+			}
 			if ($btime <= 100) continue;
 			$fs = @filesize($updraft_dir.'/'.$entry);
 
@@ -3604,6 +3621,7 @@ ENDHERE;
 				if (is_array($potmessage)) $messages[$potmessage['code']] = $potmessage;
 			}
 
+			# TODO: Code below here has not been reviewed or adjusted for compatibility with incremental backups
 			# Make sure we have the right list of services
 			$current_services = (!empty($backup_history[$btime]) && !empty($backup_history[$btime]['service'])) ? $backup_history[$btime]['service'] : array();
 			if (is_string($current_services)) $current_services = array($current_services);

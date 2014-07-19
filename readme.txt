@@ -147,6 +147,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 = Development version (not yet released/supported)
 
 * FEATURE: Omit any directory from the backup (recursively) by creating a file called .donotbackup within it
+* PERFORMANCE: Lazy-load more code
 
 = 1.9.17 - 2014/07/16 =
 
@@ -478,7 +479,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * FEATURE: Allow entries in the list of files to exclude from backup to end in a wildcard (*). Change default exclusion for content dir to include backup* to catch other backup plugins' archives.
 * FIX: "Wipe settings" wipes S3 + DreamObjects settings (they were retained previously)
 * FIX: Suppress spurious "Table prefix has changed" message
-* FIX: Now copes on restores/migrations if you've moved around your WP_CONTENT_DIR/WP_PLUGIN_DIR/WP folder
+* FIX: Now copes on restores/migrations if you've moved around your WP_CONTENT_DIR/WP_PLUGIN_DIR/UPLOADS folder
 * FIX: Escape output of logging lines (prevents on-page JavaScript breakage if error from cloud service contained unescaped quotes)
 * FIX: Fix syntax error in rarely-triggered part of scheduling calculation algorithm that could cause a dramatic slow-down
 * FIX: Tweak the no-activity-for-a-while-when-writing-zip detector to not fire prematurely (found an extreme corner-case where this caused a problem)
