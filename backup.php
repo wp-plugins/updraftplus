@@ -623,7 +623,11 @@ class UpdraftPlus_Backup {
 
 			foreach (explode(',', $mailto) as $sendmail_addr) {
 				$updraftplus->log("Sending email ('$backup_contains') report (attachments: ".count($attachments).", size: ".round($attach_size/1024, 1)." Kb) to: ".substr($sendmail_addr, 0, 5)."...");
-				wp_mail(trim($sendmail_addr), $subject, $body);
+				try {
+					wp_mail(trim($sendmail_addr), $subject, $body);
+				} catch (Exception $e) {
+					$updraftplus->log("Exception occurred when sending mail (".get_class($e)."): ".$e->getMessage());
+				}
 			}
 		}
 

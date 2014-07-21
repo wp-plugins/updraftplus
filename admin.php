@@ -1504,7 +1504,10 @@ CREATE TABLE $wpdb->signups (
 		check_ajax_referer('updraft-uploader');
 
 		$updraft_dir = $updraftplus->backups_dir_location();
-		if (!is_writable($updraft_dir)) exit;
+		if (!@$updraftplus->really_is_writable($updraft_dir)) {
+			echo json_encode(array('e' => sprintf(__("Backup directory (%s) is not writable, or does not exist.", 'updraftplus'), $updraft_dir).' '.__('You will find more information about this in the Settings section.', 'updraftplus')));
+			exit;
+		}
 
 		add_filter('upload_dir', array($this, 'upload_dir'));
 		add_filter('sanitize_file_name', array($this, 'sanitize_file_name'));
