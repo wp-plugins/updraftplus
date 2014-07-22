@@ -1785,6 +1785,7 @@ class UpdraftPlus_Backup {
 				$updraftplus->log("PclZip Error: ".$zip->errorInfo(true), 'warning');
 				return $zip->errorCode();
 			} else {
+				$updraftplus->something_useful_happened();
 				return true;
 			}
 		}
