@@ -47,8 +47,8 @@ class UpdraftPlus {
 
 		// Initialisation actions - takes place on plugin load
 
-		if ($fp = fopen(__FILE__, 'r')) {
-			$file_data = fread( $fp, 1024 );
+		if ($fp = fopen(UPDRAFTPLUS_DIR.'/updraftplus.php', 'r')) {
+			$file_data = fread($fp, 1024);
 			if (preg_match("/Version: ([\d\.]+)(\r|\n)/", $file_data, $matches)) {
 				$this->version = $matches[1];
 			}

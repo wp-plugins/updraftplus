@@ -148,6 +148,11 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 
 * FEATURE: Omit any directory from the backup (recursively) by creating a file called .donotbackup within it
 * PERFORMANCE: Lazy-load more code
+* FIX: Fix a corner-case where a backup might be able to continue but no attempt was made after using PclZip
+* TWEAK: Catch + log errors thrown by phpMailer
+* TWEAK: Check database connection after auto-backup
+* TWEAK: More helpful message if uploading a backup when local storage is not writable
+* TWEAK: Extra logic to survive out-of-memory MySQL conditions in extreme cases; plus introduce UPDRAFTPLUS_ALWAYS_TRY_MYSQLDUMP constant
 
 = 1.9.17 - 2014/07/16 =
 
