@@ -417,7 +417,8 @@ class UpdraftPlus {
 		}
 
 		$disk_free_space = @disk_free_space($updraft_dir);
-		if ($disk_free_space === false) {
+		# == rather than === here is deliberate; support experience shows that a result of (int)0 is not reliable. i.e. 0 can be returned when the real result should be false.
+		if ($disk_free_space == false) {
 			$this->log("Free space on disk containing Updraft's temporary directory: Unknown".$quota_free);
 		} else {
 			$this->log("Free space on disk containing Updraft's temporary directory: ".round($disk_free_space/1048576,1)." Mb".$quota_free);
