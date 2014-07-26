@@ -145,7 +145,7 @@ class UpdraftPlus_Backup {
 				}
 				$index++;
 				# TODO: Make compatible with filenames which indicate increments
-				$base_path = $backup_file_basename.'-'.$whichone.$index.'.zip';
+				$base_path = $backup_file_basename.'-'.$whichone.($index+1).'.zip';
 				$full_path = $this->updraft_dir.'/'.$base_path;
 			}
 		}

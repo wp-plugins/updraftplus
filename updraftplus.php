@@ -654,7 +654,7 @@ class UpdraftPlus {
 		}
 
 		$disk_free_space = @disk_free_space($updraft_dir);
-		if ($disk_free_space === false) {
+		if ($disk_free_space == false) {
 			$this->log("Free space on disk containing Updraft's temporary directory: Unknown".$quota_free);
 		} else {
 			$this->log("Free space on disk containing Updraft's temporary directory: ".round($disk_free_space/1048576,1)." Mb".$quota_free);
@@ -1558,8 +1558,12 @@ class UpdraftPlus {
 				if ($this->is_uploaded($file)) {
 					$this->log("$file: $key: This file has already been successfully uploaded");
 				} elseif (is_file($updraft_dir.'/'.$file)) {
-					$this->log("$file: $key: This file has not yet been successfully uploaded: will queue");
-					$undone_files[$key.$findex] = $file;
+					if (!in_array($file, $undone_files)) {
+						$this->log("$file: $key: This file has not yet been successfully uploaded: will queue");
+						$undone_files[$key.$findex] = $file;
+					} else {
+						$this->log("$file: $key: This file was already queued for upload (this condition should never be seen)");
+					}
 				} else {
 					$this->log("$file: $key: Note: This file was not marked as successfully uploaded, but does not exist on the local filesystem ($updraft_dir/$file)");
 					$this->uploaded_file($file, true);
