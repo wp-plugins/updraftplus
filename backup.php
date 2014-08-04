@@ -145,7 +145,7 @@ class UpdraftPlus_Backup {
 				}
 				$index++;
 				# TODO: Make compatible with filenames which indicate increments
-				$base_path = $backup_file_basename.'-'.$whichone.$index.'.zip';
+				$base_path = $backup_file_basename.'-'.$whichone.($index+1).'.zip';
 				$full_path = $this->updraft_dir.'/'.$base_path;
 			}
 		}
@@ -1466,7 +1466,7 @@ class UpdraftPlus_Backup {
 
 		// Is the place we've ended up above the original base? That leads to infinite recursion
 		if (($fullpath !== $original_fullpath && strpos($original_fullpath, $fullpath) === 0) || ($original_fullpath == $fullpath && ((1== $startlevels && strpos($use_path_when_storing, '/') !== false) || (2 == $startlevels && substr_count($use_path_when_storing, '/') >1)))) {
-			$updraftplus->log("Infinite recursion: symlink lead us to $fullpath, which is within $original_fullpath");
+			$updraftplus->log("Infinite recursion: symlink led us to $fullpath, which is within $original_fullpath");
 			$updraftplus->log(__("Infinite recursion: consult your log for more information",'updraftplus'), 'error');
 			return false;
 		}
@@ -1484,7 +1484,7 @@ class UpdraftPlus_Backup {
 		if (is_file($fullpath)) {
 			if (is_readable($fullpath)) {
 				$mtime = filemtime($fullpath);
-				$key = ($fullpath == $original_fullpath) ? ((2 == $startlevels) ? $use_path_when_storing : basename($fullpath)) : $use_path_when_storing.'/'.basename($fullpath);
+				$key = ($fullpath == $original_fullpath) ? ((2 == $startlevels) ? $use_path_when_storing : $this->basename($fullpath)) : $use_path_when_storing.'/'.$this->basename($fullpath);
 				if ($mtime > 0 && $mtime > $if_altered_since) {
 					$this->zipfiles_batched[$fullpath] = $key;
 					$this->makezip_recursive_batchedbytes += @filesize($fullpath);
@@ -1684,9 +1684,10 @@ class UpdraftPlus_Backup {
 			#makezip_recursive_add($fullpath, $use_path_when_storing, $original_fullpath, $startlevels = 1, $exclude_array)
 			if ('uploads' == $whichone) {
 				$dirname = dirname($element);
-				$add_them = $this->makezip_recursive_add($element, basename($dirname).'/'.basename($element), $element, 2, $exclude);
+				$basename = $this->basename($element);
+				$add_them = $this->makezip_recursive_add($element, basename($dirname).'/'.$basename, $element, 2, $exclude);
 			} else {
-				$add_them = $this->makezip_recursive_add($element, basename($element), $element, 1, $exclude);
+				$add_them = $this->makezip_recursive_add($element, $this->basename($element), $element, 1, $exclude);
 			}
 			if (is_wp_error($add_them) || false === $add_them) $error_occurred = true;
 		}
@@ -1737,6 +1738,23 @@ class UpdraftPlus_Backup {
 			return false;
 		}
 
+	}
+
+	private function basename($element) {
+		# This function is an ugly, conservative workaround for https://bugs.php.net/bug.php?id=62119. It does not aim to always work-around, but to ensure that nothing is made worse.
+		$dirname = dirname($element);
+		$basename_manual = preg_replace('#^[\\/]+#', '', substr($element, strlen($dirname)));
+		$basename = basename($element);
+		if ($basename_manual != $basename) {
+			$locale = setlocale(LC_CTYPE, "0");
+			if ('C' == $locale) {
+				setlocale(LC_CTYPE, 'en_US.UTF8');
+				$basename_new = basename($element);
+				if ($basename_new == $basename_manual) $basename = $basename_new;
+				setlocale(LC_CTYPE, $locale);
+			}
+		}
+		return $basename;
 	}
 
 	// Q. Why don't we only open and close the zip file just once?

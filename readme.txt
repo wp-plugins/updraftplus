@@ -1,6 +1,6 @@
 === UpdraftPlus Backup and Restoration for WordPress ===
 Contributors: Backup with UpdraftPlus, DavidAnderson
-Tags: backup, backups, restore, amazon, s3 backup, dropbox, google drive, rackspace cloud files, rackspace backup, cloud files, dreamhost, dreamobjects, ftp backup, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, bitcasa, back up, multisite, restoration, sftp backup, ftps, scp, migrate, duplicate, copy, updraft, mysql backup, database backup, db backup, website backup, wordpress backup, full backup, openstack, swift
+Tags: backup, backups, restore, amazon backup, s3 backup, dropbox backup, google drive backup, rackspace cloud files, rackspace backup, cloud files, dreamhost, dreamobjects backup, ftp backup, webdav backup, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, bitcasa, back up, multisite, restoration, sftp backup, ftps, scp, migrate, duplicate, copy, mysql backup, database backup, db backup, website backup, wordpress backup, full backup, openstack, swift
 Requires at least: 3.2
 Tested up to: 3.9.1
 Stable tag: 1.9.17
@@ -148,12 +148,18 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 
 * FEATURE: Omit any directory from the backup (recursively) by creating a file called .donotbackup within it
 * PERFORMANCE: Lazy-load more code
+* PERFORMANCE: Prevent no-op search/replacements when restoring
 * FIX: Fix a corner-case where a backup might be able to continue but no attempt was made after using PclZip
+* FIX: Fix a corner-case (race condition) where UD might try to upload the same archive twice
+* FIX: Detection of pre-WP 3.5 hard-coded uploads paths upon site clone had stopped working
 * TWEAK: Catch + log errors thrown by phpMailer
+* TWEAK: Prevent PHP log notice being generated on "Backup Now"
+* TWEAK: Change default zip split size to 600Mb on new installs
 * TWEAK: Do not rely on PHP's disk_free_space() when it returns (int)0
 * TWEAK: Check database connection after auto-backup
 * TWEAK: More helpful message if uploading a backup when local storage is not writable
 * TWEAK: Extra logic to survive out-of-memory MySQL conditions in extreme cases; plus introduce UPDRAFTPLUS_ALWAYS_TRY_MYSQLDUMP constant
+* TWEAK: Workaround for PHP bug #62119 which could cause some files beginning with a non-ASCII character to be dropped
 
 = 1.9.17 - 2014/07/16 =
 
@@ -831,7 +837,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 
 = 0.1 - 08/10/2011 =
 
-* A fork of Updraft 0.6.1 by Paul Kehrer with the following improvements
+* A fork of Updraft Backup/Restore 0.6.1 by Paul Kehrer with the following improvements
 * Replaced deprecated function calls (in WordPress 3.2.1)
 * Removed all warnings from basic admin page with WP_DEBUG on
 * Implemented encrypted backup (but not yet automatic restoration) on database
@@ -850,7 +856,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 
 We recognise and thank the following for code and/or libraries used and/or modified under the terms of their open source licences:
 
-* UpdraftPlus is derived from the original Updraft WordPress plugin by Paul Kehrer (Twitter: http://twitter.com/reaperhulk, Blog: http://langui.sh)
+* UpdraftPlus is derived from the original Updraft WordPress backup plugin by Paul Kehrer (Twitter: http://twitter.com/reaperhulk, Blog: http://langui.sh)
 * The Google PHP SDK developers, https://github.com/google/google-api-php-client
 * Ben Tadiar, https://github.com/BenTheDesigner/Dropbox
 * Beau Brownlee, http://www.solutionbot.com/2009/01/02/php-ftp-class/
