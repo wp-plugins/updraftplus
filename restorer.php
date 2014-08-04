@@ -1562,20 +1562,20 @@ class Updraft_Restorer extends WP_Upgrader {
 						echo __('OK', 'updraftplus');
 					}
 					echo '<br>';
+				}
 
-					// Now deal with the situation where the imported database sets a new over-ride upload_path that is absolute - which may not be wanted
-					$new_upload_path = $wpdb->get_row($wpdb->prepare("SELECT option_value FROM ${import_table_prefix}".$mprefix."options WHERE option_name = %s LIMIT 1", 'upload_path'));
-					$new_upload_path = (is_object($new_upload_path)) ? $new_upload_path->option_value : '';
-					// The danger situation is absolute and points somewhere that is now perhaps not accessible at all
-					if (!empty($new_upload_path) && $new_upload_path != $this->prior_upload_path && strpos($new_upload_path, '/') === 0) {
-						if (!file_exists($new_upload_path)) {
-							$updraftplus->log_e("Uploads path (%s) does not exist - resetting (%s)", $new_upload_path, $this->prior_upload_path);
-							if (false === $wpdb->query("UPDATE ${import_table_prefix}".$mprefix."options SET option_value='".esc_sql($this->prior_upload_path)."' WHERE option_name='upload_path' LIMIT 1")) {
-								echo __('Error','updraftplus');
-								$updraftplus->log("Failed");
-							}
-							#update_option('upload_path', $this->prior_upload_path);
+				// Now deal with the situation where the imported database sets a new over-ride upload_path that is absolute - which may not be wanted
+				$new_upload_path = $wpdb->get_row($wpdb->prepare("SELECT option_value FROM ${import_table_prefix}".$mprefix."options WHERE option_name = %s LIMIT 1", 'upload_path'));
+				$new_upload_path = (is_object($new_upload_path)) ? $new_upload_path->option_value : '';
+				// The danger situation is absolute and points somewhere that is now perhaps not accessible at all
+				if (!empty($new_upload_path) && $new_upload_path != $this->prior_upload_path && (strpos($new_upload_path, '/') === 0) || preg_match('#^[A-Za-z]:[/\\]#', $new_upload_path)) {
+					if (!file_exists($new_upload_path)) {
+						$updraftplus->log_e("Uploads path (%s) does not exist - resetting (%s)", $new_upload_path, $this->prior_upload_path);
+						if (false === $wpdb->query("UPDATE ${import_table_prefix}".$mprefix."options SET option_value='".esc_sql($this->prior_upload_path)."' WHERE option_name='upload_path' LIMIT 1")) {
+							echo __('Error','updraftplus');
+							$updraftplus->log("Failed");
 						}
+						#update_option('upload_path', $this->prior_upload_path);
 					}
 				}
 
