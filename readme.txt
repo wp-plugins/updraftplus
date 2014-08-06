@@ -161,6 +161,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: More helpful message if uploading a backup when local storage is not writable
 * TWEAK: Extra logic to survive out-of-memory MySQL conditions in extreme cases; plus introduce UPDRAFTPLUS_ALWAYS_TRY_MYSQLDUMP constant
 * TWEAK: Workaround for PHP bug #62119 which could cause some files beginning with a non-ASCII character to be dropped
+* TWEAK: Warn the user if they are running on Apache but mod_rewrite and restore a site with permalinks requiring mod_rewrite
 
 = 1.9.17 - 2014/07/16 =
 
@@ -889,4 +890,4 @@ We recognise and thank the following for code and/or libraries used and/or modif
 Furthermore, reliance upon any non-English translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
 
 == Upgrade Notice ==
-* 1.9.15 : Various small tweaks and minor fixes. Translations updated. Recommended update for all.
+* 1.9.17 : Various small tweaks and minor fixes. Translations updated. Recommended update for all.
