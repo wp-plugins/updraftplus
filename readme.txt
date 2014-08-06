@@ -2,7 +2,7 @@
 Contributors: Backup with UpdraftPlus, DavidAnderson
 Tags: backup, backups, restore, amazon backup, s3 backup, dropbox backup, google drive backup, rackspace cloud files, rackspace backup, cloud files, dreamhost, dreamobjects backup, ftp backup, webdav backup, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, bitcasa, back up, multisite, restoration, sftp backup, ftps, scp, migrate, duplicate, copy, mysql backup, database backup, db backup, website backup, wordpress backup, full backup, openstack, swift
 Requires at least: 3.2
-Tested up to: 3.9.1
+Tested up to: 3.9.2
 Stable tag: 1.9.17
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
@@ -152,6 +152,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * FIX: Fix a corner-case where a backup might be able to continue but no attempt was made after using PclZip
 * FIX: Fix a corner-case (race condition) where UD might try to upload the same archive twice
 * FIX: Detection of pre-WP 3.5 hard-coded uploads paths upon site clone had stopped working
+* FIX: Fix bug in Importer add-on which could halt restorations of 3rd-party backups from the BackupWordPress plugin
 * TWEAK: Catch + log errors thrown by phpMailer
 * TWEAK: Prevent PHP log notice being generated on "Backup Now"
 * TWEAK: Change default zip split size to 600Mb on new installs

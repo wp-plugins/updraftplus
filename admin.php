@@ -1803,7 +1803,7 @@ CREATE TABLE $wpdb->signups (
 			<?php
 			}
 
-			if($this->scan_old_dirs()) $this->print_delete_old_dirs_form();
+			if($this->scan_old_dirs(true)) $this->print_delete_old_dirs_form();
 
 			if(!empty($updraftplus->errors)) {
 				echo '<div class="error fade" style="padding:8px;">';
@@ -2632,15 +2632,23 @@ CREATE TABLE $wpdb->signups (
 	}
 
 	//scans the content dir to see if any -old dirs are present
-	private function scan_old_dirs() {
+	private function scan_old_dirs($print_as_comment = false) {
 		global $updraftplus;
 		$dirs = scandir(untrailingslashit(WP_CONTENT_DIR));
 		if (!is_array($dirs)) $dirs = array();
 		$dirs_u = @scandir($updraftplus->backups_dir_location());
 		if (!is_array($dirs_u)) $dirs_u = array();
-		foreach (array_merge($dirs, $dirs_u) as $dir) { if (preg_match('/-old$/', $dir)) return true; }
+		foreach (array_merge($dirs, $dirs_u) as $dir) {
+			if (preg_match('/-old$/', $dir)) {
+				if ($print_as_comment) echo '<!--'.htmlspecialchars($dir).'-->';
+				return true;
+			}
+		}
 		# No need to scan ABSPATH - we don't backup there
-		if (is_dir(untrailingslashit(WP_PLUGIN_DIR).'-old')) return true;
+		if (is_dir(untrailingslashit(WP_PLUGIN_DIR).'-old')) {
+			if ($print_as_comment) echo '<!--'.htmlspecialchars(untrailingslashit(WP_PLUGIN_DIR).'-old').'-->';
+			return true;
+		}
 		return false;
 	}
 
@@ -3750,8 +3758,9 @@ ENDHERE;
 		$credentials = request_filesystem_credentials(UpdraftPlus_Options::admin_page()."?page=updraftplus&action=updraft_restore&backup_timestamp=$timestamp", '', false, false, $extra_fields);
 		WP_Filesystem($credentials);
 		if ( $wp_filesystem->errors->get_error_code() ) { 
+			echo '<p><em><a href="http://updraftplus.com/faqs/asked-ftp-details-upon-restorationmigration-updates/">'.__('Why am I seeing this?', 'updraftplus').'</a></em></p>';
 			foreach ( $wp_filesystem->errors->get_error_messages() as $message ) show_message($message); 
-			exit; 
+			exit;
 		}
 
 		# Set up logging
