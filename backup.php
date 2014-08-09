@@ -1867,7 +1867,7 @@ class UpdraftPlus_Backup {
 				$data_added_since_reopen += $fsize;
 				/* Conditions for forcing a write-out and re-open:
 				- more than $maxzipbatch bytes have been batched
-				- more than 1.5 seconds have passed since the last time we wrote
+				- more than 2.0 seconds have passed since the last time we wrote
 				- that adding this batch of data is likely already enough to take us over the split limit (and if that happens, then do actually split - to prevent a scenario of progressively tinier writes as we approach but don't actually reach the limit)
 				- more than 500 files batched (should perhaps intelligently lower this as the zip file gets bigger - not yet needed)
 				*/
@@ -1876,7 +1876,7 @@ class UpdraftPlus_Backup {
 				# Since we don't test before the file has been created (so that zip_last_ratio has meaningful data), we rely on max_zip_batch being less than zip_split_every - which should always be the case
 				$reaching_split_limit = ( $this->zip_last_ratio > 0 && $original_size>0 && ($original_size + 1.1*$data_added_since_reopen*$this->zip_last_ratio) > $this->zip_split_every) ? true : false;
 
-				if (!$force_allinone && ($zipfiles_added_thisbatch > UPDRAFTPLUS_MAXBATCHFILES || $reaching_split_limit || $data_added_since_reopen > $maxzipbatch || (time() - $this->zipfiles_lastwritetime) > 1.5)) {
+				if (!$force_allinone && ($zipfiles_added_thisbatch > UPDRAFTPLUS_MAXBATCHFILES || $reaching_split_limit || $data_added_since_reopen > $maxzipbatch || (time() - $this->zipfiles_lastwritetime) > 2)) {
 
 					@set_time_limit(900);
 					$something_useful_sizetest = false;
@@ -1887,7 +1887,7 @@ class UpdraftPlus_Backup {
 					} elseif ($zipfiles_added_thisbatch > UPDRAFTPLUS_MAXBATCHFILES) {
 						$updraftplus->log("Adding batch to zip file (".$this->use_zip_object."): over ".UPDRAFTPLUS_MAXBATCHFILES." files added on this batch (".round($data_added_since_reopen/1048576,1)." Mb, ".count($this->zipfiles_batched)." files batched, $zipfiles_added_thisbatch (".$this->zipfiles_added_thisrun.") added so far); re-opening (prior size: ".round($original_size/1024,1).' Kb)');
 					} elseif (!$reaching_split_limit) {
-						$updraftplus->log("Adding batch to zip file (".$this->use_zip_object."): over 1.5 seconds have passed since the last write (".round($data_added_since_reopen/1048576,1)." Mb, $zipfiles_added_thisbatch (".$this->zipfiles_added_thisrun.") files added so far); re-opening (prior size: ".round($original_size/1024,1).' Kb)');
+						$updraftplus->log("Adding batch to zip file (".$this->use_zip_object."): over 2.0 seconds have passed since the last write (".round($data_added_since_reopen/1048576,1)." Mb, $zipfiles_added_thisbatch (".$this->zipfiles_added_thisrun.") files added so far); re-opening (prior size: ".round($original_size/1024,1).' Kb)');
 					} else {
 						$updraftplus->log("Adding batch to zip file (".$this->use_zip_object."): possibly approaching split limit (".round($data_added_since_reopen/1048576,1)." Mb, $zipfiles_added_thisbatch (".$this->zipfiles_added_thisrun.") files added so far); last ratio: ".round($this->zip_last_ratio,4)."; re-opening (prior size: ".round($original_size/1024,1).' Kb)');
 					}
@@ -1906,7 +1906,7 @@ class UpdraftPlus_Backup {
 					// Call here, in case we've got so many big files that we don't complete the whole routine
 					if (filesize($zipfile) > $original_size) {
 
-						# It is essential that this does not go above 1, even though in reality (and this can happen at the start, if just 1 file is added (e.g. due to >1.5s detection) the 'compressed' zip file may be *bigger* than the files stored in it. When that happens, if the ratio is big enough, it can then fire the "approaching split limit" detection (very) prematurely
+						# It is essential that this does not go above 1, even though in reality (and this can happen at the start, if just 1 file is added (e.g. due to >2.0s detection) the 'compressed' zip file may be *bigger* than the files stored in it. When that happens, if the ratio is big enough, it can then fire the "approaching split limit" detection (very) prematurely
 						$this->zip_last_ratio = ($data_added_since_reopen > 0) ? min((filesize($zipfile) - $original_size)/$data_added_since_reopen, 1) : 1;
 
 						# We need a rolling update of this
@@ -2048,7 +2048,7 @@ class UpdraftPlus_Backup {
 					$this->zipfiles_lastwritetime = time();
 				}
 			} elseif (0 == $this->zipfiles_added_thisrun) {
-				// Update lastwritetime, because otherwise the 1.5-second-activity detection can fire prematurely (e.g. if it takes >1.5 seconds to process the previously-written files, then the detector fires after 1 file. This then can have the knock-on effect of having something_useful_happened() called, but then a subsequent attempt to write out a lot of meaningful data fails, and the maximum batch is not then reduced.
+				// Update lastwritetime, because otherwise the 2.0-second-activity detection can fire prematurely (e.g. if it takes >2.0 seconds to process the previously-written files, then the detector fires after 1 file. This then can have the knock-on effect of having something_useful_happened() called, but then a subsequent attempt to write out a lot of meaningful data fails, and the maximum batch is not then reduced.
 				// Testing shows that calling time() 1000 times takes negligible time
 				$this->zipfiles_lastwritetime=time();
 			}

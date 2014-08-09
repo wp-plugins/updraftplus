@@ -150,7 +150,7 @@ class UpdraftPlus_BackupModule_s3 {
 		$region = ($config['key'] == 's3') ? @$s3->getBucketLocation($bucket_name) : 'n/a';
 
 		// See if we can detect the region (which implies the bucket exists and is ours), or if not create it
-		if (!empty($region) || @$s3->putBucket($bucket_name, UpdraftPlus_S3::ACL_PRIVATE)) {
+		if (!empty($region) || @$s3->putBucket($bucket_name, UpdraftPlus_S3::ACL_PRIVATE) || ('s3' == $config['key'] && @$s3->useDNSBucketName() && false !== @$s3->getBucket($bucket_name, null, null, 1))) {
 
 			if (empty($region) && $config['key'] == 's3') $region = $s3->getBucketLocation($bucket_name);
 			$this->set_endpoint($s3, $region);
@@ -302,8 +302,12 @@ class UpdraftPlus_BackupModule_s3 {
 		if (!empty($region)) {
 			$this->set_endpoint($s3, $region);
 		} else {
-			$updraftplus->log("$whoweare Error: Failed to access bucket $bucket_name. Check your permissions and credentials.");
-			return new WP_Error('bucket_not_accessed', sprintf(__('%s Error: Failed to access bucket %s. Check your permissions and credentials.','updraftplus'),$whoweare, $bucket_name));
+			# Final thing to attempt - see if it was just the location request that failed
+			$s3->useDNSBucketName(true);
+			if (false === ($gb = @$s3->getBucket($bucket_name, null, null, 1))) {
+				$updraftplus->log("$whoweare Error: Failed to access bucket $bucket_name. Check your permissions and credentials.");
+				return new WP_Error('bucket_not_accessed', sprintf(__('%s Error: Failed to access bucket %s. Check your permissions and credentials.','updraftplus'),$whoweare, $bucket_name));
+			}
 		}
 
 		$bucket = $s3->getBucket($bucket_name, $bucket_path.$match);
@@ -364,9 +368,13 @@ class UpdraftPlus_BackupModule_s3 {
 			if (!empty($region)) {
 				$this->set_endpoint($s3, $region);
 			} else {
-				$updraftplus->log("$whoweare Error: Failed to access bucket $bucket_name. Check your permissions and credentials.");
-				$updraftplus->log(sprintf(__('%s Error: Failed to access bucket %s. Check your permissions and credentials.','updraftplus'),$whoweare, $bucket_name), 'error');
-				return false;
+				# Final thing to attempt - see if it was just the location request that failed
+				$s3->useDNSBucketName(true);
+				if (false === ($gb = @$s3->getBucket($bucket_name, null, null, 1))) {
+					$updraftplus->log("$whoweare Error: Failed to access bucket $bucket_name. Check your permissions and credentials.");
+					$updraftplus->log(sprintf(__('%s Error: Failed to access bucket %s. Check your permissions and credentials.','updraftplus'),$whoweare, $bucket_name), 'error');
+					return false;
+				}
 			}
 		}
 
@@ -425,7 +433,16 @@ class UpdraftPlus_BackupModule_s3 {
 		}
 
 		$region = ($config['key'] == 'dreamobjects' || $config['key'] == 's3generic') ? 'n/a' : @$s3->getBucketLocation($bucket_name);
-		if (!empty($region)) {
+
+		if (empty($region) && 's3' == $config['key']) {
+			# Final thing to attempt - see if it was just the location request that failed
+			$s3->useDNSBucketName(true);
+			if (false !== ($gb = @$s3->getBucket($bucket_name, null, null, 1))) {
+				$keep_going = true;
+			}
+		}
+
+		if (!empty($region) || !empty($keep_going)) {
 			$this->set_endpoint($s3, $region);
 			$fullpath = $updraftplus->backups_dir_location().'/'.$file;
 			if (!$s3->getObject($bucket_name, $bucket_path.$file, $fullpath, true)) {
@@ -597,6 +614,18 @@ class UpdraftPlus_BackupModule_s3 {
 				$bucket_verb = '';
 			}
 		}
+
+		# Saw one case where there was read/write permission, but no permission to get the location - yet the bucket did exist. Try to detect that.
+		if (!isset($bucket_exists) && 's3' == $config['key']) {
+			$s3->useDNSBucketName(true);
+			$gb = @$s3->getBucket($bucket, null, null, 1);
+			if ($gb !== false) {
+				$bucket_exists = true;
+				$location = '';
+				$bucket_verb = '';
+			}
+		}
+
 		if (!isset($bucket_exists)) {
 			$s3->setExceptions(true);
 			try {

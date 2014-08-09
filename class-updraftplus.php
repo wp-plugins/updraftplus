@@ -388,7 +388,7 @@ class UpdraftPlus {
 			$logline .= (class_exists('ZipArchive') && method_exists('ZipArchive', 'addFile')) ? "Y" : "N";
 		}
 
-		$w3oc = 'N';
+// 		$w3oc = 'N';
 		if (0 === $this->current_resumption) {
 			$memlim = $this->memory_check_current();
 			if ($memlim<65) {
@@ -397,13 +397,13 @@ class UpdraftPlus {
 			if ($max_execution_time>0 && $max_execution_time<20) {
 				$this->log(sprintf(__('The amount of time allowed for WordPress plugins to run is very low (%s seconds) - you should increase it to avoid backup failures due to time-outs (consult your web hosting company for more help - it is the max_execution_time PHP setting; the recommended value is %s seconds or more)', 'updraftplus'), $max_execution_time, 90), 'warning', 'lowmaxexecutiontime');
 			}
-			if (defined('W3TC') && W3TC == true && function_exists('w3_instance')) {
-				$modules = w3_instance('W3_ModuleStatus');
-				if ($modules->is_enabled('objectcache')) {
-					$w3oc = 'Y';
-				}
-			}
-			$logline .= " W3TC/ObjectCache: $w3oc";
+// 			if (defined('W3TC') && W3TC == true && function_exists('w3_instance')) {
+// 				$modules = w3_instance('W3_ModuleStatus');
+// 				if ($modules->is_enabled('objectcache')) {
+// 					$w3oc = 'Y';
+// 				}
+// 			}
+// 			$logline .= " W3TC/ObjectCache: $w3oc";
 		}
 
 		$this->log($logline);

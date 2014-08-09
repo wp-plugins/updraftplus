@@ -160,8 +160,9 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Check database connection after auto-backup
 * TWEAK: More helpful message if uploading a backup when local storage is not writable
 * TWEAK: Extra logic to survive out-of-memory MySQL conditions in extreme cases; plus introduce UPDRAFTPLUS_ALWAYS_TRY_MYSQLDUMP constant
+* TWEAK: Tweak Amazon S3 logic so that it can cope with a situation where there is no permission to request its location (but there is permission for all other operations)
 * TWEAK: Workaround for PHP bug #62119 which could cause some files beginning with a non-ASCII character to be dropped
-* TWEAK: Warn the user if they are running on Apache but mod_rewrite and restore a site with permalinks requiring mod_rewrite
+* TWEAK: Warn the user if they are running on Apache without mod_rewrite and restore a site with permalinks requiring mod_rewrite
 
 = 1.9.17 - 2014/07/16 =
 
