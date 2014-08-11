@@ -28,7 +28,10 @@ abstract class Google_IO_Abstract
 {
   const UNKNOWN_CODE = 0;
   const FORM_URLENCODED = 'application/x-www-form-urlencoded';
-  const CONNECTION_ESTABLISHED = "HTTP/1.0 200 Connection established\r\n\r\n";
+  private static $CONNECTION_ESTABLISHED_HEADERS = array(
+    "HTTP/1.0 200 Connection established\r\n\r\n",
+    "HTTP/1.1 200 Connection established\r\n\r\n",
+  );
   private static $ENTITY_HTTP_METHODS = array("POST" => null, "PUT" => null);
 
   /** @var Google_Client */
@@ -69,7 +72,12 @@ abstract class Google_IO_Abstract
   abstract public function getTimeout();
 
   /**
-   * Determine whether "Connection Established" quirk is needed
+   * Test for the presence of a cURL header processing bug
+   *
+   * The cURL bug was present in versions prior to 7.30.0 and caused the header
+   * length to be miscalculated when a "Connection established" header added by
+   * some proxies was present.
+   *
    * @return boolean
    */
   abstract protected function needsQuirk();
@@ -244,10 +252,19 @@ abstract class Google_IO_Abstract
    */
   public function parseHttpResponse($respData, $headerSize)
   {
-    // only strip this header if the sub-class needs this quirk
-    if ($this->needsQuirk() && stripos($respData, self::CONNECTION_ESTABLISHED) !== false) {
-      $respData = str_ireplace(self::CONNECTION_ESTABLISHED, '', $respData);
-      $headerSize -= strlen(self::CONNECTION_ESTABLISHED);
+    // check proxy header
+    foreach (self::$CONNECTION_ESTABLISHED_HEADERS as $established_header) {
+      if (stripos($respData, $established_header) !== false) {
+        // existed, remove it
+        $respData = str_ireplace($established_header, '', $respData);
+        // Subtract the proxy header size unless the cURL bug prior to 7.30.0
+        // is present which prevented the proxy header size from being taken into
+        // account.
+        if (!$this->needsQuirk()) {
+          $headerSize -= strlen($established_header);
+        }
+        break;
+      }
     }
 
     if ($headerSize) {

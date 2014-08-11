@@ -169,13 +169,14 @@ if (!empty($this->options['cafile'])) $requestSslContext['cafile'] = $this->opti
   }
 
   /**
-   * Determine whether "Connection Established" quirk is needed
-   * @return boolean
+   * Test for the presence of a cURL header processing bug
+   *
+   * {@inheritDoc}
+   *   * @return boolean
    */
   protected function needsQuirk()
   {
-      // Stream needs the special quirk
-      return true;
+      return false;
   }
 
   protected function getHttpResponseCode($response_headers)
