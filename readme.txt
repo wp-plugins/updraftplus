@@ -158,6 +158,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Merge Google SDK tweak from https://github.com/google/google-api-php-client/pull/189 to deal with buggy curl/proxy combinations with Google Drive
 * TWEAK: Prevent PHP log notice being generated on "Backup Now"
 * TWEAK: Change default zip split size to 500Mb on new installs
+* TWEAK: Scheduling algorithm tweak for more efficiency with very large backups when PHP is allowed to run long
 * TWEAK: Do not rely on PHP's disk_free_space() when it returns (int)0
 * TWEAK: Check database connection after auto-backup
 * TWEAK: More helpful message if uploading a backup when local storage is not writable

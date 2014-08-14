@@ -1793,9 +1793,8 @@ class UpdraftPlus {
 	}
 
 	private function delete_local($file) {
-		if(UpdraftPlus_Options::get_updraft_option('updraft_delete_local')) {
+		if (UpdraftPlus_Options::get_updraft_option('updraft_delete_local')) {
 			$log = "Deleting local file: $file: ";
-		//need error checking so we don't delete what isn't successfully uploaded?
 			$fullpath = $this->backups_dir_location().'/'.$file;
 			$deleted = unlink($fullpath);
 			$this->log($log.(($deleted) ? 'OK' : 'failed'));
@@ -1825,7 +1824,8 @@ class UpdraftPlus {
 		$next_resumption = $this->current_resumption + 1;
 		wp_clear_scheduled_hook('updraft_backup_resume', array($next_resumption, $this->nonce));
 		// Add new event
-		if ($how_far_ahead < 300) $how_far_ahead=300;
+		# This next line may be too cautious; but until 14-Aug-2014, it was 300. Also, note that on the current coding of increase_resume_and_reschedule(), any time that we arrive through there, the value is already at least 300. So, this minimum check only kicks in if we came through another route.
+		if ($how_far_ahead < 180) $how_far_ahead=180;
 		$schedule_for = time() + $how_far_ahead;
 		$this->log("Rescheduling resumption $next_resumption: moving to $how_far_ahead seconds from now ($schedule_for)");
 		wp_schedule_single_event($schedule_for, 'updraft_backup_resume', array($next_resumption, $this->nonce));
@@ -1847,7 +1847,15 @@ class UpdraftPlus {
 			$howmuch = $new_resume-$resume_interval;
 		}
 
-		if (!empty($this->newresumption_scheduled) || $force_schedule) $this->reschedule($new_resume);
+		# This used to be always $new_resume, until 14-Aug-2014. However, people who have very long-running processes can end up with very long times between resumptions as a result.
+		# Actually, let's not try this yet. I think it is safe, but think there is a more conservative solution available.
+		#$how_far_ahead = min($new_resume, 600);
+		$how_far_ahead = $new_resume;
+		# If it is very long-running, then that would normally be known soon.
+		# If the interval is already 12 minutes or more, then try the next resumption 10 minutes from now (i.e. sooner than it would have been). Thus, we are guaranteed to get at least 24 minutes of processing in the first 34.
+		if (1 >= $this->current_resumption && $new_resume > 720) $how_far_ahead = 600;
+
+		if (!empty($this->newresumption_scheduled) || $force_schedule) $this->reschedule($how_far_ahead);
 		$this->jobdata_set('resume_interval', $new_resume);
 
 		$this->log("To decrease the likelihood of overlaps, increasing resumption interval to: $resume_interval + $howmuch = $new_resume");
