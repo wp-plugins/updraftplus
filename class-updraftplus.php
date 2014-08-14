@@ -1575,7 +1575,7 @@ class UpdraftPlus {
 			'backup_time', $this->backup_time,
 			'job_time_ms', $this->job_time_ms,
 			'service', $service,
-			'split_every', max(intval(UpdraftPlus_Options::get_updraft_option('updraft_split_every', 800)), UPDRAFTPLUS_SPLIT_MIN),
+			'split_every', max(intval(UpdraftPlus_Options::get_updraft_option('updraft_split_every', 500)), UPDRAFTPLUS_SPLIT_MIN),
 			'maxzipbatch', 26214400, #25Mb
 			'job_file_entities', $job_file_entities,
 			'option_cache', $option_cache,

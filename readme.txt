@@ -153,9 +153,11 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * FIX: Fix a corner-case (race condition) where UD might try to upload the same archive twice
 * FIX: Detection of pre-WP 3.5 hard-coded uploads paths upon site clone had stopped working
 * FIX: Fix bug in Importer add-on which could halt restorations of 3rd-party backups from the BackupWordPress plugin
+* FIX: Fix bug in the informational disk space consumption calculation in the expert tools section
 * TWEAK: Catch + log errors thrown by phpMailer
+* TWEAK: Merge Google SDK tweak from https://github.com/google/google-api-php-client/pull/189 to deal with buggy curl/proxy combinations with Google Drive
 * TWEAK: Prevent PHP log notice being generated on "Backup Now"
-* TWEAK: Change default zip split size to 600Mb on new installs
+* TWEAK: Change default zip split size to 500Mb on new installs
 * TWEAK: Do not rely on PHP's disk_free_space() when it returns (int)0
 * TWEAK: Check database connection after auto-backup
 * TWEAK: More helpful message if uploading a backup when local storage is not writable
@@ -163,6 +165,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Tweak Amazon S3 logic so that it can cope with a situation where there is no permission to request its location (but there is permission for all other operations)
 * TWEAK: Workaround for PHP bug #62119 which could cause some files beginning with a non-ASCII character to be dropped
 * TWEAK: Warn the user if they are running on Apache without mod_rewrite and restore a site with permalinks requiring mod_rewrite
+* TWEAK: If Premium user was backing up non-WP tables, then optimize the backup table order
 
 = 1.9.17 - 2014/07/16 =
 

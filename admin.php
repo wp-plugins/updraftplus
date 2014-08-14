@@ -2046,7 +2046,7 @@ CREATE TABLE $wpdb->signups (
 					?><li><strong><?php _e('Google Drive','updraftplus');?>:</strong> <?php _e('Google changed their permissions setup recently (April 2013). To download or restore from Google Drive, you <strong>must</strong> first re-authenticate (using the link in the Google Drive configuration section).','updraftplus');?></li>
 				<?php } ?>
 
-				<li title="<?php _e('This is a count of the contents of your Updraft directory','updraftplus');?>"><strong><?php _e('Web-server disk space in use by UpdraftPlus','updraftplus');?>:</strong> <span id="updraft_diskspaceused"><em>(calculating...)</em></span> <a href="#" onclick="updraftplus_diskspace(); return false;"><?php _e('refresh','updraftplus');?></a></li></ul>
+				<li title="<?php _e('This is a count of the contents of your Updraft directory','updraftplus');?>"><strong><?php _e('Web-server disk space in use by UpdraftPlus','updraftplus');?>:</strong> <span id="updraft_diskspaceused"><em><?php _e('calculating...', 'updraftplus'); ?></em></span> <a href="#" onclick="updraftplus_diskspace(); return false;"><?php _e('refresh','updraftplus');?></a></li></ul>
 				</p>
 
 				<div id="updraft-plupload-modal" title="<?php _e('UpdraftPlus - Upload backup files','updraftplus'); ?>" style="width: 75%; margin: 16px; display:none; margin-left: 100px;">
@@ -3019,8 +3019,8 @@ CREATE TABLE $wpdb->signups (
 			</tr>
 			<?php
 			$delete_local = UpdraftPlus_Options::get_updraft_option('updraft_delete_local', 1);
-			$split_every_mb = UpdraftPlus_Options::get_updraft_option('updraft_split_every', 1*600);
-			if (!is_numeric($split_every_mb)) $split_every_mb = 1*600;
+			$split_every_mb = UpdraftPlus_Options::get_updraft_option('updraft_split_every', 500);
+			if (!is_numeric($split_every_mb)) $split_every_mb = 500;
 			if ($split_every_mb < UPDRAFTPLUS_SPLIT_MIN) $split_every_mb = UPDRAFTPLUS_SPLIT_MIN;
 			?>
 
@@ -3031,7 +3031,7 @@ CREATE TABLE $wpdb->signups (
 
 			<tr class="expertmode" style="display:none;">
 				<th><?php _e('Split archives every:','updraftplus');?></th>
-				<td><input type="text" name="updraft_split_every" id="updraft_split_every" value="<?php echo $split_every_mb ?>" size="5" /> Mb<br><?php _e('UpdraftPlus will split up backup archives when they exceed this file size. The default value is 800 megabytes. Be careful to leave some margin if your web-server has a hard size limit (e.g. the 2 Gb / 2048 Mb limit on some 32-bit servers/file systems).','updraftplus'); ?></td>
+				<td><input type="text" name="updraft_split_every" id="updraft_split_every" value="<?php echo $split_every_mb ?>" size="5" /> Mb<br><?php echo sprintf(__('UpdraftPlus will split up backup archives when they exceed this file size. The default value is %s megabytes. Be careful to leave some margin if your web-server has a hard size limit (e.g. the 2 Gb / 2048 Mb limit on some 32-bit servers/file systems).','updraftplus'), 500); ?></td>
 			</tr>
 
 			<tr class="deletelocal expertmode" style="display:none;">
@@ -3152,6 +3152,10 @@ CREATE TABLE $wpdb->signups (
 	# If $basedirs is passed as an array, then $directorieses must be too
 	private function recursive_directory_size($directorieses, $exclude = array(), $basedirs = '') {
 
+error_log(serialize($directorieses));
+error_log(serialize($exclude));
+error_log(serialize($basedirs));
+
 		$size = 0;
 
 		if (is_string($directorieses)) {
@@ -3161,12 +3165,13 @@ CREATE TABLE $wpdb->signups (
 
 		if (is_string($basedirs)) $basedirs = array($basedirs);
 
-		foreach ($basedirs as $ind => $basedir) {
-
-			$directories = $directorieses[$ind];
+		foreach ($directorieses as $ind => $directories) {
 			if (!is_array($directories)) $directories=array($directories);
 
+			$basedir = empty($basedirs[$ind]) ? $basedirs[0] : $basedirs[$ind];
+
 			foreach ($directories as $dir) {
+error_log($dir);
 				if (is_file($dir)) {
 					$size += @filesize($dir);
 				} else {
@@ -3176,6 +3181,23 @@ CREATE TABLE $wpdb->signups (
 			}
 
 		}
+
+// 		foreach ($basedirs as $ind => $basedir) {
+// 
+// 			$directories = $directorieses[$ind];
+// 			if (!is_array($directories)) $directories=array($directories);
+// 
+// 			foreach ($directories as $dir) {
+// error_log($dir);
+// 				if (is_file($dir)) {
+// 					$size += @filesize($dir);
+// 				} else {
+// 					$suffix = ('' != $basedir) ? ((0 === strpos($dir, $basedir.'/')) ? substr($dir, 1+strlen($basedir)) : '') : '';
+// 					$size += $this->recursive_directory_size_raw($basedir, $exclude, $suffix);
+// 				}
+// 			}
+// 
+// 		}
 
 		if ($size > 1073741824) {
 			return round($size / 1073741824, 1).' Gb';

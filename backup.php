@@ -645,7 +645,7 @@ class UpdraftPlus_Backup {
 
 		global $updraftplus;
 		if ($a == $b) return 0;
-		$our_table_prefix = $this->table_prefix;
+		$our_table_prefix = $this->table_prefix_raw;
 		if ($a == $our_table_prefix.'options') return -1;
 		if ($b ==  $our_table_prefix.'options') return 1;
 		if ($a == $our_table_prefix.'users') return -1;
