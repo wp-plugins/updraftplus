@@ -2,7 +2,7 @@
 Contributors: Backup with UpdraftPlus, DavidAnderson
 Tags: backup, backups, restore, amazon, s3 backup, dropbox, google drive, rackspace cloud files, rackspace backup, cloud files, dreamhost, dreamobjects, ftp backup, webdav, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, bitcasa, back up, multisite, restoration, sftp backup, ftps, scp, migrate, duplicate, copy, updraft, mysql backup, database backup, db backup, website backup, wordpress backup, full backup, openstack, swift
 Requires at least: 3.2
-Tested up to: 3.9.2
+Tested up to: 4.0
 Stable tag: 1.9.17
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate

@@ -1759,11 +1759,13 @@ class UpdraftPlus_Backup {
 		# If on PclZip, then if possible short-circuit to a quicker method (makes a huge time difference - on a folder of 1500 small files, 2.6s instead of 76.6)
 		# This assumes that makezip_addfiles() is only called once so that we know about all needed files (the new style)
 		# This is rather conservative - because it assumes zero compression. But we can't know that in advance.
+
+
 		if (0 == $this->index && 'UpdraftPlus_PclZip' == $this->use_zip_object && $this->makezip_recursive_batchedbytes < $this->zip_split_every && ($this->makezip_recursive_batchedbytes < 512*1024*1024 || (defined('UPDRAFTPLUS_PCLZIP_FORCEALLINONE') && UPDRAFTPLUS_PCLZIP_FORCEALLINONE == true))) {
 			$updraftplus->log("PclZip, and only one archive required - will attempt to do in single operation (data: ".round($this->makezip_recursive_batchedbytes/1024,1)." Kb, split: ".round($this->zip_split_every/1024, 1)." Kb)");
 			if(!class_exists('PclZip')) require_once(ABSPATH.'/wp-admin/includes/class-pclzip.php');
 			$zip = new PclZip($zipfile);
-			$remove_path = ($this->whichone == 'wpcore') ? untrailingslashit(ABSPATH) : WP_CONTENT_DIR;
+			$remove_path = ($this->whichone == 'wpcore') ? untrailingslashit(ABSPATH) : (($this->whichone == 'more' && is_string($this->source)) ? dirname($this->source) : WP_CONTENT_DIR);
 			$add_path = false;
 			// Remove prefixes
 			$backupable_entities = $updraftplus->get_backupable_file_entities(true);
@@ -1772,6 +1774,14 @@ class UpdraftPlus_Backup {
 						$remove_path = dirname($backupable_entities[$this->whichone]);
 						# To normalise instead of removing (which binzip doesn't support, so we don't do it), you'd remove the dirname() in the above line, and uncomment the below one.
 						#$add_path = $this->whichone;
+					} elseif ('more' == $this->whichone) {
+						if (is_string($this->source)) {
+							$remove_path = dirname($this->source);
+						} elseif (is_array($this->source) && count($this->source) === 1) {
+							$remove_path = dirname($this->source[0]);
+						} else {
+							$remove_path = '';
+						}
 					} else {
 						$remove_path = $backupable_entities[$this->whichone];
 					}
