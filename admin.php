@@ -2749,6 +2749,7 @@ CREATE TABLE $wpdb->signups (
 					</td>
 			</tr>
 
+<!--
 			<tr id="updraft_incremental_row">
 				<th><?php _e('Incremental file backup intervals', 'updraftplus'); ?>:</th>
 				<td>
@@ -2756,7 +2757,7 @@ CREATE TABLE $wpdb->signups (
 					<a href="http://updraftplus.com/support/tell-me-more-about-incremental-backups/"><em><?php _e('Tell me more about incremental backups', 'updraftplus'); ?><em></a>
 					</td>
 			</tr>
-
+-->
 			<?php apply_filters('updraftplus_after_file_intervals', false, $selected_interval); ?>
 			<tr>
 				<th><?php _e('Database backup intervals','updraftplus'); ?>:</th>
