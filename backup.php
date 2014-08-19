@@ -549,7 +549,7 @@ class UpdraftPlus_Backup {
 
 		# The class_exists() check here is a micro-optimization to prevent a possible HTTP call whose results may be disregarded by the filter
 		$feed = '';
-		if (!class_exists('UpdraftPlus_Addon_Reporting') && !defined('UPDRAFTPLUS_NOADS_A') && !defined('UPDRAFTPLUS_NONEWSFEED')) {
+		if (!class_exists('UpdraftPlus_Addon_Reporting') && !defined('UPDRAFTPLUS_NOADS_B') && !defined('UPDRAFTPLUS_NONEWSFEED')) {
 			$updraftplus->log('Fetching RSS news feed');
 			$rss = $updraftplus->get_updraftplus_rssfeed();
 			$updraftplus->log('Fetched RSS news feed; result is a: '.get_class($rss));

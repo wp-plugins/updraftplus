@@ -2347,12 +2347,14 @@ class UpdraftPlus {
 		return ($memory_limit >= $memory)?true:false;
 	}
 
-	private function url_start($urls,$url) {
-		return ($urls) ? '<a href="http://'.$url.'">' : "";
+	private function url_start($urls, $url, $https = false) {
+		$proto = ($https) ? 'https' : 'http';
+		return ($urls) ? "<a href=\"$proto://$url\">" : "";
 	}
 
-	private function url_end($urls,$url) {
-		return ($urls) ? '</a>' : " (http://$url)";
+	private function url_end($urls, $url, $https = false) {
+		$proto = ($https) ? 'https' : 'http';
+		return ($urls) ? '</a>' : " ($proto://$url)";
 	}
 
 	public function get_updraftplus_rssfeed() {
@@ -2361,8 +2363,8 @@ class UpdraftPlus {
 	}
 
 	public function wordshell_random_advert($urls) {
-		if (defined('UPDRAFTPLUS_NOADS_A')) return "";
-		$rad = rand(0, 8);
+		if (defined('UPDRAFTPLUS_NOADS_B')) return "";
+		$rad = rand(0, 9);
 		switch ($rad) {
 		case 0:
 			return $this->url_start($urls,'updraftplus.com').__("Want more features or paid, guaranteed support? Check out UpdraftPlus.Com", 'updraftplus').$this->url_end($urls,'updraftplus.com');
@@ -2371,7 +2373,7 @@ class UpdraftPlus {
 			if (defined('WPLANG') && strlen(WPLANG)>0 && !is_file(UPDRAFTPLUS_DIR.'/languages/updraftplus-'.WPLANG.
 '.mo')) return __('Can you translate? Want to improve UpdraftPlus for speakers of your language?','updraftplus').' '.$this->url_start($urls,'updraftplus.com/translate/')."Please go here for instructions - it is easy.".$this->url_end($urls,'updraftplus.com/translate/');
 
-			return __('Like UpdraftPlus and can spare one minute?','updraftplus').$this->url_start($urls,'wordpress.org/support/view/plugin-reviews/updraftplus#postform').' '.__('Please help UpdraftPlus by giving a positive review at wordpress.org','updraftplus').$this->url_end($urls,'wordpress.org/support/view/plugin-reviews/updraftplus#postform');
+			return __('UpdraftPlus is on social media - check us out here:','updraftplus').' '.$this->url_start($urls,'twitter.com/updraftplus', true).__('Twitter', 'updraftplus').$this->url_end($urls,'twitter.com/updraftplus', true).' - '.$this->url_start($urls,'facebook.com/updraftplus', true).__('Facebook', 'updraftplus').$this->url_end($urls,'facebook.com/updraftplus', true).' - '.$this->url_start($urls,'plus.google.com/u/0/b/112313994681166369508/112313994681166369508/about', true).__('Google+', 'updraftplus').$this->url_end($urls,'plus.google.com/u/0/b/112313994681166369508/112313994681166369508/about', true).' - '.$this->url_start($urls,'www.linkedin.com/company/updraftplus', true).__('LinkedIn', 'updraftplus').$this->url_end($urls,'www.linkedin.com/company/updraftplus', true);
 			break;
 		case 2:
 			return $this->url_start($urls,'wordshell.net').__("Check out WordShell", 'updraftplus').$this->url_end($urls,'www.wordshell.net')." - ".__('manage WordPress from the command line - huge time-saver', 'updraftplus');
@@ -2380,10 +2382,10 @@ class UpdraftPlus {
 			return __('Like UpdraftPlus and can spare one minute?','updraftplus').$this->url_start($urls,'wordpress.org/support/view/plugin-reviews/updraftplus#postform').' '.__('Please help UpdraftPlus by giving a positive review at wordpress.org','updraftplus').$this->url_end($urls,'wordpress.org/support/view/plugin-reviews/updraftplus#postform');
 			break;
 		case 4:
-			return $this->url_start($urls,'www.simbahosting.co.uk').__("Need high-quality WordPress hosting from WordPress specialists? (Including automatic backups and 1-click installer). Get it from the creators of UpdraftPlus.", 'updraftplus').$this->url_end($urls,'www.simbahosting.co.uk');
+			return $this->url_start($urls,'www.simbahosting.co.uk', true).__("Need high-quality WordPress hosting from WordPress specialists? (Including automatic backups and 1-click installer). Get it from the creators of UpdraftPlus.", 'updraftplus').$this->url_end($urls,'www.simbahosting.co.uk', true);
 			break;
 		case 5:
-			if (!defined('UPDRAFTPLUS_NOADS_A')) {
+			if (!defined('UPDRAFTPLUS_NOADS_B')) {
 				return $this->url_start($urls,'updraftplus.com').__("Need even more features and support? Check out UpdraftPlus Premium",'updraftplus').$this->url_end($urls,'updraftplus.com');
 			} else {
 				return "Thanks for being an UpdraftPlus premium user. Keep visiting ".$this->url_start($urls,'updraftplus.com')."updraftplus.com".$this->url_end($urls,'updraftplus.com')." to see what's going on.";
@@ -2397,7 +2399,10 @@ class UpdraftPlus {
 			return $this->url_start($urls,'updraftplus.com').__("Check out UpdraftPlus.Com for help, add-ons and support",'updraftplus').$this->url_end($urls,'updraftplus.com');
 			break;
 		case 8:
-			return __("Want to say thank-you for UpdraftPlus?",'updraftplus').$this->url_start($urls,'updraftplus.com/shop/')." ".__("Please buy our very cheap 'no adverts' add-on.",'updraftplus').$this->url_end($urls,'updraftplus.com/shop/');
+			return __("Want to say thank-you for UpdraftPlus?",'updraftplus').$this->url_start($urls,'updraftplus.com/shop/', true)." ".__("Please buy our very cheap 'no adverts' add-on.",'updraftplus').$this->url_end($urls,'updraftplus.com/shop/', true);
+			break;
+		case 9:
+			return __('UpdraftPlus is on social media - check us out here:','updraftplus').' '.$this->url_start($urls,'twitter.com/updraftplus', true).__('Twitter', 'updraftplus').$this->url_end($urls,'twitter.com/updraftplus', true).' - '.$this->url_start($urls,'facebook.com/updraftplus', true).__('Facebook', 'updraftplus').$this->url_end($urls,'facebook.com/updraftplus', true).' - '.$this->url_start($urls,'plus.google.com/u/0/b/112313994681166369508/112313994681166369508/about', true).__('Google+', 'updraftplus').$this->url_end($urls,'plus.google.com/u/0/b/112313994681166369508/112313994681166369508/about', true).' - '.$this->url_start($urls,'www.linkedin.com/company/updraftplus', true).__('LinkedIn', 'updraftplus').$this->url_end($urls,'www.linkedin.com/company/updraftplus', true);
 			break;
 		}
 	}
