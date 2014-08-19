@@ -43,11 +43,11 @@ Your WordPress backups are worth the same as your entire investment in your webs
 
 UpdraftPlus Backup/Restore is not crippled in any way - it is fully functional, with no annoying omissions. What we do have is various extra features, and guaranteed support, available <a href="http://updraftplus.com/">from our website, updraftplus.com</a>.
 
-If you need WordPress multisite compatibility (you'll know if you do), <a href="http://updraftplus.com/shop/">then you need UpdraftPlus Premium</a>.
+If you need WordPress multisite backup compatibility (you'll know if you do), <a href="http://updraftplus.com/shop/">then you need UpdraftPlus Premium</a>.
 
 = Professional / Enterprise support agreements available =
 
-UpdraftPlus backup/restore is written by professional WordPress developers. If your site needs guaranteed support, then we are available. Just  <a href="http://updraftplus.com/shop/">go to our shop.</a>
+UpdraftPlus Backup/Restore is written by professional WordPress developers. If your site needs guaranteed support, then we are available. Just  <a href="http://updraftplus.com/shop/">go to our shop.</a>
 
 = More premium plugins =
 
@@ -55,7 +55,7 @@ If you are in the market for other WordPress premium plugins (especially WooComm
 
 = Are you multi-lingual? Can you translate? =
 
-Are you able to translate UpdraftPlus into another language? Are you ready to help speakers of your language? UpdraftPlus itself is ready and waiting - the only work needed is the translating. The translation process is easy, and web-based - go here for instructions: <a href="http://updraftplus.com/translate/">http://updraftplus.com/translate/</a>. (Or if you're an expert WordPress translator already, then just pick out the .pot file from the wp-content/plugins/updraftplus/languages/ directory - if you scan for translatable strings manually, then you need to get these functions: _x(), __(), _e(), _ex(), log_e()).
+Are you able to translate UpdraftPlus into another language? Are you ready to help speakers of your language? UpdraftPlus Backup/Restore itself is ready and waiting - the only work needed is the translating. The translation process is easy, and web-based - go here for instructions: <a href="http://updraftplus.com/translate/">http://updraftplus.com/translate/</a>. (Or if you're an expert WordPress translator already, then just pick out the .pot file from the wp-content/plugins/updraftplus/languages/ directory - if you scan for translatable strings manually, then you need to get these functions: _x(), __(), _e(), _ex(), log_e()).
 
 Many thanks to the existing translators:
 
@@ -99,17 +99,15 @@ Check out <a href="http://updraftplus.com/updraftplus-full-feature-list/">our fu
 
 Note - this FAQ is for users of the free plugin. If you're a paying customer, then you should go here: http://updraftplus.com/support/ - please don't ask question in the WordPress.Org forum about purchases, as that's against their rules.
 
-Next, please make sure you read this FAQ through to the end - it may already have the answer you need. If it does, then please consider a donation (e.g. buy our "No Adverts" add-on - <a href="http://updraftplus.com/shop/">http://updraftplus.com/shop/</a>); it takes time to develop this plugin and FAQ.
+Next, please make sure you read this FAQ through - it may already have the answer you need. If it does, then please consider a donation (e.g. buy our "No Adverts" add-on - <a href="http://updraftplus.com/shop/">http://updraftplus.com/shop/</a>); it takes time to develop this plugin and FAQ.
 
-If it does not, then contact me (<a href="http://wordpress.org/support/plugin/updraftplus">the forum is the best way</a>)! This is a complex backup plugin and the only way I can ensure it's robust is to get bug reports and fix the problems that crop up. Please make sure you are using the latest version of the plugin, and that you include the version in your bug report - if you are not using the latest, then the first thing you will be asked to do is upgrade.
+If it does not, then contact us (<a href="http://wordpress.org/support/plugin/updraftplus">the forum is the best way</a>)! This is a complex backup plugin and the only way we can ensure it's robust is to get bug reports and fix the problems that crop up. Please make sure you are using the latest version of the plugin, and that you include the version in your bug report - if you are not using the latest, then the first thing you will be asked to do is upgrade.
 
-Please turn on debugging mode (in the UpdraftPlus options page) and then try again, and after that send me the log if you can find it (there are links to download logs on the UpdraftPlus settings page; or you may be emailed it; failing that, it is in the directory wp-content/updraft, so FTP in and look for it there). If you cannot find the log, then I may not be able to help so much, but you can try - include as much information as you can when reporting (PHP version, your blog's site, the error you saw and how you got to the page that caused it, any other relevant plugins you have installed, etcetera). http://pastebin.com is a good place to post the log.
+Please include the log if you can find it (there are links to download logs on the UpdraftPlus settings page; or you may be emailed it; failing that, it is in the directory wp-content/updraft, so FTP in and look for it there). If you cannot find the log, then I may not be able to help so much, but you can try - include as much information as you can when reporting (PHP version, your blog's site, the error you saw and how you got to the page that caused it, any other relevant plugins you have installed, etcetera). http://pastebin.com is a good place to post the log.
 
-If you know where to find your PHP error logs (often a file called error_log, possibly in your wp-admin directory (check via FTP)), then that's even better (don't send me multi-megabytes; just send the few lines that appear when you run a backup, if any).
+If you know where to find your PHP error logs (often a file called error_log, possibly in your wp-admin directory (check via FTP)), then that's even better (don't send multi-megabytes; just send the few lines that appear when you run a backup, if any).
 
 If you are a programmer and can debug and send a patch, then that's even better.
-
-Finally, if you post in the WordPress support forum, then make sure you include the word UpdraftPlus in your post; otherwise I will not be automatically notified that you posted.
 
 = Anything essential to know? =
 
@@ -144,7 +142,7 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
-= Development version (not yet released/supported)
+= 1.9.19 - 2014/08/19 =
 
 * FEATURE: Omit any directory from the backup (recursively) by creating a file called .donotbackup within it
 * PERFORMANCE: Lazy-load more code
@@ -167,6 +165,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Workaround for PHP bug #62119 which could cause some files beginning with a non-ASCII character to be dropped
 * TWEAK: Warn the user if they are running on Apache without mod_rewrite and restore a site with permalinks requiring mod_rewrite
 * TWEAK: If Premium user was backing up non-WP tables, then optimize the backup table order
+* TRANSLATIONS: Updated translations: Hungarian, Swedish, Russian, Brazilian (Portuguese), Spanish, Czeck, Dutch, Turkish, German
 
 = 1.9.17 - 2014/07/16 =
 

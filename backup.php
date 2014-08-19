@@ -1782,11 +1782,10 @@ class UpdraftPlus_Backup {
 		# This is rather conservative - because it assumes zero compression. But we can't know that in advance.
 		$force_allinone = false;
 		if (0 == $this->index && $this->makezip_recursive_batchedbytes < $this->zip_split_every) {
-			# So far, we only have a processor for this for PclZip
+			# So far, we only have a processor for this for PclZip; but that check can be removed - need to address the below items
 			# TODO: Is this really what we want? Always go all-in-one for < 500Mb???? Should be more conservative? Or, is it always faster to go all-in-one? What about situations where we might want to auto-split because of slowness - check that that is still working.
 			# TODO: Test this new method for PclZip - are we still getting the performance gains? Test for ZipArchive too.
 			# TODO: Test that we get a manifest for PclZip on increments when on all-in-one
-			# TODO: Wouldn't it be more efficient to, instead of having separate code here, to instead just tweak our internal parameters for things like batch size, and then run this through the normal code?
 			if ('UpdraftPlus_PclZip' == $this->use_zip_object && ($this->makezip_recursive_batchedbytes < 512*1048576 || (defined('UPDRAFTPLUS_PCLZIP_FORCEALLINONE') && UPDRAFTPLUS_PCLZIP_FORCEALLINONE == true && 'UpdraftPlus_PclZip' == $this->use_zip_object))) {
 				$updraftplus->log("Only one archive required (".$this->use_zip_object.") - will attempt to do in single operation (data: ".round($this->makezip_recursive_batchedbytes/1024,1)." Kb, split: ".round($this->zip_split_every/1024, 1)." Kb)");
 // 				$updraftplus->log("PclZip, and only one archive required - will attempt to do in single operation (data: ".round($this->makezip_recursive_batchedbytes/1024,1)." Kb, split: ".round($this->zip_split_every/1024, 1)." Kb)");
