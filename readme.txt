@@ -165,6 +165,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Workaround for PHP bug #62119 which could cause some files beginning with a non-ASCII character to be dropped
 * TWEAK: Warn the user if they are running on Apache without mod_rewrite and restore a site with permalinks requiring mod_rewrite
 * TWEAK: If Premium user was backing up non-WP tables, then optimize the backup table order
+* TWEAK: Deal with case when uploading very large backups to Google Drive on overloaded servers with unreliable network where activity check might misfire
 * TRANSLATIONS: Updated translations: Hungarian, Swedish, Russian, Brazilian (Portuguese), Spanish, Czeck, Dutch, Turkish, German
 
 = 1.9.17 - 2014/07/16 =

@@ -709,6 +709,8 @@ class UpdraftPlus_BackupModule_googledrive {
 			fclose($handle);
 			$updraftplus->jobdata_delete($transkey);
 			if (false == $try_again) throw($e);
+			# Reset this counter to prevent the something_useful_happened condition's possibility being sent into the far future and potentially missed
+			if ($updraftplus->current_resumption > 9) $updraftplus->jobdata_set('uploaded_lastreset', $updraftplus->current_resumption);
 			return $this->upload_file($file, $parent_id, false);
 		}
 
