@@ -3154,10 +3154,6 @@ CREATE TABLE $wpdb->signups (
 	# If $basedirs is passed as an array, then $directorieses must be too
 	private function recursive_directory_size($directorieses, $exclude = array(), $basedirs = '') {
 
-error_log(serialize($directorieses));
-error_log(serialize($exclude));
-error_log(serialize($basedirs));
-
 		$size = 0;
 
 		if (is_string($directorieses)) {
@@ -3173,7 +3169,6 @@ error_log(serialize($basedirs));
 			$basedir = empty($basedirs[$ind]) ? $basedirs[0] : $basedirs[$ind];
 
 			foreach ($directories as $dir) {
-error_log($dir);
 				if (is_file($dir)) {
 					$size += @filesize($dir);
 				} else {
