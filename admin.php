@@ -60,6 +60,11 @@ class UpdraftPlus_Admin {
 			if (!empty($opts['clientid']) && !empty($opts['secret']) && empty($opts['token'])) add_action('all_admin_notices', array($this,'show_admin_warning_bitcasa') );
 		}
 
+		if (UpdraftPlus_Options::user_can_manage() && ('copycom' === $service || is_array($service) && in_array('copycom', $service))) {
+			$opts = UpdraftPlus_Options::get_updraft_option('updraft_copycom');
+			if (!empty($opts['clientid']) && !empty($opts['secret']) && empty($opts['token'])) add_action('all_admin_notices', array($this,'show_admin_warning_copycom') );
+		}
+
 		if (UpdraftPlus_Options::user_can_manage() && $this->disk_space_check(1048576*35) === false) add_action('all_admin_notices', array($this, 'show_admin_warning_diskspace'));
 
 		// Next, the actions that only come on the UpdraftPlus page
@@ -451,6 +456,10 @@ class UpdraftPlus_Admin {
 
 	public function show_admin_warning_bitcasa() {
 		$this->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus').'</strong> <a href="'.UpdraftPlus_Options::admin_page_url().'?page=updraftplus&action=updraftmethod-bitcasa-auth&updraftplus_bitcasaauth=doit">'.sprintf(__('Click here to authenticate your %s account (you will not be able to back up to %s without it).','updraftplus'),'Bitcasa','Bitcasa').'</a>');
+	}
+
+	public function show_admin_warning_copycom() {
+		$this->show_admin_warning('<strong>'.__('UpdraftPlus notice:','updraftplus').'</strong> <a href="'.UpdraftPlus_Options::admin_page_url().'?page=updraftplus&action=updraftmethod-copycom-auth&updraftplus_copycomauth=doit">'.sprintf(__('Click here to authenticate your %s account (you will not be able to back up to %s without it).','updraftplus'),'Copy.Com','Copy').'</a>');
 	}
 
 	public function show_admin_warning_googledrive() {
@@ -1783,7 +1792,8 @@ CREATE TABLE $wpdb->signups (
 		<div class="wrap" id="updraft-wrap">
 			<h1><?php echo $updraftplus->plugin_title; ?></h1>
 
-			<a href="http://updraftplus.com">UpdraftPlus.Com</a> | <a href="https://updraftplus.com/news/"><?php _e('News','updraftplus');?></a>  | <a href="https://twitter.com/updraftplus"><?php _e('Twitter', 'updraftplus');?></a> | <?php if (!defined('UPDRAFTPLUS_NOADS_B')) { ?><a href="http://updraftplus.com/shop/updraftplus-premium/"><?php _e("Premium",'updraftplus');?></a>  | <?php } ?><a href="http://updraftplus.com/support/"><?php _e("Support",'updraftplus');?></a> | <a href="http://david.dw-perspective.org.uk"><?php _e("Lead developer's homepage",'updraftplus');?></a> | <?php if (1==0 && !defined('UPDRAFTPLUS_NOADS_B')) { ?><a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate"><?php _e('Donate', 'updraftplus');?></a> | <?php } ?><a href="http://updraftplus.com/support/frequently-asked-questions/">FAQs</a> | <a href="https://www.simbahosting.co.uk/s3/shop/"><?php _e('More plugins', 'updraftplus');?></a> - <?php _e('Version','updraftplus');?>: <?php echo $updraftplus->version; ?>
+			<a href="http://updraftplus.com">UpdraftPlus.Com</a> | <a href="https://updraftplus.com/news/"><?php _e('News','updraftplus');?></a>  | <a href="https://twitter.com/updraftplus"><?php _e('Twitter', 'updraftplus');?></a> | <?php if (!defined('UPDRAFTPLUS_NOADS_B')) { ?><a href="http://updraftplus.com/shop/updraftplus-premium/"><?php _e("Premium",'updraftplus');?></a>
+ | <?php } ?><a href="http://updraftplus.com/support/"><?php _e("Support",'updraftplus');?></a> | <a href="http://david.dw-perspective.org.uk"><?php _e("Lead developer's homepage",'updraftplus');?></a> | <?php if (1==0 && !defined('UPDRAFTPLUS_NOADS_B')) { ?><a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate"><?php _e('Donate', 'updraftplus');?></a> | <?php } ?><a href="http://updraftplus.com/support/frequently-asked-questions/">FAQs</a> | <a href="https://www.simbahosting.co.uk/s3/shop/"><?php _e('More plugins', 'updraftplus');?></a> - <?php _e('Version','updraftplus');?>: <?php echo $updraftplus->version; ?>
 			<br>
 
 			<div id="updraft-hidethis">
@@ -3153,10 +3163,6 @@ CREATE TABLE $wpdb->signups (
 	# If $basedirs is passed as an array, then $directorieses must be too
 	private function recursive_directory_size($directorieses, $exclude = array(), $basedirs = '') {
 
-error_log(serialize($directorieses));
-error_log(serialize($exclude));
-error_log(serialize($basedirs));
-
 		$size = 0;
 
 		if (is_string($directorieses)) {
@@ -3172,7 +3178,6 @@ error_log(serialize($basedirs));
 			$basedir = empty($basedirs[$ind]) ? $basedirs[0] : $basedirs[$ind];
 
 			foreach ($directories as $dir) {
-error_log($dir);
 				if (is_file($dir)) {
 					$size += @filesize($dir);
 				} else {
@@ -4105,7 +4110,7 @@ ENDHERE;
 	private function get_settings_keys() {
 		return array('updraft_autobackup_default', 'updraft_dropbox', 'updraft_googledrive', 'updraftplus_tmp_googledrive_access_token', 'updraftplus_dismissedautobackup', 'updraftplus_dismissedexpiry', 'updraft_interval', 'updraft_interval_increments', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_wpcore', 'updraft_include_wpcore_exclude', 'updraft_include_more', 'updraft_include_blogs', 'updraft_include_mu-plugins', 'updraft_include_others_exclude', 'updraft_include_uploads_exclude',
 		'updraft_lastmessage', 'updraft_googledrive_token', 'updraft_dropboxtk_request_token', 'updraft_dropboxtk_access_token', 'updraft_dropbox_folder',
-		'updraft_last_backup', 'updraft_starttime_files', 'updraft_starttime_db', 'updraft_startday_db', 'updraft_startday_files', 'updraft_sftp_settings', 'updraft_s3', 'updraft_s3generic', 'updraft_dreamhost', 'updraft_s3generic_login', 'updraft_s3generic_pass', 'updraft_s3generic_remote_path', 'updraft_s3generic_endpoint', 'updraft_webdav_settings', 'updraft_disable_ping', 'updraft_openstack', 'updraft_bitcasa', 'updraft_cloudfiles', 'updraft_cloudfiles_user', 'updraft_cloudfiles_apikey', 'updraft_cloudfiles_path', 'updraft_cloudfiles_authurl', 'updraft_ssl_useservercerts', 'updraft_ssl_disableverify', 'updraft_s3_login', 'updraft_s3_pass', 'updraft_s3_remote_path', 'updraft_dreamobjects_login', 'updraft_dreamobjects_pass', 'updraft_dreamobjects_remote_path', 'updraft_report_warningsonly', 'updraft_report_wholebackup', 'updraft_log_syslog', 'updraft_extradatabases');
+		'updraft_last_backup', 'updraft_starttime_files', 'updraft_starttime_db', 'updraft_startday_db', 'updraft_startday_files', 'updraft_sftp_settings', 'updraft_s3', 'updraft_s3generic', 'updraft_dreamhost', 'updraft_s3generic_login', 'updraft_s3generic_pass', 'updraft_s3generic_remote_path', 'updraft_s3generic_endpoint', 'updraft_webdav_settings', 'updraft_disable_ping', 'updraft_openstack', 'updraft_bitcasa', 'updraft_copycom', 'updraft_cloudfiles', 'updraft_cloudfiles_user', 'updraft_cloudfiles_apikey', 'updraft_cloudfiles_path', 'updraft_cloudfiles_authurl', 'updraft_ssl_useservercerts', 'updraft_ssl_disableverify', 'updraft_s3_login', 'updraft_s3_pass', 'updraft_s3_remote_path', 'updraft_dreamobjects_login', 'updraft_dreamobjects_pass', 'updraft_dreamobjects_remote_path', 'updraft_report_warningsonly', 'updraft_report_wholebackup', 'updraft_log_syslog', 'updraft_extradatabases');
 	}
 
 }

@@ -10,8 +10,8 @@ class UpdraftPlus {
 
 	// Choices will be shown in the admin menu in the order used here
 	public $backup_methods = array(
-		's3' => 'Amazon S3',
 		'dropbox' => 'Dropbox',
+		's3' => 'Amazon S3',
 		'cloudfiles' => 'Rackspace Cloud Files',
 		'googledrive' => 'Google Drive',
 		'ftp' => 'FTP',
@@ -23,6 +23,7 @@ class UpdraftPlus {
 		'dreamobjects' => 'DreamObjects',
 		'email' => 'Email'
 	);
+#		'copycom' => 'Copy.Com',
 
 	public $errors = array();
 	public $nonce;
@@ -2160,6 +2161,20 @@ class UpdraftPlus {
 	}
 
 	// Acts as a WordPress options filter
+	public function copycom_checkchange($copycom) {
+		$opts = UpdraftPlus_Options::get_updraft_option('updraft_copycom');
+		if (!is_array($opts)) $opts = array();
+		if (!is_array($copycom)) return $opts;
+		$old_client_id = (empty($opts['clientid'])) ? '' : $opts['clientid'];
+		if (!empty($opts['token']) && $old_client_id != $copycom['clientid']) {
+			unset($opts['token']);
+			unset($opts['ownername']);
+		}
+		foreach ($copycom as $key => $value) { $opts[$key] = $value; }
+		return $opts;
+	}
+
+	// Acts as a WordPress options filter
 	public function dropbox_checkchange($dropbox) {
 		$opts = UpdraftPlus_Options::get_updraft_option('updraft_dropbox');
 		if (!is_array($opts)) $opts = array();
@@ -2364,7 +2379,7 @@ class UpdraftPlus {
 
 	public function wordshell_random_advert($urls) {
 		if (defined('UPDRAFTPLUS_NOADS_B')) return "";
-		$rad = rand(0, 9);
+		$rad = rand(0, 8);
 		switch ($rad) {
 		case 0:
 			return $this->url_start($urls,'updraftplus.com').__("Want more features or paid, guaranteed support? Check out UpdraftPlus.Com", 'updraftplus').$this->url_end($urls,'updraftplus.com');
@@ -2373,7 +2388,7 @@ class UpdraftPlus {
 			if (defined('WPLANG') && strlen(WPLANG)>0 && !is_file(UPDRAFTPLUS_DIR.'/languages/updraftplus-'.WPLANG.
 '.mo')) return __('Can you translate? Want to improve UpdraftPlus for speakers of your language?','updraftplus').' '.$this->url_start($urls,'updraftplus.com/translate/')."Please go here for instructions - it is easy.".$this->url_end($urls,'updraftplus.com/translate/');
 
-			return __('UpdraftPlus is on social media - check us out here:','updraftplus').' '.$this->url_start($urls,'twitter.com/updraftplus', true).__('Twitter', 'updraftplus').$this->url_end($urls,'twitter.com/updraftplus', true).' - '.$this->url_start($urls,'facebook.com/updraftplus', true).__('Facebook', 'updraftplus').$this->url_end($urls,'facebook.com/updraftplus', true);
+			return __('UpdraftPlus is on social media - check us out here:','updraftplus').' '.$this->url_start($urls,'twitter.com/updraftplus', true).__('Twitter', 'updraftplus').$this->url_end($urls,'twitter.com/updraftplus', true).' - '.$this->url_start($urls,'facebook.com/updraftplus', true).__('Facebook', 'updraftplus').$this->url_end($urls,'facebook.com/updraftplus', true).' - '.$this->url_start($urls,'plus.google.com/u/0/b/112313994681166369508/112313994681166369508/about', true).__('Google+', 'updraftplus').$this->url_end($urls,'plus.google.com/u/0/b/112313994681166369508/112313994681166369508/about', true).' - '.$this->url_start($urls,'www.linkedin.com/company/updraftplus', true).__('LinkedIn', 'updraftplus').$this->url_end($urls,'www.linkedin.com/company/updraftplus', true);
 			break;
 		case 2:
 			return $this->url_start($urls,'wordshell.net').__("Check out WordShell", 'updraftplus').$this->url_end($urls,'www.wordshell.net')." - ".__('manage WordPress from the command line - huge time-saver', 'updraftplus');
@@ -2398,11 +2413,11 @@ class UpdraftPlus {
 		case 7:
 			return $this->url_start($urls,'updraftplus.com').__("Check out UpdraftPlus.Com for help, add-ons and support",'updraftplus').$this->url_end($urls,'updraftplus.com');
 			break;
+// 		case 8:
+// 			return __("Want to say thank-you for UpdraftPlus?",'updraftplus').$this->url_start($urls,'updraftplus.com/shop/', true)." ".__("Please buy our very cheap 'no adverts' add-on.",'updraftplus').$this->url_end($urls,'updraftplus.com/shop/', true);
+// 			break;
 		case 8:
-			return __("Want to say thank-you for UpdraftPlus?",'updraftplus').$this->url_start($urls,'updraftplus.com/shop/', true)." ".__("Please buy our very cheap 'no adverts' add-on.",'updraftplus').$this->url_end($urls,'updraftplus.com/shop/', true);
-			break;
-		case 9:
-			return __('UpdraftPlus is on social media - check us out here:','updraftplus').' '.$this->url_start($urls,'twitter.com/updraftplus', true).__('Twitter', 'updraftplus').$this->url_end($urls,'twitter.com/updraftplus', true).' - '.$this->url_start($urls,'facebook.com/updraftplus', true).__('Facebook', 'updraftplus').$this->url_end($urls,'facebook.com/updraftplus', true);
+			return __('UpdraftPlus is on social media - check us out here:','updraftplus').' '.$this->url_start($urls,'twitter.com/updraftplus', true).__('Twitter', 'updraftplus').$this->url_end($urls,'twitter.com/updraftplus', true).' - '.$this->url_start($urls,'facebook.com/updraftplus', true).__('Facebook', 'updraftplus').$this->url_end($urls,'facebook.com/updraftplus', true).' - '.$this->url_start($urls,'plus.google.com/u/0/b/112313994681166369508/112313994681166369508/about', true).__('Google+', 'updraftplus').$this->url_end($urls,'plus.google.com/u/0/b/112313994681166369508/112313994681166369508/about', true).' - '.$this->url_start($urls,'www.linkedin.com/company/updraftplus', true).__('LinkedIn', 'updraftplus').$this->url_end($urls,'www.linkedin.com/company/updraftplus', true);
 			break;
 		}
 	}
