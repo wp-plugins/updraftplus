@@ -1737,23 +1737,60 @@ class UpdraftPlus {
 		UpdraftPlus_Options::update_updraft_option('updraft_last_backup', $last_backup, false);
 	}
 
-	// This should be called whenever a file is successfully uploaded
-	public function uploaded_file($file, $force = false) {
-	
-		global $updraftplus_backup, $wpdb;
+	# $handle must be either false or a WPDB class (or extension thereof). Other options are not yet fully supported.
+	public function check_db_connection($handle = false, $logit = false, $reschedule = false) {
+
+		$type = false;
+		if (false === $handle || is_a($handle, 'wpdb')) {
+			$type='wpdb';
+		} elseif (is_resource($handle)) {
+			# Expected: string(10) "mysql link"
+			$type=get_resource_type($handle);
+		} elseif (is_object($handle) && is_a($handle, 'mysqli')) {
+			$type='mysqli';
+		}
+ 
+		if (false === $type) return -1;
 
 		$db_connected = -1;
 
-		# WP 3.9 onwards - https://core.trac.wordpress.org/browser/trunk/src/wp-includes/wp-db.php?rev=27925 - check_connection() allows us to get the database connection back if it had dropped
-		if (method_exists($wpdb, 'check_connection')) {
-			if (!$wpdb->check_connection(false)) {
-				$updraftplus->reschedule(60);
-				$updraftplus->log("It seems the database went away; scheduling a resumption and terminating for now");
-				$db_connected = false;
-			} else {
-				$db_connected = true;
+		if ('mysql link' == $type || 'mysqli' == $type) {
+			if ('mysql link' == $type && @mysql_ping($handle)) return true;
+			if ('mysqli' == $type && @mysqli_ping($handle)) return true;
+
+			for ( $tries = 1; $tries <= 5; $tries++ ) {
+				# to do, if ever needed
+// 				if ( $this->db_connect( false ) ) return true;
+// 				sleep( 1 );
+			}
+
+		} elseif ('wpdb' == $type) {
+			if (false === $handle || (is_object($handle) && 'wpdb' == get_class($handle))) {
+				global $wpdb;
+				$handle = $wpdb;
+			}
+			if (method_exists($handle, 'check_connection')) {
+				if (!$handle->check_connection(false)) {
+					if ($logit) $this->log("The database went away, and could not be reconnected to");
+					# Almost certainly a no-op
+					if ($reschedule) $this->reschedule(60);
+					$db_connected = false;
+				} else {
+					$db_connected = true;
+				}
 			}
 		}
+
+		return $db_connected;
+
+	}
+
+	// This should be called whenever a file is successfully uploaded
+	public function uploaded_file($file, $force = false) {
+	
+		global $updraftplus_backup;
+
+		$db_connected = $this->check_db_connection(false, true, true);
 
 		$service = (empty($updraftplus_backup->current_service)) ? '' : $updraftplus_backup->current_service;
 		$shash = $service.'-'.md5($file);

@@ -20,6 +20,9 @@ class Updraft_Restorer extends WP_Upgrader {
 	private $ud_backup_info;
 	public $ud_foreign;
 
+	# The default of false means "use the global $wpdb"
+	private $wpdb_obj = false;
+
 	public function __construct($skin = null, $info = null, $shortinit = false) {
 
 		global $wpdb;
@@ -33,6 +36,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			if (!$wpdb_obj->is_mysql || !$wpdb_obj->ready) {
 				$this->use_wpdb = true;
 			} else {
+				$this->wpdb_obj = $wpdb_obj;
 				$this->mysql_dbh = $wpdb_obj->updraftplus_getdbh();
 				$this->use_mysqli = $wpdb_obj->updraftplus_use_mysqli();
 			}
@@ -1325,6 +1329,9 @@ class Updraft_Restorer extends WP_Upgrader {
 				// This CREATE TABLE command may be the de-facto mark for the end of processing a previous table (which is so if this is not the first table in the SQL dump)
 				if ($restoring_table) {
 
+					# Attempt to reconnect if the DB connection dropped (may not succeed, of course - but that will soon become evident)
+					$updraftplus->check_db_connection($this->wpdb_obj);
+
 					// After restoring the options table, we can set old_siteurl if on legacy (i.e. not already set)
 					if ($restoring_table == $import_table_prefix.'options') {
 						if ('' == $this->old_siteurl || '' == $this->old_home || '' == $this->old_content) {
@@ -1509,7 +1516,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		} elseif ($sql_type == 2) {
 			$this->tables_created++;
 		}
-		if (($this->line)%50 == 0) {
+		if ($this->line >0 && ($this->line)%50 == 0) {
 			if (($this->line)%250 == 0 || $this->line<250) {
 				$time_taken = microtime(true) - $this->start_time;
 				$updraftplus->log_e('Database queries processed: %d in %.2f seconds',$this->line, $time_taken);
