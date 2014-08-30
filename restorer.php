@@ -869,6 +869,7 @@ class Updraft_Restorer extends WP_Upgrader {
 				$this->chmod_if_needed($wp_filesystem_dir, FS_CHMOD_DIR, false, $wp_filesystem);
 			break;
 			case 'db':
+				if (function_exists('wp_cache_flush')) wp_cache_flush();
 				do_action('updraftplus_restored_db', array('expected_oldsiteurl' => $this->old_siteurl, 'expected_oldhome' => $this->old_home, 'expected_oldcontent' => $this->old_content), $import_table_prefix);
 				$this->flush_rewrite_rules();
 
@@ -1620,6 +1621,9 @@ class Updraft_Restorer extends WP_Upgrader {
 						$updraftplus->log_e("Elegant themes theme builder plugin data detected: resetting temporary folder");
 						update_option('et_images_temp_folder', $edir.'/'.$dbase);
 					}
+					# The gantry menu plugin sometimes uses too-long transient names, causing the timeout option to be missing; and hence the transient becomes permanent.
+					# WP 3.4 onwards has $wpdb->delete(). But we support 3.2 onwards.
+					$wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '_transient_gantry-menu%' OR option_name LIKE '_transient_timeout_gantry-menu%'");
 				}
 			}
 

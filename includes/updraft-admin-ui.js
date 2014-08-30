@@ -11,6 +11,7 @@ function updraft_delete(key, nonce, showremote) {
 
 function updraft_openrestorepanel(toggly) {
 	//jQuery('.download-backups').slideDown(); updraft_historytimertoggle(1); jQuery('html,body').animate({scrollTop: jQuery('#updraft_lastlogcontainer').offset().top},'slow');
+	updraft_console_has_focus = 0;
 	updraft_historytimertoggle(toggly);
 	jQuery('#updraft-navtab-status-content').hide();
 	jQuery('#updraft-navtab-expert-content').hide();
@@ -63,6 +64,24 @@ var lastlog_lastdata = "";
 var lastlog_jobs = "";
 var lastlog_sdata = { action: 'updraft_ajax', subaction: 'lastlog' };
 var updraft_activejobs_nextupdate = (new Date).getTime() + 1000;
+// Bits (RtoL): main console displayed; restore dialog open (uses downloader)
+var updraft_console_has_focus = 1;
+
+function updraft_check_page_visibility(firstload) {
+	if ('hidden' == document["visibilityState"]) {
+		updraft_console_has_focus = updraft_console_has_focus | 4;
+	} else {
+		updraft_console_has_focus = updraft_console_has_focus & ~4;
+		if (updraft_console_has_focus>0 && 1 !== firstload) { updraft_activejobs_update(true); }
+	};
+}
+
+// See http://caniuse.com/#feat=pagevisibility for compatibility (we don't bother with prefixes)
+if (typeof document.hidden !== "undefined") {
+	document.addEventListener('visibilitychange', function() {updraft_check_page_visibility(0);}, false);
+}
+
+updraft_check_page_visibility(1);
 
 function updraft_activejobs_update(force) {
 	var timenow = (new Date).getTime();
@@ -80,11 +99,17 @@ function updraft_activejobs_update(force) {
  		try {
 			resp = jQuery.parseJSON(response);
 			timenow = (new Date).getTime();
-			if (lastlog_lastdata == response) {
-				updraft_activejobs_nextupdate = timenow + 4500;
+			if (updraft_console_has_focus > 0 && updraft_console_has_focus < 4) {
+				if (lastlog_lastdata == response) {
+					updraft_activejobs_nextupdate = timenow + 4500;
+				} else {
+					updraft_activejobs_nextupdate = timenow + 1200;
+				}
 			} else {
-				updraft_activejobs_nextupdate = timenow + 1200;
+				updraft_activejobs_nextupdate = timenow + 180000;
 			}
+// TODO: Remove debugging line
+console.log("updraft_console_has_focus: "+updraft_console_has_focus+" ("+timenow+" , "+(updraft_activejobs_nextupdate-timenow)+")");
 			//if (repeat) { setTimeout(function(){updraft_activejobs_update(true);}, nexttimer);}
 			lastlog_lastdata = response;
 			if (resp.l != null) { jQuery('#updraft_lastlogcontainer').html(resp.l); }
@@ -571,7 +596,7 @@ jQuery(document).ready(function($){
 			alert('You did not select any components to restore. Please select at least one, and then try again.');
 		}
 	};
-	updraft_restore_modal_buttons[updraftlion.cancel] = function() { jQuery(this).dialog("close"); };
+	updraft_restore_modal_buttons[updraftlion.cancel] = function() { jQuery(this).dialog("close"); updraft_console_has_focus = updraft_console_has_focus & ~2; };
 
 	jQuery( "#updraft-restore-modal" ).dialog({
 		autoOpen: false, height: 505, width: 590, modal: true,
@@ -671,6 +696,9 @@ jQuery(document).ready(function($){
 		jQuery('#updraft-navtab-expert').removeClass('nav-tab-active');
 		jQuery('#updraft-navtab-backups').removeClass('nav-tab-active');
 		jQuery('#updraft-navtab-settings').removeClass('nav-tab-active');
+		updraft_console_has_focus = 1;
+		// Refresh the console, as its next update might be far away
+		updraft_activejobs_update(true);
 	});
 	jQuery('#updraft-navtab-expert').click(function(e) {
 		e.preventDefault();
@@ -682,6 +710,7 @@ jQuery(document).ready(function($){
 		jQuery('#updraft-navtab-status').removeClass('nav-tab-active');
 		jQuery('#updraft-navtab-backups').removeClass('nav-tab-active');
 		jQuery('#updraft-navtab-settings').removeClass('nav-tab-active');
+		updraft_console_has_focus = 0;
 	});
 	jQuery('#updraft-navtab-settings, #updraft-navtab-settings2').click(function(e) {
 		e.preventDefault();
@@ -693,6 +722,7 @@ jQuery(document).ready(function($){
 		jQuery('#updraft-navtab-expert').removeClass('nav-tab-active');
 		jQuery('#updraft-navtab-backups').removeClass('nav-tab-active');
 		jQuery('#updraft-navtab-status').removeClass('nav-tab-active');
+		updraft_console_has_focus = 0;
 	});
 	jQuery('#updraft-navtab-backups').click(function(e) {
 		e.preventDefault();
