@@ -108,8 +108,7 @@ function updraft_activejobs_update(force) {
 			} else {
 				updraft_activejobs_nextupdate = timenow + 180000;
 			}
-// TODO: Remove debugging line
-console.log("updraft_console_has_focus: "+updraft_console_has_focus+" ("+timenow+" , "+(updraft_activejobs_nextupdate-timenow)+")");
+			//console.log("updraft_console_has_focus: "+updraft_console_has_focus+" ("+timenow+" , "+(updraft_activejobs_nextupdate-timenow)+")");
 			//if (repeat) { setTimeout(function(){updraft_activejobs_update(true);}, nexttimer);}
 			lastlog_lastdata = response;
 			if (resp.l != null) { jQuery('#updraft_lastlogcontainer').html(resp.l); }

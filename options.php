@@ -60,6 +60,7 @@ class UpdraftPlus_Options {
 		register_setting('updraft-options-group', 'updraft_s3generic');
 		register_setting('updraft-options-group', 'updraft_cloudfiles');
 		register_setting('updraft-options-group', 'updraft_bitcasa', array($updraftplus, 'bitcasa_checkchange'));
+		register_setting('updraft-options-group', 'updraft_copycom', array($updraftplus, 'copycom_checkchange'));
 		register_setting('updraft-options-group', 'updraft_openstack');
 		register_setting('updraft-options-group', 'updraft_dropbox', array($updraftplus, 'dropbox_checkchange'));
 		register_setting('updraft-options-group', 'updraft_googledrive', array($updraftplus, 'googledrive_checkchange'));

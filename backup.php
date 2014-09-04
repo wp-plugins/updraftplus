@@ -299,7 +299,7 @@ class UpdraftPlus_Backup {
 					$objname = "UpdraftPlus_BackupModule_${service}";
 					if (class_exists($objname)) {
 						$remote_obj = new $objname;
-						$pass_to_prune = $remote_obj->backup($backup_array);
+						$pass_to_prune = $remote_obj->backup($sarray);
 						$do_prune[$service] = array($remote_obj, $pass_to_prune);
 					} else {
 						$updraftplus->log("Unexpected error: no class '$objname' was found ($method_include)");

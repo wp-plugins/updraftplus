@@ -147,9 +147,11 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * FEATURE: The search/replace expert tool can now work on selected tables only
 * PERFORMANCE: Use PageVisibility API to be more intelligent about when we need to poll for progress in the dashboard
 * FIX: The Migrator add-on would fetch more database rows than it should, increasing the (low) risk of hitting memory limits, and increasing the time needed on enormous sites
+* FIX: Some Google Drive backups could get uploaded twice, if you were using multiple storage backends
 * TWEAK: Inform the user of possible plugin compatibility issues if they are about to restore a site onto a webserver running a PHP major version older than the original backup.
 * TWEAK: Detect database disconnection when search/replacing, and reconnect if possible; and to try less rows in case it was a memory limit
 * TWEAK: Add option to control how many rows are search/replaced at once
+* TWEAK: Prevent PHP notice being generated on first Google Drive authentication
 
 = 1.9.19 - 2014/08/19 =
 

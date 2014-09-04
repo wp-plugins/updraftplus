@@ -43,7 +43,7 @@ class UpdraftPlus_Admin {
 				$token = UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token', '');
 			} else {
 				$clientid = $opts['clientid'];
-				$token = $opts['token'];
+				$token = (empty($opts['token'])) ? '' : $opts['token'];
 			}
 			if (!empty($clientid) && empty($token)) add_action('all_admin_notices', array($this,'show_admin_warning_googledrive'));
 		}
