@@ -1,7 +1,7 @@
 <?php
 
 if (!defined('UPDRAFTPLUS_DIR')) die('No direct access allowed');
-if (!class_exists('UpdraftPlus_PclZip')) require(UPDRAFTPLUS_DIR.'/class-zip.php');
+if (!class_exists('UpdraftPlus_PclZip')) require_once(UPDRAFTPLUS_DIR.'/class-zip.php');
 
 // This file contains functions that are only needed/loaded when a backup is running (reduces memory usage on other site pages)
 
@@ -250,7 +250,7 @@ class UpdraftPlus_Backup {
 
 		$updraftplus->jobdata_set('jobstatus', 'clouduploading');
 
-		add_action('http_api_curl', array($updraftplus, 'add_curl_capath'));
+		add_action('http_request_args', array($updraftplus, 'modify_http_options'));
 
 		$upload_status = $updraftplus->jobdata_get('uploading_substatus');
 		if (!is_array($upload_status) || !isset($upload_status['t'])) {
@@ -311,7 +311,7 @@ class UpdraftPlus_Backup {
 
 		if (!empty($do_prune)) $this->prune_retained_backups($do_prune);
 
-		remove_action('http_api_curl', array($updraftplus, 'add_curl_capath'));
+		remove_action('http_request_args', array($updraftplus, 'modify_http_options'));
 
 	}
 

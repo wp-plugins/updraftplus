@@ -48,24 +48,23 @@ class UpdraftPlus_Admin {
 			if (!empty($clientid) && empty($token)) add_action('all_admin_notices', array($this,'show_admin_warning_googledrive'));
 		}
 
-		if (UpdraftPlus_Options::user_can_manage() && ('dropbox' === $service || is_array($service) && in_array('dropbox', $service))) {
-			$opts = UpdraftPlus_Options::get_updraft_option('updraft_dropbox');
-			if (empty($opts['tk_request_token'])) {
-				add_action('all_admin_notices', array($this,'show_admin_warning_dropbox') );
+		if (UpdraftPlus_Options::user_can_manage()) {
+			if ('dropbox' === $service || is_array($service) && in_array('dropbox', $service)) {
+				$opts = UpdraftPlus_Options::get_updraft_option('updraft_dropbox');
+				if (empty($opts['tk_request_token'])) {
+					add_action('all_admin_notices', array($this,'show_admin_warning_dropbox') );
+				}
 			}
+			if ('bitcasa' === $service || is_array($service) && in_array('bitcasa', $service)) {
+				$opts = UpdraftPlus_Options::get_updraft_option('updraft_bitcasa');
+				if (!empty($opts['clientid']) && !empty($opts['secret']) && empty($opts['token'])) add_action('all_admin_notices', array($this,'show_admin_warning_bitcasa') );
+			}
+			if ('copycom' === $service || is_array($service) && in_array('copycom', $service)) {
+				$opts = UpdraftPlus_Options::get_updraft_option('updraft_copycom');
+				if (!empty($opts['clientid']) && !empty($opts['secret']) && empty($opts['token'])) add_action('all_admin_notices', array($this,'show_admin_warning_copycom') );
+			}
+			if ($this->disk_space_check(1048576*35) === false) add_action('all_admin_notices', array($this, 'show_admin_warning_diskspace'));
 		}
-
-		if (UpdraftPlus_Options::user_can_manage() && ('bitcasa' === $service || is_array($service) && in_array('bitcasa', $service))) {
-			$opts = UpdraftPlus_Options::get_updraft_option('updraft_bitcasa');
-			if (!empty($opts['clientid']) && !empty($opts['secret']) && empty($opts['token'])) add_action('all_admin_notices', array($this,'show_admin_warning_bitcasa') );
-		}
-
-		if (UpdraftPlus_Options::user_can_manage() && ('copycom' === $service || is_array($service) && in_array('copycom', $service))) {
-			$opts = UpdraftPlus_Options::get_updraft_option('updraft_copycom');
-			if (!empty($opts['clientid']) && !empty($opts['secret']) && empty($opts['token'])) add_action('all_admin_notices', array($this,'show_admin_warning_copycom') );
-		}
-
-		if (UpdraftPlus_Options::user_can_manage() && $this->disk_space_check(1048576*35) === false) add_action('all_admin_notices', array($this, 'show_admin_warning_diskspace'));
 
 		// Next, the actions that only come on the UpdraftPlus page
 		if ($pagenow != UpdraftPlus_Options::admin_page() || empty($_REQUEST['page']) || 'updraftplus' != $_REQUEST['page']) return;
@@ -577,6 +576,7 @@ class UpdraftPlus_Admin {
 		if ($needs_downloading) {
 			$this->close_browser_connection();
 			$is_downloaded = false;
+			add_action('http_request_args', array($updraftplus, 'modify_http_options'));
 			foreach ($services as $service) {
 				if ($is_downloaded) continue;
 				$download = $this->download_file($file, $service);
@@ -590,6 +590,7 @@ class UpdraftPlus_Admin {
 					$updraftplus->log('Remote fetch failed');
 				}
 			}
+			remove_action('http_request_args', array($updraftplus, 'modify_http_options'));
 		}
 
 		// Now, spool the thing to the browser
@@ -929,6 +930,7 @@ class UpdraftPlus_Admin {
 
 			$local_deleted = 0;
 			$remote_deleted = 0;
+			add_action('http_request_args', array($updraftplus, 'modify_http_options'));
 			foreach ($files_to_delete as $key => $files) {
 				# Local deletion
 				if (is_string($files)) $files=array($files);
@@ -958,6 +960,7 @@ class UpdraftPlus_Admin {
 					}
 				}
 			}
+			remove_action('http_request_args', array($updraftplus, 'modify_http_options'));
 			$message .= __('The backup set has been removed.', 'updraftplus')."\n";
 			$message .= sprintf(__('Local archives deleted: %d', 'updraftplus'),$local_deleted)."\n";
 			$message .= sprintf(__('Remote archives deleted: %d', 'updraftplus'),$remote_deleted)."\n";
@@ -1130,6 +1133,7 @@ class UpdraftPlus_Admin {
 			$objname = "UpdraftPlus_BackupModule_$method";
 
 			$this->logged = array();
+			# TODO: Add action for WP HTTP SSL stuff
 			set_error_handler(array($this, 'get_php_errors'), E_ALL & ~E_STRICT);
 			if (method_exists($objname, "credentials_test")) {
 				$obj = new $objname;
@@ -3568,6 +3572,7 @@ ENDHERE;
 		# Scan remote storage and get back lists of files and their sizes
 		# TODO: Make compatible with incremental naming
 		if ($remotescan) {
+			add_action('http_request_args', array($updraftplus, 'modify_http_options'));
 			foreach ($updraftplus->backup_methods as $method => $desc) {
 				require_once(UPDRAFTPLUS_DIR.'/methods/'.$method.'.php');
 				$objname = 'UpdraftPlus_BackupModule_'.$method;
@@ -3599,6 +3604,7 @@ ENDHERE;
 					}
 				}
 			}
+			remove_action('http_request_args', array($updraftplus, 'modify_http_options'));
 		}
 
 		if (!$handle = opendir($updraft_dir)) return;
@@ -3926,6 +3932,7 @@ ENDHERE;
 				$fullpath = $updraft_dir.$file;
 				echo sprintf(__("Looking for %s archive: file name: %s", 'updraftplus'), $type, htmlspecialchars($file))."<br>";
 
+				add_action('http_request_args', array($updraftplus, 'modify_http_options'));
 				foreach ($service as $serv) {
 					if(!is_readable($fullpath)) {
 						$sd = (empty($updraftplus->backup_methods[$serv])) ? $serv : $updraftplus->backup_methods[$serv];
@@ -3940,6 +3947,7 @@ ENDHERE;
 						echo '<br>';
 					}
 				}
+				remove_action('http_request_args', array($updraftplus, 'modify_http_options'));
 
 				$index = ($ind == 0) ? '' : $ind;
 				// If a file size is stored in the backup data, then verify correctness of the local file

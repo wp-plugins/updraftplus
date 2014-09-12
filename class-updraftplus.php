@@ -15,6 +15,7 @@ class UpdraftPlus {
 		'cloudfiles' => 'Rackspace Cloud Files',
 		'googledrive' => 'Google Drive',
 		'ftp' => 'FTP',
+		'copycom' => 'Copy.Com',
 		'sftp' => 'SFTP / SCP',
 		'webdav' => 'WebDAV',
 		'bitcasa' => 'Bitcasa',
@@ -23,7 +24,6 @@ class UpdraftPlus {
 		'dreamobjects' => 'DreamObjects',
 		'email' => 'Email'
 	);
-#		'copycom' => 'Copy.Com',
 
 	public $errors = array();
 	public $nonce;
@@ -173,8 +173,16 @@ class UpdraftPlus {
 
 	}
 
-	public function add_curl_capath($handle) {
-		if (!UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts')) curl_setopt($handle, CURLOPT_CAINFO, UPDRAFTPLUS_DIR.'/includes/cacert.pem' );
+	public function modify_http_options($opts) {
+
+		if (!is_array($opts)) return $opts;
+
+		if (!UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts')) $opts['sslcertificates'] = UPDRAFTPLUS_DIR.'/includes/cacert.pem';
+
+		$opts['sslverify'] = (UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify')) ? false : true;
+
+		return $opts;
+
 	}
 
 	// Handle actions passed on to method plugins; e.g. Google OAuth 2.0 - ?action=updraftmethod-googledrive-auth&page=updraftplus
@@ -193,7 +201,7 @@ class UpdraftPlus {
 				$call_class = "UpdraftPlus_BackupModule_".$method;
 				$call_method = "action_".$matches[2];
 				$backup_obj = new $call_class;
-				add_action('http_api_curl', array($this, 'add_curl_capath'));
+				add_action('http_request_args', array($this, 'modify_http_options'));
 				try {
 					if (method_exists($backup_obj, $call_method)) {
 						call_user_func(array($backup_obj, $call_method));
@@ -203,7 +211,7 @@ class UpdraftPlus {
 				} catch (Exception $e) {
 					$this->log(sprintf(__("%s error: %s", 'updraftplus'), $method, $e->getMessage().' ('.$e->getCode().')', 'error'));
 				}
-				remove_action('http_api_curl', array($this, 'add_curl_capath'));
+				remove_action('http_request_args', array($this, 'modify_http_options'));
 			} elseif (isset( $_GET['page'] ) && $_GET['page'] == 'updraftplus' && $_GET['action'] == 'downloadlog' && isset($_GET['updraftplus_backup_nonce']) && preg_match("/^[0-9a-f]{12}$/",$_GET['updraftplus_backup_nonce']) && UpdraftPlus_Options::user_can_manage()) {
 				// No WordPress nonce is needed here or for the next, since the backup is already nonce-based
 				$updraft_dir = $this->backups_dir_location();
@@ -590,7 +598,7 @@ class UpdraftPlus {
 
 	}
 
-	public function chunked_upload($caller, $file, $cloudpath, $logname, $chunk_size, $uploaded_size) {
+	public function chunked_upload($caller, $file, $cloudpath, $logname, $chunk_size, $uploaded_size, $singletons=false) {
 
 		$fullpath = $this->backups_dir_location().'/'.$file;
 		$orig_file_size = filesize($fullpath);
@@ -605,11 +613,13 @@ class UpdraftPlus {
 
 		$chunks = floor($orig_file_size / $chunk_size);
 		// There will be a remnant unless the file size was exactly on a 5Mb boundary
-		if ($orig_file_size % $chunk_size > 0 ) $chunks++;
+		if ($orig_file_size % $chunk_size > 0) $chunks++;
 
 		$this->log("$logname upload: $file (chunks: $chunks) -> $cloudpath ($uploaded_size)");
 
-		if ($chunks < 2) {
+		if ($chunks == 0) {
+			return 1;
+		} elseif ($chunks < 2 && !$singletons) {
 			return 1;
 		} else {
 			$errors_so_far = 0;
@@ -676,17 +686,31 @@ class UpdraftPlus {
 
 			$last_byte = ($manually_break_up) ? min($remote_size, $start_offset + 1048576) : $remote_size;
 
+			# This only affects logging
+			$expected_bytes_delivered_so_far = true;
+
 			while ($start_offset < $remote_size) {
 				$headers = array();
 				// If resuming, then move to the end of the file
-				$this->log("$file: local file is status: $start_offset/$remote_size bytes; requesting next ".($last_byte-$start_offset)." bytes");
+
+				$requested_bytes = $last_byte-$start_offset;
+
+				if ($expected_bytes_delivered_so_far) {
+					$this->log("$file: local file is status: $start_offset/$remote_size bytes; requesting next $requested_bytes bytes");
+				} else {
+					$this->log("$file: local file is status: $start_offset/$remote_size bytes; requesting next chunk (${start_offset}-)");
+				}
+
 				if ($start_offset >0 || $last_byte<$remote_size) {
 					fseek($fh, $start_offset);
 					$headers['Range'] = "bytes=$start_offset-$last_byte";
 				}
 
+				# The method is free to return as much data as it pleases
 				$ret = $method->chunked_download($file, $headers, $passback);
 				if (false === $ret) return false;
+
+				if (strlen($ret) > $requested_bytes || strlen($ret) < $requested_bytes - 1) $expected_bytes_delivered_so_far = false;
 
 				if (!fwrite($fh, $ret)) throw new Exception('Write failure');
 
@@ -1520,7 +1544,7 @@ class UpdraftPlus {
 		if (!is_string($service) && !is_array($service)) $service = UpdraftPlus_Options::get_updraft_option('updraft_service');
 		$service = $this->just_one($service);
 		if (is_string($service)) $service = array($service);
-		if (!is_array($service)) $service = array();
+		if (!is_array($service)) $service = array('none');
 
 		$option_cache = array();
 		foreach ($service as $serv) {
@@ -2162,9 +2186,9 @@ class UpdraftPlus {
 		$old_client_id = (empty($opts['clientid'])) ? '' : $opts['clientid'];
 		if (!empty($opts['token']) && $old_client_id != $google['clientid']) {
 			require_once(UPDRAFTPLUS_DIR.'/methods/googledrive.php');
-			add_action('http_api_curl', array($this, 'add_curl_capath'));
+			add_action('http_request_args', array($this, 'modify_http_options'));
 			UpdraftPlus_BackupModule_googledrive::gdrive_auth_revoke(false);
-			remove_action('http_api_curl', array($this, 'add_curl_capath'));
+			remove_action('http_request_args', array($this, 'modify_http_options'));
 			$google['token'] = '';
 			unset($opts['ownername']);
 		}
@@ -2205,6 +2229,7 @@ class UpdraftPlus {
 		$old_client_id = (empty($opts['clientid'])) ? '' : $opts['clientid'];
 		if (!empty($opts['token']) && $old_client_id != $copycom['clientid']) {
 			unset($opts['token']);
+			unset($opts['tokensecret']);
 			unset($opts['ownername']);
 		}
 		foreach ($copycom as $key => $value) { $opts[$key] = $value; }

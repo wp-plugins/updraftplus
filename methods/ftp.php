@@ -186,7 +186,7 @@ class UpdraftPlus_BackupModule_ftp {
 			if (is_wp_error($ftp)) return $ftp;
 
 			if (!$ftp->connect()) {
-				$updraftplus->log("FTP Failure: we did not successfully log in with those credentials.");
+				$updraftplus->log("FTP Failure: we did not successfully log in with those credentials (host=".$opts['host'].").");
 				return false;
 			}
 

@@ -18,7 +18,7 @@ Backup and restoration made easy. Complete backups; manual or scheduled (backup 
 
 <strong>Tens of thousands of users:</strong> widely tested and reliable (over 1.1 million downloads). Ranks in the top 100 most used of all WordPress plugins on rankwp.com. Millions of backups completed!
 
-* Supports WordPress backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP, OpenStack (Swift) and email. Also (via an add-on) FTP over SSL, SFTP, SCP, WebDAV (and compatible services, e.g. Yandex) and Bitcasa. (Note: Microsoft forbid OneDrive/SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
+* Supports WordPress backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP, OpenStack (Swift) and email. Also (via an add-on) FTP over SSL, SFTP, SCP, WebDAV (and compatible services, e.g. Yandex, Cubby) and Bitcasa. (Note: Microsoft forbid OneDrive/SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
 * Quick restore (both file and database backups)
 * Backup automatically on a repeating schedule
 * Site duplicator/migrator: can copy sites, and (with add-on) move them to new locations
@@ -148,6 +148,8 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * PERFORMANCE: Use PageVisibility API to be more intelligent about when we need to poll for progress in the dashboard
 * FIX: The Migrator add-on would fetch more database rows than it should, increasing the (low) risk of hitting memory limits, and increasing the time needed on enormous sites
 * FIX: Some Google Drive backups could get uploaded twice, if you were using multiple storage backends
+* FIX: If user set the option to not verify SSL certificates, then this option was not honoured for all methods
+* FIX: If user had never saved their settings (and hence using no cloud backup), then old backup sets were not pruned
 * TWEAK: Inform the user of possible plugin compatibility issues if they are about to restore a site onto a webserver running a PHP major version older than the original backup.
 * TWEAK: Detect database disconnection when search/replacing, and reconnect if possible; and to try less rows in case it was a memory limit
 * TWEAK: Add option to control how many rows are search/replaced at once
