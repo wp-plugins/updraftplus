@@ -1,7 +1,7 @@
 <?php
 
 if (!defined('UPDRAFTPLUS_DIR')) die('No direct access allowed');
-if (!class_exists('UpdraftPlus_PclZip')) require(UPDRAFTPLUS_DIR.'/class-zip.php');
+if (!class_exists('UpdraftPlus_PclZip')) require_once(UPDRAFTPLUS_DIR.'/class-zip.php');
 
 // This file contains functions that are only needed/loaded when a backup is running (reduces memory usage on other site pages)
 
