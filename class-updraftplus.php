@@ -2056,7 +2056,7 @@ class UpdraftPlus {
 						foreach ($skip_these_dirs as $skip => $sind) {
 							if ('*' == substr($skip, -1, 1) && '*' == substr($skip, 0, 1) && strlen($skip) > 2) {
 								if (strpos($entry, substr($skip, 1, strlen($skip-2))) !== false) {
-									$this->log("ZZZfinding files: $entry: skipping: excluded by options (glob)");
+									$this->log("finding files: $entry: skipping: excluded by options (glob)");
 									$add_to_list = false;
 								}
 							} elseif ('*' == substr($skip, -1, 1) && strlen($skip) > 1) {
