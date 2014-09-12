@@ -657,7 +657,8 @@ class UpdraftPlus {
 			}
 			if ($ret) {
 				$this->log("$logname upload: success");
-				$this->uploaded_file($file);
+				# UpdraftPlus_RemoteStorage_Addons_Base calls this itself
+				if (!is_a($caller, 'UpdraftPlus_RemoteStorage_Addons_Base')) $this->uploaded_file($file);
 			}
 
 			return $ret;
@@ -1818,6 +1819,7 @@ class UpdraftPlus {
 
 		$service = (empty($updraftplus_backup->current_service)) ? '' : $updraftplus_backup->current_service;
 		$shash = $service.'-'.md5($file);
+
 		$this->jobdata_set("uploaded_".$shash, 'yes');
 	
 		if ($force || !empty($updraftplus_backup->last_service)) {
@@ -2052,7 +2054,12 @@ class UpdraftPlus {
 						$add_to_list = true;
 						// Now deal with entries in $skip_these_dirs ending in * or starting with *
 						foreach ($skip_these_dirs as $skip => $sind) {
-							if ('*' == substr($skip, -1, 1) && strlen($skip) > 1) {
+							if ('*' == substr($skip, -1, 1) && '*' == substr($skip, 0, 1) && strlen($skip) > 2) {
+								if (strpos($entry, substr($skip, 1, strlen($skip-2))) !== false) {
+									$this->log("ZZZfinding files: $entry: skipping: excluded by options (glob)");
+									$add_to_list = false;
+								}
+							} elseif ('*' == substr($skip, -1, 1) && strlen($skip) > 1) {
 								if (substr($entry, 0, strlen($skip)-1) == substr($skip, 0, strlen($skip)-1)) {
 									$this->log("finding files: $entry: skipping: excluded by options (glob)");
 									$add_to_list = false;

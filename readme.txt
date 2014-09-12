@@ -152,6 +152,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * FIX: If user had never saved their settings (and hence using no cloud backup), then old backup sets were not pruned
 * TWEAK: Inform the user of possible plugin compatibility issues if they are about to restore a site onto a webserver running a PHP major version older than the original backup.
 * TWEAK: Detect database disconnection when search/replacing, and reconnect if possible; and to try less rows in case it was a memory limit
+* TWEAK: Allow wildcards at either end in exclusion items (e.g. *backups*)
 * TWEAK: Add option to control how many rows are search/replaced at once
 * TWEAK: Prevent PHP notice being generated on first Google Drive authentication
 
