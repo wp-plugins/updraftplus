@@ -64,7 +64,8 @@ var lastlog_lastdata = "";
 var lastlog_jobs = "";
 var lastlog_sdata = { action: 'updraft_ajax', subaction: 'lastlog' };
 var updraft_activejobs_nextupdate = (new Date).getTime() + 1000;
-// Bits (RtoL): main console displayed; restore dialog open (uses downloader)
+// Bits: main tab displayed (1); restore dialog open (uses downloader) (2); tab not visible (4)
+// TODO: Detect downloaders directly instead of using this bit
 var updraft_console_has_focus = 1;
 
 function updraft_check_page_visibility(firstload) {
@@ -99,6 +100,7 @@ function updraft_activejobs_update(force) {
  		try {
 			resp = jQuery.parseJSON(response);
 			timenow = (new Date).getTime();
+			// TODO: Test for downloaders directly: jQuery('#ud_downloadstatus .updraftplus_downloader, #ud_downloadstatus2 .updraftplus_downloader')
 			if (updraft_console_has_focus > 0 && updraft_console_has_focus < 4) {
 				if (lastlog_lastdata == response) {
 					updraft_activejobs_nextupdate = timenow + 4500;
