@@ -909,5 +909,6 @@ We recognise and thank the following for code and/or libraries used and/or modif
 
 Furthermore, reliance upon any non-English translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
 
+
 == Upgrade Notice ==
 * 1.9.19 : Many performance and other minor tweaks. Translations updated. Recommended update for all.
