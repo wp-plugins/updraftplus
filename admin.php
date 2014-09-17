@@ -2164,7 +2164,8 @@ CREATE TABLE $wpdb->signups (
 							echo '</div>';
 						} else {
 							$sdescrip = isset($info['shortdescription']) ? $info['shortdescription'] : $info['description'];
-							echo "<div style=\"margin: 8px 0;\"><em>".htmlspecialchars(sprintf(__('The following entity cannot be restored automatically: "%s".', 'updraftplus'), $sdescrip))." ".__('You will need to restore it manually.', 'updraftplus')."</em><br>".'<input id="updraft_restore_'.$type.'" type="hidden" name="updraft_restore[]" value="'.$type.'"></div>';
+							echo "<div style=\"margin: 8px 0;\"><em>".htmlspecialchars(sprintf(__('The following entity cannot be restored automatically: "%s".', 'updraftplus'), $sdescrip))." ".__('You will need to restore it manually.', 'updraftplus')."</em><br>".'<input id="updraft_restore_'.$type.'" type="hidden" name="updraft_restore[]" value="'.$type.'">';
+							echo '</div>';
 						}
 					}
 				?>
@@ -2279,12 +2280,12 @@ CREATE TABLE $wpdb->signups (
 				<tbody>
 				<tr>
 				<td>
-				<form method="post">
+				<form method="post" action="<?php echo add_query_arg(array('updraft_restore_success' => false, 'action' => false, 'page' => 'updraftplus')); ?>">
 					<input type="hidden" name="action" value="updraft_backup_debug_all" />
 					<p><input type="submit" class="button-primary" <?php echo $backup_disabled ?> value="<?php _e('Debug Full Backup','updraftplus');?>" onclick="return(confirm('<?php echo htmlspecialchars(__('This will cause an immediate backup. The page will stall loading until it finishes (ie, unscheduled).','updraftplus'));?>'))" /></p>
 				</form>
 				</td><td>
-				<form method="post">
+				<form method="post" action="<?php echo add_query_arg(array('updraft_restore_success' => false, 'action' => false, 'page' => 'updraftplus')); ?>">
 					<input type="hidden" name="action" value="updraft_backup_debug_db" />
 					<p><input type="submit" class="button-primary" <?php echo $backup_disabled ?> value="<?php _e('Debug Database Backup','updraftplus');?>" onclick="return(confirm('<?php echo htmlspecialchars(__('This will cause an immediate DB backup. The page will stall loading until it finishes (ie, unscheduled). The backup may well run out of time; really this button is only helpful for checking that the backup is able to get through the initial stages, or for small WordPress sites..','updraftplus'));?>'))" /></p>
 				</form>
@@ -2294,7 +2295,7 @@ CREATE TABLE $wpdb->signups (
 				</table>
 				<h3><?php _e('Wipe Settings','updraftplus');?></h3>
 				<p style="max-width: 600px;"><?php _e('This button will delete all UpdraftPlus settings (but not any of your existing backups from your cloud storage). You will then need to enter all your settings again. You can also do this before deactivating/deinstalling UpdraftPlus if you wish.','updraftplus');?></p>
-				<form method="post">
+				<form method="post" action="<?php echo add_query_arg(array('updraft_restore_success' => false, 'action' => false, 'page' => 'updraftplus')); ?>">
 					<input type="hidden" name="action" value="updraft_wipesettings" />
 					<p><input type="submit" class="button-primary" value="<?php _e('Wipe All Settings','updraftplus'); ?>" onclick="return(confirm('<?php echo htmlspecialchars(__('This will delete all your UpdraftPlus settings - are you sure you want to do this?'));?>'))" /></p>
 				</form>
@@ -2302,7 +2303,7 @@ CREATE TABLE $wpdb->signups (
 		<?php
 	}
 
-	function print_delete_old_dirs_form($include_blurb = true) {
+	private function print_delete_old_dirs_form($include_blurb = true) {
 		?>
 			<?php if ($include_blurb) {
 			?>
@@ -3490,7 +3491,7 @@ ENDHERE;
 					# jQuery('#updraft_restore_label_wpcore').html('".esc_js($wpcore_restore_descrip)."');
 					$ret .= '<button title="'.__('After pressing this button, you will be given the option to choose which components you wish to restore','updraftplus').'" type="button" class="button-primary" style="padding-top:2px;padding-bottom:2px;font-size:16px !important; min-height:26px;" onclick="'."updraft_restore_setoptions('$entities');
 					jQuery('#updraft_restore_timestamp').val('$key'); jQuery('.updraft_restore_date').html('$show_data'); ";
-					$ret .= "updraft_restore_stage = 1; updraft_console_has_focus = updraft_console_has_focus | 2; jQuery('#updraft-restore-modal').dialog('open'); jQuery('#updraft-restore-modal-stage1').show();jQuery('#updraft-restore-modal-stage2').hide(); jQuery('#updraft-restore-modal-stage2a').html(''); updraft_activejobs_update(true);\">".__('Restore', 'updraftplus').'</button>';
+					$ret .= "updraft_restore_stage = 1; jQuery('#updraft-restore-modal').dialog('open'); jQuery('#updraft-restore-modal-stage1').show();jQuery('#updraft-restore-modal-stage2').hide(); jQuery('#updraft-restore-modal-stage2a').html(''); updraft_activejobs_update(true);\">".__('Restore', 'updraftplus').'</button>';
 				}
 				$ret .= <<<ENDHERE
 				</form>

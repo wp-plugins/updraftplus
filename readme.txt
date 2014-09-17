@@ -18,7 +18,7 @@ Backup and restoration made easy. Complete backups; manual or scheduled (backup 
 
 <strong>Tens of thousands of users:</strong> widely tested and reliable (over 1.1 million downloads). Ranks in the top 100 most used of all WordPress plugins on rankwp.com. Millions of backups completed!
 
-* Supports WordPress backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP, OpenStack (Swift) and email. Also (via an add-on) FTP over SSL, SFTP, SCP, WebDAV (and compatible services, e.g. Yandex, Cubby) and Bitcasa. (Note: Microsoft forbid OneDrive/SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
+* Supports WordPress backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP, OpenStack (Swift) and email. Also (via an add-on) Copy.Com, FTP over SSL, SFTP, SCP, WebDAV (and compatible services, e.g. Yandex, Cubby) and Bitcasa. (Note: Microsoft forbid OneDrive/SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
 * Quick restore (both file and database backups)
 * Backup automatically on a repeating schedule
 * Site duplicator/migrator: can copy sites, and (with add-on) move them to new locations
@@ -60,7 +60,6 @@ Are you able to translate UpdraftPlus into another language? Are you ready to he
 Many thanks to the existing translators:
 
 * Arabic (ar): Omar Amassine (me at omar.ma), Ahmed Fahmy and Riyadh Altayib
-* Chinese (zh_CN): K L Wang - http://klwang.info
 * Deutsch / German (de_DE): Marcel Herrguth - mherrguth at mrgeneration.de
 * Czech (cs_CZ) : Martin Křížek - krizekmartin at gmail.com
 * Ελληνική  / Greek translation (el): Κώστας Θερμογιάννης (Kostas Thermoyiannis) - http://tovivlio.net
@@ -69,15 +68,18 @@ Many thanks to the existing translators:
 * Italiano / Italian (it_IT): Francesco Carpana - f.carpana at gmail.com
 * Nederlands / Dutch (nl_NL):  Dennis Hunink - dennishunink at me.com and Hans van der Vlist - hansvandervlist at gmail.com
 * Polski / Polish (pl_PL): Bartosz Kaczmarek - barth.kaczmarek at gmail.com
+* Português / Portuguese (Portugal) (pt_PT): Pedro Mendonça
 * Português / Portuguese (Brazilian) (pt_BR): Lucien Raven (lucienraven at yahoo.com.br) and Tom Fonseca (tomfonseca at gmail.com)
 * русский / Russian (ru_RU): Илья Худолей (Ilya Khudoley) - ironman_c at icloud.com and Igor Ocheretny (http://wpsells.com) - also see Igor's free training videos at: http://goodbackup.wpsells.com/
 * Swedish / Svensk (sv_SE): Steve Sandström - http://www.brandicon.se
 * Tagalog (tl): Kristen Macasero / Mads Phikamphon - http://www.findhold.dk
+* Turk / Turkish (tr_TR): Various translators
 
-And to these (need updating or new translators; now less than 50% translated):
+And to these (need updating or new translators; now less than 60% translated):
 
 * Magyar / Hungarian (hu_HU): Szépe Viktor - http://www.szepe.net
-* Turk / Turkish (tr_TR): Various translators - not yet complete
+* Français / French translation (fr_FR): New translators needed
+* Chinese (zh_CN): K L Wang - http://klwang.info
 
 = Other support =
 
@@ -142,9 +144,9 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
-= Development version (not yet released/supported) =
+= 1.9.25 - 2014/09/17 =
 
-* FEATURE: Copy (https://copy.com) cloud storage support (Premium)
+* FEATURE: Copy (https://copy.com) cloud storage support (Premium - http://updraftplus.com/shop/updraftplus-premium/)
 * FEATURE: The search/replace expert tool can now work on selected tables only
 * PERFORMANCE: Use PageVisibility API to be more intelligent about when we need to poll for progress in the dashboard
 * FIX: The Migrator add-on would fetch more database rows than it should, increasing the (low) risk of hitting memory limits, and increasing the time needed on enormous sites
@@ -157,6 +159,8 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Add option to control how many rows are search/replaced at once
 * TWEAK: Prevent PHP notice being generated on first Google Drive authentication
 * TWEAK: Update Bitcasa console link to new location
+* TRANSLATIONS: New Portuguese (Portugal) translation (pt_PT) - thanks to Pedro Mendonça
+* TRANSLATIONS: Updated translations for Dutch, Italian, Swedish, Russian, Czech, Greek, Portuguese (Brazilian)
 
 = 1.9.19 - 2014/08/19 =
 
@@ -911,4 +915,4 @@ Furthermore, reliance upon any non-English translation is at your own risk. Updr
 
 
 == Upgrade Notice ==
-* 1.9.19 : Many performance and other minor tweaks. Translations updated. Recommended update for all.
+* 1.9.25 : Copy.Com support (Premium). Improved performance + bugfixes. Updated translation + new pt_PT translation.
