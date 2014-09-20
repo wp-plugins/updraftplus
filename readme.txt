@@ -144,6 +144,10 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
+= Development version (not yet released/supported) =
+* TWEAK: If Google Drive reports that the quota will be exceeded, then make this feedback more obvious to the user without reading the log
+* TWEAK: If the user enters an S3 path with an erroneous preceding slash, then remove it
+
 = 1.9.25 - 2014/09/17 =
 
 * FEATURE: Copy (https://copy.com) cloud storage support (Premium - http://updraftplus.com/shop/updraftplus-premium/)

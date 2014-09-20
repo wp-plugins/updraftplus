@@ -2214,6 +2214,13 @@ class UpdraftPlus {
 		return $ftp;
 	}
 
+	public function s3_sanitise($s3) {
+		if (is_array($s3) && !empty($s3['path']) && '/' == substr($s3['path'], 0, 1)) {
+			$s3['path'] = substr($s3['path'], 1);
+		}
+		return $s3;
+	}
+
 	// Acts as a WordPress options filter
 	public function bitcasa_checkchange($bitcasa) {
 		$opts = UpdraftPlus_Options::get_updraft_option('updraft_bitcasa');

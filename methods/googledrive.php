@@ -419,8 +419,13 @@ class UpdraftPlus_BackupModule_googledrive {
 					$updraftplus->log("$file_name: ".sprintf(__('Failed to upload to %s','updraftplus'),__('Google Drive','updraftplus')), 'error');
 				}
 			} catch (Exception $e) {
-				$updraftplus->log("ERROR: Google Drive upload error: ".$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
-				$updraftplus->log("$file_name: ".sprintf(__('Failed to upload to %s','updraftplus'),__('Google Drive','updraftplus')), 'error');
+				$msg = $e->getMessage();
+				$updraftplus->log("ERROR: Google Drive upload error: ".$msg.' (line: '.$e->getLine().', file: '.$e->getFile().')');
+				if (false !== ($p = strpos($msg, 'The user has exceeded their Drive storage quota'))) {
+					$updraftplus->log("$file_name: ".sprintf(__('Failed to upload to %s','updraftplus'),__('Google Drive','updraftplus')).': '.substr($msg, $p), 'error');
+				} else {
+					$updraftplus->log("$file_name: ".sprintf(__('Failed to upload to %s','updraftplus'),__('Google Drive','updraftplus')), 'error');
+				}
 				$this->client->setDefer(false);
 			}
 		}

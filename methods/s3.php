@@ -523,7 +523,7 @@ class UpdraftPlus_BackupModule_s3 {
 		<?php
 			global $updraftplus_admin;
 			if (!class_exists('SimpleXMLElement')) {
-				$updraftplus_admin->show_double_warning('<strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__('Your web server\'s PHP installation does not included a required module (%s). Please contact your web hosting provider\'s support.', 'updraftplus'), 'SimpleXMLElement').' '.sprintf(__("UpdraftPlus's %s module <strong>requires</strong> %s. Please do not file any support requests; there is no alternative.",'updraftplus'),$whoweare_long, 'SimpleXMLElement'), $key);
+				$updraftplus_admin->show_double_warning('<strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__("Your web server's PHP installation does not included a required module (%s). Please contact your web hosting provider's support.", 'updraftplus'), 'SimpleXMLElement').' '.sprintf(__("UpdraftPlus's %s module <strong>requires</strong> %s. Please do not file any support requests; there is no alternative.",'updraftplus'),$whoweare_long, 'SimpleXMLElement'), $key);
 			}
 			$updraftplus_admin->curl_check($whoweare_long, true, $key);
 		?>
@@ -587,7 +587,7 @@ class UpdraftPlus_BackupModule_s3 {
 		$nossl = (isset($_POST['nossl'])) ? absint($_POST['nossl']) : 0;
 		$endpoint = (isset($_POST['endpoint'])) ? $_POST['endpoint'] : '';
 
-		if (preg_match("#^([^/]+)/(.*)$#", $path, $bmatches)) {
+		if (preg_match("#^/*([^/]+)/(.*)$#", $path, $bmatches)) {
 			$bucket = $bmatches[1];
 			$path = $bmatches[2];
 		} else {
