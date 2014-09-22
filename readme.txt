@@ -3,7 +3,7 @@ Contributors: Backup with UpdraftPlus, DavidAnderson
 Tags: backup, backups, restore, amazon backup, s3 backup, dropbox backup, google drive backup, rackspace cloud files, rackspace backup, cloud files, dreamhost, dreamobjects backup, ftp backup, webdav backup, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, bitcasa, back up, multisite, restoration, sftp backup, ftps, scp, migrate, duplicate, copy, mysql backup, database backup, db backup, website backup, wordpress backup, full backup, openstack, swift
 Requires at least: 3.2
 Tested up to: 4.0
-Stable tag: 1.9.25
+Stable tag: 1.9.26
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -144,9 +144,12 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
-= Development version (not yet released/supported) =
+= 1.9.26 - 2014/09/22 =
+
+* TWEAK: There are still some Amazon S3 servers validated via a Verisign 1024-bit certificate, causing backup to fail due to SSL validation failure. Revert to previous collection of root SSL certificates in order to still allow access to these servers (see: https://blog.mozilla.org/security/2014/09/08/phasing-out-certificates-with-1024-bit-rsa-keys/#comments)
 * TWEAK: If Google Drive reports that the quota will be exceeded, then make this feedback more obvious to the user without reading the log
 * TWEAK: If the user enters an S3 path with an erroneous preceding slash, then remove it
+* FIX: Amazon S3 RRS settings (Premium) were not being applied on archives smaller than 5Mb
 
 = 1.9.25 - 2014/09/17 =
 
@@ -919,4 +922,4 @@ Furthermore, reliance upon any non-English translation is at your own risk. Updr
 
 
 == Upgrade Notice ==
-* 1.9.25 : Copy.Com support (Premium). Improved performance + bugfixes. Updated translation + new pt_PT translation.
+* 1.9.26 : Update SSL certificates to retain compatibility with some 1024-bit Amazon S3 servers
