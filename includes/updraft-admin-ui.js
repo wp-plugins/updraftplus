@@ -111,7 +111,6 @@ function updraft_activejobs_update(force) {
 				}
 			}
 
-			console.log("updraft_console_focussed_tab: "+updraft_console_focussed_tab+" ("+timenow+" , "+(updraft_activejobs_nextupdate-timenow)+")");
 			//if (repeat) { setTimeout(function(){updraft_activejobs_update(true);}, nexttimer);}
 			lastlog_lastdata = response;
 			if (resp.l != null) { jQuery('#updraft_lastlogcontainer').html(resp.l); }
