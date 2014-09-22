@@ -739,9 +739,9 @@ class UpdraftPlus_S3
 	* @param string $contentType Content type
 	* @return boolean
 	*/
-	public static function putObjectFile($file, $bucket, $uri, $acl = self::ACL_PRIVATE, $metaHeaders = array(), $contentType = null)
+	public static function putObjectFile($file, $bucket, $uri, $acl = self::ACL_PRIVATE, $metaHeaders = array(), $contentType = null, $storageClass = self::STORAGE_CLASS_STANDARD)
 	{
-		return self::putObject(self::inputFile($file), $bucket, $uri, $acl, $metaHeaders, $contentType);
+		return self::putObject(self::inputFile($file), $bucket, $uri, $acl, $metaHeaders, $contentType, $storageClass);
 	}
 
 
