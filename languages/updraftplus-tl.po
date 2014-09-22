@@ -1,0 +1,4178 @@
+# Translation of UpdraftPlus in Tagalog
+# This file is distributed under the same license as the UpdraftPlus package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2014-05-30 09:48:51+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/0.1\n"
+"Project-Id-Version: UpdraftPlus\n"
+
+#: addons/importer.php:34
+msgid "Was this a backup created by a different backup plugin? If so, then you might first need to rename it so that it can be recognised - please follow this link."
+msgstr ""
+
+#: addons/importer.php:34
+msgid "Supported backup plugins: %s"
+msgstr ""
+
+#: admin.php:2738
+msgid "Incremental file backup intervals"
+msgstr ""
+
+#: admin.php:2741
+msgid "Tell me more about incremental backups"
+msgstr ""
+
+#: admin.php:2195
+msgid "Memory limit"
+msgstr ""
+
+#: admin.php:1419
+msgid "restoration"
+msgstr ""
+
+#: restorer.php:1444
+msgid "Table to be implicitly dropped: %s"
+msgstr ""
+
+#: backup.php:555 addons/reporting.php:112
+msgid "Backup type:"
+msgstr ""
+
+#: backup.php:553 addons/reporting.php:81
+msgid "Full backup"
+msgstr ""
+
+#: backup.php:553 addons/reporting.php:81
+msgid "Incremental"
+msgstr ""
+
+#: addons/autobackup.php:221 addons/autobackup.php:223
+msgid "Backup succeeded"
+msgstr ""
+
+#: addons/autobackup.php:221 addons/autobackup.php:223
+msgid "(view log...)"
+msgstr ""
+
+#: addons/autobackup.php:221 addons/autobackup.php:223
+msgid "now proceeding with the updates..."
+msgstr ""
+
+#: updraftplus.php:2377 updraftplus.php:2378 admin.php:2698 admin.php:2699
+#: admin.php:2700
+msgid "Every %s hours"
+msgstr ""
+
+#: addons/migrator.php:465 addons/migrator.php:467
+msgid "search and replace"
+msgstr "hanapin at palitan"
+
+#: addons/migrator.php:96
+msgid "search term"
+msgstr "terminong ginamit sa paghahanap"
+
+#: addons/migrator.php:92 addons/migrator.php:115
+msgid "Search / replace database"
+msgstr "Paghahanap / palitan database"
+
+#: addons/migrator.php:93 addons/migrator.php:122
+msgid "Search for"
+msgstr "maghanap"
+
+#: addons/migrator.php:94 addons/migrator.php:123
+msgid "Replace with"
+msgstr "palitan ng"
+
+#: addons/migrator.php:116
+msgid "This can easily destroy your site; so, use it with care!"
+msgstr "Ito ay maaaring maging madaling sirain ang iyong site; kaya, gamitin ito may pag-iingat!"
+
+#: addons/migrator.php:117
+msgid "A search/replace cannot be undone - are you sure you want to do this?"
+msgstr "Ang paghahanap / pagpapalit ay hindi na mababawi - sigurado ka ba na gusto mong gawin ito?"
+
+#: addons/migrator.php:124
+msgid "Go"
+msgstr "Go"
+
+#: restorer.php:1495
+msgid "Too many database errors have occurred - aborting"
+msgstr "Naganap Masyadong maraming mga error database - aborting"
+
+#: backup.php:541
+msgid "read more at %s"
+msgstr "magbasa nang higit pa sa %s"
+
+#: backup.php:541
+msgid "Email reports created by UpdraftPlus (free edition) bring you the latest UpdraftPlus.com news"
+msgstr "Mga ulat sa email na nilikha ng UpdraftPlus (libreng edisyon) ay magbibigay sa iyo ng pinakabagong mga balita UpdraftPlus.com"
+
+#: methods/googledrive.php:836
+msgid "N.B. If you install UpdraftPlus on several WordPress sites, then you cannot re-use your project; you must create a new one from your Google API console for each site."
+msgstr "N.B. Kung nag-install ka ng UpdraftPlus sa ilang mga site ng WordPress, pagkatapos ay hindi mo magamit muli ang iyong proyekto; dapat kang lumikha ng bago mula sa iyong Google API console para sa bawat site."
+
+#: admin.php:3232
+msgid "You have not yet made any backups."
+msgstr "Hindi ka pa gumawa ng anumang mga backup."
+
+#: admin.php:2809
+msgid "Database Options"
+msgstr "Database Options"
+
+#: admin.php:2247
+msgid "The buttons below will immediately execute a backup run, independently of WordPress's scheduler. If these work whilst your scheduled backups do absolutely nothing (i.e. not even produce a log file), then it means that your scheduler is broken."
+msgstr "Ang mga pindutan sa ibaba ay agad na magsagawa ng isang backup run, ng scheduler WordPress. Kung ito ay gagana habang ang iyong scheduled backups ay walang ginagawa (hindi  makabuo ng isang log file), ito ay nangangahulugan na ang iyong scheduler ay nasira."
+
+#: admin.php:2217
+msgid "%s (%s used)"
+msgstr "%s (%s nagamit)"
+
+#: admin.php:2220
+msgid "Plugins for debugging:"
+msgstr "Plugin para sa pagde-debug:"
+
+#: admin.php:2217
+msgid "Free disk space in account:"
+msgstr "Libreng disk space sa account:"
+
+#: admin.php:2017
+msgid "Existing Backups: Downloading And Restoring"
+msgstr "Umiiral na backup: Downloading And Restoring"
+
+#: admin.php:1809
+msgid "Current Status"
+msgstr "Kasalukuyang Katayuan"
+
+#: admin.php:1810
+msgid "Existing Backups"
+msgstr "Umiiral na pag-backup"
+
+#: admin.php:1812
+msgid "Debugging / Expert Tools"
+msgstr "Debugging / Expert Tools"
+
+#: admin.php:1836
+msgid "This button is disabled because your backup directory is not writable (see the settings)."
+msgstr "Ang pindutan na ito ay hindi pinagana dahil ang iyong backup na direktoryo ay hindi writable (tingnan ang mga setting)."
+
+#: admin.php:416
+msgid "Welcome to UpdraftPlus!"
+msgstr "Maligayang pagdating sa UpdraftPlus!"
+
+#: admin.php:416
+msgid "To make a backup, just press the Backup Now button."
+msgstr "Upang makagawa ng isang backup, pindutin lamang ang Backup Now."
+
+#: admin.php:416
+msgid "To change any of the default settings of what is backed up, to configure scheduled backups, to send your backups to remote storage (recommended), and more, go to the settings tab."
+msgstr "Upang baguhin ang anuman sa mga setting ng default ng kung ano ang na-back up, i-configure ang naka-iskedyul na backup, upang ipadala ang iyong mga backup sa remote na imbakan (inirerekomenda), at higit pa, pumunta sa tab na mga setting."
+
+#: addons/moredatabase.php:276
+msgid "If you enter text here, it is used to encrypt database backups (Rijndael). <strong>Do make a separate record of it and do not lose it, or all your backups <em>will</em> be useless.</strong> This is also the key used to decrypt backups from this admin interface (so if you change it, then automatic decryption will not work until you change it back)."
+msgstr "Nang walang ito, ang pag-encrypt ay magiging marami slower.If mong magpasok ng teksto dito, ito ay ginagamit upang i-encrypt ang backup ng database (Rijndael). <strong> ba gumawa ng hiwalay na tala nito at huwag mawala ito, o ang lahat ng iyong mga backup <em> ay </ em> maging walang silbi. </ strong> Ito ay din ang key na ginamit upang i-decrypt backup mula sa interface na ito admin (kaya kung babaguhin mo ito, pagkatapos ay awtomatikong decryption ay hindi gagana hangga't hindi mo baguhin ito pabalik)."
+
+#: addons/moredatabase.php:179
+msgid "Table prefix"
+msgstr "Table prefix"
+
+#: addons/moredatabase.php:180
+msgid "Test connection..."
+msgstr "Test connection..."
+
+#: addons/moredatabase.php:193
+msgid "Testing..."
+msgstr "Testing..."
+
+#: addons/moredatabase.php:120
+msgid "Backup non-WordPress tables contained in the same database as WordPress"
+msgstr "Backup mga talahanayan di-WordPress na nakapaloob sa parehong database bilang ng WordPress"
+
+#: addons/moredatabase.php:121
+msgid "If your database includes extra tables that are not part of this WordPress site (you will know if this is the case), then activate this option to also back them up."
+msgstr "Kung ang iyong database ay may kasamang dagdag na mga talahanayan na hindi bahagi ng WordPress site na ito (malalaman mo kung ito ang kaso), pagkatapos ay i-activate ang pagpipiliang ito upang i-back din sa kanila up."
+
+#: addons/moredatabase.php:125
+msgid "Add an external database to backup..."
+msgstr "Magdagdag ng isang panlabas na database upang backup ..."
+
+#: addons/moredatabase.php:173
+msgid "Backup external database"
+msgstr "Backup panlabas na database"
+
+#: addons/moredatabase.php:79
+msgid "%s table(s) found."
+msgstr "%s table(s) found."
+
+#: addons/moredatabase.php:85
+msgid "%s total table(s) found; %s with the indicated prefix."
+msgstr "kabuuang (mga) talahanayan%s natagpuan; %s gamit ang ipinahiwatig prefix."
+
+#: addons/moredatabase.php:103
+msgid "Connection succeeded."
+msgstr "Nagtagumpay ang koneksyon."
+
+#: addons/moredatabase.php:105
+msgid "Connection failed."
+msgstr "Nabigo ang koneksyon."
+
+#: addons/moredatabase.php:120
+msgid "This option will cause tables stored in the MySQL database which do not belong to WordPress (identified by their lacking the configured WordPress prefix, %s) to also be backed up."
+msgstr "Magiging sanhi ng mga talahanayan naka-imbak sa ang MySQL database na kung saan ay hindi kasama sa WordPress (na kinilala sa pamamagitan ng kanilang kulang ang configure WordPress prefix,%s) upang i-back up din ng pagpipiliang ito."
+
+#: addons/moredatabase.php:37
+msgid "user"
+msgstr "user"
+
+#: addons/moredatabase.php:39
+msgid "host"
+msgstr "host"
+
+#: addons/moredatabase.php:41
+msgid "database name"
+msgstr "database name"
+
+#: addons/moredatabase.php:52
+msgid "database connection attempt failed"
+msgstr "Nabigo ang pagtatangka koneksyon sa database"
+
+#: addons/reporting.php:286
+msgid "External database (%s)"
+msgstr "External database (%s)"
+
+#: methods/googledrive.php:836
+msgid "Follow this link to your Google API Console, and there activate the Drive API and create a Client ID in the API Access section."
+msgstr "Sundin ang link na ito sa iyong Google API Console, at doon buhayin ang Drive API at lumikha ng isang Client ID sa seksyon ng API Access."
+
+#: methods/googledrive.php:373
+msgid "failed to access parent folder"
+msgstr "Nabigong ma-access ang pangunahing folder"
+
+#: methods/googledrive.php:330
+msgid "However, subsequent access attempts failed:"
+msgstr "However, subsequent access attempts failed:"
+
+#: admin.php:3288
+msgid "External database"
+msgstr "External database"
+
+#: admin.php:3014
+msgid "This will also cause debugging output from all plugins to be shown upon this screen - please do not be surprised to see these."
+msgstr "Magkakaroon din magsanhi ito ng pag-debug output mula sa lahat ng mga plugin na ipapakita sa screen na ito - mangyaring huwag magulat upang makita ang mga ito."
+
+#: admin.php:2867
+msgid "Back up more databases"
+msgstr "I-back up ng higit mga database"
+
+#: admin.php:2818
+msgid "Don't want to be spied on? UpdraftPlus Premium can encrypt your database backup."
+msgstr "Hindi nais na mai-spied sa? UpdraftPlus Premium maaari encrypt ang iyong database backup."
+
+#: admin.php:2818
+msgid "It can also backup external databases."
+msgstr "Maaari rin itong backup na mga panlabas na mga database."
+
+#: admin.php:2827
+msgid "You can manually decrypt an encrypted database here."
+msgstr "Maaari mong mano-manong i-decrypt ang isang naka-encrypt na database dito."
+
+#: admin.php:2845
+msgid "First, enter the decryption key"
+msgstr "Una, ipasok ang decryption key"
+
+#: admin.php:2766
+msgid "use UpdraftPlus Premium"
+msgstr "gamitin UpdraftPlus Premium"
+
+#: admin.php:1241
+msgid "Decryption failed. The database file is encrypted."
+msgstr "Nabigo ang Decryption. Ang database file ay naka-encrypt."
+
+#: admin.php:791
+msgid "Only the WordPress database can be restored; you will need to deal with the external database manually."
+msgstr "Ang WordPress database lamang ang maaaring maibalik; kailangan mong harapin ang mga panlabas na database ng mano-mano."
+
+#: restorer.php:1257 restorer.php:1463 restorer.php:1492
+msgid "An error occurred on the first %s command - aborting run"
+msgstr "May naganap na error sa unang%s utos - aborting run"
+
+#: backup.php:886
+msgid "database connection attempt failed."
+msgstr "Nabigo ang pagtatangka koneksyon sa database."
+
+#: backup.php:886 addons/moredatabase.php:60
+msgid "Connection failed: check your access details, that the database server is up, and that the network connection is not firewalled."
+msgstr "Nabigo ang koneksyon: suriin ang iyong mga detalye ng access, na ang server ng ​​database ay up, at na ang koneksyon sa network ay hindi firewalled."
+
+#: addons/google-enhanced.php:75
+msgid "In %s, path names are case sensitive."
+msgstr "Sa %s, mga pangalan ng landas ay sensitibong kaso."
+
+#: addons/migrator.php:602
+msgid "Warning: the database's home URL (%s) is different to what we expected (%s)"
+msgstr "Warning: tahanan URL (%s) ang database ay iba sa kung ano ang aming inaasahan (%s)"
+
+#: addons/bitcasa.php:239 addons/bitcasa.php:330
+msgid "You have not yet configured and saved your %s credentials"
+msgstr "Hindi ka pa naka-configure at nai-save ang iyong mga kredensyal sa% s"
+
+#: addons/bitcasa.php:353
+msgid "To get your credentials, log in at the Bitcasa developer portal."
+msgstr "Upang makuha ang iyong mga kredensyal, mag-log in sa Bitcasa developer portal."
+
+#: addons/bitcasa.php:354
+msgid "After logging in, create a sandbox app. You can leave all of the questions for creating an app blank (except for the app's name)."
+msgstr "Pagkatapos ng pag-log in, lumikha ng isang sandbox app. Maaari mong iwanan ang lahat ng mga katanungan para sa paglikha ng blangko ang isang app (maliban sa mga pangalan ng app)."
+
+#: addons/bitcasa.php:372 addons/google-enhanced.php:73
+msgid "Enter the path of the %s folder you wish to use here."
+msgstr "Ipasok ang path ng folder ang% s nais mong gamitin dito."
+
+#: addons/bitcasa.php:372 addons/google-enhanced.php:73
+msgid "If the folder does not already exist, then it will be created."
+msgstr "Kung ang folder ay hindi umiiral na, pagkatapos ito ay lilikhain."
+
+#: addons/bitcasa.php:372 addons/google-enhanced.php:73
+msgid "e.g. %s"
+msgstr "e.g. %s"
+
+#: addons/bitcasa.php:372 addons/google-enhanced.php:73
+msgid "If you leave it blank, then the backup will be placed in the root of your %s"
+msgstr "Kung iiwan mo itong blangko, pagkatapos ay ang backup ay ilalagay sa root ng iyong% s"
+
+#: addons/bitcasa.php:377 addons/bitcasa.php:380
+msgid "Bitcasa"
+msgstr "Bitcasa"
+
+#: methods/openstack2.php:107
+msgid "Follow this link for more information"
+msgstr "Sundin ang link na ito para sa karagdagang impormasyon"
+
+#: methods/openstack2.php:107
+msgid "Tenant"
+msgstr "Tenant"
+
+#: methods/openstack2.php:116
+msgid "Leave this blank, and a default will be chosen."
+msgstr "Iwanan itong blangko, at isang default ay napili."
+
+#: methods/openstack2.php:133
+msgid "Container"
+msgstr "Container"
+
+#: methods/openstack2.php:157
+msgid "tenant"
+msgstr "tenant"
+
+#: methods/addon-base.php:101
+msgid "failed to list files"
+msgstr "Nabigo upang ilista ang mga file"
+
+#: methods/addon-base.php:186
+msgid "Failed to download"
+msgstr "Nabigong i-download"
+
+#: methods/addon-base.php:193
+msgid "Failed to download %s"
+msgstr "Nabigong i-download%s"
+
+#: methods/openstack2.php:94
+msgid "Get your access credentials from your OpenStack Swift provider, and then pick a container name to use for storage. This container will be created for you if it does not already exist."
+msgstr "Kunin ang iyong mga kredensyal sa pag-access mula sa iyong OpenStack Swift provider, at pagkatapos ay pumili ng isang pangalan ng container upang gamitin para sa imbakan. Lalagyan na ito ay nilikha para sa iyo kung ito ay hindi na umiiral."
+
+#: methods/openstack2.php:99 methods/openstack2.php:162
+msgid "authentication URI"
+msgstr "pagpapatunay na URI"
+
+#: methods/openstack2.php:102
+msgid "This needs to be a v2 (Keystone) authentication URI; v1 (Swauth) is not supported."
+msgstr "Ito ay kailangang maging isang v2 (Keystone) authentication URI; v1 (Swauth) ay hindi suportado."
+
+#: methods/addon-base.php:75 methods/addon-base.php:80
+msgid "Failed to upload %s"
+msgstr "Nabigong mai-upload%s"
+
+#: methods/dropbox.php:467 methods/dropbox.php:469 addons/bitcasa.php:287
+#: addons/bitcasa.php:289
+msgid "Success:"
+msgstr "Success:"
+
+#: methods/dropbox.php:401 methods/dropbox.php:402
+msgid "Dropbox"
+msgstr "Dropbox"
+
+#: methods/dropbox.php:402 addons/bitcasa.php:378
+msgid "(You appear to be already authenticated)."
+msgstr "(You appear to be already authenticated)."
+
+#: methods/dropbox.php:402 addons/bitcasa.php:380
+msgid "<strong>After</strong> you have saved your settings (by clicking 'Save Changes' below), then come back here once and click this link to complete authentication with %s."
+msgstr "<strong> Pagkatapos </strong> na-save mo ang iyong mga setting (sa pamamagitan ng pag-click sa 'I-save ang mga Pagbabago' sa ibaba), at pagkatapos ay bumalik dito sa sandaling at i-click ang link na ito upang makumpleto ang pagpapatotoo sa%s."
+
+#: methods/dropbox.php:401 addons/bitcasa.php:377
+msgid "Authenticate with %s"
+msgstr "Patunayan na may% s"
+
+#: methods/cloudfiles.php:409
+msgid "Error downloading remote file: Failed to download"
+msgstr "Error sa pag-download ng mga remote file: Nabigong i-download"
+
+#: methods/openstack-base.php:329 addons/bitcasa.php:109
+msgid "The %s object was not found"
+msgstr "Ang bagay na% s ay hindi natagpuan"
+
+#: methods/openstack-base.php:411
+msgid "%s error - we accessed the container, but failed to create a file within it"
+msgstr "%s error - na-access namin ang lalagyan, ngunit nabigong lumikha ng isang file sa loob nito"
+
+#: methods/openstack-base.php:412 methods/openstack-base.php:417
+msgid "Region: %s"
+msgstr "Region: %s"
+
+#: methods/openstack-base.php:44 methods/openstack-base.php:226
+#: methods/openstack-base.php:321
+msgid "Could not access %s container"
+msgstr "Could not access %s container"
+
+#: methods/googledrive.php:882 methods/dropbox.php:408 addons/bitcasa.php:379
+msgid "Account holder's name: %s."
+msgstr "Account holder's name: %s."
+
+#: methods/openstack-base.php:36 methods/openstack-base.php:100
+#: methods/openstack-base.php:107 methods/openstack-base.php:218
+#: methods/openstack-base.php:309
+msgid "%s error - failed to access the container"
+msgstr "%s error - Nabigo upang ma-access ang lalagyan"
+
+#: methods/googledrive.php:862
+msgid "<strong>This is NOT a folder name</strong>."
+msgstr "<strong>This is NOT a folder name</strong>."
+
+#: methods/googledrive.php:862
+msgid "It is an ID number internal to Google Drive"
+msgstr "Ito ay isang panloob sa Google Drive ID number"
+
+#: methods/googledrive.php:871
+msgid "To be able to set a custom folder name, use UpdraftPlus Premium."
+msgstr "Upang magagawang upang magtakda ng isang pasadyang pangalan ng folder, gamitin UpdraftPlus Premium."
+
+#: methods/googledrive.php:858 methods/googledrive.php:868
+#: addons/bitcasa.php:371 addons/google-enhanced.php:72
+msgid "Folder"
+msgstr "Folder"
+
+#: methods/googledrive.php:350
+msgid "Name: %s."
+msgstr "Name: %s."
+
+#: methods/googledrive.php:802
+msgid "%s download: failed: file not found"
+msgstr "%s download: di nagtagumpay: Hindi nahanap ang file ng"
+
+#: methods/insufficient.php:17 methods/viaaddon-base.php:16
+msgid "This remote storage method (%s) requires PHP %s or later."
+msgstr "Ito ang malayuang pamamaraan ng imbakan (% s) ay nangangailangan ng PHP% s o mas bago."
+
+#: methods/insufficient.php:64 methods/viaaddon-base.php:86
+msgid "You will need to ask your web hosting company to upgrade."
+msgstr "Kailangan mong hilingin sa iyong kumpanya ng web hosting upang mag-upgrade."
+
+#: methods/insufficient.php:65 methods/viaaddon-base.php:87
+msgid "Your %s version: %s."
+msgstr "Ang bersyon ng iyong%s:%s."
+
+#: methods/googledrive.php:149
+msgid "Google Drive list files: failed to access parent folder"
+msgstr "Google Drive listahan ng mga file: Nabigo upang ma-access ang pangunahing folder"
+
+#: admin.php:3985
+msgid "Theme directory (%s) not found, but lower-case version exists; updating database option accordingly"
+msgstr "Direktoryo Tema (%s) ay hindi nahanap, ngunit bersyon mas mababang-case na umiiral; pag-update ng database pagpipilian nang naaayon"
+
+#: admin.php:2222
+msgid "Fetch"
+msgstr "Fetch"
+
+#: admin.php:2224
+msgid "Call"
+msgstr "Call"
+
+#: admin.php:2051 admin.php:2835
+msgid "This feature requires %s version %s or later"
+msgstr "Nangangailangan ang tampok na ito na bersyon% s% s o mas bago"
+
+#: restorer.php:1601
+msgid "Elegant themes theme builder plugin data detected: resetting temporary folder"
+msgstr "Elegant themes theme builder plugin data detected: resetting temporary folder"
+
+#: restorer.php:67
+msgid "Failed to unpack the archive"
+msgstr "Nabigong ma-unpack ang archive"
+
+#: restorer.php:210
+msgid "%s files have been extracted"
+msgstr "%s files have been extracted"
+
+#: updraftplus.php:927
+msgid "Error - failed to download the file"
+msgstr "Error - Nabigo upang i-download ang file"
+
+#: admin.php:2030
+msgid "Rescan local folder for new backup sets"
+msgstr "Rescan ang lokal na folder para sa mga bagong set ng mga backup"
+
+#: udaddons/updraftplus-addons.php:132
+msgid "You should update UpdraftPlus to make sure that you have a version that has been tested for compatibility."
+msgstr "Dapat mong i-update ang UpdraftPlus upang matiyak na mayroon kang isang bersyon na na-nasubok para sa compatibility."
+
+#: udaddons/updraftplus-addons.php:132
+msgid "The installed version of UpdraftPlus Backup/Restore has not been tested on your version of WordPress (%s)."
+msgstr "Ang naka-install na bersyon ng UpdraftPlus Backup / Ibalik ay hindi pa nasubok sa iyong bersyon ng WordPress (% s)."
+
+#: udaddons/updraftplus-addons.php:132
+msgid "It has been tested up to version %s."
+msgstr "It has been tested up to version %s."
+
+#: addons/sftp.php:423
+msgid "password/key"
+msgstr "password/key"
+
+#: addons/sftp.php:48
+msgid "SCP/SFTP password/key"
+msgstr "SCP/SFTP password/key"
+
+#: addons/sftp.php:276
+msgid "The key provided was not in a valid format, or was corrupt."
+msgstr "Ang key na ibinigay ay hindi isang wastong format, o noon ay corrupt."
+
+#: addons/sftp.php:339
+msgid "Your login may be either password or key-based - you only need to enter one, not both."
+msgstr "Ang iyong login ay maaaring maging alinman sa password o key na batay sa - kailangan mo na lang ipasok ay ang isa, hindi pareho."
+
+#: addons/sftp.php:344
+msgid "Key"
+msgstr "Key"
+
+#: addons/sftp.php:347
+msgid "PKCS1 (PEM header: BEGIN RSA PRIVATE KEY), XML and PuTTY format keys are accepted."
+msgstr "PKCS1 (PEM header: BEGIN RSA PRIBADO KEY), XML at magmasilya format ng key ay tinatanggap."
+
+#: admin.php:3328 admin.php:3566 addons/importer.php:126
+msgid "Backup created by: %s."
+msgstr "Backup created by: %s."
+
+#: admin.php:3335
+msgid "Files and database WordPress backup (created by %s)"
+msgstr "Files and database WordPress backup (created by %s)"
+
+#: admin.php:3335
+msgid "Files backup (created by %s)"
+msgstr "Files backup (created by %s"
+
+#: admin.php:3268 admin.php:3330
+msgid "unknown source"
+msgstr "hindi kilalang pinagmulan"
+
+#: admin.php:3271
+msgid "Database (created by %s)"
+msgstr "Database (nilikha sa pamamagitan ng% s)"
+
+#: admin.php:2031
+msgid "Rescan remote storage"
+msgstr "Rescan remote storage"
+
+#: admin.php:2029
+msgid "Upload backup files"
+msgstr "Upload backup files"
+
+#: admin.php:1580
+msgid "This backup was created by %s, and can be imported."
+msgstr "Backup na ito ay nilikha ng%s, at maaaring i-import."
+
+#: admin.php:445
+msgid "WordPress has a number (%d) of scheduled tasks which are overdue. Unless this is a development site, this probably means that the scheduler in your WordPress install is not working."
+msgstr "WordPress ay may isang numero (%d) ng naka-iskedyul na mga gawain na kung saan ay overdue. Maliban kung ito ay isang site na pag-unlad, ito ay malamang ay nangangahulugan na ang scheduler sa iyong WordPress install ay hindi gumagana."
+
+#: admin.php:445
+msgid "Read this page for a guide to possible causes and how to fix it."
+msgstr "Basahin ang pahinang ito para sa gabay sa mga posibleng sanhi at kung paano ayusin ito."
+
+#: admin.php:153 admin.php:154 admin.php:3573
+msgid "This file does not appear to be an UpdraftPlus backup archive (such files are .zip or .gz files which have a name like: backup_(time)_(site name)_(code)_(type).(zip|gz))."
+msgstr "Ang file na ito ay hindi lumitaw na maging isang UpdraftPlus backup archive (tulad ng mga file ay zip o gz mga file na magkaroon ng isang pangalan tulad ng: backup_(time)_(site name)_(code)_(type).(zip|gz))."
+
+#: admin.php:153
+msgid "However, UpdraftPlus archives are standard zip/SQL files - so if you are sure that your file has the right format, then you can rename it to match that pattern."
+msgstr "Gayunpaman, ang UpdraftPlus archive ay Standard zip / SQL file - kaya kung ikaw ay sigurado na ang iyong mga file ay may karapatan na format, ay maaari mong palitan ang pangalan nito upang tumugma sa pattern na iyon."
+
+#: admin.php:154 admin.php:3573
+msgid "If this is a backup created by a different backup plugin, then UpdraftPlus Premium may be able to help you."
+msgstr "Kung ito ay isang backup na ginawa ng isang iba't ibang mga backup plugin, pagkatapos ay i-UpdraftPlus Premium ay maaaring makatulong sa iyo."
+
+#: restorer.php:1042 admin.php:803 admin.php:3331
+msgid "Backup created by unknown source (%s) - cannot be restored."
+msgstr "Backup na nilikha ng mga hindi kilalang pinagmulan (%s) - hindi na maibabalik."
+
+#: restorer.php:692 restorer.php:794
+msgid "The WordPress content folder (wp-content) was not found in this zip file."
+msgstr "Ang WordPress folder na nilalaman (wp-content) ay hindi nahanap sa ito zip file."
+
+#: restorer.php:556
+msgid "This version of UpdraftPlus does not know how to handle this type of foreign backup"
+msgstr "Ang bersyong ito ng UpdraftPlus ay hindi alam kung paano panghawakan ang ganitong uri ng mga banyagang backup"
+
+#: methods/dropbox.php:234
+msgid "%s returned an unexpected HTTP response: %s"
+msgstr "%s ay nagbalik ng hindi inaasahang tugon ng HTTP:%s"
+
+#: addons/sftp.php:879
+msgid "The UpdraftPlus module for this file access method (%s) does not support listing files"
+msgstr "Hindi sinusuportahan ng UpdraftPlus module para sa ang paraan na ito ng access ng file (% s) ay naglilista ng mga file"
+
+#: methods/openstack-base.php:95 methods/cloudfiles.php:234 methods/s3.php:41
+#: methods/dropbox.php:215
+msgid "No settings were found"
+msgstr "Walang mga setting ang natagpuan"
+
+#: admin.php:3420
+msgid "(backup set imported from remote storage)"
+msgstr "(backup set-import mula sa remote na imbakan)"
+
+#: admin.php:3669
+msgid "One or more backups has been added from scanning remote storage; note that these backups will not be automatically deleted through the \"retain\" settings; if/when you wish to delete them then you must do so manually."
+msgstr "Isa o higit pang mga backup ay idinagdag sa pag-iiscan remote na imbakan; Tandaan na ang mga backup hindi ay awtomatikong tatanggalin sa pamamagitan ng \"panatilihin \" mga setting ng kung / kapag nais mong tanggalin ang mga ito pagkatapos ay kailangan mong gawin ito nang mano-mano."
+
+#: admin.php:2087
+msgid "Are you sure that you wish to remove this backup set from UpdraftPlus?"
+msgstr "Sigurado ka bang nais mong alisin ang backup set mula sa UpdraftPlus?"
+
+#: admin.php:2031
+msgid "Press here to look inside any remote storage methods for any existing backup sets."
+msgstr "Pindutin dito upang tumingin sa loob ng anumang mga remote na mga pamamaraan sa imbakan para sa anumang umiiral na set ng mga backup."
+
+#: admin.php:780
+msgid "This backup set was not known by UpdraftPlus to be created by the current WordPress installation, but was found in remote storage."
+msgstr "Ang backup na set ay hindi kilala sa pamamagitan ng UpdraftPlus upang malikha sa pamamagitan ng kasalukuyang pag-install ng WordPress, ngunit ay natagpuan sa remote na imbakan."
+
+#: admin.php:780
+msgid "You should make sure that this really is a backup set intended for use on this website, before you restore (rather than a backup set of an unrelated website that was using the same storage location)."
+msgstr "Dapat mong tiyakin na ito ay tunay na isang backup set na nilayon para sa paggamit sa website na ito, bago mo ibalik (kaysa sa isang backup na hanay ng isang hindi nauugnay na website na gamit ay ang parehong lokasyon imbakan)."
+
+#: admin.php:126
+msgid "Rescanning remote and local storage for backup sets..."
+msgstr "Rescanning remote at lokal na imbakan para sa backup na sets..."
+
+#: addons/s3-enhanced.php:26
+msgid "(Read more)"
+msgstr "(Basahin ng higit pa)"
+
+#: addons/s3-enhanced.php:27
+msgid "Check this box to use Amazon's reduced redundancy storage and tariff"
+msgstr "Lagyan ng tsek ang kahon na ito upang gamitin ang pinababang-uulit imbakan at taripa ng Amazon"
+
+#: addons/s3-enhanced.php:26
+msgid "Reduced redundancy storage"
+msgstr "Reduced redundancy storage"
+
+#: addons/migrator.php:446
+msgid "Adjusting multisite paths"
+msgstr "Pagsasaayos ng multisite path"
+
+#: addons/reporting.php:370
+msgid "Log all messages to syslog (only server admins are likely to want this)"
+msgstr "Mag-log ang lahat ng mga mensahe sa syslog (tanging mga admin ng server ay malamang na nais ito)"
+
+#: addons/morefiles.php:178
+msgid "Add another..."
+msgstr "Add another..."
+
+#: addons/morefiles.php:279
+msgid "No backup of directory: there was nothing found to back up"
+msgstr "Walang backup ng direktoryo: nagkaroon walang natagpuan upang i-back up"
+
+#: addons/morefiles.php:173 addons/morefiles.php:184
+#: addons/moredatabase.php:172
+msgid "Remove"
+msgstr "Remove"
+
+#: methods/s3.php:519
+msgid "Other %s FAQs."
+msgstr "Other %s FAQs."
+
+#: admin.php:3014
+msgid "Check this to receive more information and emails on the backup process - useful if something is going wrong."
+msgstr "Lagyan ito ng tsek upang makatanggap ng higit pang impormasyon at mga email sa proseso ng backup - kapaki-pakinabang kung ang isang bagay ay pagpunta mali."
+
+#: admin.php:2790 addons/morefiles.php:220
+msgid "If entering multiple files/directories, then separate them with commas. For entities at the top level, you can use a * at the start or end of the entry as a wildcard."
+msgstr "Kung pagpasok ng maramihang mga file / mga direktoryo, pagkatapos ihiwalay ang mga ito gamit ang mga kuwit. Para sa mga entity sa tuktok na antas, maaari mong gamitin ang isang * sa simula o dulo ng entry bilang isang wildcard."
+
+#: restorer.php:1590
+msgid "Custom content type manager plugin data detected: clearing option cache"
+msgstr "Nakita data manager plugin uri Custom nilalaman: clearing opsyon cache"
+
+#: methods/ftp.php:296
+msgid "encrypted FTP (explicit encryption)"
+msgstr "encrypted FTP (explicit encryption)"
+
+#: admin.php:1419 methods/ftp.php:299
+msgid "Your web server's PHP installation has these functions disabled: %s."
+msgstr "Pag-install ng PHP Ang iyong web server ay hindi pinagana ang mga pag-andar:%s."
+
+#: admin.php:1419 methods/ftp.php:299
+msgid "Your hosting company must enable these functions before %s can work."
+msgstr "Dapat na paganahin ng iyong kumpanya sa pagho-host ang mga pag-andar bago maaaring gumana ang%s."
+
+#: admin.php:1973
+msgid "Don't send this backup to remote storage"
+msgstr "Huwag magpadala ng backup na ito sa remote na imbakan"
+
+#: methods/ftp.php:294
+msgid "regular non-encrypted FTP"
+msgstr "regular non-encrypted FTP"
+
+#: methods/ftp.php:295
+msgid "encrypted FTP (implicit encryption)"
+msgstr "encrypted FTP (implicit encryption)"
+
+#: restorer.php:1169
+msgid "Backup created by:"
+msgstr "Nilikha sa pamamagitan ng Backup:"
+
+#: udaddons/options.php:431
+msgid "Available to claim on this site"
+msgstr "Magagamit na mag-claim sa site na ito"
+
+#: udaddons/updraftplus-addons.php:153
+msgid "To maintain your access to support, please renew."
+msgstr "Upang mapanatili ang iyong access sa suporta, mangyaring i-renew."
+
+#: udaddons/updraftplus-addons.php:141
+msgid "Your paid access to UpdraftPlus updates for %s add-ons on this site has expired."
+msgstr "Ang iyong bayad na access sa UpdraftPlus update para sa mga add-on% s sa site na ito ay napaso na."
+
+#: udaddons/updraftplus-addons.php:145
+msgid "Your paid access to UpdraftPlus updates for %s of the %s add-ons on this site will soon expire."
+msgstr "Ang iyong bayad na access sa UpdraftPlus update para sa% s ng mga add-on ang% s sa site na ito ay mawawalan ng bisa sa lalong madaling panahon."
+
+#: udaddons/updraftplus-addons.php:145 udaddons/updraftplus-addons.php:147
+msgid "To retain your access, and maintain access to updates (including future features and compatibility with future WordPress releases) and support, please renew."
+msgstr "Upang panatilihin ang iyong pag-access, at panatilihin ang pag-access sa mga pag-update (kabilang ang mga hinaharap na mga tampok at sa pagiging tugma sa WordPress release hinaharap) at suporta, mangyaring i-renew."
+
+#: udaddons/updraftplus-addons.php:147
+msgid "Your paid access to UpdraftPlus updates for this site will soon expire."
+msgstr "Ang iyong bayad na access sa UpdraftPlus update para sa site na ito ay mawawalan ng bisa sa lalong madaling panahon."
+
+#: udaddons/updraftplus-addons.php:151
+msgid "Your paid access to UpdraftPlus support has expired."
+msgstr "Ang iyong bayad na access sa UpdraftPlus support ay napaso na."
+
+#: udaddons/updraftplus-addons.php:151
+msgid "To regain your access, please renew."
+msgstr "Upang mabawi ang iyong pag-access, mangyaring i-renew."
+
+#: udaddons/updraftplus-addons.php:153
+msgid "Your paid access to UpdraftPlus support will soon expire."
+msgstr "Ang iyong bayad na access sa UpdraftPlus support mawawalan ng bisa sa lalong madaling panahon."
+
+#: udaddons/updraftplus-addons.php:114
+msgid "Dismiss from main dashboard (for %s weeks)"
+msgstr "Bale-walain mula sa pangunahing dashboard (para sa% s linggo)"
+
+#: udaddons/updraftplus-addons.php:139
+msgid "Your paid access to UpdraftPlus updates for this site has expired. You will no longer receive updates to UpdraftPlus."
+msgstr "Ang iyong bayad na access sa UpdraftPlus update para sa site na ito ay napaso na. Hindi ka na makatanggap ng mga update sa UpdraftPlus."
+
+#: udaddons/updraftplus-addons.php:139 udaddons/updraftplus-addons.php:141
+msgid "To regain access to updates (including future features and compatibility with future WordPress releases) and support, please renew."
+msgstr "Upang mabawi ang access sa pag-update (kabilang ang mga hinaharap na mga tampok at sa pagiging tugma sa WordPress release hinaharap) at suporta, mangyaring i-renew."
+
+#: admin.php:1436
+msgid "The database file appears to have been compressed twice - probably the website you downloaded it from had a mis-configured webserver."
+msgstr "Lumilitaw ang database file sa Na-compress na dalawang beses - marahil ang website na-download ito mula ay nagkaroon ng isang di-configure webserver."
+
+#: admin.php:1443 admin.php:1465
+msgid "The attempt to undo the double-compression failed."
+msgstr "Nabigo ang pagtatangka upang i-undo ang double-compression."
+
+#: admin.php:1467
+msgid "The attempt to undo the double-compression succeeded."
+msgstr "Nagtagumpay Ang pagtatangka upang i-undo ang double-compression."
+
+#: admin.php:1023
+msgid "Constants"
+msgstr "Constants"
+
+#: backup.php:1068
+msgid "Failed to open database file for reading:"
+msgstr "Nabigong mabuksan ang database file para sa pagbabasa:"
+
+#: backup.php:923
+msgid "please wait for the rescheduled attempt"
+msgstr "mangyaring maghintay para sa ibang oras pagtatangka"
+
+#: backup.php:925
+msgid "No database tables found"
+msgstr "Walang mga talahanayan ng database na natagpuan"
+
+#: addons/reporting.php:139
+msgid "Note that warning messages are advisory - the backup process does not stop for them. Instead, they provide information that you might find useful, or that may indicate the source of a problem if the backup did not succeed."
+msgstr "Tandaan na babala na mensahe ay advisory - ang backup na proseso ay hindi itigil para sa kanila. Sa halip, nagbibigay sila ng impormasyon na maaring mong kapaki-pakinabang, o na maaaring magpahiwatig ang pinagmulan ng isang problema kung ang backup ay hindi magtagumpay."
+
+#: restorer.php:1503
+msgid "Database queries processed: %d in %.2f seconds"
+msgstr "Database queries processed: %d in %.2f seconds"
+
+#: addons/migrator.php:827
+msgid "Searching and replacing reached row: %d"
+msgstr "Naghahanap at pinapalitan Naabot hilera: %d"
+
+#: methods/dropbox.php:152 addons/bitcasa.php:67
+msgid "Account full: your %s account has only %d bytes left, but the file to be uploaded has %d bytes remaining (total size: %d bytes)"
+msgstr "Buong account: account iyong%s ay lamang ang natitira%d bytes, ngunit ang mga file na ia-upload ay may %d mga byte natitirang (kabuuang sukat na: %d mga byte)"
+
+#: addons/migrator.php:370
+msgid "Skipping this table: data in this table (%s) should not be search/replaced"
+msgstr "Nilalaktawan ang talahanayan na ito: data sa talahanayan na ito (%s) ay hindi dapat na paghahanap / pinalitan"
+
+#: udaddons/updraftplus-addons.php:283 udaddons/updraftplus-addons.php:286
+msgid "Errors occurred:"
+msgstr "Naganap error:"
+
+#: admin.php:3734
+msgid "Follow this link to download the log file for this restoration (needed for any support requests)."
+msgstr "Sundin ang link na ito upang i-download ang log file para sa pagpapanumbalik (kinakailangan para sa anumang mga kahilingan sa suporta)."
+
+#: admin.php:3061
+msgid "See this FAQ also."
+msgstr "See this FAQ also."
+
+#: admin.php:2949
+msgid "If you choose no remote storage, then the backups remain on the web-server. This is not recommended (unless you plan to manually copy them to your computer), as losing the web-server would mean losing both your website and the backups in one event."
+msgstr "Kung pinili mong walang remote na imbakan, pagkatapos ay ang pag-backup mananatili sa web-server. Ito ay hindi inirerekumenda (maliban kung plano mong mano-manong kopyahin ang mga ito sa iyong computer), pati na ang pagkawala ng web-server ay nangangahulugan na hindi nawawala ang iyong parehong website at ang pag-backup sa isang kaganapan."
+
+#: admin.php:2107
+msgid "Retrieving (if necessary) and preparing backup files..."
+msgstr "Binabawi (kung kinakailangan) at paghahanda ng mga backup file ..."
+
+#: admin.php:776
+msgid "The PHP setup on this webserver allows only %s seconds for PHP to run, and does not allow this limit to be raised. If you have a lot of data to import, and if the restore operation times out, then you will need to ask your web hosting company for ways to raise this limit (or attempt the restoration piece-by-piece)."
+msgstr "Ang pag-setup ng PHP sa webserver ay nagbibigay-daan segundo lamang ang%s para sa PHP upang mapatakbo, at hindi payagan ang mga limitasyon na ito upang ma itinaas. Kung mayroon kang maraming data upang i-import, at kung ang ibalik beses operasyon, pagkatapos ay kakailanganin mong hilingin sa iyong kumpanya ng web hosting ng mga paraan upang taasan ang limitasyon na ito (o tangkaing ang pagpapanumbalik piraso-by-piraso)."
+
+#: restorer.php:538
+msgid "Existing unremoved folders from a previous restore exist (please use the \"Delete Old Directories\" button to delete them before trying again): %s"
+msgstr "May mga hindi pa natatanggal na folder na nag eexist (mangyaring gamitin ang \"Tanggalin ang Lumang Mga Direktoryo \" na pindutan upang tanggalin ang mga ito bago subukang muli): %s"
+
+#: updraftplus.php:2593
+msgid "Need high-quality WordPress hosting from WordPress specialists? (Including automatic backups and 1-click installer). Get it from the creators of UpdraftPlus."
+msgstr "Kailangan mo ng mataas na kalidad na WordPress hosting mula sa WordPress espesyalista? (Kabilang ang mga awtomatikong pag-backup at 1-click na installer). Kunin ito mula sa mga tagalikha ng UpdraftPlus."
+
+#: updraftplus.php:626 admin.php:420
+msgid "The amount of time allowed for WordPress plugins to run is very low (%s seconds) - you should increase it to avoid backup failures due to time-outs (consult your web hosting company for more help - it is the max_execution_time PHP setting; the recommended value is %s seconds or more)"
+msgstr "Ang halaga ng oras na pinahihintulutan para sa WordPress plugin upang tumakbo ay napakababa (segundo% s) - dapat mo itong dagdagan upang maiwasan ang backup pagkabigo dahil sa time-out (kumonsulta sa iyong kumpanya sa pagho-host ng web para sa higit pang tulong - ito ay ang setting na max_execution_time PHP; ang pinapayong halaga ay% s segundo o higit pa)"
+
+#: addons/migrator.php:378
+msgid "Replacing in blogs/site table: from: %s to: %s"
+msgstr "Kapag pinalitan sa blog / site na talahanayan: mula sa:%s sa:%s"
+
+#: addons/migrator.php:73
+msgid "Disabled this plugin: %s: re-activate it manually when you are ready."
+msgstr "Hindi pinagana ang plugin:%s: manu-manong muling i-activate ito kapag handa ka na."
+
+#: addons/migrator.php:86
+msgid "%s: Skipping cache file (does not already exist)"
+msgstr "%s: Nilalaktawan ang file ng cache (ay hindi umiiral)"
+
+#: includes/ftp.class.php:39 includes/ftp.class.php:42 addons/sftp.php:634
+#: addons/sftp.php:637
+msgid "The %s connection timed out; if you entered the server correctly, then this is usually caused by a firewall blocking the connection - you should check with your web hosting company."
+msgstr "Nag-time out ang% s koneksyon; kung ipinasok mo ang server na tama, pagkatapos ito ay karaniwang sanhi ng isang firewall ng pagharang ng koneksyon - dapat mong suriin sa iyong kumpanya ng web hosting."
+
+#: admin.php:3995
+msgid "The current theme was not found; to prevent this stopping the site from loading, your theme has been reverted to the default theme"
+msgstr "Ang kasalukuyang tema ay hindi natagpuan; upang maiwasan ang pagtigil ng mga site mula sa paglo-load, ang iyong tema ay ibinalik sa default na tema"
+
+#: admin.php:1708
+msgid "Restore failed..."
+msgstr "Restore failed..."
+
+#: admin.php:1131 addons/moredatabase.php:92
+msgid "Messages:"
+msgstr "Mga mensahe:"
+
+#: restorer.php:1426
+msgid "An SQL line that is larger than the maximum packet size and cannot be split was found; this line will not be processed, but will be dropped: %s"
+msgstr "Ang isang SQL line ay mas malaki kaysa sa maximum na laki ng packet at hindi maaaring hatiin ang nakita; ang linyang ito ay hindi naproseso, ngunit bababa:%s"
+
+#: restorer.php:321
+msgid "The directory does not exist"
+msgstr "Direktoryo ay hindi umiiral"
+
+#: addons/cloudfiles-enhanced.php:238
+msgid "New User's Username"
+msgstr "New User's Username"
+
+#: addons/cloudfiles-enhanced.php:239
+msgid "New User's Email Address"
+msgstr "New User's Email Address"
+
+#: addons/cloudfiles-enhanced.php:216
+msgid "Enter your Rackspace admin username/API key (so that Rackspace can authenticate your permission to create new users), and enter a new (unique) username and email address for the new user and a container name."
+msgstr "Ipasok ang iyong Rackspace admin username / API key (sa gayon ay Rackspace mapapatunayan ang iyong pahintulot upang lumikha ng mga bagong gumagamit), at ipasok ang isang bagong (natatanging) username at email address para sa bagong user at isang pangalan ng container."
+
+#: addons/cloudfiles-enhanced.php:222
+msgid "US or UK Rackspace Account"
+msgstr "US o UK Rackspace Account"
+
+#: addons/cloudfiles-enhanced.php:236
+msgid "Admin Username"
+msgstr "Admin Username"
+
+#: addons/cloudfiles-enhanced.php:237
+msgid "Admin API Key"
+msgstr "Admin API Key"
+
+#: addons/cloudfiles-enhanced.php:52
+msgid "You need to enter a new username"
+msgstr "Kailangan mong magpasok ng isang bagong username"
+
+#: addons/cloudfiles-enhanced.php:56
+msgid "You need to enter a container"
+msgstr "Kailangan mong magpasok ng isang lalagyan"
+
+#: addons/cloudfiles-enhanced.php:61
+msgid "You need to enter a valid new email address"
+msgstr "Kailangan mong magpasok ng isang wastong bagong email address"
+
+#: addons/cloudfiles-enhanced.php:143
+msgid "Conflict: that user or email address already exists"
+msgstr "Kaguluhan: na ay umiiral na address ng gumagamit o e-mail"
+
+#: addons/cloudfiles-enhanced.php:145 addons/cloudfiles-enhanced.php:149
+#: addons/cloudfiles-enhanced.php:154 addons/cloudfiles-enhanced.php:175
+#: addons/cloudfiles-enhanced.php:183 addons/cloudfiles-enhanced.php:188
+msgid "Cloud Files operation failed (%s)"
+msgstr "Cloud Files operation failed (%s)"
+
+#: addons/cloudfiles-enhanced.php:200
+msgid "Username: %s"
+msgstr "Username: %s"
+
+#: addons/cloudfiles-enhanced.php:200
+msgid "Password: %s"
+msgstr "Password: %s"
+
+#: addons/cloudfiles-enhanced.php:200
+msgid "API Key: %s"
+msgstr "API Key: %s"
+
+#: addons/cloudfiles-enhanced.php:213
+msgid "Create new API user and container"
+msgstr "Lumikha ng bagong user ng ​​API at lalagyan"
+
+#: addons/cloudfiles-enhanced.php:26
+msgid "Rackspace Cloud Files, enhanced"
+msgstr "Rackspace Cloud Files, pinahusay na"
+
+#: addons/cloudfiles-enhanced.php:27
+msgid "Adds enhanced capabilities for Rackspace Cloud Files users"
+msgstr "Nagdadagdag ng pinahusay na mga kakayahan para sa Rackspace Cloud Files gumagamit"
+
+#: addons/cloudfiles-enhanced.php:38
+msgid "Create a new API user with access to only this container (rather than your whole account)"
+msgstr "Lumikha ng isang bagong gumagamit ng API na may access sa lamang lalagyan ito (sa halip na ang iyong buong account)"
+
+#: addons/cloudfiles-enhanced.php:44
+msgid "You need to enter an admin username"
+msgstr "Kailangan mong magpasok ng isang admin username"
+
+#: addons/cloudfiles-enhanced.php:48
+msgid "You need to enter an admin API key"
+msgstr "Kailangan mong magpasok ng isang admin API key"
+
+#: methods/cloudfiles-new.php:99 addons/cloudfiles-enhanced.php:248
+msgid "Northern Virginia (IAD)"
+msgstr "Northern Virginia (IAD)"
+
+#: methods/cloudfiles-new.php:100 addons/cloudfiles-enhanced.php:249
+msgid "Hong Kong (HKG)"
+msgstr "Hong Kong (HKG)"
+
+#: methods/cloudfiles-new.php:101
+msgid "London (LON)"
+msgstr "London (LON)"
+
+#: methods/cloudfiles-new.php:115
+msgid "Cloud Files Username"
+msgstr "Cloud Files Username"
+
+#: methods/cloudfiles-new.php:118
+msgid "To create a new Rackspace API sub-user and API key that has access only to this Rackspace container, use this add-on."
+msgstr "Upang lumikha ng isang bagong Rackspace API sub-user at API key na may access lamang sa mga ito Rackspace lalagyan, gamitin ang mga add-on."
+
+#: methods/cloudfiles-new.php:123
+msgid "Cloud Files API Key"
+msgstr "Cloud Files API Key"
+
+#: methods/cloudfiles-new.php:128 addons/cloudfiles-enhanced.php:260
+msgid "Cloud Files Container"
+msgstr "Cloud Files Container"
+
+#: methods/cloudfiles-new.php:81
+msgid "US or UK-based Rackspace Account"
+msgstr "Na batay sa UK US o Rackspace Account"
+
+#: methods/cloudfiles-new.php:83
+msgid "Accounts created at rackspacecloud.com are US-accounts; accounts created at rackspace.co.uk are UK-based"
+msgstr "Mga Account na nilikha sa rackspacecloud.com ay US-accounts; mga account na nilikha sa rackspace.co.uk ay nakabatay sa UK"
+
+#: methods/cloudfiles-new.php:91 addons/cloudfiles-enhanced.php:241
+msgid "Cloud Files Storage Region"
+msgstr "Cloud Files Storage Region"
+
+#: methods/cloudfiles-new.php:96 addons/cloudfiles-enhanced.php:245
+msgid "Dallas (DFW) (default)"
+msgstr "Dallas (DFW) (default)"
+
+#: methods/cloudfiles-new.php:97 addons/cloudfiles-enhanced.php:246
+msgid "Sydney (SYD)"
+msgstr "Sydney (SYD)"
+
+#: methods/cloudfiles-new.php:98 addons/cloudfiles-enhanced.php:247
+msgid "Chicago (ORD)"
+msgstr "Chicago (ORD)"
+
+#: methods/cloudfiles-new.php:35 methods/openstack-base.php:371
+#: methods/openstack-base.php:373 methods/openstack-base.php:393
+#: methods/openstack2.php:25 addons/cloudfiles-enhanced.php:140
+msgid "Authorisation failed (check your credentials)"
+msgstr "Nabigo ang Authorisation (i-check ang iyong mga credential)"
+
+#: methods/cloudfiles-new.php:81 addons/cloudfiles-enhanced.php:223
+msgid "Accounts created at rackspacecloud.com are US accounts; accounts created at rackspace.co.uk are UK accounts."
+msgstr "Mga Account na nilikha sa rackspacecloud.com ay US account; mga account na nilikha sa rackspace.co.uk ay UK account."
+
+#: udaddons/options.php:239
+msgid "An unknown error occurred when trying to connect to UpdraftPlus.Com"
+msgstr "Isang hindi alam na error ang naganap kapag sinusubukang kumonekta sa UpdraftPlus.Com"
+
+#: admin.php:167
+msgid "Create"
+msgstr "Create"
+
+#: restorer.php:1488
+msgid "An error (%s) occurred:"
+msgstr "An error (%s) occurred:"
+
+#: admin.php:132
+msgid "The new user's RackSpace console password is (this will not be shown again):"
+msgstr "Sa bagong user na Rackspace console paaword ay (ito ay hindi ipapakita muli):"
+
+#: admin.php:133
+msgid "Trying..."
+msgstr "Trying..."
+
+#: backup.php:1025
+msgid "The database backup appears to have failed - the options table was not found"
+msgstr "Ang backup database ay nabigo - ang mga pagpipilian ay hindi natagpuan"
+
+#: addons/reporting.php:298
+msgid "(when decrypted)"
+msgstr "(when decrypted)"
+
+#: admin.php:3952
+msgid "Error data:"
+msgstr "Error data:"
+
+#: admin.php:3694
+msgid "Backup does not exist in the backup history"
+msgstr "Backup ay hindi umiiral sa ang backup kasaysayan"
+
+#: admin.php:2280
+msgid "Your WordPress install has old directories from its state before you restored/migrated (technical information: these are suffixed with -old). You should press this button to delete them as soon as you have verified that the restoration worked."
+msgstr "I-install ang iyong WordPress May lumang mga direktoryo mula sa estado nito bago mo naibalik / migrate (teknikal na impormasyon: ang mga ito ay suffixed may-gulang). Dapat mong pindutin ang pindutan na ito upang tanggalin ang mga ito sa lalong madaling na-verify mo na ang pagpapanumbalik nagtrabaho."
+
+#: restorer.php:1231
+msgid "Split line to avoid exceeding maximum packet size"
+msgstr "Hatiin ang linya upang maiwasan ang paglampas sa maximum na packet "
+
+#: restorer.php:1150
+msgid "Your database user does not have permission to drop tables. We will attempt to restore by simply emptying the tables; this should work as long as you are restoring from a WordPress version with the same database structure (%s)"
+msgstr "Ang iyong user database ay walang pahintulot na i-drop ang mga talahanayan. Susubukan naming ibalik sa pamamagitan ng simpleng pag tanggal ng laman ng mga talahanayan; ito ay dapat na gumana hangga't ikaw ay nag rerestore mula sa isang bersyon ng WordPress na may parehong istraktura ng database (%s)"
+
+#: restorer.php:1165
+msgid "<strong>Backup of:</strong> %s"
+msgstr "<strong>Backup of:</strong> %s"
+
+#: restorer.php:1001
+msgid "New table prefix: %s"
+msgstr "Bagong prefix talahanayan:%s"
+
+#: restorer.php:724 restorer.php:738
+msgid "%s: This directory already exists, and will be replaced"
+msgstr "%s: Mayroon ng ganitong direktoryo, at ito ay papalitan"
+
+#: restorer.php:754
+msgid "File permissions do not allow the old data to be moved and retained; instead, it will be deleted."
+msgstr "Ang file permissions ay hindi pina-payagan ang mga lumang data na inilipat at manatili; sa halip, ito ay tinanggal na."
+
+#: restorer.php:64
+msgid "Could not move the files into place. Check your file permissions."
+msgstr "Hindi mailipat ang file sa lugar. Suriin ang iyong mga pahintulot sa file."
+
+#: restorer.php:57
+msgid "Moving old data out of the way..."
+msgstr "Ang paglipat ng mga lumang data sa labas ng paraan ..."
+
+#: restorer.php:61
+msgid "Could not move old files out of the way."
+msgstr "Hindi mailipat ang lumang mga file."
+
+#: restorer.php:63
+msgid "Could not move new files into place. Check your wp-content/upgrade folder."
+msgstr "Hindi mailipat ang mga bagong file papunta sa lugar. Suriin ang iyong wp-content/upgrade folder."
+
+#: addons/reporting.php:348
+msgid "Enter addresses here to have a report sent to them when a backup job finishes."
+msgstr "Ipasok ang address dito upang magkaroon ng isang ulat na ipinadala sa mga ito kapag natapos ng isang backup na trabaho."
+
+#: addons/reporting.php:361
+msgid "Add another address..."
+msgstr "Magdagdag ng isa pang address ..."
+
+#: addons/reporting.php:213
+msgid " (with errors (%s))"
+msgstr " (with errors (%s))"
+
+#: addons/reporting.php:215
+msgid " (with warnings (%s))"
+msgstr " (with warnings (%s))"
+
+#: addons/reporting.php:245
+msgid "Use the \"Reporting\" section to configure the email addresses to be used."
+msgstr "Gamitin ang seksyong \"ulat\" upang i-configure ang mga email address na gagamitin."
+
+#: addons/reporting.php:271
+msgid "files: %s"
+msgstr "files: %s"
+
+#: addons/reporting.php:289
+msgid "Size: %s Mb"
+msgstr "Size: %s Mb"
+
+#: addons/reporting.php:294 addons/reporting.php:299
+msgid "%s checksum: %s"
+msgstr "%s checksum: %s"
+
+#: addons/reporting.php:321
+msgid "Email reports"
+msgstr "Email reports"
+
+#: addons/reporting.php:119
+msgid "Errors"
+msgstr "Errors"
+
+#: addons/reporting.php:134
+msgid "Warnings"
+msgstr "Warnings"
+
+#: addons/reporting.php:143
+msgid "Time taken:"
+msgstr "Time taken:"
+
+#: addons/reporting.php:144
+msgid "Uploaded to:"
+msgstr "Uploaded to:"
+
+#: addons/reporting.php:175
+msgid "Debugging information"
+msgstr "Debugging information"
+
+#: addons/reporting.php:86
+msgid "%d errors, %d warnings"
+msgstr "%d errors, %d warnings"
+
+#: addons/reporting.php:100
+msgid "%d hours, %d minutes, %d seconds"
+msgstr "%d hours, %d minutes, %d seconds"
+
+#: addons/reporting.php:105
+msgid "Backup Report"
+msgstr "Backup Report"
+
+#: addons/reporting.php:114
+msgid "Backup began:"
+msgstr "Backup began:"
+
+#: addons/reporting.php:115
+msgid "Contains:"
+msgstr "Contains:"
+
+#: addons/reporting.php:116
+msgid "Errors / warnings:"
+msgstr "Errors / warnings:"
+
+#: methods/dropbox.php:450 addons/bitcasa.php:252 addons/bitcasa.php:276
+msgid "%s authentication"
+msgstr "%s authentication"
+
+#: updraftplus.php:431 methods/dropbox.php:125 methods/dropbox.php:450
+#: methods/dropbox.php:464 methods/dropbox.php:560 addons/bitcasa.php:252
+#: addons/bitcasa.php:276
+msgid "%s error: %s"
+msgstr "%s error: %s"
+
+#: methods/dropbox.php:372
+msgid "%s logo"
+msgstr "%s logo"
+
+#: methods/email.php:60
+msgid "Your site's admin email address (%s) will be used."
+msgstr "Email address ng admin ng iyong site (%s) ay magagamit."
+
+#: methods/email.php:60
+msgid "For more options, use the \"%s\" add-on."
+msgstr "Para sa higit pang mga pagpipilian, gamitin ang \"% s \" add-on."
+
+#: methods/dropbox.php:70
+msgid "The required %s PHP module is not installed - ask your web hosting company to enable it"
+msgstr "Module na PHP Ang kailangang%s ay hindi naka-install - hilingin sa iyong kumpanya ng web hosting upang paganahin ito"
+
+#: methods/dropbox.php:170
+msgid "%s did not return the expected response - check your log file for more details"
+msgstr "%s ay hindi nagbalik ng inaasahang tugon - suriin ang iyong log file para sa higit pang mga detalye"
+
+#: udaddons/options.php:72
+msgid "You also need to connect to receive future updates to UpdraftPlus."
+msgstr "Kailangan mo ring kumonekta sa makatanggap ng mga update sa hinaharap upang UpdraftPlus."
+
+#: udaddons/options.php:219
+msgid "Connect"
+msgstr "Connect"
+
+#: admin.php:2899
+msgid "Check this box to have a basic report sent to your site's admin address (%s)."
+msgstr "Lagyan ng tsek ang kahon na ito upang magkaroon ng isang pangunahing ulat na ipinadala sa admin address (%s) ng iyong site."
+
+#: admin.php:2901
+msgid "For more reporting features, use the Reporting add-on."
+msgstr "Para sa higit pang mga tampok sa pag-uulat, gamitin ang Pag-uulat ng mga add-on."
+
+#: admin.php:1304
+msgid "(version: %s)"
+msgstr "(bersyon:%s)"
+
+#: admin.php:124 methods/email.php:61 addons/reporting.php:394
+msgid "Be aware that mail servers tend to have size limits; typically around %s Mb; backups larger than any limits will likely not arrive."
+msgstr "Magkaroon ng kamalayan na ang mail server ay may posibilidad na magkaroon ng mga limitasyon sa laki; karaniwang sa paligid Mb%s; pag-backup ng mas malaki kaysa sa anumang mga limitasyon ay malamang na hindi dumating."
+
+#: admin.php:123 addons/reporting.php:394
+msgid "When the Email storage method is enabled, also send the entire backup"
+msgstr "Kapag ang pamamaraan ng imbakan ng email ay gumagana, magpadala din ang buong backup"
+
+#: backup.php:490
+msgid "Unknown/unexpected error - please raise a support request"
+msgstr "Hindi kilalang / hindi inaasahang error - mangyari lamang na taasan ang isang kahilingan sa suporta"
+
+#: backup.php:526 addons/reporting.php:172
+msgid "The log file has been attached to this email."
+msgstr "Ang log file ay nai-attach sa email na ito."
+
+#: backup.php:532
+msgid "Backed up: %s"
+msgstr "Back up:%s"
+
+#: backup.php:555
+msgid "Backup contains:"
+msgstr "Naglalaman ng Backup:"
+
+#: backup.php:555 addons/reporting.php:113
+msgid "Latest status:"
+msgstr "Pinakabagong mga katayuan:"
+
+#: backup.php:484
+msgid "Files and database"
+msgstr "Mga File at database"
+
+#: backup.php:486
+msgid "Files (database backup has not completed)"
+msgstr "File (database backup ay hindi nakumpleto)"
+
+#: backup.php:486
+msgid "Files only (database was not part of this particular schedule)"
+msgstr "Mga file lamang (database ay hindi bahagi ng partikular na iskedyul)"
+
+#: backup.php:488
+msgid "Database (files backup has not completed)"
+msgstr "Database (mga file na backup ay hindi nakumpleto)"
+
+#: backup.php:488
+msgid "Database only (files were not part of this particular schedule)"
+msgstr "Database lamang (mga file ay hindi bahagi ng partikular na iskedyul)"
+
+#: options.php:124
+msgid "This is a WordPress multi-site (a.k.a. network) installation."
+msgstr "Ito ay isang WordPress multi-site (aka network) pag-install."
+
+#: options.php:124
+msgid "WordPress Multisite is supported, with extra features, by UpdraftPlus Premium, or the Multisite add-on."
+msgstr "WordPress Multisite ay suportado, na may dagdag na tampok, sa pamamagitan ng UpdraftPlus Premium, o ang Multisite add-on."
+
+#: options.php:124
+msgid "Without upgrading, UpdraftPlus allows <strong>every</strong> blog admin who can modify plugin settings to back up (and hence access the data, including passwords, from) and restore (including with customised modifications, e.g. changed passwords) <strong>the entire network</strong>."
+msgstr "Nang walang pag-upgrade, UpdraftPlus nagbibigay-daan sa <strong> bawat </ strong> blog admin kung sino ang maaaring baguhin ang mga setting ng plugin upang i-back up (at samakatuwid ay ma-access ang data, kabilang ang mga password, mula sa) at ibalik (kabilang ang may-customize na mga pagbabago, hal nagbago mga password) <strong> buong network </ strong>."
+
+#: options.php:124
+msgid "(This applies to all WordPress backup plugins unless they have been explicitly coded for multisite compatibility)."
+msgstr "(Ito ay angkop sa lahat ng WordPress backup plugin maliban kung ang mga ito ay tahasang naka-code para sa multisite compatibility)."
+
+#: options.php:124
+msgid "UpdraftPlus warning:"
+msgstr "UpdraftPlus warning:"
+
+#: udaddons/options.php:437
+msgid "(or connect using the form on this page if you have already purchased it)"
+msgstr "(o kumonekta gamit ang form sa pahinang ito kung nakapag pa ito nabibili)"
+
+#: udaddons/options.php:406
+msgid "You've got it"
+msgstr "Mayroon kayong ito"
+
+#: udaddons/options.php:408
+msgid "Your version: %s"
+msgstr "Ang iyong bersyon:%s"
+
+#: udaddons/options.php:410 udaddons/options.php:412
+msgid "latest"
+msgstr "latest"
+
+#: udaddons/options.php:420
+msgid "please follow this link to update the plugin in order to get it"
+msgstr "mangyaring sundin ang link na ito upang i-update ang plugin sa pagkakasunud-sunod upang makakuha ng mga ito"
+
+#: udaddons/options.php:423
+msgid "please  follow this link to update the plugin in order to activate it"
+msgstr "mangyaring sundin ang link na ito upang i-update ang plugin upang isaaktibo ito"
+
+#: udaddons/updraftplus-addons.php:180 udaddons/options.php:334
+msgid "UpdraftPlus Addons"
+msgstr "UpdraftPlus Addons"
+
+#: udaddons/options.php:345
+msgid "An update containing your addons is available for UpdraftPlus - please follow this link to get it."
+msgstr "Isang pag-update naglalaman ng iyong mga addons ay magagamit para sa UpdraftPlus - mangyaring sundin ang link na ito upang makakuha ng mga ito."
+
+#: udaddons/options.php:387
+msgid "UpdraftPlus Support"
+msgstr "UpdraftPlus Support"
+
+#: udaddons/updraftplus-addons.php:541
+msgid "UpdraftPlus.Com responded, but we did not understand the response"
+msgstr "UpdraftPlus.Com ay sumagot, ngunit hindi namin naintindihan ang tugon"
+
+#: udaddons/updraftplus-addons.php:574
+msgid "UpdraftPlus.Com returned a response which we could not understand (data: %s)"
+msgstr "UpdraftPlus.Com ibinalik ng tugon na hindi namin maunawaan (data:%s)"
+
+#: udaddons/updraftplus-addons.php:597
+msgid "Your email address and password were not recognised by UpdraftPlus.Com"
+msgstr "Ang iyong email address at password na hindi nakilala sa pamamagitan ng UpdraftPlus.Com"
+
+#: udaddons/updraftplus-addons.php:602
+msgid "UpdraftPlus.Com returned a response, but we could not understand it"
+msgstr "UpdraftPlus.Com ibinalik ng tugon, ngunit hindi namin maunawaan ito"
+
+#: udaddons/options.php:68
+msgid "An update is available for UpdraftPlus - please follow this link to get it."
+msgstr "Isang pag-update ay magagamit para sa UpdraftPlus - mangyaring sundin ang link na ito upang makakuha ng mga ito."
+
+#: udaddons/updraftplus-addons.php:539
+msgid "We failed to successfully connect to UpdraftPlus.Com"
+msgstr "Nabigo kaming matagumpay na kumonekta sa UpdraftPlus.Com"
+
+#: admin.php:2882 methods/email.php:60
+msgid "Reporting"
+msgstr "Reporting"
+
+#: admin.php:998
+msgid "Options (raw)"
+msgstr "Options (raw)"
+
+#: admin.php:122 addons/reporting.php:392
+msgid "Send a report only when there are warnings/errors"
+msgstr "Magpadala ng isang ulat lamang kapag mayroong mga babala / mga error"
+
+#: restorer.php:1180
+msgid "Content URL:"
+msgstr "URL ng Nilalaman:"
+
+#: restorer.php:61
+msgid "You should check the file permissions in your WordPress installation"
+msgstr "Dapat mong suriin ang mga pahintulot ng file sa iyong pag-install ng WordPress"
+
+#: admin.php:2802
+msgid "See also the \"More Files\" add-on from our shop."
+msgstr "Tingnan din ang \"Higit pang mga Files \" add-on mula sa aming shop."
+
+#: updraftplus.php:645
+msgid "Your free space in your hosting account is very low - only %s Mb remain"
+msgstr "Ang iyong libreng puwang sa iyong hosting account ay napakababa - only %s Mb remain"
+
+#: updraftplus.php:623
+msgid "The amount of memory (RAM) allowed for PHP is very low (%s Mb) - you should increase it to avoid failures due to insufficient memory (consult your web hosting company for more help)"
+msgstr "Ang halaga ng memorya (RAM) na pinapayagan para sa PHP ay napakababa (Mb% s) - dapat mo itong dagdagan upang maiwasan ang pagkabigo dahil sa hindi sapat na memorya (kumonsulta sa iyong kumpanya ng web hosting para sa higit pang tulong)"
+
+#: udaddons/options.php:433
+msgid "You have an inactive purchase"
+msgstr "Mayroon kang isang hindi aktibong pagbili"
+
+#: udaddons/options.php:431 udaddons/options.php:433
+msgid "activate it on this site"
+msgstr "activate ito sa site na ito"
+
+#: udaddons/options.php:437
+msgid "Get it from the UpdraftPlus.Com Store"
+msgstr "Kunin ito mula sa UpdraftPlus.Com Store"
+
+#: udaddons/options.php:438
+msgid "Buy It"
+msgstr "Buy It"
+
+#: udaddons/options.php:461
+msgid "Manage Addons"
+msgstr "Manage Addons"
+
+#: udaddons/options.php:304
+msgid "An unknown response was received. Response was:"
+msgstr "Isang hindi alam na tugon ay natanggap. Tugon ay:"
+
+#: udaddons/options.php:371
+msgid "An error occurred when trying to retrieve your add-ons."
+msgstr "Naganap ang isang error kapag sinusubukan upang makuha ang iyong mga add-on."
+
+#: udaddons/options.php:389
+msgid "Need to get support?"
+msgstr "Kailangan mo upang makakuha ng suporta?"
+
+#: udaddons/options.php:389
+msgid "Go here"
+msgstr "pumunta dito"
+
+#: udaddons/options.php:414
+msgid "(apparently a pre-release or withdrawn release)"
+msgstr "(tila isang pre-release o withdraw release)"
+
+#: udaddons/options.php:420
+msgid "Available for this site (via your all-addons purchase)"
+msgstr "Magagamit para sa site na ito (sa pamamagitan ng iyong pagbili ng all-addons)"
+
+#: udaddons/options.php:423
+msgid "Assigned to this site"
+msgstr "Nakatalagang sa site na ito"
+
+#: udaddons/options.php:217
+msgid "Interested in knowing about your UpdraftPlus.Com password security? Read about it here."
+msgstr "Interesado sa pag-alam tungkol sa iyong UpdraftPlus.Com seguridad password? Basahin ang tungkol sa ito dito."
+
+#: udaddons/options.php:245
+msgid "You are presently <strong>connected</strong> to an UpdraftPlus.Com account."
+msgstr "Ikaw ay kasalukuyang <strong> konektado </ strong> sa isang UpdraftPlus.Com account."
+
+#: udaddons/options.php:246
+msgid "If you bought new add-ons, then follow this link to refresh your connection"
+msgstr "Kung bumili ka ng mga bagong add-on, pagkatapos ay sundin ang link na ito upang i-refresh ang iyong koneksyon sa"
+
+#: udaddons/options.php:248
+msgid "You are presently <strong>not connected</strong> to an UpdraftPlus.Com account."
+msgstr "Ikaw ay kasalukuyang <strong> hindi konektado </ strong> sa isang UpdraftPlus.Com account."
+
+#: udaddons/options.php:254
+msgid "Errors occurred when trying to connect to UpdraftPlus.Com:"
+msgstr "Mga error na naganap kapag sinusubukang kumonekta sa UpdraftPlus.Com:"
+
+#: udaddons/options.php:301
+msgid "Please wait whilst we make the claim..."
+msgstr "Mangyaring maghintay habang ginagawa namin ang claim ..."
+
+#: udaddons/options.php:302
+msgid "Claim not granted - perhaps you have already used this purchase somewhere else?"
+msgstr "Hindi ibinigay ang claim - marahil pa ginamit mo ang pagbiling ito sa ibang lugar?"
+
+#: udaddons/options.php:303
+msgid "Claim not granted - your account login details were wrong"
+msgstr "I-claim ang hindi ibinigay ng - ang iyong mga detalye sa pag-login ng account ay mali"
+
+#: udaddons/options.php:89
+msgid "Your web server's version of PHP is too old ("
+msgstr "Ang bersyon ng iyong web server ng ​​PHP ay masyadong luma ("
+
+#: udaddons/options.php:109
+msgid "Connect with your UpdraftPlus.Com account"
+msgstr "Kumonekta sa iyong mga UpdraftPlus.Com account"
+
+#: udaddons/options.php:134
+msgid "Not yet got an account (it's free)? Go get one!"
+msgstr "Di pa nakakuha ng isang account (ito ay libre)? Pumunta makakuha ng isa!"
+
+#: udaddons/options.php:144
+msgid "Forgotten your details?"
+msgstr "Nakalimutan mo ba ang iyong mga detalye?"
+
+#: udaddons/options.php:72
+msgid "You have not yet connected with your UpdraftPlus.Com account, to enable you to list your purchased add-ons."
+msgstr "Hindi ka pa nakakonekta sa iyong mga UpdraftPlus.Com account, i-daan sa iyo upang ilista ang iyong mga binili na add-on."
+
+#: udaddons/options.php:72
+msgid "Go here to connect."
+msgstr "Pumunta dito upang kumonekta."
+
+#: udaddons/options.php:78
+msgid "UpdraftPlus is not yet activated."
+msgstr "UpdraftPlus ay hindi pa ginawang aktibo."
+
+#: udaddons/options.php:79
+msgid "Go here to activate it."
+msgstr "Pumunta dito upang i-activate ito."
+
+#: udaddons/options.php:82
+msgid "UpdraftPlus is not yet installed."
+msgstr "UpdraftPlus ay hindi pa naka-install."
+
+#: udaddons/options.php:82
+msgid "Go here to begin installing it."
+msgstr "Pumunta dito upang simulan ang pag-install ito."
+
+#: udaddons/options.php:83
+msgid "You do seem to have the obsolete Updraft plugin installed - perhaps you got them confused?"
+msgstr "Mukhang mo na magkaroon ng na naka-install ang laos na Updraft plugin - marahil ba kayong mga ito nalilito?"
+
+#: admin.php:1790
+msgid "If your restore included files, then your old (themes, uploads, plugins, whatever) directories have been retained with \"-old\" appended to their name. Remove them when you are satisfied that the backup worked properly."
+msgstr "Kung ang iyong ibalik kasama ng mga file, pagkatapos ay ang iyong lumang (mga tema, upload, plugin, kahit anong) mga direktoryo na ay mananatili sa \"gulang na \" na nakadugtong sa kanilang pangalan. Alisin ang mga ito kapag kayo ay nasiyahan na ang mga backup na nagtrabaho nang maayos."
+
+#: addons/moredatabase.php:271 addons/moredatabase.php:302
+msgid "Your web-server does not have the %s module installed."
+msgstr "Ang iyong web-server ay hindi naka-install ang module na ang%s."
+
+#: addons/moredatabase.php:271 addons/moredatabase.php:302
+msgid "Without it, encryption will be a lot slower."
+msgstr "Nang walang ito, ang pag-encrypt ay magiging marami mas mabagal."
+
+#: admin.php:2057
+msgid "Drop backup files here"
+msgstr "I-drop ang mga backup file dito"
+
+#: methods/googledrive.php:878
+msgid "<strong>(You appear to be already authenticated,</strong> though you can authenticate again to refresh your access if you've had a problem)."
+msgstr "<strong> (Lumitaw ikaw ay napatotohanan, </ strong> bagaman maaari mong patotohanan muli upang i-refresh ang iyong access kung nagkaroon ka ng problema)."
+
+#: updraftplus.php:2578
+msgid "Want more features or paid, guaranteed support? Check out UpdraftPlus.Com"
+msgstr "Gusto ng higit pang mga tampok o bayad, garantisadong suporta? Tingnan ang UpdraftPlus.Com"
+
+#: updraftplus.php:2587
+msgid "Check out WordShell"
+msgstr "Tingnan ang WordShell"
+
+#: updraftplus.php:2587
+msgid "manage WordPress from the command line - huge time-saver"
+msgstr "pamahalaan WordPress mula sa command line - malaking time-saver"
+
+#: admin.php:1976
+msgid "Does nothing happen when you attempt backups?"
+msgstr "Walang Nangyayari ba kapag tinangka mong backup?"
+
+#: admin.php:1971
+msgid "Don't include the database in the backup"
+msgstr "Huwag isama ang database sa ang backup"
+
+#: admin.php:1972
+msgid "Don't include any files in the backup"
+msgstr "Huwag magsama ng anumang mga file sa backup"
+
+#: admin.php:2025
+msgid "Restoring:"
+msgstr "Restoring:"
+
+#: admin.php:2025
+msgid "Press the Restore button next to the chosen backup set."
+msgstr "Pindutin ang pindutan ng Ipanumbalik sa tabi ng pinili backup set."
+
+#: admin.php:129
+msgid "The restore operation has begun. Do not press stop or close your browser until it reports itself as having finished."
+msgstr "ang restore operasyon ay nagsimula na. Huwag pindutin ang stop o isara ang iyong browser hanggang sa ito ay matapos."
+
+#: admin.php:131
+msgid "The web server returned an error code (try again, or check your web server logs)"
+msgstr "Nagbalik ang server ng web ng isang error code (subukan muli, o suriin ang iyong mga tala ng web server)"
+
+#: admin.php:128
+msgid "If you exclude both the database and the files, then you have excluded everything!"
+msgstr "Kung ibubukod mo ang parehong database at ang mga file, pagkatapos ay naibukod ang lahat ng bagay!"
+
+#: restorer.php:1174
+msgid "Site home:"
+msgstr "Tahanan Site:"
+
+#: addons/morestorage.php:88
+msgid "Remote Storage Options"
+msgstr "Mga Pagpipilian sa Remote Imbakan"
+
+#: addons/autobackup.php:31 addons/autobackup.php:304
+msgid "Remember this choice for next time (you will still have the chance to change it)"
+msgstr "Tandaan ang pagpipiliang ito para sa susunod na beses (ikaw pa rin magkaroon ng pagkakataon na baguhin ito)"
+
+#: addons/autobackup.php:66 addons/autobackup.php:150
+msgid "(logs can be found in the UpdraftPlus settings page as normal)..."
+msgstr "(Maaaring matagpuan ang mga tala sa pahina ng mga setting UpdraftPlus bilang normal) ..."
+
+#: methods/stream-base.php:124
+msgid "Upload failed"
+msgstr "Upload failed"
+
+#: admin.php:2940
+msgid "You can send a backup to more than one destination with an add-on."
+msgstr "Maaari kang magpadala ng isang backup na sa higit sa isang destinasyon na may isang add-on."
+
+#: admin.php:2463
+msgid "Note: the progress bar below is based on stages, NOT time. Do not stop the backup simply because it seems to have remained in the same place for a while - that is normal."
+msgstr "Tandaan: ang progress bar sa ibaba ay batay sa mga yugto, HINDI oras. Huwag itigil ang backup dahil lamang tila sa ay nanatiling sa parehong lugar para sa isang habang - na ay normal."
+
+#: admin.php:2365
+msgid "(%s%%, file %s of %s)"
+msgstr "(%s%%, file %s of %s)"
+
+#: addons/sftp.php:481
+msgid "Failed: We were able to log in and move to the indicated directory, but failed to successfully create a file in that location."
+msgstr "Nabigong: namin nagawang mag-log in at lumipat sa ipinahiwatig na direktoryo, subalit nabigong matagumpay na lumikha ng isang file sa lokasyong iyon."
+
+#: addons/sftp.php:483
+msgid "Failed: We were able to log in, but failed to successfully create a file in that location."
+msgstr "Nabigong: namin nagawang mag-log in, subalit nabigong matagumpay na lumikha ng isang file sa lokasyong iyon."
+
+#: addons/autobackup.php:31 addons/autobackup.php:304
+msgid "Read more about how this works..."
+msgstr "Magbasa nang higit pa tungkol sa kung paano ito gumagana ..."
+
+#: addons/sftp.php:370
+msgid "Use SCP instead of SFTP"
+msgstr "Gamitin SCP sa halip ng SFTP"
+
+#: addons/sftp.php:46
+msgid "SCP/SFTP host setting"
+msgstr "SCP/SFTP host setting"
+
+#: addons/sftp.php:47
+msgid "SCP/SFTP user setting"
+msgstr "SCP/SFTP user setting"
+
+#: methods/email.php:39
+msgid "Backup is of: %s."
+msgstr "Backup is of: %s."
+
+#: methods/email.php:47
+msgid "The attempt to send the backup via email failed (probably the backup was too large for this method)"
+msgstr "Nabigo ang pagtatangka upang ipadala ang backup sa pamamagitan ng email (marahil ang backup ay masyadong malaki para sa meth"
+
+#: methods/openstack-base.php:289 methods/cloudfiles.php:449
+#: methods/stream-base.php:211 methods/s3.php:468 methods/addon-base.php:246
+#: methods/ftp.php:265 addons/sftp.php:404 addons/sftp.php:406
+msgid "%s settings test result:"
+msgstr "%s settings test result:"
+
+#: admin.php:3253
+msgid "If you are seeing more backups than you expect, then it is probably because the deletion of old backup sets does not happen until a fresh backup completes."
+msgstr "Kung iyong nakikita ang nalalaman backup kaysa sa iyong inaasahan, pagkatapos ito ay marahil dahil sa pagtanggal ng lumang backup na set ay hindi mangyayari hanggang sa makumpleto ang isang sariwang backup."
+
+#: admin.php:3253
+msgid "(Not finished)"
+msgstr "(Hindi tapos)"
+
+#: admin.php:3046
+msgid "This is where UpdraftPlus will write the zip files it creates initially.  This directory must be writable by your web server. It is relative to your content directory (which by default is called wp-content)."
+msgstr "Ito ay kung saan UpdraftPlus ay isulat ang mga zip file na ito ay lumilikha sa umpisa. Dapat na writable na direktoryo na ito sa pamamagitan ng iyong web server. Ito ay may kaugnayan sa iyong direktoryo ng nilalaman (na sa pamamagitan ng default ay tinatawag na wp-content)."
+
+#: admin.php:3046
+msgid "<b>Do not</b> place it inside your uploads or plugins directory, as that will cause recursion (backups of backups of backups of...)."
+msgstr "<b> Huwag </ b> ilagay ito sa loob ng iyong mga pag-upload o direktoryo plugin, pati na magiging sanhi ng recursion (mga backup ng mga backup ng mga backup ng ...)."
+
+#: admin.php:3019
+msgid "UpdraftPlus will split up backup archives when they exceed this file size. The default value is 800 megabytes. Be careful to leave some margin if your web-server has a hard size limit (e.g. the 2 Gb / 2048 Mb limit on some 32-bit servers/file systems)."
+msgstr "Ay UpdraftPlus maghiwalay backup archive kapag lumagpas sila ito na laki ng file. Ang default na halaga ay 800 megabytes. Mag-ingat na mag-iwan ng ilang mga margin kung ang iyong mga web-server ay may isang matapang na limitasyon ng laki (eg ang 2 GB / 2048 Mb limitasyon sa ilang mga 32-bit na sistema ng mga server / file)."
+
+#: admin.php:2374
+msgid "Waiting until scheduled time to retry because of errors"
+msgstr "Naghihintay hanggang sa naka-iskedyul na oras upang subukang muli dahil sa mga error"
+
+#: admin.php:2379
+msgid "Backup finished"
+msgstr "tapos na ang Backup"
+
+#: admin.php:2429
+msgid "Unknown"
+msgstr "Unknown"
+
+#: admin.php:2446
+msgid "next resumption: %d (after %ss)"
+msgstr "next resumption: %d (after %ss)"
+
+#: admin.php:2447
+msgid "last activity: %ss ago"
+msgstr "last activity: %ss ago"
+
+#: admin.php:2457
+msgid "Job ID: %s"
+msgstr "Job ID: %s"
+
+#: admin.php:2406
+msgid "table: %s"
+msgstr "table: %s"
+
+#: admin.php:2393
+msgid "Created database backup"
+msgstr "Nilikha database backup"
+
+#: admin.php:2419
+msgid "Encrypting database"
+msgstr "Encrypting database"
+
+#: admin.php:2427
+msgid "Encrypted database"
+msgstr "Encrypted database"
+
+#: admin.php:2358
+msgid "Uploading files to remote storage"
+msgstr "Ina-upload ang mga file sa remote na imbakan"
+
+#: admin.php:2370
+msgid "Pruning old backup sets"
+msgstr "Pruning old backup sets"
+
+#: admin.php:2339
+msgid "Creating file backup zips"
+msgstr "Paglikha ng mga file na backup Zip"
+
+#: admin.php:2352
+msgid "Created file backup zips"
+msgstr "Nilikha ang file backup Zip"
+
+#: admin.php:2404
+msgid "Creating database backup"
+msgstr "Paglikha ng database backup"
+
+#: admin.php:2334
+msgid "Backup begun"
+msgstr "Backup begun"
+
+#: admin.php:1913
+msgid "Backups in progress:"
+msgstr "Backups in progress:"
+
+#: admin.php:424
+msgid "The scheduler is disabled in your WordPress install, via the DISABLE_WP_CRON setting. No backups can run (even &quot;Backup Now&quot;) unless either you have set up a facility to call the scheduler manually, or until it is enabled."
+msgstr "Scheduler ay pinagana sa iyong WordPress i-install, sa pamamagitan ng setting na DISABLE_WP_CRON. Maaaring tumakbo Walang mga backup (kahit na \"Backup Ngayon\") maliban kung nag-set up ng isang pasilidad na tumawag sa mano-mano ang scheduler, o hanggang sa ito ay pinagana."
+
+#: restorer.php:510 restorer.php:517
+msgid "UpdraftPlus needed to create a %s in your content directory, but failed - please check your file permissions and enable the access (%s)"
+msgstr "UpdraftPlus na kinakailangan upang lumikha ng%s sa iyong direktoryo ng nilalaman, ngunit nabigo - mangyaring suriin ang iyong mga pahintulot ng file at paganahin ang pag-access (%s)"
+
+#: restorer.php:510
+msgid "folder"
+msgstr "folder"
+
+#: restorer.php:517
+msgid "file"
+msgstr "file"
+
+#: backup.php:1455
+msgid "Failed to open directory (check the file permissions): %s"
+msgstr "Nabigong buksan ang direktoryo (tingnan ang mga pahintulot ng file): %s"
+
+#: backup.php:1449
+msgid "%s: unreadable file - could not be backed up (check the file permissions)"
+msgstr "%s: hindi nababasa ng file - hindi ma-back up (i-check ang mga pahintulot ng file)"
+
+#: updraftplus.php:1887
+msgid "The backup has not finished; a resumption is scheduled"
+msgstr "Ang backup ay hindi natapos; isang pagpapatuloy ay naka-iskedyul"
+
+#: updraftplus.php:1367
+msgid "Your website is visited infrequently and UpdraftPlus is not getting the resources it hoped for; please read this page:"
+msgstr "Ang iyong website ay binisita madalang at UpdraftPlus hindi nakakakuha ang mga mapagkukunan nito umaasa para; pakibasa ang pahinang ito:"
+
+#: includes/Dropbox/OAuth/Consumer/ConsumerAbstract.php:89
+#: methods/googledrive.php:231 addons/bitcasa.php:338
+msgid "The %s authentication could not go ahead, because something else on your site is breaking it. Try disabling your other plugins and switching to a default theme. (Specifically, you are looking for the component that sends output (most likely PHP warnings/errors) before the page begins. Turning off any debugging settings may also help)."
+msgstr "Ang pagpapatunay% s ay hindi ma sige, dahil ibang bagay sa iyong site ay breaking ito. Subukang huwag paganahin ang iyong iba pang mga plugin at lumipat sa isang default na tema. (Sa partikular, ikaw ay naghahanap ng mga sangkap na nagpapadala ng output (pinaka-malamang babala PHP / error) bago magsimula ang pahina. Ino-off ang anumang mga setting sa pag-debug ay maaari ring makatulong)."
+
+#: admin.php:1797
+msgid "Your PHP memory limit (set by your web hosting company) is very low. UpdraftPlus attempted to raise it but was unsuccessful. This plugin may struggle with a memory limit of less than 64 Mb  - especially if you have very large files uploaded (though on the other hand, many sites will be successful with a 32Mb limit - your experience may vary)."
+msgstr "Ang iyong limitasyon PHP memorya (na itinakda ng iyong kumpanya ng web hosting) ay napakababa. UpdraftPlus tinangka upang taasan ito ngunit ay hindi matagumpay. Plugin na ito ay maaaring nagpupumilit na may isang limitasyon ng memory ng mas mababa sa 64 Mb - lalo na kung mayroon kang napakalaking mga file na-upload na (bagaman sa kabilang banda, maraming mga site ay maging matagumpay na may isang limitasyon ng 32MB - maaaring mag-iba ang iyong karanasan)."
+
+#: addons/autobackup.php:300
+msgid "UpdraftPlus Automatic Backups"
+msgstr "UpdraftPlus Automatic Backups"
+
+#: addons/autobackup.php:305
+msgid "Do not abort after pressing Proceed below - wait for the backup to complete."
+msgstr "Huwag i-abort pagkatapos ng pagpindot Magpatuloy sa ibaba - maghintay para sa backup upang makumpleto."
+
+#: addons/autobackup.php:306
+msgid "Proceed with update"
+msgstr "Magpatuloy sa pag-update"
+
+#: addons/autobackup.php:70 addons/autobackup.php:157
+msgid "Starting automatic backup..."
+msgstr "Simula sa awtomatikong pag-backup ..."
+
+#: addons/autobackup.php:115
+msgid "plugins"
+msgstr "mga plugin"
+
+#: addons/autobackup.php:120
+msgid "themes"
+msgstr "themes"
+
+#: addons/autobackup.php:140
+msgid "You do not have sufficient permissions to update this site."
+msgstr "Wala kang sapat na mga pahintulot upang i-update ang site na ito."
+
+#: addons/autobackup.php:150
+msgid "Creating database backup with UpdraftPlus..."
+msgstr "Paglikha ng database backup sa UpdraftPlus ..."
+
+#: addons/autobackup.php:159 addons/autobackup.php:249
+#: addons/autobackup.php:288
+msgid "Automatic Backup"
+msgstr "Automatic Backup"
+
+#: addons/autobackup.php:201
+msgid "Creating backup with UpdraftPlus..."
+msgstr "Paglikha ng backup sa UpdraftPlus ..."
+
+#: addons/autobackup.php:208
+msgid "Errors have occurred:"
+msgstr "Naganap error:"
+
+#: addons/autobackup.php:31 addons/autobackup.php:304
+msgid "Automatically backup (where relevant) plugins, themes and the WordPress database with UpdraftPlus before updating"
+msgstr "Awtomatikong i-backup (kung saan may-katuturan) plugin, mga tema at mga WordPress database na may UpdraftPlus bago ang pag-update"
+
+#: addons/autobackup.php:66
+msgid "Creating %s and database backup with UpdraftPlus..."
+msgstr "Paglikha ng %s at database backup sa UpdraftPlus ..."
+
+#: addons/morefiles.php:103
+msgid "Unable to read zip file (%s) - could not pre-scan it to check its integrity."
+msgstr "Hindi mabasa ang mga zip file (% s) - ay hindi ma-pre-i-scan ito upang suriin ang integridad nito."
+
+#: addons/morefiles.php:108
+msgid "Unable to open zip file (%s) - could not pre-scan it to check its integrity."
+msgstr "Hindi mabuksan ang zip file (% s) - maaaring hindi pre-i-scan ito upang suriin ang integridad nito."
+
+#: addons/morefiles.php:127 addons/morefiles.php:128
+msgid "This does not look like a valid WordPress core backup - the file %s was missing."
+msgstr "Hindi ito mukhang isang wastong WordPress core backup - ang file% s ay nawawala."
+
+#: addons/morefiles.php:127 addons/morefiles.php:128
+msgid "If you are not sure then you should stop; otherwise you may destroy this WordPress installation."
+msgstr "Kung hindi ka sigurado pagkatapos ay dapat itigil; kung hindi, maaari mong sirain ang pag-install ng WordPress."
+
+#: admin.php:1780
+msgid "Support"
+msgstr "Support"
+
+#: admin.php:1780
+msgid "More plugins"
+msgstr "More plugins"
+
+#: admin.php:1324
+msgid "You are importing from a newer version of WordPress (%s) into an older one (%s). There are no guarantees that WordPress can handle this."
+msgstr "Ikaw ay pag-import mula sa isang mas bagong bersyon ng WordPress (% s) sa isang mas lumang isa (% s). Walang mga garantiya na WordPress ay maaaring panghawakan ito."
+
+#: admin.php:1402
+msgid "This database backup is missing core WordPress tables: %s"
+msgstr "Kulang ito ng database backup WordPress mga talahanayan core:%s"
+
+#: admin.php:1406
+msgid "UpdraftPlus was unable to find the table prefix when scanning the database backup."
+msgstr "UpdraftPlus ay hindi nagawang upang mahanap ang prefix talahanayan kapag kinikilatis ang backup database."
+
+#: admin.php:1263
+msgid "The database is too small to be a valid WordPress database (size: %s Kb)."
+msgstr "Ang database ay masyadong maliit upang maging isang wastong database WordPress (laki: Kb%s)."
+
+#: admin.php:186 admin.php:405
+msgid "UpdraftPlus Premium can  <strong>automatically</strong> take a backup of your plugins or themes and database before you update."
+msgstr "UpdraftPlus Premium can  <strong>automatically</strong> kumuha ng isang backup ng iyong mga plugin o tema at database bago mo i-update."
+
+#: admin.php:186 admin.php:405
+msgid "Be safe every time, without needing to remember - follow this link to learn more."
+msgstr "Maging ligtas sa bawat oras, nang hindi nangangailangan upang tandaan - sundin ang link na ito upang matuto nang higit pa."
+
+#: admin.php:390 addons/autobackup.php:236
+msgid "Update Plugin"
+msgstr "I-update ang Plugin"
+
+#: admin.php:394 addons/autobackup.php:276
+msgid "Update Theme"
+msgstr "I-update ang Tema"
+
+#: admin.php:184 admin.php:403
+msgid "Dismiss (for %s weeks)"
+msgstr "I-dismiss (para sa%s linggo)"
+
+#: admin.php:185 admin.php:404 addons/autobackup.php:303
+msgid "Be safe with an automatic backup"
+msgstr "Maging ligtas sa awtomatikong pag-backup"
+
+#: restorer.php:1572
+msgid "Uploads path (%s) does not exist - resetting (%s)"
+msgstr "Mga Upload path (%s) ay hindi na umiiral - pag-reset (%s)"
+
+#: admin.php:1784
+msgid "If you can still read these words after the page finishes loading, then there is a JavaScript or jQuery problem in the site."
+msgstr "Kung maaari mo pa ring basahin ang mga salitang ito pagkatapos tatapusin naglo-load ang pahina, pagkatapos ay mayroong problema JavaScript o jQuery sa site."
+
+#: admin.php:159
+msgid "Follow this link to attempt decryption and download the database file to your computer."
+msgstr "Sundin ang link na ito upang tangkain ang decryption at i-download ang database file sa iyong computer."
+
+#: admin.php:160
+msgid "This decryption key will be attempted:"
+msgstr "Ay tinangka na ito decryption key:"
+
+#: admin.php:161 addons/bitcasa.php:250
+msgid "Unknown server response:"
+msgstr "Hindi alam ng pagtugon ng server:"
+
+#: admin.php:162
+msgid "Unknown server response status:"
+msgstr "Katayuan ng tugon ng server Hindi alam:"
+
+#: admin.php:163
+msgid "The file was uploaded."
+msgstr "Ang file ay na-upload."
+
+#: admin.php:155
+msgid "(make sure that you were trying to upload a zip file previously created by UpdraftPlus)"
+msgstr "(tiyakin na sinusubukan mong mag-upload ng zip file sa nakaraang nalikha sa pamamagitan ng UpdraftPlus)"
+
+#: admin.php:156
+msgid "Upload error:"
+msgstr "Upload error:"
+
+#: admin.php:157
+msgid "This file does not appear to be an UpdraftPlus encrypted database archive (such files are .gz.crypt files which have a name like: backup_(time)_(site name)_(code)_db.crypt.gz)."
+msgstr "Ang file na ito ay hindi lumitaw na maging isang UpdraftPlus naka-encrypt na database archive (tulad ng mga file na .gz.crypt files which have a name like: backup_(time)_(site name)_(code)_db.crypt.gz)."
+
+#: admin.php:158
+msgid "Upload error"
+msgstr "Upload error"
+
+#: admin.php:145
+msgid "Delete from your web server"
+msgstr "Tanggalin mula sa iyong mga web server"
+
+#: admin.php:146
+msgid "Download to your computer"
+msgstr "I-download sa iyong computer"
+
+#: admin.php:147
+msgid "and then, if you wish,"
+msgstr "at pagkatapos ay, kung nais mo,"
+
+#: methods/s3.php:490
+msgid "Examples of S3-compatible storage providers:"
+msgstr "Mga halimbawa ng S3-katugmang imbakan provider:"
+
+#: methods/googledrive.php:409
+msgid "Upload expected to fail: the %s limit for any single file is %s, whereas this file is %s Gb (%d bytes)"
+msgstr "Inaasahan na mabigo upload: limitasyon ang% s para sa anumang solong file ay% s, samantalang ang file na ito ay% s GB (% d mga byte)"
+
+#: backup.php:934
+msgid "The backup directory is not writable - the database backup is expected to shortly fail."
+msgstr "Ang backup na direktoryo ay hindi writable - ang backup database ay inaasahan sa ilang sandali mabibigo."
+
+#: admin.php:3921
+msgid "Will not delete any archives after unpacking them, because there was no cloud storage for this backup"
+msgstr "Hindi nito tatanggalin ang anumang mga archive pagkatapos ng unpacking kanila, dahil walang ulap imbakan para sa backup na ito"
+
+#: admin.php:3364
+msgid "(%d archive(s) in set)."
+msgstr "(%d archive(s) in set)."
+
+#: admin.php:3367
+msgid "You appear to be missing one or more archives from this multi-archive set."
+msgstr "Tila ikaw ay kulang ng isa o higit pang mga archive mula sa hanay multi-archive."
+
+#: admin.php:3018
+msgid "Split archives every:"
+msgstr "Hatiin ang mga archive bawat:"
+
+#: admin.php:138
+msgid "Error: the server sent an empty response."
+msgstr "Error: Nagpadala ang server ng walang laman na tugon."
+
+#: admin.php:139
+msgid "Warnings:"
+msgstr "Mga Babala:"
+
+#: admin.php:141 addons/moredatabase.php:212
+msgid "Error: the server sent us a response (JSON) which we did not understand."
+msgstr "Error: nagpadala sa amin ang server ng tugon (JSON) na hindi namin naintindihan."
+
+#: admin.php:1591
+msgid "This looks like a file created by UpdraftPlus, but this install does not know about this type of object: %s. Perhaps you need to install an add-on?"
+msgstr "Ito mukhang isang file na nilikha ng mga UpdraftPlus, ngunit ito i-install ay hindi malaman tungkol sa ganitong uri ng bagay:% s. Marahil ay kailangan mong i-install ng isang add-on?"
+
+#: admin.php:851
+msgid "The backup archive files have been successfully processed. Now press Restore again to proceed."
+msgstr "Ang backup archive file ay matagumpay na naproseso. Pindutin Ngayon Ibalik muli upang magpatuloy."
+
+#: admin.php:853
+msgid "The backup archive files have been processed, but with some warnings. If all is well, then now press Restore again to proceed. Otherwise, cancel and correct any problems first."
+msgstr "Ang backup archive file ang nai-proseso, ngunit may ilang mga babala. Kung ang lahat ay mabuti, pagkatapos ngayon ay pindutin ang Ibalik muli upang magpatuloy. Kung hindi man, kanselahin at itama muna ng anumang mga problema."
+
+#: admin.php:855
+msgid "The backup archive files have been processed, but with some errors. You will need to cancel and correct any problems before retrying."
+msgstr "Ang backup archive file ang nai-proseso, ngunit may ilang mga error. Kailangan mong kanselahin at itama ang anumang mga problema bago muling subukan."
+
+#: admin.php:637
+msgid "The backup archive for this file could not be found. The remote storage method in use (%s) does not allow us to retrieve files. To perform any restoration using UpdraftPlus, you will need to obtain a copy of this file and place it inside UpdraftPlus's working folder"
+msgstr "Ang backup na archive para sa file na ito ay hindi mahanap. Hindi pinapayagan ang malayuang pamamaraan ng imbakan sa paggamit (% s) sa amin upang makuha ang mga file. Upang magsagawa ng anumang pananauli gamit UpdraftPlus, kailangan mong kumuha ng isang kopya ng file na ito at ilagay ito sa loob ng working folder UpdraftPlus ni"
+
+#: admin.php:757
+msgid "No such backup set exists"
+msgstr "Walang ganoong backup set na umiiral"
+
+#: admin.php:824
+msgid "File not found (you need to upload it): %s"
+msgstr "Hindi nahanap ang file (kailangan mong i-upload ito):%s"
+
+#: admin.php:826
+msgid "File was found, but is zero-sized (you need to re-upload it): %s"
+msgstr "File ay natagpuan, ngunit ay zero-sized (kailangan mong i-upload ang muling ito):%s"
+
+#: admin.php:831
+msgid "File (%s) was found, but has a different size (%s) from what was expected (%s) - it may be corrupt."
+msgstr "File (%s) ay natagpuan, ngunit may isang iba't ibang laki (%s) mula sa kung ano ang inaasahan (%s) - maaaring ito ay corrupt."
+
+#: admin.php:846
+msgid "This multi-archive backup set appears to have the following archives missing: %s"
+msgstr "Ito multi-archive backup set na lilitaw upang magkaroon ng mga sumusunod na mga archive nawawala:%s"
+
+#: restorer.php:459
+msgid "Failed to move directory (check your file permissions and disk quota): %s"
+msgstr "Nabigong ilipat direktoryo (i-check ang iyong mga pahintulot ng file at quota ng disk):% s"
+
+#: restorer.php:450
+msgid "Failed to move file (check your file permissions and disk quota): %s"
+msgstr "Nabigong ilipat ang file (i-check ang iyong mga pahintulot ng file at quota ng disk):% s"
+
+#: restorer.php:58
+msgid "Moving unpacked backup into place..."
+msgstr "Ang paglipat ng unpacked backup sa lugar ..."
+
+#: backup.php:1766 backup.php:2003
+msgid "Failed to open the zip file (%s) - %s"
+msgstr "Nabigong buksan ang zip file (%s) -%s"
+
+#: addons/morefiles.php:88
+msgid "WordPress root directory server path: %s"
+msgstr "WordPress root directory server path:%s"
+
+#: methods/s3.php:498
+msgid "... and many more!"
+msgstr "... At marami pa!"
+
+#: methods/s3.php:523
+msgid "%s end-point"
+msgstr "%s end-point"
+
+#: admin.php:3847
+msgid "File is not locally present - needs retrieving from remote storage"
+msgstr "Ang file na ay hindi lokal na naroroon - mga pangangailangan sa pagkuha mula sa remote na imbakan"
+
+#: methods/s3generic.php:41 methods/s3generic.php:49
+msgid "S3 (Compatible)"
+msgstr "S3 (Compatible)"
+
+#: admin.php:3804
+msgid "Final checks"
+msgstr "Final checks"
+
+#: admin.php:3842
+msgid "Looking for %s archive: file name: %s"
+msgstr "Naghahanap para sa archive% s: pangalan ng file:%s"
+
+#: admin.php:3024
+msgid "Check this to delete any superfluous backup files from your server after the backup run finishes (i.e. if you uncheck, then any files despatched remotely will also remain locally, and any files being kept locally will not be subject to the retention limits)."
+msgstr "Lagyan ito ng tsek upang tanggalin ang anumang mga kalabisan backup na file mula sa iyong server matapos ang pagda-backup run (ibig sabihin kung i-uncheck mo, pagkatapos ay ang anumang mga file despatsado sa malayo ay mananatiling din nang lokal, at ang anumang mga file na pinananatiling nang lokal ay hindi napapailalim sa mga limitasyon ng pagpapanatili)."
+
+#: admin.php:2842
+msgid "Drop encrypted database files (db.gz.crypt files) here to upload them for decryption"
+msgstr "I-drop ang naka-encrypt na database ng mga file (db.gz.crypt mga file) dito upang mag-upload ng mga ito para sa decryption"
+
+#: admin.php:2782
+msgid "Your wp-content directory server path: %s"
+msgstr "Ang iyong wp-content direktoryo ng server path:% s"
+
+#: admin.php:152
+msgid "Raw backup history"
+msgstr "Raw kasaysayan ng backup"
+
+#: admin.php:2226
+msgid "Show raw backup and file list"
+msgstr "Ipakita ang raw backup at listahan ng file"
+
+#: admin.php:137
+msgid "Processing files - please wait..."
+msgstr "Pinoproseso ang file - mangyari lamang na maghintay ..."
+
+#: admin.php:2019
+msgid "Your WordPress installation has a problem with outputting extra whitespace. This can corrupt backups that you download from here."
+msgstr "May problema sa outputting dagdag whitespace iyong pag-install ng WordPress. Ito maaari sira-backup na-download mo mula dito."
+
+#: admin.php:2019 admin.php:3958
+msgid "Please consult this FAQ for help on what to do about it."
+msgstr "Mangyaring kumonsulta ang FAQ na ito para sa tulong sa kung ano ang gagawin tungkol dito."
+
+#: admin.php:1271
+msgid "Failed to open database file."
+msgstr "Nabigong mabuksan ang database file."
+
+#: admin.php:1251
+msgid "Failed to write out the decrypted database to the filesystem."
+msgstr "Nabigong isulat ang decrypted database upang ang filesystem."
+
+#: admin.php:970
+msgid "Known backups (raw)"
+msgstr "Known backups (raw)"
+
+#: restorer.php:977
+msgid "Using directory from backup: %s"
+msgstr "Paggamit ng direktoryo mula sa backup:%s"
+
+#: restorer.php:846
+msgid "Files found:"
+msgstr "Mga file na natagpuan:"
+
+#: restorer.php:852
+msgid "Unable to enumerate files in that directory."
+msgstr "Hindi magawang i-magbilang ng mga file sa directory na iyon."
+
+#: restorer.php:1351
+msgid "Requested table engine (%s) is not present - changing to MyISAM."
+msgstr "Requested table engine (% s) ay hindi naroroon - pagbabago sa MyISAM."
+
+#: restorer.php:1362
+msgid "Restoring table (%s)"
+msgstr "Restoring table (%s)"
+
+#: backup.php:1820 backup.php:2013
+msgid "A zip error occurred - check your log for more details."
+msgstr "Ang isang zip error ay naganap - suriin ang iyong mga tala para sa higit pang mga detalye."
+
+#: addons/migrator.php:132
+msgid "This looks like a migration (the backup is from a site with a different address/URL), but you did not check the option to search-and-replace the database. That is usually a mistake."
+msgstr "Ito mukhang isang paglipat (ang backup ay mula sa isang site na may ibang address / URL), ngunit hindi ikaw ang sinuri ang pagpipilian upang maghanap-at-palitan ang database. Iyon ay karaniwang pagkakamali."
+
+#: admin.php:3868
+msgid "file is size:"
+msgstr "file ay na sukat:"
+
+#: admin.php:3283
+msgid "database"
+msgstr "database"
+
+#: admin.php:424 admin.php:1784 admin.php:2247
+msgid "Go here for more information."
+msgstr "Pumunta dito para sa karagdagang impormasyon."
+
+#: admin.php:136
+msgid "Some files are still downloading or being processed - please wait."
+msgstr "Ang ilang mga file ay ng da-download pa rin o pinoproseso - mangyaring maghintay."
+
+#: admin.php:1308 admin.php:1316
+msgid "This backup set is from a different site - this is not a restoration, but a migration. You need the Migrator add-on in order to make this work."
+msgstr "Ang backup na set ay mula sa ibang site - ito ay hindi isang pagbabalik sa dati, ngunit isang paglilipat. Kailangan mo ang Migrator add-on upang gawin ang trabahong ito."
+
+#: methods/ftp.php:78 methods/ftp.php:127 methods/ftp.php:228
+msgid "%s login failure"
+msgstr "%s login failure"
+
+#: methods/ftp.php:105
+msgid "%s upload failed"
+msgstr "%s upload failed"
+
+#: addons/fixtime.php:120 addons/fixtime.php:129
+msgid "Enter in format HH:MM (e.g. 14:22)."
+msgstr "Enter in format HH:MM (e.g. 14:22)."
+
+#: addons/fixtime.php:120 addons/fixtime.php:129
+msgid "The time zone used is that from your WordPress settings, in Settings -> General."
+msgstr "Ang time zone ay ginamit na mula sa iyong mga setting ng WordPress, sa Mga Setting -> General."
+
+#: methods/dropbox.php:89
+msgid "Dropbox error: %s (see log file for more)"
+msgstr "Error sa Dropbox:%s (tingnan ang log file para sa higit pa)"
+
+#: methods/dropbox.php:276
+msgid "You do not appear to be authenticated with %s (whilst deleting)"
+msgstr "Hindi mo na lumalabas na napatotohanan na may mga%s (habang tinatanggal)"
+
+#: methods/dropbox.php:284
+msgid "Failed to access %s when deleting (see log file for more)"
+msgstr "Nabigong i-access%s kapag nagtatanggal ng (tingnan ang log file para sa higit pa)"
+
+#: methods/dropbox.php:317
+msgid "You do not appear to be authenticated with %s"
+msgstr "You do not appear to be authenticated with %s"
+
+#: methods/cloudfiles.php:418
+msgid "Error - no such file exists at %s"
+msgstr "Error - walang ganoong file ay umiiral sa% s"
+
+#: methods/cloudfiles.php:422
+msgid "Error - failed to download the file from %s"
+msgstr "Error - Nabigo upang i-download ang file mula sa% s"
+
+#: methods/openstack-base.php:70 methods/cloudfiles.php:219
+msgid "%s error - failed to upload file"
+msgstr "%s error - failed to upload file"
+
+#: methods/googledrive.php:762 methods/openstack-base.php:343
+#: methods/cloudfiles.php:392 methods/cloudfiles.php:409
+#: methods/stream-base.php:274 methods/stream-base.php:281
+#: methods/stream-base.php:294 methods/addon-base.php:186
+msgid "%s Error"
+msgstr "%s Error"
+
+#: methods/openstack-base.php:32 methods/openstack-base.php:214
+#: methods/openstack-base.php:305 methods/openstack-base.php:377
+#: methods/openstack-base.php:380 methods/openstack-base.php:397
+#: methods/openstack-base.php:402 methods/cloudfiles.php:95
+#: methods/cloudfiles.php:99 methods/cloudfiles.php:240
+#: methods/cloudfiles.php:285 methods/cloudfiles.php:336
+#: methods/cloudfiles.php:340
+msgid "%s authentication failed"
+msgstr "%s authentication failed"
+
+#: updraftplus.php:871 methods/cloudfiles.php:211
+msgid "%s error - failed to re-assemble chunks"
+msgstr "%s error - Nabigo upang muling magtipon chunks"
+
+#: updraftplus.php:734 updraftplus.php:740 restorer.php:840 admin.php:1239
+#: admin.php:1241 admin.php:1336 admin.php:1341 admin.php:1583 admin.php:1591
+#: methods/googledrive.php:291
+msgid "Error: %s"
+msgstr "Error: %s"
+
+#: admin.php:3041
+msgid "Backup directory specified exists, but is <b>not</b> writable."
+msgstr "Backup na direktoryo tinukoy na umiiral, ngunit <b> hindi </ b> writable."
+
+#: admin.php:3039
+msgid "Backup directory specified does <b>not</b> exist."
+msgstr "Backup na direktoryo tinukoy ang <b> hindi </ b> umiiral."
+
+#: admin.php:1308 admin.php:1316 admin.php:2468 admin.php:2668
+msgid "Warning: %s"
+msgstr "Babala:%s"
+
+#: admin.php:1894
+msgid "Last backup job run:"
+msgstr "Last backup job run:"
+
+#: backup.php:1481 backup.php:1502
+msgid "%s: unreadable file - could not be backed up"
+msgstr "%s: hindi nababasa ng file - hindi ma-back up"
+
+#: backup.php:1780
+msgid "A very large file was encountered: %s (size: %s Mb)"
+msgstr "Isang napakalaking file naranasang:%s (laki:%s Mb)"
+
+#: backup.php:986
+msgid "Table %s has very many rows (%s) - we hope your web hosting company gives you enough resources to dump out that table in the backup"
+msgstr "Talahanayan ng %s ay napaka maraming mga hilera (%s) - inaasahan namin na ang nagbibigay sa iyo ang iyong web host ng sapat na mga mapagkukunan upang ma dump out ang talahanayang na sa backup"
+
+#: backup.php:1085
+msgid "An error occurred whilst closing the final database file"
+msgstr "May naganap na error habang isinasara ang panghuling database file"
+
+#: backup.php:517
+msgid "Warnings encountered:"
+msgstr "Nakaranas babala:"
+
+#: updraftplus.php:1876
+msgid "The backup apparently succeeded (with warnings) and is now complete"
+msgstr "Ang backup ay tila Nagtagumpay (may mga babala) at ngayon ay kumpleto na"
+
+#: updraftplus.php:657
+msgid "Your free disk space is very low - only %s Mb remain"
+msgstr "Ang iyong libreng puwang sa disk ay napakababa - only %s Mb remain"
+
+#: addons/migrator.php:783
+msgid "<strong>Search and replacing table:</strong> %s"
+msgstr "<strong>Search and replacing table:</strong> %s"
+
+#: addons/migrator.php:193
+msgid "Site Name:"
+msgstr "Site Name:"
+
+#: addons/migrator.php:195
+msgid "Site Domain:"
+msgstr "Site Name:"
+
+#: addons/migrator.php:212
+msgid "Migrated site (from UpdraftPlus)"
+msgstr "Migrated site (from UpdraftPlus)"
+
+#: addons/migrator.php:241
+msgid "<strong>ERROR</strong>: Site URL already taken."
+msgstr "<strong>ERROR</strong>: Site URL already taken."
+
+#: addons/migrator.php:248
+msgid "New site:"
+msgstr "New site:"
+
+#: addons/migrator.php:181
+msgid "Information needed to continue:"
+msgstr "Impormasyon na kailangan upang magpatuloy:"
+
+#: addons/migrator.php:182
+msgid "Please supply the following information:"
+msgstr "Mangyaring ibigay ang sumusunod na impormasyon:"
+
+#: addons/migrator.php:184
+msgid "Enter details for where this new site is to live within your multisite install:"
+msgstr "Ipasok ang mga detalye para sa kung saan bagong site na ito ay upang mabuhay sa loob ng iyong multisite install:"
+
+#: addons/migrator.php:136
+msgid "Processed plugin:"
+msgstr "Processed plugin:"
+
+#: addons/migrator.php:147
+msgid "Network activating theme:"
+msgstr "Network activating theme:"
+
+#: addons/sftp.php:39
+msgid "Some servers advertise encrypted FTP as available, but then time-out (after a long time) when you attempt to use it. If you find this happenning, then go into the \"Expert Options\" (below) and turn off SSL there."
+msgstr "Ang ilang mga server advertise encrypt na FTP bilang magagamit, ngunit pagkatapos ay i-time-out (pagkatapos ng mahabang panahon) kapag tinangka mong gamitin ito. Kung sa tingin mo ito happenning, pagkatapos ay pumunta sa\"Expert Opsyon \" (sa ibaba) at i-off ang SSL doon."
+
+#: addons/sftp.php:75
+msgid "Check your file permissions: Could not successfully create and enter directory:"
+msgstr "Suriin ang iyong mga pahintulot ng file: ma hindi matagumpay na lumikha at ipasok direktoryo:"
+
+#: methods/dropbox.php:384
+msgid "Your web server's PHP installation does not included a required module (%s). Please contact your web hosting provider's support and ask for them to enable it."
+msgstr "Pag-install ng PHP Ang iyong web server ay hindi isinama ng isang kinakailangang module (%s). Mangyaring makipag-ugnay sa suporta ng iyong web hosting provider at hilingin ang mga ito upang paganahin ito."
+
+#: methods/s3.php:636
+msgid "Please check your access credentials."
+msgstr "Mangyaring suriin ang iyong mga kredensyal sa pag-access."
+
+#: methods/s3.php:614
+msgid "The error reported by %s was:"
+msgstr "Ang error na iniulat ng%s ay:"
+
+#: restorer.php:993
+msgid "Please supply the requested information, and then continue."
+msgstr "Mangyaring ibigay ang hiniling na impormasyon, at pagkatapos ay magpatuloy."
+
+#: restorer.php:1454
+msgid "Cannot drop tables, so deleting instead (%s)"
+msgstr "Hindi ma-drop ang mga talahanayan, kaya magbura sa halip (% s)"
+
+#: restorer.php:1200 admin.php:1341
+msgid "To import an ordinary WordPress site into a multisite installation requires both the multisite and migrator add-ons."
+msgstr "Upang mag-import ng isang ordinaryong WordPress site sa isang multisite ang pag-install ay nangangailangan ng parehong multisite at migrator add-on."
+
+#: restorer.php:1206 admin.php:1349
+msgid "Site information:"
+msgstr "Impormasyon ng Site:"
+
+#: restorer.php:1437
+msgid "Cannot create new tables, so skipping this command (%s)"
+msgstr "Hindi makalikha ng bagong mga talahanayan, kaya lalaktawan ang command na ito (% s)"
+
+#: restorer.php:1129 restorer.php:1149 restorer.php:1426 admin.php:1784
+#: addons/migrator.php:132
+msgid "Warning:"
+msgstr "Babala:"
+
+#: restorer.php:1130
+msgid "Your database user does not have permission to create tables. We will attempt to restore by simply emptying the tables; this should work as long as a) you are restoring from a WordPress version with the same database structure, and b) Your imported database does not contain any tables which are not already present on the importing site."
+msgstr "Ang iyong user database ay walang pahintulot na lumikha ng mga talahanayan. Susubukan namin itong ibalik sa pamamagitan ng simpleng pag tanggal ng laman ng mga talahanayan; ito ay dapat na gumana hangga't a) ikaw ay nag restore mula sa isang bersyon ng WordPress na may parehong istraktura ng database, at b) ang iyong na-import na database ay hindi naglalaman ng tables na meron na sa importing site."
+
+#: restorer.php:66 admin.php:1336
+msgid "You are running on WordPress multisite - but your backup is not of a multisite site."
+msgstr "Ikaw ay tumatakbo sa WordPress multisite - ngunit ang iyong mga backup ay hindi sa isang multisite site."
+
+#: admin.php:3831
+msgid "Skipping restoration of WordPress core when importing a single site into a multisite installation. If you had anything necessary in your WordPress directory then you will need to re-add it manually from the zip file."
+msgstr "Nilalaktawan ang pagpapanumbalik ng WordPress core kapag i-import ng isang solong site sa isang multisite install. Kung nagkaroon ka ng anumang bagay kinakailangan sa iyong direktoryo ng WordPress pagkatapos ay kakailanganin mong muling idagdag ito nang mano-mano mula sa isang zip file."
+
+#: admin.php:3115
+msgid "Your web server's PHP installation does not included a <strong>required</strong> (for %s) module (%s). Please contact your web hosting provider's support and ask for them to enable it."
+msgstr "Pag-install ng PHP Ang iyong web server ay hindi isinama ng isang <strong> kinakailangan </ strong> (para sa% s) module (% s). Mangyaring makipag-ugnay sa suporta ng iyong web hosting provider at hilingin ang mga ito upang paganahin ito."
+
+#: admin.php:3115
+msgid "Your options are 1) Install/enable %s or 2) Change web hosting companies - %s is a standard PHP component, and required by all cloud backup plugins that we know of."
+msgstr "Ang iyong mga pagpipilian ay 1) I-install / paganahin ang% s o 2) mga kompanya ng pagho-host Baguhin ang web -% s ay isang standard na component PHP, at kinakailangan ng lahat ng mga ulap backup plugin na aming kilala."
+
+#: admin.php:168
+msgid "Close"
+msgstr "Close"
+
+#: admin.php:130 addons/autobackup.php:72 addons/autobackup.php:154
+msgid "Unexpected response:"
+msgstr "Hindi inaasahang tugon:"
+
+#: admin.php:127 addons/reporting.php:390
+msgid "To send to more than one address, separate each address with a comma."
+msgstr "Upang magpadala sa higit sa isang address, ihiwalay ang bawat address gamit ang isang kuwit."
+
+#: admin.php:150
+msgid "PHP information"
+msgstr "PHP information"
+
+#: admin.php:2196
+msgid "show PHP information (phpinfo)"
+msgstr "show PHP information (phpinfo)"
+
+#: admin.php:2213
+msgid "zip executable found:"
+msgstr "nahanap zip executable:"
+
+#: admin.php:1950
+msgid "Migrate Site"
+msgstr "Migrate Site"
+
+#: admin.php:1954
+msgid "Migration of data from another site happens through the \"Restore\" button. A \"migration\" is ultimately the same as a restoration - but using backup archives that you import from another site. UpdraftPlus modifies the restoration operation appropriately, to fit the backup data to the new site."
+msgstr "Paglipat ng data mula sa ibang site ang mangyayari sa pamamagitan ng \"Ibalik ang \" na button. Ang isang \"sa migration \" ay sa huli katulad ng isang pagbabalik sa dati - ngunit ang paggamit backup archive na-import ka mula sa isa pang site. UpdraftPlus Binabago ang pagpapatakbo pananauli nang naaangkop, upang magkasya ang backup ng data sa bagong site."
+
+#: admin.php:1954
+msgid "<a href=\"%s\">Read this article to see step-by-step how it's done.</a>"
+msgstr "<a href=\"%s\">Read this article to see step-by-step how it's done.</a>"
+
+#: admin.php:1956
+msgid "Do you want to migrate or clone/duplicate a site?"
+msgstr "Gusto mong i-migrate o clone / doblehin ang isang site?"
+
+#: admin.php:1956
+msgid "Then, try out our \"Migrator\" add-on. After using it once, you'll have saved the purchase price compared to the time needed to copy a site by hand."
+msgstr "Pagkatapos, subukan ang aming \"Migrator \" add-on. Pagkatapos gamitin ito nang isang beses, makikita mo na-save ang presyo ng pagbili kumpara sa oras na kinakailangan upang kopyahin ang isang site sa pamamagitan ng kamay."
+
+#: admin.php:1956
+msgid "Get it here."
+msgstr "Kumuha ng mga ito dito."
+
+#: admin.php:2096
+msgid "Deleting... please allow time for the communications with the remote storage to complete."
+msgstr "Tinatanggal ... mangyaring payagan ang oras para sa mga komunikasyon sa remote na imbakan upang makumpleto."
+
+#: admin.php:2095
+msgid "Also delete from remote storage"
+msgstr "Tatanggalin din mula sa remote na imbakan"
+
+#: admin.php:1934
+msgid "Latest UpdraftPlus.com news:"
+msgstr "Pinakabagong balita UpdraftPlus.com:"
+
+#: admin.php:1842
+msgid "Clone/Migrate"
+msgstr "Clone/Migrate"
+
+#: admin.php:1780
+msgid "News"
+msgstr "News"
+
+#: admin.php:1780
+msgid "Premium"
+msgstr "Premium"
+
+#: admin.php:955
+msgid "Local archives deleted: %d"
+msgstr "Lokal na mga archive tinanggal:%d"
+
+#: admin.php:956
+msgid "Remote archives deleted: %d"
+msgstr "Tinanggal Malayuang mga archive:%d"
+
+#: backup.php:120
+msgid "%s - could not back this entity up; the corresponding directory does not exist (%s)"
+msgstr "%s - hindi ma-back ito entity up; ang mga kaukulang direktoryo ay hindi umiiral (%s)"
+
+#: admin.php:870
+msgid "Backup set not found"
+msgstr "Hindi nahanap ang Backup na hanay"
+
+#: admin.php:954
+msgid "The backup set has been removed."
+msgstr "Ang backup na set ay inalis na."
+
+#: updraftplus.php:2604
+msgid "Subscribe to the UpdraftPlus blog to get up-to-date news and offers"
+msgstr "Mag-subscribe sa mga UpdraftPlus blog upang makakuha ng up-to-date balita at alok"
+
+#: updraftplus.php:2604
+msgid "Blog link"
+msgstr "Blog link"
+
+#: updraftplus.php:2604
+msgid "RSS link"
+msgstr "RSS link"
+
+#: methods/stream-base.php:201 methods/s3.php:452 methods/addon-base.php:236
+#: methods/ftp.php:249 addons/sftp.php:385
+msgid "Testing %s Settings..."
+msgstr "Testing %s Settings..."
+
+#: admin.php:2047
+msgid "Or, you can place them manually into your UpdraftPlus directory (usually wp-content/updraft), e.g. via FTP, and then use the \"rescan\" link above."
+msgstr "O, maaari mong ilagay ang mga ito nang mano-mano sa iyong direktoryo ng UpdraftPlus (karaniwan ay wp-content/updraft), hal sa pamamagitan ng FTP, at pagkatapos ay gamitin ang \"rescan \" na link itaas."
+
+#: admin.php:440
+msgid "Notice"
+msgstr "paunawa"
+
+#: admin.php:440
+msgid "UpdraftPlus's debug mode is on. You may see debugging notices on this page not just from UpdraftPlus, but from any other plugin installed. Please try to make sure that the notice you are seeing is from UpdraftPlus before you raise a support request."
+msgstr "Debug mode UpdraftPlus ay on. Maaari kang makakita ng mga abiso sa pag-debug sa pahinang ito hindi lamang mula sa UpdraftPlus, ngunit mula sa iba pang mga plugin na naka-install. Mangyaring subukan upang tiyakin na ang paunawa na nakikita mo ay mula UpdraftPlus bago mong taasan ang isang kahilingan sa suporta."
+
+#: backup.php:499
+msgid "Errors encountered:"
+msgstr "Nakaranas ng mga error:"
+
+#: admin.php:125
+msgid "Rescanning (looking for backups that you have uploaded manually into the internal backup store)..."
+msgstr "Rescanning (naghahanap ng mga backup na manu-mano mong na-upload sa panloob na backup) ..."
+
+#: admin.php:135
+msgid "Begun looking for this entity"
+msgstr "Nagsimula na naghahanap para sa entity na ito"
+
+#: addons/migrator.php:723
+msgid "SQL update commands run:"
+msgstr "SQL update commands run:"
+
+#: admin.php:140 addons/migrator.php:724
+msgid "Errors:"
+msgstr "Errors:"
+
+#: addons/migrator.php:725
+msgid "Time taken (seconds):"
+msgstr "Time taken (seconds):"
+
+#: addons/migrator.php:813
+msgid "rows: %d"
+msgstr "rows: %d"
+
+#: addons/migrator.php:933
+msgid "\"%s\" has no primary key, manual change needed on row %s."
+msgstr "\"%s\" ay walang pangunahing key, kailangan sa hilera %s manu-manong pagbabago."
+
+#: addons/dropbox-folders.php:26
+msgid "Store at"
+msgstr "Store at"
+
+#: addons/migrator.php:588
+msgid "Nothing to do: the site URL is already: %s"
+msgstr "Nothing to do: the site URL is already: %s"
+
+#: addons/migrator.php:597
+msgid "Warning: the database's site URL (%s) is different to what we expected (%s)"
+msgstr "Warning: URL ng site ang database ni (%s) ay naiiba sa kung ano ang aming inaasahan (%s)"
+
+#: addons/migrator.php:613
+msgid "Database search and replace: replace %s in backup dump with %s"
+msgstr "Database ng paghahanap at palitan: palitan ang% s sa backup na tambakan ng basura na may mga% s"
+
+#: addons/migrator.php:644
+msgid "Could not get list of tables"
+msgstr "Hindi makuha ang listahan ng mga talahanayan"
+
+#: addons/migrator.php:681
+msgid "<strong>Search and replacing table:</strong> %s: already done"
+msgstr "<strong>Search and replacing table:</strong> %s: natapos na"
+
+#: addons/migrator.php:720
+msgid "Tables examined:"
+msgstr "Tables examined:"
+
+#: addons/migrator.php:721
+msgid "Rows examined:"
+msgstr "Rows examined:"
+
+#: addons/migrator.php:722
+msgid "Changes made:"
+msgstr "Changes made:"
+
+#: addons/sftp.php:250
+msgid "%s Error: Failed to download"
+msgstr "%s Error: Nabigong i-download"
+
+#: addons/sftp.php:310
+msgid "Resuming partial uploads is not supported, so you will need to ensure that your webserver allows PHP processes to run long enough to upload your largest backup file."
+msgstr "Pagpapatuloy ng bahagyang pag-upload ay hindi suportado, kaya kakailanganin mong tiyakin na ang iyong webserver ay nagbibigay-daan mga proseso ng PHP upang patakbuhin ang haba sapat upang i-upload ang iyong pinakamalaking backup na file."
+
+#: addons/sftp.php:315 addons/moredatabase.php:175
+msgid "Host"
+msgstr "Host"
+
+#: addons/sftp.php:322
+msgid "Port"
+msgstr "Port"
+
+#: udaddons/options.php:113 methods/openstack2.php:127 addons/sftp.php:336
+#: addons/moredatabase.php:177
+msgid "Password"
+msgstr "Password"
+
+#: addons/sftp.php:361
+msgid "Directory path"
+msgstr "Directory path"
+
+#: addons/sftp.php:363
+msgid "Where to change directory to after logging in - often this is relative to your home directory."
+msgstr "Saan upang baguhin ang direktoryo na pagkatapos ng pag-log in - madalas na ito ay may kaugnayan sa iyong home directory."
+
+#: addons/sftp.php:415
+msgid "host name"
+msgstr "host name"
+
+#: methods/openstack2.php:147 addons/sftp.php:419
+msgid "username"
+msgstr "username"
+
+#: methods/openstack2.php:152
+msgid "password"
+msgstr "password"
+
+#: addons/sftp.php:428
+msgid "Failure: Port must be an integer."
+msgstr "Pagkabigo: Port dapat maging isang integer."
+
+#: addons/fixtime.php:120 addons/fixtime.php:129
+msgid "starting from next time it is"
+msgstr "simula sa susunod na panahon ito ay"
+
+#: addons/multisite.php:136
+msgid "Multisite Install"
+msgstr "Multisite I-install"
+
+#: udaddons/options.php:190 addons/multisite.php:142
+msgid "You do not have sufficient permissions to access this page."
+msgstr "Wala kang sapat na mga pahintulot upang ma-access ang pahinang ito."
+
+#: udaddons/options.php:169 addons/multisite.php:161
+msgid "You do not have permission to access this page."
+msgstr "Wala kang pahintulot upang ma-access ang pahinang ito."
+
+#: addons/multisite.php:251
+msgid "Must-use plugins"
+msgstr "Dapat gamitin ng mga plugin"
+
+#: addons/multisite.php:258
+msgid "Blog uploads"
+msgstr "upload blog"
+
+#: addons/migrator.php:265
+msgid "All references to the site location in the database will be replaced with your current site URL, which is: %s"
+msgstr "Ang lahat ng mga sanggunian sa lokasyon ng site sa database ay mapapalitan ng iyong kasalukuyang URL ng site, kung saan ay:%s"
+
+#: addons/migrator.php:265
+msgid "Search and replace site location in the database (migrate)"
+msgstr "Hanapin at palitan ang lokasyon ng site sa database (migrate)"
+
+#: addons/migrator.php:265
+msgid "(learn more)"
+msgstr "(matuto nang higit pa)"
+
+#: addons/migrator.php:465 addons/migrator.php:702
+msgid "Failed: the %s operation was not able to start."
+msgstr "Failed: the %s operation was not able to start."
+
+#: addons/migrator.php:467 addons/migrator.php:704
+msgid "Failed: we did not understand the result returned by the %s operation."
+msgstr "Failed: we did not understand the result returned by the %s operation."
+
+#: addons/migrator.php:525
+msgid "Database: search and replace site URL"
+msgstr "Database: URL maghanap at palitan ang site"
+
+#: addons/migrator.php:529
+msgid "This option was not selected."
+msgstr "Ang pagpipiliang ito ay hindi napili."
+
+#: addons/migrator.php:561 addons/migrator.php:565 addons/migrator.php:569
+#: addons/migrator.php:574 addons/migrator.php:578 addons/migrator.php:582
+msgid "Error: unexpected empty parameter (%s, %s)"
+msgstr "Error: unexpected empty parameter (%s, %s)"
+
+#: addons/morefiles.php:80
+msgid "The above files comprise everything in a WordPress installation."
+msgstr "Ang mga file sa itaas masaklaw ang lahat sa isang WordPress pag-install."
+
+#: addons/morefiles.php:87
+msgid "WordPress core (including any additions to your WordPress root directory)"
+msgstr "WordPress core (kabilang ang anumang mga pagdaragdag sa iyong WordPress root directory)"
+
+#: addons/morefiles.php:142
+msgid "Any other directory on your server that you wish to back up"
+msgstr "Anumang iba pang mga direktoryo sa iyong server na nais mong i-back up"
+
+#: addons/morefiles.php:143
+msgid "More Files"
+msgstr "Higit pang mga File"
+
+#: addons/morefiles.php:172 addons/morefiles.php:183
+msgid "Enter the directory:"
+msgstr "Ipasok ang directory:"
+
+#: addons/morefiles.php:161
+msgid "If you are not sure what this option is for, then you will not want it, and should turn it off."
+msgstr "Kung hindi ka sigurado kung ano ang opsyon na ito ay para sa, pagkatapos ay hindi mo gusto ito, at dapat itong i-off."
+
+#: addons/morefiles.php:161
+msgid "If using it, enter an absolute path (it is not relative to your WordPress install)."
+msgstr "Kung gumagamit nito, ipasok ang isang absolute path (ito ay hindi kaugnay sa iyong WordPress i-install)."
+
+#: addons/morefiles.php:163
+msgid "Be careful what you enter - if you enter / then it really will try to create a zip containing your entire webserver."
+msgstr "Mag-ingat kung ano ang ipinasok mo - kung ipinasok mo ang / pagkatapos ito talaga ay subukan upang lumikha ng isang zip na naglalaman ng iyong buong webserver."
+
+#: addons/morefiles.php:384
+msgid "No backup of %s directories: there was nothing found to back up"
+msgstr "Walang backup ng mga direktoryo% s: nagkaroon walang natagpuan upang i-back up"
+
+#: addons/sftp.php:39
+msgid "Encrypted FTP is available, and will be automatically tried first (before falling back to non-encrypted if it is not successful), unless you disable it using the expert options. The 'Test FTP Login' button will tell you what type of connection is in use."
+msgstr "Naka-encrypt na FTP ay magagamit, at awtomatikong mai-sinubukan muna (bago ang pagbagsak pabalik sa mga di-naka-encrypt na kung ito ay hindi matagumpay), maliban kung hindi mo pinagana ito gamit ang mga pagpipilian sa eksperto. Ang 'Subukan ang FTP Pag-login' na button ay magsasabi sa iyo kung anong uri ng koneksyon na ito ay ginagamit na."
+
+#: addons/sftp.php:39
+msgid "Explicit encryption is used by default. To force implicit encryption (port 990), add :990 to your FTP server below."
+msgstr "Magalang na pag-encrypt ay ginamit sa pamamagitan ng default. Upang puwersahin ang implicit-encrypt (port 990), idagdag: 990 sa iyong FTP server sa ibaba."
+
+#: addons/sftp.php:46 addons/sftp.php:47 addons/sftp.php:48
+msgid "No %s found"
+msgstr "No %s found"
+
+#: addons/sftp.php:458
+msgid "Check your file permissions: Could not successfully create and enter:"
+msgstr "Suriin ang iyong mga pahintulot ng file: ma hindi matagumpay na lumikha at ipasok ang:"
+
+#: methods/ftp.php:322
+msgid "FTP Server"
+msgstr "FTP Server"
+
+#: methods/ftp.php:326
+msgid "FTP Login"
+msgstr "FTP Login"
+
+#: methods/ftp.php:330
+msgid "FTP Password"
+msgstr "FTP Password"
+
+#: methods/ftp.php:334
+msgid "Remote Path"
+msgstr "Remote Path"
+
+#: methods/ftp.php:335
+msgid "Needs to already exist"
+msgstr "Kailangang naka exist"
+
+#: methods/ftp.php:360
+msgid "Failure: No server details were given."
+msgstr "Pagkabigo: Walang mga detalye ng server ay naibigay na."
+
+#: methods/ftp.php:377
+msgid "Failure: we did not successfully log in with those credentials."
+msgstr "Pagkabigo: hindi matagumpay namin ginawa mag-log in gamit ang mga kredensyal."
+
+#: methods/ftp.php:385
+msgid "Failure: an unexpected internal UpdraftPlus error occurred when testing the credentials - please contact the developer"
+msgstr "Pagkabigo: isang hindi inaasahang panloob na error UpdraftPlus naganap kapag pagsubok ng mga kredensyal - mangyaring makipag-ugnay sa nag-develop"
+
+#: methods/ftp.php:389
+msgid "Success: we successfully logged in, and confirmed our ability to create a file in the given directory (login type:"
+msgstr "Tagumpay: matagumpay naming naka-log in, at nakumpirma ang aming kakayahan upang lumikha ng isang file sa ibinigay na direktoryo ng (uri ng pag-login:"
+
+#: methods/ftp.php:392
+msgid "Failure: we successfully logged in, but were not able to create a file in the given directory."
+msgstr "Pagkabigo: matagumpay naming naka-log in, ngunit hindi nagawang lumikha ng isang file sa ibinigay na direktoryo."
+
+#: methods/googledrive.php:138 methods/stream-base.php:32
+#: methods/stream-base.php:139 methods/stream-base.php:174
+#: methods/stream-base.php:258 methods/addon-base.php:56
+#: methods/addon-base.php:92 methods/addon-base.php:117
+#: methods/addon-base.php:165 methods/addon-base.php:260 methods/ftp.php:28
+#: addons/sftp.php:44
+msgid "No %s settings were found"
+msgstr "Walang mga setting ng% s ang natagpuan"
+
+#: methods/stream-base.php:108 methods/stream-base.php:112
+msgid "Chunk %s: A %s error occurred"
+msgstr "Chunk %s: A %s error occurred"
+
+#: methods/stream-base.php:281
+msgid "Error opening remote file: Failed to download"
+msgstr "Error sa pambungad na remote file: Nabigong i-download"
+
+#: methods/stream-base.php:294
+msgid "Local write failed: Failed to download"
+msgstr "Local write failed: Failed to download"
+
+#: addons/webdav.php:36
+msgid "WebDAV URL"
+msgstr "WebDAV URL"
+
+#: addons/webdav.php:40
+msgid "Enter a complete URL, beginning with webdav:// or webdavs:// and including path, username, password and port as required - e.g.%s"
+msgstr "Magpasok ng isang kumpletong URL, na nagsisimula sa webdav :// o webdavs :// at kabilang ang landas, username, password at port bilang kinakailangan - hal%s"
+
+#: admin.php:2521 admin.php:2556 admin.php:2565 methods/stream-base.php:310
+#: methods/addon-base.php:279 addons/sftp.php:445
+msgid "Failed"
+msgstr "Failed"
+
+#: methods/stream-base.php:324 methods/addon-base.php:289
+msgid "Failed: We were not able to place a file in that directory - please check your credentials."
+msgstr "Nabigo: Hindi namin nagawang maglagay ng isang file sa directory na iyon - mangyaring suriin ang iyong mga kredensyal."
+
+#: addons/morefiles.php:57 addons/morefiles.php:384
+msgid "WordPress Core"
+msgstr "WordPress Core"
+
+#: addons/morefiles.php:61
+msgid "Over-write wp-config.php"
+msgstr "Over-write wp-config.php"
+
+#: addons/morefiles.php:61
+msgid "(learn more about this important option)"
+msgstr "(matuto nang higit pa tungkol sa mahalagang opsyon)"
+
+#: methods/dropbox.php:467 methods/dropbox.php:469 addons/bitcasa.php:287
+#: addons/bitcasa.php:289
+msgid "you have authenticated your %s account"
+msgstr "na napatotohanan mo ang account na iyong%s"
+
+#: methods/dropbox.php:472 addons/bitcasa.php:295
+msgid "though part of the returned information was not as expected - your mileage may vary"
+msgstr "bagaman bahagi ng ibinalik na impormasyon ay hindi tulad ng inaasahan - maaaring mag-iba ang iyong mileage"
+
+#: methods/dropbox.php:476 addons/bitcasa.php:305
+msgid "Your %s account name: %s"
+msgstr "Your %s account name: %s"
+
+#: methods/ftp.php:318
+msgid "Only non-encrypted FTP is supported by regular UpdraftPlus."
+msgstr "Tanging ang mga di-naka-encrypt na FTP ay suportado ng mga regular na UpdraftPlus."
+
+#: methods/ftp.php:318
+msgid "If you want encryption (e.g. you are storing sensitive business data), then an add-on is available."
+msgstr "Kung gusto mong pag-encrypt (eg ikaw ay pag-iimbak ng sensitibong data ng negosyo), pagkatapos ay isang add-on ay magagamit."
+
+#: methods/s3.php:433
+msgid "%s Error: Failed to download %s. Check your permissions and credentials."
+msgstr "%s Error: Nabigong i-download ang%s. Suriin ang iyong mga pahintulot at mga kredensyal."
+
+#: methods/s3.php:306 methods/s3.php:368 methods/s3.php:438
+msgid "%s Error: Failed to access bucket %s. Check your permissions and credentials."
+msgstr "Error sa%s: Nabigong i-access bucket%s. Suriin ang iyong mga pahintulot at mga kredensyal."
+
+#: methods/s3.php:519
+msgid "Get your access key and secret key <a href=\"%s\">from your %s console</a>, then pick a (globally unique - all %s users) bucket name (letters and numbers) (and optionally a path) to use for storage. This bucket will be created for you if it does not already exist."
+msgstr "Maging ang iyong access key at sikretong key <a href=\"%s\"> mula sa iyong%s console </a>, pagkatapos ay pumili ng isang (globally natatanging - ang mga gumagamit ang lahat ng%s) pangalan bucket (mga titik at numero) (at opsyonal na isang path) na gagamitin para sa imbakan. Bucket na ito ay nilikha para sa iyo kung ito ay hindi na umiiral."
+
+#: methods/s3.php:519
+msgid "If you see errors about SSL certificates, then please go here for help."
+msgstr "Kung makakita ka ng error tungkol sa SSL certificate, pagkatapos mangyaring pumunta dito para sa tulong."
+
+#: methods/s3.php:530
+msgid "%s access key"
+msgstr "%s access key"
+
+#: methods/s3.php:534
+msgid "%s secret key"
+msgstr "%s secret key"
+
+#: methods/s3.php:538
+msgid "%s location"
+msgstr "%s location"
+
+#: methods/s3.php:539
+msgid "Enter only a bucket name or a bucket and path. Examples: mybucket, mybucket/mypath"
+msgstr "Magpasok lamang ng isang pangalan bucket o isang bucket at path. Mga halimbawa: mybucket, mybucket / mypath"
+
+#: methods/s3.php:561
+msgid "API secret"
+msgstr "API secret"
+
+#: methods/s3.php:582
+msgid "Failure: No bucket details were given."
+msgstr "Pagkabigo: Walang mga detalye bucket ay naibigay na."
+
+#: methods/s3.php:595 methods/openstack2.php:113
+msgid "Region"
+msgstr "Region"
+
+#: methods/s3.php:613
+msgid "Failure: We could not successfully access or create such a bucket. Please check your access credentials, and if those are correct then try another bucket name (as another %s user may already have taken your name)."
+msgstr "Pagkabigo: Hindi namin mai-Matagumpay na ma-access o lumikha ng tulad ng isang bucket. Mangyaring suriin ang iyong mga kredensyal sa pag-access, at kung ang mga tama pagkatapos ay subukan ang ibang pangalan bucket (bilang gumagamit ang isa pang %s ay maaaring nai kinuha ang iyong pangalan)."
+
+#: methods/s3.php:624 methods/s3.php:636
+msgid "Failure"
+msgstr "pagkabigo"
+
+#: methods/s3.php:624 methods/s3.php:636
+msgid "We successfully accessed the bucket, but the attempt to create a file in it failed."
+msgstr "Matagumpay naming na-access ang bucket, ngunit nabigo ang pagtatangka upang lumikha ng isang file sa loob nito."
+
+#: methods/s3.php:626
+msgid "We accessed the bucket, and were able to create files within it."
+msgstr "Na-access namin ang bucket, at nagawang lumikha ng mga file sa loob nito."
+
+#: methods/s3.php:629
+msgid "The communication with %s was encrypted."
+msgstr "Ang pakikipag-usap sa%s ay naka-encrypt."
+
+#: methods/s3.php:631
+msgid "The communication with %s was not encrypted."
+msgstr "Ang pakikipag-usap sa% s ay hindi naka-encrypt."
+
+#: methods/dropbox.php:78 methods/dropbox.php:84
+msgid "You do not appear to be authenticated with Dropbox"
+msgstr "Hindi mo na lumalabas na napatunayang may Dropbox"
+
+#: methods/dropbox.php:168 methods/dropbox.php:185 methods/dropbox.php:190
+msgid "error: failed to upload file to %s (see log file for more)"
+msgstr "Error: Nabigong ma-upload ang file sa% s (tingnan ang log file para sa higit pa)"
+
+#: methods/dropbox.php:396
+msgid "Need to use sub-folders?"
+msgstr "Kailangang gumamit ng mga sub-folder?"
+
+#: methods/dropbox.php:396
+msgid "Backups are saved in"
+msgstr "Pag-backup ay naka-save sa"
+
+#: methods/dropbox.php:396
+msgid "If you back up several sites into the same Dropbox and want to organise with sub-folders, then "
+msgstr "Kung ikaw back up ng ilang mga site sa parehong Dropbox at nais na ayusin na may mga sub-folder, pagkatapos ay"
+
+#: methods/dropbox.php:396
+msgid "there's an add-on for that."
+msgstr "mayroong isang add-on para iyon."
+
+#: methods/cloudfiles.php:487
+msgid "US or UK Cloud"
+msgstr "US o UK Cloud"
+
+#: methods/cloudfiles-new.php:84 methods/cloudfiles.php:490
+#: addons/cloudfiles-enhanced.php:226
+msgid "US (default)"
+msgstr "US (default)"
+
+#: methods/cloudfiles-new.php:85 methods/cloudfiles.php:491
+#: addons/cloudfiles-enhanced.php:227
+msgid "UK"
+msgstr "UK"
+
+#: methods/cloudfiles.php:507
+msgid "Cloud Files username"
+msgstr "Cloud Files username"
+
+#: methods/cloudfiles.php:511
+msgid "Cloud Files API key"
+msgstr "Cloud Files API key"
+
+#: methods/cloudfiles.php:515
+msgid "Cloud Files container"
+msgstr "Cloud Files container"
+
+#: methods/openstack-base.php:453 methods/cloudfiles.php:473 methods/s3.php:509
+msgid "UpdraftPlus's %s module <strong>requires</strong> %s. Please do not file any support requests; there is no alternative."
+msgstr "Module na %s UpdraftPlus ng mga <strong> nangangailangan </ strong>%s. Mangyaring huwag mag-file ng anumang mga kahilingan ng suporta; walang alternatibong."
+
+#: methods/cloudfiles-new.php:143 methods/cloudfiles-new.php:148
+#: methods/cloudfiles.php:529 methods/cloudfiles.php:534 methods/s3.php:557
+#: methods/s3.php:561 methods/addon-base.php:272 methods/ftp.php:364
+#: methods/ftp.php:368 methods/openstack2.php:147 methods/openstack2.php:152
+#: methods/openstack2.php:157 methods/openstack2.php:162 addons/webdav.php:50
+#: addons/sftp.php:415 addons/sftp.php:419 addons/sftp.php:423
+#: addons/moredatabase.php:37 addons/moredatabase.php:39
+#: addons/moredatabase.php:41 addons/migrator.php:96
+msgid "Failure: No %s was given."
+msgstr "Failure: No %s was given."
+
+#: methods/cloudfiles-new.php:143 methods/cloudfiles.php:529 methods/s3.php:557
+msgid "API key"
+msgstr "API key"
+
+#: methods/cloudfiles-new.php:148 methods/cloudfiles.php:534
+#: methods/openstack2.php:121 addons/sftp.php:329 addons/moredatabase.php:176
+msgid "Username"
+msgstr "Username"
+
+#: methods/openstack-base.php:360 methods/cloudfiles.php:554
+msgid "Failure: No container details were given."
+msgstr "Pagkabigo: Walang mga detalye ng container ay naibigay na."
+
+#: methods/cloudfiles.php:581
+msgid "Cloud Files error - we accessed the container, but failed to create a file within it"
+msgstr "Cloud Files error - na-access namin ang lalagyan, ngunit nabigong lumikha ng isang file sa loob nito"
+
+#: methods/openstack-base.php:416 methods/cloudfiles.php:585
+msgid "We accessed the container, and were able to create files within it."
+msgstr "Na-access namin ang lalagyan, at nagawang lumikha ng mga file sa loob nito."
+
+#: methods/email.php:37
+msgid "WordPress Backup"
+msgstr "WordPress Backup"
+
+#: methods/email.php:58
+msgid "Note:"
+msgstr "Note:"
+
+#: methods/s3.php:207
+msgid "%s upload: getting uploadID for multipart upload failed - see log file for more details"
+msgstr "% s pag-upload: Nabigo ang pagkuha ng uploadID para sa multipart pag-upload - makita ang log file para sa higit pang mga detalye"
+
+#: methods/s3.php:230
+msgid "%s error: file %s was shortened unexpectedly"
+msgstr "%s error: file% s ay pinaikling nang hindi inaasahan"
+
+#: methods/s3.php:240
+msgid "%s chunk %s: upload failed"
+msgstr "%s chunk %s: upload failed"
+
+#: methods/s3.php:254
+msgid "%s upload (%s): re-assembly failed (see log for more details)"
+msgstr "%s pag-upload (%s): re-assembly Nabigo (tingnan ang log para sa higit pang mga detalye)"
+
+#: methods/s3.php:258
+msgid "%s re-assembly error (%s): (see log file for more)"
+msgstr "%s re-assembly error (%s): (tingnan ang log file para sa higit pa)"
+
+#: methods/s3.php:270
+msgid "%s Error: Failed to create bucket %s. Check your permissions and credentials."
+msgstr "Error sa%s: Nabigong lumikha ng bucket%s. Suriin ang iyong mga pahintulot at mga kredensyal."
+
+#: methods/googledrive.php:835
+msgid "For longer help, including screenshots, follow this link. The description below is sufficient for more expert users."
+msgstr "Para sa mas mahaba ng tulong, kabilang ang mga screenshot, sundin ang link na ito. Ang paglalarawan sa ibaba ay sapat na para sa higit pang mga user eksperto."
+
+#: methods/googledrive.php:836
+msgid "Select 'Web Application' as the application type."
+msgstr "Sundin ang link na Na Ito Sa na iyong Google API Console, sa doon buhayin ang Drive API sa lumikha Ng isang Client ID Sa seksyon Ng API Access."
+
+#: methods/googledrive.php:836
+msgid "You must add the following as the authorised redirect URI (under \"More Options\") when asked"
+msgstr "Dapat mong idagdag ang mga sumusunod bilang mga awtorisadong URI pag-redirect (sa ilalim \"Higit pang mga Pagpipilian\") kapag tinanong"
+
+#: methods/googledrive.php:843 addons/bitcasa.php:359
+msgid "Client ID"
+msgstr "Client ID"
+
+#: methods/googledrive.php:844
+msgid "If Google later shows you the message \"invalid_client\", then you did not enter a valid client ID here."
+msgstr "Kung ipinapakita ng Google mamaya mo ang mensahe \"invalid_client \", pagkatapos ay hindi ka nagpasok ng isang wastong client ID dito."
+
+#: methods/googledrive.php:847 addons/bitcasa.php:365
+msgid "Client Secret"
+msgstr "Client Secret"
+
+#: methods/googledrive.php:877
+msgid "Authenticate with Google"
+msgstr "Patunayan sa Google"
+
+#: methods/googledrive.php:888
+msgid "<strong>After</strong> you have saved your settings (by clicking 'Save Changes' below), then come back here once and click this link to complete authentication with Google."
+msgstr "<strong>After</strong> na-save mo ang iyong mga setting (sa pamamagitan ng pag-click sa 'I-save ang mga Pagbabago' sa ibaba), at pagkatapos ay bumalik dito sa sandaling at i-click ang link na ito upang makumpleto ang pagpapatunay sa Google."
+
+#: methods/cloudfiles.php:564 methods/cloudfiles.php:567
+#: methods/cloudfiles.php:570 addons/cloudfiles-enhanced.php:76
+#: addons/cloudfiles-enhanced.php:115 addons/cloudfiles-enhanced.php:120
+msgid "Cloud Files authentication failed"
+msgstr "Cloud Files authentication failed"
+
+#: methods/cloudfiles.php:103 methods/cloudfiles.php:344
+#: methods/cloudfiles.php:363
+msgid "Cloud Files error - failed to create and access the container"
+msgstr "Cloud Files error - Nabigo upang lumikha at i-access ang lalagyan"
+
+#: updraftplus.php:828 methods/googledrive.php:681 methods/googledrive.php:686
+#: methods/cloudfiles.php:130
+msgid "%s Error: Failed to open local file"
+msgstr "%s Error: Nabigong buksan ang mga lokal na file"
+
+#: methods/openstack-base.php:65 methods/openstack-base.php:188
+#: methods/cloudfiles.php:147 methods/cloudfiles.php:189 methods/s3.php:181
+#: methods/s3.php:187 methods/s3.php:188 addons/sftp.php:117
+#: addons/sftp.php:127
+msgid "%s Error: Failed to upload"
+msgstr "%s Error: Failed to upload"
+
+#: methods/cloudfiles.php:218
+msgid "Cloud Files error - failed to upload file"
+msgstr "Cloud Files error - ang nabigong mag-upload ng file"
+
+#: updraftplus.php:899 methods/cloudfiles.php:392 methods/stream-base.php:274
+msgid "Error opening local file: Failed to download"
+msgstr "Error sa pagbukas ng mga lokal na file: Nabigong i-download"
+
+#: methods/openstack-base.php:343
+msgid "Error downloading remote file: Failed to download ("
+msgstr "Error sa pag-download ng mga remote file: Nabigong i-download ("
+
+#: methods/openstack-base.php:272 methods/cloudfiles.php:433
+msgid "Testing - Please Wait..."
+msgstr "Pagsubok - Mangyaring Maghintay ..."
+
+#: methods/openstack-base.php:288 methods/openstack-base.php:464
+#: methods/cloudfiles.php:448 methods/cloudfiles.php:521
+#: methods/stream-base.php:210 methods/stream-base.php:232 methods/s3.php:467
+#: methods/s3.php:544 methods/addon-base.php:222 methods/addon-base.php:245
+#: methods/ftp.php:264 methods/ftp.php:339 addons/sftp.php:376
+#: addons/sftp.php:402
+msgid "Test %s Settings"
+msgstr "Test %s Settings"
+
+#: methods/cloudfiles-new.php:77 methods/cloudfiles.php:483
+msgid "Get your API key <a href=\"https://mycloud.rackspace.com/\">from your Rackspace Cloud console</a> (read instructions <a href=\"http://www.rackspace.com/knowledge_center/article/rackspace-cloud-essentials-1-generating-your-api-key\">here</a>), then pick a container name to use for storage. This container will be created for you if it does not already exist."
+msgstr "Kunin ang iyong API key <a href=\"https://mycloud.rackspace.com/\">from your Rackspace Cloud console</a> (read instructions <a href=\"http://www.rackspace.com/knowledge_center/article/rackspace-cloud-essentials-1-generating-your-api-key\">here</a>), pagkatapos ay pumili ng isang pangalan ng container upang gamitin para sa imbakan. Lalagyan na ito ay nilikha para sa iyo kung ito ay hindi na umiiral."
+
+#: methods/cloudfiles-new.php:77 methods/cloudfiles.php:483
+#: methods/openstack2.php:94
+msgid "Also, you should read this important FAQ."
+msgstr "Gayundin, dapat mong basahin ito mahalagang FAQ."
+
+#: methods/googledrive.php:402
+msgid "Account full: your %s account has only %d bytes left, but the file to be uploaded is %d bytes"
+msgstr "Buong account: account iyong%s ay lamang ang natitira%d bytes, ngunit ang mga file na ia-upload ay% d mga byte"
+
+#: methods/googledrive.php:373 methods/googledrive.php:419
+#: methods/googledrive.php:423 methods/stream-base.php:190
+msgid "Failed to upload to %s"
+msgstr "Failed to upload to %s"
+
+#: methods/googledrive.php:442 methods/googledrive.php:443
+msgid "Account is not authorized."
+msgstr "Account is not authorized."
+
+#: methods/googledrive.php:828 methods/openstack-base.php:443
+#: methods/cloudfiles.php:463 methods/stream-base.php:225 methods/s3.php:487
+#: methods/dropbox.php:373 methods/addon-base.php:209 methods/ftp.php:313
+msgid "%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your site is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts."
+msgstr "%s ay isang mahusay na pagpipilian, dahil sumusuporta UpdraftPlus chunked pag-upload - hindi mahalaga kung gaano kalaki ang iyong site ay, UpdraftPlus maaaring mag-upload ito ng kaunti sa isang pagkakataon, at hindi makakuha ng thwarted sa pamamagitan ng timeout."
+
+#: restorer.php:1365
+msgid "will restore as:"
+msgstr "will restore as:"
+
+#: restorer.php:1488 addons/migrator.php:756
+msgid "the database query being run was:"
+msgstr "ang database query tumatakbo ay:"
+
+#: restorer.php:1408
+msgid "Finished: lines processed: %d in %.2f seconds"
+msgstr "Finished: lines processed: %d in %.2f seconds"
+
+#: restorer.php:1556 restorer.php:1613
+msgid "Table prefix has changed: changing %s table field(s) accordingly:"
+msgstr "Ang table prefix ay nagbago:  pagbabago ng table field(s) %s nang naaayon:"
+
+#: restorer.php:1562 restorer.php:1641 admin.php:2524 admin.php:2558
+#: admin.php:2562 admin.php:3853 admin.php:3866
+msgid "OK"
+msgstr "OK"
+
+#: includes/Dropbox/OAuth/Consumer/ConsumerAbstract.php:99
+msgid "You need to re-authenticate with %s, as your existing credentials are not working."
+msgstr "Kailangan mong muling patotohanan gamit ang% s, pati na ang iyong umiiral na mga credential ay hindi gumagana."
+
+#: methods/viaaddon-base.php:29 methods/viaaddon-base.php:43
+#: methods/viaaddon-base.php:52 methods/viaaddon-base.php:62
+msgid "You do not have the UpdraftPlus %s add-on installed - get it from %s"
+msgstr "Wala kang ang UpdraftPlus%s add-on na naka-install - makakuha ng ito mula sa%s"
+
+#: methods/viaaddon-base.php:72
+msgid "%s support is available as an add-on"
+msgstr "support% s ay magagamit bilang isang add-on"
+
+#: methods/viaaddon-base.php:72
+msgid "follow this link to get it"
+msgstr "sundin ang link na ito upang makakuha ng mga ito"
+
+#: methods/googledrive.php:289
+msgid "No refresh token was received from Google. This often means that you entered your client secret wrongly, or that you have not yet re-authenticated (below) since correcting it. Re-check it, then follow the link to authenticate again. Finally, if that does not work, then use expert mode to wipe all your settings, create a new Google client ID/secret, and start again."
+msgstr "Walang mga token refresh na natanggap mula sa Google. Madalas Nangangahulugan ito na ang ipinasok mong lihim ang iyong client na mali, o na hindi ka pa muling napatunayang (sa ibaba) mula noong pagwawasto ito. Muling suriin ito, pagkatapos ay sundin ang link na ito upang patotohanan muli. Panghuli, kung hindi iyon gumana, pagkatapos ay gamitin ang mga dalubhasang mode upang punasan ang lahat ng iyong mga setting, lumikha ng bagong Google client ID / lihim, at simulan muli."
+
+#: methods/googledrive.php:297
+msgid "Authorization failed"
+msgstr "Authorization failed"
+
+#: methods/googledrive.php:324 methods/dropbox.php:489 addons/bitcasa.php:312
+msgid "Your %s quota usage: %s %% used, %s available"
+msgstr "Your %s quota usage: %s %% used, %s available"
+
+#: methods/googledrive.php:350 methods/openstack-base.php:416
+#: methods/cloudfiles.php:585 methods/stream-base.php:321 methods/s3.php:626
+#: methods/addon-base.php:286 addons/sftp.php:478
+msgid "Success"
+msgstr "Success"
+
+#: methods/googledrive.php:350
+msgid "you have authenticated your %s account."
+msgstr "you have authenticated your %s account."
+
+#: methods/googledrive.php:476
+msgid "Have not yet obtained an access token from Google - you need to authorise or re-authorise your connection to Google Drive."
+msgstr "Hindi pa nakuha ng token sa pag-access mula sa Google - kailangan mo upang pahintulutan o muling pahintulutan ang iyong koneksyon sa Google Drive."
+
+#: restorer.php:363
+msgid "wp-config.php from backup: restoring (as per user's request)"
+msgstr "wp-config.php mula sa backup: pagpapanumbalik (bilang ng bawat kahilingan gumagamit)"
+
+#: restorer.php:1034
+msgid "Warning: PHP safe_mode is active on your server. Timeouts are much more likely. If these happen, then you will need to manually restore the file via phpMyAdmin or another method."
+msgstr "Warning: safe_mode PHP ay aktibo sa iyong server. Mangyaring mag timeout. Kung ito ay mangyayari, kailangan mong manwal na ibalik ang mga file sa pamamagitan ng phpMyAdmin o ibang paraan."
+
+#: restorer.php:1052
+msgid "Failed to find database file"
+msgstr "Nabigong mahanap ang database file"
+
+#: restorer.php:1066
+msgid "Failed to open database file"
+msgstr "Nabigong mabuksan ang database file"
+
+#: restorer.php:1071 addons/migrator.php:316
+msgid "Database access: Direct MySQL access is not available, so we are falling back to wpdb (this will be considerably slower)"
+msgstr "Access Database: ang Direct MySQL access ay hindi magagamit, kaya kami ay pabalik sa wpdb (ito ay magiging lubhang mas mabagal)"
+
+#: backup.php:555 admin.php:1304 addons/reporting.php:111
+msgid "Backup of:"
+msgstr "Backup ng:"
+
+#: restorer.php:1187 restorer.php:1278 restorer.php:1298
+msgid "Old table prefix:"
+msgstr "Old table prefix:"
+
+#: admin.php:3863
+msgid "Archive is expected to be size:"
+msgstr "Archive ay inaasahang maging sukat:"
+
+#: admin.php:3871
+msgid "The backup records do not contain information about the proper size of this file."
+msgstr "Ang mga tala ng backup na hindi naglalaman ng impormasyon tungkol sa tamang laki ng file na ito."
+
+#: admin.php:3944
+msgid "Error message"
+msgstr "Error message"
+
+#: admin.php:3874 admin.php:3875
+msgid "Could not find one of the files for restoration"
+msgstr "Hindi mahanap ang isa sa mga file para sa muling pagbabalik"
+
+#: restorer.php:51
+msgid "UpdraftPlus is not able to directly restore this kind of entity. It must be restored manually."
+msgstr "Ang UpdraftPlus ay hindi magawang direktang ibalik ang ganitong uri ng entity  Ito ay dapat manu-mano na maibabalik."
+
+#: restorer.php:52
+msgid "Backup file not available."
+msgstr "Hindi available ang backup na file."
+
+#: restorer.php:53
+msgid "Copying this entity failed."
+msgstr "Nabigo ang pagkopya ng mga entity na ito."
+
+#: restorer.php:54
+msgid "Unpacking backup..."
+msgstr "Unpacking backup ..."
+
+#: restorer.php:55
+msgid "Decrypting database (can take a while)..."
+msgstr "Decrypting database (maaaring tumagal) ..."
+
+#: restorer.php:56
+msgid "Database successfully decrypted."
+msgstr "Database successfully decrypted."
+
+#: restorer.php:59
+msgid "Restoring the database (on a large site this can take a long time - if it times out (which can happen if your web hosting company has configured your hosting to limit resources) then you should use a different method, such as phpMyAdmin)..."
+msgstr "Ipinapanumbalik ang database (sa isang malaking site ay maaaring ito tumagal ng isang mahabang oras - kung ito ay mag time out (na maaaring mangyari kung ang iyong weg host ay na-configure ang iyong pagho-host upang limitahan ang mga mapagkukunan) pagkatapos ay dapat gumamit ng ibang paraan, katulad ng phpMyAdmin) .. ."
+
+#: restorer.php:60
+msgid "Cleaning up rubbish..."
+msgstr "Cleaning up rubbish..."
+
+#: restorer.php:62
+msgid "Could not delete old directory."
+msgstr "Hindi matanggal ang lumang direktoryo."
+
+#: restorer.php:65
+msgid "Failed to delete working directory after restoring."
+msgstr "Nabigong tanggalin nagtatrabaho direktoryo pagkatapos ng pagpapanumbalik."
+
+#: restorer.php:252
+msgid "Failed to create a temporary directory"
+msgstr "Nabigong lumikha ng pansamantalang direktoryo"
+
+#: restorer.php:265
+msgid "Failed to write out the decrypted database to the filesystem"
+msgstr "Nabigong isulat ang decrypted database sa filesystem"
+
+#: restorer.php:358
+msgid "wp-config.php from backup: will restore as wp-config-backup.php"
+msgstr "wp-config.php mula sa backup: maibabalik bilang wp-config-backup.php"
+
+#: admin.php:3061
+msgid "Choosing this option lowers your security by stopping UpdraftPlus from using SSL for authentication and encrypted transport at all, where possible. Note that some cloud storage providers do not allow this (e.g. Dropbox), so with those providers this setting will have no effect."
+msgstr "Ang pagpili sa pagpipiliang pinabababa ang iyong seguridad sa pamamagitan ng pagtigil ng UpdraftPlus mula sa paggamit ng SSL para sa pagpapatunay at naka-encrypt na transportasyon sa lahat, kung saan posible. Tandaan na ang ilang ulap imbakan provider huwag payagan ang mga ito (eg Dropbox), kaya may mga provider ang setting na ito ay hindi magkakaroon ng epekto."
+
+#: admin.php:3085
+msgid "Save Changes"
+msgstr "Save Changes"
+
+#: methods/openstack-base.php:453 methods/cloudfiles.php:473 methods/s3.php:509
+msgid "Your web server's PHP installation does not included a required module (%s). Please contact your web hosting provider's support."
+msgstr "Pag-install ng PHP Ang iyong web server ay hindi isinama ng isang kinakailangang module (% s). Mangyaring makipag-ugnay sa suporta ng iyong web hosting provider."
+
+#: admin.php:3122
+msgid "Your web server's PHP/Curl installation does not support https access. Communications with %s will be unencrypted. ask your web host to install Curl/SSL in order to gain the ability for encryption (via an add-on)."
+msgstr "Hindi sinusuportahan ng pag-install ng PHP / kulutin ang iyong mga web server ay https access. Komunikasyon sa% s ay magiging unencrypted. tanungin ang iyong web host upang i-install kulutin / SSL upang makakuha ng kakayahan para sa pag-encrypt (sa pamamagitan ng isang add-on)."
+
+#: admin.php:3124
+msgid "Your web server's PHP/Curl installation does not support https access. We cannot access %s without this support. Please contact your web hosting provider's support. %s <strong>requires</strong> Curl+https. Please do not file any support requests; there is no alternative."
+msgstr "Hindi sinusuportahan ng pag-install ng PHP / kulutin ang iyong mga web server ay https access. Hindi namin ma-access ang%s na walang suporta na ito. Mangyaring makipag-ugnay sa suporta ng iyong web hosting provider. %s ay nangangailangan ng <strong> </strong> mabaluktot + https. Mangyaring huwag mag-file ng anumang mga kahilingan ng suporta; walang alternatibong."
+
+#: admin.php:3127
+msgid "Good news: Your site's communications with %s can be encrypted. If you see any errors to do with encryption, then look in the 'Expert Settings' for more help."
+msgstr "Magandang balita: komunikasyon ng iyong site sa% s ay maaaring naka-encrypt. Kung nakikita mo ang anumang mga error ang gagawin sa pag-encrypt, pagkatapos ay tumingin sa 'Mga Setting Expert' para sa karagdagang tulong."
+
+#: admin.php:3244
+msgid "Delete this backup set"
+msgstr "Tanggalin ang backup set"
+
+#: admin.php:3358
+msgid "Press here to download"
+msgstr "Pindutin dito upang i-download"
+
+#: admin.php:3283 admin.php:3386
+msgid "(No %s)"
+msgstr "(Walang%s)"
+
+#: admin.php:3395
+msgid "Backup Log"
+msgstr "Backup Log"
+
+#: admin.php:3423
+msgid "After pressing this button, you will be given the option to choose which components you wish to restore"
+msgstr "Pagkatapos pindutin ang pindutang ito, ikaw ay bibigyan ng pagpipilian upang piliin kung aling mga bahagi naisin mong ibalik"
+
+#: admin.php:3693
+msgid "This backup does not exist in the backup history - restoration aborted. Timestamp:"
+msgstr "Backup na ito ay wala sa backup kasaysayan - pagpapanumbalik Itinigil. Timestamp:"
+
+#: admin.php:3732
+msgid "UpdraftPlus Restoration: Progress"
+msgstr "UpdraftPlus Restoration: Progreso"
+
+#: admin.php:3778
+msgid "ABORT: Could not find the information on which entities to restore."
+msgstr "I-abort: Hindi mahanap ang impormasyon sa kung aling mga entity upang ibalik."
+
+#: admin.php:3779
+msgid "If making a request for support, please include this information:"
+msgstr "Kung sa paggawa ng isang kahilingan para sa suporta, mangyaring isama ang impormasyong ito:"
+
+#: admin.php:3055
+msgid "Do not verify SSL certificates"
+msgstr "Do not verify SSL certificates"
+
+#: admin.php:3056
+msgid "Choosing this option lowers your security by stopping UpdraftPlus from verifying the identity of encrypted sites that it connects to (e.g. Dropbox, Google Drive). It means that UpdraftPlus will be using SSL only for encryption of traffic, and not for authentication."
+msgstr "Ang pagpili sa pagpipiliang pinabababa ang iyong seguridad sa pamamagitan ng pagtigil ng UpdraftPlus mula verify ang pagkakakilanlan ng naka-encrypt na mga site na nag-uugnay ito sa (eg Dropbox, Google Drive). Ito ay nangangahulugan na UpdraftPlus ay gumagamit ng SSL lamang para sa pag-encrypt ng trapiko, at hindi para sa pagpapatotoo."
+
+#: admin.php:3056
+msgid "Note that not all cloud backup methods are necessarily using SSL authentication."
+msgstr "Tandaan na hindi lahat ng mga pamamaraan na ulap backup ay kinakailangang gamit ang SSL pagpapatunay."
+
+#: admin.php:3060
+msgid "Disable SSL entirely where possible"
+msgstr "Huwag paganahin ang ganap na SSL kung saan posible"
+
+#: admin.php:3002
+msgid "Expert settings"
+msgstr "Expert settings"
+
+#: admin.php:3003
+msgid "Show expert settings"
+msgstr "Ipakita ang mga setting sa mga dalubhasang"
+
+#: admin.php:3003
+msgid "click this to show some further options; don't bother with this unless you have a problem or are curious."
+msgstr "i-click ito upang ipakita ang ilang mga karagdagang pagpipilian; huwag mag-abala na may ito maliban kung mayroon kang problema o mga kataka-taka."
+
+#: admin.php:3023
+msgid "Delete local backup"
+msgstr "Tanggalin ang mga lokal na backup"
+
+#: admin.php:3028
+msgid "Backup directory"
+msgstr "Backup na direktoryo ng"
+
+#: admin.php:3035
+msgid "Backup directory specified is writable, which is good."
+msgstr "Backup na direktoryo tinukoy ay writable, na mahusay."
+
+#: admin.php:3043
+msgid "Click here to attempt to create the directory and set the permissions"
+msgstr "Mag-click dito upang subukang gumawa ng mga direktoryo at itakda ang mga pahintulot"
+
+#: admin.php:3043
+msgid "or, to reset this option"
+msgstr "o, i-reset ang opsyon na ito"
+
+#: admin.php:3043
+msgid "click here"
+msgstr "mag-click dito"
+
+#: admin.php:3043
+msgid "If that is unsuccessful check the permissions on your server or change it to another directory that is writable by your web server process."
+msgstr "Kung iyon ay hindi matagumpay na suriin ang mga pahintulot sa iyong server o baguhin ito sa isa pang directory na iyon ay writable sa pamamagitan ng iyong proseso ng web server."
+
+#: admin.php:3050
+msgid "Use the server's SSL certificates"
+msgstr "Use the server's SSL certificates"
+
+#: admin.php:3051
+msgid "By default UpdraftPlus uses its own store of SSL certificates to verify the identity of remote sites (i.e. to make sure it is talking to the real Dropbox, Amazon S3, etc., and not an attacker). We keep these up to date. However, if you get an SSL error, then choosing this option (which causes UpdraftPlus to use your web server's collection instead) may help."
+msgstr "Sa pamamagitan ng default UpdraftPlus ay gumagamit ng sarili nitong tindahan ng SSL certificate upang ma-verify ang pagkakakilanlan ng remote na mga site (ibig sabihin upang tiyakin na ito ay pakikipag-usap sa real Dropbox, Amazon S3, atbp, at hindi sa isang nang-aatake). Panatilihin namin ang mga napapanahon. Gayunpaman, kung ikaw ay makakuha ng SSL error, pagkatapos ay pagpili sa pagpipiliang ito (na nagiging sanhi ng UpdraftPlus upang gamitin ang koleksyon ng iyong mga web server sa halip) ay maaaring makatulong."
+
+#: admin.php:2803
+msgid "Use WordShell for automatic backup, version control and patching"
+msgstr "Gamitin WordShell para sa awtomatikong pag-backup, bersyon control at patching"
+
+#: admin.php:2894 udaddons/options.php:111
+msgid "Email"
+msgstr "Email"
+
+#: admin.php:2814
+msgid "Database encryption phrase"
+msgstr "Parirala ng pag-encrypt ng Database"
+
+#: admin.php:2830
+msgid "Manually decrypt a database backup file"
+msgstr "Manu-manong i-decrypt ang isang database backup file"
+
+#: admin.php:2910
+msgid "Copying Your Backup To Remote Storage"
+msgstr "Kinokopya ang iyong Backup Upang Remote Imbakan"
+
+#: admin.php:2920
+msgid "Choose your remote storage"
+msgstr "Piliin ang iyong remote na imbakan"
+
+#: admin.php:2929 addons/reporting.php:156
+msgid "None"
+msgstr "wala"
+
+#: admin.php:165
+msgid "Cancel"
+msgstr "Cancel"
+
+#: admin.php:149
+msgid "Requesting start of backup..."
+msgstr "Humihiling ng pagsisimula ng mga backup ..."
+
+#: admin.php:2998
+msgid "Advanced / Debugging Settings"
+msgstr "Mga Setting ng Advanced / Pag-debug"
+
+#: admin.php:3013
+msgid "Debug mode"
+msgstr "Debug mode"
+
+#: admin.php:2802
+msgid "The above directories are everything, except for WordPress core itself which you can download afresh from WordPress.org."
+msgstr "Ang mga direktoryo sa itaas ay ang lahat ng bagay, maliban para sa WordPress core mismo kung saan maaari mong i-download muli pa mula sa WordPress.org."
+
+#: admin.php:2701
+msgid "Daily"
+msgstr "Daily"
+
+#: admin.php:2702
+msgid "Weekly"
+msgstr "Weekly"
+
+#: admin.php:2703
+msgid "Fortnightly"
+msgstr "Fortnightly"
+
+#: admin.php:2704
+msgid "Monthly"
+msgstr "Monthly"
+
+#: admin.php:2730 admin.php:2758
+msgid "and retain this many backups"
+msgstr "at panatilihin ang maraming mga pag-backup"
+
+#: admin.php:2747
+msgid "Database backup intervals"
+msgstr "Mga pagitan ng Database backup"
+
+#: admin.php:2765
+msgid "If you would like to automatically schedule backups, choose schedules from the dropdowns above. Backups will occur at the intervals specified. If the two schedules are the same, then the two backups will take place together. If you choose \"manual\" then you must click the \"Backup Now\" button whenever you wish a backup to occur."
+msgstr "Kung nais mong awtomatikong iskedyul ang backup, piliin ang mga iskedyul mula sa dropdowns sa itaas. Pag-backup ay magaganap sa mga pagitan tinukoy. Kung ang dalawang mga iskedyul ay pareho, pagkatapos ay ang dalawang mga backup ay magdadala sa lugar magkakasama. Kung pinili mo ang \"manu-manong \" at pagkatapos dapat kang i-click ang pindutan ng \"Ngayon Backup\" sa tuwing gusto mo ng backup na mangyari."
+
+#: admin.php:2766
+msgid "To fix the time at which a backup should take place,"
+msgstr "Upang ayusin ang oras kung ang isang backup ay dapat na maganap,"
+
+#: admin.php:2766
+msgid "e.g. if your server is busy at day and you want to run overnight"
+msgstr "halimbawa kung ang iyong server ay abala sa araw at gusto mong patakbuhin ang magdamag"
+
+#: admin.php:2770
+msgid "Include in files backup"
+msgstr "Isama sa mga file na backup"
+
+#: admin.php:2782
+msgid "Any other directories found inside wp-content"
+msgstr "Anumang iba pang mga direktoryo natagpuan sa loob wp-content"
+
+#: admin.php:2788 addons/morefiles.php:218
+msgid "Exclude these:"
+msgstr "Exclude these:"
+
+#: admin.php:2260
+msgid "Debug Database Backup"
+msgstr "I-debug ang Database Backup"
+
+#: admin.php:2260
+msgid "This will cause an immediate DB backup. The page will stall loading until it finishes (ie, unscheduled). The backup may well run out of time; really this button is only helpful for checking that the backup is able to get through the initial stages, or for small WordPress sites.."
+msgstr "Magiging sanhi ito ng isang agarang DB backup. Ang pahina na stall paglo-load ng hanggang sa ito tatapusin (ibig sabihin, unscheduled). Ang backup ay maaaring na rin mauubusan ng oras; talaga ang pindutang ito ay kapaki-pakinabang lamang para sa pagsusuri na ang backup ay maaaring makakuha ng sa pamamagitan ng paunang yugto, o para sa maliit na mga site ng WordPress .."
+
+#: admin.php:2266
+msgid "Wipe Settings"
+msgstr "Wipe Settings"
+
+#: admin.php:2267
+msgid "This button will delete all UpdraftPlus settings (but not any of your existing backups from your cloud storage). You will then need to enter all your settings again. You can also do this before deactivating/deinstalling UpdraftPlus if you wish."
+msgstr "Ang pindutan na ito ay magtatanggal sa lahat setting UpdraftPlus (ngunit hindi ang anuman sa iyong umiiral na mga backup mula sa iyong ulap imbakan). Makikita mo pagkatapos kailangang ipasok muli ang lahat ng iyong mga setting. Maaari mo ring gawin ito bago Hindi pagsasa-aktibo / deinstalling UpdraftPlus kung nais mo."
+
+#: admin.php:2270
+msgid "Wipe All Settings"
+msgstr "Wipe All Settings"
+
+#: admin.php:2270
+msgid "This will delete all your UpdraftPlus settings - are you sure you want to do this?"
+msgstr "Tatanggalin nito ang lahat ng iyong mga setting ng UpdraftPlus - sigurado ka ba na gusto mong gawin ito?"
+
+#: admin.php:2461
+msgid "show log"
+msgstr "show log"
+
+#: admin.php:2463
+msgid "delete schedule"
+msgstr "delete schedule"
+
+#: admin.php:166 admin.php:2518 admin.php:2551
+msgid "Delete"
+msgstr "Delete"
+
+#: admin.php:2602
+msgid "The request to the filesystem to create the directory failed."
+msgstr "Nabigo ang kahilingan sa filesystem upang lumikha ng direktoryo."
+
+#: admin.php:2616
+msgid "The folder was created, but we had to change its file permissions to 777 (world-writable) to be able to write to it. You should check with your hosting provider that this will not cause any problems"
+msgstr "Ang folder ay nilikha, ngunit namin ay may upang baguhin ang mga pahintulot ng file nito sa 777 (mundo-writable) upang magagawang magsulat dito. Dapat mong suriin sa iyong hosting provider na ito ay hindi magsasanhi ng anumang mga problema"
+
+#: admin.php:2620
+msgid "The folder exists, but your webserver does not have permission to write to it."
+msgstr "Ang folder na umiiral, ngunit ang iyong webserver ay walang pahintulot na magsulat sa mga ito."
+
+#: admin.php:2620
+msgid "You will need to consult with your web hosting provider to find out to set permissions for a WordPress plugin to write to the directory."
+msgstr "Kailangan mong sumangguni sa iyong web hosting provider upang malaman upang itakda ang mga pahintulot para sa isang WordPress Plugin na magsulat sa direktoryo."
+
+#: admin.php:2684
+msgid "Download log file"
+msgstr "I-download ang log file"
+
+#: admin.php:2688
+msgid "No backup has been completed."
+msgstr "Walang backup ay nakumpleto."
+
+#: admin.php:2717
+msgid "File backup intervals"
+msgstr "Mga pagitan backup file"
+
+#: admin.php:2697
+msgid "Manual"
+msgstr "Manual"
+
+#: admin.php:1968
+msgid "To proceed, press 'Backup Now'. Then, watch the 'Last Log Message' field for activity after about 10 seconds. WordPress should start the backup running in the background."
+msgstr "Upang magpatuloy, pindutin ang 'I-backup Ngayon'. Pagkatapos, panoorin ang patlang na 'Huling Mensahe Log' para sa aktibidad makalipas ang 10 segundo. Dapat na magsimula ng WordPress ang backup na tumakbo sa background."
+
+#: admin.php:1976
+msgid "Go here for help."
+msgstr "Pumunta dito para sa tulong."
+
+#: admin.php:1982
+msgid "Multisite"
+msgstr "Multisite"
+
+#: admin.php:1986
+msgid "Do you need WordPress Multisite support?"
+msgstr "Kailangan ba ninyo ng WordPress Multisite suporta?"
+
+#: admin.php:1986
+msgid "Please check out UpdraftPlus Premium, or the stand-alone Multisite add-on."
+msgstr "Mangyaring tingnan ang UpdraftPlus Premium, o ang stand-alone Multisite add-on."
+
+#: admin.php:1999
+msgid "Configure Backup Contents And Schedule"
+msgstr "I-configure ang Backup Mga Nilalaman At Iskedyul"
+
+#: admin.php:2181
+msgid "Debug Information And Expert Options"
+msgstr "Mga Pagpipilian Impormasyon Debug At Expert"
+
+#: admin.php:2185
+msgid "Web server:"
+msgstr "Web server:"
+
+#: admin.php:2193
+msgid "Peak memory usage"
+msgstr "Peak memory usage"
+
+#: admin.php:2194
+msgid "Current memory usage"
+msgstr "Current memory usage"
+
+#: admin.php:2196 admin.php:2197 admin.php:2204
+msgid "%s version:"
+msgstr "%s version:"
+
+#: admin.php:2206 admin.php:2209 admin.php:2213
+msgid "Yes"
+msgstr "oo"
+
+#: admin.php:2209 admin.php:2213
+msgid "No"
+msgstr "hindi"
+
+#: admin.php:2232
+msgid "Total (uncompressed) on-disk data:"
+msgstr "Kabuuang (hindi naka-compress) on-disk data:"
+
+#: admin.php:2233
+msgid "N.B. This count is based upon what was, or was not, excluded the last time you saved the options."
+msgstr "N.B. Count na ito ay batay sa kung ano ang, o hindi, ibinukod ang huling beses na nai-save ang mga pagpipilian."
+
+#: admin.php:2241
+msgid "count"
+msgstr "count"
+
+#: admin.php:2255
+msgid "Debug Full Backup"
+msgstr "I-debug ang Buong Backup"
+
+#: admin.php:2255
+msgid "This will cause an immediate backup. The page will stall loading until it finishes (ie, unscheduled)."
+msgstr "Magiging sanhi ito ng isang agarang backup. Ang pahina na stall paglo-load ng hanggang sa ito tatapusin (ibig sabihin, unscheduled)."
+
+#: admin.php:2046
+msgid "UpdraftPlus - Upload backup files"
+msgstr "UpdraftPlus - Mag-upload ng mga backup file"
+
+#: admin.php:2047
+msgid "Upload files into UpdraftPlus. Use this to import backups made on a different WordPress installation."
+msgstr "Mag-upload ng mga file sa UpdraftPlus. Gamitin ito upang i-import ang backup na ginawa sa isang iba't ibang mga pag-install ng WordPress."
+
+#: admin.php:2058 admin.php:2843
+msgid "or"
+msgstr "or"
+
+#: admin.php:134
+msgid "calculating..."
+msgstr "calculating..."
+
+#: restorer.php:996 admin.php:142 admin.php:3868 admin.php:3898
+#: addons/cloudfiles-enhanced.php:79 addons/sftp.php:730
+#: addons/migrator.php:226 addons/migrator.php:459 addons/migrator.php:644
+#: addons/migrator.php:696 addons/migrator.php:756 addons/migrator.php:933
+msgid "Error:"
+msgstr "Error:"
+
+#: admin.php:144
+msgid "You should:"
+msgstr "Kailangan:"
+
+#: admin.php:148
+msgid "Download error: the server sent us a response which we did not understand."
+msgstr "I-download ang error: Ipinadala sa amin ang server ng isang tugon na hindi namin naintindihan."
+
+#: admin.php:2084
+msgid "Delete backup set"
+msgstr "Tanggalin ang backup set"
+
+#: admin.php:2102
+msgid "Restore backup"
+msgstr "Restore backup"
+
+#: admin.php:2103
+msgid "Restore backup from"
+msgstr "Restore backup from"
+
+#: admin.php:2115
+msgid "Restoring will replace this site's themes, plugins, uploads, database and/or other content directories (according to what is contained in the backup set, and your selection)."
+msgstr "Ipinapanumbalik ay papalit sa tema ng site na ito, plugin, upload, database at / o iba pang mga direktoryo ng nilalaman (ayon sa kung ano ay nilalaman sa backup set, at ang iyong pagpili)."
+
+#: admin.php:2115
+msgid "Choose the components to restore"
+msgstr "Piliin ang mga bahagi upang ipanumbalik"
+
+#: admin.php:2125
+msgid "Your web server has PHP's so-called safe_mode active."
+msgstr "Ang iyong web server ay PHP naaktibong tinatawag na safe_mode."
+
+#: admin.php:2125
+msgid "This makes time-outs much more likely. You are recommended to turn safe_mode off, or to restore only one entity at a time, <a href=\"http://updraftplus.com/faqs/i-want-to-restore-but-have-either-cannot-or-have-failed-to-do-so-from-the-wp-admin-console/\">or to restore manually</a>."
+msgstr "Ginagawa nitong mas malamang time-out. Ikaw ay inirerekumenda upang i-safe_mode off, o upang ibalik lamang ng isang entity sa isang pagkakataon, <a href=\"http://updraftplus.com/faqs/i-want-to-restore-but-have-either-cannot-or-have-failed-to-do-so-from-the-wp-admin-console/\">or to restore manually</a>."
+
+#: admin.php:2138
+msgid "The following entity cannot be restored automatically: \"%s\"."
+msgstr "Ang mga sumusunod na entity ay hindi maaaring awtomatikong naibalik: \"%s\"."
+
+#: admin.php:2138
+msgid "You will need to restore it manually."
+msgstr "Kailangan mong ibalik ito ng mano-mano."
+
+#: admin.php:2145 addons/morefiles.php:57
+msgid "%s restoration options:"
+msgstr "%s opsyon sa pagpapanumbalik:"
+
+#: admin.php:2153
+msgid "You can search and replace your database (for migrating a website to a new location/URL) with the Migrator add-on - follow this link for more information"
+msgstr "Maaari kang maghanap at palitan ang iyong database (para sa paglipat sa isang website sa isang bagong lokasyon / URL) na may Migrator add-on - sundin ang link na ito para sa karagdagang impormasyon"
+
+#: admin.php:2164
+msgid "Do read this helpful article of useful things to know before restoring."
+msgstr "Basahin ba ito nakatulong sa artikulo ng kapaki-pakinabang na mga bagay upang malaman bago pagpapanumbalik."
+
+#: admin.php:1967
+msgid "Perform a one-time backup"
+msgstr "Magsagawa ng isang backup minsanang"
+
+#: admin.php:1889
+msgid "Time now"
+msgstr "Time now"
+
+#: admin.php:164 admin.php:1836
+msgid "Backup Now"
+msgstr "I-backup Ngayon"
+
+#: admin.php:169 admin.php:1839 admin.php:3425
+msgid "Restore"
+msgstr "Restore"
+
+#: admin.php:1918 addons/autobackup.php:67 addons/autobackup.php:152
+msgid "Last log message"
+msgstr "Last log message"
+
+#: admin.php:1920
+msgid "(Nothing yet logged)"
+msgstr "(Nothing yet logged)"
+
+#: admin.php:1921
+msgid "Download most recently modified log file"
+msgstr "I-download ang pinaka-kamakailang binagong log file"
+
+#: admin.php:1926
+msgid "Backups, logs & restoring"
+msgstr "Backup, mga tala at pagpapanumbalik"
+
+#: admin.php:1927
+msgid "Press to see available backups"
+msgstr "Pindutin ang upang makita ang mga available na backup"
+
+#: admin.php:1011 admin.php:1108 admin.php:1927
+msgid "%d set(s) available"
+msgstr "%d set(s) available"
+
+#: admin.php:2023
+msgid "Downloading"
+msgstr "Nagda-download"
+
+#: admin.php:2023
+msgid "Pressing a button for Database/Plugins/Themes/Uploads/Others will make UpdraftPlus try to bring the backup file back from the remote storage (if any - e.g. Amazon S3, Dropbox, Google Drive, FTP) to your webserver. Then you will be allowed to download it to your computer. If the fetch from the remote storage stops progressing (wait 30 seconds to make sure), then press again to resume. Remember that you can also visit the cloud storage vendor's website directly."
+msgstr "Ang pagpindot sa isang pindutan para sa Database / Mga Plugin / Mga Tema / Mga Upload / Iba pa gagawa UpdraftPlus subukan upang dalhin ang backup na file pabalik mula sa remote na imbakan (kung mayroon man - hal Amazon S3, Dropbox, Google Drive, FTP) sa iyong webserver. Pagkatapos ay ikaw ay pinapayagan upang i-download ito sa iyong computer. Kung ang fetch mula sa remote na imbakan tumitigil progressing (maghintay ng 30 segundo upang matiyak na), pagkatapos ay pindutin muli upang magpatuloy. Alalahanin na maaari mo ring bisitahin ang website nang direkta sa cloud imbakan vendor."
+
+#: admin.php:2028
+msgid "More tasks:"
+msgstr "More tasks:"
+
+#: admin.php:2030
+msgid "Press here to look inside your UpdraftPlus directory (in your web hosting space) for any new backup sets that you have uploaded. The location of this directory is set in the expert settings, below."
+msgstr "Pindutin dito upang tumingin sa loob ng iyong direktoryo ng UpdraftPlus (sa iyong web hosting puwang) para sa anumang bagong mga backup na nagtatakda na iyong na-upload. Ang lokasyon ng direktoryong ito ay naka-set sa mga setting ng ekspertong, sa ibaba."
+
+#: admin.php:2035
+msgid "Opera web browser"
+msgstr "Opera web browser"
+
+#: admin.php:2035
+msgid "If you are using this, then turn Turbo/Road mode off."
+msgstr "Kung ikaw ay gumagamit ng ito, pagkatapos ay i-mode Turbo / Road off."
+
+#: admin.php:2040 methods/googledrive.php:138 methods/googledrive.php:350
+#: methods/googledrive.php:373 methods/googledrive.php:402
+#: methods/googledrive.php:409 methods/googledrive.php:419
+#: methods/googledrive.php:423 methods/googledrive.php:827
+#: methods/googledrive.php:843 methods/googledrive.php:847
+#: methods/googledrive.php:858 methods/googledrive.php:868
+#: addons/google-enhanced.php:72
+msgid "Google Drive"
+msgstr "Google Drive"
+
+#: admin.php:2040
+msgid "Google changed their permissions setup recently (April 2013). To download or restore from Google Drive, you <strong>must</strong> first re-authenticate (using the link in the Google Drive configuration section)."
+msgstr "Binago ng Google ang kanilang pag-setup ng mga pahintulot kamakailan (Abril 2013). Upang i-download o ibalik mula sa Google Drive, mo <strong> dapat </ strong> unang muling patotohanan (gamit ang link sa Google Drive seksyon ng configuration)."
+
+#: admin.php:2043
+msgid "This is a count of the contents of your Updraft directory"
+msgstr "Ito ay isang pagbilang ng mga nilalaman ng iyong direktoryo ng Updraft"
+
+#: admin.php:2043
+msgid "Web-server disk space in use by UpdraftPlus"
+msgstr "Espasyo Web-server disk sa paggamit sa pamamagitan ng UpdraftPlus"
+
+#: admin.php:2043
+msgid "refresh"
+msgstr "refresh"
+
+#: admin.php:1780
+msgid "By UpdraftPlus.Com"
+msgstr "By UpdraftPlus.Com"
+
+#: admin.php:1780
+msgid "Lead developer's homepage"
+msgstr "Lead developer's homepage"
+
+#: admin.php:1780
+msgid "Donate"
+msgstr "Donate"
+
+#: admin.php:1780
+msgid "Version"
+msgstr "Version"
+
+#: admin.php:1790
+msgid "Your backup has been restored."
+msgstr "Ang iyong backup ay naibalik na."
+
+#: admin.php:1797
+msgid "Current limit is:"
+msgstr "Kasalukuyang limitasyon ay:"
+
+#: admin.php:151 admin.php:2284
+msgid "Delete Old Directories"
+msgstr "Tanggalin ang Lumang Mga Direktoryo"
+
+#: admin.php:1827
+msgid "JavaScript warning"
+msgstr "JavaScript babala"
+
+#: admin.php:1828
+msgid "This admin interface uses JavaScript heavily. You either need to activate it within your browser, or to use a JavaScript-capable browser."
+msgstr "Ang interface na ito ay gumagamit ng admin JavaScript mabigat. Mong alinman sa i-activate ito sa loob ng iyong browser, o gumamit ng isang browser ng ​​JavaScript-capable."
+
+#: admin.php:1856 admin.php:1869
+msgid "Nothing currently scheduled"
+msgstr "Walang kasalukuyang naka-iskedyul"
+
+#: admin.php:1861
+msgid "At the same time as the files backup"
+msgstr "Kasabay nito bilang ang mga backup file"
+
+#: admin.php:1881
+msgid "All the times shown in this section are using WordPress's configured time zone, which you can set in Settings -> General"
+msgstr "Ang lahat ng mga beses na ipinapakita sa seksyon na ito ay gumagamit ng naka-configure ang time zone ng WordPress, na maaari mong itakda sa Mga Setting -> General"
+
+#: admin.php:1881
+msgid "Next scheduled backups"
+msgstr "Susunod na naka-iskedyul na pag-backup"
+
+#: admin.php:1885
+msgid "Files"
+msgstr "Files"
+
+#: admin.php:798 admin.php:1887 admin.php:2142 admin.php:2145 admin.php:3262
+#: admin.php:3271 admin.php:3933 addons/reporting.php:168
+#: addons/moredatabase.php:178
+msgid "Database"
+msgstr "Database"
+
+#: admin.php:436
+msgid "Your website is hosted using the %s web server."
+msgstr "Ang iyong website ay naka-host sa pamamagitan ng web server ang% s."
+
+#: admin.php:436
+msgid "Please consult this FAQ if you have problems backing up."
+msgstr "Mangyaring kumonsulta ang FAQ na ito kung mayroon kang mga problema sa pag-back up."
+
+#: admin.php:451 admin.php:455 admin.php:459
+msgid "Click here to authenticate your %s account (you will not be able to back up to %s without it)."
+msgstr "Mag-click dito upang patotohanan ang mga account ng iyong%s (hindi mo magagawang i-back up sa%s nang wala ito)."
+
+#: admin.php:652 admin.php:678
+msgid "Nothing yet logged"
+msgstr "Wala pa naka-log"
+
+#: admin.php:1036
+msgid "Schedule backup"
+msgstr "Schedule backup"
+
+#: admin.php:1040
+msgid "OK. You should soon see activity in the \"Last log message\" field below."
+msgstr "OK. Dapat mong madaling makita ang aktibidad sa \"Huling mensahe log \" field sa ibaba."
+
+#: admin.php:1067
+msgid "Job deleted"
+msgstr "Job deleted"
+
+#: admin.php:1074
+msgid "Could not find that job - perhaps it has already finished?"
+msgstr "Hindi mahanap na trabaho - marahil ito ay na natapos?"
+
+#: updraftplus.php:899 restorer.php:1558 restorer.php:1574 restorer.php:1638
+#: admin.php:1087 admin.php:3851 methods/stream-base.php:190
+#: methods/addon-base.php:75 methods/addon-base.php:80
+#: methods/addon-base.php:193
+msgid "Error"
+msgstr "Error"
+
+#: admin.php:1175
+msgid "Download failed"
+msgstr "Nabigo ang pag-download "
+
+#: admin.php:143 admin.php:1193
+msgid "File ready."
+msgstr "File ready."
+
+#: admin.php:1201
+msgid "Download in progress"
+msgstr "Download in progress"
+
+#: admin.php:1204
+msgid "No local copy present."
+msgstr "Walang mga lokal na kopya kasalukuyan."
+
+#: admin.php:1583
+msgid "Bad filename format - this does not look like a file created by UpdraftPlus"
+msgstr "Masamang filename format - ito ay hindi mukhang isang file na nilikha ng mga UpdraftPlus"
+
+#: admin.php:1673
+msgid "Bad filename format - this does not look like an encrypted database file created by UpdraftPlus"
+msgstr "Masamang filename format - ito ay hindi mukhang isang naka-encrypt na database file na nilikha ng mga UpdraftPlus"
+
+#: admin.php:1701
+msgid "Restore successful!"
+msgstr "Ibalik ang matagumpay!"
+
+#: admin.php:1704 admin.php:1713 admin.php:1750 admin.php:1833 admin.php:2492
+msgid "Actions"
+msgstr "Mga Pagkilos"
+
+#: admin.php:1704 admin.php:1713 admin.php:1750 admin.php:2492
+#: addons/migrator.php:97 addons/migrator.php:109
+msgid "Return to UpdraftPlus Configuration"
+msgstr "Bumalik sa UpdraftPlus Configuration"
+
+#: admin.php:2485
+msgid "Remove old directories"
+msgstr "Alisin ang lumang mga direktoryo"
+
+#: admin.php:2488
+msgid "Old directories successfully removed."
+msgstr "Matagumpay na naalis Lumang mga direktoryo."
+
+#: admin.php:2490
+msgid "Old directory removal failed for some reason. You may want to do this manually."
+msgstr "Nabigo ang pag-alis ng Lumang direktoryo para sa ilang kadahilanan. Baka gusto mong gawin ito nang mano-mano."
+
+#: admin.php:1741
+msgid "Backup directory could not be created"
+msgstr "Backup directory ay hindi mabuo"
+
+#: admin.php:1748
+msgid "Backup directory successfully created."
+msgstr "Backup na direktoryo ay Hindi mabuo"
+
+#: admin.php:1773
+msgid "Your settings have been wiped."
+msgstr "Backup Na direktoryo ay wikang Hindi mabuo"
+
+#: updraftplus.php:2584 updraftplus.php:2590
+msgid "Please help UpdraftPlus by giving a positive review at wordpress.org"
+msgstr "Mangyaring tulungan UpdraftPlus sa pamamagitan ng pagbibigay ng positibong pagsusuri sa wordpress.org"
+
+#: updraftplus.php:2597
+msgid "Need even more features and support? Check out UpdraftPlus Premium"
+msgstr "Kailangan ng higit pang mga tampok at suporta? Tingnan ang UpdraftPlus Premium"
+
+#: updraftplus.php:2607
+msgid "Check out UpdraftPlus.Com for help, add-ons and support"
+msgstr "Tingnan ang UpdraftPlus.Com para sa tulong, mga add-on at suporta"
+
+#: updraftplus.php:2610
+msgid "Want to say thank-you for UpdraftPlus?"
+msgstr "Nais mo magpa salamat para sa UpdraftPlus?"
+
+#: updraftplus.php:2610
+msgid "Please buy our very cheap 'no adverts' add-on."
+msgstr "Mangyaring bumili ng aming napaka murang 'walang adverts' add-on."
+
+#: backup.php:1429
+msgid "Infinite recursion: consult your log for more information"
+msgstr "Walang-hanggan recursion: kumonsulta sa iyong pag-log para sa karagdagang impormasyon"
+
+#: backup.php:188
+msgid "Could not create %s zip. Consult the log file for more information."
+msgstr "Hindi makalikha ng zip%s. Kumonsulta sa log file para sa higit pang impormasyon."
+
+#: admin.php:216 admin.php:253
+msgid "Allowed Files"
+msgstr "Allowed Files"
+
+#: admin.php:369 admin.php:1811
+msgid "Settings"
+msgstr "Settings"
+
+#: admin.php:373
+msgid "Add-Ons / Pro Support"
+msgstr "Add-Ons / Pro Support"
+
+#: admin.php:420 admin.php:424 admin.php:428 admin.php:432 admin.php:436
+#: admin.php:445 admin.php:2019 admin.php:3115 admin.php:3122 admin.php:3124
+#: udaddons/updraftplus-addons.php:132 methods/openstack-base.php:453
+#: methods/cloudfiles.php:473 methods/s3.php:509 methods/dropbox.php:384
+#: methods/ftp.php:299
+msgid "Warning"
+msgstr "babala"
+
+#: admin.php:428
+msgid "You have less than %s of free disk space on the disk which UpdraftPlus is configured to use to create backups. UpdraftPlus could well run out of space. Contact your the operator of your server (e.g. your web hosting company) to resolve this issue."
+msgstr "Ikaw ay may mas mababa sa%s ng libreng puwang sa disk sa disk na UpdraftPlus ay naka-configure upang gamitin upang lumikha ng mga backup. Maaaring ang UpdraftPlus na rin ay maubusan ng espasyo. Makipag-ugnay sa iyong mga operator ng iyong server (eg iyong kumpanya sa pagho-host ng web) upang malutas ang isyung ito."
+
+#: admin.php:432
+msgid "UpdraftPlus does not officially support versions of WordPress before %s. It may work for you, but if it does not, then please be aware that no support is available until you upgrade WordPress."
+msgstr "Ay hindi opisyal na sinusuportahan ng UpdraftPlus mga bersyon ng WordPress bago% s. Maaari itong gumana para sa iyo, ngunit kung hindi, pagkatapos mangyaring magkaroon ng kamalayan na walang suporta ay magagamit hanggang sa i-upgrade ang WordPress."
+
+#: backup.php:555
+msgid "WordPress backup is complete"
+msgstr "WordPress backup ay kumpleto na"
+
+#: backup.php:683 restorer.php:128
+msgid "Backup directory (%s) is not writable, or does not exist."
+msgstr "Backup na direktoryo ng (%s) ay hindi writable, o hindi na umiiral."
+
+#: updraftplus.php:2217
+msgid "Could not read the directory"
+msgstr "Hindi mabasa ang directory na"
+
+#: updraftplus.php:2234
+msgid "Could not save backup history because we have no backup array. Backup probably failed."
+msgstr "Hindi ma-save backup kasaysayan dahil mayroon kaming walang backup ng array. Marahil Nabigo ang Backup."
+
+#: backup.php:1340
+msgid "Could not open the backup file for writing"
+msgstr "Hindi mabuksan ang backup na file para sa pagsulat"
+
+#: updraftplus.php:2444 restorer.php:258 admin.php:1239
+msgid "Decryption failed. The database file is encrypted, but you have no encryption key entered."
+msgstr "Nabigo ang Decryption. Ang database file ay naka-encrypt, ngunit wala kang key encryption ipinasok."
+
+#: updraftplus.php:2455 restorer.php:268 admin.php:1256
+msgid "Decryption failed. The most likely cause is that you used the wrong key."
+msgstr "Nabigo ang Decryption. Malamang ang dahilan ay ginamit mo ang maling key."
+
+#: updraftplus.php:2455
+msgid "The decryption key used:"
+msgstr "Ang decryption key na ginamit:"
+
+#: updraftplus.php:2495 methods/googledrive.php:762
+msgid "File not found"
+msgstr "Hindi nahanap ang file"
+
+#: updraftplus.php:2582
+msgid "Can you translate? Want to improve UpdraftPlus for speakers of your language?"
+msgstr "Maaari mo bang i-translate? Gusto mong pagbutihin UpdraftPlus para sa mga nagsasalita ng iyong wika?"
+
+#: updraftplus.php:2584 updraftplus.php:2590
+msgid "Like UpdraftPlus and can spare one minute?"
+msgstr "Tulad ng UpdraftPlus at maaari matitira isang minuto?"
+
+#: updraftplus.php:1193
+msgid "Themes"
+msgstr "Themes"
+
+#: updraftplus.php:1194
+msgid "Uploads"
+msgstr "Uploads"
+
+#: updraftplus.php:1209
+msgid "Others"
+msgstr "Others"
+
+#: updraftplus.php:1698
+msgid "Could not create files in the backup directory. Backup aborted - check your UpdraftPlus settings."
+msgstr "Hindi makalikha ng mga file sa backup na direktoryo. Backup iniurong - suriin ang iyong mga setting UpdraftPlus."
+
+#: addons/moredatabase.php:260
+msgid "Encryption error occurred when encrypting database. Encryption aborted."
+msgstr "Error sa pag-encrypt naganap kapag encrypt database. Itinigil ang pag-encrypt."
+
+#: updraftplus.php:1870
+msgid "The backup apparently succeeded and is now complete"
+msgstr "Nagtagumpay ang backup Ang at ngayon ay kumpleto na"
+
+#: updraftplus.php:1884
+msgid "The backup attempt has finished, apparently unsuccessfully"
+msgstr "Ang tamgkang pag baback-up ay tapos na, subalit hindi matagumpay."
+
+#: options.php:34 addons/multisite.php:60
+msgid "UpdraftPlus Backups"
+msgstr "UpdraftPlus Backups"
+
+#: updraftplus.php:472 updraftplus.php:477 updraftplus.php:482 admin.php:451
+#: admin.php:455 admin.php:459
+msgid "UpdraftPlus notice:"
+msgstr "UpdraftPlus notice:"
+
+#: updraftplus.php:472
+msgid "The log file could not be read."
+msgstr "Ang log file ay hindi mabasa."
+
+#: updraftplus.php:477
+msgid "No log files were found."
+msgstr "Walang mga file ng log ang natagpuan."
+
+#: updraftplus.php:482
+msgid "The given file could not be read."
+msgstr "Ang naibigay na file ay hindi mabasa."
+
+#: updraftplus.php:1192
+msgid "Plugins"
+msgstr "Plugins"
