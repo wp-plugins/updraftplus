@@ -71,6 +71,7 @@ Many thanks to the existing translators:
 * Português / Portuguese (Portugal) (pt_PT): Pedro Mendonça
 * Português / Portuguese (Brazilian) (pt_BR): Lucien Raven (lucienraven at yahoo.com.br) and Tom Fonseca (tomfonseca at gmail.com)
 * русский / Russian (ru_RU): Илья Худолей (Ilya Khudoley) - ironman_c at icloud.com and Igor Ocheretny (http://wpsells.com) - also see Igor's free training videos at: http://goodbackup.wpsells.com/
+* Romanian / Română (ro_RO): Augustin-Mihai Mufturel and Teodor Muraru
 * Swedish / Svensk (sv_SE): Steve Sandström - http://www.brandicon.se
 * Tagalog (tl): Kristen Macasero / Mads Phikamphon - http://www.findhold.dk
 * Turk / Turkish (tr_TR): Various translators
@@ -144,12 +145,17 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
+= Development version (not yet released/supported) =
+
+* TWEAK: Detect select/poll lengthy timeouts when uploading to Dropbox, and prevent overlapping activity
+
 = 1.9.26 - 2014/09/22 =
 
 * TWEAK: There are still some Amazon S3 servers validated via a Verisign 1024-bit certificate, causing backup to fail due to SSL validation failure. Revert to previous collection of root SSL certificates in order to still allow access to these servers (see: https://blog.mozilla.org/security/2014/09/08/phasing-out-certificates-with-1024-bit-rsa-keys/#comments)
 * TWEAK: If Google Drive reports that the quota will be exceeded, then make this feedback more obvious to the user without reading the log
 * TWEAK: If the user enters an S3 path with an erroneous preceding slash, then remove it
 * FIX: Amazon S3 RRS settings (Premium) were not being applied on archives smaller than 5Mb
+* TRANSLATION: New Română (Romanian, ro_RO) translation, courtesy of Augustin-Mihai Mufturel and Teodor Muraru
 
 = 1.9.25 - 2014/09/17 =
 
@@ -894,7 +900,7 @@ We recognise and thank the following for code and/or libraries used and/or modif
 * Ben Tadiar, https://github.com/BenTheDesigner/Dropbox
 * Beau Brownlee, http://www.solutionbot.com/2009/01/02/php-ftp-class/
 * Donovan Schonknecht, http://undesigned.org.za/2007/10/22/amazon-s3-php-class
-* Rackspace US, Inc., https://github.com/rackerlabs/php-cloudfiles
+* Rackspace US, Inc., https://github.com/rackerlabs/php-cloudfiles and https://github.com/rackspace/php-opencloud
 * Jim Wigginton, http://phpseclib.sourceforge.net
 * Dave Coveney, https://github.com/interconnectit/Search-Replace-DB/
 * Richard Adams, https://github.com/richadams/jquery-tripleclick/

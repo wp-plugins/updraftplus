@@ -635,7 +635,7 @@ class UpdraftPlus_BackupModule_googledrive {
 		$size = 0;
 		$request = $service->files->insert($gdfile);
 
-		$chunk_bytes = 512 * 1024;
+		$chunk_bytes = 1048576;
 
 		$hash = md5($file);
 		$transkey = 'gdresume_'.$hash;

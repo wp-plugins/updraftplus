@@ -38,6 +38,8 @@ class UpdraftPlus_BackupModule_dropbox {
 		$updraftplus->jobdata_set('updraf_dbid_'.$this->current_file_hash, $uploadid);
 		$updraftplus->jobdata_set('updraf_dbof_'.$this->current_file_hash, $offset);
 
+		$this->upload_tick = time();
+
 		if ($this->current_file_size > 0) {
 			$percent = round(100*($offset/$this->current_file_size),1);
 			$updraftplus->record_uploaded_chunk($percent, "$uploadid, $offset", $fullpath);
@@ -154,14 +156,14 @@ class UpdraftPlus_BackupModule_dropbox {
 
 			// Old-style, single file put: $put = $dropbox->putFile($updraft_dir.'/'.$file, $dropbox_folder.$file);
 
-			$ourself = $this;
-
 			$ufile = apply_filters('updraftplus_dropbox_modpath', $file);
 
 			$updraftplus->log("Dropbox: Attempt to upload: $file to: $ufile");
 
+			$this->upload_tick = time();
+
 			try {
-				$response = $dropbox->chunkedUpload($updraft_dir.'/'.$file, '', $ufile, true, $offset, $upload_id, array($ourself, 'chunked_callback'));
+				$response = $dropbox->chunkedUpload($updraft_dir.'/'.$file, '', $ufile, true, $offset, $upload_id, array($this, 'chunked_callback'));
 				if (empty($response['code']) || "200" != $response['code']) {
 					$updraftplus->log('Unexpected HTTP code returned from Dropbox: '.$response['code']." (".serialize($response).")");
 					if ($response['code'] >= 400) {
@@ -170,7 +172,6 @@ class UpdraftPlus_BackupModule_dropbox {
 						$updraftplus->log(sprintf(__('%s did not return the expected response - check your log file for more details', 'updraftplus'), 'Dropbox'), 'warning');
 					}
 				}
-
 			} catch (Exception $e) {
 				$updraftplus->log("Dropbox chunked upload exception (".get_class($e)."): ".$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
 				if (preg_match("/Submitted input out of alignment: got \[(\d+)\] expected \[(\d+)\]/i", $e->getMessage(), $matches)) {
@@ -179,16 +180,30 @@ class UpdraftPlus_BackupModule_dropbox {
 					$dropbox_wanted = $matches[2];
 					$updraftplus->log("Dropbox not yet aligned: tried=$we_tried, wanted=$dropbox_wanted; will attempt recovery");
 					try {
-						$dropbox->chunkedUpload($updraft_dir.'/'.$file, '', $ufile, true, $dropbox_wanted, $upload_id, array($ourself, 'chunked_callback'));
+						$dropbox->chunkedUpload($updraft_dir.'/'.$file, '', $ufile, true, $dropbox_wanted, $upload_id, array($this, 'chunked_callback'));
 					} catch (Exception $e) {
-						$updraftplus->log('Dropbox error: '.$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
+						$msg = $e->getMessage();
+						$updraftplus->log('Dropbox error: '.$msg.' (line: '.$e->getLine().', file: '.$e->getFile().')');
 						$updraftplus->log('Dropbox '.sprintf(__('error: failed to upload file to %s (see log file for more)','updraftplus'), $ufile), 'error');
 						$file_success = 0;
+						if (strpos($msg, 'select/poll returned error') !== false && $this->upload_tick > 0 && time() - $this->upload_tick > 800) {
+							$updraftplus->reschedule(60);
+							$updraftplus->log("Select/poll returned after a long time: scheduling a resumption and terminating for now");
+							$updraftplus->record_still_alive();
+							die;
+						}
 					}
 				} else {
-					$updraftplus->log('Dropbox error: '.$e->getMessage());
+					$msg = $e->getMessage();
+					$updraftplus->log('Dropbox error: '.$msg);
 					$updraftplus->log('Dropbox '.sprintf(__('error: failed to upload file to %s (see log file for more)','updraftplus'), $ufile), 'error');
 					$file_success = 0;
+					if (strpos($msg, 'select/poll returned error') !== false && $this->upload_tick > 0 && time() - $this->upload_tick > 800) {
+						$updraftplus->reschedule(60);
+						$updraftplus->log("Select/poll returned after a long time: scheduling a resumption and terminating for now");
+						$updraftplus->record_still_alive();
+						die;
+					}
 				}
 			}
 			if ($file_success) {
