@@ -2150,36 +2150,45 @@ class UpdraftPlus {
 	admin settings are saved it is called.
 	*/
 	public function schedule_backup($interval) {
+		$previous_time = wp_next_scheduled('updraft_backup');
 
 		// Clear schedule so that we don't stack up scheduled backups
 		wp_clear_scheduled_hook('updraft_backup');
-		
 		if ('manual' == $interval) return 'manual';
+
+		$previous_interval = UpdraftPlus_Options::get_updraft_option('updraft_interval');
 
 		$valid_schedules = wp_get_schedules();
 		if (empty($valid_schedules[$interval])) $interval = 'daily';
 
-		$first_time = apply_filters('updraftplus_schedule_firsttime_files', time()+30);
+		// Try to avoid changing the time is one was already scheduled. This is fairly conservative - we could do more, e.g. check if a backup already happened today.
+		$default_time = ($interval == $previous_interval && $previous_time>0) ? $previous_time : time()+30;
+		$first_time = apply_filters('updraftplus_schedule_firsttime_files', $default_time);
+
 		wp_schedule_event($first_time, $interval, 'updraft_backup');
 
 		return $interval;
 	}
 
 	public function schedule_backup_database($interval) {
+		$previous_time = wp_next_scheduled('updraft_backup_database');
 
 		// Clear schedule so that we don't stack up scheduled backups
 		wp_clear_scheduled_hook('updraft_backup_database');
-
 		if ('manual' == $interval) return 'manual';
+
+		$previous_interval = UpdraftPlus_Options::get_updraft_option('updraft_interval_database');
 
 		$valid_schedules = wp_get_schedules();
 		if (empty($valid_schedules[$interval])) $interval = 'daily';
 
-		$first_time = apply_filters('updraftplus_schedule_firsttime_db', time()+30);
+		// Try to avoid changing the time is one was already scheduled. This is fairly conservative - we could do more, e.g. check if a backup already happened today.
+		$default_time = ($interval == $previous_interval && $previous_time>0) ? $previous_time : time()+30;
+
+		$first_time = apply_filters('updraftplus_schedule_firsttime_db', $default_time);
 		wp_schedule_event($first_time, $interval, 'updraft_backup_database');
 
 		return $interval;
-
 	}
 
 	public function deactivation () {

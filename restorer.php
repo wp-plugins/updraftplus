@@ -73,7 +73,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 	# This function is copied from class WP_Upgrader (WP 3.8 - no significant changes since 3.2 at least); we only had to fork it because it hard-codes using the basename of the zip file as its unpack directory; which can be long; and then combining that with long pathnames in the zip being unpacked can overflow a 256-character path limit (yes, they apparently still exist - amazing!)
 	# Subsequently, we have also added the ability to unpack tarballs
-	private function unpack_package_archive($package, $delete_package = true) {
+	private function unpack_package_archive($package, $delete_package = true, $type = false) {
 
 		if (!empty($this->ud_foreign) && !empty($this->ud_foreign_working_dir)) {
 			if (is_dir($this->ud_foreign_working_dir)) {
@@ -174,7 +174,17 @@ class Updraft_Restorer extends WP_Upgrader {
 			return $result;
 		}
 
-		if (!empty($this->ud_foreign)) $this->ud_foreign_working_dir = $working_dir;
+		if (!empty($this->ud_foreign)) {
+			$this->ud_foreign_working_dir = $working_dir;
+			# Zip containing an SQL file. We only know of one pattern.
+			if ('db' === $type) {
+				$basepack = basename($package, '.zip');
+				if ($wp_filesystem->exists($working_dir.'/'.$basepack.'.sql')) {
+					$wp_filesystem->move($working_dir.'/'.$basepack.'.sql', $working_dir . "/backup.db", true);
+					$updraftplus->log("Moving database file $basepack.sql to backup.db");
+				}
+			}
+		}
 
 		return $working_dir;
 	}
@@ -218,7 +228,7 @@ class Updraft_Restorer extends WP_Upgrader {
 	}
 
 	// This returns a wp_filesystem location (and we musn't change that, as we must retain compatibility with the class parent)
-	function unpack_package($package, $delete_package = true) {
+	function unpack_package($package, $delete_package = true, $type = false) {
 
 		global $wp_filesystem, $updraftplus;
 
@@ -226,7 +236,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		// If not database, then it is a zip - unpack in the usual way
 		#if (!preg_match('/db\.gz(\.crypt)?$/i', $package)) return parent::unpack_package($updraft_dir.'/'.$package, $delete_package);
-		if (!preg_match('/db\.gz(\.crypt)?$/i', $package) && !preg_match('/\.sql(\.gz)?$/i', $package)) return $this->unpack_package_archive($updraft_dir.'/'.$package, $delete_package);
+		if (!preg_match('/db\.gz(\.crypt)?$/i', $package) && !preg_match('/\.sql(\.gz)?$/i', $package)) return $this->unpack_package_archive($updraft_dir.'/'.$package, $delete_package, $type);
 
 		$backup_dir = $wp_filesystem->find_folder($updraft_dir);
 
@@ -612,7 +622,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		@set_time_limit(1800);
 
 		// This returns the wp_filesystem path
-		$working_dir = $this->unpack_package($backup_file, $this->delete);
+		$working_dir = $this->unpack_package($backup_file, $this->delete, $type);
 
 		if (is_wp_error($working_dir)) return $working_dir;
 

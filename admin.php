@@ -803,7 +803,8 @@ class UpdraftPlus_Admin {
 				}
 
 				$backupable_entities = $updraftplus->get_backupable_file_entities(true, true);
-				$backupable_plus_db = $backupable_entities; $backupable_plus_db['db'] = array('path' => 'path-unused', 'description' => __('Database', 'updraftplus'));
+				$backupable_plus_db = $backupable_entities;
+				$backupable_plus_db['db'] = array('path' => 'path-unused', 'description' => __('Database', 'updraftplus'));
 
 				if (!empty($backups[$timestamp]['meta_foreign'])) {
 					$foreign_known = apply_filters('updraftplus_accept_archivename', array());
@@ -3634,7 +3635,7 @@ ENDHERE;
 				$itext = ($index == 0) ? '' : $index;
 			} elseif (false != ($accepted_foreign = apply_filters('updraftplus_accept_foreign', false, $entry)) && false !== ($btime = apply_filters('updraftplus_foreign_gettime', false, $accepted_foreign, $entry))) {
 				$nonce = substr(md5($entry), 0, 12);
-				$type = preg_match('/\.sql(\.(bz2|gz))?$/', $entry) ? 'db' : 'wpcore';
+				$type = (preg_match('/\.sql(\.(bz2|gz))?$/', $entry) || preg_match('/-database-([-0-9]+)\.zip$/', $entry)) ? 'db' : 'wpcore';
 				$index = '0';
 				$itext = '';
 				$potmessage = array(

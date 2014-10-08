@@ -533,7 +533,6 @@ class UpdraftPlus_BackupModule_dropbox {
 
 		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/API.php');
 		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/Exception.php');
-		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/API.php');
 		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Consumer/ConsumerAbstract.php');
 		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Storage/StorageInterface.php');
 		require_once(UPDRAFTPLUS_DIR.'/includes/Dropbox/OAuth/Storage/Encrypter.php');
@@ -576,7 +575,7 @@ class UpdraftPlus_BackupModule_dropbox {
 			return false;
 		}
 
-		$this->dropbox_object = new Dropbox_API($OAuth, $root);
+		$this->dropbox_object = new UpdraftPlus_Dropbox_API($OAuth, $root);
 
 		return $this->dropbox_object;
 	}
