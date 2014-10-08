@@ -26,7 +26,7 @@ class UpdraftPlus_BackupModule_email {
 			$any_sent = false;
 			foreach ($email as $ind => $addr) {
 
-				if (!apply_filters('updraftplus_email_wholebackup', true, $addr, $ind)) continue;
+				if (!apply_filters('updraftplus_email_wholebackup', true, $addr, $ind, $type)) continue;
 
 				foreach (explode(',', $addr) as $sendmail_addr) {
 

@@ -2159,7 +2159,7 @@ class UpdraftPlus {
 		$valid_schedules = wp_get_schedules();
 		if (empty($valid_schedules[$interval])) $interval = 'daily';
 
-		$first_time = apply_filters('updraftplus_schedule_firsttime_files', time()+30);
+		$first_time = apply_filters('updraftplus_schedule_firsttime_files', time()+120);
 		wp_schedule_event($first_time, $interval, 'updraft_backup');
 
 		return $interval;
@@ -2175,7 +2175,7 @@ class UpdraftPlus {
 		$valid_schedules = wp_get_schedules();
 		if (empty($valid_schedules[$interval])) $interval = 'daily';
 
-		$first_time = apply_filters('updraftplus_schedule_firsttime_db', time()+30);
+		$first_time = apply_filters('updraftplus_schedule_firsttime_db', time()+120);
 		wp_schedule_event($first_time, $interval, 'updraft_backup_database');
 
 		return $interval;
