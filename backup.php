@@ -1738,9 +1738,9 @@ class UpdraftPlus_Backup {
 		}
 
 		// zipfiles_added > 0 means that $zip->close() has been called. i.e. An attempt was made to add something: something _should_ be there.
-		// The first condition here used to have: $this->zipfiles_added > 0.
-		#  || (file_exists($destination) || $this->index == $original_index)
-		if ($error_occurred == false) {
+		// Why return true even if $error_occurred may be set? 1) Because in that case, a warning has already been logged. 2) Because returning false causes an error to be logged, which means it'll all be retried again. Also 3) this has been the pattern of the code for a long time, and the algorithm has been proven in the real-world: don't change what's not broken.
+		//  (file_exists($destination) || $this->index == $original_index) might be an alternative to $this->zipfiles_added > 0 - ? But, don't change what's not broken.
+		if ($error_occurred == false || $this->zipfiles_added > 0) {
 			return true;
 		} else {
 			$updraftplus->log("makezip failure: zipfiles_added=".$this->zipfiles_added.", error_occurred=".$error_occurred." (method=".$this->use_zip_object.")");
