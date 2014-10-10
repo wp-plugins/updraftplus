@@ -1694,7 +1694,8 @@ class UpdraftPlus_Backup {
 
 		// Any not yet dispatched? Under our present scheme, at this point nothing has yet been despatched. And since the enumerating of all files can take a while, we can at this point do a further modification check to reduce the chance of overlaps.
 		// This relies on us *not* touch()ing the zip file to indicate to any resumption 'behind us' that we're already here. Rather, we're relying on the combined facts that a) if it takes us a while to search the directory tree, then it should do for the one behind us too (though they'll have the benefit of cache, so could catch very fast) and b) we touch *immediately* after finishing the enumeration of the files to add.
-		$updraftplus->check_recent_modification($destination);
+		// $retry_on_error is here being used as a proxy for 'not the second time around, when there might be the remains of the file on the first time around'
+		if ($retry_on_error) $updraftplus->check_recent_modification($destination);
 		// Here we're relying on the fact that both PclZip and ZipArchive will happily operate on an empty file. Note that BinZip *won't* (for that, may need a new strategy - e.g. add the very first file on its own, in order to 'lay down a marker')
 		if (empty($do_bump_index)) @touch($destination);
 
@@ -1906,7 +1907,7 @@ class UpdraftPlus_Backup {
 					if (!$zip->close()) {
 						// Though we will continue processing the files we've got, the final error code will be false, to allow a second attempt on the failed ones. This also keeps us consistent with a negative result for $zip->close() further down. We don't just retry here, because we have seen cases (with BinZip) where upon failure, the existing zip had actually been deleted. So, to be safe we need to re-scan the existing zips.
 						$ret = false;
-						$this->record_zip_error($files_zipadded_since_open, $warn_on_failures);
+						$this->record_zip_error($files_zipadded_since_open, $zip->last_error, $warn_on_failures);
 					}
 
 					$zipfiles_added_thisbatch = 0;
@@ -2099,7 +2100,7 @@ class UpdraftPlus_Backup {
 		$this->zipfiles_batched = array();
 		$this->zipfiles_skipped_notaltered = array();
 
-		if (false == ($nret = $zip->close())) $this->record_zip_error($files_zipadded_since_open, $warn_on_failures);
+		if (false == ($nret = $zip->close())) $this->record_zip_error($files_zipadded_since_open, $zip->last_error, $warn_on_failures);
 
 		do_action("updraftplus_makezip_addfiles_finished", $this, $this->whichone);
 
@@ -2118,12 +2119,12 @@ class UpdraftPlus_Backup {
 		return ($ret == false) ? false : $nret;
 	}
 
-	private function record_zip_error($files_zipadded_since_open, $warn = true) {
+	private function record_zip_error($files_zipadded_since_open, $msg, $warn = true) {
 		global $updraftplus;
 
 		if ($warn) $updraftplus->log(__('A zip error occurred - check your log for more details.', 'updraftplus'), 'warning', 'zipcloseerror-'.$this->whichone);
 
-		$updraftplus->log("The attempt to close the zip file returned an error (".$zip->last_error."). List of files we were trying to add follows (check their permissions).");
+		$updraftplus->log("The attempt to close the zip file returned an error ($msg). List of files we were trying to add follows (check their permissions).");
 
 		foreach ($files_zipadded_since_open as $ffile) {
 			$updraftplus->log("File: ".$ffile['addas']." (exists: ".(int)@file_exists($ffile['file']).", is_readable: ".(int)@is_readable($ffile['file'])." size: ".@filesize($ffile['file']).')', 'notice', false, true);
