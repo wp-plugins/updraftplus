@@ -36,30 +36,29 @@ class UpdraftPlus_Admin {
 
 		$service = UpdraftPlus_Options::get_updraft_option('updraft_service');
 
-		if (UpdraftPlus_Options::user_can_manage() && ('googledrive' === $service || is_array($service) && in_array('googledrive', $service))) {
-			$opts = UpdraftPlus_Options::get_updraft_option('updraft_googledrive');
-			if (empty($opts)) {
-				$clientid = UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid', '');
-				$token = UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token', '');
-			} else {
-				$clientid = $opts['clientid'];
-				$token = (empty($opts['token'])) ? '' : $opts['token'];
-			}
-			if (!empty($clientid) && empty($token)) add_action('all_admin_notices', array($this,'show_admin_warning_googledrive'));
-		}
-
 		if (UpdraftPlus_Options::user_can_manage()) {
-			if ('dropbox' === $service || is_array($service) && in_array('dropbox', $service)) {
+			if ('googledrive' === $service || (is_array($service) && in_array('googledrive', $service))) {
+				$opts = UpdraftPlus_Options::get_updraft_option('updraft_googledrive');
+				if (empty($opts)) {
+					$clientid = UpdraftPlus_Options::get_updraft_option('updraft_googledrive_clientid', '');
+					$token = UpdraftPlus_Options::get_updraft_option('updraft_googledrive_token', '');
+				} else {
+					$clientid = $opts['clientid'];
+					$token = (empty($opts['token'])) ? '' : $opts['token'];
+				}
+				if (!empty($clientid) && empty($token)) add_action('all_admin_notices', array($this,'show_admin_warning_googledrive'));
+			}
+			if ('dropbox' === $service || (is_array($service) && in_array('dropbox', $service))) {
 				$opts = UpdraftPlus_Options::get_updraft_option('updraft_dropbox');
 				if (empty($opts['tk_request_token'])) {
 					add_action('all_admin_notices', array($this,'show_admin_warning_dropbox') );
 				}
 			}
-			if ('bitcasa' === $service || is_array($service) && in_array('bitcasa', $service)) {
+			if ('bitcasa' === $service || (is_array($service) && in_array('bitcasa', $service))) {
 				$opts = UpdraftPlus_Options::get_updraft_option('updraft_bitcasa');
 				if (!empty($opts['clientid']) && !empty($opts['secret']) && empty($opts['token'])) add_action('all_admin_notices', array($this,'show_admin_warning_bitcasa') );
 			}
-			if ('copycom' === $service || is_array($service) && in_array('copycom', $service)) {
+			if ('copycom' === $service || (is_array($service) && in_array('copycom', $service))) {
 				$opts = UpdraftPlus_Options::get_updraft_option('updraft_copycom');
 				if (!empty($opts['clientid']) && !empty($opts['secret']) && empty($opts['token'])) add_action('all_admin_notices', array($this,'show_admin_warning_copycom') );
 			}
@@ -2171,7 +2170,6 @@ CREATE TABLE $wpdb->signups (
 					}
 				?>
 				<div><input id="updraft_restore_db" type="checkbox" name="updraft_restore[]" value="db"> <label for="updraft_restore_db"><?php _e('Database','updraftplus'); ?></label><br>
-
 
 					<div id="updraft_restorer_dboptions" style="display:none; padding:12px; margin: 8px 0 4px; border: dashed 1px;"><h4 style="margin: 0px 0px 6px; padding:0px;"><?php echo sprintf(__('%s restoration options:','updraftplus'),__('Database','updraftplus')); ?></h4>
 

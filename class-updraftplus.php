@@ -2191,9 +2191,6 @@ class UpdraftPlus {
 		return $interval;
 	}
 
-	public function deactivation () {
-	}
-
 	// Acts as a WordPress options filter
 	public function googledrive_checkchange($google) {
 		$opts = UpdraftPlus_Options::get_updraft_option('updraft_googledrive');

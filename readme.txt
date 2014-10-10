@@ -153,6 +153,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Rename UpdraftPlus Dropbox class, to avoid clash with Ninja Forms upload add-on
 * TWEAK: In the free version, avoid unexpectedly changing the daily backup time when other settings are saved
 * TWEAK: Improve the immediate retry strategy in case of zip failure (saves time and/or notifying the user to manually check the log)
+* TWEAK: Alert user if they are trying to use Google Drive with a direct-IP address site URL forbidden by Google's policy
 * FIX: Fix corner-case in URL search/replace when migrating a site that had WP in a different directory to the site home, and migration to a sub-directory of the original site.
 * FIX: Autobackup setting (https://updraftplus.com/shop/autobackup/) failed to save properly if turned off on first usage
 
