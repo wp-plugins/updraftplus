@@ -149,8 +149,10 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 
 * FEATURE: Add the capability to handle BackupWordPress database zip backups (https://updraftplus.com/shop/importer/)
 * TWEAK: Detect select/poll lengthy timeouts when uploading to Dropbox, and prevent overlapping activity
+* TWEAK: Add constant UPDRAFTPLUS_NOAUTOBACKUPS to programatically disable the automatic backups add-on
 * TWEAK: Rename UpdraftPlus Dropbox class, to avoid clash with Ninja Forms upload add-on
 * TWEAK: In the free version, avoid unexpectedly changing the daily backup time when other settings are saved
+* TWEAK: Improve the immediate retry strategy in case of zip failure (saves time and/or notifying the user to manually check the log)
 * FIX: Fix corner-case in URL search/replace when migrating a site that had WP in a different directory to the site home, and migration to a sub-directory of the original site.
 * FIX: Autobackup setting (https://updraftplus.com/shop/autobackup/) failed to save properly if turned off on first usage
 

@@ -2162,7 +2162,7 @@ class UpdraftPlus {
 		if (empty($valid_schedules[$interval])) $interval = 'daily';
 
 		// Try to avoid changing the time is one was already scheduled. This is fairly conservative - we could do more, e.g. check if a backup already happened today.
-		$default_time = ($interval == $previous_interval && $previous_time>0) ? $previous_time : time()+60;
+		$default_time = ($interval == $previous_interval && $previous_time>0) ? $previous_time : time()+120;
 		$first_time = apply_filters('updraftplus_schedule_firsttime_files', $default_time);
 
 		wp_schedule_event($first_time, $interval, 'updraft_backup');
@@ -2183,7 +2183,7 @@ class UpdraftPlus {
 		if (empty($valid_schedules[$interval])) $interval = 'daily';
 
 		// Try to avoid changing the time is one was already scheduled. This is fairly conservative - we could do more, e.g. check if a backup already happened today.
-		$default_time = ($interval == $previous_interval && $previous_time>0) ? $previous_time : time()+60;
+		$default_time = ($interval == $previous_interval && $previous_time>0) ? $previous_time : time()+120;
 
 		$first_time = apply_filters('updraftplus_schedule_firsttime_db', $default_time);
 		wp_schedule_event($first_time, $interval, 'updraft_backup_database');
@@ -2192,7 +2192,6 @@ class UpdraftPlus {
 	}
 
 	public function deactivation () {
-// 		wp_clear_scheduled_hook('updraftplus_weekly_ping');
 	}
 
 	// Acts as a WordPress options filter
