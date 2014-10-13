@@ -18,7 +18,6 @@ class UpdraftPlus {
 		'copycom' => 'Copy.Com',
 		'sftp' => 'SFTP / SCP',
 		'webdav' => 'WebDAV',
-		'bitcasa' => 'Bitcasa',
 		's3generic' => 'S3-Compatible (Generic)',
 		'openstack' => 'OpenStack (Swift)',
 		'dreamobjects' => 'DreamObjects',
@@ -47,6 +46,9 @@ class UpdraftPlus {
 	public $cpanel_quota_readable = false;
 
 	public function __construct() {
+
+		# Bitcasa support is deprecated
+		if (is_file(UPDRAFTPLUS_DIR.'/addons/bitcasa.php')) $this->backup_methods['bitcasa'] = 'Bitcasa';
 
 		// Initialisation actions - takes place on plugin load
 
@@ -2463,6 +2465,16 @@ class UpdraftPlus {
 		return fetch_feed('http://feeds.feedburner.com/updraftplus/');
 	}
 
+	public function get_wplang() {
+		# See: https://core.trac.wordpress.org/changeset/29630
+		global $wp_current_db_version; 
+		if ( $wp_current_db_version < 29630 ) { 
+			return (defined('WPLANG')) ? WPLANG : '';
+		} else {
+			return get_option('WPLANG', '');
+		}
+	}
+
 	public function wordshell_random_advert($urls) {
 		if (defined('UPDRAFTPLUS_NOADS_B')) return "";
 		$rad = rand(0, 8);
@@ -2471,7 +2483,8 @@ class UpdraftPlus {
 			return $this->url_start($urls,'updraftplus.com').__("Want more features or paid, guaranteed support? Check out UpdraftPlus.Com", 'updraftplus').$this->url_end($urls,'updraftplus.com');
 			break;
 		case 1:
-			if (defined('WPLANG') && strlen(WPLANG)>0 && !is_file(UPDRAFTPLUS_DIR.'/languages/updraftplus-'.WPLANG.
+			$wplang = $this->get_wplang();
+			if (strlen($wplang)>0 && !is_file(UPDRAFTPLUS_DIR.'/languages/updraftplus-'.$wplang.
 '.mo')) return __('Can you translate? Want to improve UpdraftPlus for speakers of your language?','updraftplus').' '.$this->url_start($urls,'updraftplus.com/translate/')."Please go here for instructions - it is easy.".$this->url_end($urls,'updraftplus.com/translate/');
 
 			return __('UpdraftPlus is on social media - check us out here:','updraftplus').' '.$this->url_start($urls,'twitter.com/updraftplus', true).__('Twitter', 'updraftplus').$this->url_end($urls,'twitter.com/updraftplus', true).' - '.$this->url_start($urls,'facebook.com/updraftplus', true).__('Facebook', 'updraftplus').$this->url_end($urls,'facebook.com/updraftplus', true).' - '.$this->url_start($urls,'plus.google.com/u/0/b/112313994681166369508/112313994681166369508/about', true).__('Google+', 'updraftplus').$this->url_end($urls,'plus.google.com/u/0/b/112313994681166369508/112313994681166369508/about', true).' - '.$this->url_start($urls,'www.linkedin.com/company/updraftplus', true).__('LinkedIn', 'updraftplus').$this->url_end($urls,'www.linkedin.com/company/updraftplus', true);
