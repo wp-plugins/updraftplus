@@ -629,7 +629,15 @@ jQuery(document).ready(function($){
 		}, 1700);
 		setTimeout(function() {updraft_activejobs_update(true);}, 1000);
 		setTimeout(function() {jQuery('#updraft_backup_started').fadeOut('slow');}, 75000);
-		jQuery.post(ajaxurl, { action: 'updraft_ajax', subaction: 'backupnow', nonce: updraft_credentialtest_nonce, backupnow_nodb: backupnow_nodb, backupnow_nofiles: backupnow_nofiles, backupnow_nocloud: backupnow_nocloud }, function(response) {
+		jQuery.post(ajaxurl, {
+			action: 'updraft_ajax',
+			subaction: 'backupnow',
+			nonce: updraft_credentialtest_nonce,
+			backupnow_nodb: backupnow_nodb,
+			backupnow_nofiles: backupnow_nofiles,
+			backupnow_nocloud: backupnow_nocloud,
+			backupnow_label: jQuery('#backupnow_label').val()
+		}, function(response) {
 			jQuery('#updraft_backup_started').html(response);
 			// Kick off some activity to get WP to get the scheduled task moving as soon as possible
 // 			setTimeout(function() {jQuery.get(updraft_siteurl);}, 5100);
@@ -639,7 +647,7 @@ jQuery(document).ready(function($){
 	backupnow_modal_buttons[updraftlion.cancel] = function() { jQuery(this).dialog("close"); };
 	
 	jQuery("#updraft-backupnow-modal" ).dialog({
-		autoOpen: false, height: 335, width: 480, modal: true,
+		autoOpen: false, height: 355, width: 480, modal: true,
 		buttons: backupnow_modal_buttons
 	});
 
@@ -890,14 +898,16 @@ jQuery(document).ready(function($){
 				resp = jQuery.parseJSON(response);
 				if (resp.e) {
 					alert(resp.e);
-				} else if (resp.r) {
-					$('#updraftplus_httpget_results').html(resp.r);
+				}
+				if (resp.r) {
+					$('#updraftplus_httpget_results').html('<pre>'+resp.r+'</pre>');
 				} else {
 					console.log(response);
-					alert(updraftlion.jsonnotunderstood);
+					//alert(updraftlion.jsonnotunderstood);
 				}
 				
 			} catch(err) {
+				console.log(err);
 				console.log(response);
 				alert(updraftlion.jsonnotunderstood);
 			}

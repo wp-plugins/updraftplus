@@ -57,7 +57,7 @@ class UpdraftPlus_BackupModule_googledrive {
 		return $this->root_id;
 	}
 
-	public function id_from_path($path) {
+	public function id_from_path($path, $retry = true) {
 		global $updraftplus;
 
 		try {
@@ -112,7 +112,8 @@ class UpdraftPlus_BackupModule_googledrive {
 
 		} catch (Exception $e) {
 			$updraftplus->log("Google Drive id_from_path failure: exception: ".$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
-			return false;
+			# One retry
+			return ($retry) ? $this->id_from_path($path, false) : false;
 		}
 	}
 

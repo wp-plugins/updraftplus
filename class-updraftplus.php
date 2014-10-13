@@ -1489,21 +1489,22 @@ class UpdraftPlus {
 		$this->boot_backup(false, true);
 	}
 
-	public function backup_all($skip_cloud) {
-		$this->boot_backup(1, 1, false, false, ($skip_cloud) ? 'none' : false);
+	public function backup_all($options) {
+		$skip_cloud = empty($options['nocloud']) ? false : true;
+		$this->boot_backup(1, 1, false, false, ($skip_cloud) ? 'none' : false, $options);
 	}
 	
-	public function backupnow_files($skip_cloud) {
-		$this->boot_backup(1, 0, false, false, ($skip_cloud) ? 'none' : false);
+	public function backupnow_files($options) {
+		$this->boot_backup(1, 0, false, false, ($skip_cloud) ? 'none' : false, $options);
 	}
 	
-	public function backupnow_database($skip_cloud) {
-		$this->boot_backup(0, 1, false, false, ($skip_cloud) ? 'none' : false);
+	public function backupnow_database($options) {
+		$this->boot_backup(0, 1, false, false, ($skip_cloud) ? 'none' : false, $options);
 	}
 
 	// This procedure initiates a backup run
 	// $backup_files/$backup_database: true/false = yes/no (over-write allowed); 1/0 = yes/no (force)
-	public function boot_backup($backup_files, $backup_database, $restrict_files_to_override = false, $one_shot = false, $service = false) {
+	public function boot_backup($backup_files, $backup_database, $restrict_files_to_override = false, $one_shot = false, $service = false, $options = array()) {
 
 		@ignore_user_abort(true);
 		@set_time_limit(900);
@@ -1626,6 +1627,8 @@ class UpdraftPlus {
 
 		array_push($initial_jobdata, 'backup_database', $dbs);
 		array_push($initial_jobdata, 'backup_files', (($backup_files) ? 'begun' : 'no'));
+
+		if (is_array($options) && !empty($options['label'])) array_push($initial_jobdata, 'label', $options['label']);
 
 		// Use of jobdata_set_multi saves around 200ms
 		call_user_func_array(array($this, 'jobdata_set_multi'), apply_filters('updraftplus_initial_jobdata', $initial_jobdata));
@@ -2096,6 +2099,7 @@ class UpdraftPlus {
 			$backup_history = (is_array($backup_history)) ? $backup_history : array();
 			$backup_array['nonce'] = $this->nonce;
 			$backup_array['service'] = $this->jobdata_get('service');
+			if ('' != ($label = $this->jobdata_get('label', ''))) $backup_array['label'] = $label;
 			$backup_history[$this->backup_time] = $backup_array;
 			UpdraftPlus_Options::update_updraft_option('updraft_backup_history', $backup_history, false);
 		} else {
@@ -2312,10 +2316,11 @@ class UpdraftPlus {
 
 		// Check for the existence of the dir and prevent enumeration
 		// index.php is for a sanity check - make sure that we're not somewhere unexpected
-		if((!is_dir($updraft_dir) || !is_file($updraft_dir.'/index.html') || !is_file($updraft_dir.'/.htaccess')) && !is_file($updraft_dir.'/index.php')) {
+		if((!is_dir($updraft_dir) || !is_file($updraft_dir.'/index.html') || !is_file($updraft_dir.'/.htaccess')) && !is_file($updraft_dir.'/index.php') || !is_file($updraft_dir.'/web.config')) {
 			@mkdir($updraft_dir, 0775, true);
 			@file_put_contents($updraft_dir.'/index.html',"<html><body><a href=\"http://updraftplus.com\">WordPress backups by UpdraftPlus</a></body></html>");
 			if (!is_file($updraft_dir.'/.htaccess')) @file_put_contents($updraft_dir.'/.htaccess','deny from all');
+			if (!is_file($updraft_dir.'/web.config')) @file_put_contents($updraft_dir.'/web.config', "<configuration>\n<system.webServer>\n<authorization>\n<deny users=\"*\" />\n</authorization>\n</system.webServer>\n</configuration>\n");
 		}
 
 		$this->backup_dir = $updraft_dir;

@@ -109,17 +109,17 @@ class Updraft_Restorer extends WP_Upgrader {
 			$wp_filesystem->delete($working_dir, true);
 
 		// Unzip package to working directory
-		if ('.zip' == substr($package, -4, 4)) {
+		if ('.zip' == strtolower(substr($package, -4, 4))) {
 			$result = unzip_file( $package, $working_dir );
-		} elseif ('.tar' == substr($package, -4, 4) || '.tar.gz' == substr($package, -7, 7) || '.tar.bz2' == substr($package, -8, 8)) {
+		} elseif ('.tar' == strtolower(substr($package, -4, 4)) || '.tar.gz' == strtolower(substr($package, -7, 7)) || '.tar.bz2' == strtolower(substr($package, -8, 8))) {
 			if (!class_exists('UpdraftPlus_Archive_Tar')) {
 				if (false === strpos(get_include_path(), UPDRAFTPLUS_DIR.'/includes/PEAR')) set_include_path(UPDRAFTPLUS_DIR.'/includes/PEAR'.PATH_SEPARATOR.get_include_path());
 
 				require_once(UPDRAFTPLUS_DIR.'/includes/PEAR/Archive/Tar.php');
 				$p_compress = null;
-				if ('.tar.gz' == substr($package, -7, 7)) {
+				if ('.tar.gz' == strtolower(substr($package, -7, 7))) {
 					$p_compress = 'gz';
-				} elseif ('.tar.bz2' == substr($package, -8, 8)) {
+				} elseif ('.tar.bz2' == strtolower(substr($package, -8, 8))) {
 					$p_compress = 'bz2';
 				}
 
@@ -352,7 +352,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			}
 
 			// Correctly restore files in 'others' in no directory that were wrongly backed up in versions 1.4.0 - 1.4.48
-			if (('others' == $type || 'wpcore' == $type) && preg_match('/^([\-_A-Za-z0-9]+\.php)$/', $file, $matches) && $wpfs->exists($working_dir . "/$file/$file")) {
+			if (('others' == $type || 'wpcore' == $type) && preg_match('/^([\-_A-Za-z0-9]+\.php)$/i', $file, $matches) && $wpfs->exists($working_dir . "/$file/$file")) {
 				if ('others' == $type) {
 					echo "Found file: $file/$file: presuming this is a backup with a known fault (backup made with versions 1.4.0 - 1.4.48, and sometimes up to 1.6.55 on some Windows servers); will rename to simply $file<br>";
 				} else {

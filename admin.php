@@ -731,23 +731,31 @@ class UpdraftPlus_Admin {
 				curl_setopt($ch, CURLOPT_URL, $uri);
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 				curl_setopt($ch, CURLOPT_FAILONERROR, true);
-				$output = curl_exec($ch);
+				curl_setopt($ch, CURLOPT_HEADER, true);
+				curl_setopt($ch, CURLOPT_VERBOSE, true);
+				curl_setopt($ch, CURLOPT_STDERR, $output=fopen('php://temp', "w+"));
 				$response = curl_exec($ch);
 				$error = curl_error($ch);
 				$getinfo = curl_getinfo($ch);
 				curl_close($ch);
+				$resp = array();
 				if (false === $response) {
-					echo json_encode(array('e' => htmlspecialchars($error)));
-					die;
+					$resp['e'] = htmlspecialchars($error);
+					# json_encode(array('e' => htmlspecialchars($error)));
 				}
-				echo json_encode(array('r' => $getinfo['http_code'].': '.htmlspecialchars(substr($response, 0, 200))));
+				$resp['r'] = (empty($response)) ? '' : htmlspecialchars(substr($response, 0, 2048));
+				rewind($output);
+				$verb = stream_get_contents($output);
+				if (!empty($verb)) $resp['r'] = htmlspecialchars($verb)."\n\n".$resp['r'];
+				echo json_encode($resp);
+// 				echo json_encode(array('r' => htmlspecialchars(substr($response, 0, 2048))));
 			} else {
 				$response = wp_remote_get($uri, array('timeout' => 10));
 				if (is_wp_error($response)) {
 					echo json_encode(array('e' => htmlspecialchars($response->get_error_message())));
 					die;
 				}
-				echo json_encode(array('r' => $response['response']['code'].': '.htmlspecialchars(substr($response['body'], 0, 200))));
+				echo json_encode(array('r' => $response['response']['code'].': '.htmlspecialchars(substr($response['body'], 0, 2048))));
 			}
 			die;
 		} elseif (isset($_REQUEST['subaction']) && 'dismissautobackup' == $_REQUEST['subaction']) {
@@ -1050,7 +1058,8 @@ class UpdraftPlus_Admin {
 
 			$msg = '<strong>'.__('Start backup','updraftplus').':</strong> '.htmlspecialchars(__('OK. You should soon see activity in the "Last log message" field below.','updraftplus'));
 			$this->close_browser_connection($msg);
-			do_action($event, $backupnow_nocloud);
+
+			do_action($event, apply_filters('updraft_backupnow_options', array('nocloud' => $backupnow_nocloud)));
 
 			# Old-style: schedule an event in 5 seconds time. This has the advantage of testing out the scheduler, and alerting the user if it doesn't work... but has the disadvantage of not working in that case.
 			# I don't think the </div>s should be here - in case this is ever re-activated
@@ -1597,7 +1606,7 @@ CREATE TABLE $wpdb->signups (
 		if (!isset($_POST['chunks']) || (isset($_POST['chunk']) && $_POST['chunk'] == $_POST['chunks']-1)) {
 			$file = basename($status['file']);
 			# TODO: Make compatible with incremental naming scheme
-			if (!preg_match('/^log\.[a-f0-9]{12}\.txt/', $file) && !preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i', $file, $matches)) {
+			if (!preg_match('/^log\.[a-f0-9]{12}\.txt/i', $file) && !preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i', $file, $matches)) {
 				$accept = apply_filters('updraftplus_accept_archivename', array());
 				if (is_array($accept)) {
 					foreach ($accept as $acc) {
@@ -1870,7 +1879,7 @@ CREATE TABLE $wpdb->signups (
 					<th><?php _e('Actions', 'updraftplus');?>:</th>
 					<td>
 
-					<button type="button" <?php echo $backup_disabled ?> class="button-primary updraft-bigbutton" <?php if ($backup_disabled) echo 'title="'.esc_attr(__('This button is disabled because your backup directory is not writable (see the settings).', 'updraftplus')).'" ';?> onclick="jQuery('#updraft-backupnow-modal').dialog('open');"><?php _e('Backup Now', 'updraftplus');?></button>
+					<button type="button" <?php echo $backup_disabled ?> class="button-primary updraft-bigbutton" <?php if ($backup_disabled) echo 'title="'.esc_attr(__('This button is disabled because your backup directory is not writable (see the settings).', 'updraftplus')).'" ';?> onclick="jQuery('#backupnow_label').val(''); jQuery('#updraft-backupnow-modal').dialog('open');"><?php _e('Backup Now', 'updraftplus');?></button>
 
 					<button type="button" class="button-primary updraft-bigbutton" onclick="updraft_openrestorepanel();">
 						<?php _e('Restore','updraftplus');?>
@@ -1994,13 +2003,15 @@ CREATE TABLE $wpdb->signups (
 </div>
 
 <div id="updraft-backupnow-modal" title="UpdraftPlus - <?php _e('Perform a one-time backup','updraftplus'); ?>">
-	<p><?php _e("To proceed, press 'Backup Now'. Then, watch the 'Last Log Message' field for activity after about 10 seconds. WordPress should start the backup running in the background.",'updraftplus');?></p>
+	<p><?php _e("To proceed, press 'Backup Now'. Then, watch the 'Last Log Message' field for activity.", 'updraftplus');?></p>
 
 	<p>
 		<input type="checkbox" id="backupnow_nodb"> <label for="backupnow_nodb"><?php _e("Don't include the database in the backup", 'updraftplus'); ?></label><br>
 		<input type="checkbox" id="backupnow_nofiles"> <label for="backupnow_nofiles"><?php _e("Don't include any files in the backup", 'updraftplus'); ?></label><br>
 		<input type="checkbox" id="backupnow_nocloud"> <label for="backupnow_nocloud"><?php _e("Don't send this backup to remote storage", 'updraftplus'); ?></label>
 	</p>
+
+	<?php do_action('updraft_backupnow_modal_afteroptions'); ?>
 
 	<p><?php _e('Does nothing happen when you attempt backups?','updraftplus');?> <a href="http://updraftplus.com/faqs/my-scheduled-backups-and-pressing-backup-now-does-nothing-however-pressing-debug-backup-does-produce-a-backup/"><?php _e('Go here for help.', 'updraftplus');?></a></p>
 </div>
@@ -3310,11 +3321,11 @@ CREATE TABLE $wpdb->signups (
 			$rawbackup .= '</p></pre>';
 
 			$jobdata = $updraftplus->jobdata_getarray($non);
-			$datespan = apply_filters('updraftplus_showbackup_date', $pretty_date, $backup, $jobdata);
+			$datespan = apply_filters('updraftplus_showbackup_date', '<strong>'.$pretty_date.'</strong>', $backup, $jobdata);
 
 			$ret .= <<<ENDHERE
 		<tr id="updraft_existing_backups_row_$key">
-			<td><div class="updraftplus-remove" style="width: 19px; height: 19px; padding-top:0px; font-size: 18px; text-align:center;font-weight:bold; border-radius: 7px;"><a style="text-decoration:none;" href="javascript:updraft_delete('$key', '$non', $sval);" title="$title">×</a></div></td><td class="updraft_existingbackup_date" data-rawbackup="$rawbackup"><b>$datespan</b>
+			<td><div class="updraftplus-remove" style="width: 19px; height: 19px; padding-top:0px; font-size: 18px; text-align:center;font-weight:bold; border-radius: 7px;"><a style="text-decoration:none;" href="javascript:updraft_delete('$key', '$non', $sval);" title="$title">×</a></div></td><td class="updraft_existingbackup_date" data-rawbackup="$rawbackup">$datespan
 ENDHERE;
 
 			# TODO: This probably isn't showing the right thing when an incremental backup finishes
@@ -3633,7 +3644,7 @@ ENDHERE;
 				$itext = ($index == 0) ? '' : $index;
 			} elseif (false != ($accepted_foreign = apply_filters('updraftplus_accept_foreign', false, $entry)) && false !== ($btime = apply_filters('updraftplus_foreign_gettime', false, $accepted_foreign, $entry))) {
 				$nonce = substr(md5($entry), 0, 12);
-				$type = (preg_match('/\.sql(\.(bz2|gz))?$/', $entry) || preg_match('/-database-([-0-9]+)\.zip$/', $entry)) ? 'db' : 'wpcore';
+				$type = (preg_match('/\.sql(\.(bz2|gz))?$/i', $entry) || preg_match('/-database-([-0-9]+)\.zip$/i', $entry)) ? 'db' : 'wpcore';
 				$index = '0';
 				$itext = '';
 				$potmessage = array(
@@ -3642,7 +3653,7 @@ ENDHERE;
 					'method' => '',
 					'message' => sprintf(__('Backup created by: %s.', 'updraftplus'), $accept[$accepted_foreign]['desc'])
 				);
-			} elseif ('.zip' == substr($entry, -4, 4) || preg_match('/\.sql(\.(bz2|gz))?$/', $entry)) {
+			} elseif ('.zip' == strtolower(substr($entry, -4, 4)) || preg_match('/\.sql(\.(bz2|gz))?$/i', $entry)) {
 				$potmessage = array(
 					'code' => 'possibleforeign_'.md5($entry),
 					'desc' => $entry,
