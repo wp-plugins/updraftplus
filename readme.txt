@@ -158,6 +158,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: In the free version, avoid unexpectedly changing the daily backup time when other settings are saved
 * TWEAK: Improve the immediate retry strategy in case of zip failure (saves time and/or notifying the user to manually check the log)
 * TWEAK: Correctly detect language on WP 4.0 onwards, when suggesting helping with translation
+* TWEAK: When connecting for updates to updraftplus.com (Premium), indicate if it was the username or password that was wrong
 * TWEAK: Alert user if they are trying to use Google Drive with a direct-IP address site URL forbidden by Google's policy
 * TWEAK: Be less strict with case when looking for supported patterns in the Importer add-on (https://updraftplus.com/shop/importer/)
 * DEPRECATED: Bitcasa support has been deprecated, and the links removed from the free version. (Existing Premium users using Bitcasa will continue to be able to do so).

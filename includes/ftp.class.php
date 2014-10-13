@@ -33,7 +33,9 @@ class UpdraftPlus_ftp_wrapper {
  			ftp_pasv($this->conn_id, $this->passive);
 			$this->system_type = ftp_systype($this->conn_id);
 			return true;
-		} elseif (time() - $time_start > 19) {
+		}
+
+		if (time() - $time_start > 19) {
 			global $updraftplus_admin;
 			if (isset($updraftplus_admin->logged) && is_array($updraftplus_admin->logged)) {
 				$updraftplus_admin->logged[] = sprintf(__('The %s connection timed out; if you entered the server correctly, then this is usually caused by a firewall blocking the connection - you should check with your web hosting company.', 'updraftplus'), 'FTP');

@@ -26,7 +26,7 @@ class UpdraftPlus_BackupModule_ViaAddon {
 
 		if (!class_exists('UpdraftPlus_Addons_RemoteStorage_'.$this->method)) {
 			$updraftplus->log("You do not have the UpdraftPlus ".$this->method.' add-on installed - get it from http://updraftplus.com/shop/');
-			$updraftplus->log(sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'), $this->description ,'http://updraftplus.com/shop/'), 'error');
+			$updraftplus->log(sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'), $this->description ,'http://updraftplus.com/shop/'), 'error', 'missingaddon-'.$this->method);
 			return false;
 		}
 
@@ -40,7 +40,7 @@ class UpdraftPlus_BackupModule_ViaAddon {
 
 		if (!class_exists('UpdraftPlus_Addons_RemoteStorage_'.$this->method)) {
 			$updraftplus->log('You do not have the UpdraftPlus '.$this->method.' add-on installed - get it from http://updraftplus.com/shop/');
-			$updraftplus->log(sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'), $this->description, 'http://updraftplus.com/shop/'), 'error');
+			$updraftplus->log(sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'), $this->description, 'http://updraftplus.com/shop/'), 'error', 'missingaddon-'.$this->method);
 			return false;
 		}
 
@@ -59,7 +59,7 @@ class UpdraftPlus_BackupModule_ViaAddon {
 
 		if (!class_exists('UpdraftPlus_Addons_RemoteStorage_'.$this->method)) {
 			$updraftplus->log('You do not have the UpdraftPlus '.$this->method.' add-on installed - get it from http://updraftplus.com/shop/');
-			$updraftplus->log(sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'), $this->description, 'http://updraftplus.com/shop/'), 'error');
+			$updraftplus->log(sprintf(__('You do not have the UpdraftPlus %s add-on installed - get it from %s','updraftplus'), $this->description, 'http://updraftplus.com/shop/'), 'error', 'missingaddon-'.$this->method);
 			return false;
 		}
 

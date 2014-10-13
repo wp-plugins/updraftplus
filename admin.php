@@ -1137,7 +1137,6 @@ class UpdraftPlus_Admin {
 		} elseif (isset($_POST['subaction']) && $_POST['subaction'] == 'credentials_test') {
 			$method = (preg_match("/^[a-z0-9]+$/", $_POST['method'])) ? $_POST['method'] : "";
 
-			// Test the credentials, return a code
 			require_once(UPDRAFTPLUS_DIR."/methods/$method.php");
 			$objname = "UpdraftPlus_BackupModule_$method";
 

@@ -1497,10 +1497,12 @@ class UpdraftPlus {
 	}
 	
 	public function backupnow_files($options) {
+		$skip_cloud = empty($options['nocloud']) ? false : true;
 		$this->boot_backup(1, 0, false, false, ($skip_cloud) ? 'none' : false, $options);
 	}
 	
 	public function backupnow_database($options) {
+		$skip_cloud = empty($options['nocloud']) ? false : true;
 		$this->boot_backup(0, 1, false, false, ($skip_cloud) ? 'none' : false, $options);
 	}
 

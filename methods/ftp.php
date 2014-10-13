@@ -91,7 +91,7 @@ class UpdraftPlus_BackupModule_ftp {
 			$size_k = round(filesize($fullpath)/1024,1);
 			# Note :Setting $resume to true unnecessarily is not meant to be a problem. Only ever (Feb 2014) seen one weird FTP server where calling SIZE on a non-existent file did create a problem. So, this code just helps that case. (the check for non-empty upload_status[p] is being cautious.
 			$upload_status = $updraftplus->jobdata_get('uploading_substatus');
-			if (0 == $updraftplus->current_resumption|| (is_array($upload_status) && !empty($upload_status['p']) && $upload_status['p'] == 0)) {
+			if (0 == $updraftplus->current_resumption || (is_array($upload_status) && !empty($upload_status['p']) && $upload_status['p'] == 0)) {
 				$resume = false;
 			} else {
 				$resume = true;
