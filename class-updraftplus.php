@@ -133,6 +133,31 @@ class UpdraftPlus {
 		return $matches;
 	}
 
+	public function last_modified_log() {
+		$updraft_dir = $this->backups_dir_location();
+
+		$log_file = '';
+		$mod_time = 0;
+		$nonce = '';
+
+		if ($handle = @opendir($updraft_dir)) {
+			while (false !== ($entry = readdir($handle))) {
+				// The latter match is for files created internally by zipArchive::addFile
+				if (preg_match('/^log\.([a-z0-9]+)\.txt$/i', $entry, $matches)) {
+					$mtime = filemtime($updraft_dir.'/'.$entry);
+					if ($mtime > $mod_time) {
+						$mod_time = $mtime;
+						$log_file = $updraft_dir.'/'.$entry;
+						$nonce = $matches[1];
+					}
+				}
+			}
+			@closedir($handle);
+		}
+
+		return array($mod_time, $log_file, $nonce);
+	}
+
 	// This function may get called multiple times, so write accordingly
 	public function admin_menu() {
 		// We are in the admin area: now load all that code
@@ -141,24 +166,7 @@ class UpdraftPlus {
 
 		if (isset($_GET['wpnonce']) && isset($_GET['page']) && isset($_GET['action']) && $_GET['page'] == 'updraftplus' && $_GET['action'] == 'downloadlatestmodlog' && wp_verify_nonce($_GET['wpnonce'], 'updraftplus_download')) {
 
-			$updraft_dir = $this->backups_dir_location();
-
-			$log_file = '';
-			$mod_time = 0;
-
-			if ($handle = @opendir($updraft_dir)) {
-				while (false !== ($entry = readdir($handle))) {
-					// The latter match is for files created internally by zipArchive::addFile
-					if (preg_match('/^log\.[a-z0-9]+\.txt$/i', $entry)) {
-						$mtime = filemtime($updraft_dir.'/'.$entry);
-						if ($mtime > $mod_time) {
-							$mod_time = $mtime;
-							$log_file = $updraft_dir.'/'.$entry;
-						}
-					}
-				}
-				@closedir($handle);
-			}
+			list ($mod_time, $log_file, $nonce) = $this->last_modified_log();
 
 			if ($mod_time >0) {
 				if (is_readable($log_file)) {
@@ -220,6 +228,7 @@ class UpdraftPlus {
 				$log_file = $updraft_dir.'/log.'.$_GET['updraftplus_backup_nonce'].'.txt';
 				if (is_readable($log_file)) {
 					header('Content-type: text/plain');
+					if (!empty($_GET['force_download'])) header('Content-Disposition: attachment; filename="'.basename($log_file).'"');
 					readfile($log_file);
 					exit;
 				} else {

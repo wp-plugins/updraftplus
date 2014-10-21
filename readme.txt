@@ -3,7 +3,7 @@ Contributors: Backup with UpdraftPlus, DavidAnderson
 Tags: backup, backups, restore, amazon backup, s3 backup, dropbox backup, google drive backup, rackspace cloud files, rackspace backup, cloud files, dreamhost, dreamobjects backup, ftp backup, webdav backup, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp backup, ftps, scp, migrate, duplicate, copy, mysql backup, database backup, db backup, website backup, wordpress backup, full backup, openstack, swift
 Requires at least: 3.2
 Tested up to: 4.0
-Stable tag: 1.9.26
+Stable tag: 1.9.30
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -14,9 +14,9 @@ Backup and restoration made easy. Complete backups; manual or scheduled (backup 
 
 <a href="http://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3 (or compatible), Dropbox, Google Drive, Rackspace Cloud, DreamObjects, FTP, SFTP, SCP, WebDAV, OpenStack Swift and email) and restore with a single click. Backups of files and database can have separate schedules.
 
-<strong>Top-quality:</strong> UpdraftPlus is the <a href="http://rankwp.com/plugins/updraftplus">highest-ranking backup plugin on rankwp.com</a> (ranks in the top 50 out of 30,000 WordPress plugins for quality on rankwp.com - last checked 8th January 2014).
+<strong>Top-quality:</strong> UpdraftPlus is the <a href="http://rankwp.com/plugins/updraftplus">highest-ranking backup plugin on rankwp.com</a> (ranks in the top 40 out of 30,000 WordPress plugins for quality on rankwp.com - last checked 21 September 2014).
 
-<strong>Tens of thousands of users:</strong> widely tested and reliable (over 1.1 million downloads). Ranks in the top 100 most used of all WordPress plugins on rankwp.com. Millions of backups completed!
+<strong>Tens of thousands of users:</strong> widely tested and reliable (over 1.3 million downloads). Ranks in the top 100 most used of all WordPress plugins on rankwp.com. Millions of backups completed!
 
 * Supports WordPress backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP, OpenStack (Swift) and email. Also (via an add-on) Copy.Com, FTP over SSL, SFTP, SCP, and WebDAV (and compatible services, e.g. Yandex, Cubby). (Note: Microsoft forbid OneDrive/SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
 * Quick restore (both file and database backups)
@@ -64,6 +64,7 @@ Many thanks to the existing translators:
 * Czech (cs_CZ) : Martin Křížek - krizekmartin at gmail.com
 * Ελληνική  / Greek translation (el): Κώστας Θερμογιάννης (Kostas Thermoyiannis) - http://tovivlio.net
 * Español / Spanish (es_ES): Pablo Laguna - laguna.sanchez at gmail.com and Fernando Villasmil - villasmil.fernando at gmail.com
+* Farsi / Persian (fa_IR): Jamshidpour, Ashkan Ghadimi, Mohammad (2online4.ir) and Nasiri Amirreza
 * Français / French translation (fr_FR): ufo3D - http://ufo-3d.fr and Thomas Jacobsen - http://123informatique.ch - with help from Françoise Lhermitte - http://www.ajwan.net
 * Italiano / Italian (it_IT): Francesco Carpana - f.carpana at gmail.com
 * Nederlands / Dutch (nl_NL):  Dennis Hunink - dennishunink at me.com and Hans van der Vlist - hansvandervlist at gmail.com
@@ -145,10 +146,11 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
-= Development version (not yet released/supported) =
+= 1.9.30 - 2014-10-21 =
 
 * FEATURE: Add the capability to handle BackupWordPress database zip backups (https://updraftplus.com/shop/importer/)
 * FEATURE: Add capability to apply labels to backups (Premium - https://updraftplus.com/shop/updraftplus-premium/)
+* TWEAK: Logs are now shown in a pop-out window with a separate download button
 * TWEAK: Detect select/poll lengthy timeouts when uploading to Dropbox, and prevent overlapping activity
 * TWEAK: Add constant UPDRAFTPLUS_NOAUTOBACKUPS to programatically disable the automatic backups add-on
 * TWEAK: Rename UpdraftPlus Dropbox class, to avoid clash with Ninja Forms upload add-on
@@ -160,10 +162,12 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Correctly detect language on WP 4.0 onwards, when suggesting helping with translation
 * TWEAK: When connecting for updates to updraftplus.com (Premium), indicate if it was the username or password that was wrong
 * TWEAK: Alert user if they are trying to use Google Drive with a direct-IP address site URL forbidden by Google's policy
+* TWEAK: Prevent a corner-case where excessive logging could occur upon restoration
 * TWEAK: Be less strict with case when looking for supported patterns in the Importer add-on (https://updraftplus.com/shop/importer/)
-* DEPRECATED: Bitcasa support has been deprecated, and the links removed from the free version. (Existing Premium users using Bitcasa will continue to be able to do so).
+* DEPRECATED: Bitcasa support has been deprecated, and the links removed from the free version. (Existing Premium users using Bitcasa will continue to be able to do so). See: http://updraftplus.com/bitcasas-current-direction-unclear/
 * FIX: Fix corner-case in URL search/replace when migrating a site that had WP in a different directory to the site home, and migration to a sub-directory of the original site.
 * FIX: Autobackup setting (https://updraftplus.com/shop/autobackup/) failed to save properly if turned off on first usage
+* TRANSLATION: New Farsi (Persian, fa_IR) translation, courtesy of Jamshidpour, Ashkan Ghadimi, Mohammad (2online4.ir) and Nasiri Amirreza
 
 = 1.9.26 - 2014/09/22 =
 
@@ -944,4 +948,4 @@ Furthermore, reliance upon any non-English translation is at your own risk. Updr
 
 
 == Upgrade Notice ==
-* 1.9.26 : Update SSL certificates to retain compatibility with some 1024-bit Amazon S3 servers
+* 1.9.30 : Many tweaks + usability fixes + minor bugfixes. New Farsi (fa_IR) translation. New log display. New features (backup notes, BackupWordPress database importing) in Premium. Recommended update for all.

@@ -168,6 +168,7 @@ class UpdraftPlus_Admin {
 			'createbutton' => __('Create', 'updraftplus'),
 			'close' => __('Close', 'updraftplus'),
 			'restore' => __('Restore', 'updraftplus'),
+			'download' => __('Download log file', 'updraftplus')
 		) );
 	}
 
@@ -351,6 +352,7 @@ class UpdraftPlus_Admin {
 		#ud_downloadstatus .file, #ud_downloadstatus2 .file {
 			margin-top: 8px;
 		}
+	
 		</style>
 		<?php
 
@@ -762,6 +764,42 @@ class UpdraftPlus_Admin {
 			UpdraftPlus_Options::update_updraft_option('updraftplus_dismissedautobackup', time() + 84*86400);
 		} elseif (isset($_REQUEST['subaction']) && 'dismissexpiry' == $_REQUEST['subaction']) {
 			UpdraftPlus_Options::update_updraft_option('updraftplus_dismissedexpiry', time() + 14*86400);
+		} elseif (isset($_REQUEST['subaction']) && 'poplog' == $_REQUEST['subaction']){ 
+			# New code to handle AJAX request for log file
+
+			#Set the backup nonce to either passed value or the latest backup
+			if (empty($_REQUEST['backup_nonce'])){
+				list ($mod_time, $log_file, $nonce) = $updraftplus->last_modified_log();
+			} else {
+				$nonce = $_REQUEST['backup_nonce'];
+			}
+
+			if (!preg_match('/^[0-9a-f]+$/', $nonce)) die('Security check');
+			
+			$log_content = '';
+			
+			if (!empty($nonce)) {
+				$updraft_dir = $updraftplus->backups_dir_location();
+				
+				# Open the log file and read into log content
+				$potential_log_file = $updraft_dir."/log.".$nonce.".txt";
+
+				if (is_readable($potential_log_file)){
+					$log_content = file_get_contents($potential_log_file);
+				} else {
+					$log_content .= __('The log file could not be read.','updraftplus');
+				}
+
+			} else {
+				$log_content .= __('The log file could not be read.','updraftplus');
+			}
+			
+			
+			echo json_encode(array(
+				'html' => $log_content,
+				'nonce' => $nonce
+			));
+
 		} elseif (isset($_GET['subaction']) && 'restore_alldownloaded' == $_GET['subaction'] && isset($_GET['restoreopts']) && isset($_GET['timestamp'])) {
 
 			$backups = $updraftplus->get_backup_history();
@@ -1863,7 +1901,11 @@ CREATE TABLE $wpdb->signups (
 			$updraft_dir = $updraftplus->backups_dir_location();
 			$backup_disabled = ($updraftplus->really_is_writable($updraft_dir)) ? '' : 'disabled="disabled"';
 		?>
-
+		
+		<div id="updraft-poplog" >
+			<div id="updraft-poplog-content"></div>
+		</div>
+		
 		<div id="updraft-navtab-status-content">
 
 			<div id="updraft-insert-admin-warning"></div>
@@ -1956,7 +1998,7 @@ CREATE TABLE $wpdb->signups (
 					<th><?php _e('Last log message','updraftplus');?>:</th>
 					<td>
 						<span id="updraft_lastlogcontainer"><?php echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', __('(Nothing yet logged)','updraftplus'))); ?></span><br>
-						<a href="?page=updraftplus&action=downloadlatestmodlog&wpnonce=<?php echo wp_create_nonce('updraftplus_download') ?>"><?php _e('Download most recently modified log file','updraftplus');?></a>
+						<a href="?page=updraftplus&action=downloadlatestmodlog&wpnonce=<?php echo wp_create_nonce('updraftplus_download') ?>" class="updraft-log-link" onclick="event.preventDefault(); updraft_popuplog('');"><?php _e('Download most recently modified log file','updraftplus');?></a>
 					</td>
 				</tr>
 
@@ -2498,8 +2540,7 @@ CREATE TABLE $wpdb->signups (
 		$ret .= '<div style="min-width: 480px; margin-top: 4px; clear:left; float:left; padding: 8px; border: 1px solid;" id="updraft-jobid-'.$job_id.'"><span style="font-weight:bold;" title="'.esc_attr(sprintf(__('Job ID: %s', 'updraftplus'), $job_id)).$title_info.'">'.$began_at.'</span> ';
 
 		$ret .= $show_inline_info;
-
-		$ret .= '- <a href="?page=updraftplus&action=downloadlog&updraftplus_backup_nonce='.$job_id.'">'.__('show log', 'updraftplus').'</a>';
+		$ret .= '- <a href="?page=updraftplus&action=downloadlog&updraftplus_backup_nonce='.$job_id.'" class="updraft-log-link" onclick="event.preventDefault(); updraft_popuplog(\''.$job_id.'\');">'.__('show log', 'updraftplus').'</a>';
 
 		if (!$is_oneshot) $ret .=' - <a title="'.esc_attr(__('Note: the progress bar below is based on stages, NOT time. Do not stop the backup simply because it seems to have remained in the same place for a while - that is normal.', 'updraftplus')).'" href="javascript:updraft_activejobs_delete(\''.$job_id.'\')">'.__('delete schedule', 'updraftplus').'</a>';
 
@@ -2730,8 +2771,7 @@ CREATE TABLE $wpdb->signups (
 				$updraft_dir = $updraftplus->backups_dir_location();
 
 				$potential_log_file = $updraft_dir."/log.".$updraft_last_backup['backup_nonce'].".txt";
-
-				if (is_readable($potential_log_file)) $last_backup_text .= "<a href=\"?page=updraftplus&action=downloadlog&updraftplus_backup_nonce=".$updraft_last_backup['backup_nonce']."\">".__('Download log file','updraftplus')."</a>";
+				if (is_readable($potential_log_file)) $last_backup_text .= "<a href=\"?page=updraftplus&action=downloadlog&updraftplus_backup_nonce=".$updraft_last_backup['backup_nonce']."\" class=\"updraft-log-link\" onclick=\"event.preventDefault(); updraft_popuplog('".$updraft_last_backup['backup_nonce']."');\">".__('Download log file','updraftplus')."</a>";
 			}
 
 		} else {
@@ -3467,7 +3507,6 @@ ENDHERE;
 				}
 				$ret .= '</td>';
 			};
-
 			if (empty($backup['meta_foreign'])) {
 				$ret .= '<td>';
 				if (isset($backup['nonce']) && preg_match("/^[0-9a-f]{12}$/",$backup['nonce']) && is_readable($updraft_dir.'/log.'.$backup['nonce'].'.txt')) {
@@ -3479,7 +3518,7 @@ ENDHERE;
 						<input type="hidden" name="action" value="downloadlog" />
 						<input type="hidden" name="page" value="updraftplus" />
 						<input type="hidden" name="updraftplus_backup_nonce" value="$nval" />
-						<input type="submit" value="$lt" />
+						<input type="submit" value="$lt" class="updraft-log-link" onclick="event.preventDefault(); updraft_popuplog('$nval');" />
 					</form>
 ENDHERE;
 				} else {

@@ -23,6 +23,8 @@ class Updraft_Restorer extends WP_Upgrader {
 	# The default of false means "use the global $wpdb"
 	private $wpdb_obj = false;
 
+	private $line_last_logged = 0;
+
 	public function __construct($skin = null, $info = null, $shortinit = false) {
 
 		global $wpdb;
@@ -1527,8 +1529,10 @@ class Updraft_Restorer extends WP_Upgrader {
 		} elseif ($sql_type == 2) {
 			$this->tables_created++;
 		}
+
 		if ($this->line >0 && ($this->line)%50 == 0) {
-			if (($this->line)%250 == 0 || $this->line<250) {
+			if ($this->line > $this->line_last_logged && (($this->line)%250 == 0 || $this->line<250)) {
+				$this->line_last_logged = $this->line;
 				$time_taken = microtime(true) - $this->start_time;
 				$updraftplus->log_e('Database queries processed: %d in %.2f seconds',$this->line, $time_taken);
 			}

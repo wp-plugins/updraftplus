@@ -142,6 +142,41 @@ function updraft_activejobs_update(force) {
 	});
 }
 
+//function to display pop-up window containing the log
+function updraft_popuplog(backup_nonce){ 
+		
+		popuplog_sdata = {
+			action: 'updraft_ajax',
+			subaction: 'poplog',
+			nonce: updraft_credentialtest_nonce,
+			backup_nonce: backup_nonce
+		};
+
+		jQuery.get(ajaxurl, popuplog_sdata, function(response){
+
+			var resp = jQuery.parseJSON(response);
+			
+			var download_url = '?page=updraftplus&action=downloadlog&force_download=1&updraftplus_backup_nonce='+resp.nonce;
+			
+			jQuery('#updraft-poplog-content').html('<pre style="white-space: pre-wrap;">'+resp.html+'</pre>'); //content of the log file
+			
+			var log_popup_buttons = {};
+			log_popup_buttons[updraftlion.download] = function() { window.location.href = download_url; };
+			log_popup_buttons[updraftlion.close] = function() { jQuery(this).dialog("close"); };
+			
+			//Set the dialog buttons: Download log, Close log
+			jQuery('#updraft-poplog').dialog("option", "buttons", log_popup_buttons);
+			//[
+				//{ text: "Download", click: function() { window.location.href = download_url } },
+				//{ text: "Close", click: function(){ jQuery( this ).dialog("close");} }
+			//] 
+			
+			jQuery('#updraft-poplog').dialog("option", "title", 'log.'+resp.nonce+'.txt'); //Set dialog title
+			jQuery('#updraft-poplog').dialog("open");
+			
+		});
+}
+
 function updraft_showlastlog(repeat){
 	lastlog_sdata.nonce = updraft_credentialtest_nonce;
 	jQuery.get(ajaxurl, lastlog_sdata, function(response) {
@@ -657,7 +692,11 @@ jQuery(document).ready(function($){
 		autoOpen: false, height: 295, width: 420, modal: true,
 		buttons: migrate_modal_buttons
 	});
-
+	
+	jQuery( "#updraft-poplog" ).dialog({
+		autoOpen: false, height: 600, width: '75%', modal: true,
+	});
+	
 	jQuery('#enableexpertmode').click(function() {
 		jQuery('.expertmode').fadeIn();
 		jQuery('#enableexpertmode').off('click'); 
