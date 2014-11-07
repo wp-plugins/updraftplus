@@ -368,7 +368,7 @@ class UpdraftPlus_Admin {
 
 	# Adds the settings link under the plugin on the plugin screen.
 	public function plugin_action_links($links, $file) {
-		if ($file == 'updraftplus/updraftplus.php'){
+		if (is_array($links) && $file == 'updraftplus/updraftplus.php'){
 			$settings_link = '<a href="'.UpdraftPlus_Options::admin_page_url().'?page=updraftplus">'.__("Settings", "updraftplus").'</a>';
 			array_unshift($links, $settings_link);
 // 			$settings_link = '<a href="http://david.dw-perspective.org.uk/donate">'.__("Donate","UpdraftPlus").'</a>';
