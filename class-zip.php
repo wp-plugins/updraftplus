@@ -30,7 +30,8 @@ class UpdraftPlus_BinZip extends UpdraftPlus_PclZip {
 		$base = $updraftplus->str_lreplace($add_as, '', $file);
 
 		if ($file == $base) {
-			// Shouldn't happen
+			// Shouldn't happen; but see: https://bugs.php.net/bug.php?id=62119
+			$updraftplus->log("File skipped due to unexpected name mismatch (locale: ".setlocale(LC_CTYPE, "0")."): $file", 'notice', false, true);
 		} else {
 			$rdirname = untrailingslashit($base);
 			# Note: $file equals $rdirname/$add_as
@@ -75,7 +76,6 @@ class UpdraftPlus_BinZip extends UpdraftPlus_PclZip {
 			$dir = realpath($updraftplus_backup->make_zipfile_source);
 			$this->addfiles[$dir] = '././.';
 		}
-
 		// Loop over each destination directory name
 		foreach ($this->addfiles as $rdirname => $files) {
 
@@ -155,7 +155,11 @@ class UpdraftPlus_BinZip extends UpdraftPlus_PclZip {
 			$ret = proc_close($process);
 
 			if ($ret != 0 && $ret != 12) {
-				$updraftplus->log("Binary zip: error (code: $ret - look it up in the Diagnostics section at http://www.info-zip.org/mans/zip.html for interpretation... and also check that your hosting account quota is not full)");
+				if ($ret < 128) {
+					$updraftplus->log("Binary zip: error (code: $ret - look it up in the Diagnostics section of the zip manual at http://www.info-zip.org/mans/zip.html for interpretation... and also check that your hosting account quota is not full)");
+				} else {
+					$updraftplus->log("Binary zip: error (code: $ret - a code above 127 normally means that the zip process was deliberately killed ... and also check that your hosting account quota is not full)");
+				}
 				if (!empty($w) && !$updraftplus_backup->debug) $updraftplus->log("Last output from zip: ".trim($w), 'debug');
 				return false;
 			}
@@ -176,11 +180,17 @@ class UpdraftPlus_PclZip {
 	protected $addfiles;
 	protected $adddirs;
 	private $statindex;
+	private $include_mtime = false;
 	public $last_error;
 
-	function __construct() {
+	public function __construct() {
 		$this->addfiles = array();
 		$this->adddirs = array();
+	}
+
+	# Used to include mtime in statindex (by default, not done - to save memory; probably a bit paranoid)
+	public function ud_include_mtime() {
+		$this->include_mtime = true;
 	}
 
 	public function __get($name) {
@@ -211,7 +221,9 @@ class UpdraftPlus_PclZip {
 
 	public function statIndex($i) {
 		if (empty($this->statindex[$i])) return array('name' => null, 'size' => 0);
-		return array('name' => $this->statindex[$i]['filename'], 'size' => $this->statindex[$i]['size']);
+		$v = array('name' => $this->statindex[$i]['filename'], 'size' => $this->statindex[$i]['size']);
+		if ($this->include_mtime) $v['mtime'] = $this->statindex[$i]['mtime'];
+		return $v;
 	}
 
 	public function open($path, $flags = 0) {
@@ -221,7 +233,8 @@ class UpdraftPlus_PclZip {
 			return false;
 		}
 
-		$ziparchive_create_match = (defined('ZIPARCHIVE::CREATE')) ? ZIPARCHIVE::CREATE : 1;
+		# Route around PHP bug (exact version with the problem not known)
+		$ziparchive_create_match = (version_compare(PHP_VERSION, '5.2.6', '>') && defined('ZIPARCHIVE::CREATE')) ? ZIPARCHIVE::CREATE : 1;
 
 		if ($flags == $ziparchive_create_match && file_exists($path)) @unlink($path);
 
