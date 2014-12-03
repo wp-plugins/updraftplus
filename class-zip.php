@@ -233,7 +233,8 @@ class UpdraftPlus_PclZip {
 			return false;
 		}
 
-		$ziparchive_create_match = (defined('ZIPARCHIVE::CREATE')) ? ZIPARCHIVE::CREATE : 1;
+		# Route around PHP bug (exact version with the problem not known)
+		$ziparchive_create_match = (version_compare(PHP_VERSION, '5.2.6', '>') && defined('ZIPARCHIVE::CREATE')) ? ZIPARCHIVE::CREATE : 1;
 
 		if ($flags == $ziparchive_create_match && file_exists($path)) @unlink($path);
 
