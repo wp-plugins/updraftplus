@@ -3472,7 +3472,7 @@ CREATE TABLE $wpdb->signups (
 		$accept = apply_filters('updraftplus_accept_archivename', array());
 		if (!is_array($accept)) $accept = array();
 
-		$ret = '<table style="width: 870px; margin-top: 20px; margin-left: 20px;">';
+		$ret = '<table style="margin-top: 20px; margin-left: 20px;">';
 		$nonce_field = wp_nonce_field('updraftplus_download', '_wpnonce', true, false);
 
 		//".__('Actions', 'updraftplus')."

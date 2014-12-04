@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the UpdraftPlus package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-12-02 13:21:32+0000\n"
+"PO-Revision-Date: 2014-12-04 09:24:01+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,7 +12,7 @@ msgstr ""
 
 #: udaddons/options.php:46
 msgid "Add-ons"
-msgstr ""
+msgstr "Erweiterungen"
 
 #: udaddons/options.php:265
 msgid "Note that after you have claimed your add-ons, you can remove your password (but not the email address) from the settings below, without affecting this site's access to updates."
@@ -20,7 +20,7 @@ msgstr ""
 
 #: addons/morefiles.php:67
 msgid "(learn more about this significant option)"
-msgstr ""
+msgstr "(Erfahre mehr über diese Option)"
 
 #: addons/bitcasa.php:49
 msgid "Bitcasa have deprecated their developer API, and it will be turned off in November 2015. You must switch to a different cloud storage method in future!"
@@ -28,19 +28,19 @@ msgstr ""
 
 #: addons/lockadmin.php:105
 msgid "The admin password has now been removed."
-msgstr ""
+msgstr "Das Admin-Passwort wurde entfernt."
 
 #: addons/lockadmin.php:107
 msgid "An admin password has been set."
-msgstr ""
+msgstr "Das Administrator-Passwort wurde gesetzt."
 
 #: addons/lockadmin.php:109
 msgid "The admin password has been changed."
-msgstr ""
+msgstr "Das Administrator-Passwort wurde geändert."
 
 #: addons/lockadmin.php:111
 msgid "Settings saved."
-msgstr ""
+msgstr "Einstellungen gespeichert."
 
 #: addons/lockadmin.php:131
 msgid "Lock access to the UpdraftPlus settings page"
@@ -52,27 +52,27 @@ msgstr ""
 
 #: addons/lockadmin.php:144
 msgid "1 hour"
-msgstr ""
+msgstr "1 Stunde"
 
 #: addons/lockadmin.php:145 addons/lockadmin.php:146
 msgid "%s hours"
-msgstr ""
+msgstr "%s Stunden"
 
 #: addons/lockadmin.php:147
 msgid "1 week"
-msgstr ""
+msgstr "1 Woche"
 
 #: addons/lockadmin.php:148 addons/lockadmin.php:149
 msgid "%s weeks"
-msgstr ""
+msgstr "%s Wochen"
 
 #: addons/lockadmin.php:157
 msgid "Require password again after"
-msgstr ""
+msgstr "Verlange Passwort wieder nach"
 
 #: addons/lockadmin.php:159
 msgid "Support URL"
-msgstr ""
+msgstr "Support URL"
 
 #: addons/lockadmin.php:159
 msgid "Anyone seeing the lock screen will be shown this URL for support - enter a website address or an email address."
@@ -84,15 +84,15 @@ msgstr ""
 
 #: addons/lockadmin.php:162
 msgid "Lock"
-msgstr ""
+msgstr "Sperren"
 
 #: addons/lockadmin.php:188 addons/lockadmin.php:194
 msgid "Unlock"
-msgstr ""
+msgstr "Entsperren"
 
 #: addons/lockadmin.php:200
 msgid "Password incorrect"
-msgstr ""
+msgstr "Falsches Passwort"
 
 #: addons/lockadmin.php:203
 msgid "To access the UpdraftPlus settings, please enter your unlock password"
@@ -104,11 +104,11 @@ msgstr ""
 
 #: addons/autobackup.php:42
 msgid "WordPress core (only)"
-msgstr ""
+msgstr "WordPress Kern (ausschließlich)"
 
 #: addons/autobackup.php:77
 msgid "Automatic backup before update"
-msgstr ""
+msgstr "Automatische Sicherung vor Update"
 
 #: addons/moredatabase.php:29
 msgid "Database decryption phrase"
@@ -116,7 +116,7 @@ msgstr ""
 
 #: backup.php:2230
 msgid "A zip error occurred"
-msgstr ""
+msgstr "Ein ZIP-Fehler ist aufgetreten"
 
 #: backup.php:2232
 msgid "your web hosting account appears to be full; please see: %s"
@@ -128,11 +128,11 @@ msgstr ""
 
 #: admin.php:1261
 msgid "Error: unexpected file read fail"
-msgstr ""
+msgstr "Fehler: Ein unerwarteter Lesefehler"
 
 #: admin.php:1483
 msgid "Backup label:"
-msgstr ""
+msgstr "Sicherungslabel:"
 
 #: admin.php:2042
 msgid "The 'Backup Now' button is disabled as your backup directory is not writable (go to the 'Settings' tab and find the relevant option)."
@@ -160,15 +160,15 @@ msgstr ""
 
 #: admin.php:3481
 msgid "Backup date"
-msgstr ""
+msgstr "Sicherungsdatum"
 
 #: admin.php:3482
 msgid "Backup data (click to download)"
-msgstr ""
+msgstr "Sicherungsdaten (zum Herunterladen klicken)"
 
 #: admin.php:3778
 msgid "View Log"
-msgstr ""
+msgstr "Schaue Log an"
 
 #: addons/copycom.php:522
 msgid "API Key"

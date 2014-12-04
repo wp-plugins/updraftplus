@@ -174,10 +174,11 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Suppress top advert if the user is on their first go (free version - danger of too many notices)
 * TWEAK: Don't display the post-restoration message "if your backup set...", since we can work this out ourselves
 * TWEAK: Supply extra help to the user if the backup directory is not writable.
+* TWEAK: SFTP remote storage now logs chunk progress
 * TWEAK: Provide a database encryption phrase text entry in the restore options (rather than needing to enter it in the settings)
 * TWEAK: Set the PclZip temporary directory to the Updraft directory if unset, to keep its temporary files out of the way more easily
 * COMPATIBILITY: Tested with the forthcoming WordPress 4.1
-* TRANSLATIONS: New Danish translation by Lars Lund and Lasse Jensen
+* TRANSLATIONS: New Dansk / Danish translation by Lars Lund and Lasse Jensen
 
 = 1.9.31 - 2014-10-24 =
 

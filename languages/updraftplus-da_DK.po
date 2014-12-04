@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the UpdraftPlus package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-11-13 07:52:26+0000\n"
+"PO-Revision-Date: 2014-12-03 22:27:59+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,163 +12,163 @@ msgstr ""
 
 #: udaddons/options.php:46
 msgid "Add-ons"
-msgstr ""
+msgstr "Add-ons"
 
 #: udaddons/options.php:265
 msgid "Note that after you have claimed your add-ons, you can remove your password (but not the email address) from the settings below, without affecting this site's access to updates."
-msgstr ""
+msgstr "Bemærk, at efter du har modtaget dine tilføjelser, kan du fjerne dit password (men ikke e-mail-adresse) fra indstillingerne nedenfor, uden at påvirke dette sites adgang til opdateringer."
 
 #: addons/morefiles.php:67
 msgid "(learn more about this significant option)"
-msgstr ""
+msgstr "(lær mere om denne betydelige mulighed)"
 
 #: addons/bitcasa.php:49
 msgid "Bitcasa have deprecated their developer API, and it will be turned off in November 2015. You must switch to a different cloud storage method in future!"
-msgstr ""
+msgstr "Bitcasa vil ikke opdatere deres udvikler API, og det vil blive slukket i november 2015. Du skal skifte til en anden cloud storage metode i fremtiden!"
 
 #: addons/lockadmin.php:105
 msgid "The admin password has now been removed."
-msgstr ""
+msgstr "Administrator adgangskoden er nu blevet fjernet."
 
 #: addons/lockadmin.php:107
 msgid "An admin password has been set."
-msgstr ""
+msgstr "En administrator adgangskode er blevet angivet."
 
 #: addons/lockadmin.php:109
 msgid "The admin password has been changed."
-msgstr ""
+msgstr "Administrator adgangskoden er blevet ændret."
 
 #: addons/lockadmin.php:111
 msgid "Settings saved."
-msgstr ""
+msgstr "Indstillinger er gemt."
 
 #: addons/lockadmin.php:131
 msgid "Lock access to the UpdraftPlus settings page"
-msgstr ""
+msgstr "Lås adgang til UpdraftPlus' indstillings-side."
 
 #: addons/lockadmin.php:133
 msgid "Please make sure that you have made a note of the password!"
-msgstr ""
+msgstr "Sørg for, at du har lavet et notat af kodeordet!"
 
 #: addons/lockadmin.php:144
 msgid "1 hour"
-msgstr ""
+msgstr "1 time"
 
 #: addons/lockadmin.php:145 addons/lockadmin.php:146
 msgid "%s hours"
-msgstr ""
+msgstr "%s timer"
 
 #: addons/lockadmin.php:147
 msgid "1 week"
-msgstr ""
+msgstr "1 uge"
 
 #: addons/lockadmin.php:148 addons/lockadmin.php:149
 msgid "%s weeks"
-msgstr ""
+msgstr "%s uger"
 
 #: addons/lockadmin.php:157
 msgid "Require password again after"
-msgstr ""
+msgstr "Kræv adgangskode igen efter"
 
 #: addons/lockadmin.php:159
 msgid "Support URL"
-msgstr ""
+msgstr "Support URL"
 
 #: addons/lockadmin.php:159
 msgid "Anyone seeing the lock screen will be shown this URL for support - enter a website address or an email address."
-msgstr ""
+msgstr "Enhver der ser låseskærmen vil se denne URL til support - Angiv en website adresse eller en e-mail adresse."
 
 #: addons/lockadmin.php:159
 msgid "Otherwise, the default link will be shown."
-msgstr ""
+msgstr "Ellers vil standard-linket blive vist."
 
 #: addons/lockadmin.php:162
 msgid "Lock"
-msgstr ""
+msgstr "Lås"
 
 #: addons/lockadmin.php:188 addons/lockadmin.php:194
 msgid "Unlock"
-msgstr ""
+msgstr "Lås op"
 
 #: addons/lockadmin.php:200
 msgid "Password incorrect"
-msgstr ""
+msgstr "Forkert password"
 
 #: addons/lockadmin.php:203
 msgid "To access the UpdraftPlus settings, please enter your unlock password"
-msgstr ""
+msgstr "For at få adgang til UpdraftPlus' indstillinger, skal du indtaste din adgangskode"
 
 #: addons/lockadmin.php:210
 msgid "For unlocking support, please contact whoever manages UpdraftPlus for you."
-msgstr ""
+msgstr "For oplåsning support, venligst kontakt den, der administrerer UpdraftPlus for dig."
 
 #: addons/autobackup.php:42
 msgid "WordPress core (only)"
-msgstr ""
+msgstr "WordPress kerne (kun)"
 
 #: addons/autobackup.php:77
 msgid "Automatic backup before update"
-msgstr ""
+msgstr "Automatisk backup inden opdatering"
 
 #: addons/moredatabase.php:29
 msgid "Database decryption phrase"
-msgstr ""
+msgstr "Database dekryptering sætning"
 
 #: backup.php:2230
 msgid "A zip error occurred"
-msgstr ""
+msgstr "En zip fejl opstod"
 
 #: backup.php:2232
 msgid "your web hosting account appears to be full; please see: %s"
-msgstr ""
+msgstr "din web-udbyder konto ser ud til at være fyldt; venligst se: %s"
 
 #: backup.php:2234
 msgid "check your log for more details."
-msgstr ""
+msgstr "tjek din log for flere detaljer."
 
 #: admin.php:1261
 msgid "Error: unexpected file read fail"
-msgstr ""
+msgstr "Fejl: Uventet fejl ved læsning af fil"
 
 #: admin.php:1483
 msgid "Backup label:"
-msgstr ""
+msgstr "Backup etiket:"
 
 #: admin.php:2042
 msgid "The 'Backup Now' button is disabled as your backup directory is not writable (go to the 'Settings' tab and find the relevant option)."
-msgstr ""
+msgstr "\"Backup Nu\"-knappen er deaktiveret, da din backup mappe er ikke skrivbar (gå til fanen \"Indstillinger\", og find den relevante mulighed)."
 
 #: admin.php:2230
 msgid "Following a link for Database/Plugins/Themes/Uploads/Others will make UpdraftPlus try to bring the backup file back from the remote storage (if any - e.g. Amazon S3, Dropbox, Google Drive, FTP) to your webserver. Then you will be allowed to download it to your computer. If the fetch from the remote storage stops progressing (wait 30 seconds to make sure), then press again to resume. Remember that you can also visit the cloud storage vendor's website directly."
-msgstr ""
+msgstr "Ved at følge et link til Database / Plugins / Temaer / Uploads / Andre vil UpdraftPlus forsøge at genskabe backup-filen fra fjernlager (hvis et sådan findes - f.eks. Amazon S3, Dropbox, Google Drive, FTP) til din webserver. Derefter vil du få lov til at downloade den til din computer. Hvis hentningen fra fjernlageret stopper (vent 30 sekunder for at være sikker), så klik igen for at fortsætte. Husk at du også kan besøge cloud-lagerets udbyders hjemmeside direkte."
 
 #: admin.php:2259
 msgid "Upload files into UpdraftPlus."
-msgstr ""
+msgstr "Upload filer til UpdraftPlus."
 
 #: admin.php:2445
 msgid "For the ability to lock access to UpdraftPlus settings with a password, upgrade to UpdraftPlus Premium."
-msgstr ""
+msgstr "For evnen til at låse adgangen til UpdraftPlus-indstillingerne med en adgangskode, skal du opgradere til UpdraftPlus Premium."
 
 #: admin.php:2890
 msgid "incremental backup; base backup: %s"
-msgstr ""
+msgstr "trinvis sikkerhedskopi; basis backup: %s"
 
 #: admin.php:2962 admin.php:2992
 msgid "and retain this many scheduled backups"
-msgstr ""
+msgstr "og fastholde så mange planlagte backups"
 
 #: admin.php:3481
 msgid "Backup date"
-msgstr ""
+msgstr "Backup dato"
 
 #: admin.php:3482
 msgid "Backup data (click to download)"
-msgstr ""
+msgstr "Backup data (klik for at downloade)"
 
 #: admin.php:3778
 msgid "View Log"
-msgstr ""
+msgstr "Se loggen"
 
 #: addons/copycom.php:522
 msgid "API Key"
@@ -4148,7 +4148,7 @@ msgstr "Din backup er blevet gendannet."
 
 #: admin.php:1974
 msgid "Your old (themes, uploads, plugins, whatever) directories have been retained with \"-old\" appended to their name. Remove them when you are satisfied that the backup worked properly."
-msgstr ""
+msgstr "Dine gamle mapper (temaer, uploads, plugins, uanset) er bevaret med \"-old\" føjet til deres navn. Fjern dem, når du er tilfreds og mener, at backup'en fungerede korrekt."
 
 #: admin.php:1982
 msgid "Current limit is:"
