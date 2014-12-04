@@ -105,6 +105,7 @@ class UpdraftPlus_BackupModule_s3 {
 			case 'ap-northeast-1':
 			case 'sa-east-1':
 			case 'us-gov-west-1':
+			case 'eu-central-1':
 				$endpoint = 's3-'.$region.'.amazonaws.com';
 				break;
 			case 'cn-north-1':
@@ -538,27 +539,27 @@ class UpdraftPlus_BackupModule_s3 {
 		<?php if ($include_endpoint_chooser) { ?>
 		<tr class="updraftplusmethod <?php echo $key; ?>">
 			<th><?php echo sprintf(__('%s end-point','updraftplus'), $whoweare_short);?>:</th>
-			<td><input type="text" style="width: 360px" id="updraft_<?php echo $key; ?>_endpoint" name="updraft_<?php echo $key; ?>[endpoint]" value="<?php echo htmlspecialchars($opts['endpoint']); ?>" /></td>
+			<td><input type="text" style="width: 360px" id="updraft_<?php echo $key; ?>_endpoint" name="updraft_<?php echo $key; ?>[endpoint]" value="<?php if (!empty($opts['endpoint'])) echo esc_attr($opts['endpoint']); ?>" /></td>
 		</tr>
 		<?php } else { ?>
 			<input type="hidden" id="updraft_<?php echo $key; ?>_endpoint" name="updraft_<?php echo $key; ?>_endpoint" value="">
 		<?php } ?>
 		<tr class="updraftplusmethod <?php echo $key; ?>">
 			<th><?php echo sprintf(__('%s access key','updraftplus'), $whoweare_short);?>:</th>
-			<td><input type="text" autocomplete="off" style="width: 360px" id="updraft_<?php echo $key; ?>_apikey" name="updraft_<?php echo $key; ?>[accesskey]" value="<?php echo htmlspecialchars($opts['accesskey']); ?>" /></td>
+			<td><input type="text" autocomplete="off" style="width: 360px" id="updraft_<?php echo $key; ?>_apikey" name="updraft_<?php echo $key; ?>[accesskey]" value="<?php echo esc_attr($opts['accesskey']); ?>" /></td>
 		</tr>
 		<tr class="updraftplusmethod <?php echo $key; ?>">
 			<th><?php echo sprintf(__('%s secret key','updraftplus'), $whoweare_short);?>:</th>
-			<td><input type="<?php echo apply_filters('updraftplus_admin_secret_field_type', 'text'); ?>" autocomplete="off" style="width: 360px" id="updraft_<?php echo $key; ?>_apisecret" name="updraft_<?php echo $key; ?>[secretkey]" value="<?php echo htmlspecialchars($opts['secretkey']); ?>" /></td>
+			<td><input type="<?php echo apply_filters('updraftplus_admin_secret_field_type', 'text'); ?>" autocomplete="off" style="width: 360px" id="updraft_<?php echo $key; ?>_apisecret" name="updraft_<?php echo $key; ?>[secretkey]" value="<?php echo esc_attr($opts['secretkey']); ?>" /></td>
 		</tr>
 		<tr class="updraftplusmethod <?php echo $key; ?>">
 			<th><?php echo sprintf(__('%s location','updraftplus'), $whoweare_short);?>:</th>
-			<td><?php echo $key; ?>://<input title="<?php echo htmlspecialchars(__('Enter only a bucket name or a bucket and path. Examples: mybucket, mybucket/mypath', 'updraftplus')); ?>" type="text" style="width: 360px" name="updraft_<?php echo $key; ?>[path]" id="updraft_<?php echo $key; ?>_path" value="<?php echo htmlspecialchars($opts['path']); ?>" /></td>
+			<td><?php echo $key; ?>://<input title="<?php echo htmlspecialchars(__('Enter only a bucket name or a bucket and path. Examples: mybucket, mybucket/mypath', 'updraftplus')); ?>" type="text" style="width: 360px" name="updraft_<?php echo $key; ?>[path]" id="updraft_<?php echo $key; ?>_path" value="<?php echo esc_attr($opts['path']); ?>" /></td>
 		</tr>
 		<?php do_action('updraft_'.$key.'_extra_storage_options', $opts); ?>
 		<tr class="updraftplusmethod <?php echo $key; ?>">
 		<th></th>
-		<td><p><button id="updraft-<?php echo $key; ?>-test" type="button" class="button-primary" style="font-size:18px !important"><?php echo sprintf(__('Test %s Settings','updraftplus'),$whoweare_short);?></button></p></td>
+		<td><p><button id="updraft-<?php echo $key; ?>-test" type="button" class="button-primary" style="font-size:18px !important"><?php echo htmlspecialchars(sprintf(__('Test %s Settings','updraftplus'),$whoweare_short));?></button></p></td>
 		</tr>
 
 	<?php

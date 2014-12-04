@@ -116,51 +116,50 @@ class Updraft_Restorer extends WP_Upgrader {
 		} elseif ('.tar' == strtolower(substr($package, -4, 4)) || '.tar.gz' == strtolower(substr($package, -7, 7)) || '.tar.bz2' == strtolower(substr($package, -8, 8))) {
 			if (!class_exists('UpdraftPlus_Archive_Tar')) {
 				if (false === strpos(get_include_path(), UPDRAFTPLUS_DIR.'/includes/PEAR')) set_include_path(UPDRAFTPLUS_DIR.'/includes/PEAR'.PATH_SEPARATOR.get_include_path());
-
 				require_once(UPDRAFTPLUS_DIR.'/includes/PEAR/Archive/Tar.php');
-				$p_compress = null;
-				if ('.tar.gz' == strtolower(substr($package, -7, 7))) {
-					$p_compress = 'gz';
-				} elseif ('.tar.bz2' == strtolower(substr($package, -8, 8))) {
-					$p_compress = 'bz2';
-				}
+			}
 
-				# It's not pretty. But it works.
-				if (is_a($wp_filesystem, 'WP_Filesystem_Direct')) {
-					$extract_dir = $working_dir;
+			$p_compress = null;
+			if ('.tar.gz' == strtolower(substr($package, -7, 7))) {
+				$p_compress = 'gz';
+			} elseif ('.tar.bz2' == strtolower(substr($package, -8, 8))) {
+				$p_compress = 'bz2';
+			}
+
+			# It's not pretty. But it works.
+			if (is_a($wp_filesystem, 'WP_Filesystem_Direct')) {
+				$extract_dir = $working_dir;
+			} else {
+				$updraft_dir = $updraftplus->backups_dir_location();
+				if (!$updraftplus->really_is_writable($updraft_dir)) {
+					$updraftplus->log_e("Backup directory (%s) is not writable, or does not exist.", $updraft_dir);
+					$result = new WP_Error('unpack_failed', $this->strings['unpack_failed'], $tar->extract);
 				} else {
-					$updraft_dir = $updraftplus->backups_dir_location();
-					if (!$updraftplus->really_is_writable($updraft_dir)) {
-						$updraftplus->log_e("Backup directory (%s) is not writable, or does not exist.", $updraft_dir);
-						$result = new WP_Error('unpack_failed', $this->strings['unpack_failed'], $tar->extract);
-					} else {
-						$extract_dir = $updraft_dir.'/'.basename($working_dir).'-old';
-						if (file_exists($extract_dir)) $updraftplus->remove_local_directory($extract_dir);
-						$updraftplus->log("Using a temporary folder to extract before moving over WPFS: $extract_dir");
+					$extract_dir = $updraft_dir.'/'.basename($working_dir).'-old';
+					if (file_exists($extract_dir)) $updraftplus->remove_local_directory($extract_dir);
+					$updraftplus->log("Using a temporary folder to extract before moving over WPFS: $extract_dir");
+				}
+			}
+			# Slightly hackish - rather than re-write Archive_Tar to use wp_filesystem, we instead unpack into the location that we already require to be directly writable for other reasons, and then move from there.
+		
+			if (empty($result)) {
+				
+				$this->ud_extract_count = 0;
+				$this->ud_working_dir = trailingslashit($working_dir);
+				$this->ud_extract_dir = untrailingslashit($extract_dir);
+				$this->ud_made_dirs = array();
+				add_filter('updraftplus_tar_wrote', array($this, 'tar_wrote'), 10, 2);
+				$tar = new UpdraftPlus_Archive_Tar($package, $p_compress);
+				$result = $tar->extract($extract_dir, false);
+				if (!is_a($wp_filesystem, 'WP_Filesystem_Direct')) $updraftplus->remove_local_directory($extract_dir);
+				if (true != $result) {
+					$result = new WP_Error('unpack_failed', $this->strings['unpack_failed'], $result);
+				} else {
+					if (!is_a($wp_filesystem, 'WP_Filesystem_Direct')) {
+						$updraftplus->log('Moved unpacked tarball contents');
 					}
 				}
-				# Slightly hackish - rather than re-write Archive_Tar to use wp_filesystem, we instead unpack into the location that we already require to be directly writable for other reasons, and then move from there.
-			
-				if (empty($result)) {
-					
-					$this->ud_extract_count = 0;
-					$this->ud_working_dir = trailingslashit($working_dir);
-					$this->ud_extract_dir = untrailingslashit($extract_dir);
-					$this->ud_made_dirs = array();
-					add_filter('updraftplus_tar_wrote', array($this, 'tar_wrote'), 10, 2);
-					$tar = new UpdraftPlus_Archive_Tar($package, $p_compress);
-					$result = $tar->extract($extract_dir, false);
-					if (!is_a($wp_filesystem, 'WP_Filesystem_Direct')) $updraftplus->remove_local_directory($extract_dir);
-					if (true != $result) {
-						$result = new WP_Error('unpack_failed', $this->strings['unpack_failed'], $result);
-					} else {
-						if (!is_a($wp_filesystem, 'WP_Filesystem_Direct')) {
-							$updraftplus->log('Moved unpacked tarball contents');
-						}
-					}
-					remove_filter('updraftplus_tar_wrote', array($this, 'tar_wrote'), 10, 2);
-				}
-
+				remove_filter('updraftplus_tar_wrote', array($this, 'tar_wrote'), 10, 2);
 			}
 		}
 
@@ -270,7 +269,9 @@ class Updraft_Restorer extends WP_Upgrader {
 		// Unpack package to working directory
 		if ($updraftplus->is_db_encrypted($package)) {
 			$this->skin->feedback('decrypt_database');
-			$encryption = UpdraftPlus_Options::get_updraft_option('updraft_encryptionphrase');
+
+			$encryption = empty($_POST['updraft_encryptionphrase']) ? UpdraftPlus_Options::get_updraft_option('updraft_encryptionphrase') : $_POST['updraft_encryptionphrase'];
+
 			if (!$encryption) return new WP_Error('no_encryption_key', __('Decryption failed. The database file is encrypted, but you have no encryption key entered.', 'updraftplus'));
 
 			$plaintext = $updraftplus->decrypt(false, $encryption, $wp_filesystem->get_contents($backup_dir.$package));
@@ -998,7 +999,10 @@ class Updraft_Restorer extends WP_Upgrader {
 					if (isset($fdirnames[$name])) {
 						$move_from = $working_dir . "/".$name;
 					} elseif (preg_match('/^([^\.].*)$/', $name, $fmatch)) {
-						$first_entry = $working_dir."/".$fmatch[1];
+						// In the case of a third-party backup, the first entry may be the wrong entity. We could try a more sophisticated algorithm, but a third party backup requiring one has never been seen (and it is not easy to envisage what the algorithm might be).
+						if (empty($this->ud_foreign)) {
+							$first_entry = $working_dir."/".$fmatch[1];
+						}
 					}
 				}
 			}

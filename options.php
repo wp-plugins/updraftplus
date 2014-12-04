@@ -34,10 +34,28 @@ class UpdraftPlus_Options {
 		add_submenu_page('options-general.php', 'UpdraftPlus', __('UpdraftPlus Backups','updraftplus'), apply_filters('option_page_capability_updraft-options-group', 'manage_options'), "updraftplus", array($updraftplus_admin, "settings_output"));
 	}
 
-	public static function options_form_begin($settings_fields = 'updraft-options-group', $allow_autocomplete = true) {
+	public static function options_form_begin($settings_fields = 'updraft-options-group', $allow_autocomplete = true, $get_params = array()) {
 		global $pagenow;
-		echo '<form method="post" ';
-		if ('options-general.php' == $pagenow) echo 'action="options.php"';
+		echo '<form method="post"';
+
+		$page = '';
+		if ('options-general.php' == $pagenow) $page="options.php";
+
+		if (!empty($get_params)) {
+			$page .= '?';
+			$first_one = true;
+			foreach ($get_params as $k => $v) {
+				if ($first_one) {
+					$first_one = false;
+				} else {
+					$page .= '&';
+				}
+				$page .= urlencode($k).'='.urlencode($v);
+			}
+		}
+
+		if ($page) echo ' action="'.$page.'"';
+
 		if (!$allow_autocomplete) echo ' autocomplete="off"';
 		echo '>';
 		if ($settings_fields) settings_fields('updraft-options-group');
@@ -81,6 +99,7 @@ class UpdraftPlus_Options {
 		register_setting('updraft-options-group', 'updraft_report_warningsonly', array($updraftplus_admin, 'return_array'));
 		register_setting('updraft-options-group', 'updraft_report_wholebackup', array($updraftplus_admin, 'return_array'));
 
+		register_setting('updraft-options-group', 'updraft_autobackup_default', 'absint' );
 		register_setting('updraft-options-group', 'updraft_delete_local', 'absint' );
 		register_setting('updraft-options-group', 'updraft_debug_mode', 'absint' );
 		register_setting('updraft-options-group', 'updraft_extradbs');
@@ -110,7 +129,7 @@ class UpdraftPlus_Options {
 	}
 
 	public static function hourminute($pot) {
-		if (preg_match("/^[0-2][0-9]:[0-5][0-9]$/", $pot)) return $pot;
+		if (preg_match("/^([0-2]?[0-9]):([0-5][0-9])$/", $pot, $matches)) return sprintf("%02d:%s", $matches[1], $matches[2]);
 		if ('' == $pot) return date('H:i', time()+300);
 		return '00:00';
 	}

@@ -334,7 +334,8 @@ class UpdraftPlus {
 			@closedir($handle);
 		}
 		# Depending on the PHP setup, the current working directory could be ABSPATH or wp-admin - scan both
-		foreach (array(ABSPATH, ABSPATH.'wp-admin/') as $path) {
+		# Since 1.9.32, we set them to go into $updraft_dir, so now we must check there too. Checking the old ones doesn't hurt, as other backup plugins might leave their temporary files around can cause issues with huge files.
+		foreach (array(ABSPATH, ABSPATH.'wp-admin/', $updraft_dir.'/') as $path) {
 			if ($handle = opendir($path)) {
 				while (false !== ($entry = readdir($handle))) {
 					# With the old pclzip temporary files, there is no need to keep them around after they're not in use - so we don't use $older_than here - just go for 15 minutes
@@ -424,6 +425,7 @@ class UpdraftPlus {
 // 				}
 // 			}
 // 			$logline .= " W3TC/ObjectCache: $w3oc";
+
 		}
 
 		$this->log($logline);
@@ -750,7 +752,7 @@ class UpdraftPlus {
 		return (false == $ciphertext) ? $rijndael->decrypt(file_get_contents($fullpath)) : $rijndael->decrypt($ciphertext);
 	}
 
-	function detect_safe_mode() {
+	public function detect_safe_mode() {
 		return (@ini_get('safe_mode') && strtolower(@ini_get('safe_mode')) != "off") ? 1 : 0;
 	}
 
@@ -992,6 +994,19 @@ class UpdraftPlus {
 		return (is_object($row)) ? $row->option_value : false;
 	}
 
+	public function parse_filename($filename) {
+		if (preg_match('/^backup_([\-0-9]{10})-([0-9]{4})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+)?+\.(zip|gz|gz\.crypt)$/i', $filename, $matches)) {
+			return array(
+				'date' => strtotime($matches[1].' '.$matches[2]),
+				'nonce' => $matches[3],
+				'type' => $matches[4],
+				'index' => (empty($matches[5]) ? 0 : $matches[5]-1),
+				'extension' => $matches[6]);
+		} else {
+			return false;
+		}
+	}
+
 	// This important function returns a list of file entities that can potentially be backed up (subject to users settings), and optionally further meta-data about them
 	public function get_backupable_file_entities($include_others = true, $full_info = false) {
 
@@ -1134,10 +1149,13 @@ class UpdraftPlus {
 
 			# This is just a simple test to catch restorations of old backup sets where the backup includes a resumption of the backup job
 			if ($time_now - $this->backup_time > 172800 && true == apply_filters('updraftplus_check_obsolete_backup', true, $time_now)) {
-				$this->log("This backup task began over 2 days ago: aborting ($time_now, ".$this->backup_time.")");
+				$this->log("This backup task is either complete or began over 2 days ago: ending ($time_now, ".$this->backup_time.")");
 				die;
 			}
 
+		} else {
+			$label = $this->jobdata_get('label');
+			if ($label) $resumption_extralog = ", label=$label";
 		}
 
 		$this->last_successful_resumption = $last_successful_resumption;
@@ -1207,7 +1225,12 @@ class UpdraftPlus {
 		$next_resumption = $resumption_no+1;
 		if ($next_resumption < $first_run + 10) {
 			if (true === $this->jobdata_get('one_shot')) {
-				$this->log('We are in "one shot" mode - no resumptions will be scheduled');
+				if (true === $this->jobdata_get('reschedule_before_upload') && 1 == $next_resumption) {
+					$this->log('A resumption will be scheduled for the cloud backup stage');
+					$schedule_resumption = true;
+				} else {
+					$this->log('We are in "one shot" mode - no resumptions will be scheduled');
+				}
 			} else {
 				$schedule_resumption = true;
 			}
@@ -1386,15 +1409,26 @@ class UpdraftPlus {
 
 		if (0 == count($undone_files)) {
 			$this->log("Resume backup ($bnonce, $resumption_no): finish run");
+			if (is_array($our_files)) $this->save_last_backup($our_files);
 			$this->log("There were no more files that needed uploading; backup job is complete");
 			// No email, as the user probably already got one if something else completed the run
 			$this->backup_finish($next_resumption, true, false, $resumption_no);
 			restore_error_handler();
 			return;
-		} else {
-			$this->log("Requesting upload of the files that have not yet been successfully uploaded (".count($undone_files).")");
-			$updraftplus_backup->cloud_backup($undone_files);
 		}
+
+		$this->error_count_before_cloud_backup = $this->error_count();
+
+		// This is intended for one-shot backups, where we do want a resumption if it's only for uploading
+		if (empty($this->newresumption_scheduled) && 0 == $resumption_no && 0 == $this->error_count_before_cloud_backup && true === $this->jobdata_get('reschedule_before_upload')) {
+			$this->log("Cloud backup stage reached on one-shot backup: scheduling resumption for the cloud upload");
+			$this->reschedule(60);
+			$this->record_still_alive();
+		}
+
+		$this->log("Requesting upload of the files that have not yet been successfully uploaded (".count($undone_files).")");
+		
+		$updraftplus_backup->cloud_backup($undone_files);
 
 		$this->log("Resume backup ($bnonce, $resumption_no): finish run");
 		if (is_array($our_files)) $this->save_last_backup($our_files);
@@ -1646,6 +1680,7 @@ class UpdraftPlus {
 		// Use of jobdata_set_multi saves around 200ms
 		call_user_func_array(array($this, 'jobdata_set_multi'), apply_filters('updraftplus_initial_jobdata', $initial_jobdata));
 
+
 		// Everything is set up; now go
 		$this->backup_resume(0, $this->nonce);
 
@@ -1678,6 +1713,10 @@ class UpdraftPlus {
 		} else {
 			$this->log("There were errors in the uploads, so the 'resume' event is remaining scheduled");
 			$this->jobdata_set('jobstatus', 'resumingforerrors');
+			# If there were no errors before moving to the upload stage, on the first run, then bring the resumption back very close. Since this is only attempted on the first run, it is really only an efficiency thing for a quicker finish if there was an unexpected networking event. We don't want to do it straight away every time, as it may be that the cloud service is down - and might be up in 5 minutes time. This was added after seeing a case where resumption 0 got to run for 10 hours... and the resumption 7 that should have picked up the uploading of 1 archive that failed never occurred.
+			if (isset($this->error_count_before_cloud_backup) && 0 == $resumption_no && 0 === $this->error_count_before_cloud_backup) {
+				$this->reschedule(60);
+			}
 		}
 
 		// Send the results email if appropriate, which means:
@@ -1740,6 +1779,7 @@ class UpdraftPlus {
 		$this->log($final_message);
 
 		@fclose($this->logfile_handle);
+		$this->logfile_handle = null;
 
 		// This is left until last for the benefit of the front-end UI, which then gets maximum chance to display the 'finished' status
 		if ($delete_jobdata) delete_site_option('updraft_jobdata_'.$this->nonce);
@@ -1774,7 +1814,13 @@ class UpdraftPlus {
 
 	private function save_last_backup($backup_array) {
 		$success = ($this->error_count() == 0) ? 1 : 0;
-		$last_backup = array('backup_time'=>$this->backup_time, 'backup_array'=>$backup_array, 'success'=>$success, 'errors'=>$this->errors, 'backup_nonce' => $this->nonce);
+		$last_backup = apply_filters('updraftplus_save_last_backup', array(
+			'backup_time' => $this->backup_time,
+			'backup_array' => $backup_array,
+			'success' => $success,
+			'errors' => $this->errors,
+			'backup_nonce' => $this->nonce
+		));
 		UpdraftPlus_Options::update_updraft_option('updraft_last_backup', $last_backup, false);
 	}
 
@@ -1862,7 +1908,8 @@ class UpdraftPlus {
 
 		// Delete local files immediately if the option is set
 		// Where we are only backing up locally, only the "prune" function should do deleting
-		if (!empty($updraftplus_backup->last_service) && ($this->jobdata_get('service') !== '' && ((is_array($this->jobdata_get('service')) && count($this->jobdata_get('service')) >0) || (is_string($this->jobdata_get('service')) && $this->jobdata_get('service') !== 'none')))) {
+		$service = $this->jobdata_get('service');
+		if (!empty($updraftplus_backup->last_service) && ($service !== '' && ((is_array($service) && count($service)>0 && (count($service) > 1 || ($service[0] != '' && $service[0] != 'none'))) || (is_string($service) && $service !== 'none')))) {
 			$this->delete_local($file);
 		}
 	}
@@ -2113,6 +2160,7 @@ class UpdraftPlus {
 			$backup_array['nonce'] = $this->nonce;
 			$backup_array['service'] = $this->jobdata_get('service');
 			if ('' != ($label = $this->jobdata_get('label', ''))) $backup_array['label'] = $label;
+			if (false != ($autobackup = $this->jobdata_get('autobackup', false))) $backup_array['autobackup'] = true;
 			$backup_history[$this->backup_time] = $backup_array;
 			UpdraftPlus_Options::update_updraft_option('updraft_backup_history', $backup_history, false);
 		} else {
@@ -2131,7 +2179,7 @@ class UpdraftPlus {
 		//by doing a raw DB query to get the most up-to-date data from this option we slightly narrow the window for the multiple-cron race condition
 // 		global $wpdb;
 // 		$backup_history = @unserialize($wpdb->get_var($wpdb->prepare("SELECT option_value from $wpdb->options WHERE option_name='updraft_backup_history'")));
-		if(is_array($backup_history)) {
+		if (is_array($backup_history)) {
 			krsort($backup_history); //reverse sort so earliest backup is last on the array. Then we can array_pop.
 		} else {
 			$backup_history = array();
@@ -2288,17 +2336,20 @@ class UpdraftPlus {
 		//	$path->isFile() ? unlink($path->getPathname()) : rmdir($path->getPathname());
 		//}
 		//return rmdir($dir);
-		$d = dir($dir);
-		while (false !== ($entry = $d->read())) {
-			if ('.' !== $entry && '..' !== $entry) {
-				if (is_dir($dir.'/'.$entry)) {
-					$this->remove_local_directory($dir.'/'.$entry, false);
-				} else {
-					@unlink($dir.'/'.$entry);
+
+		if ($handle = @opendir($dir)) {
+			while (false !== ($entry = readdir($handle))) {
+				if ('.' !== $entry && '..' !== $entry) {
+					if (is_dir($dir.'/'.$entry)) {
+						$this->remove_local_directory($dir.'/'.$entry, false);
+					} else {
+						@unlink($dir.'/'.$entry);
+					}
 				}
 			}
+			@closedir($handle);
 		}
-		$d->close();
+
 		return ($contents_only) ? true : rmdir($dir);
 	}
 

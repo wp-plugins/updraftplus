@@ -13,7 +13,7 @@ class UpdraftPlus_BinZip extends UpdraftPlus_PclZip {
 
 	private $binzip;
 
-	function __construct() {
+	public function __construct() {
 		global $updraftplus_backup;
 		$this->binzip = $updraftplus_backup->binzip;
 		if (!is_string($this->binzip)) {
@@ -186,6 +186,9 @@ class UpdraftPlus_PclZip {
 	public function __construct() {
 		$this->addfiles = array();
 		$this->adddirs = array();
+		// Put this in a non-backed-up, writeable location, to make sure that huge temporary files aren't created and then added to the backup - and that we have somewhere writable
+		global $updraftplus;
+		if (!defined('PCLZIP_TEMPORARY_DIR')) define('PCLZIP_TEMPORARY_DIR', trailingslashit($updraftplus->backups_dir_location()));
 	}
 
 	# Used to include mtime in statindex (by default, not done - to save memory; probably a bit paranoid)
@@ -233,7 +236,8 @@ class UpdraftPlus_PclZip {
 			return false;
 		}
 
-		$ziparchive_create_match = (defined('ZIPARCHIVE::CREATE')) ? ZIPARCHIVE::CREATE : 1;
+		# Route around PHP bug (exact version with the problem not known)
+		$ziparchive_create_match = (version_compare(PHP_VERSION, '5.2.12', '>') && defined('ZIPARCHIVE::CREATE')) ? ZIPARCHIVE::CREATE : 1;
 
 		if ($flags == $ziparchive_create_match && file_exists($path)) @unlink($path);
 
