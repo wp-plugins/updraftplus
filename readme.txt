@@ -3,7 +3,7 @@ Contributors: Backup with UpdraftPlus, DavidAnderson
 Tags: backup, backups, restore, amazon backup, s3 backup, dropbox backup, google drive backup, rackspace cloud files, rackspace backup, cloud files, dreamhost, dreamobjects backup, ftp backup, webdav backup, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp backup, ftps, scp, migrate, duplicate, copy, mysql backup, database backup, db backup, website backup, wordpress backup, full backup, openstack, swift
 Requires at least: 3.2
 Tested up to: 4.1
-Stable tag: 1.9.40
+Stable tag: 1.9.30
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -150,7 +150,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 = 1.9.40 - 2014-12-04 =
 
 * FEATURE: The auto-backup addon (UpdraftPlus Premium) can now run before WordPress automatic updates
-* FEATURE: Lock access to your UpdraftPlus settings (Premium - https://updraftplus.com/lock-updraftplus-settings/)
+* FEATURE: Lock access to your UpdraftPlus settings (Premium) - https://updraftplus.com/lock-updraftplus-settings/
 * FEATURE: The full log file viewer is now real-time - it updates as the backup progresses
 * FEATURE: When downloading from remote storage via the settings page, stalled downloads are now automatically restarted (relevant for large backups with low web-server PHP time-outs)
 * FIX: Manual search/replace expert tool was broken in early downloads of 1.9.31
