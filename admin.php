@@ -2245,12 +2245,6 @@ CREATE TABLE $wpdb->signups (
 					if (false !== strpos($_SERVER['HTTP_USER_AGENT'], 'Opera') || false !== strpos($_SERVER['HTTP_USER_AGENT'], 'OPR/')) { ?>
 						<li><strong><?php _e('Opera web browser','updraftplus');?>:</strong> <?php _e('If you are using this, then turn Turbo/Road mode off.','updraftplus');?></li>
 				<?php } ?>
-				<?php
-				$service = UpdraftPlus_Options::get_updraft_option('updraft_service');
-				if ($service === 'googledrive' || (is_array($service) && in_array('googledrive', $service))) {
-					?><li><strong><?php _e('Google Drive','updraftplus');?>:</strong> <?php _e('Google changed their permissions setup recently (April 2013). To download or restore from Google Drive, you <strong>must</strong> first re-authenticate (using the link in the Google Drive configuration section).','updraftplus');?></li>
-				<?php } ?>
-
 
 				</ul>
 				</p>
@@ -3483,7 +3477,7 @@ CREATE TABLE $wpdb->signups (
 				<th style=\"padding:0px 0px 6px 1px; width: 272px;\">".__('Actions', 'updraftplus')."</th>
 			</tr>
 			<tr style=\"height:2px; padding:1px; margin:0px;\">
-				<td colspan=\"4\" style=\"margin:0; padding:0\"><div style=\"height: 2px; background-color:#888888;width:870px;\">&nbsp;</div></td>
+				<td colspan=\"4\" style=\"margin:0; padding:0\"><div style=\"height: 2px; background-color:#888888;\">&nbsp;</div></td>
 			</tr>
 		</thead>
 		<tbody>";
@@ -3580,7 +3574,7 @@ ENDHERE;
 
 			$ret .= '</tr>';
 
-			$ret .= "<tr style=\"height:2px; padding:1px; margin:0px;\"><td colspan=\"4\" style=\"margin:0; padding:0\"><div style=\"height: 2px; background-color:#aaaaaa;width:870px;\">&nbsp;</div></td></tr>";
+			$ret .= "<tr style=\"height:2px; padding:1px; margin:0px;\"><td colspan=\"4\" style=\"margin:0; padding:0\"><div style=\"height: 2px; background-color:#aaaaaa;\">&nbsp;</div></td></tr>";
 
 		}
 
