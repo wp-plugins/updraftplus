@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the UpdraftPlus package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-10-14 13:53:45+0000\n"
+"PO-Revision-Date: 2014-12-04 15:47:56+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,163 +12,163 @@ msgstr ""
 
 #: udaddons/options.php:46
 msgid "Add-ons"
-msgstr ""
+msgstr "Add-ons"
 
 #: udaddons/options.php:265
 msgid "Note that after you have claimed your add-ons, you can remove your password (but not the email address) from the settings below, without affecting this site's access to updates."
-msgstr ""
+msgstr "Note que depois de solicitar os seus add-ons, poderá remover a sua senha das configurações abaixo (mas não o endereço de email), sem afectar o acesso deste site a actualizações."
 
 #: addons/morefiles.php:67
 msgid "(learn more about this significant option)"
-msgstr ""
+msgstr "(ler mais sobre esta importante opção)"
 
 #: addons/bitcasa.php:49
 msgid "Bitcasa have deprecated their developer API, and it will be turned off in November 2015. You must switch to a different cloud storage method in future!"
-msgstr ""
+msgstr "O Bitcasa preteriu a sua API de programação e esta será desligada em Novembro de 2015. No futuro tem que mudar para um sistema diferente de armazenamento em nuvem!"
 
 #: addons/lockadmin.php:105
 msgid "The admin password has now been removed."
-msgstr ""
+msgstr "A senha do administrador foi agora removida."
 
 #: addons/lockadmin.php:107
 msgid "An admin password has been set."
-msgstr ""
+msgstr "Uma senha de administrador foi definida."
 
 #: addons/lockadmin.php:109
 msgid "The admin password has been changed."
-msgstr ""
+msgstr "A senha do administrador foi alterada."
 
 #: addons/lockadmin.php:111
 msgid "Settings saved."
-msgstr ""
+msgstr "Configurações guardadas."
 
 #: addons/lockadmin.php:131
 msgid "Lock access to the UpdraftPlus settings page"
-msgstr ""
+msgstr "Bloquear acesso à página das configurações do UpdraftPlus"
 
 #: addons/lockadmin.php:133
 msgid "Please make sure that you have made a note of the password!"
-msgstr ""
+msgstr "Por favor tome nota da senha!"
 
 #: addons/lockadmin.php:144
 msgid "1 hour"
-msgstr ""
+msgstr "1 hora"
 
 #: addons/lockadmin.php:145 addons/lockadmin.php:146
 msgid "%s hours"
-msgstr ""
+msgstr "%s horas"
 
 #: addons/lockadmin.php:147
 msgid "1 week"
-msgstr ""
+msgstr "1 semana"
 
 #: addons/lockadmin.php:148 addons/lockadmin.php:149
 msgid "%s weeks"
-msgstr ""
+msgstr "%s semanas"
 
 #: addons/lockadmin.php:157
 msgid "Require password again after"
-msgstr ""
+msgstr "Requerer senha novamente após"
 
 #: addons/lockadmin.php:159
 msgid "Support URL"
-msgstr ""
+msgstr "URL de suporte"
 
 #: addons/lockadmin.php:159
 msgid "Anyone seeing the lock screen will be shown this URL for support - enter a website address or an email address."
-msgstr ""
+msgstr "Qualquer pessoa que aceda ao ecrã bloqueado verá este URL para suporte - insira um endereço de um website ou endereço de email."
 
 #: addons/lockadmin.php:159
 msgid "Otherwise, the default link will be shown."
-msgstr ""
+msgstr "De outro modo, será mostrada a ligação por omissão."
 
 #: addons/lockadmin.php:162
 msgid "Lock"
-msgstr ""
+msgstr "Bloquear"
 
 #: addons/lockadmin.php:188 addons/lockadmin.php:194
 msgid "Unlock"
-msgstr ""
+msgstr "Desbloquear"
 
 #: addons/lockadmin.php:200
 msgid "Password incorrect"
-msgstr ""
+msgstr "Senha incorrecta"
 
 #: addons/lockadmin.php:203
 msgid "To access the UpdraftPlus settings, please enter your unlock password"
-msgstr ""
+msgstr "Para aceder às configurações do UpdraftPlus, por favor insira a sua senha de desbloqueio"
 
 #: addons/lockadmin.php:210
 msgid "For unlocking support, please contact whoever manages UpdraftPlus for you."
-msgstr ""
+msgstr "Para desbloquear o suporte, por favor contacte quem administra o UpdraftPlus para si."
 
 #: addons/autobackup.php:42
 msgid "WordPress core (only)"
-msgstr ""
+msgstr "Núcleo do WordPress (apenas)"
 
 #: addons/autobackup.php:77
 msgid "Automatic backup before update"
-msgstr ""
+msgstr "Backup automático antes de actualização"
 
 #: addons/moredatabase.php:29
 msgid "Database decryption phrase"
-msgstr ""
+msgstr "Frase para desencriptação da base de dados"
 
 #: backup.php:2230
 msgid "A zip error occurred"
-msgstr ""
+msgstr "Ocorreu um erro de zip"
 
 #: backup.php:2232
 msgid "your web hosting account appears to be full; please see: %s"
-msgstr ""
+msgstr "o seu alojamento parece estar cheio, por favor veja: %s"
 
 #: backup.php:2234
 msgid "check your log for more details."
-msgstr ""
+msgstr "veja o seu log para mais detalhes."
 
 #: admin.php:1261
 msgid "Error: unexpected file read fail"
-msgstr ""
+msgstr "Erro: falha inesperada ao ler ficheiro"
 
 #: admin.php:1483
 msgid "Backup label:"
-msgstr ""
+msgstr "Identificação do backup:"
 
 #: admin.php:2042
 msgid "The 'Backup Now' button is disabled as your backup directory is not writable (go to the 'Settings' tab and find the relevant option)."
-msgstr ""
+msgstr "O botão 'Backup Agora' está desactivado porque o seu directório de backup não é gravável (vá ao separador \"Configurações\" e procure a opção relevante)."
 
 #: admin.php:2230
 msgid "Following a link for Database/Plugins/Themes/Uploads/Others will make UpdraftPlus try to bring the backup file back from the remote storage (if any - e.g. Amazon S3, Dropbox, Google Drive, FTP) to your webserver. Then you will be allowed to download it to your computer. If the fetch from the remote storage stops progressing (wait 30 seconds to make sure), then press again to resume. Remember that you can also visit the cloud storage vendor's website directly."
-msgstr ""
+msgstr "Seguir uma ligação para Base de dados/Plugins/Temas/Carregamentos/Outros fará com que o UpdraftPlus tente descarregar o ficheiro de backup do alojamento remoto (por ex. Amazon S3, Dropbox, Google Drive, FTP) para o seu servidor. Depois poderá descarregar para o seu computador. Se a obtenção do alojamento remoto parar de progredir (aguarde 30 segundos para ter a certeza), então clique de novo para retomar. Lembre-se que pode visitar directamente o website do serviço de alojamento em nuvem."
 
 #: admin.php:2259
 msgid "Upload files into UpdraftPlus."
-msgstr ""
+msgstr "Carregue ficheiros para o UpdraftPlus."
 
 #: admin.php:2445
 msgid "For the ability to lock access to UpdraftPlus settings with a password, upgrade to UpdraftPlus Premium."
-msgstr ""
+msgstr "Para possiblitar o bloqueio do acesso às configurações do UpdraftPlus através duma senha, actualize para o UpdraftPlus Premium."
 
 #: admin.php:2890
 msgid "incremental backup; base backup: %s"
-msgstr ""
+msgstr "backup incremental; backup de base: %s"
 
 #: admin.php:2962 admin.php:2992
 msgid "and retain this many scheduled backups"
-msgstr ""
+msgstr "e manter todos estes backups agendados"
 
 #: admin.php:3481
 msgid "Backup date"
-msgstr ""
+msgstr "Data do backup"
 
 #: admin.php:3482
 msgid "Backup data (click to download)"
-msgstr ""
+msgstr "Dados do backup (clique para descarregar)"
 
 #: admin.php:3778
 msgid "View Log"
-msgstr ""
+msgstr "Ver o log"
 
 #: addons/copycom.php:522
 msgid "API Key"
@@ -2322,7 +2322,7 @@ msgstr "O diretório de backup não esta acessível - o backup da base de dados 
 
 #: admin.php:4312
 msgid "Will not delete any archives after unpacking them, because there was no cloud storage for this backup"
-msgstr "Nenhum ficheiro será apagado após a sua descompressão, porque não havia nenhum armazenamento na nuvem para este backup"
+msgstr "Nenhum ficheiro será apagado após a sua descompressão, porque não havia nenhum armazenamento em nuvem para este backup"
 
 #: admin.php:3689
 msgid "(%d archive(s) in set)."
@@ -4148,7 +4148,7 @@ msgstr "O seu backup foi restaurado."
 
 #: admin.php:1974
 msgid "Your old (themes, uploads, plugins, whatever) directories have been retained with \"-old\" appended to their name. Remove them when you are satisfied that the backup worked properly."
-msgstr ""
+msgstr "Os seus directórios antigos (themes, uploads, plugins, etc) foram mantidos, tendo sido acrescentando ao seu nome o sufixo \"-old\". Remova-os quando tiver a certeza que o backup funcionou correctamente."
 
 #: admin.php:1982
 msgid "Current limit is:"
