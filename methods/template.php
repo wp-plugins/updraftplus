@@ -17,10 +17,12 @@ Some handy tips:
 
 */
 
+if (!defined('UPDRAFTPLUS_DIR')) die('No direct access allowed.');
+
 class UpdraftPlus_BackupModule_template {
 
 	// backup method: takes an array, and shovels them off to the cloud storage
-	function backup($backup_array) {
+	public function backup($backup_array) {
 
 		global $updraftplus;
 
@@ -35,8 +37,14 @@ class UpdraftPlus_BackupModule_template {
 
 	}
 
+	# $match: a substring to require (tested via strpos() !== false)
+	public function listfiles($match = 'backup_') {
+		# This function needs to return an array of arrays. The keys for the sub-arrays are name (a path-less filename, i.e. a basename), (optional)size, and should be a list of matching files from the storage backend. A WP_Error object can also be returned; and the error code should be no_settings if that is relevant.
+		return array();
+	}
+
 	// delete method: takes an array of file names (base name) or a single string, and removes them from the cloud storage
-	function delete($files) {
+	public function delete($files, $data = false) {
 
 		global $updraftplus;
 
@@ -46,7 +54,7 @@ class UpdraftPlus_BackupModule_template {
 
 	// download method: takes a file name (base name), and brings it back from the cloud storage into Updraft's directory
 	// You can register errors with $updraftplus->log("my error message", 'error')
-	function download($file) {
+	public function download($file) {
 
 		global $updraftplus;
 
@@ -55,7 +63,7 @@ class UpdraftPlus_BackupModule_template {
 	// config_print: prints out table rows for the configuration screen
 	// Your rows need to have a class exactly matching your method (in this example, template), and also a class of updraftplusmethod
 	// Note that logging is not available from this context; it will do nothing.
-	public static function config_print() {
+	public function config_print() {
 
 		?>
 			<tr class="updraftplusmethod template">
