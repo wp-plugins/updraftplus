@@ -3,7 +3,7 @@ Contributors: Backup with UpdraftPlus, DavidAnderson
 Tags: backup, backups, restore, amazon backup, s3 backup, dropbox backup, google drive backup, rackspace cloud files, rackspace backup, cloud files, dreamhost, dreamobjects backup, ftp backup, webdav backup, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp backup, ftps, scp, migrate, duplicate, copy, mysql backup, database backup, db backup, website backup, wordpress backup, full backup, openstack, swift
 Requires at least: 3.2
 Tested up to: 4.1
-Stable tag: 1.9.40
+Stable tag: 1.9.42
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -147,6 +147,10 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
+= 1.9.42 - 2014-12-08 =
+* FIX: Fix bug in 1.9.40 that caused some cloud storage uploads to be terminated.
+* FIX: Restore functionality for Premium users on older WP versions (3.1 - 3.5)
+
 = 1.9.40 - 2014-12-04 =
 
 * FEATURE: The auto-backup addon (UpdraftPlus Premium) can now run before WordPress automatic updates
@@ -174,7 +178,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Suppress top advert if the user is on their first go (free version - danger of too many notices)
 * TWEAK: Don't display the post-restoration message "if your backup set...", since we can work this out ourselves
 * TWEAK: Supply extra help to the user if the backup directory is not writable.
-* TWEAK: SFTP remote storage now logs chunk progress
+* TWEAK: SCP remote storage now logs chunk progress
 * TWEAK: Provide a database encryption phrase text entry in the restore options (rather than needing to enter it in the settings)
 * TWEAK: Set the PclZip temporary directory to the Updraft directory if unset, to keep its temporary files out of the way more easily
 * COMPATIBILITY: Tested with the forthcoming WordPress 4.1
@@ -989,4 +993,4 @@ Furthermore, reliance upon any non-English translation is at your own risk. Updr
 
 
 == Upgrade Notice ==
-* 1.9.40 : New add-ons (Premium version). New Danish translation. Real-time log viewing. Many other tweaks and a fix bug-fixes. Recommended update for all.
+* 1.9.42 : Fix a bug that caused some cloud storage uploads to fail. Recommended priority update for all.

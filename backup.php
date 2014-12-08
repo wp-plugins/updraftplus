@@ -943,8 +943,8 @@ class UpdraftPlus_Backup {
 				$updraftplus->log("Creation of backups of directories: beginning");
 			}
 			$updraftplus->jobdata_set('jobstatus', 'filescreating');
-			$backup_array = $this->backup_dirs($bfiles_status);
-			$updraftplus->jobdata_set('backup_files_array', $backup_array);
+			$this->backup_files_array = $this->backup_dirs($bfiles_status);
+			$updraftplus->jobdata_set('backup_files_array', $this->backup_files_array);
 			$updraftplus->jobdata_set('backup_files', 'finished');
 			$updraftplus->jobdata_set('jobstatus', 'filescreated');
 		} else {
@@ -977,7 +977,7 @@ class UpdraftPlus_Backup {
 			}
 		}
 		*/
-		return $backup_array;
+		return $this->backup_files_array;
 	}
 
 	/* This function is resumable, using the following method:
