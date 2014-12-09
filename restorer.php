@@ -1188,6 +1188,9 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		$this->max_allowed_packet = $updraftplus->get_max_packet_size();
 
+		$updraftplus->log("Entering maintenance mode");
+		$this->maintenance_mode(true);
+
 		while (($is_plain && !feof($dbhandle)) || (!$is_plain && !gzeof($dbhandle))) {
 			// Up to 1Mb
 			$buffer = ($is_plain) ? rtrim(fgets($dbhandle, 1048576)) : rtrim(gzgets($dbhandle, 1048576));
@@ -1437,7 +1440,10 @@ class Updraft_Restorer extends WP_Upgrader {
 			$sql_type = -1;
 
 		}
-		
+
+		$updraftplus->log("Leaving maintenance mode");
+		$this->maintenance_mode(false);
+
 		if ($restoring_table) $this->restored_table($restoring_table, $import_table_prefix, $old_table_prefix);
 
 		$time_taken = microtime(true) - $this->start_time;
