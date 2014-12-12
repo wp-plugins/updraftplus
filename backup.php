@@ -718,7 +718,7 @@ class UpdraftPlus_Backup {
 		if ($handle = opendir($dir)) {
 			while (false !== ($entry = readdir($handle))) {
 				if ($entry != "." && $entry != "..") {
-					if (preg_match('/^backup_(\d{4})-(\d{2})-(\d{2})-(\d{2})(\d{2})_.*_([0-9a-f]{12})-[\-a-z]+([0-9]+)?\.zip$/i', $entry, $matches)) {
+					if (preg_match('/^backup_(\d{4})-(\d{2})-(\d{2})-(\d{2})(\d{2})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+)?\.zip$/i', $entry, $matches)) {
 						if ($matches[6] !== $match_nonce) continue;
 						$timestamp = mktime($matches[4], $matches[5], 0, $matches[2], $matches[3], $matches[1]);
 						$entity = $matches[7];
