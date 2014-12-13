@@ -4321,6 +4321,7 @@ ENDHERE;
 			if (is_string($files)) $files = array($files);
 			foreach ($files as $fkey => $file) {
 				$last_one = (1 == count($second_loop) && 1 == count($files));
+
 				$val = $updraftplus_restorer->restore_backup($file, $type, $info, $last_one);
 
 				if(is_wp_error($val)) {

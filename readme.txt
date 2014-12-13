@@ -3,7 +3,7 @@ Contributors: Backup with UpdraftPlus, DavidAnderson
 Tags: backup, backups, restore, amazon backup, s3 backup, dropbox backup, google drive backup, rackspace cloud files, rackspace backup, cloud files, dreamhost, dreamobjects backup, ftp backup, webdav backup, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp backup, ftps, scp, migrate, duplicate, copy, mysql backup, database backup, db backup, website backup, wordpress backup, full backup, openstack, swift
 Requires at least: 3.2
 Tested up to: 4.1
-Stable tag: 1.9.42
+Stable tag: 1.9.44
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -68,7 +68,8 @@ Many thanks to the existing translators:
 * Farsi / Persian (fa_IR): Jamshidpour, Ashkan Ghadimi, Mohammad (2online4.ir) and Nasiri Amirreza
 * Français / French translation (fr_FR): ufo3D - http://ufo-3d.fr and Thomas Jacobsen - http://123informatique.ch - with help from Françoise Lhermitte - http://www.ajwan.net
 * Italiano / Italian (it_IT): Francesco Carpana - f.carpana at gmail.com
-* Nederlands / Dutch (nl_NL):  Dennis Hunink - dennishunink at me.com and Hans van der Vlist - hansvandervlist at gmail.com
+* Nederlands / Dutch (nl_NL): Dennis Hunink - dennishunink at me.com and Hans van der Vlist - hansvandervlist at gmail.com
+* Norwegian / Bokmål (nb_NO): Axel Magnus Gaasø, Tommy (Flytende.no) and Oddvar Skrebergene
 * Polski / Polish (pl_PL): Bartosz Kaczmarek - barth.kaczmarek at gmail.com
 * Português / Portuguese (Portugal) (pt_PT): Pedro Mendonça
 * Português / Portuguese (Brazilian) (pt_BR): Lucien Raven (lucienraven at yahoo.com.br) and Tom Fonseca (tomfonseca at gmail.com)
@@ -78,11 +79,16 @@ Many thanks to the existing translators:
 * Tagalog (tl): Kristen Macasero / Mads Phikamphon - http://www.findhold.dk
 * Turk / Turkish (tr_TR): Various translators
 
-And to these (need updating or new translators; now less than 60% translated):
+And thanks to these (need updating or new translators) - varying from 50% down to 1% translated:
 
-* Magyar / Hungarian (hu_HU): Szépe Viktor - http://www.szepe.net
-* Français / French translation (fr_FR): New translators needed
 * Chinese (zh_CN): K L Wang - http://klwang.info
+* Magyar / Hungarian (hu_HU): Szépe Viktor - http://www.szepe.net
+* Français / French translation (fr_FR)
+* Hebrew (he_IL) : Tomer Nagar
+* Bengali (bn_BD)
+* Catalan (ca)
+* Finnish (fi)
+* Norwegian (Nynorsk)
 
 = Other support =
 
@@ -146,6 +152,15 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 == Changelog ==
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
+
+= 1.9.44 - 2014-12-13 =
+
+* Add new incomplete translations (ready for the wordpress.org change to take translation availability into account when searching for plugins): Norwegian Bokmål, Norwegian Nynorsk, Finnish, Hebrew, Catalan, Vietnamese, Bengali
+* FIX: Fix a failure to detect the progress properly for large backup sets, introduced in 1.9.40
+
+= 1.9.43 - 2014-12-11 =
+* FIX: Fix bug in 'lock admin' feature causing lock-outs even with the correct password
+* TWEAK: Site is put in maintenance mode whilst database restore takes place
 
 = 1.9.42 - 2014-12-08 =
 * FIX: Fix bug in 1.9.40 that caused some cloud storage uploads to be terminated.
@@ -993,4 +1008,4 @@ Furthermore, reliance upon any non-English translation is at your own risk. Updr
 
 
 == Upgrade Notice ==
-* 1.9.42 : Fix a bug that caused some cloud storage uploads to fail. Recommended priority update for all.
+* 1.9.44 : New translations + fix a bug that could affect large backups on slow webservers.
