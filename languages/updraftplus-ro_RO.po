@@ -1,0 +1,4315 @@
+# Translation of UpdraftPlus in Romanian
+# This file is distributed under the same license as the UpdraftPlus package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2014-09-23 12:24:50+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < 20)) ? 1 : 2);\n"
+"X-Generator: GlotPress/0.1\n"
+"Project-Id-Version: UpdraftPlus\n"
+
+#: addons/copycom.php:526
+msgid "API Key"
+msgstr ""
+
+#: addons/copycom.php:531
+msgid "API Secret"
+msgstr ""
+
+#: addons/copycom.php:541
+msgid "(case-sensitive)"
+msgstr ""
+
+#: addons/copycom.php:542
+msgid "N.B. Copy is case-sensitive."
+msgstr ""
+
+#: addons/reporting.php:55
+msgid "Your label for this backup (optional)"
+msgstr ""
+
+#: addons/bitcasa.php:368
+msgid "Bitcasa has removed its consumer API. You can no longer create new Bitcasa applications. Settings remain here only for the use of pre-existing users."
+msgstr ""
+
+#: methods/googledrive.php:851
+msgid "%s does not allow authorisation of sites hosted on direct IP addresses. You will need to change your site's address (%s) before you can use %s for storage."
+msgstr ""
+
+#: udaddons/updraftplus-addons.php:536
+msgid "You need to supply both an email address and a password"
+msgstr ""
+
+#: udaddons/updraftplus-addons.php:621
+msgid "Your email address was valid, but your password was not recognised by UpdraftPlus.Com."
+msgstr ""
+
+#: udaddons/updraftplus-addons.php:621
+msgid "Go here to reset your password."
+msgstr ""
+
+#: udaddons/updraftplus-addons.php:623
+msgid "You entered an email address that was not recognised by UpdraftPlus.Com"
+msgstr ""
+
+#: admin.php:2007
+msgid "To proceed, press 'Backup Now'. Then, watch the 'Last Log Message' field for activity."
+msgstr ""
+
+#: admin.php:1374
+msgid "Your backup is of a WordPress multisite install; but this site is not. Only the first site of the network will be accessible."
+msgstr ""
+
+#: admin.php:1374
+msgid "If you want to restore a multisite backup, you should first set up your WordPress installation as a multisite."
+msgstr ""
+
+#: addons/migrator.php:712
+msgid "already done"
+msgstr "deja finalizat"
+
+#: addons/migrator.php:684 addons/migrator.php:712
+msgid "Search and replacing table:"
+msgstr "Cautare si inlocuire in tabela:"
+
+#: addons/migrator.php:684
+msgid "skipped (not in list)"
+msgstr "omis (neregasit in lista)"
+
+#: addons/migrator.php:128
+msgid "Rows per batch"
+msgstr "Inregistrari per set"
+
+#: addons/migrator.php:129
+msgid "These tables only"
+msgstr "Doar in aceste tabele"
+
+#: addons/migrator.php:129
+msgid "Enter a comma-separated list; otherwise, leave blank for all tables."
+msgstr "Introduceti o lista separata prin virgula; ca alternativa, lasati necompletat pentru toate tabelele."
+
+#: addons/bitcasa.php:369 addons/copycom.php:512
+msgid "To get your credentials, log in at the %s developer portal."
+msgstr "Pentru a primi datele de acces, logati-va in portalul dezvoltatorilor %s."
+
+#: udaddons/options.php:76
+msgid "You have not yet connected with your UpdraftPlus.Com account."
+msgstr "Inca nu v-ati conectat la contul dvs. UpdraftPlus.com."
+
+#: udaddons/options.php:74 udaddons/options.php:76
+msgid "You need to connect to receive future updates to UpdraftPlus."
+msgstr "Trebuie sa va conectati pentru a primi update-uri viitoare la UpdraftPlus."
+
+#: admin.php:1352
+msgid "The site in this backup was running on a webserver with version %s of %s. "
+msgstr "Site-ul din acest backup rula pe un server web cu versiunea %s %s."
+
+#: admin.php:1352
+msgid "This is significantly newer than the server which you are now restoring onto (version %s)."
+msgstr "Acesta este in mod semnificativ mai nou decat serverul in care faceti restaurarea (versiunea %s)."
+
+#: admin.php:1352
+msgid "You should only proceed if you cannot update the current server and are confident (or willing to risk) that your plugins/themes/etc. are compatible with the older %s version."
+msgstr "Ar trebui sa continuati doar daca nu puteti face update serverului curent si daca sunteti increzator (sau va asumati riscul) ca plugin-urile/temele dvs sunt compatibile cu versiunea mai veche %s."
+
+#: admin.php:1352
+msgid "Any support requests to do with %s should be raised with your web hosting company."
+msgstr "Orice cereri de suport care au legatura cu %s ar trebui sa fie adresa firmei dvs. de gazduire web."
+
+#: class-updraftplus.php:2492 class-updraftplus.php:2521
+msgid "UpdraftPlus is on social media - check us out here:"
+msgstr "UpdraftPlus este in social media - urmariti-ne aici:"
+
+#: class-updraftplus.php:2492 class-updraftplus.php:2521 admin.php:1818
+msgid "Twitter"
+msgstr "Twitter"
+
+#: class-updraftplus.php:2492 class-updraftplus.php:2521
+msgid "Facebook"
+msgstr "Facebook"
+
+#: class-updraftplus.php:2492 class-updraftplus.php:2521
+msgid "Google+"
+msgstr "Google+"
+
+#: class-updraftplus.php:2492 class-updraftplus.php:2521
+msgid "LinkedIn"
+msgstr "LinkedIn"
+
+#: admin.php:3070
+msgid "UpdraftPlus will split up backup archives when they exceed this file size. The default value is %s megabytes. Be careful to leave some margin if your web-server has a hard size limit (e.g. the 2 Gb / 2048 Mb limit on some 32-bit servers/file systems)."
+msgstr "UpdraftPlus va partitiona arhivele de backup cand depasesc aceasta marime. Valoarea implicita este %s MB. Aveti grija sa pastrati o marja in cazul in care serverul dvs web are o limita de marime fizica (exemplu: limita de 2 Gb / 2048 Mb existenta pe unele servere / sisteme de fisiere pe 32 biti)."
+
+#: admin.php:3816
+msgid "Why am I seeing this?"
+msgstr "De ce imi apare asta?"
+
+#: admin.php:2071
+msgid "Press here to look inside your UpdraftPlus directory (in your web hosting space) for any new backup sets that you have uploaded."
+msgstr "Apasati aici pentru a inspecta directorul UpdraftPlus (in contul dvs de gazduire web) pentru orice seturi noi de backup pe care le-ati uploadat. "
+
+#: admin.php:2071
+msgid "The location of this directory is set in the expert settings, in the Settings tab."
+msgstr "Locatia acestui director este setata in sectiunea de setari expert, in tab-ul Setari (Settings)"
+
+#: admin.php:1059
+msgid "Start backup"
+msgstr "Start Backup"
+
+#: restorer.php:892
+msgid "You are using the %s webserver, but do not seem to have the %s module loaded."
+msgstr "Utilizati webserverul %s, dar se pare ca nu aveti incarcat modulul %s."
+
+#: restorer.php:892
+msgid "You should enable %s to make your pretty  permalinks (e.g. %s) work"
+msgstr "Ar trebui sa activati %s pentru a permite functionarea permalink-urilor prietenoase (exemplu: %s)"
+
+#: admin.php:2816
+msgid "If you would like to automatically schedule backups, choose schedules from the dropdowns above."
+msgstr "Daca doriti sa programati backup-uri automate, alegeti programarea dorita din meniurile derulante de mai sus."
+
+#: admin.php:2816
+msgid "If the two schedules are the same, then the two backups will take place together."
+msgstr "Daca 2 programari sunt identice, cele 2 backup-uri vor fi rulate impreuna."
+
+#: admin.php:2662
+msgid "You will need to consult with your web hosting provider to find out how to set permissions for a WordPress plugin to write to the directory."
+msgstr "Trebuie sa consultati furnizorul dvs de gazduire web pentru a afla cum se seteaza permisiunile unui plugin Wordpress pentru a scrie in director."
+
+#: admin.php:2222
+msgid "Unless you have a problem, you can completely ignore everything here."
+msgstr "Daca nu aveti o problema, puteti ignora in intregime aceasta sectiune."
+
+#: admin.php:1538
+msgid "You will find more information about this in the Settings section."
+msgstr "Puteti gasi mai multe informatii despre asta in sectiunea Setari (Settings)."
+
+#: admin.php:1573
+msgid "This file could not be uploaded"
+msgstr "Acest fisier nu a putut fi uploadat."
+
+#: addons/importer.php:38
+msgid "Was this a backup created by a different backup plugin? If so, then you might first need to rename it so that it can be recognised - please follow this link."
+msgstr "Acest backup a fost creat cu un alt plugin de backup? Daca da, va trebui sa il redenumiti pentru a putea fi recunoscut - va rugam sa folositi acest link."
+
+#: addons/importer.php:38
+msgid "Supported backup plugins: %s"
+msgstr "Plugin-uri de backup suportate: %s"
+
+#: admin.php:2789
+msgid "Incremental file backup intervals"
+msgstr "Intervale de backup incremental"
+
+#: admin.php:2792
+msgid "Tell me more about incremental backups"
+msgstr "Mai multe informatii despre backup-uri incrementale"
+
+#: admin.php:2236
+msgid "Memory limit"
+msgstr "Limita de memorie"
+
+#: admin.php:1450
+msgid "restoration"
+msgstr "restaurare"
+
+#: restorer.php:1474
+msgid "Table to be implicitly dropped: %s"
+msgstr "Tabela care va fi stearsa implicit:%s "
+
+#: backup.php:495
+msgid "Full backup"
+msgstr "Backup complet"
+
+#: backup.php:495
+msgid "Incremental"
+msgstr "Incremental"
+
+#: addons/autobackup.php:231 addons/autobackup.php:233
+msgid "Backup succeeded"
+msgstr "Backup finalizat cu succes"
+
+#: addons/autobackup.php:231 addons/autobackup.php:233
+msgid "(view log...)"
+msgstr "(vizualizare log...)"
+
+#: addons/autobackup.php:231 addons/autobackup.php:233
+msgid "now proceeding with the updates..."
+msgstr "acum se proceseaza update-urile..."
+
+#: updraftplus.php:67 updraftplus.php:68 admin.php:2748 admin.php:2749
+#: admin.php:2750
+msgid "Every %s hours"
+msgstr "La fiecare %s ore"
+
+#: addons/migrator.php:481 addons/migrator.php:483
+msgid "search and replace"
+msgstr "cautare si inlocuire"
+
+#: addons/migrator.php:99
+msgid "search term"
+msgstr "termen de cautare"
+
+#: addons/migrator.php:93 addons/migrator.php:118
+msgid "Search / replace database"
+msgstr "Cautare / inlocuire in baza de date"
+
+#: addons/migrator.php:94 addons/migrator.php:126
+msgid "Search for"
+msgstr "Cautare dupa"
+
+#: addons/migrator.php:95 addons/migrator.php:127
+msgid "Replace with"
+msgstr "Inlocuire cu"
+
+#: addons/migrator.php:119
+msgid "This can easily destroy your site; so, use it with care!"
+msgstr "Acest lucru poate usor distruge site-ul dvs; asadar, utilizati cu atentie!"
+
+#: addons/migrator.php:120
+msgid "A search/replace cannot be undone - are you sure you want to do this?"
+msgstr "O operatiune de cautare/inlocuire nu poate fi anulata - sunteti sigur ca vreti sa faceti asta?"
+
+#: addons/migrator.php:131
+msgid "Go"
+msgstr "Start"
+
+#: restorer.php:1525
+msgid "Too many database errors have occurred - aborting"
+msgstr "Au aparut prea multe erori in baza de date - anulare"
+
+#: backup.php:557
+msgid "read more at %s"
+msgstr "cititi mai mult la %s"
+
+#: backup.php:557
+msgid "Email reports created by UpdraftPlus (free edition) bring you the latest UpdraftPlus.com news"
+msgstr "Rapoartele email create de UpdraftPlus (editia gratuita) va aduc cele mai noi stiri UpdraftPlus.com"
+
+#: methods/googledrive.php:857
+msgid "N.B. If you install UpdraftPlus on several WordPress sites, then you cannot re-use your project; you must create a new one from your Google API console for each site."
+msgstr "N.B. Daca instalati UpdraftPlus pe cateva site-uri Wordpress, nu pueti re-folosi proiectil dvs. trebuie sa creati unul nou din consola dvs. Google API pentru fiecare site."
+
+#: admin.php:3301
+msgid "You have not yet made any backups."
+msgstr "Nu ati facut inca nici un backup."
+
+#: admin.php:2860
+msgid "Database Options"
+msgstr "Optiuni ale bazei de date"
+
+#: admin.php:2288
+msgid "The buttons below will immediately execute a backup run, independently of WordPress's scheduler. If these work whilst your scheduled backups do absolutely nothing (i.e. not even produce a log file), then it means that your scheduler is broken."
+msgstr "Butoanele de mai jos vor rula imediat un backup, independent de programarile platformei Wordpress. Daca acestea ruleaza in timp ce backup-urile programate nu fac absolut nimic (nici macar nu produc un fisier log), inseamna ca programarea este defecta."
+
+#: admin.php:2258
+msgid "%s (%s used)"
+msgstr "%s (utilizat %s)"
+
+#: admin.php:2261
+msgid "Plugins for debugging:"
+msgstr "Plugin-uri pentru depanare:"
+
+#: admin.php:2258
+msgid "Free disk space in account:"
+msgstr "Spatiu disponibil in cont:"
+
+#: admin.php:2058
+msgid "Existing Backups: Downloading And Restoring"
+msgstr "Backup-uri existente: Descarcare si Restaurare"
+
+#: admin.php:1856
+msgid "Current Status"
+msgstr "Status curent"
+
+#: admin.php:1030 admin.php:1128 admin.php:1857
+msgid "Existing Backups"
+msgstr "Backup-uri existente"
+
+#: admin.php:1859
+msgid "Debugging / Expert Tools"
+msgstr "Depanare / Aplicatii expert"
+
+#: admin.php:1883
+msgid "This button is disabled because your backup directory is not writable (see the settings)."
+msgstr "Acest buton este dezactivat pentru ca directorul de backup nu are drepturi de scriere (vezi setarile)."
+
+#: admin.php:417
+msgid "Welcome to UpdraftPlus!"
+msgstr "Bina ati venit la UpdraftPlus!"
+
+#: admin.php:417
+msgid "To make a backup, just press the Backup Now button."
+msgstr "Pentru a crea un backup, apasati butonul Start Backup."
+
+#: admin.php:417
+msgid "To change any of the default settings of what is backed up, to configure scheduled backups, to send your backups to remote storage (recommended), and more, go to the settings tab."
+msgstr "Pentru a schimba oricare dintre setarile implicite de backup, pentru a configura backup-urile programate, a trimite backup-urile catre alte medii de stocare (recomandat) si altele, alegeti sectiunea Setari (Settings)."
+
+#: addons/moredatabase.php:276
+msgid "If you enter text here, it is used to encrypt database backups (Rijndael). <strong>Do make a separate record of it and do not lose it, or all your backups <em>will</em> be useless.</strong> This is also the key used to decrypt backups from this admin interface (so if you change it, then automatic decryption will not work until you change it back)."
+msgstr "Daca introduceti text aici, acesta va fi folosit pentru encriptarea backup-urilor bazei de date (algoritmul Rijndael). <strong>Faceti o copie separata a acestuia si aveti grija sa nu il pierdeti, in caz contrar toate backup-urile dvs. <em>vor fi</em> inutile.</strong>. Acesta este de asemenea cheia folosita la decriptarea backup-urilor din interfata de administrare (asadar, daca il schimbati, decriptarea automata nu va functiona pana cand il schimbati la loc). "
+
+#: addons/moredatabase.php:179
+msgid "Table prefix"
+msgstr "Prefixul tabelei"
+
+#: addons/moredatabase.php:180
+msgid "Test connection..."
+msgstr "Conexiune de test..."
+
+#: addons/moredatabase.php:193
+msgid "Testing..."
+msgstr "Testare..."
+
+#: addons/moredatabase.php:120
+msgid "Backup non-WordPress tables contained in the same database as WordPress"
+msgstr "Include in backup tabelele non-Wordpress din baza de date folosita de Wordpress"
+
+#: addons/moredatabase.php:121
+msgid "If your database includes extra tables that are not part of this WordPress site (you will know if this is the case), then activate this option to also back them up."
+msgstr "Daca baza dvs de date contine tabele extra care nu sunt parte a site-ului Wordpress (veti sti daca ati facut dvs. ceva in acest sens), atunci activati aceasta optiune pentru a le include si pe ele in backup."
+
+#: addons/moredatabase.php:125
+msgid "Add an external database to backup..."
+msgstr "Adaugati o baza de date externa la backup..."
+
+#: addons/moredatabase.php:173
+msgid "Backup external database"
+msgstr "Backup - procesare baza de date externa"
+
+#: addons/moredatabase.php:79
+msgid "%s table(s) found."
+msgstr "%s tabele gasite."
+
+#: addons/moredatabase.php:85
+msgid "%s total table(s) found; %s with the indicated prefix."
+msgstr "%s tabele gasite in total; %s cu prefixul indicat."
+
+#: addons/moredatabase.php:103
+msgid "Connection succeeded."
+msgstr "Conexiune realizata cu succes."
+
+#: addons/moredatabase.php:105
+msgid "Connection failed."
+msgstr "Conexiune esuata."
+
+#: addons/moredatabase.php:120
+msgid "This option will cause tables stored in the MySQL database which do not belong to WordPress (identified by their lacking the configured WordPress prefix, %s) to also be backed up."
+msgstr "Aceasta optiune va face ca tabele salvate in baza de date MySQL ce nu apartin site-ului Wordpress (identificate prin lipsa prefixului Wordpress, %s) sa fie de asemenea adaugate la backup."
+
+#: addons/moredatabase.php:37
+msgid "user"
+msgstr "utilizator"
+
+#: addons/moredatabase.php:39
+msgid "host"
+msgstr "host"
+
+#: addons/moredatabase.php:41
+msgid "database name"
+msgstr "nume baza de date"
+
+#: addons/moredatabase.php:52
+msgid "database connection attempt failed"
+msgstr "incercare de conectare la baza de date esuata"
+
+#: addons/reporting.php:315
+msgid "External database (%s)"
+msgstr "Baza de date externa (%s)"
+
+#: methods/googledrive.php:857
+msgid "Follow this link to your Google API Console, and there activate the Drive API and create a Client ID in the API Access section."
+msgstr "Accesati acest link catre console dvs. Google API, si odata ajunsi acolo activati optiunea Drive API si creati un Client ID in sectiunea API Access."
+
+#: methods/googledrive.php:374
+msgid "failed to access parent folder"
+msgstr "accesarea folerului parinte a esuat"
+
+#: methods/googledrive.php:331
+msgid "However, subsequent access attempts failed:"
+msgstr "Oricum, incercarile ulterioare de acces au esuat:"
+
+#: admin.php:3368
+msgid "External database"
+msgstr "Baza de date externa"
+
+#: admin.php:3065
+msgid "This will also cause debugging output from all plugins to be shown upon this screen - please do not be surprised to see these."
+msgstr "Output-ul de depanare a tuturor plugin-urilor va fi afisat pe acest ecran - nu fiti surprins cand il veti vedea."
+
+#: admin.php:2918
+msgid "Back up more databases"
+msgstr "Adaugati mai multe baze de date la backup"
+
+#: admin.php:2869
+msgid "Don't want to be spied on? UpdraftPlus Premium can encrypt your database backup."
+msgstr "Nu vreti sa fiti spionat? UpdraftPlus Premium poate encripta backup-ul bazei de date."
+
+#: admin.php:2869
+msgid "It can also backup external databases."
+msgstr "Se pot adauga la backup si baze de date externe."
+
+#: admin.php:2878
+msgid "You can manually decrypt an encrypted database here."
+msgstr "Aici puteti decripta manual o baza de date encriptata."
+
+#: admin.php:2896
+msgid "First, enter the decryption key"
+msgstr "In primul rand, introduceti cheia de decriptare"
+
+#: admin.php:2817
+msgid "use UpdraftPlus Premium"
+msgstr "folositi UpdraftPlus Premium"
+
+#: admin.php:1261
+msgid "Decryption failed. The database file is encrypted."
+msgstr "Decriptare esuata. Fisierul bazei de date este encriptat."
+
+#: admin.php:806
+msgid "Only the WordPress database can be restored; you will need to deal with the external database manually."
+msgstr "Doar baza de date WordPress poate fi restaurata; cu bazele externe trebuie sa realizati operatiunea manual"
+
+#: restorer.php:1284 restorer.php:1493 restorer.php:1522
+msgid "An error occurred on the first %s command - aborting run"
+msgstr "A aparut o eroare la comanda %s - anulati operatiunea"
+
+#: backup.php:925
+msgid "database connection attempt failed."
+msgstr "Incercare de conectare la baza de date a esuat."
+
+#: backup.php:925 addons/moredatabase.php:60
+msgid "Connection failed: check your access details, that the database server is up, and that the network connection is not firewalled."
+msgstr "Conectare esuata: verificati detaliile de conectare, verificati ca serverul de baze de date este activ si daca conexiunea la retea este protejata de firewall"
+
+#: addons/google-enhanced.php:75
+msgid "In %s, path names are case sensitive."
+msgstr "In %s, denumirea caii este \"case sensitive\" (conteaza litera mare/mica)"
+
+#: addons/migrator.php:626
+msgid "Warning: the database's home URL (%s) is different to what we expected (%s)"
+msgstr "Atentie: URL-ul directorului bazei de date (%s) este diferit de ceea ce ne asteptam (%s)!"
+
+#: addons/bitcasa.php:250 addons/bitcasa.php:344 addons/copycom.php:260
+msgid "You have not yet configured and saved your %s credentials"
+msgstr "Inca nu ati configurat si salvat acreditarile dumneavoastra %s"
+
+#: addons/bitcasa.php:370 addons/copycom.php:513
+msgid "After logging in, create a sandbox app. You can leave all of the questions for creating an app blank (except for the app's name)."
+msgstr "Dupa logare, creati un sandox app. Puteti lasa toate campurile goale cu exceptia numelui aplicatiei."
+
+#: addons/bitcasa.php:395 addons/google-enhanced.php:73 addons/copycom.php:542
+msgid "Enter the path of the %s folder you wish to use here."
+msgstr "Introduceti aici calea folderului %s pe care doriti sa il folositi."
+
+#: addons/bitcasa.php:395 addons/google-enhanced.php:73 addons/copycom.php:542
+msgid "If the folder does not already exist, then it will be created."
+msgstr "Daca folderul nu exista deja, va fi creat automat."
+
+#: addons/bitcasa.php:395 addons/google-enhanced.php:73 addons/copycom.php:542
+msgid "e.g. %s"
+msgstr "de exemplu %s"
+
+#: addons/bitcasa.php:395 addons/google-enhanced.php:73 addons/copycom.php:542
+msgid "If you leave it blank, then the backup will be placed in the root of your %s"
+msgstr "Daca lasati campul liber, atunci backup-ul va fi amplasat in radacina %s"
+
+#: addons/bitcasa.php:400 addons/bitcasa.php:403
+msgid "Bitcasa"
+msgstr "Bitcasa"
+
+#: methods/openstack2.php:107
+msgid "Follow this link for more information"
+msgstr "Pentru mai multe informatii folositi linkul acesta"
+
+#: methods/openstack2.php:107
+msgid "Tenant"
+msgstr "Chirias"
+
+#: methods/openstack2.php:116
+msgid "Leave this blank, and a default will be chosen."
+msgstr "Lasati liber acest camp si va fi folosita valoarea implicita"
+
+#: methods/openstack2.php:133
+msgid "Container"
+msgstr "Container"
+
+#: methods/openstack2.php:157
+msgid "tenant"
+msgstr "chirias"
+
+#: methods/addon-base.php:101
+msgid "failed to list files"
+msgstr "nu s-a reusit listarea fisierelor"
+
+#: methods/addon-base.php:189
+msgid "Failed to download"
+msgstr "Download esuat"
+
+#: methods/addon-base.php:175 methods/addon-base.php:195
+msgid "Failed to download %s"
+msgstr "Downloadarea %s esuata"
+
+#: methods/openstack2.php:94
+msgid "Get your access credentials from your OpenStack Swift provider, and then pick a container name to use for storage. This container will be created for you if it does not already exist."
+msgstr "Primiti acreditarile de acces de la providerul dumneavoastra OpenStack Swift iar dupa aceasta alegeti un nume pentru contul dumneavoastra de stocare on-line. Acest cont va fi creat pentru dumneavoastra daca nu exista deja."
+
+#: methods/openstack2.php:99 methods/openstack2.php:162
+msgid "authentication URI"
+msgstr "autentificare URI"
+
+#: methods/openstack2.php:102
+msgid "This needs to be a v2 (Keystone) authentication URI; v1 (Swauth) is not supported."
+msgstr "Trebuie sa fie o autentificare URI de tip v2 (Keystone), tipul v1 (Swauth) nu este suportata."
+
+#: methods/addon-base.php:75 methods/addon-base.php:80
+msgid "Failed to upload %s"
+msgstr "Uplod-ul %s esuat"
+
+#: methods/dropbox.php:482 methods/dropbox.php:484 addons/bitcasa.php:299
+#: addons/bitcasa.php:301 addons/copycom.php:385 addons/copycom.php:387
+msgid "Success:"
+msgstr "Succes:"
+
+#: methods/dropbox.php:416 methods/dropbox.php:417
+msgid "Dropbox"
+msgstr "Dropbox"
+
+#: methods/dropbox.php:417 addons/bitcasa.php:401 addons/copycom.php:548
+msgid "(You appear to be already authenticated)."
+msgstr "(Se pare ca sunteti deja autentificat)."
+
+#: methods/dropbox.php:417 addons/bitcasa.php:403 addons/copycom.php:550
+msgid "<strong>After</strong> you have saved your settings (by clicking 'Save Changes' below), then come back here once and click this link to complete authentication with %s."
+msgstr "<strong>Dupa</strong> ce v-ati salvat setarile (apasand butonul \"Salvati Modificarile\" de mai jos), reveniti aici si urmati acest link pentru a completa autentificarea cu %s."
+
+#: methods/dropbox.php:416 addons/bitcasa.php:400 addons/copycom.php:547
+msgid "Authenticate with %s"
+msgstr "Autentificare cu %s"
+
+#: methods/cloudfiles.php:409
+msgid "Error downloading remote file: Failed to download"
+msgstr "Eroare la downloadarea fisierului extern: Eroare la downloada"
+
+#: methods/openstack-base.php:329 addons/bitcasa.php:118 addons/copycom.php:160
+#: addons/copycom.php:184
+msgid "The %s object was not found"
+msgstr "Obiectul %s nu a fost gasit"
+
+#: methods/openstack-base.php:411
+msgid "%s error - we accessed the container, but failed to create a file within it"
+msgstr "Eroare %s - s-a incercat accesarea containerului, dar nu s-a reusit crearea unui fisier in el"
+
+#: methods/openstack-base.php:412 methods/openstack-base.php:417
+msgid "Region: %s"
+msgstr "Regiune: %s"
+
+#: methods/openstack-base.php:44 methods/openstack-base.php:226
+#: methods/openstack-base.php:321
+msgid "Could not access %s container"
+msgstr "Nu s-a putu accesa containerul %s"
+
+#: methods/googledrive.php:906 methods/dropbox.php:423 addons/bitcasa.php:402
+#: addons/copycom.php:549
+msgid "Account holder's name: %s."
+msgstr "Numele titularului de cont: %s."
+
+#: methods/openstack-base.php:36 methods/openstack-base.php:100
+#: methods/openstack-base.php:107 methods/openstack-base.php:218
+#: methods/openstack-base.php:309
+msgid "%s error - failed to access the container"
+msgstr "Eroare %s - accesul containerului esuat"
+
+#: methods/googledrive.php:886
+msgid "<strong>This is NOT a folder name</strong>."
+msgstr "<strong>Acesta NU este un nume de folder</strong>."
+
+#: methods/googledrive.php:886
+msgid "It is an ID number internal to Google Drive"
+msgstr "Este un numar de identificare interna de la Google Drive"
+
+#: methods/googledrive.php:895
+msgid "To be able to set a custom folder name, use UpdraftPlus Premium."
+msgstr "Pentru a putea stabili un nume de folder particularizat, folosiți UpdraftPlus Premium."
+
+#: methods/googledrive.php:882 methods/googledrive.php:892
+#: addons/bitcasa.php:394 addons/google-enhanced.php:72 addons/copycom.php:541
+msgid "Folder"
+msgstr "Folder"
+
+#: methods/googledrive.php:351
+msgid "Name: %s."
+msgstr "Nume: %s."
+
+#: methods/googledrive.php:814
+msgid "%s download: failed: file not found"
+msgstr "Download %s: esuat: fisierul nu a fost gasit"
+
+#: methods/insufficient.php:17 methods/viaaddon-base.php:16
+msgid "This remote storage method (%s) requires PHP %s or later."
+msgstr "Această metodă de stocare la distanță (%s) necesită PHP %s sau mai noi."
+
+#: methods/insufficient.php:64 methods/viaaddon-base.php:86
+msgid "You will need to ask your web hosting company to upgrade."
+msgstr "Va trebui sa contactati firma care asigura gazduirea site-ului dumneavoastra pentru un upgrade."
+
+#: methods/insufficient.php:65 methods/viaaddon-base.php:87
+msgid "Your %s version: %s."
+msgstr "Versiunea voastra %s: %s."
+
+#: methods/googledrive.php:150
+msgid "Google Drive list files: failed to access parent folder"
+msgstr "Listarea fisierelor Google Drive: accesul folderului parinte a esuat"
+
+#: admin.php:4090
+msgid "Theme directory (%s) not found, but lower-case version exists; updating database option accordingly"
+msgstr "Folderul pentru teme (Theme) %s nu a fost gasit, dar versiunea lower-case (theme) exista; actualizati optiunile bazei de date in conformitate cu asta"
+
+#: admin.php:2263
+msgid "Fetch"
+msgstr "Fetch"
+
+#: admin.php:2265
+msgid "Call"
+msgstr "Suna"
+
+#: admin.php:2092 admin.php:2886
+msgid "This feature requires %s version %s or later"
+msgstr "Această caracteristică necesită %s versiunea %s sau mai noua"
+
+#: restorer.php:1631
+msgid "Elegant themes theme builder plugin data detected: resetting temporary folder"
+msgstr "A fost detectat plugin-ul pentru realizarea de teme Elegant Themes, folderul temporar va fi resetat"
+
+#: restorer.php:71
+msgid "Failed to unpack the archive"
+msgstr "Dezarhivarea arhivei a esuat"
+
+#: restorer.php:224
+msgid "%s files have been extracted"
+msgstr "%s fisiere au fost extrase"
+
+#: class-updraftplus.php:728
+msgid "Error - failed to download the file"
+msgstr "Eoare - download-ul fisierului a esuat"
+
+#: admin.php:2071
+msgid "Rescan local folder for new backup sets"
+msgstr "Folderul local este scanat din nou pentru un nou set de back-up-uri"
+
+#: udaddons/updraftplus-addons.php:152
+msgid "You should update UpdraftPlus to make sure that you have a version that has been tested for compatibility."
+msgstr "Trebuie sa actualizati varianta aplicatiei UpdraftPlus pentru a fi siguri ca aveti o versiune care a fost testata pentru compatibilitate."
+
+#: udaddons/updraftplus-addons.php:152
+msgid "The installed version of UpdraftPlus Backup/Restore has not been tested on your version of WordPress (%s)."
+msgstr "Versiunea de UpdraftPlus Backup/Restore instalata nu a fost inca testata pentru versiunea %s de WordPress pe care o aveti dumenavoastra."
+
+#: udaddons/updraftplus-addons.php:152
+msgid "It has been tested up to version %s."
+msgstr "a fost testata pana la versiunea %s."
+
+#: addons/sftp.php:423
+msgid "password/key"
+msgstr "parola/cheie"
+
+#: addons/sftp.php:48
+msgid "SCP/SFTP password/key"
+msgstr "SCP/SFTP password/key"
+
+#: addons/sftp.php:276
+msgid "The key provided was not in a valid format, or was corrupt."
+msgstr "Cheia pe care ati folosit-o nu este un format valid sau este corupta."
+
+#: addons/sftp.php:339
+msgid "Your login may be either password or key-based - you only need to enter one, not both."
+msgstr "Logarea dumneavoastra se poate face pe baza de parola sau cu cheie - trebuie sa alegeti una din metode, nu ambele."
+
+#: addons/sftp.php:344
+msgid "Key"
+msgstr "Cheie"
+
+#: addons/sftp.php:347
+msgid "PKCS1 (PEM header: BEGIN RSA PRIVATE KEY), XML and PuTTY format keys are accepted."
+msgstr "PKCS1 (headerul PEM: BEGIN RSA PRIVATE KEY), sunt acceptate pentru chei si formatele XML si PuTTY."
+
+#: admin.php:3408 admin.php:3655 addons/importer.php:131
+msgid "Backup created by: %s."
+msgstr "Backup-ul a fost creat de %s."
+
+#: admin.php:3415
+msgid "Files and database WordPress backup (created by %s)"
+msgstr "Backup fisiere si baza de date WordPress (creat de %s)"
+
+#: admin.php:3415
+msgid "Files backup (created by %s)"
+msgstr "Backup fisiere (creat de %s)"
+
+#: admin.php:3348 admin.php:3410
+msgid "unknown source"
+msgstr "sursa necunoscuta"
+
+#: admin.php:3351
+msgid "Database (created by %s)"
+msgstr "Baza de date (creata de %s)"
+
+#: admin.php:2072
+msgid "Rescan remote storage"
+msgstr "Rescanare unitate de stocare externa"
+
+#: admin.php:2070
+msgid "Upload backup files"
+msgstr "Upload fisiere de backup"
+
+#: admin.php:1618
+msgid "This backup was created by %s, and can be imported."
+msgstr "Acest backup a fost creat de %s, si poate fi importat."
+
+#: admin.php:446
+msgid "WordPress has a number (%d) of scheduled tasks which are overdue. Unless this is a development site, this probably means that the scheduler in your WordPress install is not working."
+msgstr "WordPress are un număr (%d) de activități programate care sunt restante. Daca acest site nu este in lucru, inseamna ca aplicatia de programare (scheduler) instalat in siteul WordPress al dumneavoastra nu functioneaza."
+
+#: admin.php:446
+msgid "Read this page for a guide to possible causes and how to fix it."
+msgstr "Cititi aceasta pagina pentru ajutor in aflarea cauzelor posibile si pentru remedierea problemelor."
+
+#: admin.php:154 admin.php:155 admin.php:3662
+msgid "This file does not appear to be an UpdraftPlus backup archive (such files are .zip or .gz files which have a name like: backup_(time)_(site name)_(code)_(type).(zip|gz))."
+msgstr "Acest fisier nu pare a fi o arhiva de backup UpdraftPlus (cum sunt fisierele de tip .zip sau .gz, fisiere care au un nume de genul: backup_(timp)_(nume site)_(cod)_(tip).(zip|gz))."
+
+#: admin.php:154
+msgid "However, UpdraftPlus archives are standard zip/SQL files - so if you are sure that your file has the right format, then you can rename it to match that pattern."
+msgstr "Oricum arhivele UpdraftPlus sunt arhive standard de tip zip/SQL, prin urmare daca stiti ca formatul dumenavoastra este corect puteti redenumi fisierul pentru a se potrivi cu masca mentionata. "
+
+#: admin.php:155 admin.php:3662
+msgid "If this is a backup created by a different backup plugin, then UpdraftPlus Premium may be able to help you."
+msgstr "Daca acest backup a fost creat cu un alt plugin/aplicatie de backup, UpdraftPlus s-ar putea sa va fie de ajutor"
+
+#: restorer.php:1069 admin.php:819 admin.php:3411
+msgid "Backup created by unknown source (%s) - cannot be restored."
+msgstr "Backup creat de sursa necunoscuta (%s) - nu putem realiza restaurarea."
+
+#: restorer.php:706 restorer.php:808
+msgid "The WordPress content folder (wp-content) was not found in this zip file."
+msgstr "Folderul de continut WordPress (wp-content) nu a fost gasit in acest fisier zip."
+
+#: restorer.php:570
+msgid "This version of UpdraftPlus does not know how to handle this type of foreign backup"
+msgstr "Aceasta versiune de UpdraftPlus nu stie cum sa lucreze cu acest tip de fisier realizat cu o aplicatie de backup straina"
+
+#: methods/dropbox.php:249
+msgid "%s returned an unexpected HTTP response: %s"
+msgstr "%s a returnat un raspuns HTTP neasteptat: %s"
+
+#: addons/sftp.php:879
+msgid "The UpdraftPlus module for this file access method (%s) does not support listing files"
+msgstr "Modulul UpdraftPlus pentru această metodă de acces la fișiere (%s) nu are suport pentru listarea fișierelor"
+
+#: methods/openstack-base.php:95 methods/cloudfiles.php:234 methods/s3.php:41
+#: methods/dropbox.php:230
+msgid "No settings were found"
+msgstr "Nu a fost gasita nicio setare"
+
+#: admin.php:3500
+msgid "(backup set imported from remote storage)"
+msgstr "(set de backup importata de pe stocare la distanta)"
+
+#: admin.php:3771
+msgid "One or more backups has been added from scanning remote storage; note that these backups will not be automatically deleted through the \"retain\" settings; if/when you wish to delete them then you must do so manually."
+msgstr "Una sau mai multe copii de rezervă au fost adăugate la scanarea locatiei de stocare la distanta; rețineți că aceste backup-uri nu vor fi șterse automat prin setările \"păstrează\"; dacă/atunci când doriți să le ștergeți, trebuie să faceti acest lucru manual."
+
+#: admin.php:2128
+msgid "Are you sure that you wish to remove this backup set from UpdraftPlus?"
+msgstr "Sunteti siguri ca doriti sa stergeti aceasta copie de rezerva UpdraftPlus?"
+
+#: admin.php:2072
+msgid "Press here to look inside any remote storage methods for any existing backup sets."
+msgstr "Apăsați aici pentru a privi in ​​interiorul orice metode de stocare la distanță, pentru orice seturi de backup existente."
+
+#: admin.php:795
+msgid "This backup set was not known by UpdraftPlus to be created by the current WordPress installation, but was found in remote storage."
+msgstr "Acest set de rezervă nu este recunoscut de UpdraftPlus ca fiind creată prin instalarea WordPress curenta, dar a fost găsita în stocare la distanță."
+
+#: admin.php:795
+msgid "You should make sure that this really is a backup set intended for use on this website, before you restore (rather than a backup set of an unrelated website that was using the same storage location)."
+msgstr "Trebuie să vă asigurați că aceasta este într-adevăr o copie de rezerva destinata utilizării pe acest site, înainte de a restaura (sa nu fie mai degrabă o copie de rezervă pentru un alt site care a folosit aceeași locație de stocare)."
+
+#: admin.php:127
+msgid "Rescanning remote and local storage for backup sets..."
+msgstr "Se scaneaza din nou unitatile de stocare locale si la distanta pentru gasirea unor eventuale copii de rezerva.."
+
+#: addons/s3-enhanced.php:26
+msgid "(Read more)"
+msgstr "(Cititi mai mult)"
+
+#: addons/s3-enhanced.php:27
+msgid "Check this box to use Amazon's reduced redundancy storage and tariff"
+msgstr "Bifati aceasta casuta pentru a reduce redundanta si tarifele stocarii pe Amazon"
+
+#: addons/s3-enhanced.php:26
+msgid "Reduced redundancy storage"
+msgstr "Reduceti redundanta stocarii"
+
+#: addons/migrator.php:454
+msgid "Adjusting multisite paths"
+msgstr "Reglare caii multisite"
+
+#: addons/reporting.php:399
+msgid "Log all messages to syslog (only server admins are likely to want this)"
+msgstr "Conectati toate mesajele la syslog (doar administratorii serverelor ar putea dori acest lucru)"
+
+#: addons/morefiles.php:168
+msgid "Add another..."
+msgstr "Adaugati alt/alta.."
+
+#: addons/morefiles.php:269
+msgid "No backup of directory: there was nothing found to back up"
+msgstr "Niciun back-up al folderului: aici nu a fost gasit nimic pentru care sa se realizeze o copie de rezerva"
+
+#: addons/morefiles.php:163 addons/morefiles.php:174
+#: addons/moredatabase.php:172
+msgid "Remove"
+msgstr "Sterge"
+
+#: methods/s3.php:536
+msgid "Other %s FAQs."
+msgstr "Alte %s FAQ"
+
+#: admin.php:3065
+msgid "Check this to receive more information and emails on the backup process - useful if something is going wrong."
+msgstr "Bifati pentru a primi mai multe informatii si email-uri despre procesul de backup - folositor in cazul in care ceva nu merge bine."
+
+#: admin.php:2841 addons/morefiles.php:210
+msgid "If entering multiple files/directories, then separate them with commas. For entities at the top level, you can use a * at the start or end of the entry as a wildcard."
+msgstr "Daca introduceti fisiere/directoare multiple, separati-le prin virgula. Pentru entitati de nivel de top, puteti folosi caracterul * la inceputul sau sfarsitul entitatii ca substitut pentru orice caractere."
+
+#: restorer.php:1620
+msgid "Custom content type manager plugin data detected: clearing option cache"
+msgstr "S-au detectat date ale unui plugin de management a tipurilor de continut personalizate: se curata optiunile de cache"
+
+#: methods/ftp.php:296
+msgid "encrypted FTP (explicit encryption)"
+msgstr "FTP encriptat (encriptare explicita)"
+
+#: admin.php:1450 methods/ftp.php:299
+msgid "Your web server's PHP installation has these functions disabled: %s."
+msgstr "Instalarea PHP a server-ului dvs. web are urmatoarele functionalitatii dezactivate: %s."
+
+#: admin.php:1450 methods/ftp.php:299
+msgid "Your hosting company must enable these functions before %s can work."
+msgstr "Firma dvs. de gazduire trebuie sa activeze aceste functionalitati inainte ca %s sa poata functiona."
+
+#: admin.php:2012
+msgid "Don't send this backup to remote storage"
+msgstr "Nu trimite acest backup catre stocare la distanta."
+
+#: methods/ftp.php:294
+msgid "regular non-encrypted FTP"
+msgstr "FTP normal ne-encriptat"
+
+#: methods/ftp.php:295
+msgid "encrypted FTP (implicit encryption)"
+msgstr "FTP encriptat (encriptare implicita)"
+
+#: restorer.php:1196
+msgid "Backup created by:"
+msgstr "Backup creat de:"
+
+#: udaddons/options.php:436
+msgid "Available to claim on this site"
+msgstr "Disponibil pentru preluare pe acest site"
+
+#: udaddons/updraftplus-addons.php:173
+msgid "To maintain your access to support, please renew."
+msgstr "Pentru a mentine accesul dvs. la suport, va rugam sa reinnoiti."
+
+#: udaddons/updraftplus-addons.php:161
+msgid "Your paid access to UpdraftPlus updates for %s add-ons on this site has expired."
+msgstr "Accesul dvs. platit la actualizarile UpdraftPlus pentru extensiile %s pe acest site a expirat."
+
+#: udaddons/updraftplus-addons.php:165
+msgid "Your paid access to UpdraftPlus updates for %s of the %s add-ons on this site will soon expire."
+msgstr "Accesul dvs. platit la actualizarile UpdraftPlus pentru %s dintre extensiile %s pe acest site vor expira in curand."
+
+#: udaddons/updraftplus-addons.php:165 udaddons/updraftplus-addons.php:167
+msgid "To retain your access, and maintain access to updates (including future features and compatibility with future WordPress releases) and support, please renew."
+msgstr "Pentru a retine accesul, si pentru a mentine accesul la actualizari (incluzand facilitati viitoare si compatibilitate cu versiunile WordPress viitoare) si suport, va rugam sa reinnoiti."
+
+#: udaddons/updraftplus-addons.php:167
+msgid "Your paid access to UpdraftPlus updates for this site will soon expire."
+msgstr "Accesul dvs. platit la actualizarile UpdraftPlus pentru acest site vor expira in curand."
+
+#: udaddons/updraftplus-addons.php:171
+msgid "Your paid access to UpdraftPlus support has expired."
+msgstr "Accesul dvs. platit la suportul UpdraftPlus a expirat."
+
+#: udaddons/updraftplus-addons.php:171
+msgid "To regain your access, please renew."
+msgstr "Pentru a reprimi accesul, va rugam sa reinnoiti."
+
+#: udaddons/updraftplus-addons.php:173
+msgid "Your paid access to UpdraftPlus support will soon expire."
+msgstr "Accesul dvs. platit la suportul UpdraftPlus vor expira in curand."
+
+#: udaddons/updraftplus-addons.php:134
+msgid "Dismiss from main dashboard (for %s weeks)"
+msgstr "Ascunde de pe ecranul principal (pentru %s saptamani)"
+
+#: udaddons/updraftplus-addons.php:159
+msgid "Your paid access to UpdraftPlus updates for this site has expired. You will no longer receive updates to UpdraftPlus."
+msgstr "Accesul dvs. platit la actualizarile UpdraftPlus pentru acest site a expirat. Nu veti mai primi actualizari pentru UpdraftPlus."
+
+#: udaddons/updraftplus-addons.php:159 udaddons/updraftplus-addons.php:161
+msgid "To regain access to updates (including future features and compatibility with future WordPress releases) and support, please renew."
+msgstr "Pentru a reprimi accesul la actualizari (incluzand facilitati viitoare si compatibilitate cu versiunile WordPress viitoare) si suport, va rugam sa reinnoiti."
+
+#: admin.php:1467
+msgid "The database file appears to have been compressed twice - probably the website you downloaded it from had a mis-configured webserver."
+msgstr "Fisierul bazei de date pare sa fi fost comprimat de doua ori - probabil site-ul de pe care l-ati descarcat a avut un server web configurat incorect."
+
+#: admin.php:1474 admin.php:1496
+msgid "The attempt to undo the double-compression failed."
+msgstr "Incercarea de a anula compresia dubla a esuat."
+
+#: admin.php:1498
+msgid "The attempt to undo the double-compression succeeded."
+msgstr "Incercarea de a anula compresia dubla a reusit."
+
+#: admin.php:1042
+msgid "Constants"
+msgstr "Constante"
+
+#: backup.php:1110
+msgid "Failed to open database file for reading:"
+msgstr "Deschiderea fisierului bazei de date pentru citire a esuat:"
+
+#: backup.php:963
+msgid "please wait for the rescheduled attempt"
+msgstr "va rugam sa asteptati reprogramarea unei noi incercari"
+
+#: backup.php:965
+msgid "No database tables found"
+msgstr "Nu au fost gasite tabele ale bazei de date"
+
+#: addons/reporting.php:168
+msgid "Note that warning messages are advisory - the backup process does not stop for them. Instead, they provide information that you might find useful, or that may indicate the source of a problem if the backup did not succeed."
+msgstr "Rețineți că mesajele de avertizare sunt consultative - procesul de backup nu se oprește la afișarea lor. În schimb, ele oferă informații pe care le-ați putea găsi utile, sau care pot indica sursa problemei în cazul în care backup-ul nu a reușit."
+
+#: restorer.php:1533
+msgid "Database queries processed: %d in %.2f seconds"
+msgstr "Interogări ale bazei de date prelucrate: %d în %.2f secunde"
+
+#: addons/migrator.php:899
+msgid "Searching and replacing reached row: %d"
+msgstr "Căutarea și înlocuirea rândului a ajuns la: %d"
+
+#: methods/dropbox.php:154 addons/bitcasa.php:76 addons/copycom.php:91
+msgid "Account full: your %s account has only %d bytes left, but the file to be uploaded has %d bytes remaining (total size: %d bytes)"
+msgstr "Cont: contul dvs. %s mai are doar %d bytes liberi, dar din fișierul încărcat mai sunt %d bytes rămasi (dimensiune totală: %d bytes)"
+
+#: addons/migrator.php:378
+msgid "Skipping this table: data in this table (%s) should not be search/replaced"
+msgstr "Se sare peste acest tabel: datele din acest tabel (%s) nu ar trebui să fie de căutate/ înlocuite"
+
+#: udaddons/updraftplus-addons.php:303 udaddons/updraftplus-addons.php:306
+msgid "Errors occurred:"
+msgstr "Erori apărute:"
+
+#: admin.php:3837
+msgid "Follow this link to download the log file for this restoration (needed for any support requests)."
+msgstr "Urmați acest link pentru a descărca fișierul jurnal pentru această restaurare (necesar pentru orice cerere de sprijin)."
+
+#: admin.php:3112
+msgid "See this FAQ also."
+msgstr "A se vedea și acest FAQ."
+
+#: admin.php:3000
+msgid "If you choose no remote storage, then the backups remain on the web-server. This is not recommended (unless you plan to manually copy them to your computer), as losing the web-server would mean losing both your website and the backups in one event."
+msgstr "Daca nu alegeti o stocare la distanta, atunci backup-urile raman pe server. Acest lucru nu e recomandat (decat daca planuiti sa le copiati manual pe computerul dvs.), pentru ca pierderea serverului web ar insemna atat pierderea site-ului cat si a backup-urilor intr-un singur pas."
+
+#: admin.php:2148
+msgid "Retrieving (if necessary) and preparing backup files..."
+msgstr "Preluarea (daca e necesar) si pregatirea fisierelor backup..."
+
+#: admin.php:791
+msgid "The PHP setup on this webserver allows only %s seconds for PHP to run, and does not allow this limit to be raised. If you have a lot of data to import, and if the restore operation times out, then you will need to ask your web hosting company for ways to raise this limit (or attempt the restoration piece-by-piece)."
+msgstr "Instalarea PHP pe serverul web permite doar %s secunde pentru rularea scrpturilor PHP, si nu permite marirea acestei limite. Daca aveti de importat multe date, si daca operatiunea de restaurare expira, va trebui sa cereti firmei dvs. de gazduire marirea acestei limite (sau sa incercati restaurarea pe sectiuni)."
+
+#: restorer.php:552
+msgid "Existing unremoved folders from a previous restore exist (please use the \"Delete Old Directories\" button to delete them before trying again): %s"
+msgstr "Foldere ne-eliminate  la o restaurare anterioara inca exista (va rugam sa folositi butonul \"Stergere directoare vechi\" pentru a le sterge inainte de a incerca iar): %s"
+
+#: class-updraftplus.php:2501
+msgid "Need high-quality WordPress hosting from WordPress specialists? (Including automatic backups and 1-click installer). Get it from the creators of UpdraftPlus."
+msgstr "Aveti nevoie de gazduire WordPress de calitate de la specialistii WordPress? (incluzand backup-uri automatice si instalare cu un singur click). O puteti primi de la creatorii UpdraftPlus."
+
+#: class-updraftplus.php:409 admin.php:421
+msgid "The amount of time allowed for WordPress plugins to run is very low (%s seconds) - you should increase it to avoid backup failures due to time-outs (consult your web hosting company for more help - it is the max_execution_time PHP setting; the recommended value is %s seconds or more)"
+msgstr "Timpul permis plugin-urilor WordPress pentru a rula este foarte mic (%s secunde) - ar trebui sa il mariti pentru a evita esuarea backup-urilor din cauza expirarii timpului ( consultati firma dvs. de gazduire web pentru ajutor - este setarea PHP max_execution_time; valoarea recomandata este %s secunde sau mai mult)"
+
+#: addons/migrator.php:386
+msgid "Replacing in blogs/site table: from: %s to: %s"
+msgstr "Se inlocuiesc in tabelele blog-ului/site-ului: din: %s in: %s"
+
+#: addons/migrator.php:74
+msgid "Disabled this plugin: %s: re-activate it manually when you are ready."
+msgstr "Acest plugin a fost dezactivat: %s: re-activati-l manual cand sunteti pregatit."
+
+#: addons/migrator.php:87
+msgid "%s: Skipping cache file (does not already exist)"
+msgstr "%s: Se omite fisierul cache (nu exista intotdeauna)"
+
+#: includes/ftp.class.php:41 includes/ftp.class.php:44 addons/sftp.php:634
+#: addons/sftp.php:637
+msgid "The %s connection timed out; if you entered the server correctly, then this is usually caused by a firewall blocking the connection - you should check with your web hosting company."
+msgstr "Conexiunea %s a epirat; daca ati introdus serverul corect, atunci acest lucru e cauzat de un firewall care blocheaza conexiunea - ar trebui sa verificati acest lucru cu firma dvs. de gazduire."
+
+#: admin.php:4100
+msgid "The current theme was not found; to prevent this stopping the site from loading, your theme has been reverted to the default theme"
+msgstr "Tema curenta nu a fist gasita; pentru a preveni cazul in care site-ul nu se incarca din cauza lipsei temei, site-ul a revenit la cea implicita"
+
+#: admin.php:1746
+msgid "Restore failed..."
+msgstr "Restaurare eșuată"
+
+#: admin.php:1151 addons/moredatabase.php:92
+msgid "Messages:"
+msgstr "Mesaje:"
+
+#: restorer.php:1456
+msgid "An SQL line that is larger than the maximum packet size and cannot be split was found; this line will not be processed, but will be dropped: %s"
+msgstr "A fost găsită o linie SQL, care este mai mare decât dimensiunea maximă și nu poate fi împărțită, această linie nu va fi prelucrată, ci va fi abandonată: %s"
+
+#: restorer.php:335
+msgid "The directory does not exist"
+msgstr "Directorul nu există"
+
+#: addons/cloudfiles-enhanced.php:245
+msgid "New User's Username"
+msgstr "Noul nume de utilizator"
+
+#: addons/cloudfiles-enhanced.php:246
+msgid "New User's Email Address"
+msgstr "Noua adresă de email a utilizatorului"
+
+#: addons/cloudfiles-enhanced.php:223
+msgid "Enter your Rackspace admin username/API key (so that Rackspace can authenticate your permission to create new users), and enter a new (unique) username and email address for the new user and a container name."
+msgstr "Introduceti numele de utilizator al administratorului / cheia API corespunzatoare contului Rackspace (astfel incat Rackspace sa poata autentifica permisiunile dvs. de a crea noi utilizatori) si introduceti un nume de utilizator (unic) pentru noul utilizator si un nume de container."
+
+#: addons/cloudfiles-enhanced.php:229
+msgid "US or UK Rackspace Account"
+msgstr "Contul Rackspace US sau UK"
+
+#: addons/cloudfiles-enhanced.php:243
+msgid "Admin Username"
+msgstr "Numele de utilizator al administratorului"
+
+#: addons/cloudfiles-enhanced.php:244
+msgid "Admin API Key"
+msgstr "Cheia API de administrare"
+
+#: addons/cloudfiles-enhanced.php:52
+msgid "You need to enter a new username"
+msgstr "Trebuie să introduceți un nume de utilizator nou"
+
+#: addons/cloudfiles-enhanced.php:56
+msgid "You need to enter a container"
+msgstr "Trebuie să introduceți un container"
+
+#: addons/cloudfiles-enhanced.php:61
+msgid "You need to enter a valid new email address"
+msgstr "Trebuie să introduceți o adresă de email validă"
+
+#: addons/cloudfiles-enhanced.php:150
+msgid "Conflict: that user or email address already exists"
+msgstr "Conflict: există deja acest nume de utilizator sau email"
+
+#: addons/cloudfiles-enhanced.php:152 addons/cloudfiles-enhanced.php:156
+#: addons/cloudfiles-enhanced.php:161 addons/cloudfiles-enhanced.php:182
+#: addons/cloudfiles-enhanced.php:190 addons/cloudfiles-enhanced.php:195
+msgid "Cloud Files operation failed (%s)"
+msgstr "Operațiunea Cloud Files nu a reușit (%s)"
+
+#: addons/cloudfiles-enhanced.php:207
+msgid "Username: %s"
+msgstr "Nume de utilizator:%s"
+
+#: addons/cloudfiles-enhanced.php:207
+msgid "Password: %s"
+msgstr "Parolă: %s"
+
+#: addons/cloudfiles-enhanced.php:207
+msgid "API Key: %s"
+msgstr "Cheie API: %s"
+
+#: addons/cloudfiles-enhanced.php:220
+msgid "Create new API user and container"
+msgstr "Creare utilizator nou API și container nou"
+
+#: addons/cloudfiles-enhanced.php:26
+msgid "Rackspace Cloud Files, enhanced"
+msgstr "Rackspace Cloud Files, îmbunătățit"
+
+#: addons/cloudfiles-enhanced.php:27
+msgid "Adds enhanced capabilities for Rackspace Cloud Files users"
+msgstr "Adauga caracteristici imbunatatite pentru utililizatorii Rackspace Cloud Files"
+
+#: addons/cloudfiles-enhanced.php:38
+msgid "Create a new API user with access to only this container (rather than your whole account)"
+msgstr "Creare nou utilizator API cu acces doar la acest container (fata de acces la intregul cont)"
+
+#: addons/cloudfiles-enhanced.php:44
+msgid "You need to enter an admin username"
+msgstr "Trebuie sa introduceti un nume de utilizator pentru administrare"
+
+#: addons/cloudfiles-enhanced.php:48
+msgid "You need to enter an admin API key"
+msgstr "Trebuie sa introduceti o cheie API pentru administrare"
+
+#: methods/cloudfiles-new.php:103 addons/cloudfiles-enhanced.php:255
+msgid "Northern Virginia (IAD)"
+msgstr "Virginia de Nord (IAD)"
+
+#: methods/cloudfiles-new.php:104 addons/cloudfiles-enhanced.php:256
+msgid "Hong Kong (HKG)"
+msgstr "Hong Kong (HKG)"
+
+#: methods/cloudfiles-new.php:105
+msgid "London (LON)"
+msgstr "Londra (LON)"
+
+#: methods/cloudfiles-new.php:119
+msgid "Cloud Files Username"
+msgstr "Numele de utilizator Cloud Files"
+
+#: methods/cloudfiles-new.php:122
+msgid "To create a new Rackspace API sub-user and API key that has access only to this Rackspace container, use this add-on."
+msgstr "Pentru a crea un nou sub-utilizator API si o noua cheie API Rackspace care va avea acces doar la acest container Rackspace, folositi aceasta extensie."
+
+#: methods/cloudfiles-new.php:127
+msgid "Cloud Files API Key"
+msgstr "Cheia API-ului Cloud Files"
+
+#: methods/cloudfiles-new.php:132 addons/cloudfiles-enhanced.php:267
+msgid "Cloud Files Container"
+msgstr "Container Cloud Files"
+
+#: methods/cloudfiles-new.php:85
+msgid "US or UK-based Rackspace Account"
+msgstr "Cont Rackspace localizat in US sau UK"
+
+#: methods/cloudfiles-new.php:87
+msgid "Accounts created at rackspacecloud.com are US-accounts; accounts created at rackspace.co.uk are UK-based"
+msgstr "Conturile create la rackspacecloud.com sunt conturi US; conturile create la rackspace.co.uk sunt conturi UK"
+
+#: methods/cloudfiles-new.php:95 addons/cloudfiles-enhanced.php:248
+msgid "Cloud Files Storage Region"
+msgstr "Regiunea de stocare Cloud Files"
+
+#: methods/cloudfiles-new.php:100 addons/cloudfiles-enhanced.php:252
+msgid "Dallas (DFW) (default)"
+msgstr "Dallas (DFW) (implicit)"
+
+#: methods/cloudfiles-new.php:101 addons/cloudfiles-enhanced.php:253
+msgid "Sydney (SYD)"
+msgstr "Sydney (SYD)"
+
+#: methods/cloudfiles-new.php:102 addons/cloudfiles-enhanced.php:254
+msgid "Chicago (ORD)"
+msgstr "Chicago (ORD)"
+
+#: methods/cloudfiles-new.php:39 methods/openstack-base.php:371
+#: methods/openstack-base.php:373 methods/openstack-base.php:393
+#: methods/openstack2.php:25 addons/cloudfiles-enhanced.php:147
+msgid "Authorisation failed (check your credentials)"
+msgstr "Autorizare esuata (verificati datele de acces)"
+
+#: methods/cloudfiles-new.php:85 addons/cloudfiles-enhanced.php:230
+msgid "Accounts created at rackspacecloud.com are US accounts; accounts created at rackspace.co.uk are UK accounts."
+msgstr "Conturile create la rackspacecloud.com sunt conturi US; conturile create la rackspace.co.uk sunt conturi UK."
+
+#: udaddons/options.php:244
+msgid "An unknown error occurred when trying to connect to UpdraftPlus.Com"
+msgstr "A aparut o eroare la incercarea de conectare la UpdraftPlus.Com"
+
+#: admin.php:168
+msgid "Create"
+msgstr "Creare"
+
+#: restorer.php:1518
+msgid "An error (%s) occurred:"
+msgstr "A aparut o eroare (%s):"
+
+#: admin.php:133
+msgid "The new user's RackSpace console password is (this will not be shown again):"
+msgstr "Parola consolei noului utilizator Rackspace este (nu va mai fi afisata niciodata):"
+
+#: admin.php:134
+msgid "Trying..."
+msgstr "Incercare..."
+
+#: backup.php:1067
+msgid "The database backup appears to have failed - the options table was not found"
+msgstr "Backup-ul bazei de date pare sa fi esuat - tabela de optiuni nu a fost gasita"
+
+#: addons/reporting.php:327
+msgid "(when decrypted)"
+msgstr "(la decriptare)"
+
+#: admin.php:4057
+msgid "Error data:"
+msgstr "Date eroare:"
+
+#: admin.php:3796
+msgid "Backup does not exist in the backup history"
+msgstr "Backup-ul nu exista in istoricul baclup-urilor"
+
+#: admin.php:2321
+msgid "Your WordPress install has old directories from its state before you restored/migrated (technical information: these are suffixed with -old). You should press this button to delete them as soon as you have verified that the restoration worked."
+msgstr "Instalarea dvs. WordPress contine directoare vechi din starea ei inaintea restaurarii/migrarii (informatii tehnice: sunt prefixate cu -old). Ar trebui sa apasati acest buton pentru a le sterge imediat ce ati verificat ca restaurarea a functionat."
+
+#: restorer.php:1258
+msgid "Split line to avoid exceeding maximum packet size"
+msgstr "Separati linia pentru a evita depasirea marimii maxime a pachetului"
+
+#: restorer.php:1177
+msgid "Your database user does not have permission to drop tables. We will attempt to restore by simply emptying the tables; this should work as long as you are restoring from a WordPress version with the same database structure (%s)"
+msgstr "Baza dvs. de date nu are permisiunea de a sterge tabele. Se incearca restaurarea doar prin golirea tabelele; acest lucru ar trebui sa functioneze atat timp cat restaurarea se face dintr-o versiune WordPress cu aceeasi structura a bazei de date (%s)"
+
+#: restorer.php:1192
+msgid "<strong>Backup of:</strong> %s"
+msgstr "<strong>Backup pentru:</strong> %s"
+
+#: restorer.php:1028
+msgid "New table prefix: %s"
+msgstr "Noul prefix al tabelei: %s"
+
+#: restorer.php:738 restorer.php:752
+msgid "%s: This directory already exists, and will be replaced"
+msgstr "%s: Acest director exista deja, va fi rescris"
+
+#: restorer.php:768
+msgid "File permissions do not allow the old data to be moved and retained; instead, it will be deleted."
+msgstr "Permisiunile de fișiere nu permit datele vechi sa fie mutate și păstrate; în schimb, acestea vor fi șterse."
+
+#: restorer.php:68
+msgid "Could not move the files into place. Check your file permissions."
+msgstr "Nu am putu muta fisierele aici. Va rugam verificati permisiunile."
+
+#: restorer.php:61
+msgid "Moving old data out of the way..."
+msgstr "Mutarea datelor vechi.."
+
+#: restorer.php:65
+msgid "Could not move old files out of the way."
+msgstr "Nu am putut muta datele vechi."
+
+#: restorer.php:67
+msgid "Could not move new files into place. Check your wp-content/upgrade folder."
+msgstr "Nu s-au putut muta noile fisiere. Verificati floderul wp-content/upgrade."
+
+#: addons/reporting.php:377
+msgid "Enter addresses here to have a report sent to them when a backup job finishes."
+msgstr "Introduceti adresele unde doriti sa primiti raportul transmis la finalizarea realizarii copiei de rezerva."
+
+#: addons/reporting.php:390
+msgid "Add another address..."
+msgstr "Introduceti alta adresa.."
+
+#: addons/reporting.php:242
+msgid " (with errors (%s))"
+msgstr "(cu erori (%s))"
+
+#: addons/reporting.php:244
+msgid " (with warnings (%s))"
+msgstr " (cu avertismente (%s))"
+
+#: addons/reporting.php:274
+msgid "Use the \"Reporting\" section to configure the email addresses to be used."
+msgstr "Folositi sectiunea \"Raportare\" pentru a configura adresele de mail folosite."
+
+#: addons/reporting.php:300
+msgid "files: %s"
+msgstr "fisiere: %s"
+
+#: addons/reporting.php:318
+msgid "Size: %s Mb"
+msgstr "Marime: %s Mb"
+
+#: addons/reporting.php:323 addons/reporting.php:328
+msgid "%s checksum: %s"
+msgstr "%s checksum: %s"
+
+#: addons/reporting.php:350
+msgid "Email reports"
+msgstr "Rapoarte email"
+
+#: addons/reporting.php:148
+msgid "Errors"
+msgstr "Erori"
+
+#: addons/reporting.php:163
+msgid "Warnings"
+msgstr "Avertismente"
+
+#: addons/reporting.php:172
+msgid "Time taken:"
+msgstr "Timp scurs:"
+
+#: addons/reporting.php:173
+msgid "Uploaded to:"
+msgstr "Upload-at in:"
+
+#: addons/reporting.php:204
+msgid "Debugging information"
+msgstr "Informatii depanare"
+
+#: addons/reporting.php:106
+msgid "%d errors, %d warnings"
+msgstr "%d erori, %d avertismente"
+
+#: addons/reporting.php:120
+msgid "%d hours, %d minutes, %d seconds"
+msgstr "%d ore, %d minute, %d secunde"
+
+#: addons/reporting.php:125
+msgid "Backup Report"
+msgstr "Raport Backup"
+
+#: addons/reporting.php:133
+msgid "Backup began:"
+msgstr "Backup inceput la:"
+
+#: addons/reporting.php:134
+msgid "Contains:"
+msgstr "Contine:"
+
+#: addons/reporting.php:145
+msgid "Errors / warnings:"
+msgstr "Erori / avertismente:"
+
+#: methods/dropbox.php:465 addons/bitcasa.php:263 addons/bitcasa.php:288
+#: addons/copycom.php:375
+msgid "%s authentication"
+msgstr "autentificare %s"
+
+#: class-updraftplus.php:214 methods/dropbox.php:127 methods/dropbox.php:465
+#: methods/dropbox.php:479 methods/dropbox.php:574 addons/bitcasa.php:263
+#: addons/bitcasa.php:288 addons/copycom.php:375
+msgid "%s error: %s"
+msgstr "%s eroare: %s"
+
+#: methods/dropbox.php:387
+msgid "%s logo"
+msgstr "%s logo"
+
+#: methods/email.php:60
+msgid "Your site's admin email address (%s) will be used."
+msgstr "Va fi folosita adresa administrarorului site-ului (%s)."
+
+#: methods/email.php:60
+msgid "For more options, use the \"%s\" add-on."
+msgstr "Pentru mai multe optiuni folositi add-on-ul \"%s\"."
+
+#: methods/dropbox.php:72
+msgid "The required %s PHP module is not installed - ask your web hosting company to enable it"
+msgstr "Modulul PHP %s necesar nu este instalat - contactati providerul de web hosting pentru a activa acest modul"
+
+#: methods/dropbox.php:172
+msgid "%s did not return the expected response - check your log file for more details"
+msgstr "%s nu a dat rezultatul scontat - verificati fisierul de log pentru mai multe detalii"
+
+#: udaddons/options.php:224
+msgid "Connect"
+msgstr "Conectare"
+
+#: admin.php:2950
+msgid "Check this box to have a basic report sent to your site's admin address (%s)."
+msgstr "Bifati aceasta casuta pentru a primi un sumar la adresa de mail (%s) a administratorului site-ului dumneavoastra."
+
+#: admin.php:2952
+msgid "For more reporting features, use the Reporting add-on."
+msgstr "Pentru mai multe functii ale rapoartelor folositi add-on-ul \"Reporting\"."
+
+#: admin.php:1325
+msgid "(version: %s)"
+msgstr "(versiunea: %s)"
+
+#: admin.php:125 methods/email.php:61 addons/reporting.php:423
+msgid "Be aware that mail servers tend to have size limits; typically around %s Mb; backups larger than any limits will likely not arrive."
+msgstr "Fiti atenti, de obicei serverele de mail au o limitare a marimii, de obicei in jur de %s Mb; copiile de rezerva peste aceste limite nu vor putea fi primite pe mail."
+
+#: admin.php:124 addons/reporting.php:423
+msgid "When the Email storage method is enabled, also send the entire backup"
+msgstr "În cazul în care metoda de stocare e-mail este activată, trimite, de asemenea, întreaga rezervă"
+
+#: backup.php:506
+msgid "Unknown/unexpected error - please raise a support request"
+msgstr "Eroare necunoscuta/neasteptata - va rugam transmiteti o solicitare de asistenta"
+
+#: backup.php:542 addons/reporting.php:201
+msgid "The log file has been attached to this email."
+msgstr "Fisierul de log a fost atasa la acest email."
+
+#: backup.php:548
+msgid "Backed up: %s"
+msgstr "Backed up: %s"
+
+#: backup.php:580
+msgid "Backup contains:"
+msgstr "Copia de rezerva contine:"
+
+#: backup.php:581 addons/reporting.php:132
+msgid "Latest status:"
+msgstr "Ultimul status: "
+
+#: backup.php:498
+msgid "Files and database"
+msgstr "Fisiere si baza de date"
+
+#: backup.php:500
+msgid "Files (database backup has not completed)"
+msgstr "Fisiere (copia de rezerva bazei de date nu a fost realizata)"
+
+#: backup.php:500
+msgid "Files only (database was not part of this particular schedule)"
+msgstr "Doar fisiere (baza de date nu a fost inclusa in aceasta activitate programare)"
+
+#: backup.php:503
+msgid "Database (files backup has not completed)"
+msgstr "Baza de date (copia de rezerva a fisierelor nu a fost realizata)"
+
+#: backup.php:503
+msgid "Database only (files were not part of this particular schedule)"
+msgstr "Doar baza de date (fisierele nu au fost incluse in aceasta activitate programata)"
+
+#: options.php:125
+msgid "This is a WordPress multi-site (a.k.a. network) installation."
+msgstr "Aceasta instalare WordPress este multi-site (sau retea)."
+
+#: options.php:125
+msgid "WordPress Multisite is supported, with extra features, by UpdraftPlus Premium, or the Multisite add-on."
+msgstr "WordPress Multisite este suportata, cu alte extra potiuni, de UpdraftPlus Premium, sau cu add-on-ul Multisite."
+
+#: options.php:125
+msgid "Without upgrading, UpdraftPlus allows <strong>every</strong> blog admin who can modify plugin settings to back up (and hence access the data, including passwords, from) and restore (including with customised modifications, e.g. changed passwords) <strong>the entire network</strong>."
+msgstr "Fara up-grade, Updraftplus acorda acces <strong>tuturor</strong> administratorilor siteului care pot modifica setarile plugin-ului la realizarea de backup-uri (si, prin urmare, acces la datele din backup, inclusiv la parole) precum si la restaurarea (inclusiv cu modificari modificate - chiar parole de acces) la <strong>intreaga retea</strong>."
+
+#: options.php:125
+msgid "(This applies to all WordPress backup plugins unless they have been explicitly coded for multisite compatibility)."
+msgstr "(Aceasta se aplica la toate pluginurile de backup ale WordPress, doar daca nu au fost scrise special pentru compatibilitatea cu pagini de tip multisite."
+
+#: options.php:125
+msgid "UpdraftPlus warning:"
+msgstr "Avertisment UpdraftPlus:"
+
+#: udaddons/options.php:442
+msgid "(or connect using the form on this page if you have already purchased it)"
+msgstr "(sau conectati-va folosing formularul din aceasta pagina daca deja l-ati achizitionat)"
+
+#: udaddons/options.php:411
+msgid "You've got it"
+msgstr "Gata, l-ai luat!"
+
+#: udaddons/options.php:413
+msgid "Your version: %s"
+msgstr "Versiunea ta: %s"
+
+#: udaddons/options.php:415 udaddons/options.php:417
+msgid "latest"
+msgstr "ultima"
+
+#: udaddons/options.php:425
+msgid "please follow this link to update the plugin in order to get it"
+msgstr "Te rugam foloseste acest link pentru a obtine up-dateul pluginului"
+
+#: udaddons/options.php:428
+msgid "please  follow this link to update the plugin in order to activate it"
+msgstr "Daca doresti activarea pluginului te rugam foloseste acest link pentru a up-data pluginul"
+
+#: udaddons/updraftplus-addons.php:200 udaddons/options.php:339
+msgid "UpdraftPlus Addons"
+msgstr "Addon-uri UpdraftPlus"
+
+#: udaddons/options.php:350
+msgid "An update containing your addons is available for UpdraftPlus - please follow this link to get it."
+msgstr "O actualizare care conține addonurile dumneavoastra este disponibil pentru UpdraftPlus - vă rugăm să urmați acest link pentru a o obține."
+
+#: udaddons/options.php:392
+msgid "UpdraftPlus Support"
+msgstr "Suport Updraftplus"
+
+#: udaddons/updraftplus-addons.php:561
+msgid "UpdraftPlus.Com responded, but we did not understand the response"
+msgstr "UpdraftPlus.com a raspuns, dar nu am inteles acest raspuns"
+
+#: udaddons/updraftplus-addons.php:594
+msgid "UpdraftPlus.Com returned a response which we could not understand (data: %s)"
+msgstr "UpdraftPlus.com a returnat un raspuns pe care nu l-am inteles (data: %s)"
+
+#: udaddons/updraftplus-addons.php:626
+msgid "Your email address and password were not recognised by UpdraftPlus.Com"
+msgstr "Adresa de mail si/sau parola dumneavoastra nu au fost recunoscute de UpdraftPlus.Com"
+
+#: udaddons/updraftplus-addons.php:629
+msgid "UpdraftPlus.Com returned a response, but we could not understand it"
+msgstr "UpdraftsPlus.com a returnat un raspuns, dar nu l-am inteles"
+
+#: udaddons/options.php:68
+msgid "An update is available for UpdraftPlus - please follow this link to get it."
+msgstr "O actualizare pentru UpdraftPlus este disponibila - va rugam folositi acest link pentru a o instala."
+
+#: udaddons/updraftplus-addons.php:559
+msgid "We failed to successfully connect to UpdraftPlus.Com"
+msgstr "Nu am reusit sa ne conectam la UpdraftPlus.Com"
+
+#: admin.php:2933 methods/email.php:60
+msgid "Reporting"
+msgstr "Raportare"
+
+#: admin.php:1016
+msgid "Options (raw)"
+msgstr "Optiuni (rand)"
+
+#: admin.php:123 addons/reporting.php:421
+msgid "Send a report only when there are warnings/errors"
+msgstr "Transmite un raport doar cand sunt avertismente/erori"
+
+#: restorer.php:1207
+msgid "Content URL:"
+msgstr "URL continut:"
+
+#: restorer.php:65
+msgid "You should check the file permissions in your WordPress installation"
+msgstr "Va rugam sa verificati permisiunile fisierului in WordPress-ul instalat"
+
+#: admin.php:2853
+msgid "See also the \"More Files\" add-on from our shop."
+msgstr "Vedeti, de asemenea, \"More Files\" add-on din magazinul nostru."
+
+#: class-updraftplus.php:428
+msgid "Your free space in your hosting account is very low - only %s Mb remain"
+msgstr "Spatiul ramas liber din contul dumneavoastra de webhosting este foarte mic - au mai ramas doar %s Mb"
+
+#: class-updraftplus.php:406
+msgid "The amount of memory (RAM) allowed for PHP is very low (%s Mb) - you should increase it to avoid failures due to insufficient memory (consult your web hosting company for more help)"
+msgstr "Memoria (RAM) alocata pentru PHP este foarte mica (%s Mb) - ar trebui marita pentru a evita problemele cauzate de memoria insuficienta (consultati providerul dumneavoastra de webhosting pentru mai multe informatii si suport) "
+
+#: udaddons/options.php:438
+msgid "You have an inactive purchase"
+msgstr "Aveti o achizitie inactiva"
+
+#: udaddons/options.php:436 udaddons/options.php:438
+msgid "activate it on this site"
+msgstr "Activati-l pe acest site"
+
+#: udaddons/options.php:442
+msgid "Get it from the UpdraftPlus.Com Store"
+msgstr "Luati-l de pe magazinul UpdraftPlus.Com"
+
+#: udaddons/options.php:443
+msgid "Buy It"
+msgstr "Cumparati"
+
+#: udaddons/options.php:466
+msgid "Manage Addons"
+msgstr "Manager Addon-uri"
+
+#: udaddons/options.php:309
+msgid "An unknown response was received. Response was:"
+msgstr "Am primit un raspuns neasteptat. Raspunsul este:"
+
+#: udaddons/options.php:376
+msgid "An error occurred when trying to retrieve your add-ons."
+msgstr "A aparut o eroare la incercarea de a prelua add-on-urile dumneavoastra."
+
+#: udaddons/options.php:394
+msgid "Need to get support?"
+msgstr "Aveti nevoie de suport?"
+
+#: udaddons/options.php:394
+msgid "Go here"
+msgstr "Duceti-va aici"
+
+#: udaddons/options.php:419
+msgid "(apparently a pre-release or withdrawn release)"
+msgstr "(aparent o varianta prelansare sau o varianta retrasa)"
+
+#: udaddons/options.php:425
+msgid "Available for this site (via your all-addons purchase)"
+msgstr "Disponibil pentru aces site (prin acizitia tuturor add-on-urilor)"
+
+#: udaddons/options.php:428
+msgid "Assigned to this site"
+msgstr "Alocat pentru acest site"
+
+#: udaddons/options.php:222
+msgid "Interested in knowing about your UpdraftPlus.Com password security? Read about it here."
+msgstr "Interesat sa sti mai multe despre securitatea pe baza de parola la UpDraftPlus.Com? Citeste mai multe aici."
+
+#: udaddons/options.php:250
+msgid "You are presently <strong>connected</strong> to an UpdraftPlus.Com account."
+msgstr "Momentan sunteti <strong>conectat</strong> la un cont UpdraftPlus.Com."
+
+#: udaddons/options.php:251
+msgid "If you bought new add-ons, then follow this link to refresh your connection"
+msgstr "Daca ati achizitionat add-on-uri noi, urmati acest link pentru a reimprospata conexiunea."
+
+#: udaddons/options.php:253
+msgid "You are presently <strong>not connected</strong> to an UpdraftPlus.Com account."
+msgstr "Momentan <strong>nu sunteti</strong> conectat la un cont UpdraftPlus.Com."
+
+#: udaddons/options.php:259
+msgid "Errors occurred when trying to connect to UpdraftPlus.Com:"
+msgstr "A aparut o eroare la incercarea de conectare la UpdraftPlus.Com:"
+
+#: udaddons/options.php:306
+msgid "Please wait whilst we make the claim..."
+msgstr "Va rugam asteptati in timp ce procesam cererea..."
+
+#: udaddons/options.php:307
+msgid "Claim not granted - perhaps you have already used this purchase somewhere else?"
+msgstr "Cererea nu a fost aprobata - se poate sa fi achizionat deja din alta parte?"
+
+#: udaddons/options.php:308
+msgid "Claim not granted - your account login details were wrong"
+msgstr "Cerere neaprobata - datele dumneavoastra de logare sunt eronate"
+
+#: udaddons/options.php:94
+msgid "Your web server's version of PHP is too old ("
+msgstr "Versiunea dumneavoastra de PHP este prea veche ("
+
+#: udaddons/options.php:114
+msgid "Connect with your UpdraftPlus.Com account"
+msgstr "Conectati-va cu datele contului dumneavoastra de UpdraftPlus"
+
+#: udaddons/options.php:139
+msgid "Not yet got an account (it's free)? Go get one!"
+msgstr "Nu aveti inca un cont (este gratuit)? Faceti-va un cont acum!"
+
+#: udaddons/options.php:149
+msgid "Forgotten your details?"
+msgstr "Ati uitat detaliile dumneavoastra?"
+
+#: udaddons/options.php:74
+msgid "You have not yet connected with your UpdraftPlus.Com account, to enable you to list your purchased add-ons."
+msgstr "Nu v-ati conectat cu contul dumneavoastra UpdraftPlus.com pentru a activa lista de add-on-uri cumparate."
+
+#: udaddons/options.php:74 udaddons/options.php:76
+msgid "Go here to connect."
+msgstr "Intrati aici pentru conectare."
+
+#: udaddons/options.php:83
+msgid "UpdraftPlus is not yet activated."
+msgstr "UpdraftPlus nu a fost inca activat."
+
+#: udaddons/options.php:84
+msgid "Go here to activate it."
+msgstr "Intrati aici pentru activare."
+
+#: udaddons/options.php:87
+msgid "UpdraftPlus is not yet installed."
+msgstr "UpdraftPlus nu este inca instalat."
+
+#: udaddons/options.php:87
+msgid "Go here to begin installing it."
+msgstr "Intrati aici pentru a incepe instalarea."
+
+#: udaddons/options.php:88
+msgid "You do seem to have the obsolete Updraft plugin installed - perhaps you got them confused?"
+msgstr "Se pare ca aveti un plugin Updraft foarte vechi - poate le-ati incurcat, din greseala?"
+
+#: admin.php:1828
+msgid "If your restore included files, then your old (themes, uploads, plugins, whatever) directories have been retained with \"-old\" appended to their name. Remove them when you are satisfied that the backup worked properly."
+msgstr "Daca restaurarea dumneavoastra include si fisiere, folderele vechi (teme/themes, uploads, plugins, etc)  vor fi pastrate cu adaugarea sufixului \"-old\". Daca restaurarea a reusit si sunteti multumim puteti sterge manual aceste fisiere."
+
+#: addons/moredatabase.php:271 addons/moredatabase.php:302
+msgid "Your web-server does not have the %s module installed."
+msgstr "Serverul web al dumneavoastra nu are instalat modulul %s."
+
+#: addons/moredatabase.php:271 addons/moredatabase.php:302
+msgid "Without it, encryption will be a lot slower."
+msgstr "Fara ea, criptarea va fi mult mai inceata."
+
+#: admin.php:2098
+msgid "Drop backup files here"
+msgstr "Adaugati fisierele de back-up aici"
+
+#: methods/googledrive.php:902
+msgid "<strong>(You appear to be already authenticated,</strong> though you can authenticate again to refresh your access if you've had a problem)."
+msgstr "<strong>(Se pare ca sunteti deja autentificat,</strong> totusi puteti sa va autentificati din nou in cazul in care ati intampinat probleme)."
+
+#: class-updraftplus.php:2485
+msgid "Want more features or paid, guaranteed support? Check out UpdraftPlus.Com"
+msgstr "Doriti mai multe functiuni si optiuni sau suport garantat platit? Verificati pe UpdraftPlus.Com"
+
+#: class-updraftplus.php:2495
+msgid "Check out WordShell"
+msgstr "Verificati WordShell"
+
+#: class-updraftplus.php:2495
+msgid "manage WordPress from the command line - huge time-saver"
+msgstr "Administrati WordPress din linia de comanda - castigati foarte mult timp"
+
+#: admin.php:2017
+msgid "Does nothing happen when you attempt backups?"
+msgstr "Nu s-a intamplat nimic cand ati incercat sa realizati backup-ul?"
+
+#: admin.php:2010
+msgid "Don't include the database in the backup"
+msgstr "Nu include baza de date in copia de rezerva"
+
+#: admin.php:2011
+msgid "Don't include any files in the backup"
+msgstr "Nu include niciun fisier in copia de rezerva"
+
+#: admin.php:2066
+msgid "Restoring:"
+msgstr "Restaurare:"
+
+#: admin.php:2066
+msgid "Press the Restore button next to the chosen backup set."
+msgstr "Apasati butonul \"Restaurare\" din dreptul copiei de rezerva dorite."
+
+#: admin.php:130
+msgid "The restore operation has begun. Do not press stop or close your browser until it reports itself as having finished."
+msgstr "Operatiunea de restaurare a inceput. Nu apasati stop si nu inchideti browserul dumneavoastra pana cand nu raportam finalizarea operatiunii de restaurare."
+
+#: admin.php:132
+msgid "The web server returned an error code (try again, or check your web server logs)"
+msgstr "Serverul web a returnat o eroare (incercati din nou sau verificati fisierele de log pe de serverul web)"
+
+#: admin.php:129
+msgid "If you exclude both the database and the files, then you have excluded everything!"
+msgstr "Daca ati exclus si fisierele si baza de date, ati exclus TOT!"
+
+#: restorer.php:1201
+msgid "Site home:"
+msgstr "Adresa site:"
+
+#: addons/morestorage.php:88
+msgid "Remote Storage Options"
+msgstr "Optiune stocare la distanta"
+
+#: addons/autobackup.php:33 addons/autobackup.php:316
+msgid "Remember this choice for next time (you will still have the chance to change it)"
+msgstr "Pastreaza aceasta optiune pentru viitor (veti avea posibilitatea sa modificati ulterior)"
+
+#: addons/autobackup.php:68 addons/autobackup.php:154
+msgid "(logs can be found in the UpdraftPlus settings page as normal)..."
+msgstr "(logurile/jurnalele pot fi gasite in pagina de setari UpdraftPlus, ca de obicei)..."
+
+#: methods/stream-base.php:124
+msgid "Upload failed"
+msgstr "Upload esuat"
+
+#: admin.php:2991
+msgid "You can send a backup to more than one destination with an add-on."
+msgstr "Puteti transmite copia de rezerva catre mai multe destinatii cu un add-on."
+
+#: admin.php:2504
+msgid "Note: the progress bar below is based on stages, NOT time. Do not stop the backup simply because it seems to have remained in the same place for a while - that is normal."
+msgstr "Nota: Bara de progres este bazata pe etape, NU pe timp. Nu opriti realizarea copiei de rezerva doar pentru ca pare a fi ramas in acelasi loc - asta este ceva normal."
+
+#: admin.php:2406
+msgid "(%s%%, file %s of %s)"
+msgstr "(%s%%, fisier %s din %s)"
+
+#: addons/sftp.php:481
+msgid "Failed: We were able to log in and move to the indicated directory, but failed to successfully create a file in that location."
+msgstr "Esec: Am reusit conectarea si mutarea la folderul indicat, dar nu am reusit sa cream un fisier in locatia indicata."
+
+#: addons/sftp.php:483
+msgid "Failed: We were able to log in, but failed to successfully create a file in that location."
+msgstr "Esec: Am reusit conectarea aici dar nu am reusit sa cream un fisier in locatia mentionata."
+
+#: addons/autobackup.php:33 addons/autobackup.php:316
+msgid "Read more about how this works..."
+msgstr "Citeste mai mult despre cum functioneaza.."
+
+#: addons/sftp.php:370
+msgid "Use SCP instead of SFTP"
+msgstr "Folositi SCP in loc de SFTP"
+
+#: addons/sftp.php:46
+msgid "SCP/SFTP host setting"
+msgstr "Setarile gazda pentru SCP/SFTP"
+
+#: addons/sftp.php:47
+msgid "SCP/SFTP user setting"
+msgstr "Setari user SCP/SFTP"
+
+#: methods/email.php:39
+msgid "Backup is of: %s."
+msgstr "Backup-ul este de : %s."
+
+#: methods/email.php:47
+msgid "The attempt to send the backup via email failed (probably the backup was too large for this method)"
+msgstr "Incercarea de a trimite backup-ul pe email a esuat (probabil marimea copiei de rezerva este prea mare pentru aceasta metoda)"
+
+#: methods/openstack-base.php:289 methods/cloudfiles.php:449
+#: methods/stream-base.php:211 methods/s3.php:485 methods/addon-base.php:248
+#: methods/ftp.php:265 addons/sftp.php:404 addons/sftp.php:406
+msgid "%s settings test result:"
+msgstr "Rezultatul testarii setarilor %s:"
+
+#: admin.php:3334
+msgid "If you are seeing more backups than you expect, then it is probably because the deletion of old backup sets does not happen until a fresh backup completes."
+msgstr "Daca vedeti mai multe copii de rezerva decat va asteptati, probabil se datoreaza faptului ca vechile copii de rezerva nu sunt sterse decat dupa finalizarea noilor copii de rezerva."
+
+#: admin.php:3334
+msgid "(Not finished)"
+msgstr "(Nu este terminat)"
+
+#: admin.php:3097
+msgid "This is where UpdraftPlus will write the zip files it creates initially.  This directory must be writable by your web server. It is relative to your content directory (which by default is called wp-content)."
+msgstr "Aici isi creeaza initial fisierele UpdraftPlus. Acest director trebuie sa fie setat de serverul web ca fiind Writable. Folderul este relativ la directorul de continut (care este denumit implicit wp-content)."
+
+#: admin.php:3097
+msgid "<b>Do not</b> place it inside your uploads or plugins directory, as that will cause recursion (backups of backups of backups of...)."
+msgstr "<b>NU</b> amplasati in foldere de genul uploads sau plugins, aceasta va crea recursivitate (copia de rezerva a copiei de rezerva a copiei de rezerva...)."
+
+#: admin.php:2415
+msgid "Waiting until scheduled time to retry because of errors"
+msgstr "In asteptare pana la ora programata pentru a incerca din nou din cauza unor erori aparute"
+
+#: admin.php:2420
+msgid "Backup finished"
+msgstr "Backup finalizat"
+
+#: admin.php:2470
+msgid "Unknown"
+msgstr "Necunoscut"
+
+#: admin.php:2487
+msgid "next resumption: %d (after %ss)"
+msgstr "Urmatoare reluare: %d (dupa %ss)"
+
+#: admin.php:2488
+msgid "last activity: %ss ago"
+msgstr "Ultima activitate: acum %ss "
+
+#: admin.php:2498
+msgid "Job ID: %s"
+msgstr "Job ID: %s"
+
+#: admin.php:2447
+msgid "table: %s"
+msgstr "Tabela: %s"
+
+#: admin.php:2434
+msgid "Created database backup"
+msgstr "Creare copie siguranta baza de date"
+
+#: admin.php:2460
+msgid "Encrypting database"
+msgstr "Criptare baza de date"
+
+#: admin.php:2468
+msgid "Encrypted database"
+msgstr "Baza de date criptata"
+
+#: admin.php:2399
+msgid "Uploading files to remote storage"
+msgstr "Incarcare fisiere in unitatea de stocare la distanta"
+
+#: admin.php:2411
+msgid "Pruning old backup sets"
+msgstr "Aranjarea copiilor de siguranta vechi"
+
+#: admin.php:2380
+msgid "Creating file backup zips"
+msgstr "Creare copii de siguranta zip"
+
+#: admin.php:2393
+msgid "Created file backup zips"
+msgstr "Copii de siguranta zip create"
+
+#: admin.php:2445
+msgid "Creating database backup"
+msgstr "Creare copie de siguranta baza de date"
+
+#: admin.php:2375
+msgid "Backup begun"
+msgstr "Backup inceput"
+
+#: admin.php:1951
+msgid "Backups in progress:"
+msgstr "Backup in realizare:"
+
+#: admin.php:425
+msgid "The scheduler is disabled in your WordPress install, via the DISABLE_WP_CRON setting. No backups can run (even &quot;Backup Now&quot;) unless either you have set up a facility to call the scheduler manually, or until it is enabled."
+msgstr "Programatorul (scheduler) este dezactivat in  WordPress, prin setarile DISABLE_WP_CRON. Nu se poate rula realizarea niciunui backup (nici &quot;Backup Now&quot;) doar daca il programati sa fie facut manual sau daca activati setarile din WordPress."
+
+#: restorer.php:524 restorer.php:531
+msgid "UpdraftPlus needed to create a %s in your content directory, but failed - please check your file permissions and enable the access (%s)"
+msgstr "UpdraftPlus trebuie sa creeze %s in directorul de continut, dar a esuat. Va rugam verificati permisiunile fisierelor si activati accesul (%s)"
+
+#: restorer.php:524
+msgid "folder"
+msgstr "director"
+
+#: restorer.php:531
+msgid "file"
+msgstr "fisier"
+
+#: backup.php:1507
+msgid "Failed to open directory (check the file permissions): %s"
+msgstr "Deschiderea directorului a esuat (verificati permisiunile fisierului): %s"
+
+#: backup.php:1497
+msgid "%s: unreadable file - could not be backed up (check the file permissions)"
+msgstr "%s: fisier care nu a putu fi citit - nu a putut fi copiat in backup (verificati permisiunile fisierului)"
+
+#: class-updraftplus.php:1707
+msgid "The backup has not finished; a resumption is scheduled"
+msgstr "Copia de siguranta nu a putut fi finalizata, a fost programata o reluare"
+
+#: class-updraftplus.php:1170
+msgid "Your website is visited infrequently and UpdraftPlus is not getting the resources it hoped for; please read this page:"
+msgstr "Siteul dumneavoastra este vizita rar iar UpdraftPlus nu obtine resursele sperate, va rugam cititi aceasta pagina:"
+
+#: includes/Dropbox/OAuth/Consumer/ConsumerAbstract.php:89
+#: methods/googledrive.php:232 addons/bitcasa.php:352 addons/copycom.php:490
+msgid "The %s authentication could not go ahead, because something else on your site is breaking it. Try disabling your other plugins and switching to a default theme. (Specifically, you are looking for the component that sends output (most likely PHP warnings/errors) before the page begins. Turning off any debugging settings may also help)."
+msgstr "Autentificarea %s a esuat, deoarece s-a intamplat ceva pe siteul dumneavoastra. Incercati sa dezactivati alte plugin-uri sau sa treceti pe tema implicita. In special, cautati componente care transmit date (in principal avertismente/erori PHP) inainte de incarcarea paginii.Dezactivarea oricarei setari de depanare poate ajuta, de asemenea."
+
+#: admin.php:1835
+msgid "Your PHP memory limit (set by your web hosting company) is very low. UpdraftPlus attempted to raise it but was unsuccessful. This plugin may struggle with a memory limit of less than 64 Mb  - especially if you have very large files uploaded (though on the other hand, many sites will be successful with a 32Mb limit - your experience may vary)."
+msgstr "Limita memoriei PHP (setata de providerul de webhosting) este foarte mica. UpdraftPlus a incercat sa mareasca aceasta limita, fara succes, insa. Acest plugin ntampina dificultati mai ales cu o limita de 64 Mb sau mai mica - in special daca aveti fisiere mari de upload-at (desi, pe de cealalta parte, multe siteuri se vor descurca si cu limita de 32 Mb)."
+
+#: addons/autobackup.php:312
+msgid "UpdraftPlus Automatic Backups"
+msgstr "Copii de Siguranta UpdraftPlus automate"
+
+#: addons/autobackup.php:317
+msgid "Do not abort after pressing Proceed below - wait for the backup to complete."
+msgstr "Nu renuntati dupa ce ati apasat Incepe mai jos - asteptati finalizarea copiei de siguranta."
+
+#: addons/autobackup.php:318
+msgid "Proceed with update"
+msgstr "Incepeti realizarea copiei de siguranta"
+
+#: addons/autobackup.php:72 addons/autobackup.php:161
+msgid "Starting automatic backup..."
+msgstr "Se incepe backupul automat.."
+
+#: addons/autobackup.php:118
+msgid "plugins"
+msgstr "plugins"
+
+#: addons/autobackup.php:123
+msgid "themes"
+msgstr "themes/teme"
+
+#: addons/autobackup.php:143
+msgid "You do not have sufficient permissions to update this site."
+msgstr "Nu aveti acreditarile necesare pentru a realiza update-ul acestui site."
+
+#: addons/autobackup.php:154
+msgid "Creating database backup with UpdraftPlus..."
+msgstr "Creare backup baza de date folosind UpdraftPlus..."
+
+#: addons/autobackup.php:163 addons/autobackup.php:260
+#: addons/autobackup.php:300
+msgid "Automatic Backup"
+msgstr "Backup Automat"
+
+#: addons/autobackup.php:205
+msgid "Creating backup with UpdraftPlus..."
+msgstr "Creare backup cu UpdraftPlus..."
+
+#: addons/autobackup.php:212
+msgid "Errors have occurred:"
+msgstr "Au aparut erori:"
+
+#: addons/autobackup.php:33 addons/autobackup.php:316
+msgid "Automatically backup (where relevant) plugins, themes and the WordPress database with UpdraftPlus before updating"
+msgstr "Backup automat cu UpdraftPlus (acolo unde este relevant) al plugin-urilor, temelor si a bazei de date WordPress inainte de update"
+
+#: addons/autobackup.php:68
+msgid "Creating %s and database backup with UpdraftPlus..."
+msgstr "Creare backup %s si baza de date cu UpdraftPlus... "
+
+#: addons/morefiles.php:93
+msgid "Unable to read zip file (%s) - could not pre-scan it to check its integrity."
+msgstr "Nu sa putut citi fisierul zip (%s) - nu s-a putut realiza prescanarea pentru verificarea integritatii lui."
+
+#: addons/morefiles.php:98
+msgid "Unable to open zip file (%s) - could not pre-scan it to check its integrity."
+msgstr "Nu s-a putu deschide fisiserul zip (%s) - nu s-a putut realiza prescanarea pentru verificarea integritatii lui. "
+
+#: addons/morefiles.php:117 addons/morefiles.php:118
+msgid "This does not look like a valid WordPress core backup - the file %s was missing."
+msgstr "Acesta nu pare a fi o copie de siguranta a core-ului WordPress - fisierul %s lispeste."
+
+#: addons/morefiles.php:117 addons/morefiles.php:118
+msgid "If you are not sure then you should stop; otherwise you may destroy this WordPress installation."
+msgstr "Daca nu sunteti siguri ar trebui sa va opriti; in caz contrar puteti distruge instalarea WordPress."
+
+#: admin.php:1819
+msgid "Support"
+msgstr "Suport"
+
+#: admin.php:1819
+msgid "More plugins"
+msgstr "Mai multe plugin-uri"
+
+#: admin.php:1345
+msgid "You are importing from a newer version of WordPress (%s) into an older one (%s). There are no guarantees that WordPress can handle this."
+msgstr "Importati dintr-o versiune mai noua de WordPress (%s) intr-o versiune mai veche (%s). Nu aveti garantia ca WordPress va putea gestiona aceste aspecte."
+
+#: admin.php:1433
+msgid "This database backup is missing core WordPress tables: %s"
+msgstr "Acestei copii de siguranta a bazei de date ii lipsesc tabelele aferente core-ului WordPress: %s"
+
+#: admin.php:1437
+msgid "UpdraftPlus was unable to find the table prefix when scanning the database backup."
+msgstr "UpdraftPlus nu a putu gasi prefixul tabelei cand a scanat copia de siguranta a bazei de date."
+
+#: admin.php:1283
+msgid "The database is too small to be a valid WordPress database (size: %s Kb)."
+msgstr "Baza de date este prea mica pentru a fi o baza de date WordPress (marime: %s Kb)."
+
+#: admin.php:187 admin.php:406
+msgid "UpdraftPlus Premium can  <strong>automatically</strong> take a backup of your plugins or themes and database before you update."
+msgstr "UpdraftPlus Premium poate crea <strong>automat</strong> copii de siguranta dupa bazele de date ale temelor si plugin-urilor inainte de update."
+
+#: admin.php:187 admin.php:406
+msgid "Be safe every time, without needing to remember - follow this link to learn more."
+msgstr "Fiti in siguranta in fiecare clipa, fara sa fie nevoie sa va reamintiti asta - urmati linkul pentru mai multe detalii."
+
+#: admin.php:391 addons/autobackup.php:246
+msgid "Update Plugin"
+msgstr "Update Plugin"
+
+#: admin.php:395 addons/autobackup.php:287
+msgid "Update Theme"
+msgstr "Up-date tema"
+
+#: admin.php:185 admin.php:404
+msgid "Dismiss (for %s weeks)"
+msgstr "Renuntati (pentru %s saptamani)"
+
+#: admin.php:186 admin.php:405 addons/autobackup.php:315
+msgid "Be safe with an automatic backup"
+msgstr "Fiti in siguranta cu backup automat"
+
+#: restorer.php:1603
+msgid "Uploads path (%s) does not exist - resetting (%s)"
+msgstr "Calea pentru upload (%s) nu exista - resetati (%s)"
+
+#: admin.php:1823
+msgid "If you can still read these words after the page finishes loading, then there is a JavaScript or jQuery problem in the site."
+msgstr "Daca puteti citi aceste cuvinte dupa ce pagina dumneavoastra s-a terminat de incarcat, atunci exista o problema JavaScript sau jQuery la siteul dumneavoastra."
+
+#: admin.php:160
+msgid "Follow this link to attempt decryption and download the database file to your computer."
+msgstr "Urmati acest link pentru a incercare decriptarea si descarcarea bazei de date in calculatorul dumneavoastra."
+
+#: admin.php:161
+msgid "This decryption key will be attempted:"
+msgstr "Va fi incercata aceasta cheie de decriptare:"
+
+#: admin.php:162 addons/bitcasa.php:261
+msgid "Unknown server response:"
+msgstr "Raspuns de la server necunoscut:"
+
+#: admin.php:163
+msgid "Unknown server response status:"
+msgstr "Status necunoscut primit de la server:"
+
+#: admin.php:164
+msgid "The file was uploaded."
+msgstr "Acest fisier a fost incarcat."
+
+#: admin.php:156
+msgid "(make sure that you were trying to upload a zip file previously created by UpdraftPlus)"
+msgstr "(fiti siguri ca incercati sa incarcati un fisier de tip zip creat anterior cu UpdraftPlus)"
+
+#: admin.php:157
+msgid "Upload error:"
+msgstr "Eroare la upload:"
+
+#: admin.php:158
+msgid "This file does not appear to be an UpdraftPlus encrypted database archive (such files are .gz.crypt files which have a name like: backup_(time)_(site name)_(code)_db.crypt.gz)."
+msgstr "Acest fisier pare a nu fi o arhiva baza de date criptata creata cu UpdraftPlus (cum ar fi fisier de tip .gz.crypy care au denumirea sub forma: backup_(timp)_(nume site)_(cod)_db.crypt.gz)."
+
+#: admin.php:159
+msgid "Upload error"
+msgstr "Eroare upload"
+
+#: admin.php:146
+msgid "Delete from your web server"
+msgstr "Stergeti de pe serverul web"
+
+#: admin.php:147
+msgid "Download to your computer"
+msgstr "Descarcati in computerul dumneavoastra"
+
+#: admin.php:148
+msgid "and then, if you wish,"
+msgstr "si dupa aceea, daca doriti,"
+
+#: methods/s3.php:507
+msgid "Examples of S3-compatible storage providers:"
+msgstr "Exemple de furnizori de stocare S3 compatibili:"
+
+#: methods/googledrive.php:410
+msgid "Upload expected to fail: the %s limit for any single file is %s, whereas this file is %s Gb (%d bytes)"
+msgstr "Descarcare cu probleme: limita de x pentru un singur fisier este de x, in timp ce acest fisier este de x Gb."
+
+#: backup.php:974
+msgid "The backup directory is not writable - the database backup is expected to shortly fail."
+msgstr "Copia de rezerva a folder-ului nu poate fi scrisa- copia de rezerva a bazei de date intampina dificultati."
+
+#: admin.php:4026
+msgid "Will not delete any archives after unpacking them, because there was no cloud storage for this backup"
+msgstr "Nici o arhiva nu va fi stearsa dupa dezarhivare, deoarece nu a existat o stocare in Internet pentru aceasta pagina de rezerva"
+
+#: admin.php:3444
+msgid "(%d archive(s) in set)."
+msgstr "%d arhive in grup."
+
+#: admin.php:3447
+msgid "You appear to be missing one or more archives from this multi-archive set."
+msgstr "Iti lipsesc una sau mai multe arhive din acest grup de arhive."
+
+#: admin.php:3069
+msgid "Split archives every:"
+msgstr "Împarte arhiva în fragmente de:"
+
+#: admin.php:139
+msgid "Error: the server sent an empty response."
+msgstr "Eroare: server-ul a trimis un raspuns gol."
+
+#: admin.php:140
+msgid "Warnings:"
+msgstr "Avertismente:"
+
+#: admin.php:142 addons/moredatabase.php:212
+msgid "Error: the server sent us a response (JSON) which we did not understand."
+msgstr "Eroare: server-ul ne-a trimis un raspuns (JavaScript Object Notation) pe care nu il intelegem."
+
+#: admin.php:1629
+msgid "This looks like a file created by UpdraftPlus, but this install does not know about this type of object: %s. Perhaps you need to install an add-on?"
+msgstr "Acest fisier arata ca unul creat de UpdraftPlus, dar acest program de instalare nu cunoaste aceste tipuri de fisiere. Poate ca trebuie sa instalezi un plugin?"
+
+#: admin.php:867
+msgid "The backup archive files have been successfully processed. Now press Restore again to proceed."
+msgstr "Fisierele arhivei de rezerva au fost procesate cu succes. Apasa \"restore\" din nou pentru a continua."
+
+#: admin.php:869
+msgid "The backup archive files have been processed, but with some warnings. If all is well, then now press Restore again to proceed. Otherwise, cancel and correct any problems first."
+msgstr "Fisierele arhivei de rezerva au fost procesate, dar cu unele avertismente. Daca totul decurge normal, poti sa apesi \"Restore\" din nou pentru a continua. Altfel, anuleaza aplicatia si corecteaza mai intai problemele existente."
+
+#: admin.php:871
+msgid "The backup archive files have been processed, but with some errors. You will need to cancel and correct any problems before retrying."
+msgstr "Fisierele arhivei de rezerva au fost procesate, insa cu cateva erori. Va trebui sa anulezi si sa corectezi orice probleme inainte sa reincerci."
+
+#: admin.php:644
+msgid "The backup archive for this file could not be found. The remote storage method in use (%s) does not allow us to retrieve files. To perform any restoration using UpdraftPlus, you will need to obtain a copy of this file and place it inside UpdraftPlus's working folder"
+msgstr "Arhiva de rezerva pentru acest fisier nu a putut fi gasita. Metoda de stocare la distanta folosita nu ne permite sa recuperam fisierele. Pentru a realiza orice fel de restaurare folosind UpdraftPlus, va trebui sa obti o copie a acestui fisier si sa-l adaugi la folder-ul functional al UpdraftPlus."
+
+#: admin.php:772
+msgid "No such backup set exists"
+msgstr "Un astfel de set de rezerva nu exista."
+
+#: admin.php:840
+msgid "File not found (you need to upload it): %s"
+msgstr "Fisierul nu a fost gasit(trebuie sa il descarci):"
+
+#: admin.php:842
+msgid "File was found, but is zero-sized (you need to re-upload it): %s"
+msgstr "Fisierul a fost gasit, dar are marimea zero(trebuie sa-l reincarci):"
+
+#: admin.php:847
+msgid "File (%s) was found, but has a different size (%s) from what was expected (%s) - it may be corrupt."
+msgstr "Fisierul a fost gasit, dar are o marime diferita de cea estimata- se poate sa aiba o eroare."
+
+#: admin.php:862
+msgid "This multi-archive backup set appears to have the following archives missing: %s"
+msgstr "Aceast set de arhive multiple de rezerva pare sa aiba urmatoarele arhive lipsa:"
+
+#: restorer.php:473
+msgid "Failed to move directory (check your file permissions and disk quota): %s"
+msgstr "Catalogul nu a putut fi mutat(verifica regulile de acces si cota discului):"
+
+#: restorer.php:464
+msgid "Failed to move file (check your file permissions and disk quota): %s"
+msgstr "Fisierul nu a putut fi mutat(verifica regulile de acces ale fisierului si cota discului):"
+
+#: restorer.php:62
+msgid "Moving unpacked backup into place..."
+msgstr "Mutarea la loc a copiei de siguranta dezarhivate..."
+
+#: backup.php:1852 backup.php:2094
+msgid "Failed to open the zip file (%s) - %s"
+msgstr "Fisierul zip nu a putut fi deschis..."
+
+#: addons/morefiles.php:78
+msgid "WordPress root directory server path: %s"
+msgstr "cale catre catalogul principal al serverulu: %"
+
+#: methods/s3.php:515
+msgid "... and many more!"
+msgstr "....si multe altele!"
+
+#: methods/s3.php:540
+msgid "%s end-point"
+msgstr "% puncte finale"
+
+#: admin.php:3951
+msgid "File is not locally present - needs retrieving from remote storage"
+msgstr "Fisierul nu este prezent local-trebuie recuperat din spatiul de stocare la distanta."
+
+#: methods/s3generic.php:41 methods/s3generic.php:49
+msgid "S3 (Compatible)"
+msgstr "S3(Compatibil)"
+
+#: admin.php:3907
+msgid "Final checks"
+msgstr "Verificari finale"
+
+#: admin.php:3945
+msgid "Looking for %s archive: file name: %s"
+msgstr "Cauta % arhive: numele dosarului: %"
+
+#: admin.php:3075
+msgid "Check this to delete any superfluous backup files from your server after the backup run finishes (i.e. if you uncheck, then any files despatched remotely will also remain locally, and any files being kept locally will not be subject to the retention limits)."
+msgstr "Bifeaza aceasta casuta pentru a sterge posibilele fisiere de rezerva inutile din server dupa ce s-a incheiat lansarea de rezerva(ex. daca debifezi optiunea, oricare dosare trimise la distanta vor ramane si local, iar oricare fisiere pastrate local nu vor fi obiectul limitelor de pastrare)."
+
+#: admin.php:2893
+msgid "Drop encrypted database files (db.gz.crypt files) here to upload them for decryption"
+msgstr "Puneti fisierele codate  din baza de date (db.gz. fisiere criptate) aici pentru decriptare"
+
+#: admin.php:2833
+msgid "Your wp-content directory server path: %s"
+msgstr "Calea catre continutul wp al serverului:%"
+
+#: admin.php:153
+msgid "Raw backup history"
+msgstr "Jurnal de rezerva gol"
+
+#: admin.php:2267
+msgid "Show raw backup and file list"
+msgstr "Arata copia de rezerva goala si lista fisierelor"
+
+#: admin.php:138
+msgid "Processing files - please wait..."
+msgstr "Fisiere in curs de procesare - va rugam asteptati..."
+
+#: admin.php:2060
+msgid "Your WordPress installation has a problem with outputting extra whitespace. This can corrupt backups that you download from here."
+msgstr "Instalarea WordPress a inregistrat o problema cu dispunerea spatiilor albe in plus. Aceasta poate afecta copiile de rezerva pe care le descarci de aici."
+
+#: admin.php:2060 admin.php:4059
+msgid "Please consult this FAQ for help on what to do about it."
+msgstr "Consltati aceasta FAQ(Intrebare pusa des) pentru a va rezolva problema."
+
+#: admin.php:1291
+msgid "Failed to open database file."
+msgstr "Fisierul din baza de date nu a putut fi deschis."
+
+#: admin.php:1271
+msgid "Failed to write out the decrypted database to the filesystem."
+msgstr "Nu a fost posibila scrierea bazei de date in fisierul sistemului."
+
+#: admin.php:988
+msgid "Known backups (raw)"
+msgstr "Copii de rezerva cunoscute(goale)"
+
+#: restorer.php:1004
+msgid "Using directory from backup: %s"
+msgstr "Folosirea catalogului din copia de rezerva :%"
+
+#: restorer.php:860
+msgid "Files found:"
+msgstr "Fisier gasit:"
+
+#: restorer.php:866
+msgid "Unable to enumerate files in that directory."
+msgstr "Fisierele nu pot fi enumerate in acest catalog."
+
+#: restorer.php:1381
+msgid "Requested table engine (%s) is not present - changing to MyISAM."
+msgstr "Setarile tabelului nu sunt prezente-trecem la motorul de stocare MyISAM."
+
+#: restorer.php:1392
+msgid "Restoring table (%s)"
+msgstr "Tabel refacut"
+
+#: backup.php:2125
+msgid "A zip error occurred - check your log for more details."
+msgstr "A aparut o eroare de cod-logheaza-te pentru a afla mai multe detalii."
+
+#: addons/migrator.php:139
+msgid "This looks like a migration (the backup is from a site with a different address/URL), but you did not check the option to search-and-replace the database. That is usually a mistake."
+msgstr "Ati migrat la o alta pagina (copia de siguranta apartine unui site cu o alta adresa/un alt URL), desi ati ales optiunea (\"search-and-replace\") cauta si schimba baza de date. Acasta este de regula o eroare."
+
+#: admin.php:3973
+msgid "file is size:"
+msgstr "documentul are marimea :"
+
+#: admin.php:3363
+msgid "database"
+msgstr "baza de date"
+
+#: admin.php:425 admin.php:1823 admin.php:2288
+msgid "Go here for more information."
+msgstr "Ca sa alfi mai multe detalii mergi aici."
+
+#: admin.php:137
+msgid "Some files are still downloading or being processed - please wait."
+msgstr "Cateva fisiere sunt in curs de descarcare sau in curs de procesare-va rugam sa asteptati."
+
+#: admin.php:1329 admin.php:1337
+msgid "This backup set is from a different site - this is not a restoration, but a migration. You need the Migrator add-on in order to make this work."
+msgstr "Acest set de rezerva apartine altui site-aceasta nu este o restaurare a unei pagini ci o migrare catre o alta pagina. Ca ajutor poti folosi programul \"Migrator\"."
+
+#: methods/ftp.php:78 methods/ftp.php:127 methods/ftp.php:228
+msgid "%s login failure"
+msgstr "%s logare nereusita "
+
+#: methods/ftp.php:105
+msgid "%s upload failed"
+msgstr "%s incarcare nereusita"
+
+#: addons/fixtime.php:120 addons/fixtime.php:129
+msgid "Enter in format HH:MM (e.g. 14:22)."
+msgstr "Introduceti formatul HH:MM(e.g. 14:22)."
+
+#: addons/fixtime.php:120 addons/fixtime.php:129
+msgid "The time zone used is that from your WordPress settings, in Settings -> General."
+msgstr "S-a folosit fusul orar setat in WordPress, din meniul Setari_> General."
+
+#: methods/dropbox.php:91
+msgid "Dropbox error: %s (see log file for more)"
+msgstr "Eroare a software-ului Dropbox:%(vezi fisierul de logare pentru mai multe detalii)"
+
+#: methods/dropbox.php:291
+msgid "You do not appear to be authenticated with %s (whilst deleting)"
+msgstr "Nu te autentifici cu %(in tipul stergerii)"
+
+#: methods/dropbox.php:299
+msgid "Failed to access %s when deleting (see log file for more)"
+msgstr "%nu a putut fi accesat in timpul stergerii(vezi fisierul de logare pentru mai multe detalii)"
+
+#: methods/dropbox.php:332 addons/copycom.php:262
+msgid "You do not appear to be authenticated with %s"
+msgstr "Nu te autentifici cu%"
+
+#: methods/cloudfiles.php:418
+msgid "Error - no such file exists at %s"
+msgstr "Eroare-un astfel de fisier nu exista la%"
+
+#: methods/cloudfiles.php:422
+msgid "Error - failed to download the file from %s"
+msgstr "Eroare-descarcarea fisierului de la % a fost nereusita"
+
+#: methods/openstack-base.php:70 methods/cloudfiles.php:219
+msgid "%s error - failed to upload file"
+msgstr "% eroare-descarcarea fisierului a fost nereusita."
+
+#: methods/googledrive.php:774 methods/openstack-base.php:343
+#: methods/cloudfiles.php:392 methods/cloudfiles.php:409
+#: methods/stream-base.php:274 methods/stream-base.php:281
+#: methods/stream-base.php:294 methods/addon-base.php:189
+msgid "%s Error"
+msgstr "%eroare"
+
+#: methods/openstack-base.php:32 methods/openstack-base.php:214
+#: methods/openstack-base.php:305 methods/openstack-base.php:377
+#: methods/openstack-base.php:380 methods/openstack-base.php:397
+#: methods/openstack-base.php:402 methods/cloudfiles.php:95
+#: methods/cloudfiles.php:99 methods/cloudfiles.php:240
+#: methods/cloudfiles.php:285 methods/cloudfiles.php:336
+#: methods/cloudfiles.php:340
+msgid "%s authentication failed"
+msgstr "%autentificare nereusita"
+
+#: class-updraftplus.php:657 methods/cloudfiles.php:211
+msgid "%s error - failed to re-assemble chunks"
+msgstr "%eroare-punerea la loc a bucatilor a fost nereusita."
+
+#: class-updraftplus.php:518 class-updraftplus.php:524 restorer.php:854
+#: admin.php:1259 admin.php:1261 admin.php:1365 admin.php:1370 admin.php:1573
+#: admin.php:1621 admin.php:1629 methods/googledrive.php:292
+msgid "Error: %s"
+msgstr "Eroare:%"
+
+#: admin.php:3092
+msgid "Backup directory specified exists, but is <b>not</b> writable."
+msgstr "Copia de siguranta a catalogului exista, dar nu este reinscriptibila."
+
+#: admin.php:3090
+msgid "Backup directory specified does <b>not</b> exist."
+msgstr "Copia de siguranta  specificata nu exista."
+
+#: admin.php:1329 admin.php:1337 admin.php:2509 admin.php:2718
+msgid "Warning: %s"
+msgstr "Avertizare:"
+
+#: admin.php:1941
+msgid "Last backup job run:"
+msgstr "Ultima utilizare a copiei de rezerva:"
+
+#: backup.php:1533 backup.php:1555
+msgid "%s: unreadable file - could not be backed up"
+msgstr "fisier ilizibil-nu a putut fi recuperat"
+
+#: backup.php:1866
+msgid "A very large file was encountered: %s (size: %s Mb)"
+msgstr "A fost gasit un fisier foarte mare:"
+
+#: backup.php:1026
+msgid "Table %s has very many rows (%s) - we hope your web hosting company gives you enough resources to dump out that table in the backup"
+msgstr "Tabelul are prea multe randuri-speram ca firma care gazduieste pagina dumneavoastra web sa va puna la dispozitie destule resurse pentru a putea trimite tabelul la copia de rezerva."
+
+#: backup.php:1127
+msgid "An error occurred whilst closing the final database file"
+msgstr "A aparut o eroare la inchiderea ultimului fisier din baza de date."
+
+#: backup.php:533
+msgid "Warnings encountered:"
+msgstr "Avertismente intalnite:"
+
+#: class-updraftplus.php:1696
+msgid "The backup apparently succeeded (with warnings) and is now complete"
+msgstr "Copia de siguranta este acum finalizata."
+
+#: class-updraftplus.php:441
+msgid "Your free disk space is very low - only %s Mb remain"
+msgstr "Spatiul liber de pe discheta este limitat-u mai ramas x Mb"
+
+#: addons/migrator.php:859
+msgid "<strong>Search and replacing table:</strong> %s"
+msgstr "Cauta si inlocuieste tabel."
+
+#: addons/migrator.php:200
+msgid "Site Name:"
+msgstr "Numele site-ului."
+
+#: addons/migrator.php:202
+msgid "Site Domain:"
+msgstr "Domeniul site-ului."
+
+#: addons/migrator.php:219
+msgid "Migrated site (from UpdraftPlus)"
+msgstr "Site mutat."
+
+#: addons/migrator.php:248
+msgid "<strong>ERROR</strong>: Site URL already taken."
+msgstr "Eroare.Url deja luat."
+
+#: addons/migrator.php:255
+msgid "New site:"
+msgstr "Site nou."
+
+#: addons/migrator.php:188
+msgid "Information needed to continue:"
+msgstr "Informatie necesara pentru a continua."
+
+#: addons/migrator.php:189
+msgid "Please supply the following information:"
+msgstr "Va rugam sa ne furnizati informatiile urmatoare."
+
+#: addons/migrator.php:191
+msgid "Enter details for where this new site is to live within your multisite install:"
+msgstr "Tasteaza detaliile despre locatia acestui nou site in timpul instalarii site-urilor multiple."
+
+#: addons/migrator.php:143
+msgid "Processed plugin:"
+msgstr "Insertie procesata."
+
+#: addons/migrator.php:154
+msgid "Network activating theme:"
+msgstr "Fateta ce activeaza reteaua."
+
+#: addons/sftp.php:39
+msgid "Some servers advertise encrypted FTP as available, but then time-out (after a long time) when you attempt to use it. If you find this happenning, then go into the \"Expert Options\" (below) and turn off SSL there."
+msgstr "Unele server-uri afiseaza ca si disponibil Protocolul de transfer de fisiere care este codat, insa te amana cand incerci sa-l accesezi. Daca ti se intampla lucrul asta mergi la \"Expert Options\"(mai jos) de unde poti sa opresti programul SSL."
+
+#: addons/sftp.php:75
+msgid "Check your file permissions: Could not successfully create and enter directory:"
+msgstr "Verifica accesul la fisier: Crearea si accesarea folder-ului nu a fost posibila."
+
+#: methods/dropbox.php:399
+msgid "Your web server's PHP installation does not included a required module (%s). Please contact your web hosting provider's support and ask for them to enable it."
+msgstr "Instalarea limbajului de programare PHP nu a inclus un modul potrivit. Contactati centrul de asistenta al furnizorului de internet pentru a-l pune in functiune."
+
+#: methods/s3.php:665
+msgid "Please check your access credentials."
+msgstr "Verificati-va parolele de acces."
+
+#: methods/s3.php:643
+msgid "The error reported by %s was:"
+msgstr "Eroarea raportata era:"
+
+#: restorer.php:1020
+msgid "Please supply the requested information, and then continue."
+msgstr "Va rugam sa ne furnizati informatiile cerute, iar apoi sa continuati."
+
+#: restorer.php:1484
+msgid "Cannot drop tables, so deleting instead (%s)"
+msgstr "Tabelurile nu pot fi mutate, astfl ca trebuie sterse."
+
+#: restorer.php:1227 admin.php:1370
+msgid "To import an ordinary WordPress site into a multisite installation requires both the multisite and migrator add-ons."
+msgstr "Importarea unui simplu site WordPress in cadrul istalarii unor site-uri multiple necesita atat site-uri multiple cat si programe de completare migratoare."
+
+#: restorer.php:1233 admin.php:1380
+msgid "Site information:"
+msgstr "Informatie despre site:"
+
+#: restorer.php:1467
+msgid "Cannot create new tables, so skipping this command (%s)"
+msgstr "Nu pot fi create tabele noi, trebuie sa evitati aceasta comanda."
+
+#: restorer.php:1156 restorer.php:1176 restorer.php:1456 admin.php:1374
+#: admin.php:1823 addons/migrator.php:139
+msgid "Warning:"
+msgstr "Avertisment:"
+
+#: restorer.php:1157
+msgid "Your database user does not have permission to create tables. We will attempt to restore by simply emptying the tables; this should work as long as a) you are restoring from a WordPress version with the same database structure, and b) Your imported database does not contain any tables which are not already present on the importing site."
+msgstr "Utilizatorul  bazei de date nu are permisiunea de a crea tabele. Vom incerca sa restabilim legatura prin simpla modificare a tabelelor; aceasta procedura ar trebui sa functioneze daca a)restabilesti o versiune WordPress cu aceeasi structura a bazei de date, si b) daca baza de date importata nu contine tabele care sunt deja prezente in site-ul importat."
+
+#: restorer.php:70 admin.php:1365
+msgid "You are running on WordPress multisite - but your backup is not of a multisite site."
+msgstr "Te afli pe site-ul multiplu al WordPress-dar copia ta de siguranta nu face parte dintr-un site multiplu."
+
+#: admin.php:3934
+msgid "Skipping restoration of WordPress core when importing a single site into a multisite installation. If you had anything necessary in your WordPress directory then you will need to re-add it manually from the zip file."
+msgstr "Sari peste restaurarea nucleului WordPress cand importi un site singur intr-un site multiplu. Daca ai la dispozitie tot ce este necesar in catalogul tau WordPress atunci va trebui sa-l adaugi manual din nou din fisierul zip."
+
+#: admin.php:3166
+msgid "Your web server's PHP installation does not included a <strong>required</strong> (for %s) module (%s). Please contact your web hosting provider's support and ask for them to enable it."
+msgstr "Instalarea PHP a server-ului tau de Internet nu a inclus si modul cerut. Va rugam sa va contactati consultantul de Internet pentru a vi-l pune in functiune."
+
+#: admin.php:3166
+msgid "Your options are 1) Install/enable %s or 2) Change web hosting companies - %s is a standard PHP component, and required by all cloud backup plugins that we know of."
+msgstr "Optiunile tale sunt 1) Instaleaza/Pune in functiune sau 2)Schimba companiile gazda de Internet- este o componenta PH standard, si este ceruta de toate plugin-urile de rezerva de tip nor de care avem cunostinta."
+
+#: admin.php:169
+msgid "Close"
+msgstr "Inchide"
+
+#: admin.php:131 addons/autobackup.php:74 addons/autobackup.php:158
+msgid "Unexpected response:"
+msgstr "Raspuns neprevazut:"
+
+#: admin.php:128 addons/reporting.php:419
+msgid "To send to more than one address, separate each address with a comma."
+msgstr "Pentru a putea trimite la mai mult de o adresa, separa toate adresele prin virgula."
+
+#: admin.php:151
+msgid "PHP information"
+msgstr "Informatie PHP"
+
+#: admin.php:2237
+msgid "show PHP information (phpinfo)"
+msgstr "Arata informatie despre PHP(phpinfo)"
+
+#: admin.php:2254
+msgid "zip executable found:"
+msgstr "zip executabil"
+
+#: admin.php:1989
+msgid "Migrate Site"
+msgstr "Site care migreaza"
+
+#: admin.php:1993
+msgid "Migration of data from another site happens through the \"Restore\" button. A \"migration\" is ultimately the same as a restoration - but using backup archives that you import from another site. UpdraftPlus modifies the restoration operation appropriately, to fit the backup data to the new site."
+msgstr "Migrarea datelor de la un alt site are loc prin butonul \"Restore\". Migrarea este pana la urma acelasi lucru cu restaurarea- dar se folosesc arhive de rezerva pe care le importi de la un alt site. UpdraftPlus modifica operatiunea de restaurare in mod corespunzator, pentru ca datele de rezerva sa se potriveasca cu noul site."
+
+#: admin.php:1993
+msgid "<a href=\"%s\">Read this article to see step-by-step how it's done.</a>"
+msgstr " Citeste acest articol ca sa sti ce ai de facut pas cu pas."
+
+#: admin.php:1995
+msgid "Do you want to migrate or clone/duplicate a site?"
+msgstr "Vrei sa migrezi de pe un site sau sa il clonezi/duplichezi?"
+
+#: admin.php:1995
+msgid "Then, try out our \"Migrator\" add-on. After using it once, you'll have saved the purchase price compared to the time needed to copy a site by hand."
+msgstr "Atunci incearca plugin-ul nostru \"Migrator\". Dupa ce l-ai folosit odata ai si amortizat pretul achizitionarii decat daca ai pierde timpul sa copiezi un site la intamplare."
+
+#: admin.php:1995
+msgid "Get it here."
+msgstr "Il gasesti aici."
+
+#: admin.php:2137
+msgid "Deleting... please allow time for the communications with the remote storage to complete."
+msgstr "Se sterge...va rugam sa alocati timp legaturilor cu stocarea la distanta pentru a finaliza aplicatia."
+
+#: admin.php:2136
+msgid "Also delete from remote storage"
+msgstr "A fost sters de asemenea din stocarea la distanta"
+
+#: admin.php:1973
+msgid "Latest UpdraftPlus.com news:"
+msgstr "Ultimele stiri UpdraftPlus:"
+
+#: admin.php:1889
+msgid "Clone/Migrate"
+msgstr "Cloneaza/Migreaza"
+
+#: admin.php:1818
+msgid "News"
+msgstr "Stiri"
+
+#: admin.php:1818
+msgid "Premium"
+msgstr "Premium"
+
+#: admin.php:973
+msgid "Local archives deleted: %d"
+msgstr "Arhivele locale au fost sterse:"
+
+#: admin.php:974
+msgid "Remote archives deleted: %d"
+msgstr "Arhivele la distanta au fost sterse:"
+
+#: backup.php:126
+msgid "%s - could not back this entity up; the corresponding directory does not exist (%s)"
+msgstr "nu a putut sustine aceasta unitate; catalogul care-i corespunde nu exista"
+
+#: admin.php:886
+msgid "Backup set not found"
+msgstr "Setul de rezerva nua fost gasit"
+
+#: admin.php:972
+msgid "The backup set has been removed."
+msgstr "Setul de rezerva a fost sters."
+
+#: class-updraftplus.php:2512
+msgid "Subscribe to the UpdraftPlus blog to get up-to-date news and offers"
+msgstr "Inregistreaza-te pe blogul UpdraftPlus pentru a primi stiri sau oferte noi"
+
+#: class-updraftplus.php:2512
+msgid "Blog link"
+msgstr "Link-ul blogului."
+
+#: class-updraftplus.php:2512
+msgid "RSS link"
+msgstr "Link-ul RSS"
+
+#: methods/stream-base.php:201 methods/s3.php:469 methods/addon-base.php:238
+#: methods/ftp.php:249 addons/sftp.php:385
+msgid "Testing %s Settings..."
+msgstr "Testarea setarilor..."
+
+#: admin.php:2088
+msgid "Or, you can place them manually into your UpdraftPlus directory (usually wp-content/updraft), e.g. via FTP, and then use the \"rescan\" link above."
+msgstr "Sau poti sa le plasezi manual in catalogul tau UpdraftPlus (in mod normal continutul word press/updraft), ex via FTP, iar apoi foloseste link-ul \"rescan\" de mai sus."
+
+#: admin.php:441
+msgid "Notice"
+msgstr "Instiintare"
+
+#: admin.php:441
+msgid "UpdraftPlus's debug mode is on. You may see debugging notices on this page not just from UpdraftPlus, but from any other plugin installed. Please try to make sure that the notice you are seeing is from UpdraftPlus before you raise a support request."
+msgstr "Modulul de depanare Updraftplus este deschis. Poti sa vezi notele despre depanare pe aceasta pagina nu numai de pe UpdraftPlus ci si de pe orice alt plugin instalat. Va rugam sa va asigurati ca nota pe care o vedeti vine din partea UpdraftPlus, inainte de inainta o cerere de asistenta."
+
+#: backup.php:515
+msgid "Errors encountered:"
+msgstr "Erori semnalate."
+
+#: admin.php:126
+msgid "Rescanning (looking for backups that you have uploaded manually into the internal backup store)..."
+msgstr "Rescaneaza (urmareste fisiere de rezerva pe care le-ati descarcat manual in memoria interna de rezerva)."
+
+#: admin.php:136
+msgid "Begun looking for this entity"
+msgstr "Se cauta aceasta unitate."
+
+#: addons/migrator.php:764
+msgid "SQL update commands run:"
+msgstr "Comenzile de actualizare a SQL sunt pornite:"
+
+#: admin.php:141 addons/migrator.php:765
+msgid "Errors:"
+msgstr "Erori:"
+
+#: addons/migrator.php:766
+msgid "Time taken (seconds):"
+msgstr "Timp folosit(secunde):"
+
+#: addons/migrator.php:891
+msgid "rows: %d"
+msgstr "randuri:"
+
+#: addons/migrator.php:1003
+msgid "\"%s\" has no primary key, manual change needed on row %s."
+msgstr "nu are tasta principala, este necesara schimbarea manuala pe randuri."
+
+#: addons/dropbox-folders.php:26
+msgid "Store at"
+msgstr "Se memoreaza la"
+
+#: addons/migrator.php:610
+msgid "Nothing to do: the site URL is already: %s"
+msgstr ""
+"Nu este nimic de facut:\n"
+"site-ul URL a fost deja:"
+
+#: addons/migrator.php:621
+msgid "Warning: the database's site URL (%s) is different to what we expected (%s)"
+msgstr "Avertisment: URL-ul bazei de date a site-ului este diferit ce ceea ce am prevazut"
+
+#: addons/migrator.php:637
+msgid "Database search and replace: replace %s in backup dump with %s"
+msgstr "Cautare si editare in baza de date: editeaza in cosul de rezerva folosind"
+
+#: addons/migrator.php:668
+msgid "Could not get list of tables"
+msgstr "Listele cu tabele nu au putut fi obtinute"
+
+#: addons/migrator.php:761
+msgid "Tables examined:"
+msgstr "Tabele examinate:"
+
+#: addons/migrator.php:762
+msgid "Rows examined:"
+msgstr "Randuri examinate:"
+
+#: addons/migrator.php:763
+msgid "Changes made:"
+msgstr "Schimbari efectuate:"
+
+#: addons/sftp.php:250
+msgid "%s Error: Failed to download"
+msgstr "Eroare: Descarcare esuata"
+
+#: addons/sftp.php:310
+msgid "Resuming partial uploads is not supported, so you will need to ensure that your webserver allows PHP processes to run long enough to upload your largest backup file."
+msgstr "Reluarea partiala a descarcarilor nu este asistata, astfel incat trebuie sa va asigurati ca serverul dvs de web permite proceselor PHP sa functioneze indeajuns incat sa puteti descarca un fisier de rezerva cat mai mare."
+
+#: addons/sftp.php:315 addons/moredatabase.php:175
+msgid "Host"
+msgstr "Server"
+
+#: addons/sftp.php:322
+msgid "Port"
+msgstr "Adresa de IP"
+
+#: udaddons/options.php:118 methods/openstack2.php:127 addons/sftp.php:336
+#: addons/moredatabase.php:177
+msgid "Password"
+msgstr "Parola"
+
+#: addons/sftp.php:361
+msgid "Directory path"
+msgstr "Nume de catalog"
+
+#: addons/sftp.php:363
+msgid "Where to change directory to after logging in - often this is relative to your home directory."
+msgstr "Aici se poate schimba catalogul dupa logare- deseori acestea este relativ catalogului de pe calculatorul personal."
+
+#: addons/sftp.php:415
+msgid "host name"
+msgstr "nume de server"
+
+#: methods/openstack2.php:147 addons/sftp.php:419
+msgid "username"
+msgstr "nume de utilizator"
+
+#: methods/openstack2.php:152
+msgid "password"
+msgstr "parola"
+
+#: addons/sftp.php:428
+msgid "Failure: Port must be an integer."
+msgstr "Eroare:Numarul de identificare a server-ului trebuie sa fie o unitate."
+
+#: addons/fixtime.php:120 addons/fixtime.php:129
+msgid "starting from next time it is"
+msgstr "incepand de data viitoare este"
+
+#: addons/multisite.php:137
+msgid "Multisite Install"
+msgstr "Instalare site multiplu"
+
+#: udaddons/options.php:195 addons/multisite.php:143
+msgid "You do not have sufficient permissions to access this page."
+msgstr "Nu sunteti autorizat sa accesati acesta pagina."
+
+#: udaddons/options.php:174 addons/multisite.php:162
+msgid "You do not have permission to access this page."
+msgstr "Nu sunteti autorizat sa accesati aceasta pagina."
+
+#: addons/multisite.php:256
+msgid "Must-use plugins"
+msgstr "Plugin-uri utile"
+
+#: addons/multisite.php:263
+msgid "Blog uploads"
+msgstr "Descarcari pe blog"
+
+#: addons/migrator.php:272
+msgid "All references to the site location in the database will be replaced with your current site URL, which is: %s"
+msgstr "Toate referintele cu privire la locatia acestui site in baza de date vor fi inlocuite cu adresa web curenta, care este:"
+
+#: addons/migrator.php:272
+msgid "Search and replace site location in the database (migrate)"
+msgstr "Cauta si inlocuieste locatia site-ului in baza de date(migreaza)"
+
+#: addons/migrator.php:272
+msgid "(learn more)"
+msgstr "(afla mai mult)"
+
+#: addons/migrator.php:481 addons/migrator.php:743
+msgid "Failed: the %s operation was not able to start."
+msgstr "Eroare: activitatea nu a putut incepe"
+
+#: addons/migrator.php:483 addons/migrator.php:745
+msgid "Failed: we did not understand the result returned by the %s operation."
+msgstr "Eroare:raspunsul trimis in urma activitatii desfasurate nu poate fi inteles"
+
+#: addons/migrator.php:547
+msgid "Database: search and replace site URL"
+msgstr "Baza de date:cauta si inlocuieste adresa web"
+
+#: addons/migrator.php:551
+msgid "This option was not selected."
+msgstr "Aceasta optiune nu a fost selectata"
+
+#: addons/migrator.php:583 addons/migrator.php:587 addons/migrator.php:591
+#: addons/migrator.php:596 addons/migrator.php:600 addons/migrator.php:604
+msgid "Error: unexpected empty parameter (%s, %s)"
+msgstr "Eroare: parametru lipsa"
+
+#: addons/morefiles.php:70
+msgid "The above files comprise everything in a WordPress installation."
+msgstr "Fisierele de mai sus au acelasi cuprins cu cel al unei instalari WordPress."
+
+#: addons/morefiles.php:77
+msgid "WordPress core (including any additions to your WordPress root directory)"
+msgstr "Baza WordPress(inclusiv completarile la folder-ul principal WordPress)"
+
+#: addons/morefiles.php:132
+msgid "Any other directory on your server that you wish to back up"
+msgstr "Oricare alt folder din server-ul tau, pe care vrei sa-l copiezi"
+
+#: addons/morefiles.php:133
+msgid "More Files"
+msgstr "Mai multe fisiere"
+
+#: addons/morefiles.php:162 addons/morefiles.php:173
+msgid "Enter the directory:"
+msgstr "Deschideti folder-ul:"
+
+#: addons/morefiles.php:151
+msgid "If you are not sure what this option is for, then you will not want it, and should turn it off."
+msgstr "Daca nu sunteti siguri ce rol are acesta optiune, atunci nu sunteti interesat, astfel ca trebuie sa o anulati."
+
+#: addons/morefiles.php:151
+msgid "If using it, enter an absolute path (it is not relative to your WordPress install)."
+msgstr "In caz ca o folositi, accesati o locatie sigura (care nu este aceeasi cu instalarea WordPress)."
+
+#: addons/morefiles.php:153
+msgid "Be careful what you enter - if you enter / then it really will try to create a zip containing your entire webserver."
+msgstr "Fiti atenti ce accesati-daca accesati/ atunci va incerca sa creeze un fisier zip ce va contine intregul dvs server."
+
+#: addons/morefiles.php:374
+msgid "No backup of %s directories: there was nothing found to back up"
+msgstr "Nu sunt copii pentru foldere: nu s-a gasit nici o copie"
+
+#: addons/sftp.php:39
+msgid "Encrypted FTP is available, and will be automatically tried first (before falling back to non-encrypted if it is not successful), unless you disable it using the expert options. The 'Test FTP Login' button will tell you what type of connection is in use."
+msgstr "Este disponibil FTP-ul criptat, care va fi incercat mai intai, in mod automat(inainte de a deveni iarasi necriptat in caz de eroare), numai daca il dezactivezi folosind optiunile expert. Butonul de logare la FTP iti va spune ce fel de conexiune este folosita."
+
+#: addons/sftp.php:39
+msgid "Explicit encryption is used by default. To force implicit encryption (port 990), add :990 to your FTP server below."
+msgstr "Criptarea explicita folosete o anumita valoare. Pentru a grabi criptarea implicita (cod 990), adauga :990 la servarul FTP de mai jos."
+
+#: addons/sftp.php:46 addons/sftp.php:47 addons/sftp.php:48
+msgid "No %s found"
+msgstr "Niciun X gasit"
+
+#: addons/sftp.php:458
+msgid "Check your file permissions: Could not successfully create and enter:"
+msgstr "Verifica-ti setarile de acces ale fisierului: Nu s-a putut crea si accesa cu succes fisierului."
+
+#: methods/ftp.php:322
+msgid "FTP Server"
+msgstr "Server FTP"
+
+#: methods/ftp.php:326
+msgid "FTP Login"
+msgstr "Logare FTP"
+
+#: methods/ftp.php:330
+msgid "FTP Password"
+msgstr "Parola FTP"
+
+#: methods/ftp.php:334
+msgid "Remote Path"
+msgstr "Locatia fisierului la distanta"
+
+#: methods/ftp.php:335
+msgid "Needs to already exist"
+msgstr "Acest fisier exista deja"
+
+#: methods/ftp.php:360
+msgid "Failure: No server details were given."
+msgstr "Eroare:Nu s-au furnizat detalii cu privire la server."
+
+#: methods/ftp.php:377
+msgid "Failure: we did not successfully log in with those credentials."
+msgstr "Esuare: nu am reusit sa ne conectam cu acreditarile dumneavoastra."
+
+#: methods/ftp.php:385
+msgid "Failure: an unexpected internal UpdraftPlus error occurred when testing the credentials - please contact the developer"
+msgstr "Esuare: o eroare interna neasteptata a UpdraftPlus a aparut in timp ce testam acreditarile dumneavoastra - va rugam contactati dezvoltatorul"
+
+#: methods/ftp.php:389
+msgid "Success: we successfully logged in, and confirmed our ability to create a file in the given directory (login type:"
+msgstr "Succes: ne-am conectat cu succes si avem confirmarea posibilitatii de a crea fisiere in directorul stabilit (conectare de tip:"
+
+#: methods/ftp.php:392
+msgid "Failure: we successfully logged in, but were not able to create a file in the given directory."
+msgstr "Esuare: ne-am conectat cu succes, dar nu am putut crea fisiere in directorul stabilit."
+
+#: methods/googledrive.php:139 methods/stream-base.php:32
+#: methods/stream-base.php:139 methods/stream-base.php:174
+#: methods/stream-base.php:258 methods/addon-base.php:56
+#: methods/addon-base.php:92 methods/addon-base.php:117
+#: methods/addon-base.php:165 methods/addon-base.php:262 methods/ftp.php:28
+#: addons/sftp.php:44
+msgid "No %s settings were found"
+msgstr "Nicio setare %s nu a fost gasita"
+
+#: methods/stream-base.php:108 methods/stream-base.php:112
+msgid "Chunk %s: A %s error occurred"
+msgstr "Chunk %s: O eroare %s a aparut"
+
+#: methods/stream-base.php:281
+msgid "Error opening remote file: Failed to download"
+msgstr "Eroare la deschidere fisier stocat la distanta: Descarcare esuata"
+
+#: methods/stream-base.php:294
+msgid "Local write failed: Failed to download"
+msgstr "Esuare la scriere locala: Descarcare esuata"
+
+#: addons/webdav.php:42
+msgid "WebDAV URL"
+msgstr "URL WebDAV"
+
+#: addons/webdav.php:46
+msgid "Enter a complete URL, beginning with webdav:// or webdavs:// and including path, username, password and port as required - e.g.%s"
+msgstr "Introduceti URL-ul complet, incepand cu webdav:// sau webdavs:// si incluzand calea, utilizatorul, parola si portul asa cum sunt solicitate - exemplu %s"
+
+#: admin.php:2562 admin.php:2597 admin.php:2606 methods/stream-base.php:310
+#: methods/addon-base.php:281 addons/sftp.php:445
+msgid "Failed"
+msgstr "Esuare"
+
+#: methods/stream-base.php:324 methods/addon-base.php:291
+msgid "Failed: We were not able to place a file in that directory - please check your credentials."
+msgstr "Esuare: Nu am reusit sa scriem un fisier in directorul mentionat - va rugam verificati-va acreditarile si setarile dumneavoastra."
+
+#: addons/morefiles.php:47 addons/morefiles.php:374
+msgid "WordPress Core"
+msgstr "WordPress Core"
+
+#: addons/morefiles.php:51
+msgid "Over-write wp-config.php"
+msgstr "Supra-scriere wp-config.php"
+
+#: addons/morefiles.php:51
+msgid "(learn more about this important option)"
+msgstr "(aflati mai multe despre aceasta optiune importanta)"
+
+#: methods/dropbox.php:482 methods/dropbox.php:484 addons/bitcasa.php:299
+#: addons/bitcasa.php:301 addons/copycom.php:385 addons/copycom.php:387
+msgid "you have authenticated your %s account"
+msgstr "V-ati autentificat la contul dumneavoastra %s"
+
+#: methods/dropbox.php:487 addons/bitcasa.php:309 addons/copycom.php:396
+msgid "though part of the returned information was not as expected - your mileage may vary"
+msgstr "deși o parte din informațiile returnate nu a fost cum era de asteptat - contorul dvs. poate varia"
+
+#: methods/dropbox.php:491 addons/bitcasa.php:319 addons/copycom.php:404
+msgid "Your %s account name: %s"
+msgstr "Numele contului dumneavoastra %s: %s"
+
+#: methods/ftp.php:318
+msgid "Only non-encrypted FTP is supported by regular UpdraftPlus."
+msgstr "Doar FTP necriptat este suportat de varianta normala UpdraftPlus."
+
+#: methods/ftp.php:318
+msgid "If you want encryption (e.g. you are storing sensitive business data), then an add-on is available."
+msgstr "Daca doriti criptarea datelor (de exemplu stocati informatii confidentiale) atunci aveti la dispozitie un add-on."
+
+#: methods/s3.php:450
+msgid "%s Error: Failed to download %s. Check your permissions and credentials."
+msgstr "%s Eroare: Esuara la descarcarea %s. Va rugam verificati acreditarile si permisiunile dumneavoastra."
+
+#: methods/s3.php:309 methods/s3.php:375 methods/s3.php:455
+msgid "%s Error: Failed to access bucket %s. Check your permissions and credentials."
+msgstr "%s Eroare: Esuare la accesare %s. Va rugam verificati acreditarile si permisiunile dumneavoastra."
+
+#: methods/s3.php:536
+msgid "Get your access key and secret key <a href=\"%s\">from your %s console</a>, then pick a (globally unique - all %s users) bucket name (letters and numbers) (and optionally a path) to use for storage. This bucket will be created for you if it does not already exist."
+msgstr "Luati cheia de acces si cheia secreta <a href=\"%s\">din consola dvs %s</a>, apoi alegeti (trebuie sa fie unic pentru toti utilizatorii %s) n nume pentru bucket(litere si numere) (si, optional, o cale) pentru a folosi stocarea de dare. Acest bucket va fi creat daca nu exista deja."
+
+#: methods/s3.php:536
+msgid "If you see errors about SSL certificates, then please go here for help."
+msgstr "Daca primiti erori legate de certificatele dumneavoastra SSL, va rugam accesati aici pentru ajutor."
+
+#: methods/s3.php:547
+msgid "%s access key"
+msgstr "%s cheie de acces"
+
+#: methods/s3.php:551
+msgid "%s secret key"
+msgstr "%s cheie secreta"
+
+#: methods/s3.php:555
+msgid "%s location"
+msgstr "%s locatie"
+
+#: methods/s3.php:556
+msgid "Enter only a bucket name or a bucket and path. Examples: mybucket, mybucket/mypath"
+msgstr "Introduceti doar numele pentru bucket sau calea pentru bucket. Exemple: mybucket, mybucket/mypath"
+
+#: methods/s3.php:578
+msgid "API secret"
+msgstr "API secret"
+
+#: methods/s3.php:599
+msgid "Failure: No bucket details were given."
+msgstr "Esuare: Nu au fost date detalii despre bucket."
+
+#: methods/s3.php:612 methods/openstack2.php:113
+msgid "Region"
+msgstr "Regiune"
+
+#: methods/s3.php:642
+msgid "Failure: We could not successfully access or create such a bucket. Please check your access credentials, and if those are correct then try another bucket name (as another %s user may already have taken your name)."
+msgstr "Esuare: Nu am putut accesa sau crea acest bucket. Va rugam verificati acreditarile si datele dumneavoastra de acces. Daca ele sunt corecte incercati un alt nume (se poate ca alt utilizator %s sa fi luat deja acest nume)."
+
+#: methods/s3.php:653 methods/s3.php:665
+msgid "Failure"
+msgstr "Esec"
+
+#: methods/s3.php:653 methods/s3.php:665
+msgid "We successfully accessed the bucket, but the attempt to create a file in it failed."
+msgstr "Am accesat cu succes bucket-ul, dar incercarea de a crea un fisier a esuat."
+
+#: methods/s3.php:655
+msgid "We accessed the bucket, and were able to create files within it."
+msgstr "Am accesat bucket-ul, dar nu am putut crea fisiere in el."
+
+#: methods/s3.php:658
+msgid "The communication with %s was encrypted."
+msgstr "Comunicarea cu %s este criptata."
+
+#: methods/s3.php:660
+msgid "The communication with %s was not encrypted."
+msgstr "Comunicarea cu %s nu este criptata."
+
+#: methods/dropbox.php:80 methods/dropbox.php:86
+msgid "You do not appear to be authenticated with Dropbox"
+msgstr "Se pare ca nu sunteti autentificat in Dropbox"
+
+#: methods/dropbox.php:170 methods/dropbox.php:187 methods/dropbox.php:199
+msgid "error: failed to upload file to %s (see log file for more)"
+msgstr "Eroare: incarcarea fisierului in %s a esuat (vedeti jurnalul - logul - pentru mai multe detalii)"
+
+#: methods/dropbox.php:411
+msgid "Need to use sub-folders?"
+msgstr "Aveti nevoie sa folositi sub-directoare?"
+
+#: methods/dropbox.php:411
+msgid "Backups are saved in"
+msgstr "Copiile de rezerva au fost salvate in"
+
+#: methods/dropbox.php:411
+msgid "If you back up several sites into the same Dropbox and want to organise with sub-folders, then "
+msgstr "Daca realizati copii de rezerva pentru mai multe site-uri in acelasi cont de Dropbox si doriti sa va organizati pe sub-directoare, atunci"
+
+#: methods/dropbox.php:411
+msgid "there's an add-on for that."
+msgstr "Exista un add-on pentru asta."
+
+#: methods/cloudfiles.php:487
+msgid "US or UK Cloud"
+msgstr "US sau UK Cloud"
+
+#: methods/cloudfiles-new.php:88 methods/cloudfiles.php:490
+#: addons/cloudfiles-enhanced.php:233
+msgid "US (default)"
+msgstr "US (default)"
+
+#: methods/cloudfiles-new.php:89 methods/cloudfiles.php:491
+#: addons/cloudfiles-enhanced.php:234
+msgid "UK"
+msgstr "UK"
+
+#: methods/cloudfiles.php:507
+msgid "Cloud Files username"
+msgstr "Utilizator Cloud Files"
+
+#: methods/cloudfiles.php:511
+msgid "Cloud Files API key"
+msgstr "Cheie API Cloud Files"
+
+#: methods/cloudfiles.php:515
+msgid "Cloud Files container"
+msgstr "Container Cloud Files"
+
+#: methods/openstack-base.php:453 methods/cloudfiles.php:473 methods/s3.php:526
+msgid "UpdraftPlus's %s module <strong>requires</strong> %s. Please do not file any support requests; there is no alternative."
+msgstr "Modulul %s UpdraftPlus <strong>este necesar</strong> %s. Va rugam nu completati o cerere in aceasta privinta, nu exista alternativa."
+
+#: methods/cloudfiles-new.php:147 methods/cloudfiles-new.php:152
+#: methods/cloudfiles.php:529 methods/cloudfiles.php:534 methods/s3.php:574
+#: methods/s3.php:578 methods/addon-base.php:274 methods/ftp.php:364
+#: methods/ftp.php:368 methods/openstack2.php:147 methods/openstack2.php:152
+#: methods/openstack2.php:157 methods/openstack2.php:162 addons/webdav.php:55
+#: addons/sftp.php:415 addons/sftp.php:419 addons/sftp.php:423
+#: addons/moredatabase.php:37 addons/moredatabase.php:39
+#: addons/moredatabase.php:41 addons/migrator.php:99
+msgid "Failure: No %s was given."
+msgstr "Esec: %s este dat."
+
+#: methods/cloudfiles-new.php:147 methods/cloudfiles.php:529 methods/s3.php:574
+msgid "API key"
+msgstr "Cheie API"
+
+#: methods/cloudfiles-new.php:152 methods/cloudfiles.php:534
+#: methods/openstack2.php:121 addons/sftp.php:329 addons/moredatabase.php:176
+msgid "Username"
+msgstr "Utilizator"
+
+#: methods/openstack-base.php:360 methods/cloudfiles.php:554
+msgid "Failure: No container details were given."
+msgstr "Esec: Nu au fost date detalii despre container."
+
+#: methods/cloudfiles.php:581
+msgid "Cloud Files error - we accessed the container, but failed to create a file within it"
+msgstr "Eroare Cloud Files - am incercat sa accesam acest container, dar nu am putut crea un fisier in el."
+
+#: methods/openstack-base.php:416 methods/cloudfiles.php:585
+msgid "We accessed the container, and were able to create files within it."
+msgstr "Am accesat containerul, dar nu am putut scrie un fisier in el"
+
+#: methods/email.php:37
+msgid "WordPress Backup"
+msgstr "Backup WordPress"
+
+#: methods/email.php:58
+msgid "Note:"
+msgstr "Nota:"
+
+#: methods/s3.php:207
+msgid "%s upload: getting uploadID for multipart upload failed - see log file for more details"
+msgstr "%s incarcare: incercarea de descarcare multipart a esuat - pentru mai multe detalii verificati fisierul jurnal/log"
+
+#: methods/s3.php:230
+msgid "%s error: file %s was shortened unexpectedly"
+msgstr "%s Eroare: fișierul%s a fost trunchiat în mod neașteptat"
+
+#: methods/s3.php:240
+msgid "%s chunk %s: upload failed"
+msgstr "%s chunk %s: incarcare esuata"
+
+#: methods/s3.php:254
+msgid "%s upload (%s): re-assembly failed (see log for more details)"
+msgstr "%s upload (%s): reasamblare esuata (vedeti jurnalul/log/ pentru mai multe detalii)"
+
+#: methods/s3.php:258
+msgid "%s re-assembly error (%s): (see log file for more)"
+msgstr "%s eroare reasamblare (%s): ((vedeti jurnalul/log/ pentru mai multe detalii)"
+
+#: methods/s3.php:270
+msgid "%s Error: Failed to create bucket %s. Check your permissions and credentials."
+msgstr "%s Eroare: Creare bucket %s esuata. Va rugam verificati permisiunile si acreditarile dumneavoastra."
+
+#: methods/googledrive.php:855
+msgid "For longer help, including screenshots, follow this link. The description below is sufficient for more expert users."
+msgstr "Pentru explicatii mai detaliate, inclusiv imagini, urmati acest link. Explicatii de mai jos sunt suficiente pentru utilizatorii mai experimentati."
+
+#: methods/googledrive.php:857
+msgid "Select 'Web Application' as the application type."
+msgstr "Alegeti \"Aplicatie Web\" ca tip de aplicatie"
+
+#: methods/googledrive.php:857
+msgid "You must add the following as the authorised redirect URI (under \"More Options\") when asked"
+msgstr "Trebuie să adăugați următoarele ca redirecționare autorizata URI (sub \"Mai multe opțiuni\") când sunteti intrebat"
+
+#: methods/googledrive.php:867 addons/bitcasa.php:375
+msgid "Client ID"
+msgstr "ID client"
+
+#: methods/googledrive.php:868
+msgid "If Google later shows you the message \"invalid_client\", then you did not enter a valid client ID here."
+msgstr "Daca Google afiseaza mesajul \"invalid_client\", inseamna ca nu ati introdus un ID de client corect aici."
+
+#: methods/googledrive.php:871 addons/bitcasa.php:381
+msgid "Client Secret"
+msgstr "Client Secret"
+
+#: methods/googledrive.php:901
+msgid "Authenticate with Google"
+msgstr "Autentificare cu Google"
+
+#: methods/googledrive.php:912
+msgid "<strong>After</strong> you have saved your settings (by clicking 'Save Changes' below), then come back here once and click this link to complete authentication with Google."
+msgstr "<strong>Dupa</strong> salvarea setarilor (prin apasarea butonului 'Salvare modificari' de mai jos), intorceti-va aici si urmati acest link pentru a finaliza autentificarea cu Google."
+
+#: methods/cloudfiles.php:564 methods/cloudfiles.php:567
+#: methods/cloudfiles.php:570 addons/cloudfiles-enhanced.php:85
+#: addons/cloudfiles-enhanced.php:122 addons/cloudfiles-enhanced.php:127
+msgid "Cloud Files authentication failed"
+msgstr "Autentificare esuata la Cloud Files"
+
+#: methods/cloudfiles.php:103 methods/cloudfiles.php:344
+#: methods/cloudfiles.php:363
+msgid "Cloud Files error - failed to create and access the container"
+msgstr "Eroare Cloud Files - creare si accesare container esuata"
+
+#: class-updraftplus.php:612 methods/googledrive.php:691
+#: methods/googledrive.php:696 methods/cloudfiles.php:130
+msgid "%s Error: Failed to open local file"
+msgstr "%s Eroare: Deschiderea fisierului local esuata"
+
+#: methods/openstack-base.php:65 methods/openstack-base.php:188
+#: methods/cloudfiles.php:147 methods/cloudfiles.php:189 methods/s3.php:181
+#: methods/s3.php:187 methods/s3.php:188 addons/sftp.php:117
+#: addons/sftp.php:127
+msgid "%s Error: Failed to upload"
+msgstr "%s Eroare: Incarcare fisier esuata"
+
+#: methods/cloudfiles.php:218
+msgid "Cloud Files error - failed to upload file"
+msgstr "Eroare Cloud Files - incarcare fisier esuata"
+
+#: class-updraftplus.php:686 methods/cloudfiles.php:392
+#: methods/stream-base.php:274
+msgid "Error opening local file: Failed to download"
+msgstr "Eroare deschidere fisier local: Descarcare esuata"
+
+#: methods/openstack-base.php:343
+msgid "Error downloading remote file: Failed to download ("
+msgstr "Eroare descarcare fisier stocat la distanta: Descarcare esuata ("
+
+#: methods/openstack-base.php:272 methods/cloudfiles.php:433
+msgid "Testing - Please Wait..."
+msgstr "Testare - Va rugam asteptati..."
+
+#: methods/openstack-base.php:288 methods/openstack-base.php:464
+#: methods/cloudfiles.php:448 methods/cloudfiles.php:521
+#: methods/stream-base.php:210 methods/stream-base.php:232 methods/s3.php:484
+#: methods/s3.php:561 methods/addon-base.php:224 methods/addon-base.php:247
+#: methods/ftp.php:264 methods/ftp.php:339 addons/sftp.php:376
+#: addons/sftp.php:402
+msgid "Test %s Settings"
+msgstr "Testare setari %s"
+
+#: methods/cloudfiles-new.php:81 methods/cloudfiles.php:483
+msgid "Get your API key <a href=\"https://mycloud.rackspace.com/\">from your Rackspace Cloud console</a> (read instructions <a href=\"http://www.rackspace.com/knowledge_center/article/rackspace-cloud-essentials-1-generating-your-api-key\">here</a>), then pick a container name to use for storage. This container will be created for you if it does not already exist."
+msgstr "Luati-va cheia API <a href=\"https://mycloud.rackspace.com/\">from pentru consola Rackspace Cloud </a> (cititi instructiunile aici <a href=\"http://www.rackspace.com/knowledge_center/article/rackspace-cloud-essentials-1-generating-your-api-key\">here</a>), dupa aceasta alegeti-va un nume pentru contul dumneavoastra. Acest cont va fi creat pentru dumneavoastra, daca nu exista deja in sistem."
+
+#: methods/cloudfiles-new.php:81 methods/cloudfiles.php:483
+#: methods/openstack2.php:94
+msgid "Also, you should read this important FAQ."
+msgstr "De asemenea, ar fi bine sa cititi aceste FAQ."
+
+#: methods/googledrive.php:403
+msgid "Account full: your %s account has only %d bytes left, but the file to be uploaded is %d bytes"
+msgstr "Cont plin: contul dumneavoastra %s mai are doar %d bytes, iar fisierul de incarcat are %d bytes"
+
+#: methods/googledrive.php:374 methods/googledrive.php:420
+#: methods/googledrive.php:426 methods/googledrive.php:428
+#: methods/stream-base.php:190
+msgid "Failed to upload to %s"
+msgstr "Incarcare la %s esuata"
+
+#: includes/BitcasaClient.php:230 includes/BitcasaClient.php:314
+#: methods/googledrive.php:448 methods/googledrive.php:449
+msgid "Account is not authorized."
+msgstr "Contul nu este autorizat."
+
+#: methods/googledrive.php:840 methods/openstack-base.php:443
+#: methods/cloudfiles.php:463 methods/stream-base.php:225 methods/s3.php:504
+#: methods/dropbox.php:388 methods/addon-base.php:211 methods/ftp.php:313
+msgid "%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your site is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts."
+msgstr "%s este o alegere foarte buna deoarece UpdraftPlus suporta incarcarile de tip chunck - asa ca indiferent cat de mare este site-ul dumneavoastra, UpdraftPlus poate incarca pe bucati mici astfel incat sa nu fiti incurcati de intreruperi neprevazute."
+
+#: restorer.php:1395
+msgid "will restore as:"
+msgstr "Va fi restaurat ca:"
+
+#: restorer.php:1518 addons/migrator.php:797
+msgid "the database query being run was:"
+msgstr "Interogarea bazei de date este rulata ca:"
+
+#: restorer.php:1438
+msgid "Finished: lines processed: %d in %.2f seconds"
+msgstr "Terminat: linii procesate: %d in %.2f secunde."
+
+#: restorer.php:1586 restorer.php:1645
+msgid "Table prefix has changed: changing %s table field(s) accordingly:"
+msgstr "Prefixul tabelei a fost schimbat: modificati campurile tabelei %s in conformitate:"
+
+#: restorer.php:1592 restorer.php:1673 admin.php:2565 admin.php:2599
+#: admin.php:2603 admin.php:3957 admin.php:3971
+msgid "OK"
+msgstr "OK"
+
+#: includes/Dropbox/OAuth/Consumer/ConsumerAbstract.php:99
+msgid "You need to re-authenticate with %s, as your existing credentials are not working."
+msgstr "Va trebui sa va re-autentificati cu %s, intrucat actualele acreditari nu functioneaza."
+
+#: methods/viaaddon-base.php:29 methods/viaaddon-base.php:43
+#: methods/viaaddon-base.php:52 methods/viaaddon-base.php:62
+msgid "You do not have the UpdraftPlus %s add-on installed - get it from %s"
+msgstr "Nu aveti instalat add-on-ul UpdraftPlus %s - il puteti lua de la %s"
+
+#: methods/viaaddon-base.php:72
+msgid "%s support is available as an add-on"
+msgstr "Suportul pentru %s este disponibili ca add-on"
+
+#: methods/viaaddon-base.php:72
+msgid "follow this link to get it"
+msgstr "Urmati acest link pentru a-l obtine"
+
+#: methods/googledrive.php:290
+msgid "No refresh token was received from Google. This often means that you entered your client secret wrongly, or that you have not yet re-authenticated (below) since correcting it. Re-check it, then follow the link to authenticate again. Finally, if that does not work, then use expert mode to wipe all your settings, create a new Google client ID/secret, and start again."
+msgstr ""
+"Nu a fost primit un token nou de la Google. Aceasta inseamna, de obicei, ca ati introdus raspunsul secret eronat sau ca inca nu v-ati reautentificat (vezi mai jos) de la corectarea lui.\n"
+"Reverificati, apoi urmati linkul de reautentificare din nou. Daca tot nu functioneaza folositi modul expert pentru a sterge toate setarile dumneavoastra, creati un nou ID client/secret Google si incercati din nou."
+
+#: methods/googledrive.php:298
+msgid "Authorization failed"
+msgstr "Autorizare esuata"
+
+#: methods/googledrive.php:325 methods/dropbox.php:504 addons/bitcasa.php:326
+#: addons/copycom.php:411
+msgid "Your %s quota usage: %s %% used, %s available"
+msgstr "Spatiul de stocare %s: %s %% folosit, %s disponibil"
+
+#: methods/googledrive.php:351 methods/openstack-base.php:416
+#: methods/cloudfiles.php:585 methods/stream-base.php:321 methods/s3.php:655
+#: methods/addon-base.php:288 addons/sftp.php:478
+msgid "Success"
+msgstr "Succes"
+
+#: methods/googledrive.php:351
+msgid "you have authenticated your %s account."
+msgstr "V-ati autentificat in contul dumneavoastra %s."
+
+#: methods/googledrive.php:486
+msgid "Have not yet obtained an access token from Google - you need to authorise or re-authorise your connection to Google Drive."
+msgstr "Nu ati obtinut inca tokenul de acces de la Google - aveti nevoie sa va autentificati sau re-autentificati conexiunea dumneavoastra la Google Drive."
+
+#: restorer.php:377
+msgid "wp-config.php from backup: restoring (as per user's request)"
+msgstr "wp-config.php restaurat din copia de rezerva (la solicitarea utilizatorului)"
+
+#: restorer.php:1061
+msgid "Warning: PHP safe_mode is active on your server. Timeouts are much more likely. If these happen, then you will need to manually restore the file via phpMyAdmin or another method."
+msgstr "Atentie: PHP safe_mode este activ pe serverul dumneavoastra. Sunt foarte probabile inreruperi (timeout). Daca se intampla asta veti fi nevoiti sa realziati restaurarea manual folosind phpMyAdmin sau alte metode asemanatoare."
+
+#: restorer.php:1079
+msgid "Failed to find database file"
+msgstr "Gasirea bazei de date esuata"
+
+#: restorer.php:1093
+msgid "Failed to open database file"
+msgstr "Deschiderea bazei de date esuata"
+
+#: restorer.php:1098 addons/migrator.php:324
+msgid "Database access: Direct MySQL access is not available, so we are falling back to wpdb (this will be considerably slower)"
+msgstr "Acces baza de date: Accesul direct MySQL nu este disponibil, prin urmare ne-am intors la wpdb (acesta metoda este considerabil mai lenta)"
+
+#: backup.php:578 admin.php:1325 addons/reporting.php:131
+msgid "Backup of:"
+msgstr "Backup of:"
+
+#: restorer.php:1214 restorer.php:1305 restorer.php:1325
+msgid "Old table prefix:"
+msgstr "Prefixul tabelei vechi:"
+
+#: admin.php:3968
+msgid "Archive is expected to be size:"
+msgstr "Marimea preconizata a arhivei:"
+
+#: admin.php:3976
+msgid "The backup records do not contain information about the proper size of this file."
+msgstr "Înregistrările de rezervă nu conțin informații cu privire la dimensiunea corectă a acestui fișier."
+
+#: admin.php:4049
+msgid "Error message"
+msgstr "Mesaj de eroare"
+
+#: admin.php:3979 admin.php:3980
+msgid "Could not find one of the files for restoration"
+msgstr "Nu am putut gasi unul sau mai multe fisiere necesare restaurarii"
+
+#: restorer.php:55
+msgid "UpdraftPlus is not able to directly restore this kind of entity. It must be restored manually."
+msgstr "UpdraftPlus nu poate restaurata direct dintr-un astfel de fisier. Acesta trebuie restaurat manual."
+
+#: restorer.php:56
+msgid "Backup file not available."
+msgstr "Copia de rezerva nu este disponibila."
+
+#: restorer.php:57
+msgid "Copying this entity failed."
+msgstr "Copierea acestui obiect a esuat."
+
+#: restorer.php:58
+msgid "Unpacking backup..."
+msgstr "Dezarhivare copie de rezerva..."
+
+#: restorer.php:59
+msgid "Decrypting database (can take a while)..."
+msgstr "Decriptare baza de date (poate dura o perioada de timp)..."
+
+#: restorer.php:60
+msgid "Database successfully decrypted."
+msgstr "Decriptarea bazei de data realizata cu succes."
+
+#: restorer.php:63
+msgid "Restoring the database (on a large site this can take a long time - if it times out (which can happen if your web hosting company has configured your hosting to limit resources) then you should use a different method, such as phpMyAdmin)..."
+msgstr "Restaurare baza de date (pentru un site mare acest lucru poate dura mult timp - daca apar intreruperi (timeout) pot fi datorate limitarilor de resurse configurate de providerul dumneavoastra). In acest caz este indicat sa folositi alte metode, cum ar fi phpMyAdmin)..."
+
+#: restorer.php:64
+msgid "Cleaning up rubbish..."
+msgstr "Curatam gunoaiele :).."
+
+#: restorer.php:66
+msgid "Could not delete old directory."
+msgstr "Nu am putut sterge vechiul director."
+
+#: restorer.php:69
+msgid "Failed to delete working directory after restoring."
+msgstr "Nu am putut sterge directorul de lucru dupa restaurarea site-ului."
+
+#: restorer.php:266
+msgid "Failed to create a temporary directory"
+msgstr "Nu s-a reusit crearea directorului temporar."
+
+#: restorer.php:279
+msgid "Failed to write out the decrypted database to the filesystem"
+msgstr "Nu s-a reusit scrierea bazei de date decriptate in fylesystem"
+
+#: restorer.php:372
+msgid "wp-config.php from backup: will restore as wp-config-backup.php"
+msgstr "wp-config.php din copia de rezerva va fi restaurat ca wp-config-backup.php"
+
+#: admin.php:3112
+msgid "Choosing this option lowers your security by stopping UpdraftPlus from using SSL for authentication and encrypted transport at all, where possible. Note that some cloud storage providers do not allow this (e.g. Dropbox), so with those providers this setting will have no effect."
+msgstr "Alegand aceasta optiune reduceti gradul de securitate prin stoparea folosirii de catre UpdraftPlus a autentificarii si criptarii SSL pentru transmisii, acolo unde este posibil. Atentie - unii provideri de stocare online (de ex. Dropbox) nu permit acest lucru, asa ca aceste setari nu vor functiona cu astfel de provideri."
+
+#: admin.php:3136
+msgid "Save Changes"
+msgstr "Salvare modificari"
+
+#: methods/openstack-base.php:453 methods/cloudfiles.php:473 methods/s3.php:526
+msgid "Your web server's PHP installation does not included a required module (%s). Please contact your web hosting provider's support."
+msgstr "PHP-ul instalat pe serverul web al dumneavoastra nu include modulul necesar (%s). Va rugam contactati providerul dumneavoastra de webhosting pentru suport."
+
+#: admin.php:3173
+msgid "Your web server's PHP/Curl installation does not support https access. Communications with %s will be unencrypted. ask your web host to install Curl/SSL in order to gain the ability for encryption (via an add-on)."
+msgstr "Instalarea dumneavoastra PHP/Curl de pe serverul web nu permite accesul de tip https. Comunicatiile cu %s nu vor fi criptate. Rugati providerul de webhosting sa instaleze Curl/SSL in vederea obtinerii capacitatii de criptare (printr-un add-on)"
+
+#: admin.php:3175
+msgid "Your web server's PHP/Curl installation does not support https access. We cannot access %s without this support. Please contact your web hosting provider's support. %s <strong>requires</strong> Curl+https. Please do not file any support requests; there is no alternative."
+msgstr "Instalarea PHP/Curl de pe serverul dumneavoastra web nu suporta accesul de tip https. Nu putem accesa %s fara acest tip de acces. Va rugam contactati providerul dumneavoastra. %s <strong> necesita</strong> Curl+https. Va rugam nu transmiteti sesizari catre suport, nu exista alternativa."
+
+#: admin.php:3178
+msgid "Good news: Your site's communications with %s can be encrypted. If you see any errors to do with encryption, then look in the 'Expert Settings' for more help."
+msgstr "Vesti bune:Comunicarea siteului dumneavoastra cu %s poate fi criptata. Daca intampinati erori in criptarea, va rugam uitati-va la Setari Expert pentru mai multe informatii."
+
+#: admin.php:3313
+msgid "Delete this backup set"
+msgstr "Stergeti aceasta copie de rezerva"
+
+#: admin.php:3438
+msgid "Press here to download"
+msgstr "Apasati aici pentru descarcare"
+
+#: admin.php:3363 admin.php:3466
+msgid "(No %s)"
+msgstr "(No %s)"
+
+#: admin.php:3475
+msgid "Backup Log"
+msgstr "Jurnal Backup"
+
+#: admin.php:3503
+msgid "After pressing this button, you will be given the option to choose which components you wish to restore"
+msgstr "Dupa apasarea acestui buton, vi se va da posibilitatea de a alege componentele pe care doriti sa le restaurati"
+
+#: admin.php:3795
+msgid "This backup does not exist in the backup history - restoration aborted. Timestamp:"
+msgstr "Acest backup nu exista in istoricul copiilor de siguranta - restaurare anulata. Data/ora:"
+
+#: admin.php:3835
+msgid "UpdraftPlus Restoration: Progress"
+msgstr "Restaurare UpdraftPlus: In derulare"
+
+#: admin.php:3881
+msgid "ABORT: Could not find the information on which entities to restore."
+msgstr "ANULATI: Nu am putut gasi ce entitati sa restauram."
+
+#: admin.php:3882
+msgid "If making a request for support, please include this information:"
+msgstr "Daca doriti sa trimiteti o sesizare catre suport, va rugam includeti si aceasta informatie:"
+
+#: admin.php:3106
+msgid "Do not verify SSL certificates"
+msgstr "Nu verifica certificatele SSL"
+
+#: admin.php:3107
+msgid "Choosing this option lowers your security by stopping UpdraftPlus from verifying the identity of encrypted sites that it connects to (e.g. Dropbox, Google Drive). It means that UpdraftPlus will be using SSL only for encryption of traffic, and not for authentication."
+msgstr "Alegand aceasta optiune micsorati nivelul de securitate prin stoparea verificarii de catre UpdraftPlus a identitatii siteurilor criptate la care se conecteaza (de ex. Dropbox, Google Drive). Inseamna ca UpdraftPlus ca folosi SSL doar pentru criptarea traficului, nu si pentru autentificare."
+
+#: admin.php:3107
+msgid "Note that not all cloud backup methods are necessarily using SSL authentication."
+msgstr "Luati aminte ca nu toate metodele de backup in cloud necesita autentificarea SSL."
+
+#: admin.php:3111
+msgid "Disable SSL entirely where possible"
+msgstr "Dezactiveaza SSL peste tot unde este posibil"
+
+#: admin.php:3053
+msgid "Expert settings"
+msgstr "Setari Expert"
+
+#: admin.php:3054
+msgid "Show expert settings"
+msgstr "Arata Setari Expert"
+
+#: admin.php:3054
+msgid "click this to show some further options; don't bother with this unless you have a problem or are curious."
+msgstr "click aici daca doriti mai multe optiuni, nu va deranjati decat daca aveti probleme sau sunteti pur si simplu curios."
+
+#: admin.php:3074
+msgid "Delete local backup"
+msgstr "Sterge copia de siguranta locala"
+
+#: admin.php:3079
+msgid "Backup directory"
+msgstr "Director copie de sigurnata"
+
+#: admin.php:3086
+msgid "Backup directory specified is writable, which is good."
+msgstr "Directorul de backup specificat este writable, inseamna ca este in regula."
+
+#: admin.php:3094
+msgid "Click here to attempt to create the directory and set the permissions"
+msgstr "Apasati aici pentru a incerca crearea directorului si pentru a seta permisiunile necesare"
+
+#: admin.php:3094
+msgid "or, to reset this option"
+msgstr "sau, pentru a reseta aceasta optiune"
+
+#: admin.php:3094
+msgid "click here"
+msgstr "apasa aici"
+
+#: admin.php:3094
+msgid "If that is unsuccessful check the permissions on your server or change it to another directory that is writable by your web server process."
+msgstr "Daca nu ati avut succes cu permisiunile de pe serverul dumneavoastra incercati sa le schimbati sau sa folositi alt director care are permisiunea de scriere."
+
+#: admin.php:3101
+msgid "Use the server's SSL certificates"
+msgstr "Folositi certificatele SSL ale serverului"
+
+#: admin.php:3102
+msgid "By default UpdraftPlus uses its own store of SSL certificates to verify the identity of remote sites (i.e. to make sure it is talking to the real Dropbox, Amazon S3, etc., and not an attacker). We keep these up to date. However, if you get an SSL error, then choosing this option (which causes UpdraftPlus to use your web server's collection instead) may help."
+msgstr "In mod implicit UpdraftPlus foloseste propriile certificate SSL pentru a verifica identitatea siteurilor externe (de ex. pentru a fi siguri ca sunt conectate cu adevaratul Dropbox, Amazon S3, etc, si nu e vorba de fake-uri). Noi pastram aceste certificate actualizate. Totusi, daca obtineti erori SSL, atunci alegeti aceasta optiune (care lasa UpdraftPlus sa foloseasca certificatele dumneavoastra), poate acest lucru va remedia erorile."
+
+#: admin.php:2854
+msgid "Use WordShell for automatic backup, version control and patching"
+msgstr "Folosti WordShell pentru backup-uri automate, controlul versiunilor si pentru patching."
+
+#: admin.php:2945 udaddons/options.php:116
+msgid "Email"
+msgstr "Email"
+
+#: admin.php:2865
+msgid "Database encryption phrase"
+msgstr "Fraza de criptare a bazei de date"
+
+#: admin.php:2881
+msgid "Manually decrypt a database backup file"
+msgstr "Decriptare manuala a copiei de siguranta a bazei de date"
+
+#: admin.php:2961
+msgid "Copying Your Backup To Remote Storage"
+msgstr "Copiaza backup-ul pe mijloace de stocare externe"
+
+#: admin.php:2971
+msgid "Choose your remote storage"
+msgstr "Alegeti stocarea externa"
+
+#: admin.php:2980 addons/reporting.php:185
+msgid "None"
+msgstr "Niciuna"
+
+#: admin.php:166
+msgid "Cancel"
+msgstr "Anuleaza"
+
+#: admin.php:150
+msgid "Requesting start of backup..."
+msgstr "Solcitare start realizare copie de rezerva..."
+
+#: admin.php:3049
+msgid "Advanced / Debugging Settings"
+msgstr "Setari Avansate/Depanare"
+
+#: admin.php:3064
+msgid "Debug mode"
+msgstr "Mod depanare"
+
+#: admin.php:2853
+msgid "The above directories are everything, except for WordPress core itself which you can download afresh from WordPress.org."
+msgstr "Directoarele de mai sus reprezinta totul, cu expectia core-ului propriu-zis WordPress a carei copie noua poate fi descarcata de pe WordPress.org."
+
+#: admin.php:2751
+msgid "Daily"
+msgstr "Zilnic"
+
+#: admin.php:2752
+msgid "Weekly"
+msgstr "Saptamanal"
+
+#: admin.php:2753
+msgid "Fortnightly"
+msgstr "La doua saptamani"
+
+#: admin.php:2754
+msgid "Monthly"
+msgstr "Lunar"
+
+#: admin.php:2780 admin.php:2809
+msgid "and retain this many backups"
+msgstr "si pastrati atatea copii de siguranta"
+
+#: admin.php:2798
+msgid "Database backup intervals"
+msgstr "Intervalul copiilor de siguranta a bazei de date"
+
+#: admin.php:2817
+msgid "To fix the time at which a backup should take place,"
+msgstr "Pentru a stabili momentul la care trebuie sa inceapa realizarea unei copii de siguranta,"
+
+#: admin.php:2817
+msgid "e.g. if your server is busy at day and you want to run overnight"
+msgstr "de exmplu daca serverul dumneavoastra este mai incarcat ziua si doriti sa ruleze peste noapte"
+
+#: admin.php:2821
+msgid "Include in files backup"
+msgstr "Include in fisierele de backup"
+
+#: admin.php:2833
+msgid "Any other directories found inside wp-content"
+msgstr "Alte directoare gasite in directorul wp-content"
+
+#: admin.php:2839 addons/morefiles.php:208
+msgid "Exclude these:"
+msgstr "Exclude asta:"
+
+#: admin.php:2301
+msgid "Debug Database Backup"
+msgstr "Depanare copie de rezerva baza de date"
+
+#: admin.php:2301
+msgid "This will cause an immediate DB backup. The page will stall loading until it finishes (ie, unscheduled). The backup may well run out of time; really this button is only helpful for checking that the backup is able to get through the initial stages, or for small WordPress sites.."
+msgstr "Asta va porni realizarea imediata a unei copii de siguranta a bazei de date. Pagina se va bloca pana la finalizare (de ex. neprogramata). Realizarea copiei de siguranta poate dura o perioada; acest buton este folositor pentru a verifica faptul ca backup-ul trece de stagiile initiale sau pentru siteurile WordPress de mici dimensiuni..."
+
+#: admin.php:2307
+msgid "Wipe Settings"
+msgstr "Stergere setari"
+
+#: admin.php:2308
+msgid "This button will delete all UpdraftPlus settings (but not any of your existing backups from your cloud storage). You will then need to enter all your settings again. You can also do this before deactivating/deinstalling UpdraftPlus if you wish."
+msgstr "Acest buton va sterge toate setarile UpdraftPlus (dar nu va sterge nicio copie de rezerva de pe stocarile externe - in cloud). Dupa asta veti fi nevoiti sa introduceti setarile din nou. Puteti face asta, daca doriti, inainte de dezactivarea/dezinstalarea plugin-ului UpdraftPlus."
+
+#: admin.php:2311
+msgid "Wipe All Settings"
+msgstr "Sterge toate setarile"
+
+#: admin.php:2311
+msgid "This will delete all your UpdraftPlus settings - are you sure you want to do this?"
+msgstr "Asta va sterge toate setarile dumneavoastra UpdraftPlus. Sunteti siguri ca doriti asta?"
+
+#: admin.php:2502
+msgid "show log"
+msgstr "Arata jurnal (log)"
+
+#: admin.php:2504
+msgid "delete schedule"
+msgstr "Sterge programare"
+
+#: admin.php:167 admin.php:2559 admin.php:2592
+msgid "Delete"
+msgstr "Sterge"
+
+#: admin.php:2643
+msgid "The request to the filesystem to create the directory failed."
+msgstr "Cererea catre filesystem de a crea noul director a esuat."
+
+#: admin.php:2657
+msgid "The folder was created, but we had to change its file permissions to 777 (world-writable) to be able to write to it. You should check with your hosting provider that this will not cause any problems"
+msgstr "Directorul a fost creat, dar a trebuit sa schimbam permisiunile fisierului in 777 (world-writable) pentru a putea scrie in el. Va trebui sa verificati cu providerul dumenavoastra de webhosting daca acest lucru nu creeaza probleme."
+
+#: admin.php:2662
+msgid "The folder exists, but your webserver does not have permission to write to it."
+msgstr "Directorul exista, dar nu aveti permisiunea de scriere in el."
+
+#: admin.php:2734
+msgid "Download log file"
+msgstr "Descarcare fisier-jurnal (log)"
+
+#: admin.php:2738
+msgid "No backup has been completed."
+msgstr "Nicio copie de rezerva finalizata."
+
+#: admin.php:2767
+msgid "File backup intervals"
+msgstr "Intervale pentru backup-ul fisierelor"
+
+#: admin.php:2747
+msgid "Manual"
+msgstr "Manual"
+
+#: admin.php:2017
+msgid "Go here for help."
+msgstr "Intrati aici pentru suport."
+
+#: admin.php:2023
+msgid "Multisite"
+msgstr "Multisite"
+
+#: admin.php:2027
+msgid "Do you need WordPress Multisite support?"
+msgstr "Doriti suport pentru WordPress Multisite?"
+
+#: admin.php:2027
+msgid "Please check out UpdraftPlus Premium, or the stand-alone Multisite add-on."
+msgstr "Va rugam sa incercati UpDraftPlus Premium sau add-on-ul independent Multisite."
+
+#: admin.php:2040
+msgid "Configure Backup Contents And Schedule"
+msgstr "Configurare continut copie de rezerva si programarile (Schedule)"
+
+#: admin.php:2226
+msgid "Web server:"
+msgstr "Server web:"
+
+#: admin.php:2234
+msgid "Peak memory usage"
+msgstr "Varf utilizare memorie"
+
+#: admin.php:2235
+msgid "Current memory usage"
+msgstr "Utilizare curenta memorie"
+
+#: admin.php:2237 admin.php:2238 admin.php:2245
+msgid "%s version:"
+msgstr "versiunea %s:"
+
+#: admin.php:2247 admin.php:2250 admin.php:2254
+msgid "Yes"
+msgstr "Da"
+
+#: admin.php:2250 admin.php:2254
+msgid "No"
+msgstr "nu"
+
+#: admin.php:2273
+msgid "Total (uncompressed) on-disk data:"
+msgstr "Total date pe disc (necomprimate):"
+
+#: admin.php:2274
+msgid "N.B. This count is based upon what was, or was not, excluded the last time you saved the options."
+msgstr "Nota: Acest contor este bazat pe ceea ce a fost sau nu a fost, excluzand ultima data cand au fost salvate optiunile."
+
+#: admin.php:2282
+msgid "count"
+msgstr "count"
+
+#: admin.php:2296
+msgid "Debug Full Backup"
+msgstr "Depanare full-backup"
+
+#: admin.php:2296
+msgid "This will cause an immediate backup. The page will stall loading until it finishes (ie, unscheduled)."
+msgstr "Aceasta va determina crearea imediata a unei copii de rezerva. Pagina se va bloca pana la finalizare."
+
+#: admin.php:2087
+msgid "UpdraftPlus - Upload backup files"
+msgstr "UpdraftPlus - Incarcare copii de rezerva"
+
+#: admin.php:2088
+msgid "Upload files into UpdraftPlus. Use this to import backups made on a different WordPress installation."
+msgstr "Incarcare fisiere in UpdraftPlus. Folositi asta pentru a importa copii de rezerva realizate cu o alta instalare WordPress."
+
+#: admin.php:2099 admin.php:2894
+msgid "or"
+msgstr "sau"
+
+#: admin.php:135 admin.php:2084
+msgid "calculating..."
+msgstr "calculez..."
+
+#: restorer.php:1023 admin.php:143 admin.php:3973 admin.php:4003
+#: addons/cloudfiles-enhanced.php:88 addons/sftp.php:730
+#: addons/migrator.php:233 addons/migrator.php:467 addons/migrator.php:668
+#: addons/migrator.php:727 addons/migrator.php:797 addons/migrator.php:1003
+msgid "Error:"
+msgstr "Eroare:"
+
+#: admin.php:145
+msgid "You should:"
+msgstr "Ar trebui:"
+
+#: admin.php:149
+msgid "Download error: the server sent us a response which we did not understand."
+msgstr "Eroare la descarcare: serverul a trimis un raspuns pe care nu il intelegem."
+
+#: admin.php:2125
+msgid "Delete backup set"
+msgstr "Stergeti copia de rezerva"
+
+#: admin.php:2143
+msgid "Restore backup"
+msgstr "Restaurare backup"
+
+#: admin.php:2144
+msgid "Restore backup from"
+msgstr "Restaurare backup din"
+
+#: admin.php:2156
+msgid "Restoring will replace this site's themes, plugins, uploads, database and/or other content directories (according to what is contained in the backup set, and your selection)."
+msgstr "Restaurarea va inlocui in acest site temele, plugin-urile, incarcarile, baza de date si/sau continutul altor directoare (in concordanta cu ceea ce se afla in copia de rezerva si cu selectiile si optiunile dumneavoastra)."
+
+#: admin.php:2156
+msgid "Choose the components to restore"
+msgstr "Alegeti componentele pe care doriti sa le restaurati"
+
+#: admin.php:2166
+msgid "Your web server has PHP's so-called safe_mode active."
+msgstr "PHP-ul de pe serverul web are activat ceea ce se cheama safe_mode."
+
+#: admin.php:2166
+msgid "This makes time-outs much more likely. You are recommended to turn safe_mode off, or to restore only one entity at a time, <a href=\"http://updraftplus.com/faqs/i-want-to-restore-but-have-either-cannot-or-have-failed-to-do-so-from-the-wp-admin-console/\">or to restore manually</a>."
+msgstr "Aceasta va conduce, cel mai probabil, la intreruperi (timeout). Va recomandam sa treceti safe_mode pe off, sau sa restaurati, pe rand, cate o entitate, <a href=\"http://updraftplus.com/faqs/i-want-to-restore-but-have-either-cannot-or-have-failed-to-do-so-from-the-wp-admin-console/\">sau sa realizati restaurarea manual</a>."
+
+#: admin.php:2179
+msgid "The following entity cannot be restored automatically: \"%s\"."
+msgstr "Urmatoarea entitate nu poate fi restaurata automat: \"%s\""
+
+#: admin.php:2179
+msgid "You will need to restore it manually."
+msgstr "Va fi nevoie sa realizati aceasta restaurare manual."
+
+#: admin.php:2186 addons/morefiles.php:47
+msgid "%s restoration options:"
+msgstr "%s optiuni restaurare:"
+
+#: admin.php:2194
+msgid "You can search and replace your database (for migrating a website to a new location/URL) with the Migrator add-on - follow this link for more information"
+msgstr "Puteti cauta si inlocui baza de date a dumneavoastra (pentru migrarea unui site la o nou locatie/URL) cu add-on-ul Migrator. Urmati acest link pentru mai multe informatii"
+
+#: admin.php:2205
+msgid "Do read this helpful article of useful things to know before restoring."
+msgstr "Cititi acest articol deoarece contine multe informatii si cunostinte necesare inainte de a realiza o restaurare."
+
+#: admin.php:2006
+msgid "Perform a one-time backup"
+msgstr "Realizeaza acum o copie de siguranta"
+
+#: admin.php:1936
+msgid "Time now"
+msgstr "Acum"
+
+#: admin.php:165 admin.php:1883
+msgid "Backup Now"
+msgstr "Back-up acum"
+
+#: admin.php:170 admin.php:1886 admin.php:3505
+msgid "Restore"
+msgstr "Restaurare"
+
+#: admin.php:1956 addons/autobackup.php:69 addons/autobackup.php:156
+msgid "Last log message"
+msgstr "Ultimul mesaj din jurnal"
+
+#: admin.php:1958
+msgid "(Nothing yet logged)"
+msgstr "(Nimeni nu este inca logat)"
+
+#: admin.php:1959
+msgid "Download most recently modified log file"
+msgstr "Descarca fisierul jurnal modificat cel mai recent"
+
+#: admin.php:1964
+msgid "Backups, logs & restoring"
+msgstr "Copii de siguranta, Jurnale & Restaurare"
+
+#: admin.php:1965
+msgid "Press to see available backups"
+msgstr "Apasa pentru a vedea copiile de siguranta disponibile"
+
+#: admin.php:1965
+msgid "%d set(s) available"
+msgstr "%d copii(e) de siguranta disponibile(a)"
+
+#: admin.php:2064
+msgid "Downloading"
+msgstr "Descarcare"
+
+#: admin.php:2064
+msgid "Pressing a button for Database/Plugins/Themes/Uploads/Others will make UpdraftPlus try to bring the backup file back from the remote storage (if any - e.g. Amazon S3, Dropbox, Google Drive, FTP) to your webserver. Then you will be allowed to download it to your computer. If the fetch from the remote storage stops progressing (wait 30 seconds to make sure), then press again to resume. Remember that you can also visit the cloud storage vendor's website directly."
+msgstr "Apasand butonul pentru Baza de date/Teme/Uploads/Altele veti determina UpdraftPlus sa incerce sa aduca datele de pe unitatile de stocare externea (daca sunt - de ex. Amazon S3, Dropbox, Google Drive FTP) pe serverul dumneavoastra de web. Dupa aceasta veti putea avea sa il descarcati in calculatorul dumneavoaatra. Daca aducerea de pe unitatile externe de stocare se intrerupe (asteptati 30 de secunde pentru a fi siguri) apasati din nou pentru a relua. Amintiti-va si ca puteti intra direct la respectivul provider de stocare in cloud pentru a accesa acele fisiere de bacup."
+
+#: admin.php:2069
+msgid "More tasks:"
+msgstr "Mai multe sarcini (tasks):"
+
+#: admin.php:2076
+msgid "Opera web browser"
+msgstr "Browser Opee"
+
+#: admin.php:2076
+msgid "If you are using this, then turn Turbo/Road mode off."
+msgstr "Daca utilizati asta, atunci treceti modul Turbo/Road pe off."
+
+#: admin.php:2081 methods/googledrive.php:139 methods/googledrive.php:351
+#: methods/googledrive.php:374 methods/googledrive.php:403
+#: methods/googledrive.php:410 methods/googledrive.php:420
+#: methods/googledrive.php:426 methods/googledrive.php:428
+#: methods/googledrive.php:839 methods/googledrive.php:851
+#: methods/googledrive.php:867 methods/googledrive.php:871
+#: methods/googledrive.php:882 methods/googledrive.php:892
+#: addons/google-enhanced.php:72
+msgid "Google Drive"
+msgstr "Google Drive"
+
+#: admin.php:2081
+msgid "Google changed their permissions setup recently (April 2013). To download or restore from Google Drive, you <strong>must</strong> first re-authenticate (using the link in the Google Drive configuration section)."
+msgstr "Google au schimbat recent (aprilie 2013) configurarea permisiunilor lor. pentru a descarca sau restaura de pe Google Drive, dumneavoastra <strong>trebuie</strong> mai intai sa va reautentificati folosind  linkul din sectiunea configurare a Google Drive)."
+
+#: admin.php:2084
+msgid "This is a count of the contents of your Updraft directory"
+msgstr "Acesta este un contor al continului din directorul dumneavoastra Updraft"
+
+#: admin.php:2084
+msgid "Web-server disk space in use by UpdraftPlus"
+msgstr "Spatiul de disc de pe serverul web folosit de UpdraftPlus"
+
+#: admin.php:2084
+msgid "refresh"
+msgstr "reimprospatare"
+
+#: admin.php:1819
+msgid "Lead developer's homepage"
+msgstr "Catre pagina dezvoltatorului"
+
+#: admin.php:1819
+msgid "Donate"
+msgstr "Donati"
+
+#: admin.php:1819
+msgid "Version"
+msgstr "Versiunea"
+
+#: admin.php:1828
+msgid "Your backup has been restored."
+msgstr "Restaurarea din copia dumneavoastra de siguranta a fost realizata."
+
+#: admin.php:1835
+msgid "Current limit is:"
+msgstr "Limita curenta este:"
+
+#: admin.php:152 admin.php:2325
+msgid "Delete Old Directories"
+msgstr "Stergeti vechile directoare"
+
+#: admin.php:1874
+msgid "JavaScript warning"
+msgstr "Avertisment JavaScript"
+
+#: admin.php:1875
+msgid "This admin interface uses JavaScript heavily. You either need to activate it within your browser, or to use a JavaScript-capable browser."
+msgstr "Aceasta interfata de administrare foloseste foarte mult JavaScript. Va rugam sa activati JavaScript in browserul dumneavoastra sau sa folositi un alt browser cu capabilitati JavaScript."
+
+#: admin.php:1903 admin.php:1916
+msgid "Nothing currently scheduled"
+msgstr "Momentat nu este programat nimic"
+
+#: admin.php:1908
+msgid "At the same time as the files backup"
+msgstr "In acelasi timp cu realizarea copiilor de siguranta"
+
+#: admin.php:1928
+msgid "All the times shown in this section are using WordPress's configured time zone, which you can set in Settings -> General"
+msgstr "Timpul este afisat in aceasta zona asa cum este configurata zona de timp in WordPress, puteti modifica aceste optiuni din Setari=>General"
+
+#: admin.php:1928
+msgid "Next scheduled backups"
+msgstr "Urmatoarele copii de siguranta programate"
+
+#: admin.php:1932
+msgid "Files"
+msgstr "Fisiere"
+
+#: admin.php:814 admin.php:1934 admin.php:2184 admin.php:2186 admin.php:3343
+#: admin.php:3351 admin.php:4038 addons/reporting.php:197
+#: addons/moredatabase.php:178
+msgid "Database"
+msgstr "Baza de date"
+
+#: admin.php:437
+msgid "Your website is hosted using the %s web server."
+msgstr "Sitetul dumneavoastra este gazduit folosind un server web %s."
+
+#: admin.php:437
+msgid "Please consult this FAQ if you have problems backing up."
+msgstr "Va rugam sa consultati zona FAQ daca intampinati probleme in realizarea copiilor de siguranta."
+
+#: admin.php:452 admin.php:456 admin.php:460 admin.php:464
+msgid "Click here to authenticate your %s account (you will not be able to back up to %s without it)."
+msgstr "Intrati aici pentru a va autentifica in contul dumneavoastra %s (nu veti putea realiza copii de siguranta in %s fara a fi autentificat)"
+
+#: admin.php:659 admin.php:685
+msgid "Nothing yet logged"
+msgstr "Inca nu este nimeni logat"
+
+#: admin.php:1059
+msgid "OK. You should soon see activity in the \"Last log message\" field below."
+msgstr "OK. In curand veti vedea activitate in \"Ultimul mesaj din jurnal\" din campul de mai jos."
+
+#: admin.php:1086
+msgid "Job deleted"
+msgstr "Job sters"
+
+#: admin.php:1093
+msgid "Could not find that job - perhaps it has already finished?"
+msgstr "Nu am putut gasi acest job. Se poate ca el sa fie deja finalizat?"
+
+#: class-updraftplus.php:686 restorer.php:1588 restorer.php:1605
+#: restorer.php:1670 admin.php:1106 admin.php:3955 methods/stream-base.php:190
+#: methods/addon-base.php:75 methods/addon-base.php:80
+#: methods/addon-base.php:175 methods/addon-base.php:195
+msgid "Error"
+msgstr "Eroare"
+
+#: admin.php:1195
+msgid "Download failed"
+msgstr "Descarcare esuata"
+
+#: admin.php:144 admin.php:1213
+msgid "File ready."
+msgstr "Fisier pregatit."
+
+#: admin.php:1221
+msgid "Download in progress"
+msgstr "Descarcare in derulare"
+
+#: admin.php:1224
+msgid "No local copy present."
+msgstr "Nicio copie locala prezenta."
+
+#: admin.php:1621
+msgid "Bad filename format - this does not look like a file created by UpdraftPlus"
+msgstr "Formatul numelui de fisier este eronat - acesta nu pare a fi un fisier creat cu UpdraftPlus"
+
+#: admin.php:1711
+msgid "Bad filename format - this does not look like an encrypted database file created by UpdraftPlus"
+msgstr "Formatul numelui de fisier este eronat - acesta nu pare a fi o baza de date criptata creata cu UpdraftPlus"
+
+#: admin.php:1739
+msgid "Restore successful!"
+msgstr "Restaurare reusita!!"
+
+#: admin.php:1742 admin.php:1751 admin.php:1788 admin.php:1880 admin.php:2533
+msgid "Actions"
+msgstr "Actiuni"
+
+#: admin.php:1742 admin.php:1751 admin.php:1788 admin.php:2533
+#: addons/migrator.php:100 addons/migrator.php:112
+msgid "Return to UpdraftPlus Configuration"
+msgstr "Revenire la Configurare UpdraftPlus"
+
+#: admin.php:2526
+msgid "Remove old directories"
+msgstr "Stergere directoare vechi"
+
+#: admin.php:2529
+msgid "Old directories successfully removed."
+msgstr "Vechile directoare au fost sterse cu succes."
+
+#: admin.php:2531
+msgid "Old directory removal failed for some reason. You may want to do this manually."
+msgstr "Stergerea vechilor directoare a esuat din diverse motive. Va rugam stergeti manual aceste directoare."
+
+#: admin.php:1779
+msgid "Backup directory could not be created"
+msgstr "Floderul backup nu a putut fi creat"
+
+#: admin.php:1786
+msgid "Backup directory successfully created."
+msgstr "Directorul de backup creat cu succes"
+
+#: admin.php:1811
+msgid "Your settings have been wiped."
+msgstr "Aveti nevoie de mai multe caracteristici și de sprijin? Testati UpdraftPlus Premium"
+
+#: class-updraftplus.php:2498
+msgid "Please help UpdraftPlus by giving a positive review at wordpress.org"
+msgstr "Va rugam sa ajutati UpdraftPlus acordandu-i o recenzie pozitiva la wordpress.org."
+
+#: class-updraftplus.php:2505
+msgid "Need even more features and support? Check out UpdraftPlus Premium"
+msgstr "Aveti nevoie de mai multe caracteristici si mai mult suport? Incercati UpdraftPlus Premium"
+
+#: class-updraftplus.php:2515
+msgid "Check out UpdraftPlus.Com for help, add-ons and support"
+msgstr "Incercati UpdraftPlus.Com pentru ajutor, extensii si suport "
+
+#: backup.php:1470
+msgid "Infinite recursion: consult your log for more information"
+msgstr "Recursivitate infinita: consultati log-urile dvs pentru mai multe informatii"
+
+#: backup.php:197
+msgid "Could not create %s zip. Consult the log file for more information."
+msgstr "Nu a putut fi creat fisierul %s.zip. Consultati fisierul de log pentru mai multe informatii."
+
+#: admin.php:217 admin.php:254
+msgid "Allowed Files"
+msgstr "Fisiere permise"
+
+#: admin.php:370 admin.php:1858
+msgid "Settings"
+msgstr "Setari"
+
+#: admin.php:374
+msgid "Add-Ons / Pro Support"
+msgstr "Extensii / Suport Pro"
+
+#: admin.php:421 admin.php:425 admin.php:429 admin.php:433 admin.php:437
+#: admin.php:446 admin.php:2060 admin.php:3166 admin.php:3173 admin.php:3175
+#: udaddons/updraftplus-addons.php:152 methods/openstack-base.php:453
+#: methods/cloudfiles.php:473 methods/s3.php:526 methods/dropbox.php:399
+#: methods/ftp.php:299
+msgid "Warning"
+msgstr "Atentionare"
+
+#: admin.php:429
+msgid "You have less than %s of free disk space on the disk which UpdraftPlus is configured to use to create backups. UpdraftPlus could well run out of space. Contact your the operator of your server (e.g. your web hosting company) to resolve this issue."
+msgstr "Aveti mai putin de %s spatiu dispoinibil pe discul pe care UpdraftPlus este configurat sa il foloseasca pentru a salva backup-uri. UpdraftPlus poate ajunge sa nu mai aiba spatiu. Contactati operatorul serverului dvs. (de exemplu, firma dvs. de gazduire web) pentru a rezolva aceasta problema."
+
+#: admin.php:433
+msgid "UpdraftPlus does not officially support versions of WordPress before %s. It may work for you, but if it does not, then please be aware that no support is available until you upgrade WordPress."
+msgstr "UpdraftPlus nu suporta in mod oficial versiuni de WordPress mai vechi decat %s. E posibil sa functioneze pentru dvs. dar daca nu, ar trebui sa aveti in vedere faptul ca nu veti avea parte de suport pana cand nu faceti un upgrade al platformei WordPress."
+
+#: backup.php:579
+msgid "WordPress backup is complete"
+msgstr "Operatiunea de backup a platformei WordPress este completa."
+
+#: backup.php:719 restorer.php:132 admin.php:1538
+msgid "Backup directory (%s) is not writable, or does not exist."
+msgstr "Directorul de backup (%s) nu are drepturi de scriere, sau nu exista."
+
+#: class-updraftplus.php:2093
+msgid "Could not read the directory"
+msgstr "Nu a putut fi citit directorul"
+
+#: class-updraftplus.php:2111
+msgid "Could not save backup history because we have no backup array. Backup probably failed."
+msgstr "Istoricul de backup-uri nu a putut fi salvat pentru ca nu exista backup-uri. Operatiunea probabil a esuat."
+
+#: backup.php:1379
+msgid "Could not open the backup file for writing"
+msgstr "Fisierul de backup nu a putut fi deschis pentru scriere"
+
+#: class-updraftplus.php:2339 restorer.php:272 admin.php:1259
+msgid "Decryption failed. The database file is encrypted, but you have no encryption key entered."
+msgstr "Decriptare esuata. Fisierul de baza de date este encriptat, dar nu ati introdus nici o cheie de encriptare."
+
+#: class-updraftplus.php:2350 restorer.php:282 admin.php:1276
+msgid "Decryption failed. The most likely cause is that you used the wrong key."
+msgstr "Decriptare esuata. Cea mai probabila cauza este ca ati folosit o cheie gresita."
+
+#: class-updraftplus.php:2350
+msgid "The decryption key used:"
+msgstr "Cheia de decriptare folosita:"
+
+#: class-updraftplus.php:2390 methods/googledrive.php:774
+msgid "File not found"
+msgstr "Fisierul nu a fost gasit"
+
+#: class-updraftplus.php:2490
+msgid "Can you translate? Want to improve UpdraftPlus for speakers of your language?"
+msgstr "Puteti traduce? Doriti sa imbunatatiti UpdraftPlus pentru vorbitorii limbii dvs.?"
+
+#: class-updraftplus.php:2498
+msgid "Like UpdraftPlus and can spare one minute?"
+msgstr "Vă place UpdraftPlus și puteţi aloca un minut?"
+
+#: class-updraftplus.php:994
+msgid "Themes"
+msgstr "Teme"
+
+#: class-updraftplus.php:995
+msgid "Uploads"
+msgstr "Încărcări"
+
+#: class-updraftplus.php:1010
+msgid "Others"
+msgstr "Alte"
+
+#: class-updraftplus.php:1524
+msgid "Could not create files in the backup directory. Backup aborted - check your UpdraftPlus settings."
+msgstr "Nu se pot crea fișiere în directorul de backup. Backup abandonat - verificați setările UpdraftPlus."
+
+#: addons/moredatabase.php:260
+msgid "Encryption error occurred when encrypting database. Encryption aborted."
+msgstr "Eroare de criptare apărută la criptarea bazei de date. Criptare abandonată."
+
+#: class-updraftplus.php:1690
+msgid "The backup apparently succeeded and is now complete"
+msgstr "Copie de rezervă (back-up) finalizată şi completă"
+
+#: class-updraftplus.php:1704
+msgid "The backup attempt has finished, apparently unsuccessfully"
+msgstr "Tentativa de copiere de rezervă (back-up) a terminat, aparent fără succes"
+
+#: options.php:34 addons/multisite.php:60
+msgid "UpdraftPlus Backups"
+msgstr "Copii de rezervă UpdraftPlus"
+
+#: class-updraftplus.php:255 class-updraftplus.php:260
+#: class-updraftplus.php:265 admin.php:452 admin.php:456 admin.php:460
+#: admin.php:464
+msgid "UpdraftPlus notice:"
+msgstr "Observație UpdraftPlus:"
+
+#: class-updraftplus.php:255
+msgid "The log file could not be read."
+msgstr "Fișierul jurnal nu a putut fi citit."
+
+#: class-updraftplus.php:260
+msgid "No log files were found."
+msgstr "Nu au fost găsite fișierele jurnal (log-uri)"
+
+#: class-updraftplus.php:265
+msgid "The given file could not be read."
+msgstr "Fișierul nu a putut fi citit."
+
+#: class-updraftplus.php:993
+msgid "Plugins"
+msgstr "Plugin-uri"
