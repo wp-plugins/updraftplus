@@ -805,7 +805,7 @@ class UpdraftPlus_Backup {
 				# Split needed?
 				$split_every = max((int)$updraftplus->jobdata_get('split_every'), 250);
 				//if (file_exists($zip_file) && filesize($zip_file) > $split_every*1048576) {
-				if (false != ($existing_file = $this->file_exists($existing_zips, $youwhat, $index)) && filesize($existing_file) > $split_every*1048576) {
+				if (false != ($existing_file = $this->file_exists($existing_zips, $youwhat, $index)) && filesize($this->updraft_dir.'/'.$existing_file) > $split_every*1048576) {
 					$index++;
 					$this->job_file_entities[$youwhat]['index'] = $index;
 					$updraftplus->jobdata_set('job_file_entities', $this->job_file_entities);
