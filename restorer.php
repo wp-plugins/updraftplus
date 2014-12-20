@@ -177,7 +177,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		if (!empty($this->ud_foreign)) {
 			$this->ud_foreign_working_dir = $working_dir;
-			# Zip containing an SQL file. We only know of one pattern.
+			# Zip containing an SQL file. We try a default pattern.
 			if ('db' === $type) {
 				$basepack = basename($package, '.zip');
 				if ($wp_filesystem->exists($working_dir.'/'.$basepack.'.sql')) {
@@ -1076,7 +1076,8 @@ class Updraft_Restorer extends WP_Upgrader {
 
 			if (empty($plugins[$this->ud_foreign]['separatedb'])) {
 				$db_basename = apply_filters('updraftplus_foreign_separatedbname', false, $this->ud_foreign, $this->ud_backup_info, $working_dir_localpath);
-			} elseif (file_exists($working_dir_localpath.'/backup.db')) {
+			}
+			if (!file_exists($working_dir_localpath.'/'.$db_basename) && file_exists($working_dir_localpath.'/backup.db')) {
 				$db_basename = 'backup.db';
 			}
 		}
