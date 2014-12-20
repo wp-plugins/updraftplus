@@ -35,5 +35,3 @@ function rijndael_decrypt_file($file, $key) {
 	print $rijndael->decrypt($ciphertext);
 
 }
-
-?>
