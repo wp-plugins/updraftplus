@@ -3,7 +3,7 @@ Contributors: Backup with UpdraftPlus, DavidAnderson
 Tags: backup, backups, restore, amazon backup, s3 backup, dropbox backup, google drive backup, rackspace cloud files, rackspace backup, cloud files, dreamhost, dreamobjects backup, ftp backup, webdav backup, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp backup, ftps, scp, migrate, duplicate, copy, mysql backup, database backup, db backup, website backup, wordpress backup, full backup, openstack, swift
 Requires at least: 3.2
 Tested up to: 4.1
-Stable tag: 1.9.44
+Stable tag: 1.9.45
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -153,9 +153,14 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
+= 1.9.45 - 2014-12-20 =
+
+* FIX: Fix case in which the database imported from a BackWPUp backup could be falsely identified as missing (introduced in 1.9.40)
+* FIX: WordPress installs with ALTERNATE_WP_CRON set could skip some scheduled backups (since 1.9.19, so it appears that the conditions required to cause this bug are rare)
+
 = 1.9.44 - 2014-12-13 =
 
-* Add new incomplete translations (ready for the wordpress.org change to take translation availability into account when searching for plugins): Norwegian Bokmål, Norwegian Nynorsk, Finnish, Hebrew, Catalan, Vietnamese, Bengali
+* TRANSLATIONS: Add new incomplete translations (ready for the wordpress.org change to take translation availability into account when searching for plugins): Norwegian Bokmål, Norwegian Nynorsk, Finnish, Hebrew, Catalan, Vietnamese, Bengali
 * FIX: Fix a failure to detect the progress properly for large backup sets, introduced in 1.9.40
 
 = 1.9.43 - 2014-12-11 =
@@ -1008,4 +1013,4 @@ Furthermore, reliance upon any non-English translation is at your own risk. Updr
 
 
 == Upgrade Notice ==
-* 1.9.44 : New translations + fix a bug that could affect large backups on slow webservers.
+* 1.9.45 : Fix bug (since 1.9.19) that could cause scheduled backups to be skipped if using ALTERNATE_WP_CRON in wp-config.php

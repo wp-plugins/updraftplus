@@ -6,8 +6,11 @@
  * @link https://github.com/benthedesigner/dropbox
  * @package Dropbox
  */
+if (!class_exists('Dropbox_Exception')):
 class Dropbox_Exception extends Exception {
 }
+endif;
+
 class Dropbox_BadRequestException extends Exception {
 }
 

@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: http://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.9.44
+Version: 1.9.45
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -71,7 +71,29 @@ function updraftplus_modify_cron_schedules($schedules) {
 add_filter('cron_schedules', 'updraftplus_modify_cron_schedules', 30);
 
 // The checks here before loading are for performance only - unless one of those conditions is met, then none of the hooks will ever be used
-if (!is_admin() && (!defined('DOING_CRON') || !DOING_CRON) && (!defined('XMLRPC_REQUEST') || !XMLRPC_REQUEST) && empty($_SERVER['SHELL']) && empty($_SERVER['USER'])) return;
+
+if (!is_admin() && (!defined('DOING_CRON') || !DOING_CRON) && (!defined('XMLRPC_REQUEST') || !XMLRPC_REQUEST) && empty($_SERVER['SHELL']) && empty($_SERVER['USER'])) {
+	// There is no good way to work out if the cron event is likely to be called under the ALTERNATE_WP_CRON system, other than re-running the calculation
+
+	// If ALTERNATE_WP_CRON is not active, then we are done
+	if ( !defined('ALTERNATE_WP_CRON') || !ALTERNATE_WP_CRON || !empty($_POST) || defined('DOING_AJAX') || isset($_GET['doing_wp_cron'])) return;
+
+	// The check below is the one used by spawn_cron() to decide whether cron events should be run
+	$lock = get_transient('doing_cron');
+	if ( $lock > $gmt_time + 10 * 60 ) $lock = 0;
+	if ( $lock + WP_CRON_LOCK_TIMEOUT > $gmt_time ) return;
+	if (function_exists('_get_cron_array')) {
+		$crons = _get_cron_array();
+	} else {
+		$crons = get_option('cron');
+	}
+	if (!is_array($crons)) return;
+
+	$keys = array_keys( $crons );
+	$gmt_time = microtime( true );
+	if ( isset($keys[0]) && $keys[0] > $gmt_time ) return;
+	// If we got this far, then cron is going to be fired, so we do want to load all our hooks
+}
 
 $updraftplus_have_addons = 0;
 if (is_dir(UPDRAFTPLUS_DIR.'/addons') && $dir_handle = opendir(UPDRAFTPLUS_DIR.'/addons')) {
