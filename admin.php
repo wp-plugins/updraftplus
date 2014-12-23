@@ -3904,8 +3904,7 @@ ENDHERE;
 				// Interpret the time as one from the blog's local timezone, rather than as UTC
 				# $matches[1] is YYYY-MM-DD-HHmm, to be interpreted as being the local timezone
 				$btime2 = strtotime($matches[1]);
-				$btime = (!empty($offset)) ? $btime2 - $gmt_offset*3600 : $btime2;
-
+				$btime = (!empty($gmt_offset)) ? $btime2 - $gmt_offset*3600 : $btime2;
 				$nonce = $matches[2];
 				$type = $matches[3];
 				if ('db' == $type) {
@@ -4021,7 +4020,7 @@ ENDHERE;
 				}
 				$itext = ($index == 0) ? '' : $index;
 				$btime2 = strtotime($matches[1]);
-				$btime = (!empty($offset)) ? $btime2 - $gmt_offset*3600 : $btime2;
+				$btime = (!empty($gmt_offset)) ? $btime2 - $gmt_offset*3600 : $btime2;
 
 				if (isset($known_nonces[$nonce])) $btime = $known_nonces[$nonce];
 				if ($btime <= 100) continue;
@@ -4373,7 +4372,6 @@ ENDHERE;
 				}
 
 			}
-
 
 		if (!validate_current_theme()) {
 			global $updraftplus;
