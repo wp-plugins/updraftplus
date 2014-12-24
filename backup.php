@@ -269,6 +269,8 @@ class UpdraftPlus_Backup {
 		if (count($services) >1 && !empty($updraftplus->no_checkin_last_time)) {
 			$updraftplus->log('No check-in last time: will try a different remote service first');
 			array_push($services, array_shift($services));
+			// Make sure that the 'no worthwhile activity' detector isn't flumoxed by the starting of a new upload at 0%
+			if ($updraftplus->current_resumption > 9) $updraftplus->jobdata_set('uploaded_lastreset', $updraftplus->current_resumption);
 			if (1 == ($updraftplus->current_resumption % 2) && count($services)>2) array_push($services, array_shift($services));
 		}
 
@@ -395,7 +397,8 @@ class UpdraftPlus_Backup {
 			foreach ($backup_to_examine as $key => $data) {
 				if ('db' != strtolower(substr($key, 0, 2)) || '-size' == substr($key, -5, 5)) continue;
 
-				if ($is_autobackup && $database_backups_found[$key] < $updraft_retain_db) {
+				$how_many_found = (empty($database_backups_found[$key])) ? 0 : $database_backups_found[$key];
+				if ($is_autobackup && $how_many_found < $updraft_retain_db) {
 					$updraftplus->log("This backup set ($backup_datestamp) was an automatic backup, and we have not yet reached the retain limit, so it will not be counted or pruned. Skipping.");
 					continue;
 				}
