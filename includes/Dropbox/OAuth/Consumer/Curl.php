@@ -78,6 +78,27 @@ class Dropbox_Curl extends Dropbox_ConsumerAbstract
         } else {
             $options[CURLOPT_SSL_VERIFYPEER] = true;
         }
+
+        if (!class_exists('WP_HTTP_Proxy')) require_once(ABSPATH.WPINC.'/class-http.php');
+        $proxy = new WP_HTTP_Proxy();
+
+        if ($proxy->is_enabled()) {
+            # WP_HTTP_Proxy returns empty strings if nothing is set
+            $user = $proxy->username();
+            $pass = $proxy->password();
+            $host = $proxy->host();
+            $port = (int)$proxy->port();
+            if (empty($port)) $port = 8080;
+            if (!empty($host) && $proxy->send_through_proxy($request['url'])) {
+                  $options[CURLOPT_PROXY] = $host;
+                  $options[CURLOPT_PROXYTYPE] = CURLPROXY_HTTP;
+                  $options[CURLOPT_PROXYPORT] = $port;
+                  if (!empty($user) && !empty($pass)) {
+                        $options[CURLOPT_PROXYAUTH] = CURLAUTH_ANY;
+                        $options[CURLOPT_PROXYUSERPWD] = sprintf('%s:%s', $user, $pass);
+                  }
+            }
+        }
         
         if ($method == 'GET' && $this->outFile) { // GET
             $options[CURLOPT_RETURNTRANSFER] = false;

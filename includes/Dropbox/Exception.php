@@ -8,6 +8,7 @@
  */
 class Dropbox_Exception extends Exception {
 }
+
 class Dropbox_BadRequestException extends Exception {
 }
 
