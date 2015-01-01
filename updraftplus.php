@@ -79,6 +79,7 @@ if (!is_admin() && (!defined('DOING_CRON') || !DOING_CRON) && (!defined('XMLRPC_
 	if ( !defined('ALTERNATE_WP_CRON') || !ALTERNATE_WP_CRON || !empty($_POST) || defined('DOING_AJAX') || isset($_GET['doing_wp_cron'])) return;
 
 	// The check below is the one used by spawn_cron() to decide whether cron events should be run
+	$gmt_time = microtime( true );
 	$lock = get_transient('doing_cron');
 	if ( $lock > $gmt_time + 10 * 60 ) $lock = 0;
 	if ( $lock + WP_CRON_LOCK_TIMEOUT > $gmt_time ) return;
@@ -90,7 +91,6 @@ if (!is_admin() && (!defined('DOING_CRON') || !DOING_CRON) && (!defined('XMLRPC_
 	if (!is_array($crons)) return;
 
 	$keys = array_keys( $crons );
-	$gmt_time = microtime( true );
 	if ( isset($keys[0]) && $keys[0] > $gmt_time ) return;
 	// If we got this far, then cron is going to be fired, so we do want to load all our hooks
 }
