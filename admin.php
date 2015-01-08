@@ -105,6 +105,7 @@ class UpdraftPlus_Admin {
 
 	public function admin_enqueue_scripts() {
 
+		wp_deregister_style('jquery-ui');
 		wp_enqueue_style('jquery-ui', UPDRAFTPLUS_URL.'/includes/jquery-ui-1.8.22.custom.css'); 
 
 		global $wp_version;
