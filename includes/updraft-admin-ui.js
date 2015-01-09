@@ -117,10 +117,14 @@ function updraft_activejobs_update(force) {
 		downloaders: downloaders
 	}
 	
-	if (jQuery("#updraft-poplog").dialog("isOpen")) {
-		gdata.log_fetch = 1;
-		gdata.log_nonce = updraft_poplog_log_nonce;
-		gdata.log_pointer = updraft_poplog_log_pointer
+	try {
+		if (jQuery("#updraft-poplog").dialog("isOpen")) {
+			gdata.log_fetch = 1;
+			gdata.log_nonce = updraft_poplog_log_nonce;
+			gdata.log_pointer = updraft_poplog_log_pointer
+		}
+	} catch (err) {
+		console.log(err);
 	}
 	
 	jQuery.get(ajaxurl, gdata, function(response) {
