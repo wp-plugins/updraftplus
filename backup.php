@@ -56,6 +56,7 @@ class UpdraftPlus_Backup {
 		# Decide which zip engine to begin with
 		$this->debug = UpdraftPlus_Options::get_updraft_option('updraft_debug_mode');
 		$this->updraft_dir = $updraftplus->backups_dir_location();
+		$this->updraft_dir_realpath = realpath($this->updraft_dir);
 
 		if ('no' === $backup_files) {
 			$this->use_zip_object = 'UpdraftPlus_PclZip';
@@ -1593,6 +1594,10 @@ class UpdraftPlus_Backup {
 				$updraftplus->log(sprintf(__("%s: unreadable file - could not be backed up (check the file permissions)", 'updraftplus'), $fullpath), 'warning');
 			}
 		} elseif (is_dir($fullpath)) {
+			if ($fullpath == $this->updraft_dir_realpath) {
+				$updraftplus->log("Skip directory (UpdraftPlus backup directory): $use_path_when_storing");
+				return true;
+			}
 			if (file_exists($fullpath.'/.donotbackup')) {
 				$updraftplus->log("Skip directory (.donotbackup file found): $use_path_when_storing");
 				return true;

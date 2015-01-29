@@ -99,13 +99,22 @@ class UpdraftPlus_Admin {
 
 		if (version_compare($wp_version, '3.2', '<')) add_action('all_admin_notices', array($this, 'show_admin_warning_wordpressversion'));
 
-		add_action('admin_enqueue_scripts', array($this, 'admin_enqueue_scripts'));
+		add_action('admin_enqueue_scripts', array($this, 'admin_enqueue_scripts'), 99999);
 
 	}
 
+// 	// Defeat other plugins/themes which dump their jQuery UI CSS onto our settings page
+// 	public function style_loader_tag($link, $handle) {
+// 		if ('jquery-ui' != $handle || false === strpos) return $link;
+// 		return "<link rel='stylesheet' id='$handle-css' $title href='$href' type='text/css' media='$media' />\n";
+// 	}
+
 	public function admin_enqueue_scripts() {
 
+		// Defeat other plugins/themes which dump their jQuery UI CSS onto our settings page
+		wp_deregister_style('jquery-ui');
 		wp_enqueue_style('jquery-ui', UPDRAFTPLUS_URL.'/includes/jquery-ui-1.8.22.custom.css'); 
+// 		add_filter('style_loader_tag', array($this, 'style_loader_tag'), 10, 2);
 
 		global $wp_version;
 		if (version_compare($wp_version, '3.3', '<')) {
@@ -1575,7 +1584,7 @@ CREATE TABLE $wpdb->signups (
 			$missing = '';
 			if (!function_exists('gzopen')) $missing .= 'gzopen';
 			if (!function_exists('gzread')) $missing .= ($missing) ? ', gzread' : 'gzread';
-			$err[] = sprintf(__("Your web server's PHP installation has these functions disabled: %s.", 'updraftplus'), implode(', ', $missing)).' '.sprintf(__('Your hosting company must enable these functions before %s can work.', 'updraftplus'), __('restoration', 'updraftplus'));
+			$err[] = sprintf(__("Your web server's PHP installation has these functions disabled: %s.", 'updraftplus'), $missing).' '.sprintf(__('Your hosting company must enable these functions before %s can work.', 'updraftplus'), __('restoration', 'updraftplus'));
 			return false;
 		}
 		if (false === ($dbhandle = gzopen($file, 'r'))) return false;
@@ -1891,7 +1900,8 @@ CREATE TABLE $wpdb->signups (
 						if ('db' != $v) $s_val = 2;
 					}
 				}
-				echo '<strong>'.__('Actions','updraftplus').':</strong> <a href="'.UpdraftPlus_Options::admin_page_url().'?page=updraftplus&updraft_restore_success='.$s_val.'">'.__('Return to UpdraftPlus Configuration','updraftplus').'</a>';
+				$pval = ($updraftplus->have_addons) ? 1 : 0;
+				echo '<strong>'.__('Actions','updraftplus').':</strong> <a href="'.UpdraftPlus_Options::admin_page_url().'?page=updraftplus&updraft_restore_success='.$s_val.'&pval='.$pval.'">'.__('Return to UpdraftPlus Configuration','updraftplus').'</a>';
 				return;
 			} elseif (is_wp_error($backup_success)) {
 				echo '<p>';
@@ -1941,7 +1951,7 @@ CREATE TABLE $wpdb->signups (
 			return;
 		}
 
-		echo '<div id="updraft_backup_started" class="updated fade" style="display:none; max-width: 800px; font-size:140%; line-height: 140%; padding:14px; clear:left;"></div>';
+		echo '<div id="updraft_backup_started" class="updated" style="display:none; max-width: 800px; font-size:140%; line-height: 140%; padding:14px; clear:left;"></div>';
 
 		if(isset($_POST['action']) && 'updraft_backup_debug_all' == $_POST['action']) {
 			$updraftplus->boot_backup(true,true);
@@ -1969,24 +1979,37 @@ CREATE TABLE $wpdb->signups (
 			</div>
 
 			<?php
-			if(isset($_GET['updraft_restore_success'])) {
-				echo "<div class=\"updated fade\" style=\"padding:8px;\"><strong>".__('Your backup has been restored.','updraftplus').'</strong>';
-				if (2 == $_GET['updraft_restore_success']) echo ' '.__('Your old (themes, uploads, plugins, whatever) directories have been retained with "-old" appended to their name. Remove them when you are satisfied that the backup worked properly.');
-				echo "</div>";
+
+			$include_deleteform_div = true;
+
+			// Opens a div, which needs closing later
+			if (isset($_GET['updraft_restore_success'])) {
+				$success_advert = (isset($_GET['pval']) && 0 == $_GET['pval'] && !$updraftplus->have_addons) ? '<p>'.__('For even more features and personal support, check out ','updraftplus').'<strong><a href="http://updraftplus.com/shop/updraftplus-premium/" target="_blank">UpdraftPlus Premium</a>.</strong></p>' : "";
+
+				echo "<div class=\"updated\" style=\"padding:8px;\"><span style=\"font-size:120%;\"><strong>".__('Your backup has been restored.','updraftplus').'</strong></span><br>';
+				// Unnecessary - will be advised of this below
+// 				if (2 == $_GET['updraft_restore_success']) echo ' '.__('Your old (themes, uploads, plugins, whatever) directories have been retained with "-old" appended to their name. Remove them when you are satisfied that the backup worked properly.');
+				echo $success_advert;
+				$include_deleteform_div = false;
+
 			}
 
+			if ($this->scan_old_dirs(true)) $this->print_delete_old_dirs_form(true, $include_deleteform_div);
+
+			// Close the div opened by the earlier section
+			if (isset($_GET['updraft_restore_success'])) echo '</div>';
+
 			$ws_advert = $updraftplus->wordshell_random_advert(1);
-			if ($ws_advert && empty($this->no_settings_warning)) { echo '<div class="updated fade" style="max-width: 800px; font-size:140%; line-height: 140%; padding:14px; clear:left;">'.$ws_advert.'</div>'; }
+			if ($ws_advert && empty($success_advert) && empty($this->no_settings_warning)) { echo '<div class="updated" style="max-width: 800px; font-size:140%; line-height: 140%; padding:14px; clear:left;">'.$ws_advert.'</div>'; }
 
 			if(!$updraftplus->memory_check(64)) {?>
 				<div class="updated" style="padding:8px;"><?php _e("Your PHP memory limit (set by your web hosting company) is very low. UpdraftPlus attempted to raise it but was unsuccessful. This plugin may struggle with a memory limit of less than 64 Mb  - especially if you have very large files uploaded (though on the other hand, many sites will be successful with a 32Mb limit - your experience may vary).",'updraftplus');?> <?php _e('Current limit is:','updraftplus');?> <?php echo $updraftplus->memory_check_current(); ?> Mb</div>
 			<?php
 			}
 
-			if($this->scan_old_dirs(true)) $this->print_delete_old_dirs_form();
 
 			if(!empty($updraftplus->errors)) {
-				echo '<div class="error fade" style="padding:8px;">';
+				echo '<div class="error" style="padding:8px;">';
 				$updraftplus->list_errors();
 				echo '</div>';
 			}
@@ -2483,18 +2506,21 @@ CREATE TABLE $wpdb->signups (
 		<?php
 	}
 
-	private function print_delete_old_dirs_form($include_blurb = true) {
+	private function print_delete_old_dirs_form($include_blurb = true, $include_div = true) {
 		?>
-			<?php if ($include_blurb) {
-			?>
-			<div id="updraft_delete_old_dirs_pagediv" class="updated" style="padding:8px;"><p> <?php _e('Your WordPress install has old directories from its state before you restored/migrated (technical information: these are suffixed with -old). You should press this button to delete them as soon as you have verified that the restoration worked.','updraftplus');?></p><?php } ?>
+			<?php if ($include_blurb) { ?>
+				<?php if ($include_div) { ?>
+					<div id="updraft_delete_old_dirs_pagediv" class="updated" style="padding:8px;">
+				<?php } ?>
+
+				<p> <?php _e('Your WordPress install has old directories from its state before you restored/migrated (technical information: these are suffixed with -old). You should press this button to delete them as soon as you have verified that the restoration worked.','updraftplus');?></p><?php } ?>
 			<form method="post" onsubmit="return updraft_delete_old_dirs();" action="<?php echo add_query_arg(array('updraft_restore_success' => false, 'action' => false, 'page' => 'updraftplus')); ?>">
 				<?php wp_nonce_field('updraftplus-credentialtest-nonce'); ?>
 				<input type="hidden" name="action" value="updraft_delete_old_dirs">
 				<input type="submit" class="button-primary" value="<?php echo esc_attr(__('Delete Old Directories', 'updraftplus'));?>"  />
 			</form>
 		<?php
-			if ($include_blurb) echo '</div>';
+			if ($include_blurb && $include_div) echo '</div>';
 		}
 
 
@@ -3124,7 +3150,7 @@ CREATE TABLE $wpdb->signups (
 					<?php
 						$updraft_email = UpdraftPlus_Options::get_updraft_option('updraft_email');
 					?>
-					<input type="checkbox" id="updraft_email" name="updraft_email" value="<?php esc_attr_e(get_bloginfo('admin_email')); ?>"<?php if (!empty($updraft_email)) echo ' checked="checked"';?> > <br><label for="updraft_email"><?php echo sprintf(__("Check this box to have a basic report sent to your site's admin address (%s).",'updraftplus'), htmlspecialchars(get_bloginfo('admin_email'))); ?></label>
+					<input type="checkbox" id="updraft_email" name="updraft_email" value="<?php esc_attr_e(get_bloginfo('admin_email')); ?>"<?php if (!empty($updraft_email)) echo ' checked="checked"';?> > <br><label for="updraft_email"><?php echo __("Check this box to have a basic report sent to", 'updraftplus').' <a href="'.admin_url('options-general.php').'">'.__("your site's admin address", 'updraftplus').'</a> ('.htmlspecialchars(get_bloginfo('admin_email')).")."; ?></label>
 					<?php
 						if (!class_exists('UpdraftPlus_Addon_Reporting')) echo '<a href="http://updraftplus.com/shop/reporting/">'.__('For more reporting features, use the Reporting add-on.', 'updraftplus').'</a>';
 					?>
@@ -4357,6 +4383,10 @@ ENDHERE;
 		foreach (array('template', 'stylesheet', 'template_root', 'stylesheet_root') as $opt) {
 			add_filter('pre_option_'.$opt, array($this, 'option_filter_'.$opt));
 		}
+
+		# Clear any cached pages after the restore
+		$updraftplus_restorer->clear_cache();
+
 		if (!function_exists('validate_current_theme')) require_once(ABSPATH.WPINC.'/themes');
 
 			# Have seen a case where the current theme in the DB began with a capital, but not on disk - and this breaks migrating from Windows to a case-sensitive system

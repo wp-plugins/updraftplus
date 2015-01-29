@@ -908,6 +908,30 @@ class Updraft_Restorer extends WP_Upgrader {
 
 	}
 
+	// First added in UD 1.9.47. We have only ever had reports of cached stuff from WP Super Cache being retained, so, being cautious, we will only clear that for now
+	public function clear_cache() {
+		// Functions called here need to not assume that the relevant plugin actually exists - they should check for any functions they intend to call, before calling them.
+		$this->clear_cache_wpsupercache();
+	}
+
+	// Adapted from wp_cache_clean_cache( $file_prefix, $all = false ) in WP Super Cache (wp-cache.php)
+	private function clear_cache_wpsupercache() {
+		$all = true;
+
+		global $updraftplus, $cache_path, $wp_cache_object_cache;
+
+		if ( $wp_cache_object_cache && function_exists( "reset_oc_version" ) ) reset_oc_version();
+
+		// Removed check: && wpsupercache_site_admin()
+		if ( $all == true && function_exists( 'prune_super_cache' ) ) {
+			if (!empty($cache_path)) {
+				$updraftplus->log_e("Clearing cached pages (%s)...", 'WP Super Cache');
+				prune_super_cache( $cache_path, true );
+			}
+			return true;
+		}
+	}
+
 	private function search_for_folder($folder, $startat) {
 		# Exists in this folder?
 		if (is_dir($startat.'/'.$folder)) return trailingslashit($startat).$folder;
@@ -1129,7 +1153,7 @@ class Updraft_Restorer extends WP_Upgrader {
 		$this->old_siteurl = '';
 		$this->old_home = '';
 		$this->old_content = '';
-		$old_table_prefix = '';
+		$old_table_prefix = (defined('UPDRAFTPLUS_OVERRIDE_IMPORT_PREFIX') && UPDRAFTPLUS_OVERRIDE_IMPORT_PREFIX) ? UPDRAFTPLUS_OVERRIDE_IMPORT_PREFIX : '';
 		$old_siteinfo = array();
 		$gathering_siteinfo = true;
 
@@ -1291,6 +1315,8 @@ class Updraft_Restorer extends WP_Upgrader {
 				$sql_type = -1;
 				# If this is the very first SQL line of the options table, we need to bail; it's essential
 				if (0 == $this->insert_statements_run && $restoring_table && $restoring_table == $import_table_prefix.'options') {
+					$updraftplus->log("Leaving maintenance mode");
+					$this->maintenance_mode(false);
 					return new WP_Error('initial_db_error', sprintf(__('An error occurred on the first %s command - aborting run','updraftplus'), 'INSERT (options)'));
 				}
 				continue;
@@ -1313,7 +1339,7 @@ class Updraft_Restorer extends WP_Upgrader {
 				if ('' == $old_table_prefix && preg_match('/^([a-z0-9]+)_.*$/i', $this->table_name, $tmatches)) {
 					$old_table_prefix = $tmatches[1].'_';
 					echo '<strong>'.__('Old table prefix:', 'updraftplus').'</strong> '.htmlspecialchars($old_table_prefix).'<br>';
-					$updraftplus->log("Old table prefix: $old_table_prefix");
+					$updraftplus->log("Old table prefix (detected from first table): $old_table_prefix");
 				}
 
 				$this->new_table_name = ($old_table_prefix) ? $updraftplus->str_replace_once($old_table_prefix, $import_table_prefix, $this->table_name) : $this->table_name;
@@ -1333,7 +1359,7 @@ class Updraft_Restorer extends WP_Upgrader {
 				if ('' == $old_table_prefix && preg_match('/^([a-z0-9]+)_.*$/i', $this->table_name, $tmatches)) {
 					$old_table_prefix = $tmatches[1].'_';
 					echo '<strong>'.__('Old table prefix:', 'updraftplus').'</strong> '.htmlspecialchars($old_table_prefix).'<br>';
-					$updraftplus->log("Old table prefix: $old_table_prefix");
+					$updraftplus->log("Old table prefix (detected from creating first table): $old_table_prefix");
 				}
 
 				// MySQL 4.1 outputs TYPE=, but accepts ENGINE=; 5.1 onwards accept *only* ENGINE=
@@ -1503,6 +1529,8 @@ class Updraft_Restorer extends WP_Upgrader {
 				# If this is the very first SQL line of the options table, we need to bail; it's essential
 				$this->errors++;
 				if (0 == $this->insert_statements_run && $this->new_table_name && $this->new_table_name == $import_table_prefix.'options') {
+					$updraftplus->log("Leaving maintenance mode");
+					$this->maintenance_mode(false);
 					return new WP_Error('initial_db_error', sprintf(__('An error occurred on the first %s command - aborting run','updraftplus'), 'INSERT (options)'));
 				}
 				return false;
@@ -1532,7 +1560,16 @@ class Updraft_Restorer extends WP_Upgrader {
 			$updraftplus->log("An error (".$this->errors.") occurred: ".$this->last_error." - SQL query was: ".substr($sql_line, 0, 65536));
 			// First command is expected to be DROP TABLE
 			if (1 == $this->errors && 2 == $sql_type && 0 == $this->tables_created) {
-				return new WP_Error('initial_db_error', sprintf(__('An error occurred on the first %s command - aborting run','updraftplus'), 'CREATE TABLE'));
+				if ($this->drop_forbidden) {
+					$updraftplus->log_e("Create table failed - probably because there is no permission to drop tables and the table already exists; will continue");
+				} else {
+					$updraftplus->log("Leaving maintenance mode");
+					$this->maintenance_mode(false);
+					return new WP_Error('initial_db_error', sprintf(__('An error occurred on the first %s command - aborting run','updraftplus'), 'CREATE TABLE'));
+				}
+			} elseif (2 == $sql_type && 0 == $this->tables_created && $this->drop_forbidden) {
+				// Decrease error counter again; otherwise, we'll cease if there are >=50 tables
+				if (!$ignore_errors) $this->errors--;
 			}
 			if ($this->errors>49) {
 				return new WP_Error('too_many_db_errors', __('Too many database errors have occurred - aborting','updraftplus'));

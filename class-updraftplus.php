@@ -2479,7 +2479,7 @@ class UpdraftPlus {
 		return apply_filters('updraftplus_'.$filter, $rinput, $oinput);
 	}
 
-	function memory_check_current($memory_limit = false) {
+	public function memory_check_current($memory_limit = false) {
 		# Returns in megabytes
 		if ($memory_limit == false) $memory_limit = ini_get('memory_limit');
 		$memory_limit = rtrim($memory_limit);
@@ -2507,7 +2507,7 @@ class UpdraftPlus {
 		return $memory_limit;
 	}
 
-	function memory_check($memory, $check_using = false) {
+	public function memory_check($memory, $check_using = false) {
 		$memory_limit = $this->memory_check_current($check_using);
 		return ($memory_limit >= $memory)?true:false;
 	}

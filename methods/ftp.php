@@ -25,7 +25,7 @@ class UpdraftPlus_BackupModule_ftp {
 	// Get FTP object with parameters set
 	private function getFTP($server, $user, $pass, $disable_ssl = false, $disable_verify = true, $use_server_certs = false, $passive = true) {
 
-		if ('' == $server || '' == $user || '' == $pass) return new WP_Error('no_settings', sprintf(__('No %s settings were found','updraftplus'), 'FTP'));
+		if (empty($server) || empty($user) || empty($pass)) return new WP_Error('no_settings', sprintf(__('No %s settings were found','updraftplus'), 'FTP'));
 
 		if( !class_exists('UpdraftPlus_ftp_wrapper')) require_once(UPDRAFTPLUS_DIR.'/includes/ftp.class.php');
 
@@ -71,10 +71,13 @@ class UpdraftPlus_BackupModule_ftp {
 			$updraftplus->get_job_option('updraft_ssl_disableverify'),
 			$updraftplus->get_job_option('updraft_ssl_useservercerts')
 		);
-		if (is_wp_error($ftp)) return $ftp;
 
-		if (!$ftp->connect()) {
-			$updraftplus->log("FTP Failure: we did not successfully log in with those credentials.");
+		if (is_wp_error($ftp) || !$ftp->connect()) {
+			if (is_wp_error($ftp)) {
+				$updraftplus->log_wp_error($ftp);
+			} else {
+				$updraftplus->log("FTP Failure: we did not successfully log in with those credentials.");
+			}
 			$updraftplus->log(sprintf(__("%s login failure",'updraftplus'), 'FTP'), 'error');
 			return false;
 		}
@@ -171,10 +174,9 @@ class UpdraftPlus_BackupModule_ftp {
 
 		$opts = $this->get_opts();
 
-		if (isset($ftparr['ftp_object'])) {
+		if (is_array($ftparr['ftp_object']) && isset($ftparr['ftp_object'])) {
 			$ftp = $ftparr['ftp_object'];
 		} else {
-
 			$ftp = $this->getFTP(
 				$opts['host'],
 				$opts['user'],
@@ -183,9 +185,9 @@ class UpdraftPlus_BackupModule_ftp {
 				$updraftplus->get_job_option('updraft_ssl_disableverify'),
 				$updraftplus->get_job_option('updraft_ssl_useservercerts')
 			);
-			if (is_wp_error($ftp)) return $ftp;
 
-			if (!$ftp->connect()) {
+			if (is_wp_error($ftp) || !$ftp->connect()) {
+				if (is_wp_error($ftp)) $updraftplus->log_wp_error($ftp);
 				$updraftplus->log("FTP Failure: we did not successfully log in with those credentials (host=".$opts['host'].").");
 				return false;
 			}

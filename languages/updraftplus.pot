@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: UpdraftPlus\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-27 14:33+0100\n"
-"PO-Revision-Date: 2015-01-27 14:33+0100\n"
+"POT-Creation-Date: 2015-01-29 13:14+0100\n"
+"PO-Revision-Date: 2015-01-29 13:14+0100\n"
 "Last-Translator: David Anderson <contact@updraftplus.com>\n"
 "Language-Team:  <contact@updraftplus.com>\n"
 "MIME-Version: 1.0\n"
@@ -119,14 +119,14 @@ msgid "%s error - failed to re-assemble chunks"
 msgstr ""
 
 #: class-updraftplus.php:697 restorer.php:1640 restorer.php:1657
-#: restorer.php:1722 admin.php:1185 admin.php:4260 methods/stream-base.php:190
+#: restorer.php:1722 admin.php:1185 admin.php:4260 methods/stream-base.php:197
 #: methods/addon-base.php:75 methods/addon-base.php:80
 #: methods/addon-base.php:175 methods/addon-base.php:195
 msgid "Error"
 msgstr ""
 
 #: class-updraftplus.php:697 methods/cloudfiles.php:392
-#: methods/stream-base.php:274
+#: methods/stream-base.php:281
 msgid "Error opening local file: Failed to download"
 msgstr ""
 
@@ -2239,7 +2239,7 @@ msgid ""
 "manually."
 msgstr ""
 
-#: admin.php:2756 admin.php:2791 admin.php:2800 methods/stream-base.php:310
+#: admin.php:2756 admin.php:2791 admin.php:2800 methods/stream-base.php:317
 #: methods/addon-base.php:281 addons/sftp.php:471
 msgid "Failed"
 msgstr ""
@@ -2427,9 +2427,11 @@ msgid "Email"
 msgstr ""
 
 #: admin.php:3153
-#, php-format
-msgid ""
-"Check this box to have a basic report sent to your site's admin address (%s)."
+msgid "Check this box to have a basic report sent to"
+msgstr ""
+
+#: admin.php:3153
+msgid "your site's admin address"
 msgstr ""
 
 #: admin.php:3155
@@ -3357,8 +3359,8 @@ msgid "follow this link to get it"
 msgstr ""
 
 #: methods/googledrive.php:139 methods/stream-base.php:32
-#: methods/stream-base.php:139 methods/stream-base.php:174
-#: methods/stream-base.php:258 methods/addon-base.php:56
+#: methods/stream-base.php:146 methods/stream-base.php:181
+#: methods/stream-base.php:265 methods/addon-base.php:56
 #: methods/addon-base.php:92 methods/addon-base.php:117
 #: methods/addon-base.php:165 methods/addon-base.php:262 methods/ftp.php:28
 #: addons/sftp.php:44
@@ -3405,7 +3407,7 @@ msgid "However, subsequent access attempts failed:"
 msgstr ""
 
 #: methods/googledrive.php:351 methods/openstack-base.php:416
-#: methods/cloudfiles.php:585 methods/stream-base.php:321 methods/s3.php:656
+#: methods/cloudfiles.php:585 methods/stream-base.php:328 methods/s3.php:656
 #: methods/addon-base.php:288 addons/sftp.php:504
 msgid "Success"
 msgstr ""
@@ -3422,7 +3424,7 @@ msgstr ""
 
 #: methods/googledrive.php:374 methods/googledrive.php:420
 #: methods/googledrive.php:426 methods/googledrive.php:428
-#: methods/stream-base.php:190
+#: methods/stream-base.php:197
 #, php-format
 msgid "Failed to upload to %s"
 msgstr ""
@@ -3457,8 +3459,8 @@ msgstr ""
 
 #: methods/googledrive.php:774 methods/openstack-base.php:343
 #: methods/cloudfiles.php:392 methods/cloudfiles.php:409
-#: methods/stream-base.php:274 methods/stream-base.php:281
-#: methods/stream-base.php:294 methods/addon-base.php:189
+#: methods/stream-base.php:281 methods/stream-base.php:288
+#: methods/stream-base.php:301 methods/addon-base.php:189
 #, php-format
 msgid "%s Error"
 msgstr ""
@@ -3469,7 +3471,7 @@ msgid "%s download: failed: file not found"
 msgstr ""
 
 #: methods/googledrive.php:840 methods/openstack-base.php:443
-#: methods/cloudfiles.php:463 methods/stream-base.php:225 methods/s3.php:505
+#: methods/cloudfiles.php:463 methods/stream-base.php:232 methods/s3.php:505
 #: methods/dropbox.php:388 methods/addon-base.php:211 methods/ftp.php:315
 #, php-format
 msgid ""
@@ -3616,7 +3618,7 @@ msgstr ""
 
 #: methods/openstack-base.php:288 methods/openstack-base.php:464
 #: methods/cloudfiles.php:448 methods/cloudfiles.php:521
-#: methods/stream-base.php:210 methods/stream-base.php:232 methods/s3.php:485
+#: methods/stream-base.php:217 methods/stream-base.php:239 methods/s3.php:485
 #: methods/s3.php:562 methods/addon-base.php:224 methods/addon-base.php:247
 #: methods/ftp.php:266 methods/ftp.php:341 addons/sftp.php:402
 #: addons/sftp.php:428
@@ -3625,7 +3627,7 @@ msgid "Test %s Settings"
 msgstr ""
 
 #: methods/openstack-base.php:289 methods/cloudfiles.php:449
-#: methods/stream-base.php:211 methods/s3.php:486 methods/addon-base.php:248
+#: methods/stream-base.php:218 methods/s3.php:486 methods/addon-base.php:248
 #: methods/ftp.php:267 addons/sftp.php:430 addons/sftp.php:432
 #, php-format
 msgid "%s settings test result:"
@@ -3732,25 +3734,25 @@ msgstr ""
 msgid "Chunk %s: A %s error occurred"
 msgstr ""
 
-#: methods/stream-base.php:124
+#: methods/stream-base.php:126 methods/stream-base.php:131
 msgid "Upload failed"
 msgstr ""
 
-#: methods/stream-base.php:201 methods/s3.php:470 methods/addon-base.php:238
+#: methods/stream-base.php:208 methods/s3.php:470 methods/addon-base.php:238
 #: methods/ftp.php:251 addons/sftp.php:411
 #, php-format
 msgid "Testing %s Settings..."
 msgstr ""
 
-#: methods/stream-base.php:281
+#: methods/stream-base.php:288
 msgid "Error opening remote file: Failed to download"
 msgstr ""
 
-#: methods/stream-base.php:294
+#: methods/stream-base.php:301
 msgid "Local write failed: Failed to download"
 msgstr ""
 
-#: methods/stream-base.php:324 methods/addon-base.php:291
+#: methods/stream-base.php:331 methods/addon-base.php:291
 msgid ""
 "Failed: We were not able to place a file in that directory - please check "
 "your credentials."

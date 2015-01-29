@@ -3,7 +3,7 @@ Contributors: Backup with UpdraftPlus, DavidAnderson
 Tags: backup, backups, restore, amazon backup, s3 backup, dropbox backup, google drive backup, rackspace cloud files, rackspace backup, cloud files, dreamhost, dreamobjects backup, ftp backup, webdav backup, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp backup, ftps, scp, migrate, duplicate, copy, mysql backup, database backup, db backup, website backup, wordpress backup, full backup, openstack, swift
 Requires at least: 3.2
 Tested up to: 4.1
-Stable tag: 1.9.46
+Stable tag: 1.9.50
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -16,7 +16,7 @@ Backup and restoration made easy. Complete backups; manual or scheduled (backup 
 
 <strong>Top-quality:</strong> UpdraftPlus is the <a href="http://rankwp.com/plugins/updraftplus">highest-ranking backup plugin on rankwp.com</a> (ranks in the top 40 out of 30,000 WordPress plugins for quality on rankwp.com - last checked 21 September 2014).
 
-<strong>Tens of thousands of users:</strong> widely tested and reliable (over 1.6 million downloads). Ranks in the top 100 most used of all WordPress plugins on rankwp.com. Millions of backups completed!
+<strong>Tens of thousands of users:</strong> widely tested and reliable (over 1.7 million downloads). Ranks in the top 100 most used of all WordPress plugins on rankwp.com. Millions of backups completed!
 
 * Supports WordPress backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP, OpenStack (Swift) and email. Also (via an add-on) Copy.Com, FTP over SSL, SFTP, SCP, and WebDAV (and compatible services, e.g. Yandex, Cubby). (Note: Microsoft forbid OneDrive/SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
 * Quick restore (both file and database backups)
@@ -152,6 +152,26 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 == Changelog ==
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
+
+= 1.9.50 - 2015-01-29 =
+
+* TWEAK: Importer now supports a previously-unseen format for WordPress Backup 2 Dropbox backups
+* TWEAK: Fix cron calculation that could have prevented UpdraftPlus loading when using ALTERNATE_WP_CRON (see 1.9.45)
+* TWEAK: If insufficient permissions exist when restoring, then exit maintenance mode when this is detected; and handle the case of having create but not drop permissions more elegantly
+* TWEAK: Defeat some other plugins/themes which load their CSS code onto UpdraftPlus settings page and break things
+* TWEAK: Prevent a "not tested on this version of WP" message showing for a short time after install of a new version, when it only applied to the previous version
+* TWEAK: Reduce HTTP timeout when checking for available plugin updates (paid versions) from 10 to 5 seconds
+* TWEAK: Tidy up the post-restore screen a little - one less info box.
+* TWEAK: When a restore finishes, WP Super Cache's cache will be emptied (if present), to prevent confusion caused by cached pre-restore pages.
+* TWEAK: Slight change to how the 'mothership' for updates is calculated, for more flexibility in our in-house testing
+* TWEAK: Log more informative error if user chooses 'FTP' for their remote storage, but adds no FTP settings
+* TWEAK: Change "any other directory" to "any other file/directory" in the "more files" add-on, to better reflect its capabilities
+* TWEAK: Make sure that "more files" will skip UD's temporary directory, if asked to back up a parent directory of it
+* TWEAK: Default to https for updates checking, with fallback to http (only relevant to versions from updraftplus.com)
+* TWEAK: Prevent 'Strict Standards' PHP coding notice with WebDAV on PHP 5.5
+* TWEAK: Provide clickable link through to the admin email address in the reporting settings
+* TWEAK: If the gzopen or gzread functions are disabled in the PHP install, then the message saying so omitted to say which one (or both)
+* FIX: WebDAV upload method could very occasionally fail to detect upload error conditions
 
 = 1.9.46 - 2014-12-29 =
 
@@ -1021,4 +1041,4 @@ Furthermore, reliance upon any non-English translation is at your own risk. Updr
 
 
 == Upgrade Notice ==
-* 1.9.46 : Small tweaks + improvements, including fix incompatibility of Dropbox when ManageWP worker plugin was installed. Recommended update for all.
+* 1.9.50 : Many and various minor tweaks. Recommended update for all.
