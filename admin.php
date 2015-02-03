@@ -184,6 +184,9 @@ class UpdraftPlus_Admin {
 	}
 
 	public function core_upgrade_preamble() {
+		
+		if (!current_user_can('update_core')) return;
+
 		if (!class_exists('UpdraftPlus_Addon_Autobackup')) {
 			if (defined('UPDRAFTPLUS_NOADS_B')) return;
 			# TODO: Remove legacy/wrong use of transient any time from 1 Jun 2014
@@ -444,6 +447,12 @@ class UpdraftPlus_Admin {
 	public function admin_action_upgrade_pluginortheme() {
 
 		if (isset($_GET['action']) && ($_GET['action'] == 'upgrade-plugin' || $_GET['action'] == 'upgrade-theme') && !class_exists('UpdraftPlus_Addon_Autobackup') && !defined('UPDRAFTPLUS_NOADS_B')) {
+
+			if ($_GET['action'] == 'upgrade-plugin') {
+				if (!current_user_can('update_plugins')) return;
+			} else {
+				if (!current_user_can('update_themes')) return;
+			}
 
 			# TODO: Remove legacy/erroneous use of transient any time after 1 Jun 2014
 			$dismissed = get_transient('updraftplus_dismissedautobackup');
@@ -715,7 +724,18 @@ class UpdraftPlus_Admin {
 		global $updraftplus;
 
 		$nonce = (empty($_REQUEST['nonce'])) ? "" : $_REQUEST['nonce'];
+
 		if (!wp_verify_nonce($nonce, 'updraftplus-credentialtest-nonce') || empty($_REQUEST['subaction'])) die('Security check');
+
+		// Mitigation in case the nonce leaked to an unauthorised user
+		if (isset($_REQUEST['subaction']) && 'dismissautobackup' == $_REQUEST['subaction']) {
+			if (!current_user_can('update_plugins') && !current_user_can('update_themes')) return;
+		} elseif (isset($_REQUEST['subaction']) && 'dismissexpiry' == $_REQUEST['subaction']) {
+			if (!current_user_can('update_plugins')) return;
+		} else {
+			if (!UpdraftPlus_Options::user_can_manage()) return;
+		}
+
 		if (isset($_REQUEST['subaction']) && 'lastlog' == $_REQUEST['subaction']) {
 			echo htmlspecialchars(UpdraftPlus_Options::get_updraft_option('updraft_lastmessage', '('.__('Nothing yet logged', 'updraftplus').')'));
 		} elseif (isset($_GET['subaction']) && 'activejobs_list' == $_GET['subaction']) {
@@ -760,6 +780,7 @@ class UpdraftPlus_Admin {
 				'u' => $logupdate_array
 			));
 		} elseif (isset($_REQUEST['subaction']) && 'callwpaction' == $_REQUEST['subaction'] && !empty($_REQUEST['wpaction'])) {
+
 			ob_start();
 
 			$res = '<em>Request received: </em>';
@@ -2946,7 +2967,7 @@ CREATE TABLE $wpdb->signups (
 
 	public function get_intervals() {
 		return apply_filters('updraftplus_backup_intervals', array(
-			"manual" => _x("Manual", 'i.e. Non-automatic', 'updraftplus'),
+			'manual' => _x("Manual", 'i.e. Non-automatic', 'updraftplus'),
 			'every4hours' => sprintf(__("Every %s hours", 'updraftplus'), '4'),
 			'every8hours' => sprintf(__("Every %s hours", 'updraftplus'), '8'),
 			'twicedaily' => sprintf(__("Every %s hours", 'updraftplus'), '12'),

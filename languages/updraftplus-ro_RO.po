@@ -10,12 +10,45 @@ msgstr ""
 "X-Generator: GlotPress/0.1\n"
 "Project-Id-Version: UpdraftPlus\n"
 
-#: addons/morefiles.php:178
-msgid "Any other file/directory on your server that you wish to back up"
+#: restorer.php:1559
+msgctxt "The user is being told the number of times an error has happened, e.g. An error (27) occurred"
+msgid "An error (%s) occurred:"
+msgstr ""
+
+#: admin.php:2949
+msgctxt "i.e. Non-automatic"
+msgid "Manual"
+msgstr ""
+
+#: admin.php:3153
+msgid "Check this box to have a basic report sent to"
+msgstr ""
+
+#: admin.php:3153
+msgid "your site's admin address"
+msgstr ""
+
+#: methods/openstack2.php:102
+msgctxt "Keystone and swauth are technical terms which cannot be translated"
+msgid "This needs to be a v2 (Keystone) authentication URI; v1 (Swauth) is not supported."
+msgstr ""
+
+#: methods/openstack2.php:157
+msgctxt "\"tenant\" is a term used with OpenStack storage - Google for \"OpenStack tenant\" to get more help on its meaning"
+msgid "tenant"
 msgstr ""
 
 #: addons/sftp.php:336
-msgid "Resuming partial uploads is supported for SFTP, but not for SCP. Thuis, if using SCP then you will need to ensure that your webserver allows PHP processes to run long enough to upload your largest backup file."
+msgid "Resuming partial uploads is supported for SFTP, but not for SCP. Thus, if using SCP then you will need to ensure that your webserver allows PHP processes to run long enough to upload your largest backup file."
+msgstr ""
+
+#: addons/sftp.php:373
+msgctxt "Do not translate BEGIN RSA PRIVATE KEY. PCKS1, XML, PEM and PuTTY are also technical acronyms which should not be translated."
+msgid "PKCS1 (PEM header: BEGIN RSA PRIVATE KEY), XML and PuTTY format keys are accepted."
+msgstr ""
+
+#: addons/morefiles.php:178
+msgid "Any other file/directory on your server that you wish to back up"
 msgstr ""
 
 #: addons/lockadmin.php:162
@@ -703,10 +736,6 @@ msgstr "Lasati liber acest camp si va fi folosita valoarea implicita"
 msgid "Container"
 msgstr "Container"
 
-#: methods/openstack2.php:157
-msgid "tenant"
-msgstr "chirias"
-
 #: methods/addon-base.php:101
 msgid "failed to list files"
 msgstr "nu s-a reusit listarea fisierelor"
@@ -726,10 +755,6 @@ msgstr "Primiti acreditarile de acces de la providerul dumneavoastra OpenStack S
 #: methods/openstack2.php:99 methods/openstack2.php:162
 msgid "authentication URI"
 msgstr "autentificare URI"
-
-#: methods/openstack2.php:102
-msgid "This needs to be a v2 (Keystone) authentication URI; v1 (Swauth) is not supported."
-msgstr "Trebuie sa fie o autentificare URI de tip v2 (Keystone), tipul v1 (Swauth) nu este suportata."
 
 #: methods/addon-base.php:75 methods/addon-base.php:80
 msgid "Failed to upload %s"
@@ -895,10 +920,6 @@ msgstr "Logarea dumneavoastra se poate face pe baza de parola sau cu cheie - tre
 #: addons/sftp.php:370
 msgid "Key"
 msgstr "Cheie"
-
-#: addons/sftp.php:373
-msgid "PKCS1 (PEM header: BEGIN RSA PRIVATE KEY), XML and PuTTY format keys are accepted."
-msgstr "PKCS1 (headerul PEM: BEGIN RSA PRIVATE KEY), sunt acceptate pentru chei si formatele XML si PuTTY."
 
 #: admin.php:3674 admin.php:3952 addons/importer.php:186
 msgid "Backup created by: %s."
@@ -1403,10 +1424,6 @@ msgstr "A aparut o eroare la incercarea de conectare la UpdraftPlus.Com"
 msgid "Create"
 msgstr "Creare"
 
-#: restorer.php:1559
-msgid "An error (%s) occurred:"
-msgstr "A aparut o eroare (%s):"
-
 #: admin.php:143
 msgid "The new user's RackSpace console password is (this will not be shown again):"
 msgstr "Parola consolei noului utilizator Rackspace este (nu va mai fi afisata niciodata):"
@@ -1587,10 +1604,6 @@ msgstr "%s nu a dat rezultatul scontat - verificati fisierul de log pentru mai m
 #: udaddons/options.php:237
 msgid "Connect"
 msgstr "Conectare"
-
-#: admin.php:3153
-msgid "Check this box to have a basic report sent to your site's admin address (%s)."
-msgstr "Bifati aceasta casuta pentru a primi un sumar la adresa de mail (%s) a administratorului site-ului dumneavoastra."
 
 #: admin.php:3155
 msgid "For more reporting features, use the Reporting add-on."
@@ -1960,7 +1973,7 @@ msgstr "Pastreaza aceasta optiune pentru viitor (veti avea posibilitatea sa modi
 msgid "(logs can be found in the UpdraftPlus settings page as normal)..."
 msgstr "(logurile/jurnalele pot fi gasite in pagina de setari UpdraftPlus, ca de obicei)..."
 
-#: methods/stream-base.php:124
+#: methods/stream-base.php:126 methods/stream-base.php:131
 msgid "Upload failed"
 msgstr "Upload esuat"
 
@@ -2009,7 +2022,7 @@ msgid "The attempt to send the backup via email failed (probably the backup was 
 msgstr "Incercarea de a trimite backup-ul pe email a esuat (probabil marimea copiei de rezerva este prea mare pentru aceasta metoda)"
 
 #: methods/openstack-base.php:289 methods/cloudfiles.php:449
-#: methods/stream-base.php:211 methods/s3.php:486 methods/addon-base.php:248
+#: methods/stream-base.php:218 methods/s3.php:486 methods/addon-base.php:248
 #: methods/ftp.php:267 addons/sftp.php:430 addons/sftp.php:432
 msgid "%s settings test result:"
 msgstr "Rezultatul testarii setarilor %s:"
@@ -2566,8 +2579,8 @@ msgstr "% eroare-descarcarea fisierului a fost nereusita."
 
 #: methods/googledrive.php:774 methods/openstack-base.php:343
 #: methods/cloudfiles.php:392 methods/cloudfiles.php:409
-#: methods/stream-base.php:274 methods/stream-base.php:281
-#: methods/stream-base.php:294 methods/addon-base.php:189
+#: methods/stream-base.php:281 methods/stream-base.php:288
+#: methods/stream-base.php:301 methods/addon-base.php:189
 msgid "%s Error"
 msgstr "%eroare"
 
@@ -2687,11 +2700,11 @@ msgstr "Verifica accesul la fisier: Crearea si accesarea folder-ului nu a fost p
 msgid "Your web server's PHP installation does not included a required module (%s). Please contact your web hosting provider's support and ask for them to enable it."
 msgstr "Instalarea limbajului de programare PHP nu a inclus un modul potrivit. Contactati centrul de asistenta al furnizorului de internet pentru a-l pune in functiune."
 
-#: methods/s3.php:666
+#: methods/s3.php:667
 msgid "Please check your access credentials."
 msgstr "Verificati-va parolele de acces."
 
-#: methods/s3.php:644
+#: methods/s3.php:645
 msgid "The error reported by %s was:"
 msgstr "Eroarea raportata era:"
 
@@ -2844,7 +2857,7 @@ msgstr "Link-ul blogului."
 msgid "RSS link"
 msgstr "Link-ul RSS"
 
-#: methods/stream-base.php:201 methods/s3.php:470 methods/addon-base.php:238
+#: methods/stream-base.php:208 methods/s3.php:470 methods/addon-base.php:238
 #: methods/ftp.php:251 addons/sftp.php:411
 msgid "Testing %s Settings..."
 msgstr "Testarea setarilor..."
@@ -3114,8 +3127,8 @@ msgid "Failure: we successfully logged in, but were not able to create a file in
 msgstr "Esuare: ne-am conectat cu succes, dar nu am putut crea fisiere in directorul stabilit."
 
 #: methods/googledrive.php:139 methods/stream-base.php:32
-#: methods/stream-base.php:139 methods/stream-base.php:174
-#: methods/stream-base.php:258 methods/addon-base.php:56
+#: methods/stream-base.php:146 methods/stream-base.php:181
+#: methods/stream-base.php:265 methods/addon-base.php:56
 #: methods/addon-base.php:92 methods/addon-base.php:117
 #: methods/addon-base.php:165 methods/addon-base.php:262 methods/ftp.php:28
 #: addons/sftp.php:44
@@ -3126,11 +3139,11 @@ msgstr "Nicio setare %s nu a fost gasita"
 msgid "Chunk %s: A %s error occurred"
 msgstr "Chunk %s: O eroare %s a aparut"
 
-#: methods/stream-base.php:281
+#: methods/stream-base.php:288
 msgid "Error opening remote file: Failed to download"
 msgstr "Eroare la deschidere fisier stocat la distanta: Descarcare esuata"
 
-#: methods/stream-base.php:294
+#: methods/stream-base.php:301
 msgid "Local write failed: Failed to download"
 msgstr "Esuare la scriere locala: Descarcare esuata"
 
@@ -3142,12 +3155,12 @@ msgstr "URL WebDAV"
 msgid "Enter a complete URL, beginning with webdav:// or webdavs:// and including path, username, password and port as required - e.g.%s"
 msgstr "Introduceti URL-ul complet, incepand cu webdav:// sau webdavs:// si incluzand calea, utilizatorul, parola si portul asa cum sunt solicitate - exemplu %s"
 
-#: admin.php:2756 admin.php:2791 admin.php:2800 methods/stream-base.php:310
+#: admin.php:2756 admin.php:2791 admin.php:2800 methods/stream-base.php:317
 #: methods/addon-base.php:281 addons/sftp.php:471
 msgid "Failed"
 msgstr "Esuare"
 
-#: methods/stream-base.php:324 methods/addon-base.php:291
+#: methods/stream-base.php:331 methods/addon-base.php:291
 msgid "Failed: We were not able to place a file in that directory - please check your credentials."
 msgstr "Esuare: Nu am reusit sa scriem un fisier in directorul mentionat - va rugam verificati-va acreditarile si setarile dumneavoastra."
 
@@ -3220,31 +3233,31 @@ msgstr "API secret"
 msgid "Failure: No bucket details were given."
 msgstr "Esuare: Nu au fost date detalii despre bucket."
 
-#: methods/s3.php:613 methods/openstack2.php:113
+#: methods/s3.php:614 methods/openstack2.php:113
 msgid "Region"
 msgstr "Regiune"
 
-#: methods/s3.php:643
+#: methods/s3.php:644
 msgid "Failure: We could not successfully access or create such a bucket. Please check your access credentials, and if those are correct then try another bucket name (as another %s user may already have taken your name)."
 msgstr "Esuare: Nu am putut accesa sau crea acest bucket. Va rugam verificati acreditarile si datele dumneavoastra de acces. Daca ele sunt corecte incercati un alt nume (se poate ca alt utilizator %s sa fi luat deja acest nume)."
 
-#: methods/s3.php:654 methods/s3.php:666
+#: methods/s3.php:655 methods/s3.php:667
 msgid "Failure"
 msgstr "Esec"
 
-#: methods/s3.php:654 methods/s3.php:666
+#: methods/s3.php:655 methods/s3.php:667
 msgid "We successfully accessed the bucket, but the attempt to create a file in it failed."
 msgstr "Am accesat cu succes bucket-ul, dar incercarea de a crea un fisier a esuat."
 
-#: methods/s3.php:656
+#: methods/s3.php:657
 msgid "We accessed the bucket, and were able to create files within it."
 msgstr "Am accesat bucket-ul, dar nu am putut crea fisiere in el."
 
-#: methods/s3.php:659
+#: methods/s3.php:660
 msgid "The communication with %s was encrypted."
 msgstr "Comunicarea cu %s este criptata."
 
-#: methods/s3.php:661
+#: methods/s3.php:662
 msgid "The communication with %s was not encrypted."
 msgstr "Comunicarea cu %s nu este criptata."
 
@@ -3426,7 +3439,7 @@ msgid "Cloud Files error - failed to upload file"
 msgstr "Eroare Cloud Files - incarcare fisier esuata"
 
 #: class-updraftplus.php:697 methods/cloudfiles.php:392
-#: methods/stream-base.php:274
+#: methods/stream-base.php:281
 msgid "Error opening local file: Failed to download"
 msgstr "Eroare deschidere fisier local: Descarcare esuata"
 
@@ -3440,7 +3453,7 @@ msgstr "Testare - Va rugam asteptati..."
 
 #: methods/openstack-base.php:288 methods/openstack-base.php:464
 #: methods/cloudfiles.php:448 methods/cloudfiles.php:521
-#: methods/stream-base.php:210 methods/stream-base.php:232 methods/s3.php:485
+#: methods/stream-base.php:217 methods/stream-base.php:239 methods/s3.php:485
 #: methods/s3.php:562 methods/addon-base.php:224 methods/addon-base.php:247
 #: methods/ftp.php:266 methods/ftp.php:341 addons/sftp.php:402
 #: addons/sftp.php:428
@@ -3462,7 +3475,7 @@ msgstr "Cont plin: contul dumneavoastra %s mai are doar %d bytes, iar fisierul d
 
 #: methods/googledrive.php:374 methods/googledrive.php:420
 #: methods/googledrive.php:426 methods/googledrive.php:428
-#: methods/stream-base.php:190
+#: methods/stream-base.php:197
 msgid "Failed to upload to %s"
 msgstr "Incarcare la %s esuata"
 
@@ -3471,7 +3484,7 @@ msgid "Account is not authorized."
 msgstr "Contul nu este autorizat."
 
 #: methods/googledrive.php:840 methods/openstack-base.php:443
-#: methods/cloudfiles.php:463 methods/stream-base.php:225 methods/s3.php:505
+#: methods/cloudfiles.php:463 methods/stream-base.php:232 methods/s3.php:505
 #: methods/dropbox.php:388 methods/addon-base.php:211 methods/ftp.php:315
 msgid "%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your site is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts."
 msgstr "%s este o alegere foarte buna deoarece UpdraftPlus suporta incarcarile de tip chunck - asa ca indiferent cat de mare este site-ul dumneavoastra, UpdraftPlus poate incarca pe bucati mici astfel incat sa nu fiti incurcati de intreruperi neprevazute."
@@ -3529,7 +3542,7 @@ msgid "Your %s quota usage: %s %% used, %s available"
 msgstr "Spatiul de stocare %s: %s %% folosit, %s disponibil"
 
 #: methods/googledrive.php:351 methods/openstack-base.php:416
-#: methods/cloudfiles.php:585 methods/stream-base.php:321 methods/s3.php:656
+#: methods/cloudfiles.php:585 methods/stream-base.php:328 methods/s3.php:657
 #: methods/addon-base.php:288 addons/sftp.php:504
 msgid "Success"
 msgstr "Succes"
@@ -3902,10 +3915,6 @@ msgstr "Nicio copie de rezerva finalizata."
 msgid "File backup intervals"
 msgstr "Intervale pentru backup-ul fisierelor"
 
-#: admin.php:2949
-msgid "Manual"
-msgstr "Manual"
-
 #: admin.php:2204
 msgid "Go here for help."
 msgstr "Intrati aici pentru suport."
@@ -4210,7 +4219,7 @@ msgid "Could not find that job - perhaps it has already finished?"
 msgstr "Nu am putut gasi acest job. Se poate ca el sa fie deja finalizat?"
 
 #: class-updraftplus.php:697 restorer.php:1640 restorer.php:1657
-#: restorer.php:1722 admin.php:1185 admin.php:4260 methods/stream-base.php:190
+#: restorer.php:1722 admin.php:1185 admin.php:4260 methods/stream-base.php:197
 #: methods/addon-base.php:75 methods/addon-base.php:80
 #: methods/addon-base.php:175 methods/addon-base.php:195
 msgid "Error"
