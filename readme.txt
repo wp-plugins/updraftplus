@@ -3,7 +3,7 @@ Contributors: Backup with UpdraftPlus, DavidAnderson
 Tags: backup, backups, restore, amazon backup, s3 backup, dropbox backup, google drive backup, rackspace cloud files, rackspace backup, cloud files, dreamhost, dreamobjects backup, ftp backup, webdav backup, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp backup, ftps, scp, migrate, duplicate, copy, mysql backup, database backup, db backup, website backup, wordpress backup, full backup, openstack, swift
 Requires at least: 3.2
 Tested up to: 4.1
-Stable tag: 1.9.50
+Stable tag: 1.9.51
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -152,6 +152,14 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 == Changelog ==
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
+
+= Development version (not yet released/supported) =
+
+* TWEAK: Update PHP-Opencloud (Rackspace) and dependency libraries to current versions
+
+= 1.9.51 - 2015-02-03 =
+
+* SECURITY: Prevent nonce leak that could allow logged-in users who aren't admins (if you have any) to access backups, UpdraftPlus settings and perform other harmful actions. No issue exists for users of UpdraftPlus Premium, or if you have the stand-alone "Automatic Backups" or "No Adverts" add-ons, or if your site has no untrusted users who can log in (or whilst have dismissed the "Automatic Backups" notice on the updates page). Credit to Sucuri (http://sucuri.net) for identifying this issue, and notifying us of it.
 
 = 1.9.50 - 2015-01-29 =
 
@@ -1021,7 +1029,7 @@ We recognise and thank the following for code and/or libraries used and/or modif
 
 == License ==
 
-    Copyright 2011-14 David Anderson
+    Copyright 2011-15 David Anderson
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -1041,4 +1049,4 @@ Furthermore, reliance upon any non-English translation is at your own risk. Updr
 
 
 == Upgrade Notice ==
-* 1.9.50 : Many and various minor tweaks. Recommended update for all.
+* 1.9.51 : Important security update preventing logged-in non-admins accessing admin functions. Updated translations.
