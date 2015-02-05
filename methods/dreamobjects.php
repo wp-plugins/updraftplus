@@ -19,7 +19,7 @@ if (!is_array(UpdraftPlus_Options::get_updraft_option('updraft_dreamobjects')) &
 
 class UpdraftPlus_BackupModule_dreamobjects extends UpdraftPlus_BackupModule_s3 {
 
-	protected function set_endpoint($obj, $region) {
+	protected function set_region($obj, $region) {
 		$config = $this->get_config();
 		global $updraftplus;
 		$updraftplus->log("Set endpoint: ".$config['endpoint']);

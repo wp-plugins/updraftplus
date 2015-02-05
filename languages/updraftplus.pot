@@ -2,15 +2,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: UpdraftPlus\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-29 13:14+0100\n"
-"PO-Revision-Date: 2015-01-29 13:14+0100\n"
+"POT-Creation-Date: 2015-02-02 14:37+0100\n"
+"PO-Revision-Date: 2015-02-02 14:41+0100\n"
 "Last-Translator: David Anderson <contact@updraftplus.com>\n"
 "Language-Team:  <contact@updraftplus.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-KeywordsList: _;gettext;gettext_noop;_x;__;_e;_ex;log_e;"
-"$updraftplus->log_e;updraftplus_log_e\n"
+"X-Poedit-KeywordsList: _;gettext;gettext_noop;__;_e;_ex:2c,1;log_e;"
+"$updraftplus->log_e;updraftplus_log_e;_x:2c,1\n"
 "X-Poedit-Basepath: /home/david/MissionaryHosting/UpdraftPlus/ud-svn/"
 "development/updraftplus/trunk\n"
 "X-Generator: Poedit 1.5.4\n"
@@ -807,6 +807,9 @@ msgstr ""
 
 #: restorer.php:1559
 #, php-format
+msgctxt ""
+"The user is being told the number of times an error has happened, e.g. An "
+"error (27) occurred"
 msgid "An error (%s) occurred:"
 msgstr ""
 
@@ -2277,6 +2280,7 @@ msgid "No backup has been completed."
 msgstr ""
 
 #: admin.php:2949
+msgctxt "i.e. Non-automatic"
 msgid "Manual"
 msgstr ""
 
@@ -3407,7 +3411,7 @@ msgid "However, subsequent access attempts failed:"
 msgstr ""
 
 #: methods/googledrive.php:351 methods/openstack-base.php:416
-#: methods/cloudfiles.php:585 methods/stream-base.php:328 methods/s3.php:656
+#: methods/cloudfiles.php:585 methods/stream-base.php:328 methods/s3.php:657
 #: methods/addon-base.php:288 addons/sftp.php:504
 msgid "Success"
 msgstr ""
@@ -3892,11 +3896,11 @@ msgstr ""
 msgid "Failure: No bucket details were given."
 msgstr ""
 
-#: methods/s3.php:613 methods/openstack2.php:113
+#: methods/s3.php:614 methods/openstack2.php:113
 msgid "Region"
 msgstr ""
 
-#: methods/s3.php:643
+#: methods/s3.php:644
 #, php-format
 msgid ""
 "Failure: We could not successfully access or create such a bucket. Please "
@@ -3904,36 +3908,36 @@ msgid ""
 "bucket name (as another %s user may already have taken your name)."
 msgstr ""
 
-#: methods/s3.php:644
+#: methods/s3.php:645
 #, php-format
 msgid "The error reported by %s was:"
 msgstr ""
 
-#: methods/s3.php:654 methods/s3.php:666
+#: methods/s3.php:655 methods/s3.php:667
 msgid "Failure"
 msgstr ""
 
-#: methods/s3.php:654 methods/s3.php:666
+#: methods/s3.php:655 methods/s3.php:667
 msgid ""
 "We successfully accessed the bucket, but the attempt to create a file in it "
 "failed."
 msgstr ""
 
-#: methods/s3.php:656
+#: methods/s3.php:657
 msgid "We accessed the bucket, and were able to create files within it."
 msgstr ""
 
-#: methods/s3.php:659
+#: methods/s3.php:660
 #, php-format
 msgid "The communication with %s was encrypted."
 msgstr ""
 
-#: methods/s3.php:661
+#: methods/s3.php:662
 #, php-format
 msgid "The communication with %s was not encrypted."
 msgstr ""
 
-#: methods/s3.php:666
+#: methods/s3.php:667
 msgid "Please check your access credentials."
 msgstr ""
 
@@ -4179,6 +4183,7 @@ msgid "authentication URI"
 msgstr ""
 
 #: methods/openstack2.php:102
+msgctxt "Keystone and swauth are technical terms which cannot be translated"
 msgid ""
 "This needs to be a v2 (Keystone) authentication URI; v1 (Swauth) is not "
 "supported."
@@ -4209,6 +4214,9 @@ msgid "password"
 msgstr ""
 
 #: methods/openstack2.php:157
+msgctxt ""
+"\"tenant\" is a term used with OpenStack storage - Google for \"OpenStack "
+"tenant\" to get more help on its meaning"
 msgid "tenant"
 msgstr ""
 
@@ -4472,7 +4480,7 @@ msgstr ""
 
 #: addons/sftp.php:336
 msgid ""
-"Resuming partial uploads is supported for SFTP, but not for SCP. Thuis, if "
+"Resuming partial uploads is supported for SFTP, but not for SCP. Thus, if "
 "using SCP then you will need to ensure that your webserver allows PHP "
 "processes to run long enough to upload your largest backup file."
 msgstr ""
@@ -4496,6 +4504,9 @@ msgid "Key"
 msgstr ""
 
 #: addons/sftp.php:373
+msgctxt ""
+"Do not translate BEGIN RSA PRIVATE KEY. PCKS1, XML, PEM and PuTTY are also "
+"technical acronyms which should not be translated."
 msgid ""
 "PKCS1 (PEM header: BEGIN RSA PRIVATE KEY), XML and PuTTY format keys are "
 "accepted."

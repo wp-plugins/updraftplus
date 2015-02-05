@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the UpdraftPlus package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2015-01-23 14:15:00+0000\n"
+"PO-Revision-Date: 2015-02-03 09:29:56+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,29 +10,62 @@ msgstr ""
 "X-Generator: GlotPress/0.1\n"
 "Project-Id-Version: UpdraftPlus\n"
 
+#: restorer.php:1559
+msgctxt "The user is being told the number of times an error has happened, e.g. An error (27) occurred"
+msgid "An error (%s) occurred:"
+msgstr "發生錯誤 (%s):"
+
+#: admin.php:2949
+msgctxt "i.e. Non-automatic"
+msgid "Manual"
+msgstr "說明"
+
+#: admin.php:3153
+msgid "Check this box to have a basic report sent to"
+msgstr ""
+
+#: admin.php:3153
+msgid "your site's admin address"
+msgstr ""
+
+#: methods/openstack2.php:102
+msgctxt "Keystone and swauth are technical terms which cannot be translated"
+msgid "This needs to be a v2 (Keystone) authentication URI; v1 (Swauth) is not supported."
+msgstr ""
+
+#: methods/openstack2.php:157
+msgctxt "\"tenant\" is a term used with OpenStack storage - Google for \"OpenStack tenant\" to get more help on its meaning"
+msgid "tenant"
+msgstr ""
+
+#: addons/sftp.php:336
+msgid "Resuming partial uploads is supported for SFTP, but not for SCP. Thus, if using SCP then you will need to ensure that your webserver allows PHP processes to run long enough to upload your largest backup file."
+msgstr ""
+
+#: addons/sftp.php:373
+msgctxt "Do not translate BEGIN RSA PRIVATE KEY. PCKS1, XML, PEM and PuTTY are also technical acronyms which should not be translated."
+msgid "PKCS1 (PEM header: BEGIN RSA PRIVATE KEY), XML and PuTTY format keys are accepted."
+msgstr ""
+
 #: addons/morefiles.php:178
 msgid "Any other file/directory on your server that you wish to back up"
 msgstr ""
 
-#: addons/sftp.php:336
-msgid "Resuming partial uploads is supported for SFTP, but not for SCP. Thuis, if using SCP then you will need to ensure that your webserver allows PHP processes to run long enough to upload your largest backup file."
-msgstr ""
-
 #: addons/lockadmin.php:162
 msgid "Change Lock Settings"
-msgstr ""
+msgstr "變更鎖定設定"
 
 #: restorer.php:928
 msgid "Clearing cached pages (%s)..."
-msgstr ""
+msgstr "清理已快取的頁面 (%s)"
 
 #: restorer.php:1564
 msgid "Create table failed - probably because there is no permission to drop tables and the table already exists; will continue"
-msgstr ""
+msgstr "建立資料表失敗 - 或許因為沒有權限刪除已經存在的資料表; 操作將會繼續"
 
 #: admin.php:1987
 msgid "For even more features and personal support, check out "
-msgstr ""
+msgstr "如果需要更多功能和個人支援, 留意這裡"
 
 #: udaddons/options.php:46
 msgid "Add-ons"
@@ -44,19 +77,19 @@ msgstr ""
 
 #: addons/morefiles.php:67
 msgid "(learn more about this significant option)"
-msgstr ""
+msgstr "(了解更多關於這個重要的選項)"
 
 #: addons/lockadmin.php:105
 msgid "The admin password has now been removed."
-msgstr ""
+msgstr "已移除管理員密碼"
 
 #: addons/lockadmin.php:107
 msgid "An admin password has been set."
-msgstr ""
+msgstr "已設定管理員密碼"
 
 #: addons/lockadmin.php:109
 msgid "The admin password has been changed."
-msgstr ""
+msgstr "已變更管理員密碼"
 
 #: addons/lockadmin.php:111
 msgid "Settings saved."
@@ -88,19 +121,19 @@ msgstr "%s 星期"
 
 #: addons/lockadmin.php:157
 msgid "Require password again after"
-msgstr ""
+msgstr "再次要求提供密碼的間隔"
 
 #: addons/lockadmin.php:159
 msgid "Support URL"
-msgstr ""
+msgstr "支援網址"
 
 #: addons/lockadmin.php:159
 msgid "Anyone seeing the lock screen will be shown this URL for support - enter a website address or an email address."
-msgstr ""
+msgstr "任何人觀看鎖定頁面時會顯示支援網址 - 輸入網站地址或電子郵件地址"
 
 #: addons/lockadmin.php:159
 msgid "Otherwise, the default link will be shown."
-msgstr ""
+msgstr "否則, 將會顯示預設連結"
 
 #: addons/lockadmin.php:188 addons/lockadmin.php:194
 msgid "Unlock"
@@ -116,11 +149,11 @@ msgstr "請輸入解鎖密碼以存取 UpdraftPlus 設定"
 
 #: addons/lockadmin.php:210
 msgid "For unlocking support, please contact whoever manages UpdraftPlus for you."
-msgstr ""
+msgstr "如果需要解鎖的支援, 請聯絡 UpdraftPlus 管理者"
 
 #: addons/autobackup.php:42
 msgid "WordPress core (only)"
-msgstr ""
+msgstr "WordPress 核心 (僅)"
 
 #: addons/autobackup.php:77
 msgid "Automatic backup before update"
@@ -192,7 +225,7 @@ msgstr "API Key"
 
 #: addons/copycom.php:527
 msgid "API Secret"
-msgstr ""
+msgstr "API 密匙"
 
 #: addons/copycom.php:537
 msgid "(case-sensitive)"
@@ -200,7 +233,7 @@ msgstr "(注意大小寫)"
 
 #: addons/copycom.php:538
 msgid "N.B. Copy is case-sensitive."
-msgstr ""
+msgstr "附註: 複製項目區分大小寫"
 
 #: addons/reporting.php:55
 msgid "Your label for this backup (optional)"
@@ -216,11 +249,11 @@ msgstr "你需要提供電子郵件和密碼"
 
 #: udaddons/updraftplus-addons.php:655
 msgid "Your email address was valid, but your password was not recognised by UpdraftPlus.Com."
-msgstr ""
+msgstr "你的電郵地址是有效的, 但密碼未能在 UpdraftPlus.Com 驗證"
 
 #: udaddons/updraftplus-addons.php:655
 msgid "Go here to reset your password."
-msgstr ""
+msgstr "到這裡重設你的密碼"
 
 #: udaddons/updraftplus-addons.php:657
 msgid "You entered an email address that was not recognised by UpdraftPlus.Com"
@@ -252,7 +285,7 @@ msgstr "略過 (未有在列表上)"
 
 #: addons/migrator.php:128
 msgid "Rows per batch"
-msgstr ""
+msgstr "每次的行數"
 
 #: addons/migrator.php:129
 msgid "These tables only"
@@ -260,7 +293,7 @@ msgstr "只有這些資料表"
 
 #: addons/migrator.php:129
 msgid "Enter a comma-separated list; otherwise, leave blank for all tables."
-msgstr ""
+msgstr "輸入以逗號分間的清單; 或者, 留空以選取所有資料表"
 
 #: addons/copycom.php:508
 msgid "To get your credentials, log in at the %s developer portal."
@@ -703,10 +736,6 @@ msgstr ""
 msgid "Container"
 msgstr ""
 
-#: methods/openstack2.php:157
-msgid "tenant"
-msgstr ""
-
 #: methods/addon-base.php:101
 msgid "failed to list files"
 msgstr ""
@@ -725,10 +754,6 @@ msgstr ""
 
 #: methods/openstack2.php:99 methods/openstack2.php:162
 msgid "authentication URI"
-msgstr ""
-
-#: methods/openstack2.php:102
-msgid "This needs to be a v2 (Keystone) authentication URI; v1 (Swauth) is not supported."
 msgstr ""
 
 #: methods/addon-base.php:75 methods/addon-base.php:80
@@ -775,7 +800,7 @@ msgstr ""
 #: methods/openstack-base.php:44 methods/openstack-base.php:226
 #: methods/openstack-base.php:321
 msgid "Could not access %s container"
-msgstr ""
+msgstr "未能存取 %s 容器"
 
 #: methods/googledrive.php:906 methods/dropbox.php:423 addons/copycom.php:545
 msgid "Account holder's name: %s."
@@ -894,10 +919,6 @@ msgstr ""
 
 #: addons/sftp.php:370
 msgid "Key"
-msgstr ""
-
-#: addons/sftp.php:373
-msgid "PKCS1 (PEM header: BEGIN RSA PRIVATE KEY), XML and PuTTY format keys are accepted."
 msgstr ""
 
 #: admin.php:3674 admin.php:3952 addons/importer.php:186
@@ -1401,11 +1422,7 @@ msgstr ""
 
 #: admin.php:179
 msgid "Create"
-msgstr ""
-
-#: restorer.php:1559
-msgid "An error (%s) occurred:"
-msgstr ""
+msgstr "建立"
 
 #: admin.php:143
 msgid "The new user's RackSpace console password is (this will not be shown again):"
@@ -1413,7 +1430,7 @@ msgstr ""
 
 #: admin.php:144
 msgid "Trying..."
-msgstr ""
+msgstr "正在嘗試..."
 
 #: backup.php:1162
 msgid "The database backup appears to have failed - the options table was not found"
@@ -1425,7 +1442,7 @@ msgstr ""
 
 #: admin.php:153 admin.php:4363
 msgid "Error data:"
-msgstr ""
+msgstr "錯誤資訊:"
 
 #: admin.php:4099
 msgid "Backup does not exist in the backup history"
@@ -1481,15 +1498,15 @@ msgstr ""
 
 #: addons/reporting.php:410
 msgid "Add another address..."
-msgstr ""
+msgstr "增加另一個地址..."
 
 #: addons/reporting.php:255
 msgid " (with errors (%s))"
-msgstr ""
+msgstr " (及錯誤 (%s))"
 
 #: addons/reporting.php:257
 msgid " (with warnings (%s))"
-msgstr ""
+msgstr " (及警告 (%s))"
 
 #: addons/reporting.php:287
 msgid "Use the \"Reporting\" section to configure the email addresses to be used."
@@ -1497,100 +1514,96 @@ msgstr ""
 
 #: addons/reporting.php:313
 msgid "files: %s"
-msgstr ""
+msgstr "檔案: %s"
 
 #: addons/reporting.php:331
 msgid "Size: %s Mb"
-msgstr ""
+msgstr "容量: %s Mb"
 
 #: addons/reporting.php:336 addons/reporting.php:341
 msgid "%s checksum: %s"
-msgstr ""
+msgstr "%s 校驗碼: %s"
 
 #: addons/reporting.php:370
 msgid "Email reports"
-msgstr ""
+msgstr "電郵報告"
 
 #: addons/reporting.php:147
 msgid "Errors"
-msgstr ""
+msgstr "錯誤"
 
 #: addons/reporting.php:162
 msgid "Warnings"
-msgstr ""
+msgstr "警告"
 
 #: addons/reporting.php:171
 msgid "Time taken:"
-msgstr ""
+msgstr "所需時間:"
 
 #: addons/reporting.php:172
 msgid "Uploaded to:"
-msgstr ""
+msgstr "已上傳至:"
 
 #: addons/reporting.php:203
 msgid "Debugging information"
-msgstr ""
+msgstr "除錯資訊"
 
 #: addons/reporting.php:105
 msgid "%d errors, %d warnings"
-msgstr ""
+msgstr "%d 錯誤, %d 警告"
 
 #: addons/reporting.php:119
 msgid "%d hours, %d minutes, %d seconds"
-msgstr ""
+msgstr "%d 小時, %d 分鐘, %d 秒"
 
 #: addons/reporting.php:124
 msgid "Backup Report"
-msgstr ""
+msgstr "備份報告"
 
 #: addons/reporting.php:132
 msgid "Backup began:"
-msgstr ""
+msgstr "備份開始:"
 
 #: addons/morefiles.php:55 addons/morefiles.php:56 addons/reporting.php:133
 msgid "Contains:"
-msgstr ""
+msgstr "包含:"
 
 #: addons/reporting.php:144
 msgid "Errors / warnings:"
-msgstr ""
+msgstr "錯誤/警告:"
 
 #: methods/dropbox.php:465 addons/copycom.php:371
 msgid "%s authentication"
-msgstr ""
+msgstr "%s 認證"
 
 #: class-updraftplus.php:222 methods/dropbox.php:127 methods/dropbox.php:465
 #: methods/dropbox.php:479 methods/dropbox.php:574 addons/copycom.php:371
 msgid "%s error: %s"
-msgstr ""
+msgstr "%s 錯誤: %s"
 
 #: methods/dropbox.php:387
 msgid "%s logo"
-msgstr ""
+msgstr "%s 圖示"
 
 #: methods/email.php:60
 msgid "Your site's admin email address (%s) will be used."
-msgstr ""
+msgstr "將會使用網站的管理員電郵 (%s)"
 
 #: methods/email.php:60
 msgid "For more options, use the \"%s\" add-on."
-msgstr ""
+msgstr "更多的設定選項, 請使用 \"%s\" 擴充組件"
 
 #: methods/dropbox.php:72
 msgid "The required %s PHP module is not installed - ask your web hosting company to enable it"
-msgstr ""
+msgstr "未有安裝必需的 PHP 組件 - 請向你的網頁寄存公司查詢以開啟此功能"
 
 #: methods/dropbox.php:172
 msgid "%s did not return the expected response - check your log file for more details"
-msgstr ""
+msgstr "%s 未有返回一個預期的回應 - 請檢查紀錄檔以取得更多資料"
 
 #: udaddons/options.php:237
 msgid "Connect"
-msgstr ""
-
-#: admin.php:3153
-msgid "Check this box to have a basic report sent to your site's admin address (%s)."
-msgstr ""
+msgstr "連接"
 
 #: admin.php:3155
 msgid "For more reporting features, use the Reporting add-on."
@@ -1618,7 +1631,7 @@ msgstr ""
 
 #: backup.php:579
 msgid "Backed up: %s"
-msgstr ""
+msgstr "已備份: %s"
 
 #: backup.php:611
 msgid "Backup contains:"
@@ -1626,7 +1639,7 @@ msgstr ""
 
 #: backup.php:612 addons/reporting.php:131
 msgid "Latest status:"
-msgstr ""
+msgstr "最近狀態:"
 
 #: backup.php:529
 msgid "Files and database"
@@ -1960,7 +1973,7 @@ msgstr ""
 msgid "(logs can be found in the UpdraftPlus settings page as normal)..."
 msgstr ""
 
-#: methods/stream-base.php:124
+#: methods/stream-base.php:126 methods/stream-base.php:131
 msgid "Upload failed"
 msgstr ""
 
@@ -2009,7 +2022,7 @@ msgid "The attempt to send the backup via email failed (probably the backup was 
 msgstr ""
 
 #: methods/openstack-base.php:289 methods/cloudfiles.php:449
-#: methods/stream-base.php:211 methods/s3.php:486 methods/addon-base.php:248
+#: methods/stream-base.php:218 methods/s3.php:486 methods/addon-base.php:248
 #: methods/ftp.php:267 addons/sftp.php:430 addons/sftp.php:432
 msgid "%s settings test result:"
 msgstr ""
@@ -2566,8 +2579,8 @@ msgstr ""
 
 #: methods/googledrive.php:774 methods/openstack-base.php:343
 #: methods/cloudfiles.php:392 methods/cloudfiles.php:409
-#: methods/stream-base.php:274 methods/stream-base.php:281
-#: methods/stream-base.php:294 methods/addon-base.php:189
+#: methods/stream-base.php:281 methods/stream-base.php:288
+#: methods/stream-base.php:301 methods/addon-base.php:189
 msgid "%s Error"
 msgstr ""
 
@@ -2687,11 +2700,11 @@ msgstr ""
 msgid "Your web server's PHP installation does not included a required module (%s). Please contact your web hosting provider's support and ask for them to enable it."
 msgstr ""
 
-#: methods/s3.php:666
+#: methods/s3.php:667
 msgid "Please check your access credentials."
 msgstr ""
 
-#: methods/s3.php:644
+#: methods/s3.php:645
 msgid "The error reported by %s was:"
 msgstr ""
 
@@ -2844,7 +2857,7 @@ msgstr "Blog 連結"
 msgid "RSS link"
 msgstr "RSS 連結"
 
-#: methods/stream-base.php:201 methods/s3.php:470 methods/addon-base.php:238
+#: methods/stream-base.php:208 methods/s3.php:470 methods/addon-base.php:238
 #: methods/ftp.php:251 addons/sftp.php:411
 msgid "Testing %s Settings..."
 msgstr ""
@@ -3112,8 +3125,8 @@ msgid "Failure: we successfully logged in, but were not able to create a file in
 msgstr ""
 
 #: methods/googledrive.php:139 methods/stream-base.php:32
-#: methods/stream-base.php:139 methods/stream-base.php:174
-#: methods/stream-base.php:258 methods/addon-base.php:56
+#: methods/stream-base.php:146 methods/stream-base.php:181
+#: methods/stream-base.php:265 methods/addon-base.php:56
 #: methods/addon-base.php:92 methods/addon-base.php:117
 #: methods/addon-base.php:165 methods/addon-base.php:262 methods/ftp.php:28
 #: addons/sftp.php:44
@@ -3124,11 +3137,11 @@ msgstr ""
 msgid "Chunk %s: A %s error occurred"
 msgstr ""
 
-#: methods/stream-base.php:281
+#: methods/stream-base.php:288
 msgid "Error opening remote file: Failed to download"
 msgstr ""
 
-#: methods/stream-base.php:294
+#: methods/stream-base.php:301
 msgid "Local write failed: Failed to download"
 msgstr ""
 
@@ -3140,12 +3153,12 @@ msgstr ""
 msgid "Enter a complete URL, beginning with webdav:// or webdavs:// and including path, username, password and port as required - e.g.%s"
 msgstr ""
 
-#: admin.php:2756 admin.php:2791 admin.php:2800 methods/stream-base.php:310
+#: admin.php:2756 admin.php:2791 admin.php:2800 methods/stream-base.php:317
 #: methods/addon-base.php:281 addons/sftp.php:471
 msgid "Failed"
 msgstr ""
 
-#: methods/stream-base.php:324 methods/addon-base.php:291
+#: methods/stream-base.php:331 methods/addon-base.php:291
 msgid "Failed: We were not able to place a file in that directory - please check your credentials."
 msgstr ""
 
@@ -3218,31 +3231,31 @@ msgstr ""
 msgid "Failure: No bucket details were given."
 msgstr ""
 
-#: methods/s3.php:613 methods/openstack2.php:113
+#: methods/s3.php:614 methods/openstack2.php:113
 msgid "Region"
 msgstr ""
 
-#: methods/s3.php:643
+#: methods/s3.php:644
 msgid "Failure: We could not successfully access or create such a bucket. Please check your access credentials, and if those are correct then try another bucket name (as another %s user may already have taken your name)."
 msgstr ""
 
-#: methods/s3.php:654 methods/s3.php:666
+#: methods/s3.php:655 methods/s3.php:667
 msgid "Failure"
 msgstr ""
 
-#: methods/s3.php:654 methods/s3.php:666
+#: methods/s3.php:655 methods/s3.php:667
 msgid "We successfully accessed the bucket, but the attempt to create a file in it failed."
 msgstr ""
 
-#: methods/s3.php:656
+#: methods/s3.php:657
 msgid "We accessed the bucket, and were able to create files within it."
 msgstr ""
 
-#: methods/s3.php:659
+#: methods/s3.php:660
 msgid "The communication with %s was encrypted."
 msgstr ""
 
-#: methods/s3.php:661
+#: methods/s3.php:662
 msgid "The communication with %s was not encrypted."
 msgstr ""
 
@@ -3424,7 +3437,7 @@ msgid "Cloud Files error - failed to upload file"
 msgstr ""
 
 #: class-updraftplus.php:697 methods/cloudfiles.php:392
-#: methods/stream-base.php:274
+#: methods/stream-base.php:281
 msgid "Error opening local file: Failed to download"
 msgstr ""
 
@@ -3438,7 +3451,7 @@ msgstr ""
 
 #: methods/openstack-base.php:288 methods/openstack-base.php:464
 #: methods/cloudfiles.php:448 methods/cloudfiles.php:521
-#: methods/stream-base.php:210 methods/stream-base.php:232 methods/s3.php:485
+#: methods/stream-base.php:217 methods/stream-base.php:239 methods/s3.php:485
 #: methods/s3.php:562 methods/addon-base.php:224 methods/addon-base.php:247
 #: methods/ftp.php:266 methods/ftp.php:341 addons/sftp.php:402
 #: addons/sftp.php:428
@@ -3460,7 +3473,7 @@ msgstr ""
 
 #: methods/googledrive.php:374 methods/googledrive.php:420
 #: methods/googledrive.php:426 methods/googledrive.php:428
-#: methods/stream-base.php:190
+#: methods/stream-base.php:197
 msgid "Failed to upload to %s"
 msgstr ""
 
@@ -3469,7 +3482,7 @@ msgid "Account is not authorized."
 msgstr ""
 
 #: methods/googledrive.php:840 methods/openstack-base.php:443
-#: methods/cloudfiles.php:463 methods/stream-base.php:225 methods/s3.php:505
+#: methods/cloudfiles.php:463 methods/stream-base.php:232 methods/s3.php:505
 #: methods/dropbox.php:388 methods/addon-base.php:211 methods/ftp.php:315
 msgid "%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your site is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts."
 msgstr ""
@@ -3525,7 +3538,7 @@ msgid "Your %s quota usage: %s %% used, %s available"
 msgstr ""
 
 #: methods/googledrive.php:351 methods/openstack-base.php:416
-#: methods/cloudfiles.php:585 methods/stream-base.php:321 methods/s3.php:656
+#: methods/cloudfiles.php:585 methods/stream-base.php:328 methods/s3.php:657
 #: methods/addon-base.php:288 addons/sftp.php:504
 msgid "Success"
 msgstr ""
@@ -3898,10 +3911,6 @@ msgstr "未有已完成的備份"
 msgid "File backup intervals"
 msgstr "檔案備份間隔"
 
-#: admin.php:2949
-msgid "Manual"
-msgstr "手動"
-
 #: admin.php:2204
 msgid "Go here for help."
 msgstr "在這裡尋求協助"
@@ -4206,7 +4215,7 @@ msgid "Could not find that job - perhaps it has already finished?"
 msgstr "無法找到任務 - 或許它已經完成?"
 
 #: class-updraftplus.php:697 restorer.php:1640 restorer.php:1657
-#: restorer.php:1722 admin.php:1185 admin.php:4260 methods/stream-base.php:190
+#: restorer.php:1722 admin.php:1185 admin.php:4260 methods/stream-base.php:197
 #: methods/addon-base.php:75 methods/addon-base.php:80
 #: methods/addon-base.php:175 methods/addon-base.php:195
 msgid "Error"

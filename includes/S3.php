@@ -87,7 +87,7 @@ class UpdraftPlus_S3
 
 
 	/**
-	* Set the sertvice endpoint
+	* Set the service endpoint
 	*
 	* @param string $host Hostname
 	* @return void
@@ -109,7 +109,6 @@ class UpdraftPlus_S3
 		self::$__accessKey = $accessKey;
 		self::$__secretKey = $secretKey;
 	}
-
 
 	/**
 	* Check if AWS keys have been set
@@ -225,8 +224,9 @@ class UpdraftPlus_S3
 	{
 		if (self::$useExceptions)
 			throw new UpdraftPlus_S3Exception($message, $file, $line, $code);
-		else
+		else {
 			trigger_error($message, E_USER_WARNING);
+		}
 	}
 
 
@@ -553,7 +553,7 @@ class UpdraftPlus_S3
 		if ($handle = fopen($filePath, "rb")) {
 			if ($fileOffset >0) fseek($handle, $fileOffset);
 			$bytes_read = 0;
-			while ($fileBytes>0 && $read = fread($handle, max($fileBytes, 65536))) {
+			while ($fileBytes>0 && $read = fread($handle, max($fileBytes, 131072))) {
 				$fileBytes = $fileBytes - strlen($read);
 				$bytes_read += strlen($read);
 				$rest->data = $rest->data . $read;
@@ -777,7 +777,7 @@ class UpdraftPlus_S3
 		if ($saveTo !== false)
 		{
 			if (is_resource($saveTo))
-				$rest->fp =& $saveTo;
+				$rest->fp = $saveTo;
 			else
 				if ($resume && file_exists($saveTo)) {
 					if (($rest->fp = @fopen($saveTo, 'ab')) !== false) {
@@ -2237,13 +2237,4 @@ final class UpdraftPlus_S3Request
 		return $strlen;
 	}
 
-}
-
-class UpdraftPlus_S3Exception extends Exception {
-	function __construct($message, $file, $line, $code = 0)
-	{
-		parent::__construct($message, $code);
-		$this->file = $file;
-		$this->line = $line;
-	}
 }

@@ -1,16 +1,23 @@
 <?php
 /**
- * PHP OpenCloud library
+ * Copyright 2012-2014 Rackspace US, Inc.
  *
- * @copyright 2014 Rackspace Hosting, Inc. See LICENSE for information.
- * @license   https://www.apache.org/licenses/LICENSE-2.0
- * @author    Jamie Hannaford <jamie.hannaford@rackspace.com>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 namespace OpenCloud\Identity;
 
 use Guzzle\Http\ClientInterface;
-use Guzzle\Http\Url;
 use OpenCloud\Common\Collection\PaginatedIterator;
 use OpenCloud\Common\Collection\ResourceIterator;
 use OpenCloud\Common\Http\Message\Formatter;
@@ -24,7 +31,6 @@ use OpenCloud\Identity\Constants\User as UserConst;
  */
 class Service extends AbstractService
 {
-
     /**
      * Factory method which allows for easy service creation
      *
@@ -121,6 +127,7 @@ class Service extends AbstractService
     {
         $user = $this->resource('User');
         $user->create($params);
+
         return $user;
     }
 
@@ -177,6 +184,7 @@ class Service extends AbstractService
     {
         $token = $this->resource('Token');
         $token->setId($tokenId);
+
         return $token->delete();
     }
 
@@ -199,5 +207,4 @@ class Service extends AbstractService
             ), $body->tenants);
         }
     }
-
 }

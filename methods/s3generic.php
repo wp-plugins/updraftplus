@@ -21,7 +21,7 @@ if (!is_array(UpdraftPlus_Options::get_updraft_option('updraft_s3generic')) && '
 
 class UpdraftPlus_BackupModule_s3generic extends UpdraftPlus_BackupModule_s3 {
 
-	protected function set_endpoint($obj, $region = '') {
+	protected function set_region($obj, $region = '') {
 		$config = $this->get_config();
 		$endpoint = ($region != '' && $region != 'n/a') ? $region : $config['endpoint'];
 		global $updraftplus;

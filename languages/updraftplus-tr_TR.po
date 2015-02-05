@@ -10,12 +10,45 @@ msgstr ""
 "X-Generator: GlotPress/0.1\n"
 "Project-Id-Version: UpdraftPlus\n"
 
-#: addons/morefiles.php:178
-msgid "Any other file/directory on your server that you wish to back up"
+#: restorer.php:1559
+msgctxt "The user is being told the number of times an error has happened, e.g. An error (27) occurred"
+msgid "An error (%s) occurred:"
+msgstr ""
+
+#: admin.php:2949
+msgctxt "i.e. Non-automatic"
+msgid "Manual"
+msgstr ""
+
+#: admin.php:3153
+msgid "Check this box to have a basic report sent to"
+msgstr ""
+
+#: admin.php:3153
+msgid "your site's admin address"
+msgstr ""
+
+#: methods/openstack2.php:102
+msgctxt "Keystone and swauth are technical terms which cannot be translated"
+msgid "This needs to be a v2 (Keystone) authentication URI; v1 (Swauth) is not supported."
+msgstr ""
+
+#: methods/openstack2.php:157
+msgctxt "\"tenant\" is a term used with OpenStack storage - Google for \"OpenStack tenant\" to get more help on its meaning"
+msgid "tenant"
 msgstr ""
 
 #: addons/sftp.php:336
-msgid "Resuming partial uploads is supported for SFTP, but not for SCP. Thuis, if using SCP then you will need to ensure that your webserver allows PHP processes to run long enough to upload your largest backup file."
+msgid "Resuming partial uploads is supported for SFTP, but not for SCP. Thus, if using SCP then you will need to ensure that your webserver allows PHP processes to run long enough to upload your largest backup file."
+msgstr ""
+
+#: addons/sftp.php:373
+msgctxt "Do not translate BEGIN RSA PRIVATE KEY. PCKS1, XML, PEM and PuTTY are also technical acronyms which should not be translated."
+msgid "PKCS1 (PEM header: BEGIN RSA PRIVATE KEY), XML and PuTTY format keys are accepted."
+msgstr ""
+
+#: addons/morefiles.php:178
+msgid "Any other file/directory on your server that you wish to back up"
 msgstr ""
 
 #: addons/lockadmin.php:162
@@ -703,10 +736,6 @@ msgstr "Burayı boş bırakırsanız varsayılan seçim kullanılır."
 msgid "Container"
 msgstr "Taşıyıcı"
 
-#: methods/openstack2.php:157
-msgid "tenant"
-msgstr "kullanıcı"
-
 #: methods/addon-base.php:101
 msgid "failed to list files"
 msgstr "dosyalar listelenemiyor"
@@ -726,10 +755,6 @@ msgstr "OpenStack Swift sağlayıcınızdan giriş bilgilerinizi alınız ve dis
 #: methods/openstack2.php:99 methods/openstack2.php:162
 msgid "authentication URI"
 msgstr "giriş URI"
-
-#: methods/openstack2.php:102
-msgid "This needs to be a v2 (Keystone) authentication URI; v1 (Swauth) is not supported."
-msgstr "v2 (Keystone) giriş URI girmelisiniz; v1 (Swauth) desteklenmiyor."
 
 #: methods/addon-base.php:75 methods/addon-base.php:80
 msgid "Failed to upload %s"
@@ -895,10 +920,6 @@ msgstr "Giriş bilginiz bir şifre ve ya anahtar-tabanlı olablir, sadece birini
 #: addons/sftp.php:370
 msgid "Key"
 msgstr "Anahtar"
-
-#: addons/sftp.php:373
-msgid "PKCS1 (PEM header: BEGIN RSA PRIVATE KEY), XML and PuTTY format keys are accepted."
-msgstr "PKCS1 (PEM başlığı: BEGIN RSA PRIVATE KEY), XML ve PuTTY biçim anahtarları kabul edilir."
 
 #: admin.php:3674 admin.php:3952 addons/importer.php:186
 msgid "Backup created by: %s."
@@ -1403,10 +1424,6 @@ msgstr "UpdraftPlus.Com'a bağlanmaya çalışırken bilinmeyen bir hata oluştu
 msgid "Create"
 msgstr "Oluştur"
 
-#: restorer.php:1559
-msgid "An error (%s) occurred:"
-msgstr "Bir hata (%s) oluştu:"
-
 #: admin.php:143
 msgid "The new user's RackSpace console password is (this will not be shown again):"
 msgstr "Yeni kullanıcının RackSpace konsol şifresi (tekrak gösterilmeyecektir):"
@@ -1587,10 +1604,6 @@ msgstr "%s beklenen bir yanıt döndürmedi - daha fazla detay için log dosyan�
 #: udaddons/options.php:237
 msgid "Connect"
 msgstr "Bağlan"
-
-#: admin.php:3153
-msgid "Check this box to have a basic report sent to your site's admin address (%s)."
-msgstr "Site yöneticisinin adresine (%s) bir temel rapor göndermek için bu kutucuğu işaretleyin"
 
 #: admin.php:3155
 msgid "For more reporting features, use the Reporting add-on."
@@ -1960,7 +1973,7 @@ msgstr "Bu seçimi bir daha ki sefer hatırla (tekrar değiştirme şansınız o
 msgid "(logs can be found in the UpdraftPlus settings page as normal)..."
 msgstr "(loglar UpdraftPlus ayarlar sayfasında normal şekilde bulunabilir)..."
 
-#: methods/stream-base.php:124
+#: methods/stream-base.php:126 methods/stream-base.php:131
 msgid "Upload failed"
 msgstr "Yükleme başarısız"
 
@@ -2009,7 +2022,7 @@ msgid "The attempt to send the backup via email failed (probably the backup was 
 msgstr "Email ile yedeği gönderme denemesi başarısız oldu (muhtemelen yedek bu metod için fazla büyük)"
 
 #: methods/openstack-base.php:289 methods/cloudfiles.php:449
-#: methods/stream-base.php:211 methods/s3.php:486 methods/addon-base.php:248
+#: methods/stream-base.php:218 methods/s3.php:486 methods/addon-base.php:248
 #: methods/ftp.php:267 addons/sftp.php:430 addons/sftp.php:432
 msgid "%s settings test result:"
 msgstr "%s ayarları test sonucu:"
@@ -2566,8 +2579,8 @@ msgstr "%s hata - Dosya upload işlemi başarısız"
 
 #: methods/googledrive.php:774 methods/openstack-base.php:343
 #: methods/cloudfiles.php:392 methods/cloudfiles.php:409
-#: methods/stream-base.php:274 methods/stream-base.php:281
-#: methods/stream-base.php:294 methods/addon-base.php:189
+#: methods/stream-base.php:281 methods/stream-base.php:288
+#: methods/stream-base.php:301 methods/addon-base.php:189
 msgid "%s Error"
 msgstr "%s Hata"
 
@@ -2687,11 +2700,11 @@ msgstr "Dosya yetkilerinizi kontrol edin: Dizin yaratılamadı: "
 msgid "Your web server's PHP installation does not included a required module (%s). Please contact your web hosting provider's support and ask for them to enable it."
 msgstr "Web sunucunuzun PHP kurulumu gerekli bir modülü (%s) içermiyor. Lütfen web sunucu sağlayıcınıza danışın ve bu modülü aktif hale getirmelerini isteyin."
 
-#: methods/s3.php:666
+#: methods/s3.php:667
 msgid "Please check your access credentials."
 msgstr "Lütfen giriş kimlik bilgilerinizi kontrol edin."
 
-#: methods/s3.php:644
+#: methods/s3.php:645
 msgid "The error reported by %s was:"
 msgstr "%s tarafından bildirilen hata şu şekildeydi:"
 
@@ -2844,7 +2857,7 @@ msgstr "Blog linki"
 msgid "RSS link"
 msgstr "RSS linki"
 
-#: methods/stream-base.php:201 methods/s3.php:470 methods/addon-base.php:238
+#: methods/stream-base.php:208 methods/s3.php:470 methods/addon-base.php:238
 #: methods/ftp.php:251 addons/sftp.php:411
 msgid "Testing %s Settings..."
 msgstr "%s Ayarları Test Ediliyor..."
@@ -3112,8 +3125,8 @@ msgid "Failure: we successfully logged in, but were not able to create a file in
 msgstr "Başarısız: Başarılı bir şekilde oturum açtık, ama verilen dizinde dosya yaratmayı başaramadık."
 
 #: methods/googledrive.php:139 methods/stream-base.php:32
-#: methods/stream-base.php:139 methods/stream-base.php:174
-#: methods/stream-base.php:258 methods/addon-base.php:56
+#: methods/stream-base.php:146 methods/stream-base.php:181
+#: methods/stream-base.php:265 methods/addon-base.php:56
 #: methods/addon-base.php:92 methods/addon-base.php:117
 #: methods/addon-base.php:165 methods/addon-base.php:262 methods/ftp.php:28
 #: addons/sftp.php:44
@@ -3124,11 +3137,11 @@ msgstr "%s ayarları bulunamadı"
 msgid "Chunk %s: A %s error occurred"
 msgstr "Yığın %s: %s hatası oluştu"
 
-#: methods/stream-base.php:281
+#: methods/stream-base.php:288
 msgid "Error opening remote file: Failed to download"
 msgstr "Uzak dosyayı açarken hata: İndirme işlemi başarısız"
 
-#: methods/stream-base.php:294
+#: methods/stream-base.php:301
 msgid "Local write failed: Failed to download"
 msgstr "Lokalde yazma işlemi başarısız: İndirme işlemi başarısız"
 
@@ -3140,12 +3153,12 @@ msgstr "WebDAV URL"
 msgid "Enter a complete URL, beginning with webdav:// or webdavs:// and including path, username, password and port as required - e.g.%s"
 msgstr "URL'yi tam olarak girin, webdav:// veya webdavs:// ile başlamalı, yol, kullanıcı adı, parola ve gerektiğinde port içermeli - örnek: %s"
 
-#: admin.php:2756 admin.php:2791 admin.php:2800 methods/stream-base.php:310
+#: admin.php:2756 admin.php:2791 admin.php:2800 methods/stream-base.php:317
 #: methods/addon-base.php:281 addons/sftp.php:471
 msgid "Failed"
 msgstr "Başarısız"
 
-#: methods/stream-base.php:324 methods/addon-base.php:291
+#: methods/stream-base.php:331 methods/addon-base.php:291
 msgid "Failed: We were not able to place a file in that directory - please check your credentials."
 msgstr "Başarısız: Bu dizine bir dosya yerleştirmeyi başaramadık - lütfen kimlik bilgilerinizi kontrol edin"
 
@@ -3218,31 +3231,31 @@ msgstr "API kodu"
 msgid "Failure: No bucket details were given."
 msgstr "Başarısız: Biriktirme yeri ayrıntısı verilmemiş."
 
-#: methods/s3.php:613 methods/openstack2.php:113
+#: methods/s3.php:614 methods/openstack2.php:113
 msgid "Region"
 msgstr "Bölge"
 
-#: methods/s3.php:643
+#: methods/s3.php:644
 msgid "Failure: We could not successfully access or create such a bucket. Please check your access credentials, and if those are correct then try another bucket name (as another %s user may already have taken your name)."
 msgstr "Başarısız: Böyle bir kovaya başarıyla erişemedik ya da oluşturamadık. Lütfen erişim için giriş bilgilerinizi kontrol edin, ve eğer bilgileriniz doğruysa farklı bir kova adı deneyin (başka bir %s kullanıcısı adınızı almış olabilirim)."
 
-#: methods/s3.php:654 methods/s3.php:666
+#: methods/s3.php:655 methods/s3.php:667
 msgid "Failure"
 msgstr "Başarısız"
 
-#: methods/s3.php:654 methods/s3.php:666
+#: methods/s3.php:655 methods/s3.php:667
 msgid "We successfully accessed the bucket, but the attempt to create a file in it failed."
 msgstr "Kovaya başarıyla erişim sağladık, fakat dosya yaratma denemesi başarısız oldu."
 
-#: methods/s3.php:656
+#: methods/s3.php:657
 msgid "We accessed the bucket, and were able to create files within it."
 msgstr "Kovaya eriştik, ve içinde dosyalar yaratabildik."
 
-#: methods/s3.php:659
+#: methods/s3.php:660
 msgid "The communication with %s was encrypted."
 msgstr "%s ile iletişim şifrelendi."
 
-#: methods/s3.php:661
+#: methods/s3.php:662
 msgid "The communication with %s was not encrypted."
 msgstr "%s ile iletişim şifrelenmedi."
 
@@ -3424,7 +3437,7 @@ msgid "Cloud Files error - failed to upload file"
 msgstr "Bulut dosyaları hatası - dosya yükleme başarısız"
 
 #: class-updraftplus.php:697 methods/cloudfiles.php:392
-#: methods/stream-base.php:274
+#: methods/stream-base.php:281
 msgid "Error opening local file: Failed to download"
 msgstr " Yerel dosyayı açarken hata: İndirme başarısız"
 
@@ -3438,7 +3451,7 @@ msgstr "Test ediliyor - Lütfen bekleyiniz..."
 
 #: methods/openstack-base.php:288 methods/openstack-base.php:464
 #: methods/cloudfiles.php:448 methods/cloudfiles.php:521
-#: methods/stream-base.php:210 methods/stream-base.php:232 methods/s3.php:485
+#: methods/stream-base.php:217 methods/stream-base.php:239 methods/s3.php:485
 #: methods/s3.php:562 methods/addon-base.php:224 methods/addon-base.php:247
 #: methods/ftp.php:266 methods/ftp.php:341 addons/sftp.php:402
 #: addons/sftp.php:428
@@ -3460,7 +3473,7 @@ msgstr "Hesap dolu: %s hesabınızda sadece %d byte kaldı, ancak yüklenecek do
 
 #: methods/googledrive.php:374 methods/googledrive.php:420
 #: methods/googledrive.php:426 methods/googledrive.php:428
-#: methods/stream-base.php:190
+#: methods/stream-base.php:197
 msgid "Failed to upload to %s"
 msgstr "%s ye yükleme başarısız"
 
@@ -3469,7 +3482,7 @@ msgid "Account is not authorized."
 msgstr "Hesap yetkilendirilmemiş."
 
 #: methods/googledrive.php:840 methods/openstack-base.php:443
-#: methods/cloudfiles.php:463 methods/stream-base.php:225 methods/s3.php:505
+#: methods/cloudfiles.php:463 methods/stream-base.php:232 methods/s3.php:505
 #: methods/dropbox.php:388 methods/addon-base.php:211 methods/ftp.php:315
 msgid "%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your site is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts."
 msgstr "%s çok iyi bir seçim, çünkü UpdraftPlus parçalı yüklemeyi destekliyor - siteniz ne kadar büyük olursa olsun, UpdraftPlus her seferinde azar azar yükleyebilir, zamanaşımı yüzünden yarıda kalmaz."
@@ -3525,7 +3538,7 @@ msgid "Your %s quota usage: %s %% used, %s available"
 msgstr "%s kota kullanımınız: %s %% dolu, %s boş"
 
 #: methods/googledrive.php:351 methods/openstack-base.php:416
-#: methods/cloudfiles.php:585 methods/stream-base.php:321 methods/s3.php:656
+#: methods/cloudfiles.php:585 methods/stream-base.php:328 methods/s3.php:657
 #: methods/addon-base.php:288 addons/sftp.php:504
 msgid "Success"
 msgstr "Başarılı"
@@ -3898,10 +3911,6 @@ msgstr "Yedekleme tamamlanmadı."
 msgid "File backup intervals"
 msgstr "Dosya yedekleme aralıkları"
 
-#: admin.php:2949
-msgid "Manual"
-msgstr "Elle"
-
 #: admin.php:2204
 msgid "Go here for help."
 msgstr "Yardım için buraya bakın."
@@ -4206,7 +4215,7 @@ msgid "Could not find that job - perhaps it has already finished?"
 msgstr "İş bulunamadı - belki zaten tamamlanmış olabilir mi?"
 
 #: class-updraftplus.php:697 restorer.php:1640 restorer.php:1657
-#: restorer.php:1722 admin.php:1185 admin.php:4260 methods/stream-base.php:190
+#: restorer.php:1722 admin.php:1185 admin.php:4260 methods/stream-base.php:197
 #: methods/addon-base.php:75 methods/addon-base.php:80
 #: methods/addon-base.php:175 methods/addon-base.php:195
 msgid "Error"

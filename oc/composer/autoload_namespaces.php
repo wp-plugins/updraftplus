@@ -7,9 +7,8 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Symfony\\Component\\EventDispatcher\\' => array($vendorDir . '/symed'),
+    'Psr\\Log\\' => array($vendorDir . '/psr/log'),
     'OpenCloud' => array($vendorDir . '/rs/lb2'),
-    'Guzzle\\Stream' => array($vendorDir . '/guzzle/stream'),
-    'Guzzle\\Parser' => array($vendorDir . '/guzzle/parser'),
-    'Guzzle\\Http' => array($vendorDir . '/guzzle/http'),
-    'Guzzle\\Common' => array($vendorDir . '/guzzle/common'),
+    'Guzzle' => array($vendorDir . '/guzzle'),
+    'Aws' => array($vendorDir . '/aws'),
 );
