@@ -237,7 +237,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		// If not database, then it is a zip - unpack in the usual way
 		#if (!preg_match('/db\.gz(\.crypt)?$/i', $package)) return parent::unpack_package($updraft_dir.'/'.$package, $delete_package);
-		if (!preg_match('/db\.gz(\.crypt)?$/i', $package) && !preg_match('/\.sql(\.gz)?$/i', $package)) return $this->unpack_package_archive($updraft_dir.'/'.$package, $delete_package, $type);
+		if (!preg_match('/-db(\.gz(\.crypt)?)?$/i', $package) && !preg_match('/\.sql(\.gz)?$/i', $package)) return $this->unpack_package_archive($updraft_dir.'/'.$package, $delete_package, $type);
 
 		$backup_dir = $wp_filesystem->find_folder($updraft_dir);
 
@@ -1401,7 +1401,7 @@ class Updraft_Restorer extends WP_Upgrader {
 						}
 					}
 
-					$this->restored_table($restoring_table, $import_table_prefix, $old_table_prefix);
+					if ($restoring_table != $this->new_table_name) $this->restored_table($restoring_table, $import_table_prefix, $old_table_prefix);
 
 				}
 
@@ -1453,6 +1453,9 @@ class Updraft_Restorer extends WP_Upgrader {
 			} elseif (preg_match('/^use /i', $sql_line)) {
 				# WPB2D produces these, as do some phpMyAdmin dumps
 				$sql_type = 7;
+			} else {
+				# Prevent the previous value of $sql_type being retained for an unknown type
+				$sql_type = 0;
 			}
 // 			if (5 !== $sql_type) {
 			if ($sql_type < 6) {
@@ -1638,7 +1641,7 @@ class Updraft_Restorer extends WP_Upgrader {
 					echo sprintf(__('Table prefix has changed: changing %s table field(s) accordingly:', 'updraftplus'),'option').' ';
 					if (false === $wpdb->query("UPDATE ${import_table_prefix}".$mprefix."options SET option_name='${import_table_prefix}".$mprefix."user_roles' WHERE option_name='${old_table_prefix}".$mprefix."user_roles' LIMIT 1")) {
 						echo __('Error','updraftplus');
-						$updraftplus->log("Error when changing options table fields");
+						$updraftplus->log("Error when changing options table fields: ".$wpdb->last_error);
 					} else {
 						$updraftplus->log("Options table fields changed OK");
 						echo __('OK', 'updraftplus');
@@ -1655,6 +1658,7 @@ class Updraft_Restorer extends WP_Upgrader {
 						$updraftplus->log_e("Uploads path (%s) does not exist - resetting (%s)", $new_upload_path, $this->prior_upload_path);
 						if (false === $wpdb->query("UPDATE ${import_table_prefix}".$mprefix."options SET option_value='".esc_sql($this->prior_upload_path)."' WHERE option_name='upload_path' LIMIT 1")) {
 							echo __('Error','updraftplus');
+						$updraftplus->log("Error when changing upload path: ".$wpdb->last_error);
 							$updraftplus->log("Failed");
 						}
 						#update_option('upload_path', $this->prior_upload_path);
