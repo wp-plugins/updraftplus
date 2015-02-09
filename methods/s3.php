@@ -75,11 +75,39 @@ class UpdraftPlus_BackupModule_s3 {
 		if (!class_exists('WP_HTTP_Proxy')) require_once(ABSPATH.WPINC.'/class-http.php');
 		$proxy = new WP_HTTP_Proxy();
 
+		$use_ssl = true;
+		$ssl_ca = true;
+		if (!$nossl) {
+			$curl_version = (function_exists('curl_version')) ? curl_version() : array('features' => null);
+			$curl_ssl_supported = ($curl_version['features'] & CURL_VERSION_SSL);
+			if ($curl_ssl_supported) {
+				if ($disableverify) {
+					$ssl_ca = false;
+					//$s3->setSSL(true, false);
+					$updraftplus->log("S3: Disabling verification of SSL certificates");
+				} else {
+					if ($useservercerts) {
+						$updraftplus->log("S3: Using the server's SSL certificates");
+						$ssl_ca = 'system';
+					} else {
+						$ssl_ca = file_exists(UPDRAFTPLUS_DIR.'/includes/cacert.pem') ? UPDRAFTPLUS_DIR.'/includes/cacert.pem' : true;
+					}
+				}
+			} else {
+				$use_ssl = false;
+				$updraftplus->log("S3: Curl/SSL is not available. Communications will not be encrypted.");
+			}
+		} else {
+			$use_ssl = false;
+			$updraftplus->log("SSL was disabled via the user's preference. Communications will not be encrypted.");
+		}
+
 		try {
-			$s3 = new $use_s3_class($key, $secret);
+			$s3 = new $use_s3_class($key, $secret, $use_ssl, $ssl_ca);
 		} catch (Exception $e) {
-			$updraftplus->log("$file: ".sprintf(__('%s Error: Failed to initialise','updraftplus'), $key).": ".$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile());
-			$updraftplus->log("$file: ".sprintf(__('%s Error: Failed to initialise','updraftplus'), $key), 'error');
+			$updraftplus->log(sprintf(__('%s Error: Failed to initialise','updraftplus'), 'S3').": ".$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
+			$updraftplus->log(sprintf(__('%s Error: Failed to initialise','updraftplus'), $key), 'S3');
+			return new WP_Error('s3_init_failed', sprintf(__('%s Error: Failed to initialise','updraftplus'), 'S3').": ".$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
 		}
 
 		if ($proxy->is_enabled()) {
@@ -97,29 +125,30 @@ class UpdraftPlus_BackupModule_s3 {
 			$s3->setProxy($proxy->host(), $user, $pass, CURLPROXY_HTTP, $port); 
 		}
 
-		if (!$nossl) {
-			$curl_version = (function_exists('curl_version')) ? curl_version() : array('features' => null);
-			$curl_ssl_supported = ($curl_version['features'] & CURL_VERSION_SSL);
-			if ($curl_ssl_supported) {
-				if ($disableverify) {
-					$s3->setSSL(true, false);
-					$updraftplus->log("S3: Disabling verification of SSL certificates");
-				} else {
-					$s3->setSSL(true, true);
-				}
-				if ($useservercerts) {
-					$updraftplus->log("S3: Using the server's SSL certificates");
-				} else {
-					$s3->setSSLAuth(null, null, UPDRAFTPLUS_DIR.'/includes/cacert.pem');
-				}
-			} else {
-				$s3->setSSL(false, false);
-				$updraftplus->log("S3: Curl/SSL is not available. Communications will not be encrypted.");
-			}
-		} else {
-			$s3->setSSL(false, false);
-			$updraftplus->log("SSL was disabled via the user's preference. Communications will not be encrypted.");
-		}
+// Old: from before we passed the SSL options when getting the object
+// 		if (!$nossl) {
+// 			$curl_version = (function_exists('curl_version')) ? curl_version() : array('features' => null);
+// 			$curl_ssl_supported = ($curl_version['features'] & CURL_VERSION_SSL);
+// 			if ($curl_ssl_supported) {
+// 				if ($disableverify) {
+// 					$s3->setSSL(true, false);
+// 					$updraftplus->log("S3: Disabling verification of SSL certificates");
+// 				} else {
+// 					$s3->setSSL(true, true);
+// 				}
+// 				if ($useservercerts) {
+// 					$updraftplus->log("S3: Using the server's SSL certificates");
+// 				} else {
+// 					$s3->setSSLAuth(null, null, UPDRAFTPLUS_DIR.'/includes/cacert.pem');
+// 				}
+// 			} else {
+// 				$s3->setSSL(false, false);
+// 				$updraftplus->log("S3: Curl/SSL is not available. Communications will not be encrypted.");
+// 			}
+// 		} else {
+// 			$s3->setSSL(false, false);
+// 			$updraftplus->log("SSL was disabled via the user's preference. Communications will not be encrypted.");
+// 		}
 
 		$this->s3_object = $s3;
 
@@ -134,6 +163,8 @@ class UpdraftPlus_BackupModule_s3 {
 				$endpoint = 's3-eu-west-1.amazonaws.com';
 				break;
 			case 'us-west-1':
+				$endpoint = 's3.amazonaws.com';
+				break;
 			case 'us-west-2':
 			case 'ap-southeast-1':
 			case 'ap-southeast-2':
@@ -150,15 +181,15 @@ class UpdraftPlus_BackupModule_s3 {
 				break;
 		}
 
-		if (isset($endpoint) && is_a($obj, 'UpdraftPlus_S3_Compat')) {
-			$updraftplus->log("Set region: $region");
-
-			$obj->setEndpoint($endpoint, $region);
-			$obj->setRegion($region);
-			return;
-		}
-
 		if (isset($endpoint)) {
+
+			if (is_a($obj, 'UpdraftPlus_S3_Compat')) {
+				$updraftplus->log("Set region: $region");
+	// 			$obj->setEndpoint($endpoint, $region);
+				$obj->setRegion($region);
+				return;
+			}
+
 			$updraftplus->log("Set endpoint: $endpoint");
 			return $obj->setEndpoint($endpoint);
 		}
@@ -609,7 +640,7 @@ class UpdraftPlus_BackupModule_s3 {
 	}
 
 	public function credentials_test() {
-		$this->credentials_test_engine($this->get_config());
+		return $this->credentials_test_engine($this->get_config());
 	}
 
 	public function credentials_test_engine($config) {
@@ -646,6 +677,12 @@ class UpdraftPlus_BackupModule_s3 {
 		$whoweare = $config['whoweare'];
 
 		$s3 = $this->getS3($key, $secret, $useservercerts, $disableverify, $nossl);
+		if (is_wp_error($s3)) {
+			foreach ($s3->get_error_messages() as $msg) {
+				echo $msg."\n";
+			}
+			return;
+		}
 
 		$location = ('s3' == $config['key']) ? @$s3->getBucketLocation($bucket) : 'n/a';
 		if ('s3' != $config['key']) $this->set_region($s3, $endpoint);
@@ -662,7 +699,7 @@ class UpdraftPlus_BackupModule_s3 {
 		# Saw one case where there was read/write permission, but no permission to get the location - yet the bucket did exist. Try to detect that.
 		if (!isset($bucket_exists) && 's3' == $config['key']) {
 			$s3->useDNSBucketName(true);
-			$gb = $s3->getBucket($bucket, null, null, 1);
+			$gb = @$s3->getBucket($bucket, null, null, 1);
 			if ($gb !== false) {
 				$bucket_exists = true;
 				$location = '';

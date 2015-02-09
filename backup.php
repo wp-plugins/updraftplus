@@ -1210,6 +1210,8 @@ class UpdraftPlus_Backup {
 				$unlink_files[] = $this->updraft_dir.'/'.$table_file.'.gz';
 			}
 			$sind++;
+			// Came across a database with 7600 tables... adding them all took over 500 seconds; and so when the resumption started up, no activity was detected
+			if ($sind % 100 == 0) $updraftplus->something_useful_happened();
 		}
 
 		if (defined("DB_CHARSET")) {

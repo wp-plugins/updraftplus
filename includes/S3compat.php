@@ -61,7 +61,7 @@ class UpdraftPlus_S3_Compat
 
 	public $endpoint = 's3.amazonaws.com';
 	public $proxy = null;
-	private $region = 'us-west-1';
+	private $region = 'us-east-1';
 
 	// Added to cope with a particular situation where the user had no pernmission to check the bucket location, which necessitated using DNS-based endpoints.
 	public $use_dns_bucket_name = false;
@@ -81,20 +81,32 @@ class UpdraftPlus_S3_Compat
 	* @param string $accessKey Access key
 	* @param string $secretKey Secret key
 	* @param boolean $useSSL Enable SSL
+	* @param string|boolean $sslCACert - certificate authority (true = bundled Guzzle version; false = no verify, 'system' = system version; otherwise, path)
 	* @return void
 	*/
-	public function __construct($accessKey = null, $secretKey = null)
+	public function __construct($accessKey = null, $secretKey = null, $useSSL = true, $sslCACert = true, $endpoint = 's3.amazonaws.com')
 	{
 		if ($accessKey !== null && $secretKey !== null)
 			self::setAuth($accessKey, $secretKey);
 
-		// Force V4, since there doesn't seem to be a way to change this later - and we don't yet know the region (though v4 also requires a region to be initially set...)
-		$this->client = Aws\S3\S3Client::factory(array(
+		$this->useSSL = $useSSL;
+		$this->sslCACert = $sslCACert;
+
+		$opts = array(
 			'key' => $accessKey,
 			'secret' => $secretKey,
 			'signature' => 'v4',
+			'scheme' => ($useSSL) ? 'https' : 'http',
+// 			'defaults' => array(
+// 				'verify' => $ssl_ca
+// 			)
 			'region' => $this->region
-		));
+		);
+
+		if ($useSSL) $opts['ssl.certificate_authority'] = $sslCACert;
+
+		// Force V4, since there doesn't seem to be a way to change this later - and we don't yet know the region (though v4 also requires a region to be initially set...)
+		$this->client = Aws\S3\S3Client::factory($opts);
 	}
 
 	/**
@@ -161,6 +173,7 @@ class UpdraftPlus_S3_Compat
 	* @param boolean $validate SSL certificate validation
 	* @return void
 	*/
+	// This code relies upon the particular pattern of SSL options-setting in s3.php in UpdraftPlus
 	public function setSSL($enabled, $validate = true)
 	{
 		$this->useSSL = $enabled;
@@ -168,21 +181,17 @@ class UpdraftPlus_S3_Compat
 		// http://guzzle.readthedocs.org/en/latest/clients.html#verify
 		if ($enabled) {
 
-			$verify_peer = ($validate) ? true : false;
-			$verify_host = ($validate) ? 2 : 0;
+			// Do nothing - in UpdraftPlus, setSSLAuth will be called later, and we do the calls there
 
-			$this->config['scheme'] = 'https';
-			$this->client->setConfig($this->config);
+// 			$verify_peer = ($validate) ? true : false;
+// 			$verify_host = ($validate) ? 2 : 0;
+// 
+// 			$this->config['scheme'] = 'https';
+// 			$this->client->setConfig($this->config);
+// 
+// 			$this->client->setSslVerification($validate, $verify_peer, $verify_host);
 
-			$this->client->setSslVerification(true, $verify_peer, $verify_host);
 
-// 			if ($validate) {
-// // 				$this->config['ssl.certificate_authority'] = true;
-// // 				$this->client->setDefaultOption('verify', true);
-// 			} else {
-// // 				$this->config['ssl.certificate_authority'] = false;
-// // 				$this->client->setDefaultOption('verify', false);
-// 			}
 		} else {
 			$this->config['scheme'] = 'http';
 // 			$this->client->setConfig($this->config);
@@ -206,9 +215,20 @@ class UpdraftPlus_S3_Compat
 	public function setSSLAuth($sslCert = null, $sslKey = null, $sslCACert = null)
 	{
 		if (!$this->useSSL) return;
-		$verify_peer = ($this->useSSLValidation) ? true : false;
-		$verify_host = ($this->useSSLValidation) ? 2 : 0;
-		$this->client->setSslVerification($sslCACert, $verify_peer, $verify_host);
+
+		if (!$this->useSSLValidation) {
+			$this->client->setSslVerification(false);
+		} else {
+			if (!$sslCACert) {
+				$client = $this->client;
+				$this->config[$client::SSL_CERT_AUTHORITY] = false;
+				$this->client->setConfig($this->config);
+			} else {
+				$this->client->setSslVerification(realpath($sslCACert), true, 2);
+			}
+		}
+
+// 		$this->client->setSslVerification($sslCACert, $verify_peer, $verify_host);
 // 		$this->config['ssl.certificate_authority'] = $sslCACert;
 // 		$this->client->setConfig($this->config);
 	}
@@ -299,6 +319,7 @@ class UpdraftPlus_S3_Compat
 			$nextMarker = null;
 			// http://docs.aws.amazon.com/AmazonS3/latest/dev/ListingObjectKeysUsingPHP.html
 			// UpdraftPlus does not use the 'hash' result
+			if (empty($result['Contents'])) $result['Contents'] = array();
 			foreach ($result['Contents'] as $c)
 			{
 				$results[(string)$c['Key']] = array(
@@ -367,7 +388,9 @@ class UpdraftPlus_S3_Compat
 			'Bucket' => $bucket,
 			'ACL' => $acl,
 		);
-		$bucket_vars['LocationConstraint'] = $this->region;
+		// http://docs.aws.amazon.com/aws-sdk-php/latest/class-Aws.S3.S3Client.html#_createBucket
+		$location_constraint = apply_filters('updraftplus_s3_putbucket_defaultlocation', $this->region);
+		if ('us-east-1' != $location_constraint) $bucket_vars['LocationConstraint'] = $location_constraint;
 		try {
 			$result = $this->client->createBucket($bucket_vars);
 			if (is_object($result) && method_exists($result, 'get') && '' != $result->get('RequestId')) {
@@ -532,8 +555,16 @@ class UpdraftPlus_S3_Compat
 	public function putObjectFile($file, $bucket, $uri, $acl = self::ACL_PRIVATE, $metaHeaders = array(), $contentType = null, $storageClass = self::STORAGE_CLASS_STANDARD)
 	{
 		try {
-			if (!$fh = fopen($file, 'r')) throw new Exception('Could not open file: '.$file);
-			$result = $this->client->upload($bucket, $uri, $fh, $acl);
+			$options = array(
+				'Bucket' => $bucket,
+				'Key' => $uri,
+				'SourceFile' => $file,
+				'StorageClass' => $storageClass,
+				'ACL' => $acl
+			);
+			if ($contentType) $options['ContentType'] = $contentType;
+			if (!empty($metaHeaders)) $options['Metadata'] = $metaHeaders;
+			$result = $this->client->putObject($options);
 			if (is_object($result) && method_exists($result, 'get') && '' != $result->get('RequestId')) return true;
 		} catch (Exception $e) {
 			if ($this->useExceptions) {

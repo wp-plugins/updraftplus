@@ -921,7 +921,7 @@ jQuery(document).ready(function($){
 		
 		plupload.each(files, function(file){
 
-			if (! /^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i.test(file.name) && ! /^log\.([0-9a-f]{12})\.txt$/.test(file.name)) {
+			if (! /^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+([0-9]+?)?(\.(zip|gz|gz\.crypt))?$/i.test(file.name) && ! /^log\.([0-9a-f]{12})\.txt$/.test(file.name)) {
 				var accepted_file = false;
 				for (var i = 0; i<updraft_accept_archivename.length; i++) {
 					if (updraft_accept_archivename[i].test(file.name)) {

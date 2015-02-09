@@ -39,7 +39,7 @@ class UpdraftPlus_BackupModule_openstack extends UpdraftPlus_BackupModule_openst
 			$client->setSslVerification(false);
 		} else {
 			if ($useservercerts) {
-				$client->setConfig(array($client::SSL_CERT_AUTHORITY, 'system'));
+				$client->setConfig(array($client::SSL_CERT_AUTHORITY => false));
 			} else {
 				$client->setSslVerification(UPDRAFTPLUS_DIR.'/includes/cacert.pem', true, 2);
 			}

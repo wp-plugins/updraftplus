@@ -25,8 +25,8 @@ class UpdraftPlus_Admin {
 		add_filter((is_multisite() ? 'network_admin_' : '').'plugin_action_links', array($this, 'plugin_action_links'), 10, 2);
 		add_action('wp_ajax_updraft_download_backup', array($this, 'updraft_download_backup'));
 		add_action('wp_ajax_updraft_ajax', array($this, 'updraft_ajax_handler'));
-		add_action('wp_ajax_plupload_action', array($this,'plupload_action'));
-		add_action('wp_ajax_plupload_action2', array($this,'plupload_action2'));
+		add_action('wp_ajax_plupload_action', array($this, 'plupload_action'));
+		add_action('wp_ajax_plupload_action2', array($this, 'plupload_action2'));
 
 		global $updraftplus, $wp_version, $pagenow;
 		add_filter('updraftplus_dirlist_others', array($updraftplus, 'backup_others_dirlist'));
@@ -189,8 +189,6 @@ class UpdraftPlus_Admin {
 
 		if (!class_exists('UpdraftPlus_Addon_Autobackup')) {
 			if (defined('UPDRAFTPLUS_NOADS_B')) return;
-			# TODO: Remove legacy/wrong use of transient any time from 1 Jun 2014
-			if (true == get_transient('updraftplus_dismissedautobackup')) return;
 			$dismissed_until = UpdraftPlus_Options::get_updraft_option('updraftplus_dismissedautobackup', 0);
 			if ($dismissed_until > time()) return;
 		}
@@ -229,7 +227,6 @@ class UpdraftPlus_Admin {
 			'max_file_size' => '100Gb',
 			'chunk_size' => $chunk_size.'b',
 			'url' => admin_url('admin-ajax.php'),
-			'filters' => array(array('title' => __('Allowed Files'), 'extensions' => 'zip,tar,gz,bz2,crypt,sql,txt')),
 			'multipart' => true,
 			'multi_selection' => true,
 			'urlstream_upload' => true,
@@ -241,6 +238,12 @@ class UpdraftPlus_Admin {
 		);
 // 			'flash_swf_url' => includes_url('js/plupload/plupload.flash.swf'),
 // 			'silverlight_xap_url' => includes_url('js/plupload/plupload.silverlight.xap'),
+
+// We want to receive -db files also...
+// 		if (1) {
+// 			$plupload_init['filters'] = array(array('title' => __('Allowed Files'), 'extensions' => 'zip,tar,gz,bz2,crypt,sql,txt'));
+// 		} else {
+// 		}
 
 		# WP 3.9 updated to plupload 2.0 - https://core.trac.wordpress.org/ticket/25663
 		if (is_file(ABSPATH.WPINC.'/js/plupload/Moxie.swf')) {
@@ -454,9 +457,6 @@ class UpdraftPlus_Admin {
 				if (!current_user_can('update_themes')) return;
 			}
 
-			# TODO: Remove legacy/erroneous use of transient any time after 1 Jun 2014
-			$dismissed = get_transient('updraftplus_dismissedautobackup');
-			if (true == $dismissed) return;
 			$dismissed_until = UpdraftPlus_Options::get_updraft_option('updraftplus_dismissedautobackup', 0);
 			if ($dismissed_until > time()) return;
 
@@ -1609,6 +1609,9 @@ CREATE TABLE $wpdb->signups (
 			return false;
 		}
 		if (false === ($dbhandle = gzopen($file, 'r'))) return false;
+
+		if (!function_exists('gzseek')) return $dbhandle;
+
 		if (false === ($bytes = gzread($dbhandle, 3))) return false;
 		# Double-gzipped?
 		if ('H4sI' != base64_encode($bytes)) {
@@ -1764,7 +1767,7 @@ CREATE TABLE $wpdb->signups (
 		$response = array();
 		if (!isset($_POST['chunks']) || (isset($_POST['chunk']) && $_POST['chunk'] == $_POST['chunks']-1)) {
 			$file = basename($status['file']);
-			if (!preg_match('/^log\.[a-f0-9]{12}\.txt/i', $file) && !preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+)?\.(zip|gz|gz\.crypt)$/i', $file, $matches)) {
+			if (!preg_match('/^log\.[a-f0-9]{12}\.txt/i', $file) && !preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+)?(\.(zip|gz|gz\.crypt))?$/i', $file, $matches)) {
 				$accept = apply_filters('updraftplus_accept_archivename', array());
 				if (is_array($accept)) {
 					foreach ($accept as $acc) {
@@ -3868,7 +3871,7 @@ ENDHERE;
 				if (!is_array($values)) $values=array($values);
 				foreach ($values as $val) {
 					if (!is_string($val)) continue;
-					if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+([0-9]+(of[0-9]+)?)?+\.(zip|gz|gz\.crypt)$/i', $val, $matches)) {
+					if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-[\-a-z]+([0-9]+)?+(\.(zip|gz|gz\.crypt))?$/i', $val, $matches)) {
 						$nonce = $matches[2];
 						if (isset($bdata['service']) && ($bdata['service'] === 'none' || (is_array($bdata['service']) && array('none') === $bdata['service'])) && !is_file($updraft_dir.'/'.$val)) {
 							# File without remote storage is no longer present
@@ -3914,7 +3917,7 @@ ENDHERE;
 				if (is_array($files)) {
 					foreach ($files as $entry) {
 						$n = $entry['name'];
-						if (!preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i', $n, $matches)) continue;
+						if (!preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+)?(\.(zip|gz|gz\.crypt))?$/i', $n, $matches)) continue;
 						if (isset($remotefiles[$n])) {
 							$remotefiles[$n][] = $method;
 						} else {
@@ -3947,7 +3950,7 @@ ENDHERE;
 			$potmessage = false;
 			if ('.' == $entry || '..' == $entry) continue;
 			# TODO: Make compatible with Incremental naming
-			if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i', $entry, $matches)) {
+			if (preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+)?(\.(zip|gz|gz\.crypt))?$/i', $entry, $matches)) {
 				// Interpret the time as one from the blog's local timezone, rather than as UTC
 				# $matches[1] is YYYY-MM-DD-HHmm, to be interpreted as being the local timezone
 				$btime2 = strtotime($matches[1]);
@@ -3955,7 +3958,7 @@ ENDHERE;
 				$nonce = $matches[2];
 				$type = $matches[3];
 				if ('db' == $type) {
-					$type .= $matches[4];
+					$type .= (!empty($matches[4])) ? $matches[4] : '';
 					$index = 0;
 				} else {
 					$index = (empty($matches[4])) ? '0' : (max((int)$matches[4]-1,0));
@@ -4056,12 +4059,12 @@ ENDHERE;
 
 			# $backup_history[$btime]['nonce'] = $nonce
 			foreach ($remotefiles as $file => $services) {
-				if (!preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+(of[0-9]+)?)?\.(zip|gz|gz\.crypt)$/i', $file, $matches)) continue;
+				if (!preg_match('/^backup_([\-0-9]{15})_.*_([0-9a-f]{12})-([\-a-z]+)([0-9]+)?(\.(zip|gz|gz\.crypt))?$/i', $file, $matches)) continue;
 				$nonce = $matches[2];
 				$type = $matches[3];
 				if ('db' == $type) {
 					$index = 0;
-					$type .= $matches[4];
+					$type .= empty($matches[4]) ? $matches[4] : '';
 				} else {
 					$index = (empty($matches[4])) ? '0' : (max((int)$matches[4]-1,0));
 				}
