@@ -1071,6 +1071,5 @@ We recognise and thank the following for code and/or libraries used and/or modif
 
 Furthermore, reliance upon any non-English translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
 
-
 == Upgrade Notice ==
 * 1.9.60 : New Amazon backend. New in-page autobackup widget. "Backup Now" can now overcome broken WP schedulers. Handle uncompresed dbs when restoring. Various minor tweaks.
