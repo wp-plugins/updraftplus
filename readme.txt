@@ -3,7 +3,7 @@ Contributors: Backup with UpdraftPlus, DavidAnderson
 Tags: backup, backups, restore, amazon backup, s3 backup, dropbox backup, google drive backup, rackspace cloud files, rackspace backup, cloud files, dreamhost, dreamobjects backup, ftp backup, webdav backup, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp backup, ftps, scp, migrate, duplicate, copy, mysql backup, database backup, db backup, website backup, wordpress backup, full backup, openstack, swift
 Requires at least: 3.2
 Tested up to: 4.1
-Stable tag: 1.9.51
+Stable tag: 1.9.60
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -16,7 +16,7 @@ Backup and restoration made easy. Complete backups; manual or scheduled (backup 
 
 <strong>Top-quality:</strong> UpdraftPlus is the <a href="http://rankwp.com/plugins/updraftplus">highest-ranking backup plugin on rankwp.com</a> (ranks in the top 40 out of 30,000 WordPress plugins for quality on rankwp.com - last checked 21 September 2014).
 
-<strong>Tens of thousands of users:</strong> widely tested and reliable (over 1.7 million downloads). Ranks in the top 100 most used of all WordPress plugins on rankwp.com. Millions of backups completed!
+<strong>Tens of thousands of users:</strong> widely tested and reliable (over 1.8 million downloads). Ranks in the top 100 most used of all WordPress plugins on rankwp.com. Millions of backups completed!
 
 * Supports WordPress backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP, OpenStack (Swift) and email. Also (via an add-on) Copy.Com, FTP over SSL, SFTP, SCP, and WebDAV (and compatible services, e.g. Yandex, Cubby). (Note: Microsoft forbid OneDrive/SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
 * Quick restore (both file and database backups)
@@ -41,7 +41,7 @@ Your WordPress backups are worth the same as your entire investment in your webs
 
 = UpdraftPlus Addons And Premium =
 
-UpdraftPlus Backup/Restore is not crippled in any way - it is fully functional for backing up and restoring your site. What we do have is various extra features (including site cloning), and guaranteed support, available <a href="http://updraftplus.com/">from our website, updraftplus.com</a>.
+UpdraftPlus Backup/Restore is not crippled in any way - it is fully functional for backing up and restoring your site. What we do have is various extra features (including site cloning), and guaranteed support, available <a href="http://updraftplus.com/">from our website, updraftplus.com</a>. See <a href="http://updraftplus.com/comparison-updraftplus-free-updraftplus-premium/">a comparison of the free/Premium versions, here</a>.
 
 If you need WordPress multisite backup compatibility (you'll know if you do), <a href="http://updraftplus.com/shop/">then you need UpdraftPlus Premium</a>.
 
@@ -104,7 +104,7 @@ We hang out in the WordPress support forum for this plugin - http://wordpress.or
 
 = Can UpdraftPlus do (something)? =
 
-Check out <a href="http://updraftplus.com/updraftplus-full-feature-list/">our full list of features</a>, and our <a href="http://updraftplus.com/shop/">add-ons shop</a>.
+Check out <a href="http://updraftplus.com/updraftplus-full-feature-list/">our full list of features</a>, and our <a href="http://updraftplus.com/shop/">add-ons shop</a> and <a href="http://updraftplus.com/comparison-updraftplus-free-updraftplus-premium/">free/Premium comparison table</a>.
 
 = I found a bug. What do I do? =
 
@@ -153,9 +153,32 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
-= Development version (not yet released/supported) =
+= 1.9.60 - 2015-02-24 =
 
-* TWEAK: Update PHP-Opencloud (Rackspace) and dependency libraries to current versions
+* FEATURE: When using "Backup Now", and keeping the UpdraftPlus settings page open, a broken WP scheduler will not prevent the backup's progress.
+* FEATURE: Amazon's "EU Central 1" Frankfurt region now supported again (Amazon began requiring their new signature method at this location - probably a sign of things to come everywhere). PHP 5.3.3 required for this region.
+* FEATURE: Database backup files can now be handled when uncompressed - i.e., you can remove the gzip compression, and use the resulting file (useful for large backups on slow/limited hosting: pre-decompressing the file will reduce the processing time needed)
+* FEATURE: Introduced new in-page auto-backup widget that can resume, and thus cope with a backup of any size. This feature is in preparation of WP 4.2's major re-write of the updating user experience flow.
+* TWEAK: Update PHP-Opencloud (Rackspace) and dependency libraries to current versions.
+* TWEAK: Make sure that activity is recorded periodically when adding database tables to the final database backup (found a site with over 7,500 tables)
+* TWEAK: Don't bother to attempt to detect double-gz compression on setups where it can't be handled (where gzseek() has been disabled in the PHP configuration)
+* TWEAK: Added free/Premium comparison table to the free version
+* TWEAK: Importer (part of UpdraftPlus Premium) can now import generic .sql, .sql.gz and .sql.bz2 files
+* TWEAK: Don't show the "memory limit" warning in a case where the value could not be accurately detected
+* TWEAK: If the user chooses the "email" remote storage method, then a warning will be added if the archive being sent is bigger than most mailservers can carry (and will be removed if it is successfully sent), thus giving the user a hint as to the failure cause (if they overlooked the existing warning in the email settings).
+* TWEAK: The importer (part of UpdraftPlus Premium) can now import the latest BackupWordPress format databases
+* TWEAK: Flush output buffer explicitly when closing the browser connection - prevents delayed feedback on some setups
+* TWEAK: Automatic backups are now offered if you go to the 'Plugins' page, and update via the 'More information' iframe
+* TWEAK: Trim spaces from Google Drive client_id/secret - some users didn't spot that they introduced whitespace when copy-pasting
+* TWEAK: Add "Simple Visitor Stats" and "Simple Feed Stats" tables to the list of tables that may have large amounts of data, and which don't need search/replacing when migrating
+* TWEAK: When restoring plugins and themes, log the list of entities being restored (helps with tracing problems)
+* TWEAK: Deal with CloudFTP/StorageMadeEasy returning directory listings in a non-standard format, when rescanning remote backups
+* TRANSLATIONS: Updated translations in several langauges (many thanks for our translators)
+* FIX: For imported 3rd-party backups, the 'Existing Backups' tab (only) was showing "Unknown Source" instead of the detected source.
+
+= 1.9.52 - 2015-02-07 =
+
+* FIX: Fix issue when migrating (hence, in Premium versions only) backups with very large options tables output by mysqldump, which could cause the site URL to finish with an incorrect value
 
 = 1.9.51 - 2015-02-03 =
 
@@ -1007,7 +1030,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 
 == Screenshots ==
 
-1. Main dashboard - all screenshots are from UpdraftPlus Premium, so may shown some features that are not shown in the free version
+1. Main dashboard - screenshots are from UpdraftPlus Premium, so may reference some features that are not part of the free version
 
 2. Configuration page
 
@@ -1019,6 +1042,7 @@ We recognise and thank the following for code and/or libraries used and/or modif
 
 * UpdraftPlus is derived from the original Updraft WordPress backup plugin by Paul Kehrer (Twitter: http://twitter.com/reaperhulk, Blog: http://langui.sh)
 * The Google PHP SDK developers, https://github.com/google/google-api-php-client
+* The Amazon AWS PHP SDK developers, https://github.com/aws/aws-sdk-php/
 * Ben Tadiar, https://github.com/BenTheDesigner/Dropbox
 * Beau Brownlee, http://www.solutionbot.com/2009/01/02/php-ftp-class/
 * Donovan Schonknecht, http://undesigned.org.za/2007/10/22/amazon-s3-php-class
@@ -1049,4 +1073,4 @@ Furthermore, reliance upon any non-English translation is at your own risk. Updr
 
 
 == Upgrade Notice ==
-* 1.9.51 : Important security update preventing logged-in non-admins accessing admin functions. Updated translations.
+* 1.9.60 : New Amazon backend. New in-page autobackup widget. "Backup Now" can now overcome broken WP schedulers. Handle uncompresed dbs when restoring. Various minor tweaks.

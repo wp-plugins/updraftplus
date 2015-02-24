@@ -354,6 +354,7 @@ class UpdraftPlus {
 		$this->backup_time = time();
 		if (false === $nonce) $nonce = substr(md5(time().rand()), 20);
 		$this->nonce = $nonce;
+		return $nonce;
 	}
 
 	public function logfile_open($nonce) {
@@ -412,7 +413,7 @@ class UpdraftPlus {
 // 		$w3oc = 'N';
 		if (0 === $this->current_resumption) {
 			$memlim = $this->memory_check_current();
-			if ($memlim<65) {
+			if ($memlim<65 && $memlim>0) {
 				$this->log(sprintf(__('The amount of memory (RAM) allowed for PHP is very low (%s Mb) - you should increase it to avoid failures due to insufficient memory (consult your web hosting company for more help)', 'updraftplus'), round($memlim, 1)), 'warning', 'lowram');
 			}
 			if ($max_execution_time>0 && $max_execution_time<20) {
@@ -1459,6 +1460,11 @@ class UpdraftPlus {
 		return get_site_option("updraft_jobdata_".$non, array());
 	}
 
+	public function jobdata_set_from_array($array) {
+		$this->jobdata = $array;
+		if (!empty($this->nonce)) update_site_option("updraft_jobdata_".$this->nonce, $this->jobdata);
+	}
+
 	// This works with any amount of settings, but we provide also a jobdata_set for efficiency as normally there's only one setting
 	private function jobdata_set_multi() {
 		if (!is_array($this->jobdata)) $this->jobdata = array();
@@ -1556,8 +1562,10 @@ class UpdraftPlus {
 		@ignore_user_abort(true);
 		@set_time_limit(900);
 
+		if (false === $restrict_files_to_override && isset($options['restrict_files_to_override'])) $restrict_files_to_override = $options['restrict_files_to_override'];
 		// Generate backup information
-		$this->backup_time_nonce();
+		$use_nonce = (empty($options['use_nonce'])) ? false : $options['use_nonce'];
+		$this->backup_time_nonce($use_nonce);
 		// The current_resumption is consulted within logfile_open()
 		$this->current_resumption = 0;
 		$this->logfile_open($this->nonce);
@@ -2269,7 +2277,10 @@ class UpdraftPlus {
 			$google['token'] = '';
 			unset($opts['ownername']);
 		}
-		foreach ($google as $key => $value) { $opts[$key] = $value; }
+		foreach ($google as $key => $value) {
+			// Trim spaces - I got support requests from users who didn't spot the spaces they introduced when copy/pasting
+			$opts[$key] = ('clientid' == $key || 'secret' == $key) ? trim($value) : $value;
+		}
 		if (isset($opts['folder'])) {
 			$opts['folder'] = apply_filters('updraftplus_options_googledrive_foldername', 'UpdraftPlus', $opts['folder']);
 			unset($opts['parentid']);

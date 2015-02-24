@@ -125,6 +125,7 @@ class UpdraftPlus_BackupModule_ftp {
 			$updraftplus->get_job_option('updraft_ssl_disableverify'),
 			$updraftplus->get_job_option('updraft_ssl_useservercerts')
 		);
+
 		if (is_wp_error($ftp)) return $ftp;
 
 		if (!$ftp->connect()) return new WP_Error('ftp_login_failed', sprintf(__("%s login failure",'updraftplus'), 'FTP'));
@@ -133,7 +134,6 @@ class UpdraftPlus_BackupModule_ftp {
 		if ($ftp_remote_path) $ftp_remote_path = trailingslashit($ftp_remote_path);
 
 		$dirlist = $ftp->dir_list($ftp_remote_path);
-
 		if (!is_array($dirlist)) return array();
 
 		$results = array();
@@ -141,8 +141,11 @@ class UpdraftPlus_BackupModule_ftp {
 		foreach ($dirlist as $k => $path) {
 
 			if ($ftp_remote_path) {
-				if (0 !== strpos($path, $ftp_remote_path)) continue;
-				$path = substr($path, strlen($ftp_remote_path));
+				// Feb 2015 - found a case where the directory path was not prefixed on
+				if (0 !== strpos($path, $ftp_remote_path) && (false !== strpos('/', $ftp_remote_path) && false !== strpos('\\', $ftp_remote_path))) continue;
+				if (0 === strpos($path, $ftp_remote_path)) $path = substr($path, strlen($ftp_remote_path));
+				// if (0 !== strpos($path, $ftp_remote_path)) continue;
+				// $path = substr($path, strlen($ftp_remote_path));
 				if (0 === strpos($path, $match)) $results[]['name'] = $path;
 			} else {
 				if ('/' == substr($path, 0, 1)) $path = substr($path, 1);

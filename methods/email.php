@@ -21,7 +21,13 @@ class UpdraftPlus_BackupModule_email {
 			$descrip_type = (preg_match('/^(.*)\d+$/', $type, $matches)) ? $matches[1] : $type;
 
 			$fullpath = $updraft_dir.$file;
-			#if (file_exists($fullpath) && filesize($fullpath) > ...
+
+			if (file_exists($fullpath) && filesize($fullpath) > UPDRAFTPLUS_WARN_EMAIL_SIZE) {
+				$size_in_mb_of_big_file = round(filesize($fullpath)/1048576, 1);
+				$toobig_hash = md5($file);
+				$updraftplus->log($file.': '.sprintf(__('This backup archive is %s Mb in size - the attempt to send this via email is likely to fail (few email servers allow attachments of this size). If so, you should switch to using a different remote storage method.', 'updraftplus'), $size_in_mb_of_big_file), 'warning', 'toobigforemail_'.$toobig_hash);
+			}
+
 			$any_attempted = false;
 			$any_sent = false;
 			foreach ($email as $ind => $addr) {
@@ -41,6 +47,11 @@ class UpdraftPlus_BackupModule_email {
 				}
 			}
 			if ($any_sent) {
+				if (isset($toobig_hash)) {
+					$updraftplus->log_removewarning('toobigforemail_'.$toobig_hash);
+					// Don't leave it still set for the next archive
+					unset($toobig_hash);
+				}
 				$updraftplus->uploaded_file($file);
 			} elseif ($any_attempted) {
 				$updraftplus->log('Mails were not sent successfully');

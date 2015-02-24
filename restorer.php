@@ -237,7 +237,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		// If not database, then it is a zip - unpack in the usual way
 		#if (!preg_match('/db\.gz(\.crypt)?$/i', $package)) return parent::unpack_package($updraft_dir.'/'.$package, $delete_package);
-		if (!preg_match('/-db(\.gz(\.crypt)?)?$/i', $package) && !preg_match('/\.sql(\.gz)?$/i', $package)) return $this->unpack_package_archive($updraft_dir.'/'.$package, $delete_package, $type);
+		if (!preg_match('/-db(\.gz(\.crypt)?)?$/i', $package) && !preg_match('/\.sql(\.gz|\.bz2)?$/i', $package)) return $this->unpack_package_archive($updraft_dir.'/'.$package, $delete_package, $type);
 
 		$backup_dir = $wp_filesystem->find_folder($updraft_dir);
 
@@ -288,6 +288,13 @@ class Updraft_Restorer extends WP_Upgrader {
 
 			if (preg_match('/\.sql$/i', $package)) { 
 				if (!$wp_filesystem->copy($backup_dir.$package, $working_dir.'/backup.db')) {
+					if ( $wp_filesystem->errors->get_error_code() ) { 
+						foreach ( $wp_filesystem->errors->get_error_messages() as $message ) show_message($message); 
+					}
+					return new WP_Error('copy_failed', $this->strings['copy_failed']);
+				}
+			} elseif (preg_match('/\.bz2$/i', $package)) { 
+				if (!$wp_filesystem->copy($backup_dir.$package, $working_dir.'/backup.db.bz2')) {
 					if ( $wp_filesystem->errors->get_error_code() ) { 
 						foreach ( $wp_filesystem->errors->get_error_messages() as $message ) show_message($message); 
 					}
@@ -344,6 +351,9 @@ class Updraft_Restorer extends WP_Upgrader {
 		}
 
 		$wpcore_config_moved = false;
+
+
+		if ('plugins' == $type || 'themes' == $type) $updraftplus->log("Top-level entities being moved: ".implode(', ', array_keys($upgrade_files)));
 
 		foreach ( $upgrade_files as $file => $filestruc ) {
 
@@ -1093,17 +1103,22 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		$db_basename = 'backup.db.gz';
 		if (!empty($this->ud_foreign)) {
-
 			$plugins = apply_filters('updraftplus_accept_archivename', array());
 
 			if (empty($plugins[$this->ud_foreign])) return new WP_Error('unknown', sprintf(__('Backup created by unknown source (%s) - cannot be restored.', 'updraftplus'), $this->ud_foreign));
 
-			if (empty($plugins[$this->ud_foreign]['separatedb'])) {
-				$db_basename = apply_filters('updraftplus_foreign_separatedbname', false, $this->ud_foreign, $this->ud_backup_info, $working_dir_localpath);
-			}
 			if (!file_exists($working_dir_localpath.'/'.$db_basename) && file_exists($working_dir_localpath.'/backup.db')) {
 				$db_basename = 'backup.db';
+			} elseif (!file_exists($working_dir_localpath.'/'.$db_basename) && file_exists($working_dir_localpath.'/backup.db.bz2')) {
+				$db_basename = 'backup.db.bz2';
 			}
+
+			if (!file_exists($working_dir_localpath.'/'.$db_basename)) {
+				$separatedb = empty($plugins[$this->ud_foreign]['separatedb']) ? false : true;
+				$filtered_db_name = apply_filters('updraftplus_foreign_dbfilename', false, $this->ud_foreign, $this->ud_backup_info, $working_dir_localpath, $separatedb);
+				if (is_string($filtered_db_name)) $db_basename = $filtered_db_name;
+			}
+
 		}
 
 		// wp_filesystem has no gzopen method, so we switch to using the local filesystem (which is harmless, since we are performing read-only operations)
@@ -1114,10 +1129,17 @@ class Updraft_Restorer extends WP_Upgrader {
 		$this->skin->feedback('restore_database');
 
 		$is_plain = (substr($db_basename, -3, 3) == '.db');
+		$is_bz2 = (substr($db_basename, -7, 7) == '.db.bz2');
 
 		// Read-only access: don't need to go through WP_Filesystem
 		if ($is_plain) {
 			$dbhandle = fopen($working_dir_localpath.'/'.$db_basename, 'r');
+		} elseif ($is_bz2) {
+			if (!function_exists('bzopen')) {
+				$updraftplus->log_e("Your web server's PHP installation has these functions disabled: %s.", 'bzopen');
+				$updraftplus->log_e('Your hosting company must enable these functions before %s can work.', __('restoration', 'updraftplus'));
+			}
+			$dbhandle = bzopen($working_dir_localpath.'/'.$db_basename, 'r');
 		} else {
 			$dbhandle = gzopen($working_dir_localpath.'/'.$db_basename, 'r');
 		}
@@ -1216,9 +1238,35 @@ class Updraft_Restorer extends WP_Upgrader {
 		$updraftplus->log("Entering maintenance mode");
 		$this->maintenance_mode(true);
 
-		while (($is_plain && !feof($dbhandle)) || (!$is_plain && !gzeof($dbhandle))) {
+		// N.B. There is no such function as bzeof() - we have to detect that another way
+		while (($is_plain && !feof($dbhandle)) || (!$is_plain && (($is_bz2) || (!$is_bz2 && !gzeof($dbhandle))))) {
 			// Up to 1Mb
-			$buffer = ($is_plain) ? rtrim(fgets($dbhandle, 1048576)) : rtrim(gzgets($dbhandle, 1048576));
+			if ($is_plain) {
+				$buffer = rtrim(fgets($dbhandle, 1048576));
+			} elseif ($is_bz2) {
+				if (!isset($bz2_buffer)) $bz2_buffer = '';
+				$buffer = '';
+				if (strlen($bz2_buffer) < 524288) $bz2_buffer .= bzread($dbhandle, 1048576);
+				if (bzerrno($dbhandle) !== 0) {
+					$updraftplus->log("bz2 error: ".bzerrstr($dbhandle)." (code: ".bzerrno($bzhandle).")");
+					break;
+				}
+				if (false !== $bz2_buffer && '' !== $bz2_buffer) {
+					if (false !== ($p = strpos($bz2_buffer, "\n"))) {
+						$buffer .= substr($bz2_buffer, 0, $p+1);
+						$bz2_buffer = substr($bz2_buffer, $p+1);
+					} else {
+						$buffer .= $bz2_buffer;
+						$bz2_buffer = '';
+					}
+				} else {
+					break;
+				}
+				$buffer = rtrim($buffer);
+			} else {
+				$buffer = rtrim(gzgets($dbhandle, 1048576));
+			}
+
 			// Discard comments
 			if (empty($buffer) || substr($buffer, 0, 1) == '#' || preg_match('/^--(\s|$)/', substr($buffer, 0, 3))) {
 				if ('' == $this->old_siteurl && preg_match('/^\# Backup of: (http(.*))$/', $buffer, $matches)) {
@@ -1480,6 +1528,8 @@ class Updraft_Restorer extends WP_Upgrader {
 		$updraftplus->log_e('Finished: lines processed: %d in %.2f seconds', $this->line, $time_taken);
 		if ($is_plain) {
 			fclose($dbhandle);
+		} elseif ($is_bz2) {
+			bzclose($dbhandle);
 		} else {
 			gzclose($dbhandle);
 		}

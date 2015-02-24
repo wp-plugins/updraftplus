@@ -1,6 +1,6 @@
 <?php
 
-// This is a compatibility library, using Amazon's official PHP SDK (PHP 5.3.3+), but providing the methods of Donovan Schönknecht's S3.php library (which we used to always use)
+// This is a compatibility library, using Amazon's official PHP SDK (PHP 5.3.3+), but providing the methods of Donovan Schönknecht's S3.php library (which we used to always use) - but we've only cared about making code-paths in UpdraftPlus work, so be careful if re-reploying this in another project. And, we have a few bits of UpdraftPlus-specific code below, for logging.
 
 /**
 *
@@ -244,6 +244,7 @@ class UpdraftPlus_S3_Compat
 	*/
 	public function setProxy($host, $user = null, $pass = null, $type = CURLPROXY_SOCKS5, $port = null)
 	{
+
 		$this->proxy = array('host' => $host, 'type' => $type, 'user' => $user, 'pass' => $pass, 'port' => $port);
 
 		if (!$host) return;
@@ -251,6 +252,10 @@ class UpdraftPlus_S3_Compat
 		$wp_proxy = new WP_HTTP_Proxy(); 
 		if ($wp_proxy->send_through_proxy('https://s3.amazonaws.com'))
 		{
+
+			global $updraftplus;
+			$updraftplus->log("setProxy: host=$host, user=$user, port=$port");
+
 			// N.B. Currently (02-Feb-15), only support for HTTP proxies has ever been requested for S3 in UpdraftPlus
 			$proxy_url = 'http://';
 			if ($user) {
@@ -258,6 +263,8 @@ class UpdraftPlus_S3_Compat
 				if ($pass) $proxy_url .= ":$pass";
 				$proxy_url .= "@";
 			}
+
+			$proxy_url .= $host;
 
 			if ($port) $proxy_url .= ":$port";
 
