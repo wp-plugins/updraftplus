@@ -35,7 +35,7 @@
 * @link http://undesigned.org.za/2007/10/22/amazon-s3-php-class
 * @version 0.5.0-dev
 */
-class S3
+class UpdraftPlus_S3
 {
 	// ACL flags
 	const ACL_PRIVATE = 'private';
@@ -52,6 +52,9 @@ class S3
 
 	public static $endpoint = 's3.amazonaws.com';
 	public static $proxy = null;
+
+	// Added to cope with a particular situation where the user had no pernmission to check the bucket location, which necessitated using DNS-based endpoints.
+	public static $use_dns_bucket_name = false;
 
 	public static $useSSL = false;
 	public static $useSSLValidation = true;
@@ -74,17 +77,18 @@ class S3
 	* @param boolean $useSSL Enable SSL
 	* @return void
 	*/
-	public function __construct($accessKey = null, $secretKey = null, $useSSL = false, $endpoint = 's3.amazonaws.com')
+	public function __construct($accessKey = null, $secretKey = null, $useSSL = true, $sslCACert = true, $endpoint = 's3.amazonaws.com')
 	{
 		if ($accessKey !== null && $secretKey !== null)
 			self::setAuth($accessKey, $secretKey);
 		self::$useSSL = $useSSL;
+		self::$sslCACert = $sslCACert;
 		self::$endpoint = $endpoint;
 	}
 
 
 	/**
-	* Set the sertvice endpoint
+	* Set the service endpoint
 	*
 	* @param string $host Hostname
 	* @return void
@@ -106,7 +110,6 @@ class S3
 		self::$__accessKey = $accessKey;
 		self::$__secretKey = $secretKey;
 	}
-
 
 	/**
 	* Check if AWS keys have been set
@@ -131,6 +134,9 @@ class S3
 		self::$useSSLValidation = $validate;
 	}
 
+	public static function getuseSSL() {
+		return self::$useSSL;
+	}
 
 	/**
 	* Set SSL client certificates (experimental)
@@ -188,7 +194,7 @@ class S3
 		self::$__signingKeyPairId = $keyPairId;
 		if ((self::$__signingKeyResource = openssl_pkey_get_private($isFile ?
 		file_get_contents($signingKey) : $signingKey)) !== false) return true;
-		self::__triggerError('S3::setSigningKey(): Unable to open load private key: '.$signingKey, __FILE__, __LINE__);
+		self::__triggerError('UpdraftPlus_S3::setSigningKey(): Unable to open load private key: '.$signingKey, __FILE__, __LINE__);
 		return false;
 	}
 
@@ -218,9 +224,10 @@ class S3
 	private static function __triggerError($message, $file, $line, $code = 0)
 	{
 		if (self::$useExceptions)
-			throw new S3Exception($message, $file, $line, $code);
-		else
+			throw new UpdraftPlus_S3Exception($message, $file, $line, $code);
+		else {
 			trigger_error($message, E_USER_WARNING);
+		}
 	}
 
 
@@ -232,13 +239,13 @@ class S3
 	*/
 	public static function listBuckets($detailed = false)
 	{
-		$rest = new S3Request('GET', '', '', self::$endpoint);
+		$rest = new UpdraftPlus_S3Request('GET', '', '', self::$endpoint, self::$use_dns_bucket_name);
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200)
 			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->error !== false)
 		{
-			self::__triggerError(sprintf("S3::listBuckets(): [%s] %s", $rest->error['code'],
+			self::__triggerError(sprintf("UpdraftPlus_S3::listBuckets(): [%s] %s", $rest->error['code'],
 			$rest->error['message']), __FILE__, __LINE__);
 			return false;
 		}
@@ -262,6 +269,10 @@ class S3
 		return $results;
 	}
 
+	public static function useDNSBucketName($use = true) {
+		self::$use_dns_bucket_name = $use;
+		return true;
+	}
 
 	/*
 	* Get contents for a bucket
@@ -278,7 +289,7 @@ class S3
 	*/
 	public static function getBucket($bucket, $prefix = null, $marker = null, $maxKeys = null, $delimiter = null, $returnCommonPrefixes = false)
 	{
-		$rest = new S3Request('GET', $bucket, '', self::$endpoint);
+		$rest = new UpdraftPlus_S3Request('GET', $bucket, '', self::$endpoint, self::$use_dns_bucket_name);
 		if ($maxKeys == 0) $maxKeys = null;
 		if ($prefix !== null && $prefix !== '') $rest->setParameter('prefix', $prefix);
 		if ($marker !== null && $marker !== '') $rest->setParameter('marker', $marker);
@@ -289,7 +300,7 @@ class S3
 			$response->error = array('code' => $response->code, 'message' => 'Unexpected HTTP status');
 		if ($response->error !== false)
 		{
-			self::__triggerError(sprintf("S3::getBucket(): [%s] %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::getBucket(): [%s] %s",
 			$response->error['code'], $response->error['message']), __FILE__, __LINE__);
 			return false;
 		}
@@ -323,7 +334,7 @@ class S3
 		if ($maxKeys == null && $nextMarker !== null && (string)$response->body->IsTruncated == 'true')
 		do
 		{
-			$rest = new S3Request('GET', $bucket, '', self::$endpoint);
+			$rest = new UpdraftPlus_S3Request('GET', $bucket, '', self::$endpoint, self::$use_dns_bucket_name);
 			if ($prefix !== null && $prefix !== '') $rest->setParameter('prefix', $prefix);
 			$rest->setParameter('marker', $nextMarker);
 			if ($delimiter !== null && $delimiter !== '') $rest->setParameter('delimiter', $delimiter);
@@ -365,7 +376,7 @@ class S3
 	*/
 	public static function putBucket($bucket, $acl = self::ACL_PRIVATE, $location = false)
 	{
-		$rest = new S3Request('PUT', $bucket, '', self::$endpoint);
+		$rest = new UpdraftPlus_S3Request('PUT', $bucket, '', self::$endpoint, self::$use_dns_bucket_name);
 		$rest->setAmzHeader('x-amz-acl', $acl);
 
 		if ($location !== false)
@@ -385,7 +396,7 @@ class S3
 			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->error !== false)
 		{
-			self::__triggerError(sprintf("S3::putBucket({$bucket}, {$acl}, {$location}): [%s] %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::putBucket({$bucket}, {$acl}, {$location}): [%s] %s",
 			$rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
 			return false;
 		}
@@ -401,13 +412,13 @@ class S3
 	*/
 	public static function deleteBucket($bucket)
 	{
-		$rest = new S3Request('DELETE', $bucket, '', self::$endpoint);
+		$rest = new UpdraftPlus_S3Request('DELETE', $bucket, '', self::$endpoint, self::$use_dns_bucket_name);
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 204)
 			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->error !== false)
 		{
-			self::__triggerError(sprintf("S3::deleteBucket({$bucket}): [%s] %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::deleteBucket({$bucket}): [%s] %s",
 			$rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
 			return false;
 		}
@@ -426,7 +437,7 @@ class S3
 	{
 		if (!file_exists($file) || !is_file($file) || !is_readable($file))
 		{
-			self::__triggerError('S3::inputFile(): Unable to open input file: '.$file, __FILE__, __LINE__);
+			self::__triggerError('UpdraftPlus_S3::inputFile(): Unable to open input file: '.$file, __FILE__, __LINE__);
 			return false;
 		}
 		return array('file' => $file, 'size' => filesize($file), 'md5sum' => $md5sum !== false ?
@@ -446,7 +457,7 @@ class S3
 	{
 		if (!is_resource($resource) || $bufferSize < 0)
 		{
-			self::__triggerError('S3::inputResource(): Invalid resource or buffer size', __FILE__, __LINE__);
+			self::__triggerError('UpdraftPlus_S3::inputResource(): Invalid resource or buffer size', __FILE__, __LINE__);
 			return false;
 		}
 		$input = array('size' => $bufferSize, 'md5sum' => $md5sum);
@@ -469,7 +480,7 @@ class S3
 	public static function initiateMultipartUpload ($bucket, $uri, $acl = self::ACL_PRIVATE, $metaHeaders = array(), $requestHeaders = array(), $storageClass = self::STORAGE_CLASS_STANDARD)
 	{
 
-		$rest = new S3Request('POST', $bucket, $uri, self::$endpoint);
+		$rest = new UpdraftPlus_S3Request('POST', $bucket, $uri, self::$endpoint, self::$use_dns_bucket_name);
 		$rest->setParameter('uploads','');
 
 		// Custom request headers (Content-Type, Content-Disposition, Content-Encoding)
@@ -491,7 +502,7 @@ class S3
 			$rest->response->error = array('code' => $rest->response->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->response->error !== false)
 		{
-			self::__triggerError(sprintf("S3::initiateMultipartUpload(): [%s] %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::initiateMultipartUpload(): [%s] %s",
 			$rest->response->error['code'], $rest->response->error['message']), __FILE__, __LINE__);
 			return false;
 		} elseif (isset($rest->response->body))
@@ -526,7 +537,7 @@ class S3
 	public static function uploadPart ($bucket, $uri, $uploadId, $filePath, $partNumber, $partSize = 5242880)
 	{
 
-		$rest = new S3Request('PUT', $bucket, $uri, self::$endpoint);
+		$rest = new UpdraftPlus_S3Request('PUT', $bucket, $uri, self::$endpoint, self::$use_dns_bucket_name);
 		$rest->setParameter('partNumber', $partNumber);
 		$rest->setParameter('uploadId', $uploadId);
 
@@ -543,7 +554,7 @@ class S3
 		if ($handle = fopen($filePath, "rb")) {
 			if ($fileOffset >0) fseek($handle, $fileOffset);
 			$bytes_read = 0;
-			while ($fileBytes>0 && $read = fread($handle, max($fileBytes, 65536))) {
+			while ($fileBytes>0 && $read = fread($handle, max($fileBytes, 131072))) {
 				$fileBytes = $fileBytes - strlen($read);
 				$bytes_read += strlen($read);
 				$rest->data = $rest->data . $read;
@@ -561,7 +572,7 @@ class S3
 			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->error !== false)
 		{
-			self::__triggerError(sprintf("S3::uploadPart(): [%s] %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::uploadPart(): [%s] %s",
 			$rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
 			return false;
 		}
@@ -581,7 +592,7 @@ class S3
 
 	public static function completeMultipartUpload ($bucket, $uri, $uploadId, $parts)
 	{
-		$rest = new S3Request('POST', $bucket, $uri, self::$endpoint);
+		$rest = new UpdraftPlus_S3Request('POST', $bucket, $uri, self::$endpoint, self::$use_dns_bucket_name);
 		$rest->setParameter('uploadId', $uploadId);
 
 		$xml = "<CompleteMultipartUpload>\n";
@@ -601,7 +612,7 @@ class S3
 			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->error !== false)
 		{
-			self::__triggerError(sprintf("S3::completeMultipartUpload(): [%s] %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::completeMultipartUpload(): [%s] %s",
 			$rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
 			return false;
 		}
@@ -620,14 +631,14 @@ class S3
 
 	public static function abortMultipartUpload ($bucket, $uri, $uploadId)
 	{
-		$rest = new S3Request('DELETE', $bucket, $uri, self::$endpoint);
+		$rest = new UpdraftPlus_S3Request('DELETE', $bucket, $uri, self::$endpoint, self::$use_dns_bucket_name);
 		$rest->setParameter('uploadId', $uploadId);
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 204)
 			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->error !== false)
 		{
-			self::__triggerError(sprintf("S3::abortMultipartUpload(): [%s] %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::abortMultipartUpload(): [%s] %s",
 			$rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
 			return false;
 		}
@@ -649,7 +660,7 @@ class S3
 	public static function putObject($input, $bucket, $uri, $acl = self::ACL_PRIVATE, $metaHeaders = array(), $requestHeaders = array(), $storageClass = self::STORAGE_CLASS_STANDARD)
 	{
 		if ($input === false) return false;
-		$rest = new S3Request('PUT', $bucket, $uri, self::$endpoint);
+		$rest = new UpdraftPlus_S3Request('PUT', $bucket, $uri, self::$endpoint, self::$use_dns_bucket_name);
 
 		if (!is_array($input)) $input = array(
 			'data' => $input, 'size' => strlen($input),
@@ -710,7 +721,7 @@ class S3
 			$rest->response->error = array('code' => $rest->response->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->response->error !== false)
 		{
-			self::__triggerError(sprintf("S3::putObject(): [%s] %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::putObject(): [%s] %s",
 			$rest->response->error['code'], $rest->response->error['message']), __FILE__, __LINE__);
 			return false;
 		}
@@ -729,9 +740,9 @@ class S3
 	* @param string $contentType Content type
 	* @return boolean
 	*/
-	public static function putObjectFile($file, $bucket, $uri, $acl = self::ACL_PRIVATE, $metaHeaders = array(), $contentType = null)
+	public static function putObjectFile($file, $bucket, $uri, $acl = self::ACL_PRIVATE, $metaHeaders = array(), $contentType = null, $storageClass = self::STORAGE_CLASS_STANDARD)
 	{
-		return self::putObject(self::inputFile($file), $bucket, $uri, $acl, $metaHeaders, $contentType);
+		return self::putObject(self::inputFile($file), $bucket, $uri, $acl, $metaHeaders, $contentType, $storageClass);
 	}
 
 
@@ -763,11 +774,11 @@ class S3
 	*/
 	public static function getObject($bucket, $uri, $saveTo = false, $resume = false)
 	{
-		$rest = new S3Request('GET', $bucket, $uri, self::$endpoint);
+		$rest = new UpdraftPlus_S3Request('GET', $bucket, $uri, self::$endpoint, self::$use_dns_bucket_name);
 		if ($saveTo !== false)
 		{
 			if (is_resource($saveTo))
-				$rest->fp =& $saveTo;
+				$rest->fp = $saveTo;
 			else
 				if ($resume && file_exists($saveTo)) {
 					if (($rest->fp = @fopen($saveTo, 'ab')) !== false) {
@@ -789,7 +800,7 @@ class S3
 			$rest->response->error = array('code' => $rest->response->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->response->error !== false)
 		{
-			self::__triggerError(sprintf("S3::getObject({$bucket}, {$uri}): [%s] %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::getObject({$bucket}, {$uri}): [%s] %s",
 			$rest->response->error['code'], $rest->response->error['message']), __FILE__, __LINE__);
 			return false;
 		}
@@ -807,13 +818,13 @@ class S3
 	*/
 	public static function getObjectInfo($bucket, $uri, $returnInfo = true)
 	{
-		$rest = new S3Request('HEAD', $bucket, $uri, self::$endpoint);
+		$rest = new UpdraftPlus_S3Request('HEAD', $bucket, $uri, self::$endpoint, self::$use_dns_bucket_name);
 		$rest = $rest->getResponse();
 		if ($rest->error === false && ($rest->code !== 200 && $rest->code !== 404))
 			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->error !== false)
 		{
-			self::__triggerError(sprintf("S3::getObjectInfo({$bucket}, {$uri}): [%s] %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::getObjectInfo({$bucket}, {$uri}): [%s] %s",
 			$rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
 			return false;
 		}
@@ -836,7 +847,7 @@ class S3
 	*/
 	public static function copyObject($srcBucket, $srcUri, $bucket, $uri, $acl = self::ACL_PRIVATE, $metaHeaders = array(), $requestHeaders = array(), $storageClass = self::STORAGE_CLASS_STANDARD)
 	{
-		$rest = new S3Request('PUT', $bucket, $uri, self::$endpoint);
+		$rest = new UpdraftPlus_S3Request('PUT', $bucket, $uri, self::$endpoint, self::$use_dns_bucket_name);
 		$rest->setHeader('Content-Length', 0);
 		foreach ($requestHeaders as $h => $v) $rest->setHeader($h, $v);
 		foreach ($metaHeaders as $h => $v) $rest->setAmzHeader('x-amz-meta-'.$h, $v);
@@ -852,7 +863,7 @@ class S3
 			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->error !== false)
 		{
-			self::__triggerError(sprintf("S3::copyObject({$srcBucket}, {$srcUri}, {$bucket}, {$uri}): [%s] %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::copyObject({$srcBucket}, {$srcUri}, {$bucket}, {$uri}): [%s] %s",
 			$rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
 			return false;
 		}
@@ -908,7 +919,7 @@ class S3
 		}
 		$dom->appendChild($bucketLoggingStatus);
 
-		$rest = new S3Request('PUT', $bucket, '', self::$endpoint);
+		$rest = new UpdraftPlus_S3Request('PUT', $bucket, '', self::$endpoint, self::$use_dns_bucket_name);
 		$rest->setParameter('logging', null);
 		$rest->data = $dom->saveXML();
 		$rest->size = strlen($rest->data);
@@ -918,7 +929,7 @@ class S3
 			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->error !== false)
 		{
-			self::__triggerError(sprintf("S3::setBucketLogging({$bucket}, {$targetBucket}): [%s] %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::setBucketLogging({$bucket}, {$targetBucket}): [%s] %s",
 			$rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
 			return false;
 		}
@@ -937,14 +948,14 @@ class S3
 	*/
 	public static function getBucketLogging($bucket)
 	{
-		$rest = new S3Request('GET', $bucket, '', self::$endpoint);
+		$rest = new UpdraftPlus_S3Request('GET', $bucket, '', self::$endpoint, self::$use_dns_bucket_name);
 		$rest->setParameter('logging', null);
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200)
 			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->error !== false)
 		{
-			self::__triggerError(sprintf("S3::getBucketLogging({$bucket}): [%s] %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::getBucketLogging({$bucket}): [%s] %s",
 			$rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
 			return false;
 		}
@@ -976,14 +987,15 @@ class S3
 	*/
 	public static function getBucketLocation($bucket)
 	{
-		$rest = new S3Request('GET', $bucket, '', self::$endpoint);
+
+		$rest = new UpdraftPlus_S3Request('GET', $bucket, '', self::$endpoint, self::$use_dns_bucket_name);
 		$rest->setParameter('location', null);
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200)
 			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->error !== false)
 		{
-			self::__triggerError(sprintf("S3::getBucketLocation({$bucket}): [%s] %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::getBucketLocation({$bucket}): [%s] %s",
 			$rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
 			return false;
 		}
@@ -1040,7 +1052,7 @@ class S3
 		$accessControlPolicy->appendChild($accessControlList);
 		$dom->appendChild($accessControlPolicy);
 
-		$rest = new S3Request('PUT', $bucket, $uri, self::$endpoint);
+		$rest = new UpdraftPlus_S3Request('PUT', $bucket, $uri, self::$endpoint, self::$use_dns_bucket_name);
 		$rest->setParameter('acl', null);
 		$rest->data = $dom->saveXML();
 		$rest->size = strlen($rest->data);
@@ -1050,7 +1062,7 @@ class S3
 			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->error !== false)
 		{
-			self::__triggerError(sprintf("S3::setAccessControlPolicy({$bucket}, {$uri}): [%s] %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::setAccessControlPolicy({$bucket}, {$uri}): [%s] %s",
 			$rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
 			return false;
 		}
@@ -1067,14 +1079,14 @@ class S3
 	*/
 	public static function getAccessControlPolicy($bucket, $uri = '')
 	{
-		$rest = new S3Request('GET', $bucket, $uri, self::$endpoint);
+		$rest = new UpdraftPlus_S3Request('GET', $bucket, $uri, self::$endpoint, self::$use_dns_bucket_name);
 		$rest->setParameter('acl', null);
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200)
 			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->error !== false)
 		{
-			self::__triggerError(sprintf("S3::getAccessControlPolicy({$bucket}, {$uri}): [%s] %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::getAccessControlPolicy({$bucket}, {$uri}): [%s] %s",
 			$rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
 			return false;
 		}
@@ -1128,13 +1140,13 @@ class S3
 	*/
 	public static function deleteObject($bucket, $uri)
 	{
-		$rest = new S3Request('DELETE', $bucket, $uri, self::$endpoint);
+		$rest = new UpdraftPlus_S3Request('DELETE', $bucket, $uri, self::$endpoint, self::$use_dns_bucket_name);
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 204)
 			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->error !== false)
 		{
-			self::__triggerError(sprintf("S3::deleteObject(): [%s] %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::deleteObject(): [%s] %s",
 			$rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
 			return false;
 		}
@@ -1284,14 +1296,14 @@ class S3
 	{
 		if (!extension_loaded('openssl'))
 		{
-			self::__triggerError(sprintf("S3::createDistribution({$bucket}, ".(int)$enabled.", [], '$comment'): %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::createDistribution({$bucket}, ".(int)$enabled.", [], '$comment'): %s",
 			"CloudFront functionality requires SSL"), __FILE__, __LINE__);
 			return false;
 		}
 		$useSSL = self::$useSSL;
 
 		self::$useSSL = true; // CloudFront requires SSL
-		$rest = new S3Request('POST', '', '2010-11-01/distribution', 'cloudfront.amazonaws.com');
+		$rest = new UpdraftPlus_S3Request('POST', '', '2010-11-01/distribution', 'cloudfront.amazonaws.com');
 		$rest->data = self::__getCloudFrontDistributionConfigXML(
 			$bucket.'.s3.amazonaws.com',
 			$enabled,
@@ -1313,7 +1325,7 @@ class S3
 			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->error !== false)
 		{
-			self::__triggerError(sprintf("S3::createDistribution({$bucket}, ".(int)$enabled.", [], '$comment'): [%s] %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::createDistribution({$bucket}, ".(int)$enabled.", [], '$comment'): [%s] %s",
 			$rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
 			return false;
 		} elseif ($rest->body instanceof SimpleXMLElement)
@@ -1332,14 +1344,14 @@ class S3
 	{
 		if (!extension_loaded('openssl'))
 		{
-			self::__triggerError(sprintf("S3::getDistribution($distributionId): %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::getDistribution($distributionId): %s",
 			"CloudFront functionality requires SSL"), __FILE__, __LINE__);
 			return false;
 		}
 		$useSSL = self::$useSSL;
 
 		self::$useSSL = true; // CloudFront requires SSL
-		$rest = new S3Request('GET', '', '2010-11-01/distribution/'.$distributionId, 'cloudfront.amazonaws.com');
+		$rest = new UpdraftPlus_S3Request('GET', '', '2010-11-01/distribution/'.$distributionId, 'cloudfront.amazonaws.com');
 		$rest = self::__getCloudFrontResponse($rest);
 
 		self::$useSSL = $useSSL;
@@ -1348,7 +1360,7 @@ class S3
 			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->error !== false)
 		{
-			self::__triggerError(sprintf("S3::getDistribution($distributionId): [%s] %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::getDistribution($distributionId): [%s] %s",
 			$rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
 			return false;
 		}
@@ -1373,7 +1385,7 @@ class S3
 	{
 		if (!extension_loaded('openssl'))
 		{
-			self::__triggerError(sprintf("S3::updateDistribution({$dist['id']}): %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::updateDistribution({$dist['id']}): %s",
 			"CloudFront functionality requires SSL"), __FILE__, __LINE__);
 			return false;
 		}
@@ -1381,7 +1393,7 @@ class S3
 		$useSSL = self::$useSSL;
 
 		self::$useSSL = true; // CloudFront requires SSL
-		$rest = new S3Request('PUT', '', '2010-11-01/distribution/'.$dist['id'].'/config', 'cloudfront.amazonaws.com');
+		$rest = new UpdraftPlus_S3Request('PUT', '', '2010-11-01/distribution/'.$dist['id'].'/config', 'cloudfront.amazonaws.com');
 		$rest->data = self::__getCloudFrontDistributionConfigXML(
 			$dist['origin'],
 			$dist['enabled'],
@@ -1403,7 +1415,7 @@ class S3
 			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->error !== false)
 		{
-			self::__triggerError(sprintf("S3::updateDistribution({$dist['id']}): [%s] %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::updateDistribution({$dist['id']}): [%s] %s",
 			$rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
 			return false;
 		} else {
@@ -1425,7 +1437,7 @@ class S3
 	{
 		if (!extension_loaded('openssl'))
 		{
-			self::__triggerError(sprintf("S3::deleteDistribution({$dist['id']}): %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::deleteDistribution({$dist['id']}): %s",
 			"CloudFront functionality requires SSL"), __FILE__, __LINE__);
 			return false;
 		}
@@ -1433,7 +1445,7 @@ class S3
 		$useSSL = self::$useSSL;
 
 		self::$useSSL = true; // CloudFront requires SSL
-		$rest = new S3Request('DELETE', '', '2008-06-30/distribution/'.$dist['id'], 'cloudfront.amazonaws.com');
+		$rest = new UpdraftPlus_S3Request('DELETE', '', '2008-06-30/distribution/'.$dist['id'], 'cloudfront.amazonaws.com');
 		$rest->setHeader('If-Match', $dist['hash']);
 		$rest = self::__getCloudFrontResponse($rest);
 
@@ -1443,7 +1455,7 @@ class S3
 			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->error !== false)
 		{
-			self::__triggerError(sprintf("S3::deleteDistribution({$dist['id']}): [%s] %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::deleteDistribution({$dist['id']}): [%s] %s",
 			$rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
 			return false;
 		}
@@ -1460,14 +1472,14 @@ class S3
 	{
 		if (!extension_loaded('openssl'))
 		{
-			self::__triggerError(sprintf("S3::listDistributions(): [%s] %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::listDistributions(): [%s] %s",
 			"CloudFront functionality requires SSL"), __FILE__, __LINE__);
 			return false;
 		}
 
 		$useSSL = self::$useSSL;
 		self::$useSSL = true; // CloudFront requires SSL
-		$rest = new S3Request('GET', '', '2010-11-01/distribution', 'cloudfront.amazonaws.com');
+		$rest = new UpdraftPlus_S3Request('GET', '', '2010-11-01/distribution', 'cloudfront.amazonaws.com');
 		$rest = self::__getCloudFrontResponse($rest);
 		self::$useSSL = $useSSL;
 
@@ -1475,7 +1487,7 @@ class S3
 			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->error !== false)
 		{
-			self::__triggerError(sprintf("S3::listDistributions(): [%s] %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::listDistributions(): [%s] %s",
 			$rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
 			return false;
 		}
@@ -1505,13 +1517,13 @@ class S3
 	{
 		if (!extension_loaded('openssl'))
 		{
-			self::__triggerError(sprintf("S3::listOriginAccessIdentities(): [%s] %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::listOriginAccessIdentities(): [%s] %s",
 			"CloudFront functionality requires SSL"), __FILE__, __LINE__);
 			return false;
 		}
 
 		self::$useSSL = true; // CloudFront requires SSL
-		$rest = new S3Request('GET', '', '2010-11-01/origin-access-identity/cloudfront', 'cloudfront.amazonaws.com');
+		$rest = new UpdraftPlus_S3Request('GET', '', '2010-11-01/origin-access-identity/cloudfront', 'cloudfront.amazonaws.com');
 		$rest = self::__getCloudFrontResponse($rest);
 		$useSSL = self::$useSSL;
 
@@ -1519,7 +1531,7 @@ class S3
 			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->error !== false)
 		{
-			trigger_error(sprintf("S3::listOriginAccessIdentities(): [%s] %s",
+			trigger_error(sprintf("UpdraftPlus_S3::listOriginAccessIdentities(): [%s] %s",
 			$rest->error['code'], $rest->error['message']), E_USER_WARNING);
 			return false;
 		}
@@ -1539,7 +1551,7 @@ class S3
 	/**
 	* Invalidate objects in a CloudFront distribution
 	*
-	* Thanks to Martin Lindkvist for S3::invalidateDistribution()
+	* Thanks to Martin Lindkvist for UpdraftPlus_S3::invalidateDistribution()
 	*
 	* @param string $distributionId Distribution ID from listDistributions()
 	* @param array $paths Array of object paths to invalidate
@@ -1549,14 +1561,14 @@ class S3
 	{
 		if (!extension_loaded('openssl'))
 		{
-			self::__triggerError(sprintf("S3::invalidateDistribution(): [%s] %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::invalidateDistribution(): [%s] %s",
 			"CloudFront functionality requires SSL"), __FILE__, __LINE__);
 			return false;
 		}
 
 		$useSSL = self::$useSSL;
 		self::$useSSL = true; // CloudFront requires SSL
-		$rest = new S3Request('POST', '', '2010-08-01/distribution/'.$distributionId.'/invalidation', 'cloudfront.amazonaws.com');
+		$rest = new UpdraftPlus_S3Request('POST', '', '2010-08-01/distribution/'.$distributionId.'/invalidation', 'cloudfront.amazonaws.com');
 		$rest->data = self::__getCloudFrontInvalidationBatchXML($paths, (string)microtime(true));
 		$rest->size = strlen($rest->data);
 		$rest = self::__getCloudFrontResponse($rest);
@@ -1566,7 +1578,7 @@ class S3
 			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->error !== false)
 		{
-			trigger_error(sprintf("S3::invalidate('{$distributionId}',{$paths}): [%s] %s",
+			trigger_error(sprintf("UpdraftPlus_S3::invalidate('{$distributionId}',{$paths}): [%s] %s",
 			$rest->error['code'], $rest->error['message']), E_USER_WARNING);
 			return false;
 		}
@@ -1614,14 +1626,14 @@ class S3
 	{
 		if (!extension_loaded('openssl'))
 		{
-			self::__triggerError(sprintf("S3::getDistributionInvalidationList(): [%s] %s",
+			self::__triggerError(sprintf("UpdraftPlus_S3::getDistributionInvalidationList(): [%s] %s",
 			"CloudFront functionality requires SSL"), __FILE__, __LINE__);
 			return false;
 		}
 
 		$useSSL = self::$useSSL;
 		self::$useSSL = true; // CloudFront requires SSL
-		$rest = new S3Request('GET', '', '2010-11-01/distribution/'.$distributionId.'/invalidation', 'cloudfront.amazonaws.com');
+		$rest = new UpdraftPlus_S3Request('GET', '', '2010-11-01/distribution/'.$distributionId.'/invalidation', 'cloudfront.amazonaws.com');
 		$rest = self::__getCloudFrontResponse($rest);
 		self::$useSSL = $useSSL;
 
@@ -1629,7 +1641,7 @@ class S3
 			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->error !== false)
 		{
-			trigger_error(sprintf("S3::getDistributionInvalidationList('{$distributionId}'): [%s]",
+			trigger_error(sprintf("UpdraftPlus_S3::getDistributionInvalidationList('{$distributionId}'): [%s]",
 			$rest->error['code'], $rest->error['message']), E_USER_WARNING);
 			return false;
 		}
@@ -1757,8 +1769,8 @@ class S3
 	/**
 	* Grab CloudFront response
 	*
-	* @internal Used to parse the CloudFront S3Request::getResponse() output
-	* @param object &$rest S3Request instance
+	* @internal Used to parse the CloudFront UpdraftPlus_S3Request::getResponse() output
+	* @param object &$rest UpdraftPlus_S3Request instance
 	* @return object
 	*/
 	private static function __getCloudFrontResponse(&$rest)
@@ -1837,7 +1849,7 @@ class S3
 	/**
 	* Generate the auth string: "AWS AccessKey:Signature"
 	*
-	* @internal Used by S3Request::getResponse()
+	* @internal Used by UpdraftPlus_S3Request::getResponse()
 	* @param string $string String to sign
 	* @return string
 	*/
@@ -1867,7 +1879,7 @@ class S3
 
 }
 
-final class S3Request
+final class UpdraftPlus_S3Request
 {
 	private $endpoint, $verb, $bucket, $uri, $resource = '', $parameters = array(),
 	$amzHeaders = array(), $headers = array(
@@ -1884,7 +1896,7 @@ final class S3Request
 	* @param string $uri Object URI
 	* @return mixed
 	*/
-	function __construct($verb, $bucket = '', $uri = '', $endpoint = 's3.amazonaws.com')
+	function __construct($verb, $bucket = '', $uri = '', $endpoint = 's3.amazonaws.com', $use_dns_bucket_name = false)
 	{
 		$this->endpoint = $endpoint;
 		$this->verb = $verb;
@@ -1898,7 +1910,7 @@ final class S3Request
 
 		if ($this->bucket !== '')
 		{
-			if ($this->__dnsBucketName($this->bucket))
+			if ($this->__dnsBucketName($this->bucket) || $use_dns_bucket_name)
 			{
 				$this->headers['Host'] = $this->bucket.'.'.$this->endpoint;
 				$this->resource = '/'.$this->bucket.$this->uri;
@@ -1922,6 +1934,7 @@ final class S3Request
 		$this->headers['Date'] = gmdate('D, d M Y H:i:s T');
 		$this->response = new STDClass;
 		$this->response->error = false;
+		$this->response->body = null;
 	}
 
 
@@ -1990,7 +2003,7 @@ final class S3Request
 			array_key_exists('uploadId', $this->parameters))
 				$this->resource .= $query;
 		}
-		$url = (S3::$useSSL ? 'https://' : 'http://') . ($this->headers['Host'] !== '' ? $this->headers['Host'] : $this->endpoint) . $this->uri;
+		$url = (UpdraftPlus_S3::$useSSL ? 'https://' : 'http://') . ($this->headers['Host'] !== '' ? $this->headers['Host'] : $this->endpoint) . $this->uri;
 
 		//var_dump('bucket: ' . $this->bucket, 'uri: ' . $this->uri, 'resource: ' . $this->resource, 'url: ' . $url);
 
@@ -1998,29 +2011,29 @@ final class S3Request
 		$curl = curl_init();
 		curl_setopt($curl, CURLOPT_USERAGENT, 'S3/php');
 
-		if (S3::$useSSL)
+		if (UpdraftPlus_S3::$useSSL)
 		{
 			// SSL Validation can now be optional for those with broken OpenSSL installations
-			curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, S3::$useSSLValidation ? 1 : 0);
-			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, S3::$useSSLValidation ? 1 : 0);
+			curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, UpdraftPlus_S3::$useSSLValidation ? 2 : 0);
+			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, UpdraftPlus_S3::$useSSLValidation ? 1 : 0);
 
-			if (S3::$sslKey !== null) curl_setopt($curl, CURLOPT_SSLKEY, S3::$sslKey);
-			if (S3::$sslCert !== null) curl_setopt($curl, CURLOPT_SSLCERT, S3::$sslCert);
-			if (S3::$sslCACert !== null) curl_setopt($curl, CURLOPT_CAINFO, S3::$sslCACert);
+			if (UpdraftPlus_S3::$sslKey !== null) curl_setopt($curl, CURLOPT_SSLKEY, UpdraftPlus_S3::$sslKey);
+			if (UpdraftPlus_S3::$sslCert !== null) curl_setopt($curl, CURLOPT_SSLCERT, UpdraftPlus_S3::$sslCert);
+			if (UpdraftPlus_S3::$sslCACert !== null) curl_setopt($curl, CURLOPT_CAINFO, UpdraftPlus_S3::$sslCACert);
 		}
 
 		curl_setopt($curl, CURLOPT_URL, $url);
 
 		$wp_proxy = new WP_HTTP_Proxy(); 
 
-		if (S3::$proxy != null && isset(S3::$proxy['host']) && $wp_proxy->send_through_proxy($url))
+		if (UpdraftPlus_S3::$proxy != null && isset(UpdraftPlus_S3::$proxy['host']) && $wp_proxy->send_through_proxy($url))
 		{
-			curl_setopt($curl, CURLOPT_PROXY, S3::$proxy['host']);
-			curl_setopt($curl, CURLOPT_PROXYTYPE, S3::$proxy['type']);
-			if (!empty(S3::$proxy['port'])) curl_setopt($curl,CURLOPT_PROXYPORT, S3::$proxy['port']);
-			if (isset(S3::$proxy['user'], S3::$proxy['pass']) && S3::$proxy['user'] != null && S3::$proxy['pass'] != null) {
+			curl_setopt($curl, CURLOPT_PROXY, UpdraftPlus_S3::$proxy['host']);
+			curl_setopt($curl, CURLOPT_PROXYTYPE, UpdraftPlus_S3::$proxy['type']);
+			if (!empty(UpdraftPlus_S3::$proxy['port'])) curl_setopt($curl,CURLOPT_PROXYPORT, UpdraftPlus_S3::$proxy['port']);
+			if (isset(UpdraftPlus_S3::$proxy['user'], UpdraftPlus_S3::$proxy['pass']) && UpdraftPlus_S3::$proxy['user'] != null && UpdraftPlus_S3::$proxy['pass'] != null) {
 				curl_setopt($curl, CURLOPT_PROXYAUTH, CURLAUTH_ANY);
-				curl_setopt($curl, CURLOPT_PROXYUSERPWD, sprintf('%s:%s', S3::$proxy['user'], S3::$proxy['pass']));
+				curl_setopt($curl, CURLOPT_PROXYUSERPWD, sprintf('%s:%s', UpdraftPlus_S3::$proxy['user'], UpdraftPlus_S3::$proxy['pass']));
 			}
 		}
 
@@ -2043,14 +2056,14 @@ final class S3Request
 			$amz = "\n".implode("\n", $amz);
 		} else $amz = '';
 
-		if (S3::hasAuth())
+		if (UpdraftPlus_S3::hasAuth())
 		{
 			// Authorization string (CloudFront stringToSign should only contain a date)
 			if ($this->headers['Host'] == 'cloudfront.amazonaws.com')
-				$headers[] = 'Authorization: ' . S3::__getSignature($this->headers['Date']);
+				$headers[] = 'Authorization: ' . UpdraftPlus_S3::__getSignature($this->headers['Date']);
 			else
 			{
-				$headers[] = 'Authorization: ' . S3::__getSignature(
+				$headers[] = 'Authorization: ' . UpdraftPlus_S3::__getSignature(
 					$this->verb."\n".
 					$this->headers['Content-MD5']."\n".
 					$this->headers['Content-Type']."\n".
@@ -2157,16 +2170,16 @@ final class S3Request
 	/**
 	* CURL write callback
 	*
-	* @param resource &$curl CURL resource
-	* @param string &$data Data
+	* @param resource $curl CURL resource
+	* @param string $data Data
 	* @return integer
 	*/
-	private function __responseWriteCallback(&$curl, &$data)
+	private function __responseWriteCallback($curl, $data)
 	{
 		if (in_array($this->response->code, array(200, 206)) && $this->fp !== false)
 			return fwrite($this->fp, $data);
 		else
-			$this->response->body .= $data;
+			$this->response->body = (empty($this->response->body)) ? $data : $this->response->body.$data;
 		return strlen($data);
 	}
 
@@ -2179,23 +2192,29 @@ final class S3Request
 	*/
 	private function __dnsBucketName($bucket)
 	{
+		# A DNS bucket name cannot have len>63
+		# A DNS bucket name must have a character in other than a-z, 0-9, . -
+		# The purpose of this second check is not clear - is it that there's some limitation somewhere on bucket names that match that pattern that means that the bucket must be accessed by hostname?
 		if (strlen($bucket) > 63 || !preg_match("/[^a-z0-9\.-]/", $bucket)) return false;
+		# A DNS bucket name cannot contain -.
 		if (strstr($bucket, '-.') !== false) return false;
+		# A DNS bucket name cannot contain ..
 		if (strstr($bucket, '..') !== false) return false;
+		# A DNS bucket name must begin with 0-9a-z
 		if (!preg_match("/^[0-9a-z]/", $bucket)) return false;
+		# A DNS bucket name must end with 0-9 a-z
 		if (!preg_match("/[0-9a-z]$/", $bucket)) return false;
 		return true;
 	}
 
-
 	/**
 	* CURL header callback
 	*
-	* @param resource &$curl CURL resource
-	* @param string &$data Data
+	* @param resource $curl CURL resource
+	* @param string $data Data
 	* @return integer
 	*/
-	private function __responseHeaderCallback(&$curl, &$data)
+	private function __responseHeaderCallback($curl, $data)
 	{
 		if (($strlen = strlen($data)) <= 2) return $strlen;
 		if (substr($data, 0, 4) == 'HTTP')
@@ -2219,13 +2238,4 @@ final class S3Request
 		return $strlen;
 	}
 
-}
-
-class S3Exception extends Exception {
-	function __construct($message, $file, $line, $code = 0)
-	{
-		parent::__construct($message, $code);
-		$this->file = $file;
-		$this->line = $line;
-	}
 }

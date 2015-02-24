@@ -65,7 +65,7 @@ abstract class Dropbox_ConsumerAbstract
     {
         // Nullify any request token we already have
         $this->storage->set(null, 'request_token');
-        $url = Dropbox_API::API_URL . self::REQUEST_TOKEN_METHOD;
+        $url = UpdraftPlus_Dropbox_API::API_URL . self::REQUEST_TOKEN_METHOD;
         $response = $this->fetch('POST', $url, '');
         $token = $this->parseTokenString($response['body']);
         $this->storage->set($token, 'request_token');
@@ -86,14 +86,16 @@ abstract class Dropbox_ConsumerAbstract
                 header('Location: ' . $url);
                 exit;
             } else {
-                throw new Dropbox_Exception(sprintf(__('The %s authentication could not go ahead, because something else on your site is breaking it. Try disabling your other plugins and switching to a default theme. (Specifically, you are looking for the component that sends output (most likely PHP warnings/errors) before the page begins. Turning off any debugging settings may also help).', ''), 'Dropbox'));
+                throw new Dropbox_Exception(sprintf(__('The %s authentication could not go ahead, because something else on your site is breaking it. Try disabling your other plugins and switching to a default theme. (Specifically, you are looking for the component that sends output (most likely PHP warnings/errors) before the page begins. Turning off any debugging settings may also help).', 'updraftplus'), 'Dropbox'));
             }
             ?><?php
             return false;
         }
         global $updraftplus;
         $updraftplus->log('Dropbox reauthorisation needed; but we are running from cron, AJAX or the CLI, so this is not possible');
-        UpdraftPlus_Options::update_updraft_option("updraft_dropboxtk_request_token", '');
+        $opts = UpdraftPlus_Options::get_updraft_option("updraft_dropbox");
+        $opts['tk_request_token'] = '';
+        UpdraftPlus_Options::update_updraft_option("updraft_dropbox", $opts);
         throw new Dropbox_Exception(sprintf(__('You need to re-authenticate with %s, as your existing credentials are not working.', 'updraftplus'), 'Dropbox'));
         #$updraftplus->log(sprintf(__('You need to re-authenticate with %s, as your existing credentials are not working.', 'updraftplus'), 'Dropbox'), 'error');
         return false;
@@ -130,7 +132,7 @@ abstract class Dropbox_ConsumerAbstract
     public function getAccessToken()
     {
         // Get the signed request URL
-        $response = $this->fetch('POST', Dropbox_API::API_URL, self::ACCESS_TOKEN_METHOD);
+        $response = $this->fetch('POST', UpdraftPlus_Dropbox_API::API_URL, self::ACCESS_TOKEN_METHOD);
         $token = $this->parseTokenString($response['body']);
         $this->storage->set($token, 'access_token');
     }
