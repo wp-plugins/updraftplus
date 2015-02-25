@@ -2312,7 +2312,7 @@ CREATE TABLE $wpdb->signups (
 			<div>
 				<h2>UpdraftPlus Premium</h2>
 				<p>
-					<?php _e('You are currently using the free version of UpdraftPlus from wordpress.org.', 'updraftplus');?> <a href="https://updraftplus.com/support/installing-updraftplus-premium-your-add-on/"><?php _e('If you have already purchased a paid version, then follow these instructions to install.', 'updraftplus');?></a> 
+					<span style="font-size: 115%;"><?php _e('You are currently using the free version of UpdraftPlus from wordpress.org.', 'updraftplus');?> <a href="https://updraftplus.com/support/installing-updraftplus-premium-your-add-on/"><br><?php echo __('If you have already purchased a paid version, then follow these instructions to install.', 'updraftplus').' '.__('The first step is to de-install the free version.', 'updraftplus')?></a></span>
 					<ul class="updraft_premium_description_list">
 						<li><a href="https://updraftplus.com/shop/updraftplus-premium/"><strong><?php _e('Get UpdraftPlus Premium', 'updraftplus');?></strong></a></li>
 						<li><a href="https://updraftplus.com/updraftplus-full-feature-list/"><?php _e('Full feature list', 'updraftplus');?></a></li>

@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: UpdraftPlus\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-20 15:22+0100\n"
-"PO-Revision-Date: 2015-02-20 15:22+0100\n"
+"POT-Creation-Date: 2015-02-25 11:46+0100\n"
+"PO-Revision-Date: 2015-02-25 11:46+0100\n"
 "Last-Translator: David Anderson <contact@updraftplus.com>\n"
 "Language-Team:  <contact@updraftplus.com>\n"
 "MIME-Version: 1.0\n"
@@ -100,7 +100,7 @@ msgstr ""
 msgid "Your free disk space is very low - only %s Mb remain"
 msgstr ""
 
-#: class-updraftplus.php:530 class-updraftplus.php:536 restorer.php:864
+#: class-updraftplus.php:530 class-updraftplus.php:536 restorer.php:867
 #: admin.php:1491 admin.php:1493 admin.php:1600 admin.php:1605 admin.php:1813
 #: admin.php:1860 admin.php:1868 methods/googledrive.php:292
 #, php-format
@@ -118,8 +118,8 @@ msgstr ""
 msgid "%s error - failed to re-assemble chunks"
 msgstr ""
 
-#: class-updraftplus.php:698 restorer.php:1692 restorer.php:1709
-#: restorer.php:1775 admin.php:1285 admin.php:4560 methods/stream-base.php:197
+#: class-updraftplus.php:698 restorer.php:1695 restorer.php:1712
+#: restorer.php:1778 admin.php:1285 admin.php:4560 methods/stream-base.php:197
 #: methods/addon-base.php:75 methods/addon-base.php:80
 #: methods/addon-base.php:175 methods/addon-base.php:195
 msgid "Error"
@@ -568,160 +568,160 @@ msgstr ""
 msgid "The directory does not exist"
 msgstr ""
 
-#: restorer.php:382
+#: restorer.php:385
 msgid "wp-config.php from backup: will restore as wp-config-backup.php"
 msgstr ""
 
-#: restorer.php:387
+#: restorer.php:390
 msgid "wp-config.php from backup: restoring (as per user's request)"
 msgstr ""
 
-#: restorer.php:474
+#: restorer.php:477
 #, php-format
 msgid "Failed to move file (check your file permissions and disk quota): %s"
 msgstr ""
 
-#: restorer.php:483
+#: restorer.php:486
 #, php-format
 msgid ""
 "Failed to move directory (check your file permissions and disk quota): %s"
 msgstr ""
 
-#: restorer.php:534 restorer.php:541
+#: restorer.php:537 restorer.php:544
 #, php-format
 msgid ""
 "UpdraftPlus needed to create a %s in your content directory, but failed - "
 "please check your file permissions and enable the access (%s)"
 msgstr ""
 
-#: restorer.php:534
+#: restorer.php:537
 msgid "folder"
 msgstr ""
 
-#: restorer.php:541
+#: restorer.php:544
 msgid "file"
 msgstr ""
 
-#: restorer.php:562
+#: restorer.php:565
 #, php-format
 msgid ""
 "Existing unremoved folders from a previous restore exist (please use the "
 "\"Delete Old Directories\" button to delete them before trying again): %s"
 msgstr ""
 
-#: restorer.php:580
+#: restorer.php:583
 msgid ""
 "This version of UpdraftPlus does not know how to handle this type of foreign "
 "backup"
 msgstr ""
 
-#: restorer.php:716 restorer.php:818
+#: restorer.php:719 restorer.php:821
 msgid ""
 "The WordPress content folder (wp-content) was not found in this zip file."
 msgstr ""
 
-#: restorer.php:748 restorer.php:762
+#: restorer.php:751 restorer.php:765
 #, php-format
 msgid "%s: This directory already exists, and will be replaced"
 msgstr ""
 
-#: restorer.php:778
+#: restorer.php:781
 msgid ""
 "File permissions do not allow the old data to be moved and retained; "
 "instead, it will be deleted."
 msgstr ""
 
-#: restorer.php:870
+#: restorer.php:873
 msgid "Files found:"
 msgstr ""
 
-#: restorer.php:876
+#: restorer.php:879
 msgid "Unable to enumerate files in that directory."
 msgstr ""
 
-#: restorer.php:902
+#: restorer.php:905
 #, php-format
 msgid ""
 "You are using the %s webserver, but do not seem to have the %s module loaded."
 msgstr ""
 
-#: restorer.php:902
+#: restorer.php:905
 #, php-format
 msgid "You should enable %s to make your pretty  permalinks (e.g. %s) work"
 msgstr ""
 
-#: restorer.php:935
+#: restorer.php:938
 #, php-format
 msgid "Clearing cached pages (%s)..."
 msgstr ""
 
-#: restorer.php:1041
+#: restorer.php:1044
 #, php-format
 msgid "Using directory from backup: %s"
 msgstr ""
 
-#: restorer.php:1057
+#: restorer.php:1060
 msgid "Please supply the requested information, and then continue."
 msgstr ""
 
-#: restorer.php:1060 admin.php:155 admin.php:4578 admin.php:4608
+#: restorer.php:1063 admin.php:155 admin.php:4578 admin.php:4608
 #: addons/cloudfiles-enhanced.php:88 addons/sftp.php:761
 #: addons/migrator.php:233 addons/migrator.php:467 addons/migrator.php:668
 #: addons/migrator.php:732 addons/migrator.php:802 addons/migrator.php:1016
 msgid "Error:"
 msgstr ""
 
-#: restorer.php:1065
+#: restorer.php:1068
 #, php-format
 msgid "New table prefix: %s"
 msgstr ""
 
-#: restorer.php:1098
+#: restorer.php:1101
 msgid ""
 "Warning: PHP safe_mode is active on your server. Timeouts are much more "
 "likely. If these happen, then you will need to manually restore the file via "
 "phpMyAdmin or another method."
 msgstr ""
 
-#: restorer.php:1105 admin.php:983 admin.php:3977
+#: restorer.php:1108 admin.php:983 admin.php:3977
 #, php-format
 msgid "Backup created by unknown source (%s) - cannot be restored."
 msgstr ""
 
-#: restorer.php:1122
+#: restorer.php:1125
 msgid "Failed to find database file"
 msgstr ""
 
-#: restorer.php:1136 admin.php:1687 methods/ftp.php:301
+#: restorer.php:1139 admin.php:1687 methods/ftp.php:304
 #, php-format
 msgid "Your web server's PHP installation has these functions disabled: %s."
 msgstr ""
 
-#: restorer.php:1137 admin.php:1687
+#: restorer.php:1140 admin.php:1687
 msgid "restoration"
 msgstr ""
 
-#: restorer.php:1137 admin.php:1687 methods/ftp.php:301
+#: restorer.php:1140 admin.php:1687 methods/ftp.php:304
 #, php-format
 msgid "Your hosting company must enable these functions before %s can work."
 msgstr ""
 
-#: restorer.php:1143
+#: restorer.php:1146
 msgid "Failed to open database file"
 msgstr ""
 
-#: restorer.php:1148 addons/migrator.php:324
+#: restorer.php:1151 addons/migrator.php:324
 msgid ""
 "Database access: Direct MySQL access is not available, so we are falling "
 "back to wpdb (this will be considerably slower)"
 msgstr ""
 
-#: restorer.php:1206 restorer.php:1226 restorer.php:1545 admin.php:1609
+#: restorer.php:1209 restorer.php:1229 restorer.php:1548 admin.php:1609
 #: admin.php:2081 addons/migrator.php:139
 msgid "Warning:"
 msgstr ""
 
-#: restorer.php:1207
+#: restorer.php:1210
 msgid ""
 "Your database user does not have permission to create tables. We will "
 "attempt to restore by simply emptying the tables; this should work as long "
@@ -730,7 +730,7 @@ msgid ""
 "are not already present on the importing site."
 msgstr ""
 
-#: restorer.php:1227
+#: restorer.php:1230
 #, php-format
 msgid ""
 "Your database user does not have permission to drop tables. We will attempt "
@@ -738,88 +738,88 @@ msgid ""
 "are restoring from a WordPress version with the same database structure (%s)"
 msgstr ""
 
-#: restorer.php:1271
+#: restorer.php:1274
 #, php-format
 msgid "<strong>Backup of:</strong> %s"
 msgstr ""
 
-#: restorer.php:1275
+#: restorer.php:1278
 msgid "Backup created by:"
 msgstr ""
 
-#: restorer.php:1280
+#: restorer.php:1283
 msgid "Site home:"
 msgstr ""
 
-#: restorer.php:1286
+#: restorer.php:1289
 msgid "Content URL:"
 msgstr ""
 
-#: restorer.php:1293 restorer.php:1386 restorer.php:1406
+#: restorer.php:1296 restorer.php:1389 restorer.php:1409
 msgid "Old table prefix:"
 msgstr ""
 
-#: restorer.php:1306 admin.php:1605
+#: restorer.php:1309 admin.php:1605
 msgid ""
 "To import an ordinary WordPress site into a multisite installation requires "
 "both the multisite and migrator add-ons."
 msgstr ""
 
-#: restorer.php:1312 admin.php:1615
+#: restorer.php:1315 admin.php:1615
 msgid "Site information:"
 msgstr ""
 
-#: restorer.php:1337
+#: restorer.php:1340
 msgid "Split line to avoid exceeding maximum packet size"
 msgstr ""
 
-#: restorer.php:1365 restorer.php:1584 restorer.php:1619
+#: restorer.php:1368 restorer.php:1587 restorer.php:1622
 #, php-format
 msgid "An error occurred on the first %s command - aborting run"
 msgstr ""
 
-#: restorer.php:1462
+#: restorer.php:1465
 #, php-format
 msgid "Requested table engine (%s) is not present - changing to MyISAM."
 msgstr ""
 
-#: restorer.php:1473
+#: restorer.php:1476
 #, php-format
 msgid "Restoring table (%s)"
 msgstr ""
 
-#: restorer.php:1476
+#: restorer.php:1479
 msgid "will restore as:"
 msgstr ""
 
-#: restorer.php:1525
+#: restorer.php:1528
 #, php-format
 msgid "Finished: lines processed: %d in %.2f seconds"
 msgstr ""
 
-#: restorer.php:1545
+#: restorer.php:1548
 #, php-format
 msgid ""
 "An SQL line that is larger than the maximum packet size and cannot be split "
 "was found; this line will not be processed, but will be dropped: %s"
 msgstr ""
 
-#: restorer.php:1556
+#: restorer.php:1559
 #, php-format
 msgid "Cannot create new tables, so skipping this command (%s)"
 msgstr ""
 
-#: restorer.php:1563
+#: restorer.php:1566
 #, php-format
 msgid "Table to be implicitly dropped: %s"
 msgstr ""
 
-#: restorer.php:1573
+#: restorer.php:1576
 #, php-format
 msgid "Cannot drop tables, so deleting instead (%s)"
 msgstr ""
 
-#: restorer.php:1609
+#: restorer.php:1612
 #, php-format
 msgctxt ""
 "The user is being told the number of times an error has happened, e.g. An "
@@ -827,45 +827,45 @@ msgctxt ""
 msgid "An error (%s) occurred:"
 msgstr ""
 
-#: restorer.php:1609 addons/migrator.php:802
+#: restorer.php:1612 addons/migrator.php:802
 msgid "the database query being run was:"
 msgstr ""
 
-#: restorer.php:1615
+#: restorer.php:1618
 msgid ""
 "Create table failed - probably because there is no permission to drop tables "
 "and the table already exists; will continue"
 msgstr ""
 
-#: restorer.php:1627
+#: restorer.php:1630
 msgid "Too many database errors have occurred - aborting"
 msgstr ""
 
-#: restorer.php:1637
+#: restorer.php:1640
 #, php-format
 msgid "Database queries processed: %d in %.2f seconds"
 msgstr ""
 
-#: restorer.php:1690 restorer.php:1750
+#: restorer.php:1693 restorer.php:1753
 #, php-format
 msgid "Table prefix has changed: changing %s table field(s) accordingly:"
 msgstr ""
 
-#: restorer.php:1696 restorer.php:1778 admin.php:3058 admin.php:3092
+#: restorer.php:1699 restorer.php:1781 admin.php:3058 admin.php:3092
 #: admin.php:3096 admin.php:4562 admin.php:4576
 msgid "OK"
 msgstr ""
 
-#: restorer.php:1707
+#: restorer.php:1710
 #, php-format
 msgid "Uploads path (%s) does not exist - resetting (%s)"
 msgstr ""
 
-#: restorer.php:1725
+#: restorer.php:1728
 msgid "Custom content type manager plugin data detected: clearing option cache"
 msgstr ""
 
-#: restorer.php:1736
+#: restorer.php:1739
 msgid ""
 "Elegant themes theme builder plugin data detected: resetting temporary folder"
 msgstr ""
@@ -1174,7 +1174,7 @@ msgstr ""
 #: admin.php:561 admin.php:2517 admin.php:3668 admin.php:3675 admin.php:3677
 #: udaddons/updraftplus-addons.php:177 methods/openstack-base.php:453
 #: methods/cloudfiles.php:473 methods/s3.php:601 methods/dropbox.php:399
-#: methods/ftp.php:301
+#: methods/ftp.php:304
 msgid "Warning"
 msgstr ""
 
@@ -1793,6 +1793,10 @@ msgstr ""
 msgid ""
 "If you have already purchased a paid version, then follow these instructions "
 "to install."
+msgstr ""
+
+#: admin.php:2315
+msgid "The first step is to de-install the free version."
 msgstr ""
 
 #: admin.php:2317
@@ -3436,8 +3440,8 @@ msgstr ""
 
 #: methods/cloudfiles-new.php:147 methods/cloudfiles-new.php:152
 #: methods/cloudfiles.php:529 methods/cloudfiles.php:534 methods/s3.php:649
-#: methods/s3.php:653 methods/addon-base.php:274 methods/ftp.php:366
-#: methods/ftp.php:370 methods/openstack2.php:147 methods/openstack2.php:152
+#: methods/s3.php:653 methods/addon-base.php:274 methods/ftp.php:369
+#: methods/ftp.php:373 methods/openstack2.php:147 methods/openstack2.php:152
 #: methods/openstack2.php:157 methods/openstack2.php:162 addons/webdav.php:55
 #: addons/sftp.php:441 addons/sftp.php:445 addons/sftp.php:449
 #: addons/moredatabase.php:47 addons/moredatabase.php:49
@@ -3603,7 +3607,7 @@ msgstr ""
 
 #: methods/googledrive.php:840 methods/openstack-base.php:443
 #: methods/cloudfiles.php:463 methods/stream-base.php:232 methods/s3.php:579
-#: methods/dropbox.php:388 methods/addon-base.php:211 methods/ftp.php:315
+#: methods/dropbox.php:388 methods/addon-base.php:211 methods/ftp.php:318
 #, php-format
 msgid ""
 "%s is a great choice, because UpdraftPlus supports chunked uploads - no "
@@ -3751,7 +3755,7 @@ msgstr ""
 #: methods/cloudfiles.php:448 methods/cloudfiles.php:521
 #: methods/stream-base.php:217 methods/stream-base.php:239 methods/s3.php:559
 #: methods/s3.php:636 methods/addon-base.php:224 methods/addon-base.php:247
-#: methods/ftp.php:266 methods/ftp.php:341 addons/sftp.php:402
+#: methods/ftp.php:269 methods/ftp.php:344 addons/sftp.php:402
 #: addons/sftp.php:428
 #, php-format
 msgid "Test %s Settings"
@@ -3759,7 +3763,7 @@ msgstr ""
 
 #: methods/openstack-base.php:289 methods/cloudfiles.php:449
 #: methods/stream-base.php:218 methods/s3.php:560 methods/addon-base.php:248
-#: methods/ftp.php:267 addons/sftp.php:430 addons/sftp.php:432
+#: methods/ftp.php:270 addons/sftp.php:430 addons/sftp.php:432
 #, php-format
 msgid "%s settings test result:"
 msgstr ""
@@ -3870,7 +3874,7 @@ msgid "Upload failed"
 msgstr ""
 
 #: methods/stream-base.php:208 methods/s3.php:544 methods/addon-base.php:238
-#: methods/ftp.php:251 addons/sftp.php:411
+#: methods/ftp.php:254 addons/sftp.php:411
 #, php-format
 msgid "Testing %s Settings..."
 msgstr ""
@@ -4233,7 +4237,7 @@ msgstr ""
 msgid "Failed to download"
 msgstr ""
 
-#: methods/ftp.php:81 methods/ftp.php:130 methods/ftp.php:230
+#: methods/ftp.php:81 methods/ftp.php:131 methods/ftp.php:233
 #, php-format
 msgid "%s login failure"
 msgstr ""
@@ -4243,69 +4247,69 @@ msgstr ""
 msgid "%s upload failed"
 msgstr ""
 
-#: methods/ftp.php:296
+#: methods/ftp.php:299
 msgid "regular non-encrypted FTP"
 msgstr ""
 
-#: methods/ftp.php:297
+#: methods/ftp.php:300
 msgid "encrypted FTP (implicit encryption)"
 msgstr ""
 
-#: methods/ftp.php:298
+#: methods/ftp.php:301
 msgid "encrypted FTP (explicit encryption)"
 msgstr ""
 
-#: methods/ftp.php:320
+#: methods/ftp.php:323
 msgid "Only non-encrypted FTP is supported by regular UpdraftPlus."
 msgstr ""
 
-#: methods/ftp.php:320
+#: methods/ftp.php:323
 msgid ""
 "If you want encryption (e.g. you are storing sensitive business data), then "
 "an add-on is available."
 msgstr ""
 
-#: methods/ftp.php:324
+#: methods/ftp.php:327
 msgid "FTP Server"
 msgstr ""
 
-#: methods/ftp.php:328
+#: methods/ftp.php:331
 msgid "FTP Login"
 msgstr ""
 
-#: methods/ftp.php:332
+#: methods/ftp.php:335
 msgid "FTP Password"
 msgstr ""
 
-#: methods/ftp.php:336
+#: methods/ftp.php:339
 msgid "Remote Path"
 msgstr ""
 
-#: methods/ftp.php:337
+#: methods/ftp.php:340
 msgid "Needs to already exist"
 msgstr ""
 
-#: methods/ftp.php:362
+#: methods/ftp.php:365
 msgid "Failure: No server details were given."
 msgstr ""
 
-#: methods/ftp.php:379
+#: methods/ftp.php:382
 msgid "Failure: we did not successfully log in with those credentials."
 msgstr ""
 
-#: methods/ftp.php:387
+#: methods/ftp.php:390
 msgid ""
 "Failure: an unexpected internal UpdraftPlus error occurred when testing the "
 "credentials - please contact the developer"
 msgstr ""
 
-#: methods/ftp.php:391
+#: methods/ftp.php:394
 msgid ""
 "Success: we successfully logged in, and confirmed our ability to create a "
 "file in the given directory (login type:"
 msgstr ""
 
-#: methods/ftp.php:394
+#: methods/ftp.php:397
 msgid ""
 "Failure: we successfully logged in, but were not able to create a file in "
 "the given directory."
@@ -5382,15 +5386,15 @@ msgstr ""
 msgid "\"%s\" has no primary key, manual change needed on row %s."
 msgstr ""
 
-#: addons/s3-enhanced.php:26
+#: addons/s3-enhanced.php:28
 msgid "Reduced redundancy storage"
 msgstr ""
 
-#: addons/s3-enhanced.php:26
+#: addons/s3-enhanced.php:28
 msgid "(Read more)"
 msgstr ""
 
-#: addons/s3-enhanced.php:27
+#: addons/s3-enhanced.php:29
 msgid "Check this box to use Amazon's reduced redundancy storage and tariff"
 msgstr ""
 

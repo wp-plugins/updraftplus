@@ -173,7 +173,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Add "Simple Visitor Stats" and "Simple Feed Stats" tables to the list of tables that may have large amounts of data, and which don't need search/replacing when migrating
 * TWEAK: When restoring plugins and themes, log the list of entities being restored (helps with tracing problems)
 * TWEAK: Deal with CloudFTP/StorageMadeEasy returning directory listings in a non-standard format, when rescanning remote backups
-* TRANSLATIONS: Updated translations in several langauges (many thanks for our translators)
+* TRANSLATIONS: Updated translations in several languages (many thanks for our translators)
 * FIX: For imported 3rd-party backups, the 'Existing Backups' tab (only) was showing "Unknown Source" instead of the detected source.
 
 = 1.9.52 - 2015-02-07 =
