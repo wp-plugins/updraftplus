@@ -174,6 +174,7 @@ N.B. Paid versions of UpdraftPlus have a version number which is 1 higher in the
 * TWEAK: Tweak debug output of webserver information to avoid triggering a (silly) mod_security rule in some setups
 * TWEAK: Alert the user if using Amazon S3 if they do not have the PHP XML module available
 * TWEAK: Log the fact that local deletions are being skipped, if the user set that option.
+* TWEAK: Give timestamp of WP2B backups without relying upon location of SQL file
 * TRANSLATIONS: French translation updated from less than half to complete, thanks to Erwan François. Various other translations updated (many thanks to all translators).
 
 = 1.9.60 - 2015-02-24 =
