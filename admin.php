@@ -37,6 +37,23 @@ class UpdraftPlus_Admin {
 		$service = UpdraftPlus_Options::get_updraft_option('updraft_service');
 
 		if (UpdraftPlus_Options::user_can_manage()) {
+
+			// Main dashboard page advert
+			// Since our nonce is printed, make sure they have sufficient credentials
+			if (!file_exists(UPDRAFTPLUS_DIR.'/udaddons') && $pagenow == 'index.php' && current_user_can('update_plugins')) {
+
+				$dismissed_until = UpdraftPlus_Options::get_updraft_option('updraftplus_dismisseddashnotice', 0);
+				
+				$backup_dir = $updraftplus->backups_dir_location();
+				// N.B. Not an exact proxy for the installed time; they may have tweaked the expert option to move the directory
+				$installed = @filemtime($backup_dir.'/index.html');
+				$installed_for = time() - $installed;
+
+				if (($installed && time() > $dismissed_until && $installed_for > 28*86400  && !defined('UPDRAFTPLUS_NOADS_B')) || (defined('UPDRAFTPLUS_FORCE_DASHNOTICE') && UPDRAFTPLUS_FORCE_DASHNOTICE)) {
+					add_action('all_admin_notices', array($this, 'show_admin_notice_upgradead') );
+				}
+			}
+
 			if ('googledrive' === $service || (is_array($service) && in_array('googledrive', $service))) {
 				$opts = UpdraftPlus_Options::get_updraft_option('updraft_googledrive');
 				if (empty($opts)) {
@@ -109,6 +126,28 @@ class UpdraftPlus_Admin {
 // 		return "<link rel='stylesheet' id='$handle-css' $title href='$href' type='text/css' media='$media' />\n";
 // 	}
 
+	public function show_admin_notice_upgradead() {
+		?>
+		<div id="updraft-dashnotice" class="updated" style="padding: 6px 6px 6px 12px; margin:8px 0px;">
+			<div style="float:right;"><a href="#" onclick="jQuery('#updraft-dashnotice').slideUp(); jQuery.post(ajaxurl, {action: 'updraft_ajax', subaction: 'dismissdashnotice', nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce');?>' });"><?php echo sprintf(__('Dismiss (for %s months)', 'updraftplus'), 12); ?></a></div>
+
+			<h3 style="margin-top: 0px;"><?php _e('Thank you for backing up with UpdraftPlus!', 'updraftplus');?></h3>
+			
+			<a href="https://updraftplus.com/"><img style="border: 0px; float:right; height:150px;width:150px;margin:20px 15px 15px 35px;" alt="UpdraftPlus" src="<?php echo UPDRAFTPLUS_URL.'/images/ud-logo-150.png' ?>"></a>
+
+			<?php
+				echo '<p><strong>'.__('Free Newsletter', 'updraftplus').'</strong> <br>'.__('UpdraftPlus news, high-quality training materials for WordPress developers and site-owners, and general WordPress news. You can de-subscribe at any time.', 'updraftplus').' <a href="http://try.updraftplus.com/newslettersignup/">'.__('Follow this link to sign up.', 'updraftplus').'</a></p>';
+
+				echo '<p><strong>'.__('UpdraftPlus Premium', 'updraftplus').'</strong> <br>'.__('For personal support, the ability to copy sites, more storage destinations, encrypted backups for security, multiple backup destinations, better reporting, no adverts and plenty more, take a look at the premium version of UpdraftPlus - the world’s most popular backup plugin.', 'updraftplus').' <a href="https://updraftplus.com/comparison-updraftplus-free-updraftplus-premium/">'.__('Compare with the free version', 'updraftplus').'</a> / <a href="https://updraftplus.com/shop/updraftplus-premium/">'.__('Go to the shop.', 'updraftplus').'</a></p>';
+
+				echo '<p><strong>'.__('More Quality Plugins', 'updraftplus').'</strong> <br> <a href="https://wordpress.org/plugins/two-factor-authentication/">'.__('Free two-factor security plugin', 'updraftplus').'</a> | <a href="https://www.simbahosting.co.uk/s3/shop/">'.__('Premium WooCommerce plugins', 'updraftplus').'</a></p>';
+			?>
+
+			<div style="float:right;position:relative;top:-20px;"><a href="#" onclick="jQuery('#updraft-dashnotice').slideUp(); jQuery.post(ajaxurl, {action: 'updraft_ajax', subaction: 'dismissdashnotice', nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce');?>' });"><?php echo sprintf(__('Dismiss (for %s months)', 'updraftplus'), 12); ?></a></div>
+		</div>  
+		<?php
+	}
+
 	// This is also called directly from the auto-backup add-on
 	public function admin_enqueue_scripts() {
 
@@ -125,9 +164,9 @@ class UpdraftPlus_Admin {
 			wp_enqueue_script('jquery');
 			# No plupload until 3.3
 			# Put in footer, to make sure that jQuery loads first
-			wp_enqueue_script('updraftplus-admin-ui', UPDRAFTPLUS_URL.'/includes/updraft-admin-ui.js', array('jquery', 'jquery-ui-dialog'), '52', true);
+			wp_enqueue_script('updraftplus-admin-ui', UPDRAFTPLUS_URL.'/includes/updraft-admin-ui.js', array('jquery', 'jquery-ui-dialog'), '53', true);
 		} else {
-			wp_enqueue_script('updraftplus-admin-ui', UPDRAFTPLUS_URL.'/includes/updraft-admin-ui.js', array('jquery', 'jquery-ui-dialog', 'plupload-all'), '52');
+			wp_enqueue_script('updraftplus-admin-ui', UPDRAFTPLUS_URL.'/includes/updraft-admin-ui.js', array('jquery', 'jquery-ui-dialog', 'plupload-all'), '53');
 		}
 
 		wp_localize_script( 'updraftplus-admin-ui', 'updraftlion', array(
@@ -214,6 +253,7 @@ class UpdraftPlus_Admin {
 	public function admin_head() {
 
 		global $pagenow;
+
 		if ($pagenow != UpdraftPlus_Options::admin_page() || !isset($_REQUEST['page']) || 'updraftplus' != $_REQUEST['page'] || !UpdraftPlus_Options::user_can_manage()) return;
 
  		$chunk_size = min(wp_max_upload_size()-1024, 1024*1024*2);
@@ -775,7 +815,7 @@ class UpdraftPlus_Admin {
 		// Mitigation in case the nonce leaked to an unauthorised user
 		if (isset($_REQUEST['subaction']) && 'dismissautobackup' == $_REQUEST['subaction']) {
 			if (!current_user_can('update_plugins') && !current_user_can('update_themes')) return;
-		} elseif (isset($_REQUEST['subaction']) && 'dismissexpiry' == $_REQUEST['subaction']) {
+		} elseif (isset($_REQUEST['subaction']) && ('dismissexpiry' == $_REQUEST['subaction'] || 'dismissdashnotice' == $_REQUEST['subaction'])) {
 			if (!current_user_can('update_plugins')) return;
 		} else {
 			if (!UpdraftPlus_Options::user_can_manage()) return;
@@ -920,8 +960,14 @@ class UpdraftPlus_Admin {
 			die;
 		} elseif (isset($_REQUEST['subaction']) && 'dismissautobackup' == $_REQUEST['subaction']) {
 			UpdraftPlus_Options::update_updraft_option('updraftplus_dismissedautobackup', time() + 84*86400);
+		} elseif (isset($_REQUEST['subaction']) && 'set_autobackup_default' == $_REQUEST['subaction']) {
+			// This option when set should have integers, not bools
+			$default = empty($_REQUEST['default']) ? 0 : 1;
+			UpdraftPlus_Options::update_updraft_option('updraft_autobackup_default', $default);
 		} elseif (isset($_REQUEST['subaction']) && 'dismissexpiry' == $_REQUEST['subaction']) {
 			UpdraftPlus_Options::update_updraft_option('updraftplus_dismissedexpiry', time() + 14*86400);
+		} elseif (isset($_REQUEST['subaction']) && 'dismissdashnotice' == $_REQUEST['subaction']) {
+			UpdraftPlus_Options::update_updraft_option('updraftplus_dismisseddashnotice', time() + 366*86400);
 		} elseif (isset($_REQUEST['subaction']) && 'poplog' == $_REQUEST['subaction']){ 
 
 			echo json_encode($this->fetch_log($_REQUEST['backup_nonce']));
@@ -1966,8 +2012,14 @@ CREATE TABLE $wpdb->signups (
 	<div class="wrap" id="updraft-wrap">
 		<h1><?php echo $updraftplus->plugin_title; ?></h1>
 
-		<a href="http://updraftplus.com">UpdraftPlus.Com</a> | <a href="https://updraftplus.com/news/"><?php _e('News','updraftplus');?></a>  | <a href="https://twitter.com/updraftplus"><?php _e('Twitter', 'updraftplus');?></a> | <?php if (!defined('UPDRAFTPLUS_NOADS_B')) { ?><a href="http://updraftplus.com/shop/updraftplus-premium/"><?php _e("Premium",'updraftplus');?></a>
-| <?php } ?><a href="http://updraftplus.com/support/"><?php _e("Support",'updraftplus');?></a> | <a href="http://david.dw-perspective.org.uk"><?php _e("Lead developer's homepage",'updraftplus');?></a> | <?php if (1==0 && !defined('UPDRAFTPLUS_NOADS_B')) { ?><a href="http://wordshell.net">WordShell - WordPress command line</a> | <a href="http://david.dw-perspective.org.uk/donate"><?php _e('Donate', 'updraftplus');?></a> | <?php } ?><a href="http://updraftplus.com/support/frequently-asked-questions/">FAQs</a> | <a href="https://www.simbahosting.co.uk/s3/shop/"><?php _e('More plugins', 'updraftplus');?></a> - <?php _e('Version','updraftplus');?>: <?php echo $updraftplus->version; ?>
+		<a href="http://updraftplus.com">UpdraftPlus.Com</a> | 
+		<?php if (!defined('UPDRAFTPLUS_NOADS_B')) { ?><a href="http://updraftplus.com/shop/updraftplus-premium/"><?php _e("Premium",'updraftplus');?></a> | <?php } ?>
+		<a href="https://updraftplus.com/news/"><?php _e('News','updraftplus');?></a>  | 
+		<a href="https://twitter.com/updraftplus"><?php _e('Twitter', 'updraftplus');?></a> | 
+		<a href="http://updraftplus.com/support/"><?php _e("Support",'updraftplus');?></a> | 
+		<?php if (!is_file(UPDRAFTPLUS_DIR.'/udaddons/updraftplus-addons.php')) { ?><a href="http://updraftplus.com/newsletter-signup"><?php _e("Newsletter sign-up", 'updraftplus');?></a> | <?php } ?>
+		<a href="http://david.dw-perspective.org.uk"><?php _e("Lead developer's homepage",'updraftplus');?></a> | 
+		<a href="http://updraftplus.com/support/frequently-asked-questions/">FAQs</a> | <a href="https://www.simbahosting.co.uk/s3/shop/"><?php _e('More plugins', 'updraftplus');?></a> - <?php _e('Version','updraftplus');?>: <?php echo $updraftplus->version; ?>
 		<br>
 		<?php
 	}
@@ -2191,12 +2243,18 @@ CREATE TABLE $wpdb->signups (
 					// Convert to blog time zone
 					$next_scheduled_backup = get_date_from_gmt($next_scheduled_backup_gmt, 'D, F j, Y H:i');
 				} else {
-					$next_scheduled_backup = __('Nothing currently scheduled','updraftplus');
+					$next_scheduled_backup = __('Nothing currently scheduled', 'updraftplus');
+					$files_not_scheduled = true;
 				}
 				
 				$next_scheduled_backup_database = wp_next_scheduled('updraft_backup_database');
 				if (UpdraftPlus_Options::get_updraft_option('updraft_interval_database',UpdraftPlus_Options::get_updraft_option('updraft_interval')) == UpdraftPlus_Options::get_updraft_option('updraft_interval')) {
-					$next_scheduled_backup_database = ('Nothing currently scheduled' == $next_scheduled_backup) ? $next_scheduled_backup : __("At the same time as the files backup", 'updraftplus');
+					if (isset($files_not_scheduled)) {
+						$next_scheduled_backup_database = $next_scheduled_backup;
+						$database_not_scheduled = true;
+					} else {
+						$next_scheduled_backup_database = __("At the same time as the files backup", 'updraftplus');
+					}
 				} else {
 					if ($next_scheduled_backup_database) {
 						// Convert to GMT
@@ -2205,6 +2263,7 @@ CREATE TABLE $wpdb->signups (
 						$next_scheduled_backup_database = get_date_from_gmt($next_scheduled_backup_database_gmt, 'D, F j, Y H:i');
 					} else {
 						$next_scheduled_backup_database = __('Nothing currently scheduled', 'updraftplus');
+						$database_not_scheduled = true;
 					}
 				}
 				$current_time = get_date_from_gmt(gmdate('Y-m-d H:i:s'), 'D, F j, Y H:i');
@@ -2220,11 +2279,19 @@ CREATE TABLE $wpdb->signups (
 					<td>
 						<table style="border: 0px; padding: 0px; margin: 0 10px 0 0;">
 						<tr>
-						<td style="width: 124px; vertical-align:top; margin: 0px; padding: 0px;"><?php _e('Files','updraftplus'); ?>:</td><td style="color:blue; margin: 0px; padding: 0px;"><?php echo $next_scheduled_backup?></td>
-						</tr><tr>
-						<td style="width: 124px; vertical-align:top; margin: 0px; padding: 0px;"><?php _e('Database','updraftplus');?>: </td><td style="color:blue; margin: 0px; padding: 0px;"><?php echo $next_scheduled_backup_database?></td>
-						</tr><tr>
-						<td style="width: 124px; vertical-align:top; margin: 0px; padding: 0px;"><?php _e('Time now','updraftplus');?>: </td><td style="color:blue; margin: 0px; padding: 0px;"><?php echo $current_time?></td>
+						<?php
+							if (isset($files_not_scheduled) && isset($database_not_scheduled)) {
+								?>
+									<td colspan="2" style="vertical-align:top; margin: 0px; padding: 0px;"><?php _e('Nothing currently scheduled','updraftplus'); ?></td>
+								<?php
+							} else {
+							?>
+								<td style="width: 124px; vertical-align:top; margin: 0px; padding: 0px;"><?php _e('Files','updraftplus'); ?>:</td><td style="color:blue; margin: 0px; padding: 0px;"><?php echo $next_scheduled_backup?></td>
+								</tr><tr>
+								<td style="width: 124px; vertical-align:top; margin: 0px; padding: 0px;"><?php _e('Database','updraftplus');?>: </td><td style="color:blue; margin: 0px; padding: 0px;"><?php echo $next_scheduled_backup_database?></td>
+								</tr><tr>
+								<td style="width: 124px; vertical-align:top; margin: 0px; padding: 0px;"><?php _e('Time now','updraftplus');?>: </td><td style="color:blue; margin: 0px; padding: 0px;"><?php echo $current_time?></td>
+							<?php } ?>
 						</table>
 					</td>
 				</tr>
@@ -2312,7 +2379,7 @@ CREATE TABLE $wpdb->signups (
 			<div>
 				<h2>UpdraftPlus Premium</h2>
 				<p>
-					<?php _e('You are currently using the free version of UpdraftPlus from wordpress.org.', 'updraftplus');?> <a href="https://updraftplus.com/support/installing-updraftplus-premium-your-add-on/"><?php _e('If you have already purchased a paid version, then follow these instructions to install.', 'updraftplus');?></a> 
+					<span style="font-size: 115%;"><?php _e('You are currently using the free version of UpdraftPlus from wordpress.org.', 'updraftplus');?> <a href="https://updraftplus.com/support/installing-updraftplus-premium-your-add-on/"><br><?php echo __('If you have made a purchase from UpdraftPlus.Com, then follow this link to the instructions to install your purchase.', 'updraftplus').' '.__('The first step is to de-install the free version.', 'updraftplus')?></a></span>
 					<ul class="updraft_premium_description_list">
 						<li><a href="https://updraftplus.com/shop/updraftplus-premium/"><strong><?php _e('Get UpdraftPlus Premium', 'updraftplus');?></strong></a></li>
 						<li><a href="https://updraftplus.com/updraftplus-full-feature-list/"><?php _e('Full feature list', 'updraftplus');?></a></li>
@@ -2680,7 +2747,28 @@ CREATE TABLE $wpdb->signups (
 				<table>
 				<?php
 
-				$this->settings_debugrow(__('Web server:','updraftplus'), htmlspecialchars($_SERVER["SERVER_SOFTWARE"]).' ('.htmlspecialchars(php_uname()).')');
+				// It appears (Mar 2015) that some mod_security distributions block the output of the string el6.x86_64 in PHP output, on the silly assumption that only hackers are interested in knowing what environment PHP is running on.
+// 				$uname_info = @php_uname();
+				$uname_info = @php_uname('s').' '.@php_uname('n').' ';
+
+				$release_name = @php_uname('r');
+				if (preg_match('/^(.*)\.(x86_64|[3456]86)$/', $release_name, $matches)) {
+					$release_name = $matches[1].' ';
+				} else {
+					$release_name = '';
+				}
+
+				// In case someone does something similar with just the processor type string
+				$mtype = @php_uname('m');
+				if ('x86_64' == $mtype) {
+					$mtype = '64-bit';
+				} elseif (preg_match('/^i([3456]86)$/', $mtype, $matches)) {
+					$mtype = $matches[1];
+				}
+
+				$uname_info .= $release_name.$mtype.' '.@php_uname('v');
+
+				$this->settings_debugrow(__('Web server:','updraftplus'), htmlspecialchars($_SERVER["SERVER_SOFTWARE"]).' ('.htmlspecialchars($uname_info).')');
 
 				$this->settings_debugrow('ABSPATH:', htmlspecialchars(ABSPATH));
 				$this->settings_debugrow('WP_CONTENT_DIR:', htmlspecialchars(WP_CONTENT_DIR));
@@ -3236,7 +3324,7 @@ CREATE TABLE $wpdb->signups (
 			}
 
 		} else {
-			$last_backup_text =  "<span style=\"color:blue;\">".__('No backup has been completed.','updraftplus')."</span>";
+			$last_backup_text =  "<span style=\"color:blue;\">".__('No backup has been completed','updraftplus')."</span>";
 		}
 
 		return $last_backup_text;
@@ -3306,7 +3394,7 @@ CREATE TABLE $wpdb->signups (
 						echo ">$descrip</option>\n";
 					}
 					?>
-					</select> <span id="updraft_db_timings"><?php echo apply_filters('updraftplus_schedule_showdbopts', '<input type="hidden" name="updraftplus_starttime_db" value="">'); ?></span>
+					</select> <span id="updraft_same_schedules_message"><?php echo apply_filters('updraftplus_schedule_sametimemsg', '');?></span><span id="updraft_db_timings"><?php echo apply_filters('updraftplus_schedule_showdbopts', '<input type="hidden" name="updraftplus_starttime_db" value="">'); ?></span>
 					<?php
 					echo __('and retain this many scheduled backups', 'updraftplus').': ';
 					$updraft_retain_db = (int)UpdraftPlus_Options::get_updraft_option('updraft_retain_db', $updraft_retain);
@@ -3315,7 +3403,7 @@ CREATE TABLE $wpdb->signups (
 			</td>
 			</tr>
 			<tr class="backup-interval-description">
-				<td></td><td><div style="max-width:670px;"><p><?php echo htmlspecialchars(__('If you would like to automatically schedule backups, choose schedules from the dropdowns above.', 'updraftplus').' '.__('If the two schedules are the same, then the two backups will take place together.', 'updraftplus')); ?></p>
+				<td></td><td><div style="max-width:670px;">
 				<?php echo apply_filters('updraftplus_fixtime_ftinfo', '<p><strong>'.__('To fix the time at which a backup should take place,','updraftplus').' </strong> ('.__('e.g. if your server is busy at day and you want to run overnight','updraftplus').'), <a href="http://updraftplus.com/shop/updraftplus-premium/">'.htmlspecialchars(__('use UpdraftPlus Premium', 'updraftplus')).'</a></p>'); ?>
 				</div></td>
 			</tr>
@@ -4746,7 +4834,7 @@ ENDHERE;
 
 	# TODO: Remove legacy storage setting keys from here
 	private function get_settings_keys() {
-		return array('updraft_autobackup_default', 'updraft_dropbox', 'updraft_googledrive', 'updraftplus_tmp_googledrive_access_token', 'updraftplus_dismissedautobackup', 'updraftplus_dismissedexpiry', 'updraft_interval', 'updraft_interval_increments', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_wpcore', 'updraft_include_wpcore_exclude', 'updraft_include_more', 'updraft_include_blogs', 'updraft_include_mu-plugins', 'updraft_include_others_exclude', 'updraft_include_uploads_exclude',
+		return array('updraft_autobackup_default', 'updraft_dropbox', 'updraft_googledrive', 'updraftplus_tmp_googledrive_access_token', 'updraftplus_dismissedautobackup', 'updraftplus_dismissedexpiry', 'updraftplus_dismisseddashnotice', 'updraft_interval', 'updraft_interval_increments', 'updraft_interval_database', 'updraft_retain', 'updraft_retain_db', 'updraft_encryptionphrase', 'updraft_service', 'updraft_dropbox_appkey', 'updraft_dropbox_secret', 'updraft_googledrive_clientid', 'updraft_googledrive_secret', 'updraft_googledrive_remotepath', 'updraft_ftp_login', 'updraft_ftp_pass', 'updraft_ftp_remote_path', 'updraft_server_address', 'updraft_dir', 'updraft_email', 'updraft_delete_local', 'updraft_debug_mode', 'updraft_include_plugins', 'updraft_include_themes', 'updraft_include_uploads', 'updraft_include_others', 'updraft_include_wpcore', 'updraft_include_wpcore_exclude', 'updraft_include_more', 'updraft_include_blogs', 'updraft_include_mu-plugins', 'updraft_include_others_exclude', 'updraft_include_uploads_exclude',
 		'updraft_lastmessage', 'updraft_googledrive_token', 'updraft_dropboxtk_request_token', 'updraft_dropboxtk_access_token', 'updraft_dropbox_folder', 'updraft_adminlocking',
 		'updraft_last_backup', 'updraft_starttime_files', 'updraft_starttime_db', 'updraft_startday_db', 'updraft_startday_files', 'updraft_sftp_settings', 'updraft_s3', 'updraft_s3generic', 'updraft_dreamhost', 'updraft_s3generic_login', 'updraft_s3generic_pass', 'updraft_s3generic_remote_path', 'updraft_s3generic_endpoint', 'updraft_webdav_settings', 'updraft_disable_ping', 'updraft_openstack', 'updraft_bitcasa', 'updraft_copycom', 'updraft_cloudfiles', 'updraft_cloudfiles_user', 'updraft_cloudfiles_apikey', 'updraft_cloudfiles_path', 'updraft_cloudfiles_authurl', 'updraft_ssl_useservercerts', 'updraft_ssl_disableverify', 'updraft_s3_login', 'updraft_s3_pass', 'updraft_s3_remote_path', 'updraft_dreamobjects_login', 'updraft_dreamobjects_pass', 'updraft_dreamobjects_remote_path', 'updraft_report_warningsonly', 'updraft_report_wholebackup', 'updraft_log_syslog', 'updraft_extradatabases');
 	}

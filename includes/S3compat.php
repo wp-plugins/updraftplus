@@ -84,10 +84,10 @@ class UpdraftPlus_S3_Compat
 	* @param string|boolean $sslCACert - certificate authority (true = bundled Guzzle version; false = no verify, 'system' = system version; otherwise, path)
 	* @return void
 	*/
-	public function __construct($accessKey = null, $secretKey = null, $useSSL = true, $sslCACert = true, $endpoint = 's3.amazonaws.com')
+	public function __construct($accessKey = null, $secretKey = null, $useSSL = true, $sslCACert = true, $endpoint = null)
 	{
 		if ($accessKey !== null && $secretKey !== null)
-			self::setAuth($accessKey, $secretKey);
+			$this->setAuth($accessKey, $secretKey);
 
 		$this->useSSL = $useSSL;
 		$this->sslCACert = $sslCACert;
@@ -95,17 +95,25 @@ class UpdraftPlus_S3_Compat
 		$opts = array(
 			'key' => $accessKey,
 			'secret' => $secretKey,
-			'signature' => 'v4',
 			'scheme' => ($useSSL) ? 'https' : 'http',
-// 			'defaults' => array(
-// 				'verify' => $ssl_ca
-// 			)
-			'region' => $this->region
+			// Using signature v4 requires a region
+// 			'signature' => 'v4',
+// 			'region' => $this->region
+// 			'endpoint' => 'somethingorother.s3.amazonaws.com'
 		);
+
+		if ($endpoint) {
+			// Can't specify signature v4, as that requires stating the region - which we don't necessarily yet know.
+			$this->endpoint = $endpoint;
+			$opts['endpoint'] = $endpoint;
+		} else {
+			// Using signature v4 requires a region. Also, some regions (EU Central 1, China) require signature v4 - and all support it, so we may as well use it if we can.
+			$opts['signature'] = 'v4';
+			$opts['region'] = $this->region;
+		}
 
 		if ($useSSL) $opts['ssl.certificate_authority'] = $sslCACert;
 
-		// Force V4, since there doesn't seem to be a way to change this later - and we don't yet know the region (though v4 also requires a region to be initially set...)
 		$this->client = Aws\S3\S3Client::factory($opts);
 	}
 
@@ -285,9 +293,12 @@ class UpdraftPlus_S3_Compat
 	}
 
 	// A no-op in this compatibility layer (for now - not yet found a use)...
-	public function useDNSBucketName($use = true)
+	public function useDNSBucketName($use = true, $bucket = '')
 	{
 		$this->use_dns_bucket_name = $use;
+		if ($use && $bucket) {
+			$this->setEndpoint($bucket.'.s3.amazonaws.com', $this->region);
+		}
 		return true;
 	}
 

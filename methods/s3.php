@@ -28,6 +28,7 @@ class UpdraftPlus_S3Exception extends Exception {
 class UpdraftPlus_BackupModule_s3 {
 
 	private $s3_object;
+	private $got_with;
 
 	protected function get_config() {
 		global $updraftplus;
@@ -62,9 +63,18 @@ class UpdraftPlus_BackupModule_s3 {
 	}
 
 	// Get an S3 object, after setting our options
-	protected function getS3($key, $secret, $useservercerts, $disableverify, $nossl) {
+	protected function getS3($key, $secret, $useservercerts, $disableverify, $nossl, $endpoint = null) {
 
 		if (!empty($this->s3_object) && !is_wp_error($this->s3_object)) return $this->s3_object;
+
+		// Saved in case the object needs recreating for the corner-case where there is no permission to look up the bucket location
+		$this->got_with = array(
+			'key' => $key,
+			'secret' => $secret,
+			'useservercerts' => $useservercerts,
+			'disableverify' => $disableverify,
+			'nossl' => $nossl
+		);
 
 		if ('' == $key || '' == $secret) return new WP_Error('no_settings', __('No settings were found','updraftplus'));
 
@@ -103,7 +113,7 @@ class UpdraftPlus_BackupModule_s3 {
 		}
 
 		try {
-			$s3 = new $use_s3_class($key, $secret, $use_ssl, $ssl_ca);
+			$s3 = new $use_s3_class($key, $secret, $use_ssl, $ssl_ca, $endpoint);
 		} catch (Exception $e) {
 			$updraftplus->log(sprintf(__('%s Error: Failed to initialise','updraftplus'), 'S3').": ".$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
 			$updraftplus->log(sprintf(__('%s Error: Failed to initialise','updraftplus'), $key), 'S3');
@@ -182,10 +192,8 @@ class UpdraftPlus_BackupModule_s3 {
 		}
 
 		if (isset($endpoint)) {
-
 			if (is_a($obj, 'UpdraftPlus_S3_Compat')) {
 				$updraftplus->log("Set region: $region");
-	// 			$obj->setEndpoint($endpoint, $region);
 				$obj->setRegion($region);
 				return;
 			}
@@ -212,6 +220,12 @@ class UpdraftPlus_BackupModule_s3 {
 		);
 		if (is_wp_error($s3)) return $s3;
 
+		if (is_a($s3, 'UpdraftPlus_S3_Compat') && !class_exists('XMLWriter')) {
+			$updraftplus->log('The required XMLWriter PHP module is not installed');
+			$updraftplus->log(sprintf(__('The required %s PHP module is not installed - ask your web hosting company to enable it', 'updraftplus'), 'XMLWriter'), 'error');
+			return false;
+		}
+
 		$bucket_name = untrailingslashit($config['path']);
 		$bucket_path = "";
 		$orig_bucket_name = $bucket_name;
@@ -225,10 +239,9 @@ class UpdraftPlus_BackupModule_s3 {
 		$region = ($config['key'] == 's3') ? @$s3->getBucketLocation($bucket_name) : 'n/a';
 
 		// See if we can detect the region (which implies the bucket exists and is ours), or if not create it
-		if (!empty($region) || @$s3->putBucket($bucket_name, 'private') || ('s3' == $config['key'] && @$s3->useDNSBucketName() && false !== @$s3->getBucket($bucket_name, null, null, 1))) {
-
+		if (!empty($region) || @$s3->putBucket($bucket_name, 'private') || ('s3' == $config['key'] && false !== ($s3 = $this->use_dns_bucket_name($s3, $bucket_name)) && false !== @$s3->getBucket($bucket_name, null, null, 1))) {
 			if (empty($region) && $config['key'] == 's3') $region = $s3->getBucketLocation($bucket_name);
-			$this->set_region($s3, $region);
+			if (!empty($region)) $this->set_region($s3, $region);
 
 			$updraft_dir = trailingslashit($updraftplus->backups_dir_location());
 
@@ -378,7 +391,7 @@ class UpdraftPlus_BackupModule_s3 {
 			$this->set_region($s3, $region);
 		} else {
 			# Final thing to attempt - see if it was just the location request that failed
-			$s3->useDNSBucketName(true);
+			$s3 = $this->use_dns_bucket_name($s3, $bucket_name);
 			if (false === ($gb = @$s3->getBucket($bucket_name, null, null, 1))) {
 				$updraftplus->log("$whoweare Error: Failed to access bucket $bucket_name. Check your permissions and credentials.");
 				return new WP_Error('bucket_not_accessed', sprintf(__('%s Error: Failed to access bucket %s. Check your permissions and credentials.','updraftplus'),$whoweare, $bucket_name));
@@ -444,7 +457,7 @@ class UpdraftPlus_BackupModule_s3 {
 				$this->set_region($s3, $region);
 			} else {
 				# Final thing to attempt - see if it was just the location request that failed
-				$s3->useDNSBucketName(true);
+				$s3 = $this->use_dns_bucket_name($s3, $bucket_name);
 				if (false === ($gb = @$s3->getBucket($bucket_name, null, null, 1))) {
 					$updraftplus->log("$whoweare Error: Failed to access bucket $bucket_name. Check your permissions and credentials.");
 					$updraftplus->log(sprintf(__('%s Error: Failed to access bucket %s. Check your permissions and credentials.','updraftplus'),$whoweare, $bucket_name), 'error');
@@ -511,7 +524,7 @@ class UpdraftPlus_BackupModule_s3 {
 
 		if (empty($region) && 's3' == $config['key']) {
 			# Final thing to attempt - see if it was just the location request that failed
-			$s3->useDNSBucketName(true);
+			$s3 = $this->use_dns_bucket_name($s3, $bucket_name);
 			if (false !== ($gb = @$s3->getBucket($bucket_name, null, null, 1))) {
 				$keep_going = true;
 			}
@@ -597,6 +610,13 @@ class UpdraftPlus_BackupModule_s3 {
 		<td>
 		<?php
 			global $updraftplus_admin;
+
+			$use_s3_class = $this->indicate_s3_class();
+
+			if ('UpdraftPlus_S3_Compat' == $use_s3_class && !class_exists('XMLWriter')) {
+				$updraftplus_admin->show_double_warning('<strong>'.__('Warning','updraftplus').':</strong> '. sprintf(__("Your web server's PHP installation does not included a required module (%s). Please contact your web hosting provider's support and ask for them to enable it.", 'updraftplus'), 'XMLWriter'));
+			}
+
 			if (!class_exists('SimpleXMLElement')) {
 				$updraftplus_admin->show_double_warning('<strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__("Your web server's PHP installation does not included a required module (%s). Please contact your web hosting provider's support.", 'updraftplus'), 'SimpleXMLElement').' '.sprintf(__("UpdraftPlus's %s module <strong>requires</strong> %s. Please do not file any support requests; there is no alternative.",'updraftplus'),$whoweare_long, 'SimpleXMLElement'), $key);
 			}
@@ -643,6 +663,28 @@ class UpdraftPlus_BackupModule_s3 {
 		return $this->credentials_test_engine($this->get_config());
 	}
 
+	// This is not pretty, but is the simplest way to accomplish the task within the pre-existing structure (no need to re-invent the wheel of code with corner-cases debugged over years)
+	public function use_dns_bucket_name($s3, $bucket, $echo_errors = false) {
+		if (is_a($s3, 'UpdraftPlus_S3_Compat')) {
+			$this->s3_object = null;
+			$s3 = $this->getS3($this->got_with['key'], $this->got_with['secret'], $this->got_with['useservercerts'], $this->got_with['disableverify'], $this->got_with['nossl'], $bucket.".s3.amazonaws.com");
+			if (is_wp_error($s3)) {
+				if ($echo_errors) {
+					foreach ($s3->get_error_messages() as $msg) { echo $msg."\n"; }
+				} else {
+					global $updraftplus;
+					$updraftplus->log_wp_error($s3);
+				}
+				return;
+			}
+			global $updraftplus;
+			if (!$echo_errors) $updraftplus->log("Using DNS bucket name: $bucket.s3.amazonaws.com");
+		} else {
+			$s3->useDNSBucketName(true, $bucket);
+		}
+		return $s3;
+	}
+
 	public function credentials_test_engine($config) {
 
 		if (empty($_POST['apikey'])) {
@@ -685,6 +727,7 @@ class UpdraftPlus_BackupModule_s3 {
 		}
 
 		$location = ('s3' == $config['key']) ? @$s3->getBucketLocation($bucket) : 'n/a';
+
 		if ('s3' != $config['key']) $this->set_region($s3, $endpoint);
 
 		if ($location && 'n/a' != $location) {
@@ -697,8 +740,9 @@ class UpdraftPlus_BackupModule_s3 {
 		}
 
 		# Saw one case where there was read/write permission, but no permission to get the location - yet the bucket did exist. Try to detect that.
+		# Feb 2015: after we moved to the new SDK which didn't support this, two more reports came in
 		if (!isset($bucket_exists) && 's3' == $config['key']) {
-			$s3->useDNSBucketName(true);
+			$s3 = $this->use_dns_bucket_name($s3, $bucket, true);
 			$gb = @$s3->getBucket($bucket, null, null, 1);
 			if ($gb !== false) {
 				$bucket_exists = true;

@@ -77,13 +77,13 @@ class UpdraftPlus_S3
 	* @param boolean $useSSL Enable SSL
 	* @return void
 	*/
-	public function __construct($accessKey = null, $secretKey = null, $useSSL = true, $sslCACert = true, $endpoint = 's3.amazonaws.com')
+	public function __construct($accessKey = null, $secretKey = null, $useSSL = true, $sslCACert = true, $endpoint = null)
 	{
 		if ($accessKey !== null && $secretKey !== null)
 			self::setAuth($accessKey, $secretKey);
 		self::$useSSL = $useSSL;
 		self::$sslCACert = $sslCACert;
-		self::$endpoint = $endpoint;
+		if (!empty($endpoint)) self::$endpoint = $endpoint;
 	}
 
 
@@ -269,7 +269,7 @@ class UpdraftPlus_S3
 		return $results;
 	}
 
-	public static function useDNSBucketName($use = true) {
+	public static function useDNSBucketName($use = true, $bucket = '') {
 		self::$use_dns_bucket_name = $use;
 		return true;
 	}

@@ -655,7 +655,7 @@ class UpdraftPlus_Backup {
 			foreach (explode(',', $mailto) as $sendmail_addr) {
 				$updraftplus->log("Sending email ('$backup_contains') report (attachments: ".count($attachments).", size: ".round($attach_size/1024, 1)." Kb) to: ".substr($sendmail_addr, 0, 5)."...");
 				try {
-					wp_mail(trim($sendmail_addr), $subject, $body);
+					wp_mail(trim($sendmail_addr), $subject, $body, array("X-UpdraftPlus-Backup-ID: ".$updraftplus->nonce));
 				} catch (Exception $e) {
 					$updraftplus->log("Exception occurred when sending mail (".get_class($e)."): ".$e->getMessage());
 				}
@@ -1071,10 +1071,10 @@ class UpdraftPlus_Backup {
 		}
 
 		# This check doesn't strictly get all possible duplicates; it's only designed for the case that can happen when moving between deprecated Windows setups and Linux
-		$duplicate_tables_exist = false;
+		$this->duplicate_tables_exist = false;
 		foreach ($all_tables as $table) {
 			if (strtolower($table) != $table && in_array(strtolower($table), $all_tables)) {
-				$duplicate_tables_exist = true;
+				$this->duplicate_tables_exist = true;
 				$updraftplus->log("Tables with names differing only based on case-sensitivity exist in the MySQL database: $table / ".strtolower($table));
 			}
 		}
@@ -1101,7 +1101,7 @@ class UpdraftPlus_Backup {
 				$stitch_files[] = $table_file_prefix;
 			} else {
 				# === is needed, otherwise 'false' matches (i.e. prefix does not match)
-				if (empty($this->table_prefix) || ($duplicate_tables_exist == false && stripos($table, $this->table_prefix) === 0 ) || ($duplicate_tables_exist == true && strpos($table, $this->table_prefix) === 0 )) {
+				if (empty($this->table_prefix) || ($this->duplicate_tables_exist == false && stripos($table, $this->table_prefix) === 0 ) || ($this->duplicate_tables_exist == true && strpos($table, $this->table_prefix) === 0 )) {
 
 					// Open file, store the handle
 					$opened = $this->backup_db_open($this->updraft_dir.'/'.$table_file_prefix.'.tmp.gz', true);
@@ -1246,6 +1246,10 @@ class UpdraftPlus_Backup {
 
 		global $updraftplus;
 
+		// Deal with Windows/old MySQL setups with erroneous table prefixes differing in case
+		// Can't get binary mysqldump to make this transformation
+// 		$dump_as_table = ($this->duplicate_tables_exist == false && stripos($table, $this->table_prefix) === 0 && strpos($table, $this->table_prefix) !== 0) ? $this->table_prefix.substr($table, strlen($this->table_prefix)) : $table;
+
 		$pfile = md5(time().rand()).'.tmp';
 		file_put_contents($this->updraft_dir.'/'.$pfile, "[mysqldump]\npassword=".$this->dbinfo['pass']."\n");
 
@@ -1304,6 +1308,9 @@ class UpdraftPlus_Backup {
 		$microtime = microtime(true);
 		$total_rows = 0;
 
+		// Deal with Windows/old MySQL setups with erroneous table prefixes differing in case
+		$dump_as_table = ($this->duplicate_tables_exist == false && stripos($table, $this->table_prefix) === 0 && strpos($table, $this->table_prefix) !== 0) ? $this->table_prefix.substr($table, strlen($this->table_prefix)) : $table;
+
 		$table_structure = $this->wpdb_obj->get_results("DESCRIBE $table");
 		if (! $table_structure) {
 			//$updraftplus->log(__('Error getting table details','wp-db-backup') . ": $table", 'error');
@@ -1313,7 +1320,7 @@ class UpdraftPlus_Backup {
 		if($segment == 'none' || $segment == 0) {
 			// Add SQL statement to drop existing table
 			$this->stow("\n# Delete any existing table ".$updraftplus->backquote($table)."\n\n");
-			$this->stow("DROP TABLE IF EXISTS " . $updraftplus->backquote($table) . ";\n");
+			$this->stow("DROP TABLE IF EXISTS " . $updraftplus->backquote($dump_as_table) . ";\n");
 			
 			// Table structure
 			// Comment in SQL-file
@@ -1334,6 +1341,8 @@ class UpdraftPlus_Backup {
 					$create_line = preg_replace('/PAGE_CHECKSUM=\d\s?/', '', $create_line, 1);
 				}
 			}
+
+			if ($dump_as_table !== $table) $create_line = $updraftplus->str_replace_once($table, $dump_as_table, $create_line);
 
 			$this->stow($create_line.' ;');
 			
@@ -1395,7 +1404,7 @@ class UpdraftPlus_Backup {
 				@set_time_limit(900);
 
 				$table_data = $this->wpdb_obj->get_results("SELECT * FROM $table $where LIMIT {$row_start}, {$row_inc}", ARRAY_A);
-				$entries = 'INSERT INTO ' . $updraftplus->backquote($table) . ' VALUES ';
+				$entries = 'INSERT INTO ' . $updraftplus->backquote($dump_as_table) . ' VALUES ';
 				//    \x08\\x09, not required
 				if($table_data) {
 					$thisentry = "";

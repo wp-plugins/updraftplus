@@ -10,115 +10,139 @@ msgstr ""
 "X-Generator: GlotPress/0.1\n"
 "Project-Id-Version: UpdraftPlus\n"
 
-#: admin.php:2361
+#: class-updraftplus.php:2581
+msgid "Follow this link to sign up for the UpdraftPlus newsletter."
+msgstr ""
+
+#: restorer.php:905
+msgid "You should enable %s to make your pretty permalinks (e.g. %s) work"
+msgstr ""
+
+#: admin.php:1974
+msgid "Newsletter sign-up"
+msgstr ""
+
+#: admin.php:2336
+msgid "If you have made a purchase from UpdraftPlus.Com, then follow this link to the instructions to install your purchase."
+msgstr ""
+
+#: admin.php:2336
+msgid "The first step is to de-install the free version."
+msgstr ""
+
+#: admin.php:3281
+msgid "No backup has been completed"
+msgstr ""
+
+#: addons/fixtime.php:26
+msgid "(at same time as files backup)"
+msgstr ""
+
+#: admin.php:2382
 msgid "Dropbox, Google Drive, FTP, S3, Rackspace, Email"
 msgstr ""
 
-#: admin.php:2366
+#: admin.php:2387
 msgid "WebDAV, Copy.Com, SFTP/SCP, encrypted FTP"
 msgstr ""
 
-#: admin.php:2371
+#: admin.php:2392
 msgid "Backup extra files and databases"
 msgstr ""
 
-#: admin.php:2376
+#: admin.php:2397
 msgid "Migrate / clone (i.e. copy) websites"
 msgstr ""
 
-#: admin.php:2381
+#: admin.php:2402
 msgid "Basic email reporting"
 msgstr ""
 
-#: admin.php:2386
+#: admin.php:2407
 msgid "Advanced reporting features"
 msgstr ""
 
-#: admin.php:2391
+#: admin.php:2412
 msgid "Automatic backup when updating WP/plugins/themes"
 msgstr ""
 
-#: admin.php:2396
+#: admin.php:2417
 msgid "Send backups to multiple remote destinations"
 msgstr ""
 
-#: admin.php:2401
+#: admin.php:2422
 msgid "Database encryption"
 msgstr ""
 
-#: admin.php:2406
+#: admin.php:2427
 msgid "Restore backups from other plugins"
 msgstr ""
 
-#: admin.php:2411
+#: admin.php:2432
 msgid "No advertising links"
 msgstr ""
 
-#: admin.php:2416
+#: admin.php:2437
 msgid "Scheduled backups"
 msgstr ""
 
-#: admin.php:2421
+#: admin.php:2442
 msgid "Fix backup time"
 msgstr ""
 
-#: admin.php:2426
+#: admin.php:2447
 msgid "Network/Multisite support"
 msgstr ""
 
-#: admin.php:2431
+#: admin.php:2452
 msgid "Lock settings access"
 msgstr ""
 
-#: admin.php:2436
+#: admin.php:2457
 msgid "Personal support"
 msgstr ""
 
-#: admin.php:2315
+#: admin.php:2336
 msgid "You are currently using the free version of UpdraftPlus from wordpress.org."
 msgstr ""
 
-#: admin.php:2315
-msgid "If you have already purchased a paid version, then follow these instructions to install."
-msgstr ""
-
-#: admin.php:2317
+#: admin.php:2338
 msgid "Get UpdraftPlus Premium"
 msgstr ""
 
-#: admin.php:2318
+#: admin.php:2339
 msgid "Full feature list"
 msgstr ""
 
-#: admin.php:2319
+#: admin.php:2340
 msgid "Pre-sales FAQs"
 msgstr ""
 
-#: admin.php:2320
+#: admin.php:2341
 msgid "Ask a pre-sales question"
 msgstr ""
 
-#: admin.php:2333
+#: admin.php:2354
 msgid "Get it from"
 msgstr ""
 
-#: admin.php:2337
+#: admin.php:2358
 msgid "Buy It Now!"
 msgstr ""
 
-#: admin.php:2341
+#: admin.php:2362
 msgid "Backup WordPress files and database"
 msgstr ""
 
-#: admin.php:2346
+#: admin.php:2367
 msgid "Translated into over %s languages"
 msgstr ""
 
-#: admin.php:2351
+#: admin.php:2372
 msgid "Restore from backup"
 msgstr ""
 
-#: admin.php:2356
+#: admin.php:2377
 msgid "Backup to remote storage"
 msgstr ""
 
@@ -126,12 +150,12 @@ msgstr ""
 msgid "You did not select any components to restore. Please select at least one, and then try again."
 msgstr ""
 
-#: admin.php:2556
+#: admin.php:2577
 msgctxt "Uploader: Drop backup files here - or - Select Files"
 msgid "or"
 msgstr ""
 
-#: admin.php:3396
+#: admin.php:3438
 msgctxt "Uploader: Drop db.gz.crypt files here to upload them for decryption - or - Select Files"
 msgid "or"
 msgstr ""
@@ -140,7 +164,7 @@ msgstr ""
 msgid "This backup archive is %s Mb in size - the attempt to send this via email is likely to fail (few email servers allow attachments of this size). If so, you should switch to using a different remote storage method."
 msgstr ""
 
-#: methods/s3.php:108 methods/s3.php:109 methods/s3.php:110
+#: methods/s3.php:118 methods/s3.php:119 methods/s3.php:120
 msgid "%s Error: Failed to initialise"
 msgstr ""
 
@@ -148,21 +172,21 @@ msgstr ""
 msgid "Backup (where relevant) plugins, themes and the WordPress database with UpdraftPlus before updating"
 msgstr ""
 
-#: restorer.php:1609
+#: restorer.php:1612
 msgctxt "The user is being told the number of times an error has happened, e.g. An error (27) occurred"
 msgid "An error (%s) occurred:"
 msgstr ""
 
-#: admin.php:3248
+#: admin.php:3290
 msgctxt "i.e. Non-automatic"
 msgid "Manual"
 msgstr ""
 
-#: admin.php:3452
+#: admin.php:3494
 msgid "Check this box to have a basic report sent to"
 msgstr ""
 
-#: admin.php:3452
+#: admin.php:3494
 msgid "your site's admin address"
 msgstr ""
 
@@ -193,19 +217,19 @@ msgstr ""
 msgid "Change Lock Settings"
 msgstr ""
 
-#: restorer.php:935
+#: restorer.php:938
 msgid "Clearing cached pages (%s)..."
 msgstr ""
 
-#: restorer.php:1615
+#: restorer.php:1618
 msgid "Create table failed - probably because there is no permission to drop tables and the table already exists; will continue"
 msgstr ""
 
-#: admin.php:2090
+#: admin.php:2096
 msgid "For even more features and personal support, check out "
 msgstr ""
 
-#: admin.php:2138
+#: admin.php:2144
 msgid "Add-ons"
 msgstr ""
 
@@ -302,15 +326,15 @@ msgstr ""
 msgid "Database decryption phrase"
 msgstr ""
 
-#: backup.php:2240
+#: backup.php:2249
 msgid "A zip error occurred"
 msgstr ""
 
-#: backup.php:2242
+#: backup.php:2251
 msgid "your web hosting account appears to be full; please see: %s"
 msgstr ""
 
-#: backup.php:2244
+#: backup.php:2253
 msgid "check your log for more details."
 msgstr ""
 
@@ -322,39 +346,39 @@ msgstr ""
 msgid "Backup label:"
 msgstr ""
 
-#: admin.php:2169
+#: admin.php:2175
 msgid "The 'Backup Now' button is disabled as your backup directory is not writable (go to the 'Settings' tab and find the relevant option)."
 msgstr ""
 
-#: admin.php:2522
+#: admin.php:2543
 msgid "Following a link for Database/Plugins/Themes/Uploads/Others will make UpdraftPlus try to bring the backup file back from the remote storage (if any - e.g. Amazon S3, Dropbox, Google Drive, FTP) to your webserver. Then you will be allowed to download it to your computer. If the fetch from the remote storage stops progressing (wait 30 seconds to make sure), then press again to resume. Remember that you can also visit the cloud storage vendor's website directly."
 msgstr ""
 
-#: admin.php:2545
+#: admin.php:2566
 msgid "Upload files into UpdraftPlus."
 msgstr ""
 
-#: admin.php:2731
+#: admin.php:2773
 msgid "For the ability to lock access to UpdraftPlus settings with a password, upgrade to UpdraftPlus Premium."
 msgstr ""
 
-#: admin.php:3209
+#: admin.php:3251
 msgid "incremental backup; base backup: %s"
 msgstr ""
 
-#: admin.php:3281 admin.php:3311
+#: admin.php:3323 admin.php:3353
 msgid "and retain this many scheduled backups"
 msgstr ""
 
-#: admin.php:3800
+#: admin.php:3842
 msgid "Backup date"
 msgstr ""
 
-#: admin.php:3801
+#: admin.php:3843
 msgid "Backup data (click to download)"
 msgstr ""
 
-#: admin.php:4098
+#: admin.php:4140
 msgid "View Log"
 msgstr ""
 
@@ -378,7 +402,7 @@ msgstr ""
 msgid "Your label for this backup (optional)"
 msgstr ""
 
-#: methods/googledrive.php:851
+#: methods/googledrive.php:856
 msgid "%s does not allow authorisation of sites hosted on direct IP addresses. You will need to change your site's address (%s) before you can use %s for storage."
 msgstr ""
 
@@ -398,7 +422,7 @@ msgstr ""
 msgid "You entered an email address that was not recognised by UpdraftPlus.Com"
 msgstr ""
 
-#: admin.php:2259
+#: admin.php:2280
 msgid "To proceed, press 'Backup Now'. Then, watch the 'Last Log Message' field for activity."
 msgstr ""
 
@@ -462,39 +486,39 @@ msgstr ""
 msgid "Any support requests to do with %s should be raised with your web hosting company."
 msgstr ""
 
-#: class-updraftplus.php:2563 class-updraftplus.php:2592
+#: class-updraftplus.php:2572 class-updraftplus.php:2601
 msgid "UpdraftPlus is on social media - check us out here:"
 msgstr ""
 
-#: class-updraftplus.php:2563 class-updraftplus.php:2592 admin.php:1969
+#: class-updraftplus.php:2572 class-updraftplus.php:2601 admin.php:1972
 msgid "Twitter"
 msgstr ""
 
-#: class-updraftplus.php:2563 class-updraftplus.php:2592
+#: class-updraftplus.php:2572 class-updraftplus.php:2601
 msgid "Facebook"
 msgstr ""
 
-#: class-updraftplus.php:2563 class-updraftplus.php:2592
+#: class-updraftplus.php:2572 class-updraftplus.php:2601
 msgid "Google+"
 msgstr ""
 
-#: class-updraftplus.php:2563 class-updraftplus.php:2592
+#: class-updraftplus.php:2572 class-updraftplus.php:2601
 msgid "LinkedIn"
 msgstr ""
 
-#: admin.php:3572
+#: admin.php:3614
 msgid "UpdraftPlus will split up backup archives when they exceed this file size. The default value is %s megabytes. Be careful to leave some margin if your web-server has a hard size limit (e.g. the 2 Gb / 2048 Mb limit on some 32-bit servers/file systems)."
 msgstr ""
 
-#: admin.php:4419
+#: admin.php:4461
 msgid "Why am I seeing this?"
 msgstr ""
 
-#: admin.php:2533
+#: admin.php:2554
 msgid "Press here to look inside your UpdraftPlus directory (in your web hosting space) for any new backup sets that you have uploaded."
 msgstr ""
 
-#: admin.php:2533
+#: admin.php:2554
 msgid "The location of this directory is set in the expert settings, in the Settings tab."
 msgstr ""
 
@@ -502,27 +526,15 @@ msgstr ""
 msgid "Start backup"
 msgstr ""
 
-#: restorer.php:902
+#: restorer.php:905
 msgid "You are using the %s webserver, but do not seem to have the %s module loaded."
 msgstr ""
 
-#: restorer.php:902
-msgid "You should enable %s to make your pretty  permalinks (e.g. %s) work"
-msgstr ""
-
-#: admin.php:3318
-msgid "If you would like to automatically schedule backups, choose schedules from the dropdowns above."
-msgstr ""
-
-#: admin.php:3318
-msgid "If the two schedules are the same, then the two backups will take place together."
-msgstr ""
-
-#: admin.php:3155
+#: admin.php:3197
 msgid "You will need to consult with your web hosting provider to find out how to set permissions for a WordPress plugin to write to the directory."
 msgstr ""
 
-#: admin.php:2679
+#: admin.php:2700
 msgid "Unless you have a problem, you can completely ignore everything here."
 msgstr ""
 
@@ -542,23 +554,23 @@ msgstr "Ezt a biztonsági mentést egy másik bővítmény készítette? Ha igen
 msgid "Supported backup plugins: %s"
 msgstr "Támogatott biztonsági mentés bővítmények: %s"
 
-#: admin.php:3290
+#: admin.php:3332
 msgid "Incremental file backup intervals"
 msgstr "Inkrementális fájl biztonsági mentés intervallumok"
 
-#: admin.php:3293
+#: admin.php:3335
 msgid "Tell me more about incremental backups"
 msgstr "Tudj meg többet az inkrementális biztonsági mentésekről"
 
-#: admin.php:2693
+#: admin.php:2735
 msgid "Memory limit"
 msgstr "Memória határ"
 
-#: restorer.php:1137 admin.php:1687
+#: restorer.php:1140 admin.php:1687
 msgid "restoration"
 msgstr "újjáépítés"
 
-#: restorer.php:1563
+#: restorer.php:1566
 msgid "Table to be implicitly dropped: %s"
 msgstr "Implicit módon csökkentett táblázat: %s"
 
@@ -582,8 +594,8 @@ msgstr "(napló részletek...)"
 msgid "now proceeding with the updates..."
 msgstr "most a frissítésekkel folytatjuk..."
 
-#: updraftplus.php:69 updraftplus.php:70 admin.php:3249 admin.php:3250
-#: admin.php:3251
+#: updraftplus.php:69 updraftplus.php:70 admin.php:3291 admin.php:3292
+#: admin.php:3293
 msgid "Every %s hours"
 msgstr "Minden %s órában"
 
@@ -619,7 +631,7 @@ msgstr "A keresés/kicserélés nem vonható vissza - biztos vagy benne, hogy ez
 msgid "Go"
 msgstr "Gyerünk!"
 
-#: restorer.php:1627
+#: restorer.php:1630
 msgid "Too many database errors have occurred - aborting"
 msgstr "Túl sok adatbázis hiba történt - megszakítás"
 
@@ -631,51 +643,51 @@ msgstr "olvass többet itt: %s"
 msgid "Email reports created by UpdraftPlus (free edition) bring you the latest UpdraftPlus.com news"
 msgstr "Az UpdraftPlus (ingyenes verzió) által létrehozott email jelentések elhozzák neked a legújabb UpdraftPlus.com híreket"
 
-#: methods/googledrive.php:857
+#: methods/googledrive.php:862
 msgid "N.B. If you install UpdraftPlus on several WordPress sites, then you cannot re-use your project; you must create a new one from your Google API console for each site."
 msgstr "Megj.: Ha több WordPress oldalon is feltelepíted az UpdraftPlust, akkor nem használhatod újra a projektet; egy újat kell létrehoznod a Google API konzolban minden egyes oldalnak."
 
-#: admin.php:3786
+#: admin.php:3828
 msgid "You have not yet made any backups."
 msgstr "Még nem készítettél biztonsági mentést."
 
-#: admin.php:3362
+#: admin.php:3404
 msgid "Database Options"
 msgstr "Adatbázis Opciók"
 
-#: admin.php:2749
+#: admin.php:2791
 msgid "The buttons below will immediately execute a backup run, independently of WordPress's scheduler. If these work whilst your scheduled backups do absolutely nothing (i.e. not even produce a log file), then it means that your scheduler is broken."
 msgstr "Az alábbi gombok azonnal elindítanak egy biztonsági mentés procedúrát, függetlenül a WordPress ütemezőjétől. Ha ezek működnek, miközben az ütemezett biztonsági mentések abszolút semmit nem tesznek (pl. még egy napló fájlt sem készítenek), akkor az azt jelenti, hogy az ütemező sérült."
 
-#: admin.php:2715
+#: admin.php:2757
 msgid "%s (%s used)"
 msgstr "%s (%s használt)"
 
-#: admin.php:2718
+#: admin.php:2760
 msgid "Plugins for debugging:"
 msgstr "Hibakereső bővítmények:"
 
-#: admin.php:2715
+#: admin.php:2757
 msgid "Free disk space in account:"
 msgstr "Üres tárhely a fiókban:"
 
-#: admin.php:2515
+#: admin.php:2536
 msgid "Existing Backups: Downloading And Restoring"
 msgstr "Létező Biztonsági Mentések: Letöltés és Visszaállítás"
 
-#: admin.php:2134
+#: admin.php:2140
 msgid "Current Status"
 msgstr "Aktuális Állapot"
 
-#: admin.php:1196 admin.php:1307 admin.php:2135
+#: admin.php:1196 admin.php:1307 admin.php:2141
 msgid "Existing Backups"
 msgstr "Létező Biztonsági Mentések"
 
-#: admin.php:2137
+#: admin.php:2143
 msgid "Debugging / Expert Tools"
 msgstr "Hibakereső / Expert Eszközök"
 
-#: admin.php:2174
+#: admin.php:2180
 msgid "This button is disabled because your backup directory is not writable (see the settings)."
 msgstr "Ez a gomb le van tiltva, mert a biztonsági mentés könyvtár nem írható (lásd a beállításokat)."
 
@@ -763,7 +775,7 @@ msgstr "sikertelen adatbázis kapcsolódási kísérlet"
 msgid "External database (%s)"
 msgstr "Külső adatbázis (%s)"
 
-#: methods/googledrive.php:857
+#: methods/googledrive.php:862
 msgid "Follow this link to your Google API Console, and there activate the Drive API and create a Client ID in the API Access section."
 msgstr "Kövesd ezt a linket a Google API Console-hoz és ott aktiváld a Drive API-t, valamint hozz létre egy Client ID-t az API Access résznél."
 
@@ -775,35 +787,35 @@ msgstr "nem sikerült elérni a szülő mappát"
 msgid "However, subsequent access attempts failed:"
 msgstr "Azonban további hozzáférési kísérletek sem sikerültek:"
 
-#: admin.php:3923
+#: admin.php:3965
 msgid "External database"
 msgstr "Külső adatbázis"
 
-#: admin.php:3567
+#: admin.php:3609
 msgid "This will also cause debugging output from all plugins to be shown upon this screen - please do not be surprised to see these."
 msgstr "Ez minden bővítmény hibakeresési kimenetét meg fogja jeleníteni ezen a képernyőn - kérünk ne lepődj meg mikor látod ezeket."
 
-#: admin.php:3420
+#: admin.php:3462
 msgid "Back up more databases"
 msgstr "Több adatbázis biztonsági mentése"
 
-#: admin.php:3371
+#: admin.php:3413
 msgid "Don't want to be spied on? UpdraftPlus Premium can encrypt your database backup."
 msgstr "Nem akarod, hogy sikeresen kémkedjenek utánad? Az UpdraftPlus Premium titkosíthatja adatbázisod biztonsági mentését."
 
-#: admin.php:3371
+#: admin.php:3413
 msgid "It can also backup external databases."
 msgstr "Külső adatbázisok biztonsági mentésére is alkalmas."
 
-#: admin.php:3380
+#: admin.php:3422
 msgid "You can manually decrypt an encrypted database here."
 msgstr "Itt manuálisan dekódolhatsz egy titkosított adatbázist."
 
-#: admin.php:3398
+#: admin.php:3440
 msgid "First, enter the decryption key"
 msgstr "Előszőr is, írd be a dekódoló kulcsot"
 
-#: admin.php:3319
+#: admin.php:3361
 msgid "use UpdraftPlus Premium"
 msgstr "használd az UpdraftPlus Premium-t"
 
@@ -815,7 +827,7 @@ msgstr "A dekódolás nem sikerült. Az adatbázis fájl titkosítva van."
 msgid "Only the WordPress database can be restored; you will need to deal with the external database manually."
 msgstr "Csak a WordPress adatbázist lehet visszaállítani; a külső adatbázist manuálisan kell kezelned."
 
-#: restorer.php:1365 restorer.php:1584 restorer.php:1619
+#: restorer.php:1368 restorer.php:1587 restorer.php:1622
 msgid "An error occurred on the first %s command - aborting run"
 msgstr "Egy hiba történt az első %s parancsnál - megszakítás folyamatban"
 
@@ -899,7 +911,7 @@ msgstr "hitelesítés URI"
 msgid "Failed to upload %s"
 msgstr "Nem sikerült feltölteni: %s"
 
-#: methods/dropbox.php:482 methods/dropbox.php:484 addons/copycom.php:381
+#: methods/dropbox.php:486 methods/dropbox.php:488 addons/copycom.php:381
 #: addons/copycom.php:383
 msgid "Success:"
 msgstr "Siker:"
@@ -941,7 +953,7 @@ msgstr "Régió: %s"
 msgid "Could not access %s container"
 msgstr "Nem lehet megnyitni a(z) %s konténert"
 
-#: methods/googledrive.php:906 methods/dropbox.php:423 addons/copycom.php:545
+#: methods/googledrive.php:911 methods/dropbox.php:423 addons/copycom.php:545
 msgid "Account holder's name: %s."
 msgstr "Fiók tulajdonos neve: %s."
 
@@ -951,19 +963,19 @@ msgstr "Fiók tulajdonos neve: %s."
 msgid "%s error - failed to access the container"
 msgstr "%s hiba - nem sikerült elérni a konténert"
 
-#: methods/googledrive.php:886
+#: methods/googledrive.php:891
 msgid "<strong>This is NOT a folder name</strong>."
 msgstr "<strong>Ez NEM egy mappa név</strong>."
 
-#: methods/googledrive.php:886
+#: methods/googledrive.php:891
 msgid "It is an ID number internal to Google Drive"
 msgstr "Ez egy belső Google Drive ID (azonosító) szám "
 
-#: methods/googledrive.php:895
+#: methods/googledrive.php:900
 msgid "To be able to set a custom folder name, use UpdraftPlus Premium."
 msgstr "Ahhoz, hogy egy tetszőleges mappa nevet állíthass be, az UpdraftPlus Premium-t kell használnod."
 
-#: methods/googledrive.php:882 methods/googledrive.php:892
+#: methods/googledrive.php:887 methods/googledrive.php:897
 #: addons/google-enhanced.php:72 addons/copycom.php:537
 msgid "Folder"
 msgstr "Mappa"
@@ -972,7 +984,7 @@ msgstr "Mappa"
 msgid "Name: %s."
 msgstr "Név: %s."
 
-#: methods/googledrive.php:814
+#: methods/googledrive.php:819
 msgid "%s download: failed: file not found"
 msgstr "%s letöltés: nem sikerült - nem találtuk a fájlt"
 
@@ -992,23 +1004,23 @@ msgstr "A te %s verziód: %s."
 msgid "Google Drive list files: failed to access parent folder"
 msgstr "Google Drive fájl listázás: nem sikerült elérni a szülőmappát"
 
-#: admin.php:4700
+#: admin.php:4742
 msgid "Theme directory (%s) not found, but lower-case version exists; updating database option accordingly"
 msgstr "A téma könyvtárt (%s) nem találtuk, de egy kis-betűs verzió létezik; ennek megfelelő adatbázis frissítési opció"
 
-#: admin.php:2720
+#: admin.php:2762
 msgid "Fetch"
 msgstr "Fetch"
 
-#: admin.php:2722
+#: admin.php:2764
 msgid "Call"
 msgstr "Hívás"
 
-#: admin.php:2549 admin.php:3388
+#: admin.php:2570 admin.php:3430
 msgid "This feature requires %s version %s or later"
 msgstr "Ehhez a funkcióhoz %s verzió %s vagy újabb szükséges"
 
-#: restorer.php:1736
+#: restorer.php:1739
 msgid "Elegant themes theme builder plugin data detected: resetting temporary folder"
 msgstr "Elegant Themes téma építő bővítmény adatokat észleltünk: ideiglenes mappa visszaállítása"
 
@@ -1024,7 +1036,7 @@ msgstr "%s fájlok ki lettek csomagolva"
 msgid "Error - failed to download the file"
 msgstr "Hiba - nem sikerült letölteni a fájlt"
 
-#: admin.php:2533
+#: admin.php:2554
 msgid "Rescan local folder for new backup sets"
 msgstr "Lokális mappa újraszkennelése új biztonsági mentési szettek után"
 
@@ -1060,31 +1072,31 @@ msgstr "A te bejelentkezésed vagy jelszó-, vagy kulcs alapú - csak az egyiket
 msgid "Key"
 msgstr "Kulcs"
 
-#: admin.php:3974 admin.php:4252 addons/importer.php:207
+#: admin.php:4016 admin.php:4294 addons/importer.php:207
 msgid "Backup created by: %s."
 msgstr "Biztonsági mentés létrehozva %s által."
 
-#: admin.php:3980
+#: admin.php:4022
 msgid "Files and database WordPress backup (created by %s)"
 msgstr "Fájl és adatbázis WordPress biztonsági mentés (létrehozva %s által)"
 
-#: admin.php:3980
+#: admin.php:4022
 msgid "Files backup (created by %s)"
 msgstr "Fájl biztonsági mentés (létrehozva %s által)"
 
-#: admin.php:3915 admin.php:3976
+#: admin.php:3957 admin.php:4018
 msgid "unknown source"
 msgstr "ismeretlen forrás"
 
-#: admin.php:3921
+#: admin.php:3963
 msgid "Database (created by %s)"
 msgstr "Adatbázis (létrehozva %s által)"
 
-#: admin.php:2534
+#: admin.php:2555
 msgid "Rescan remote storage"
 msgstr "Távoli tárhely újraszkennelése"
 
-#: admin.php:2532
+#: admin.php:2553
 msgid "Upload backup files"
 msgstr "Biztonsági mentés fájlok feltöltése"
 
@@ -1100,7 +1112,7 @@ msgstr "A WordPressnek több (%d) lejárt ütemezett feladata van. Hacsak ez nem
 msgid "Read this page for a guide to possible causes and how to fix it."
 msgstr "Olvasd el ezt az oldalt - találsz rajta egy útmutatót a lehetséges okokról és javítási módokról."
 
-#: admin.php:166 admin.php:167 admin.php:4259
+#: admin.php:166 admin.php:167 admin.php:4301
 msgid "This file does not appear to be an UpdraftPlus backup archive (such files are .zip or .gz files which have a name like: backup_(time)_(site name)_(code)_(type).(zip|gz))."
 msgstr "Ez a fájl nem úgy tűnik, hogy egy UpdraftPlus biztonsági mentés archívum lenne (azok a fájlok .zip vagy .gz formátumuak és olyan neveik vannak, mint: backup_(idő)_(oldal név)_(kód)_(típus).(zip|gz))."
 
@@ -1108,19 +1120,19 @@ msgstr "Ez a fájl nem úgy tűnik, hogy egy UpdraftPlus biztonsági mentés arc
 msgid "However, UpdraftPlus archives are standard zip/SQL files - so if you are sure that your file has the right format, then you can rename it to match that pattern."
 msgstr "Habár, az UpdraftPlus archívumok standard zip/SQL fájlok - tehát ha biztos vagy benne, hogy a fájlodnak helyes formátuma van, átnevezheted úgy, hogy megfeleljen a mintának."
 
-#: admin.php:167 admin.php:4259
+#: admin.php:167 admin.php:4301
 msgid "If this is a backup created by a different backup plugin, then UpdraftPlus Premium may be able to help you."
 msgstr "Ha ezt a biztonsági mentést egy másik biztonsági mentés bővítmény készítette, akkor az UpdraftPlus Premium segíthet neked."
 
-#: restorer.php:1105 admin.php:983 admin.php:3977
+#: restorer.php:1108 admin.php:983 admin.php:4019
 msgid "Backup created by unknown source (%s) - cannot be restored."
 msgstr "Ezt a biztonsági mentést egy ismeretlen forrás készítette (%s) - nem lehet visszaállítani."
 
-#: restorer.php:716 restorer.php:818
+#: restorer.php:719 restorer.php:821
 msgid "The WordPress content folder (wp-content) was not found in this zip file."
 msgstr "Nem találtuk a WordPress tartalom mappát (wp-content) ebben a zip fájlban"
 
-#: restorer.php:580
+#: restorer.php:583
 msgid "This version of UpdraftPlus does not know how to handle this type of foreign backup"
 msgstr "Az UpdraftPlus ezen verziója nem tudja hogyan kezelje ezt a típusú külső biztonsági mentést"
 
@@ -1132,24 +1144,24 @@ msgstr "%s visszaadott egy nem várt HTTP választ: %s"
 msgid "The UpdraftPlus module for this file access method (%s) does not support listing files"
 msgstr "Az ehhez a fájl hozzáférési metódushoz használt UpdraftPlus modul (%s) nem támogatja a fájlok listázását"
 
-#: methods/openstack-base.php:95 methods/cloudfiles.php:234 methods/s3.php:69
+#: methods/openstack-base.php:95 methods/cloudfiles.php:234 methods/s3.php:79
 #: methods/dropbox.php:230
 msgid "No settings were found"
 msgstr "Nem találtunk beállításokat"
 
-#: admin.php:4073
+#: admin.php:4115
 msgid "(backup set imported from remote storage)"
 msgstr "(a biztonságos mentés csomag be lett importálva a külső tárhelyről)"
 
-#: admin.php:4374
+#: admin.php:4416
 msgid "One or more backups has been added from scanning remote storage; note that these backups will not be automatically deleted through the \"retain\" settings; if/when you wish to delete them then you must do so manually."
 msgstr "Hozzáadódott egy vagy több biztonságos mentés a külső tárhely átszkennelése után; vedd figyelembe, hogy ezek nem lesznek automatikusan törölve a \"megőrzés\" beállítások által; ha/amikor ki szeretnéd törölni őket, ezt manuálisan kell majd megtedd."
 
-#: admin.php:2585
+#: admin.php:2606
 msgid "Are you sure that you wish to remove this backup set from UpdraftPlus?"
 msgstr "Biztos vagy benne, hogy el akarod távolítani ezt a biztonsági mentés csomagot az UpdradtPlus-ból?"
 
-#: admin.php:2534
+#: admin.php:2555
 msgid "Press here to look inside any remote storage methods for any existing backup sets."
 msgstr "Kattints ide és nézz bele bármelyik külső tárhely metódusba akármelyik létező biztonsági mentés csomaggal kapcsolatban."
 
@@ -1165,15 +1177,15 @@ msgstr "Mielőtt visszaállítanád mindenképp győzőgy meg róla, hogy ez a b
 msgid "Rescanning remote and local storage for backup sets..."
 msgstr "Külső- és lokális tárhelyek újraszkennelése biztonsági mentés csomagok után..."
 
-#: addons/s3-enhanced.php:26
+#: addons/s3-enhanced.php:28
 msgid "(Read more)"
 msgstr "(Bővebben)"
 
-#: addons/s3-enhanced.php:27
+#: addons/s3-enhanced.php:29
 msgid "Check this box to use Amazon's reduced redundancy storage and tariff"
 msgstr "Jelöld be ezt a négyzetet, hogy az Amazon csökkentet redundanciájú tárhelyét és tarifáját használd"
 
-#: addons/s3-enhanced.php:26
+#: addons/s3-enhanced.php:28
 msgid "Reduced redundancy storage"
 msgstr "Csökkentett redundanciájú tárhely"
 
@@ -1198,47 +1210,47 @@ msgstr "Biztonsági mentés nélküli könyvtár: semmit sem találtunk ott, ami
 msgid "Remove"
 msgstr "Eltávolítás"
 
-#: methods/s3.php:611
+#: methods/s3.php:618
 msgid "Other %s FAQs."
 msgstr "Más %s GYIK."
 
-#: admin.php:3567
+#: admin.php:3609
 msgid "Check this to receive more information and emails on the backup process - useful if something is going wrong."
 msgstr "Jelöld be ezt, ha szeretnél több információt és e-mailt kapni a biztonsági mentési folyamatról - hasznos ha valami nem úgy történik, ahogy kellene."
 
-#: admin.php:3343 addons/morefiles.php:256
+#: admin.php:3385 addons/morefiles.php:256
 msgid "If entering multiple files/directories, then separate them with commas. For entities at the top level, you can use a * at the start or end of the entry as a wildcard."
 msgstr "Ha több fájlt/könyvtárt írsz be, akkor válaszd el őket egy vesszővel. Legfelsőbb szintű entitások esetében helyettesítőként használhatsz egy * -t a bejegyzés elején vagy a végén."
 
-#: restorer.php:1725
+#: restorer.php:1728
 msgid "Custom content type manager plugin data detected: clearing option cache"
 msgstr "Egyedi tartalom típus kezelő bővítmény adat találtatott: opciós gyorsítótár kiürítése"
 
-#: methods/ftp.php:298
+#: methods/ftp.php:301
 msgid "encrypted FTP (explicit encryption)"
 msgstr "titkosított FTP (explicit titkosítás)"
 
-#: restorer.php:1136 admin.php:1687 methods/ftp.php:301
+#: restorer.php:1139 admin.php:1687 methods/ftp.php:304
 msgid "Your web server's PHP installation has these functions disabled: %s."
 msgstr "A webszervered PHP telepítésének következő funkciói le vannak tiltva: %s."
 
-#: restorer.php:1137 admin.php:1687 methods/ftp.php:301
+#: restorer.php:1140 admin.php:1687 methods/ftp.php:304
 msgid "Your hosting company must enable these functions before %s can work."
 msgstr "A tárhely szolgáltatódnak először engedélyeznie kell ezeket a funkciókat, mielőtt %s működhetne."
 
-#: admin.php:2264
+#: admin.php:2285
 msgid "Don't send this backup to remote storage"
 msgstr "Ne küldje el ezt a biztonsági mentést a külső tárhelyre"
 
-#: methods/ftp.php:296
+#: methods/ftp.php:299
 msgid "regular non-encrypted FTP"
 msgstr "normál nem-titkosított FTP"
 
-#: methods/ftp.php:297
+#: methods/ftp.php:300
 msgid "encrypted FTP (implicit encryption)"
 msgstr "titkosított FTP (implicit titkosítás)"
 
-#: restorer.php:1275
+#: restorer.php:1278
 msgid "Backup created by:"
 msgstr "A biztonsági mentést létrehozta:"
 
@@ -1322,7 +1334,7 @@ msgstr "Nem találtunk adatbázis táblát"
 msgid "Note that warning messages are advisory - the backup process does not stop for them. Instead, they provide information that you might find useful, or that may indicate the source of a problem if the backup did not succeed."
 msgstr ""
 
-#: restorer.php:1637
+#: restorer.php:1640
 msgid "Database queries processed: %d in %.2f seconds"
 msgstr ""
 
@@ -1342,19 +1354,19 @@ msgstr ""
 msgid "Errors occurred:"
 msgstr ""
 
-#: admin.php:4440
+#: admin.php:4482
 msgid "Follow this link to download the log file for this restoration (needed for any support requests)."
 msgstr ""
 
-#: admin.php:3614
+#: admin.php:3656
 msgid "See this FAQ also."
 msgstr ""
 
-#: admin.php:3502
+#: admin.php:3544
 msgid "If you choose no remote storage, then the backups remain on the web-server. This is not recommended (unless you plan to manually copy them to your computer), as losing the web-server would mean losing both your website and the backups in one event."
 msgstr ""
 
-#: admin.php:2605
+#: admin.php:2626
 msgid "Retrieving (if necessary) and preparing backup files..."
 msgstr ""
 
@@ -1362,12 +1374,8 @@ msgstr ""
 msgid "The PHP setup on this webserver allows only %s seconds for PHP to run, and does not allow this limit to be raised. If you have a lot of data to import, and if the restore operation times out, then you will need to ask your web hosting company for ways to raise this limit (or attempt the restoration piece-by-piece)."
 msgstr ""
 
-#: restorer.php:562
+#: restorer.php:565
 msgid "Existing unremoved folders from a previous restore exist (please use the \"Delete Old Directories\" button to delete them before trying again): %s"
-msgstr ""
-
-#: class-updraftplus.php:2572
-msgid "Need high-quality WordPress hosting from WordPress specialists? (Including automatic backups and 1-click installer). Get it from the creators of UpdraftPlus."
 msgstr ""
 
 #: class-updraftplus.php:420 admin.php:536
@@ -1391,11 +1399,11 @@ msgstr ""
 msgid "The %s connection timed out; if you entered the server correctly, then this is usually caused by a firewall blocking the connection - you should check with your web hosting company."
 msgstr ""
 
-#: admin.php:4709
+#: admin.php:4751
 msgid "The current theme was not found; to prevent this stopping the site from loading, your theme has been reverted to the default theme"
 msgstr ""
 
-#: admin.php:2011
+#: admin.php:2017
 msgid "Restore failed..."
 msgstr ""
 
@@ -1403,7 +1411,7 @@ msgstr ""
 msgid "Messages:"
 msgstr ""
 
-#: restorer.php:1545
+#: restorer.php:1548
 msgid "An SQL line that is larger than the maximum packet size and cannot be split was found; this line will not be processed, but will be dropped: %s"
 msgstr ""
 
@@ -1579,39 +1587,39 @@ msgstr ""
 msgid "(when decrypted)"
 msgstr ""
 
-#: admin.php:154 admin.php:4663
+#: admin.php:154 admin.php:4705
 msgid "Error data:"
 msgstr ""
 
-#: admin.php:4399
+#: admin.php:4441
 msgid "Backup does not exist in the backup history"
 msgstr ""
 
-#: admin.php:2783
+#: admin.php:2825
 msgid "Your WordPress install has old directories from its state before you restored/migrated (technical information: these are suffixed with -old). You should press this button to delete them as soon as you have verified that the restoration worked."
 msgstr ""
 
-#: restorer.php:1337
+#: restorer.php:1340
 msgid "Split line to avoid exceeding maximum packet size"
 msgstr ""
 
-#: restorer.php:1227
+#: restorer.php:1230
 msgid "Your database user does not have permission to drop tables. We will attempt to restore by simply emptying the tables; this should work as long as you are restoring from a WordPress version with the same database structure (%s)"
 msgstr ""
 
-#: restorer.php:1271
+#: restorer.php:1274
 msgid "<strong>Backup of:</strong> %s"
 msgstr ""
 
-#: restorer.php:1065
+#: restorer.php:1068
 msgid "New table prefix: %s"
 msgstr ""
 
-#: restorer.php:748 restorer.php:762
+#: restorer.php:751 restorer.php:765
 msgid "%s: This directory already exists, and will be replaced"
 msgstr ""
 
-#: restorer.php:778
+#: restorer.php:781
 msgid "File permissions do not allow the old data to be moved and retained; instead, it will be deleted."
 msgstr ""
 
@@ -1711,12 +1719,12 @@ msgstr ""
 msgid "Errors / warnings:"
 msgstr ""
 
-#: methods/dropbox.php:465 addons/copycom.php:371
+#: methods/dropbox.php:469 addons/copycom.php:371
 msgid "%s authentication"
 msgstr ""
 
-#: class-updraftplus.php:222 methods/dropbox.php:127 methods/dropbox.php:465
-#: methods/dropbox.php:479 methods/dropbox.php:574 addons/copycom.php:371
+#: class-updraftplus.php:222 methods/dropbox.php:127 methods/dropbox.php:469
+#: methods/dropbox.php:483 methods/dropbox.php:578 addons/copycom.php:371
 msgid "%s error: %s"
 msgstr ""
 
@@ -1744,7 +1752,7 @@ msgstr ""
 msgid "Connect"
 msgstr ""
 
-#: admin.php:3454
+#: admin.php:3496
 msgid "For more reporting features, use the Reporting add-on."
 msgstr ""
 
@@ -1880,7 +1888,7 @@ msgstr ""
 msgid "We failed to successfully connect to UpdraftPlus.Com"
 msgstr ""
 
-#: admin.php:3435 methods/email.php:71
+#: admin.php:3477 methods/email.php:71
 msgid "Reporting"
 msgstr ""
 
@@ -1892,7 +1900,7 @@ msgstr ""
 msgid "Send a report only when there are warnings/errors"
 msgstr ""
 
-#: restorer.php:1286
+#: restorer.php:1289
 msgid "Content URL:"
 msgstr ""
 
@@ -1900,11 +1908,11 @@ msgstr ""
 msgid "You should check the file permissions in your WordPress installation"
 msgstr ""
 
-#: admin.php:3355
+#: admin.php:3397
 msgid "See also the \"More Files\" add-on from our shop."
 msgstr ""
 
-#: class-updraftplus.php:440 backup.php:2234
+#: class-updraftplus.php:440 backup.php:2243
 msgid "Your free space in your hosting account is very low - only %s Mb remain"
 msgstr ""
 
@@ -2044,43 +2052,43 @@ msgstr ""
 msgid "Without it, encryption will be a lot slower."
 msgstr ""
 
-#: admin.php:2555
+#: admin.php:2576
 msgid "Drop backup files here"
 msgstr ""
 
-#: methods/googledrive.php:902
+#: methods/googledrive.php:907
 msgid "<strong>(You appear to be already authenticated,</strong> though you can authenticate again to refresh your access if you've had a problem)."
 msgstr ""
 
-#: class-updraftplus.php:2556
+#: class-updraftplus.php:2565
 msgid "Want more features or paid, guaranteed support? Check out UpdraftPlus.Com"
 msgstr ""
 
-#: class-updraftplus.php:2566
+#: class-updraftplus.php:2575
 msgid "Check out WordShell"
 msgstr ""
 
-#: class-updraftplus.php:2566
+#: class-updraftplus.php:2575
 msgid "manage WordPress from the command line - huge time-saver"
 msgstr ""
 
-#: admin.php:2269
+#: admin.php:2290
 msgid "Does nothing happen when you attempt backups?"
 msgstr ""
 
-#: admin.php:2262
+#: admin.php:2283
 msgid "Don't include the database in the backup"
 msgstr ""
 
-#: admin.php:2263
+#: admin.php:2284
 msgid "Don't include any files in the backup"
 msgstr ""
 
-#: admin.php:2524
+#: admin.php:2545
 msgid "Restoring:"
 msgstr ""
 
-#: admin.php:2524
+#: admin.php:2545
 msgid "Press the Restore button next to the chosen backup set."
 msgstr ""
 
@@ -2096,7 +2104,7 @@ msgstr ""
 msgid "If you exclude both the database and the files, then you have excluded everything!"
 msgstr ""
 
-#: restorer.php:1280
+#: restorer.php:1283
 msgid "Site home:"
 msgstr ""
 
@@ -2116,15 +2124,15 @@ msgstr ""
 msgid "Upload failed"
 msgstr ""
 
-#: admin.php:3493
+#: admin.php:3535
 msgid "You can send a backup to more than one destination with an add-on."
 msgstr ""
 
-#: admin.php:2997
+#: admin.php:3039
 msgid "Note: the progress bar below is based on stages, NOT time. Do not stop the backup simply because it seems to have remained in the same place for a while - that is normal."
 msgstr ""
 
-#: admin.php:2899
+#: admin.php:2941
 msgid "(%s%%, file %s of %s)"
 msgstr ""
 
@@ -2161,92 +2169,92 @@ msgid "The attempt to send the backup via email failed (probably the backup was 
 msgstr ""
 
 #: methods/openstack-base.php:289 methods/cloudfiles.php:449
-#: methods/stream-base.php:218 methods/s3.php:560 methods/addon-base.php:248
-#: methods/ftp.php:267 addons/sftp.php:430 addons/sftp.php:432
+#: methods/stream-base.php:218 methods/s3.php:567 methods/addon-base.php:248
+#: methods/ftp.php:270 addons/sftp.php:430 addons/sftp.php:432
 msgid "%s settings test result:"
 msgstr ""
 
-#: admin.php:4042
+#: admin.php:4084
 msgid "If you are seeing more backups than you expect, then it is probably because the deletion of old backup sets does not happen until a fresh backup completes."
 msgstr ""
 
-#: admin.php:4042
+#: admin.php:4084
 msgid "(Not finished)"
 msgstr ""
 
-#: admin.php:3599
+#: admin.php:3641
 msgid "This is where UpdraftPlus will write the zip files it creates initially.  This directory must be writable by your web server. It is relative to your content directory (which by default is called wp-content)."
 msgstr ""
 
-#: admin.php:3599
+#: admin.php:3641
 msgid "<b>Do not</b> place it inside your uploads or plugins directory, as that will cause recursion (backups of backups of backups of...)."
 msgstr ""
 
-#: admin.php:2908
+#: admin.php:2950
 msgid "Waiting until scheduled time to retry because of errors"
 msgstr ""
 
-#: admin.php:2913
+#: admin.php:2955
 msgid "Backup finished"
 msgstr ""
 
-#: admin.php:2963
+#: admin.php:3005
 msgid "Unknown"
 msgstr ""
 
-#: admin.php:2980
+#: admin.php:3022
 msgid "next resumption: %d (after %ss)"
 msgstr ""
 
-#: admin.php:2981
+#: admin.php:3023
 msgid "last activity: %ss ago"
 msgstr ""
 
-#: admin.php:2992
+#: admin.php:3034
 msgid "Job ID: %s"
 msgstr ""
 
-#: admin.php:2940
+#: admin.php:2982
 msgid "table: %s"
 msgstr ""
 
-#: admin.php:2927
+#: admin.php:2969
 msgid "Created database backup"
 msgstr ""
 
-#: admin.php:2953
+#: admin.php:2995
 msgid "Encrypting database"
 msgstr ""
 
-#: admin.php:2961
+#: admin.php:3003
 msgid "Encrypted database"
 msgstr ""
 
-#: admin.php:2892
+#: admin.php:2934
 msgid "Uploading files to remote storage"
 msgstr ""
 
-#: admin.php:2904
+#: admin.php:2946
 msgid "Pruning old backup sets"
 msgstr ""
 
-#: admin.php:2873
+#: admin.php:2915
 msgid "Creating file backup zips"
 msgstr ""
 
-#: admin.php:2886
+#: admin.php:2928
 msgid "Created file backup zips"
 msgstr ""
 
-#: admin.php:2938
+#: admin.php:2980
 msgid "Creating database backup"
 msgstr ""
 
-#: admin.php:2868
+#: admin.php:2910
 msgid "Backup begun"
 msgstr ""
 
-#: admin.php:2465
+#: admin.php:2486
 msgid "Backups in progress:"
 msgstr ""
 
@@ -2254,31 +2262,31 @@ msgstr ""
 msgid "The scheduler is disabled in your WordPress install, via the DISABLE_WP_CRON setting. No backups can run (even &quot;Backup Now&quot;) unless either you have set up a facility to call the scheduler manually, or until it is enabled."
 msgstr ""
 
-#: restorer.php:534 restorer.php:541
+#: restorer.php:537 restorer.php:544
 msgid "UpdraftPlus needed to create a %s in your content directory, but failed - please check your file permissions and enable the access (%s)"
 msgstr ""
 
-#: restorer.php:534
+#: restorer.php:537
 msgid "folder"
 msgstr ""
 
-#: restorer.php:541
+#: restorer.php:544
 msgid "file"
 msgstr ""
 
-#: backup.php:1610
+#: backup.php:1619
 msgid "Failed to open directory (check the file permissions): %s"
 msgstr ""
 
-#: backup.php:1596
+#: backup.php:1605
 msgid "%s: unreadable file - could not be backed up (check the file permissions)"
 msgstr ""
 
-#: class-updraftplus.php:1763
+#: class-updraftplus.php:1770
 msgid "The backup has not finished; a resumption is scheduled"
 msgstr ""
 
-#: class-updraftplus.php:1198
+#: class-updraftplus.php:1205
 msgid "Your website is visited infrequently and UpdraftPlus is not getting the resources it hoped for; please read this page:"
 msgstr ""
 
@@ -2287,7 +2295,7 @@ msgstr ""
 msgid "The %s authentication could not go ahead, because something else on your site is breaking it. Try disabling your other plugins and switching to a default theme. (Specifically, you are looking for the component that sends output (most likely PHP warnings/errors) before the page begins. Turning off any debugging settings may also help)."
 msgstr ""
 
-#: admin.php:2109
+#: admin.php:2115
 msgid "Your PHP memory limit (set by your web hosting company) is very low. UpdraftPlus attempted to raise it but was unsuccessful. This plugin may struggle with a memory limit of less than 64 Mb  - especially if you have very large files uploaded (though on the other hand, many sites will be successful with a 32Mb limit - your experience may vary)."
 msgstr ""
 
@@ -2360,11 +2368,11 @@ msgstr ""
 msgid "If you are not sure then you should stop; otherwise you may destroy this WordPress installation."
 msgstr ""
 
-#: admin.php:1970 admin.php:2320
+#: admin.php:1973 admin.php:2341
 msgid "Support"
 msgstr ""
 
-#: admin.php:1970
+#: admin.php:1976
 msgid "More plugins"
 msgstr ""
 
@@ -2408,11 +2416,11 @@ msgstr ""
 msgid "Be safe with an automatic backup"
 msgstr ""
 
-#: restorer.php:1707
+#: restorer.php:1710
 msgid "Uploads path (%s) does not exist - resetting (%s)"
 msgstr ""
 
-#: admin.php:2081
+#: admin.php:2087
 msgid "If you can still read these words after the page finishes loading, then there is a JavaScript or jQuery problem in the site."
 msgstr ""
 
@@ -2464,7 +2472,7 @@ msgstr ""
 msgid "and then, if you wish,"
 msgstr ""
 
-#: methods/s3.php:582
+#: methods/s3.php:589
 msgid "Examples of S3-compatible storage providers:"
 msgstr ""
 
@@ -2476,19 +2484,19 @@ msgstr ""
 msgid "The backup directory is not writable - the database backup is expected to shortly fail."
 msgstr ""
 
-#: admin.php:4631
+#: admin.php:4673
 msgid "Will not delete any archives after unpacking them, because there was no cloud storage for this backup"
 msgstr ""
 
-#: admin.php:4009
+#: admin.php:4051
 msgid "(%d archive(s) in set)."
 msgstr ""
 
-#: admin.php:4012
+#: admin.php:4054
 msgid "You appear to be missing one or more archives from this multi-archive set."
 msgstr ""
 
-#: admin.php:3571
+#: admin.php:3613
 msgid "Split archives every:"
 msgstr ""
 
@@ -2544,11 +2552,11 @@ msgstr ""
 msgid "This multi-archive backup set appears to have the following archives missing: %s"
 msgstr ""
 
-#: restorer.php:483
+#: restorer.php:486
 msgid "Failed to move directory (check your file permissions and disk quota): %s"
 msgstr ""
 
-#: restorer.php:474
+#: restorer.php:477
 msgid "Failed to move file (check your file permissions and disk quota): %s"
 msgstr ""
 
@@ -2556,7 +2564,7 @@ msgstr ""
 msgid "Moving unpacked backup into place..."
 msgstr ""
 
-#: backup.php:1953 backup.php:2194
+#: backup.php:1962 backup.php:2203
 msgid "Failed to open the zip file (%s) - %s"
 msgstr ""
 
@@ -2564,15 +2572,15 @@ msgstr ""
 msgid "WordPress root directory server path: %s"
 msgstr ""
 
-#: methods/s3.php:590
+#: methods/s3.php:597
 msgid "... and many more!"
 msgstr ""
 
-#: methods/s3.php:615
+#: methods/s3.php:622
 msgid "%s end-point"
 msgstr ""
 
-#: admin.php:4556
+#: admin.php:4598
 msgid "File is not locally present - needs retrieving from remote storage"
 msgstr ""
 
@@ -2580,23 +2588,23 @@ msgstr ""
 msgid "S3 (Compatible)"
 msgstr ""
 
-#: admin.php:4512
+#: admin.php:4554
 msgid "Final checks"
 msgstr ""
 
-#: admin.php:4550
+#: admin.php:4592
 msgid "Looking for %s archive: file name: %s"
 msgstr ""
 
-#: admin.php:3577
+#: admin.php:3619
 msgid "Check this to delete any superfluous backup files from your server after the backup run finishes (i.e. if you uncheck, then any files despatched remotely will also remain locally, and any files being kept locally will not be subject to the retention limits)."
 msgstr ""
 
-#: admin.php:3395
+#: admin.php:3437
 msgid "Drop encrypted database files (db.gz.crypt files) here to upload them for decryption"
 msgstr ""
 
-#: admin.php:3335
+#: admin.php:3377
 msgid "Your wp-content directory server path: %s"
 msgstr ""
 
@@ -2604,7 +2612,7 @@ msgstr ""
 msgid "Raw backup history"
 msgstr ""
 
-#: admin.php:2724
+#: admin.php:2766
 msgid "Show raw backup and file list"
 msgstr ""
 
@@ -2612,11 +2620,11 @@ msgstr ""
 msgid "Processing files - please wait..."
 msgstr ""
 
-#: admin.php:2517
+#: admin.php:2538
 msgid "Your WordPress installation has a problem with outputting extra whitespace. This can corrupt backups that you download from here."
 msgstr ""
 
-#: admin.php:2517 admin.php:4665
+#: admin.php:2538 admin.php:4707
 msgid "Please consult this FAQ for help on what to do about it."
 msgstr ""
 
@@ -2632,23 +2640,23 @@ msgstr ""
 msgid "Known backups (raw)"
 msgstr ""
 
-#: restorer.php:1041
+#: restorer.php:1044
 msgid "Using directory from backup: %s"
 msgstr ""
 
-#: restorer.php:870
+#: restorer.php:873
 msgid "Files found:"
 msgstr ""
 
-#: restorer.php:876
+#: restorer.php:879
 msgid "Unable to enumerate files in that directory."
 msgstr ""
 
-#: restorer.php:1462
+#: restorer.php:1465
 msgid "Requested table engine (%s) is not present - changing to MyISAM."
 msgstr ""
 
-#: restorer.php:1473
+#: restorer.php:1476
 msgid "Restoring table (%s)"
 msgstr ""
 
@@ -2656,11 +2664,11 @@ msgstr ""
 msgid "This looks like a migration (the backup is from a site with a different address/URL), but you did not check the option to search-and-replace the database. That is usually a mistake."
 msgstr ""
 
-#: admin.php:4578
+#: admin.php:4620
 msgid "file is size:"
 msgstr ""
 
-#: admin.php:540 admin.php:2081 admin.php:2749
+#: admin.php:540 admin.php:2087 admin.php:2791
 msgid "Go here for more information."
 msgstr ""
 
@@ -2672,7 +2680,7 @@ msgstr ""
 msgid "This backup set is from a different site - this is not a restoration, but a migration. You need the Migrator add-on in order to make this work."
 msgstr ""
 
-#: methods/ftp.php:81 methods/ftp.php:130 methods/ftp.php:230
+#: methods/ftp.php:81 methods/ftp.php:131 methods/ftp.php:233
 msgid "%s login failure"
 msgstr ""
 
@@ -2680,11 +2688,11 @@ msgstr ""
 msgid "%s upload failed"
 msgstr ""
 
-#: addons/fixtime.php:120 addons/fixtime.php:129
+#: addons/fixtime.php:125 addons/fixtime.php:134
 msgid "Enter in format HH:MM (e.g. 14:22)."
 msgstr ""
 
-#: addons/fixtime.php:120 addons/fixtime.php:129
+#: addons/fixtime.php:125 addons/fixtime.php:134
 msgid "The time zone used is that from your WordPress settings, in Settings -> General."
 msgstr ""
 
@@ -2716,7 +2724,7 @@ msgstr ""
 msgid "%s error - failed to upload file"
 msgstr ""
 
-#: methods/googledrive.php:774 methods/openstack-base.php:343
+#: methods/googledrive.php:779 methods/openstack-base.php:343
 #: methods/cloudfiles.php:392 methods/cloudfiles.php:409
 #: methods/stream-base.php:281 methods/stream-base.php:288
 #: methods/stream-base.php:301 methods/addon-base.php:189
@@ -2737,33 +2745,33 @@ msgstr ""
 msgid "%s error - failed to re-assemble chunks"
 msgstr ""
 
-#: class-updraftplus.php:530 class-updraftplus.php:536 restorer.php:864
+#: class-updraftplus.php:530 class-updraftplus.php:536 restorer.php:867
 #: admin.php:1491 admin.php:1493 admin.php:1600 admin.php:1605 admin.php:1813
 #: admin.php:1860 admin.php:1868 methods/googledrive.php:292
 msgid "Error: %s"
 msgstr ""
 
-#: admin.php:3594
+#: admin.php:3636
 msgid "Backup directory specified exists, but is <b>not</b> writable."
 msgstr ""
 
-#: admin.php:3592
+#: admin.php:3634
 msgid "Backup directory specified does <b>not</b> exist."
 msgstr ""
 
-#: admin.php:1561 admin.php:1569 admin.php:3002 admin.php:3221
+#: admin.php:1561 admin.php:1569 admin.php:3044 admin.php:3263
 msgid "Warning: %s"
 msgstr ""
 
-#: admin.php:2232
+#: admin.php:2253
 msgid "Last backup job run:"
 msgstr ""
 
-#: backup.php:1636 backup.php:1658
+#: backup.php:1645 backup.php:1667
 msgid "%s: unreadable file - could not be backed up"
 msgstr ""
 
-#: backup.php:1967
+#: backup.php:1976
 msgid "A very large file was encountered: %s (size: %s Mb)"
 msgstr ""
 
@@ -2779,7 +2787,7 @@ msgstr ""
 msgid "Warnings encountered:"
 msgstr ""
 
-#: class-updraftplus.php:1752
+#: class-updraftplus.php:1759
 msgid "The backup apparently succeeded (with warnings) and is now complete"
 msgstr ""
 
@@ -2839,40 +2847,40 @@ msgstr ""
 msgid "Your web server's PHP installation does not included a required module (%s). Please contact your web hosting provider's support and ask for them to enable it."
 msgstr ""
 
-#: methods/s3.php:746
+#: methods/s3.php:777
 msgid "Please check your access credentials."
 msgstr ""
 
-#: methods/s3.php:724
+#: methods/s3.php:755
 msgid "The error reported by %s was:"
 msgstr ""
 
-#: restorer.php:1057
+#: restorer.php:1060
 msgid "Please supply the requested information, and then continue."
 msgstr ""
 
-#: restorer.php:1573
+#: restorer.php:1576
 msgid "Cannot drop tables, so deleting instead (%s)"
 msgstr ""
 
-#: restorer.php:1306 admin.php:1605
+#: restorer.php:1309 admin.php:1605
 msgid "To import an ordinary WordPress site into a multisite installation requires both the multisite and migrator add-ons."
 msgstr ""
 
-#: restorer.php:1312 admin.php:1615
+#: restorer.php:1315 admin.php:1615
 msgid "Site information:"
 msgstr ""
 
-#: restorer.php:1556
+#: restorer.php:1559
 msgid "Cannot create new tables, so skipping this command (%s)"
 msgstr ""
 
-#: restorer.php:1206 restorer.php:1226 restorer.php:1545 admin.php:1609
-#: admin.php:2081 addons/migrator.php:139
+#: restorer.php:1209 restorer.php:1229 restorer.php:1548 admin.php:1609
+#: admin.php:2087 addons/migrator.php:139
 msgid "Warning:"
 msgstr ""
 
-#: restorer.php:1207
+#: restorer.php:1210
 msgid "Your database user does not have permission to create tables. We will attempt to restore by simply emptying the tables; this should work as long as a) you are restoring from a WordPress version with the same database structure, and b) Your imported database does not contain any tables which are not already present on the importing site."
 msgstr ""
 
@@ -2880,15 +2888,15 @@ msgstr ""
 msgid "You are running on WordPress multisite - but your backup is not of a multisite site."
 msgstr ""
 
-#: admin.php:4539
+#: admin.php:4581
 msgid "Skipping restoration of WordPress core when importing a single site into a multisite installation. If you had anything necessary in your WordPress directory then you will need to re-add it manually from the zip file."
 msgstr ""
 
-#: admin.php:3668
+#: admin.php:3710
 msgid "Your web server's PHP installation does not included a <strong>required</strong> (for %s) module (%s). Please contact your web hosting provider's support and ask for them to enable it."
 msgstr ""
 
-#: admin.php:3668
+#: admin.php:3710
 msgid "Your options are 1) Install/enable %s or 2) Change web hosting companies - %s is a standard PHP component, and required by all cloud backup plugins that we know of."
 msgstr ""
 
@@ -2908,59 +2916,59 @@ msgstr ""
 msgid "PHP information"
 msgstr ""
 
-#: admin.php:2694
+#: admin.php:2736
 msgid "show PHP information (phpinfo)"
 msgstr ""
 
-#: admin.php:2711
+#: admin.php:2753
 msgid "zip executable found:"
 msgstr ""
 
-#: admin.php:2241
+#: admin.php:2262
 msgid "Migrate Site"
 msgstr ""
 
-#: admin.php:2245
+#: admin.php:2266
 msgid "Migration of data from another site happens through the \"Restore\" button. A \"migration\" is ultimately the same as a restoration - but using backup archives that you import from another site. UpdraftPlus modifies the restoration operation appropriately, to fit the backup data to the new site."
 msgstr ""
 
-#: admin.php:2245
+#: admin.php:2266
 msgid "<a href=\"%s\">Read this article to see step-by-step how it's done.</a>"
 msgstr ""
 
-#: admin.php:2247
+#: admin.php:2268
 msgid "Do you want to migrate or clone/duplicate a site?"
 msgstr ""
 
-#: admin.php:2247
+#: admin.php:2268
 msgid "Then, try out our \"Migrator\" add-on. After using it once, you'll have saved the purchase price compared to the time needed to copy a site by hand."
 msgstr ""
 
-#: admin.php:2247
+#: admin.php:2268
 msgid "Get it here."
 msgstr ""
 
-#: admin.php:2594
+#: admin.php:2615
 msgid "Deleting... please allow time for the communications with the remote storage to complete."
 msgstr ""
 
-#: admin.php:2593
+#: admin.php:2614
 msgid "Also delete from remote storage"
 msgstr ""
 
-#: admin.php:2492
+#: admin.php:2513
 msgid "Latest UpdraftPlus.com news:"
 msgstr ""
 
-#: admin.php:2180
+#: admin.php:2186
 msgid "Clone/Migrate"
 msgstr ""
 
-#: admin.php:1969
+#: admin.php:1971
 msgid "News"
 msgstr ""
 
-#: admin.php:1969
+#: admin.php:1970
 msgid "Premium"
 msgstr ""
 
@@ -2984,24 +2992,24 @@ msgstr ""
 msgid "The backup set has been removed."
 msgstr ""
 
-#: class-updraftplus.php:2583
+#: class-updraftplus.php:2592
 msgid "Subscribe to the UpdraftPlus blog to get up-to-date news and offers"
 msgstr ""
 
-#: class-updraftplus.php:2583
+#: class-updraftplus.php:2592
 msgid "Blog link"
 msgstr ""
 
-#: class-updraftplus.php:2583
+#: class-updraftplus.php:2592
 msgid "RSS link"
 msgstr ""
 
-#: methods/stream-base.php:208 methods/s3.php:544 methods/addon-base.php:238
-#: methods/ftp.php:251 addons/sftp.php:411
+#: methods/stream-base.php:208 methods/s3.php:551 methods/addon-base.php:238
+#: methods/ftp.php:254 addons/sftp.php:411
 msgid "Testing %s Settings..."
 msgstr ""
 
-#: admin.php:2545
+#: admin.php:2566
 msgid "Or, you can place them manually into your UpdraftPlus directory (usually wp-content/updraft), e.g. via FTP, and then use the \"rescan\" link above."
 msgstr ""
 
@@ -3118,7 +3126,7 @@ msgstr "jelszó"
 msgid "Failure: Port must be an integer."
 msgstr "hiba: a port számnak egésznek kell legyen"
 
-#: addons/fixtime.php:120 addons/fixtime.php:129
+#: addons/fixtime.php:125 addons/fixtime.php:134
 msgid "starting from next time it is"
 msgstr "a következő alkalomtól kezdve:"
 
@@ -3223,43 +3231,43 @@ msgstr "%s nem található"
 msgid "Check your file permissions: Could not successfully create and enter:"
 msgstr "Ellenőrizze hozzáférési jogait a fájlokhoz: Nem sikerült létrehozni és belépni:"
 
-#: methods/ftp.php:324
+#: methods/ftp.php:327
 msgid "FTP Server"
 msgstr "FTP szerver"
 
-#: methods/ftp.php:328
+#: methods/ftp.php:331
 msgid "FTP Login"
 msgstr "FTP felhasználónév"
 
-#: methods/ftp.php:332
+#: methods/ftp.php:335
 msgid "FTP Password"
 msgstr "FTP jelszó"
 
-#: methods/ftp.php:336
+#: methods/ftp.php:339
 msgid "Remote Path"
 msgstr "távoli elérési út"
 
-#: methods/ftp.php:337
+#: methods/ftp.php:340
 msgid "Needs to already exist"
 msgstr "Szükséges, hogy már létezzen"
 
-#: methods/ftp.php:362
+#: methods/ftp.php:365
 msgid "Failure: No server details were given."
 msgstr "Hiba: Nem adta meg a szerver adatokat."
 
-#: methods/ftp.php:379
+#: methods/ftp.php:382
 msgid "Failure: we did not successfully log in with those credentials."
 msgstr "Hiba: Nem sikerült belépni a megadott hitelesítési információkkal."
 
-#: methods/ftp.php:387
+#: methods/ftp.php:390
 msgid "Failure: an unexpected internal UpdraftPlus error occurred when testing the credentials - please contact the developer"
 msgstr "Hiba: Váratlan belső hiba történt az UpdraftPlus-ban a hitelesítési információk kipróbálása közben - kérem lépjen kapcsolatba a fejlesztővel"
 
-#: methods/ftp.php:391
+#: methods/ftp.php:394
 msgid "Success: we successfully logged in, and confirmed our ability to create a file in the given directory (login type:"
 msgstr "Siker: Sikerült belépni, és megerősítést nyert, hogy létre tudunk hozni fájlt a megadott könyvtárban (hozzáférés típusa:"
 
-#: methods/ftp.php:394
+#: methods/ftp.php:397
 msgid "Failure: we successfully logged in, but were not able to create a file in the given directory."
 msgstr "Hiba: Bár sikerült belépni, de nem sikerült fájlt létrehozni a megadott könyvtárban."
 
@@ -3292,7 +3300,7 @@ msgstr "WebDAV URL"
 msgid "Enter a complete URL, beginning with webdav:// or webdavs:// and including path, username, password and port as required - e.g.%s"
 msgstr "Kérem írjon be egy teljes URL-t, amely így kezdődik: webdav:// vagy webdavs:// és tartalmazza az elérési utat, a felhasználónevet, a jelszót és a port számot, ahogyan szükséges - pl. %s"
 
-#: admin.php:3055 admin.php:3090 admin.php:3099 methods/stream-base.php:317
+#: admin.php:3097 admin.php:3132 admin.php:3141 methods/stream-base.php:317
 #: methods/addon-base.php:281 addons/sftp.php:471
 msgid "Failed"
 msgstr "Nem sikerült"
@@ -3309,92 +3317,92 @@ msgstr ""
 msgid "Over-write wp-config.php"
 msgstr ""
 
-#: methods/dropbox.php:482 methods/dropbox.php:484 addons/copycom.php:381
+#: methods/dropbox.php:486 methods/dropbox.php:488 addons/copycom.php:381
 #: addons/copycom.php:383
 msgid "you have authenticated your %s account"
 msgstr "sikeresen hitelesítette %s fiókját"
 
-#: methods/dropbox.php:487 addons/copycom.php:392
+#: methods/dropbox.php:491 addons/copycom.php:392
 msgid "though part of the returned information was not as expected - your mileage may vary"
 msgstr "bár a visszakapott információ egy része nem a vártnak megfelelő - sokmindentől függ"
 
-#: methods/dropbox.php:491 addons/copycom.php:400
+#: methods/dropbox.php:495 addons/copycom.php:400
 msgid "Your %s account name: %s"
 msgstr ""
 
-#: methods/ftp.php:320
+#: methods/ftp.php:323
 msgid "Only non-encrypted FTP is supported by regular UpdraftPlus."
 msgstr "Csak a nem titkosított FTP-t támogatja az UpdraftPlus."
 
-#: methods/ftp.php:320
+#: methods/ftp.php:323
 msgid "If you want encryption (e.g. you are storing sensitive business data), then an add-on is available."
 msgstr "Ha titkosítást kíván alkalmazni (pl. érzékeny üzleti adatokat tárol), elérhető egy kiterjesztés."
 
-#: methods/s3.php:525
+#: methods/s3.php:532
 msgid "%s Error: Failed to download %s. Check your permissions and credentials."
 msgstr ""
 
-#: methods/s3.php:384 methods/s3.php:450 methods/s3.php:530
+#: methods/s3.php:391 methods/s3.php:457 methods/s3.php:537
 msgid "%s Error: Failed to access bucket %s. Check your permissions and credentials."
 msgstr ""
 
-#: methods/s3.php:611
+#: methods/s3.php:618
 msgid "Get your access key and secret key <a href=\"%s\">from your %s console</a>, then pick a (globally unique - all %s users) bucket name (letters and numbers) (and optionally a path) to use for storage. This bucket will be created for you if it does not already exist."
 msgstr ""
 
-#: methods/s3.php:611
+#: methods/s3.php:618
 msgid "If you see errors about SSL certificates, then please go here for help."
 msgstr ""
 
-#: methods/s3.php:622
+#: methods/s3.php:629
 msgid "%s access key"
 msgstr ""
 
-#: methods/s3.php:626
+#: methods/s3.php:633
 msgid "%s secret key"
 msgstr ""
 
-#: methods/s3.php:630
+#: methods/s3.php:637
 msgid "%s location"
 msgstr ""
 
-#: methods/s3.php:631
+#: methods/s3.php:638
 msgid "Enter only a bucket name or a bucket and path. Examples: mybucket, mybucket/mypath"
 msgstr ""
 
-#: methods/s3.php:653
+#: methods/s3.php:682
 msgid "API secret"
 msgstr "API titkos kulcs (secret)"
 
-#: methods/s3.php:674
+#: methods/s3.php:703
 msgid "Failure: No bucket details were given."
 msgstr "Hiba: Nem adott meg bucket (csoport) részleteket"
 
-#: methods/s3.php:693 methods/openstack2.php:113
+#: methods/s3.php:723 methods/openstack2.php:113
 msgid "Region"
 msgstr ""
 
-#: methods/s3.php:723
+#: methods/s3.php:754
 msgid "Failure: We could not successfully access or create such a bucket. Please check your access credentials, and if those are correct then try another bucket name (as another %s user may already have taken your name)."
 msgstr ""
 
-#: methods/s3.php:734 methods/s3.php:746
+#: methods/s3.php:765 methods/s3.php:777
 msgid "Failure"
 msgstr "Hiba"
 
-#: methods/s3.php:734 methods/s3.php:746
+#: methods/s3.php:765 methods/s3.php:777
 msgid "We successfully accessed the bucket, but the attempt to create a file in it failed."
 msgstr "Sikerült hozzáférni a bucket-hez (csoporthoz), de a fájl létrehozási kísérlet meghiúsult."
 
-#: methods/s3.php:736
+#: methods/s3.php:767
 msgid "We accessed the bucket, and were able to create files within it."
 msgstr "Sikerült hozzáférni a bucket-hez (csoporthoz), és létrehozni fájlokat benne."
 
-#: methods/s3.php:739
+#: methods/s3.php:770
 msgid "The communication with %s was encrypted."
 msgstr ""
 
-#: methods/s3.php:741
+#: methods/s3.php:772
 msgid "The communication with %s was not encrypted."
 msgstr ""
 
@@ -3448,14 +3456,14 @@ msgstr ""
 msgid "Cloud Files container"
 msgstr ""
 
-#: methods/openstack-base.php:453 methods/cloudfiles.php:473 methods/s3.php:601
+#: methods/openstack-base.php:453 methods/cloudfiles.php:473 methods/s3.php:608
 msgid "UpdraftPlus's %s module <strong>requires</strong> %s. Please do not file any support requests; there is no alternative."
 msgstr ""
 
 #: methods/cloudfiles-new.php:147 methods/cloudfiles-new.php:152
-#: methods/cloudfiles.php:529 methods/cloudfiles.php:534 methods/s3.php:649
-#: methods/s3.php:653 methods/addon-base.php:274 methods/ftp.php:366
-#: methods/ftp.php:370 methods/openstack2.php:147 methods/openstack2.php:152
+#: methods/cloudfiles.php:529 methods/cloudfiles.php:534 methods/s3.php:678
+#: methods/s3.php:682 methods/addon-base.php:274 methods/ftp.php:369
+#: methods/ftp.php:373 methods/openstack2.php:147 methods/openstack2.php:152
 #: methods/openstack2.php:157 methods/openstack2.php:162 addons/webdav.php:55
 #: addons/sftp.php:441 addons/sftp.php:445 addons/sftp.php:449
 #: addons/moredatabase.php:47 addons/moredatabase.php:49
@@ -3463,7 +3471,7 @@ msgstr ""
 msgid "Failure: No %s was given."
 msgstr "Hiba: Nincs %s megadva"
 
-#: methods/cloudfiles-new.php:147 methods/cloudfiles.php:529 methods/s3.php:649
+#: methods/cloudfiles-new.php:147 methods/cloudfiles.php:529 methods/s3.php:678
 msgid "API key"
 msgstr "API kulcs"
 
@@ -3492,59 +3500,59 @@ msgstr "WordPress mentés"
 msgid "Note:"
 msgstr "Jegyzet:"
 
-#: methods/s3.php:282
+#: methods/s3.php:289
 msgid "%s upload: getting uploadID for multipart upload failed - see log file for more details"
 msgstr ""
 
-#: methods/s3.php:305
+#: methods/s3.php:312
 msgid "%s error: file %s was shortened unexpectedly"
 msgstr ""
 
-#: methods/s3.php:315
+#: methods/s3.php:322
 msgid "%s chunk %s: upload failed"
 msgstr ""
 
-#: methods/s3.php:329
+#: methods/s3.php:336
 msgid "%s upload (%s): re-assembly failed (see log for more details)"
 msgstr ""
 
-#: methods/s3.php:333
+#: methods/s3.php:340
 msgid "%s re-assembly error (%s): (see log file for more)"
 msgstr ""
 
-#: methods/s3.php:345
+#: methods/s3.php:352
 msgid "%s Error: Failed to create bucket %s. Check your permissions and credentials."
 msgstr ""
 
-#: methods/googledrive.php:855
+#: methods/googledrive.php:860
 msgid "For longer help, including screenshots, follow this link. The description below is sufficient for more expert users."
 msgstr "Bővebb segítségért képernyőképeket beleértve kattintson erre a hivatkozásra. Az alább található leírás elegendő a haladó felhasználóknak."
 
-#: methods/googledrive.php:857
+#: methods/googledrive.php:862
 msgid "Select 'Web Application' as the application type."
 msgstr "Válassza azt, hogy 'Web Application' mint alkalmazás típus."
 
-#: methods/googledrive.php:857
+#: methods/googledrive.php:862
 msgid "You must add the following as the authorised redirect URI (under \"More Options\") when asked"
 msgstr "A következő webcímet adja meg mint hitelesített átirányítási URI-t, amikor (a \"More Options\" résznél) kérik."
 
-#: methods/googledrive.php:867
+#: methods/googledrive.php:872
 msgid "Client ID"
 msgstr "kliens ID"
 
-#: methods/googledrive.php:868
+#: methods/googledrive.php:873
 msgid "If Google later shows you the message \"invalid_client\", then you did not enter a valid client ID here."
 msgstr "Ha a Google az üzeni, hogy \"invalid_client\", akkor helytelen kliens ID-t adott meg itt."
 
-#: methods/googledrive.php:871
+#: methods/googledrive.php:876
 msgid "Client Secret"
 msgstr "kliens titkos kulcs"
 
-#: methods/googledrive.php:901
+#: methods/googledrive.php:906
 msgid "Authenticate with Google"
 msgstr "Hitelesítés a Google-lel"
 
-#: methods/googledrive.php:912
+#: methods/googledrive.php:917
 msgid "<strong>After</strong> you have saved your settings (by clicking 'Save Changes' below), then come back here once and click this link to complete authentication with Google."
 msgstr "<strong>Miután</strong> elmentette a beállításokat (a 'Változások mentése'-re való kattintással), jöjjön vissza ide, és kattintson a hivatkozásra a Google-lel való hitelesítéshez."
 
@@ -3559,14 +3567,14 @@ msgstr ""
 msgid "Cloud Files error - failed to create and access the container"
 msgstr ""
 
-#: class-updraftplus.php:624 methods/googledrive.php:691
-#: methods/googledrive.php:696 methods/cloudfiles.php:130
+#: class-updraftplus.php:624 methods/googledrive.php:696
+#: methods/googledrive.php:701 methods/cloudfiles.php:130
 msgid "%s Error: Failed to open local file"
 msgstr ""
 
 #: methods/openstack-base.php:65 methods/openstack-base.php:188
-#: methods/cloudfiles.php:147 methods/cloudfiles.php:189 methods/s3.php:256
-#: methods/s3.php:262 methods/s3.php:263 addons/sftp.php:134
+#: methods/cloudfiles.php:147 methods/cloudfiles.php:189 methods/s3.php:263
+#: methods/s3.php:269 methods/s3.php:270 addons/sftp.php:134
 #: addons/sftp.php:143
 msgid "%s Error: Failed to upload"
 msgstr "%s hiba: Nem sikerült feltölteni"
@@ -3590,9 +3598,9 @@ msgstr ""
 
 #: methods/openstack-base.php:288 methods/openstack-base.php:464
 #: methods/cloudfiles.php:448 methods/cloudfiles.php:521
-#: methods/stream-base.php:217 methods/stream-base.php:239 methods/s3.php:559
-#: methods/s3.php:636 methods/addon-base.php:224 methods/addon-base.php:247
-#: methods/ftp.php:266 methods/ftp.php:341 addons/sftp.php:402
+#: methods/stream-base.php:217 methods/stream-base.php:239 methods/s3.php:566
+#: methods/s3.php:643 methods/addon-base.php:224 methods/addon-base.php:247
+#: methods/ftp.php:269 methods/ftp.php:344 addons/sftp.php:402
 #: addons/sftp.php:428
 msgid "Test %s Settings"
 msgstr "Próba beállítás %s"
@@ -3620,30 +3628,30 @@ msgstr "Nem sikerült a feltöltés ide: %s"
 msgid "Account is not authorized."
 msgstr "A fiók nincs hitelesítve."
 
-#: methods/googledrive.php:840 methods/openstack-base.php:443
-#: methods/cloudfiles.php:463 methods/stream-base.php:232 methods/s3.php:579
-#: methods/dropbox.php:388 methods/addon-base.php:211 methods/ftp.php:315
+#: methods/googledrive.php:845 methods/openstack-base.php:443
+#: methods/cloudfiles.php:463 methods/stream-base.php:232 methods/s3.php:586
+#: methods/dropbox.php:388 methods/addon-base.php:211 methods/ftp.php:318
 msgid "%s is a great choice, because UpdraftPlus supports chunked uploads - no matter how big your site is, UpdraftPlus can upload it a little at a time, and not get thwarted by timeouts."
 msgstr ""
 
-#: restorer.php:1476
+#: restorer.php:1479
 msgid "will restore as:"
 msgstr ""
 
-#: restorer.php:1609 addons/migrator.php:802
+#: restorer.php:1612 addons/migrator.php:802
 msgid "the database query being run was:"
 msgstr ""
 
-#: restorer.php:1525
+#: restorer.php:1528
 msgid "Finished: lines processed: %d in %.2f seconds"
 msgstr ""
 
-#: restorer.php:1690 restorer.php:1750
+#: restorer.php:1693 restorer.php:1753
 msgid "Table prefix has changed: changing %s table field(s) accordingly:"
 msgstr ""
 
-#: restorer.php:1696 restorer.php:1778 admin.php:3058 admin.php:3092
-#: admin.php:3096 admin.php:4562 admin.php:4576
+#: restorer.php:1699 restorer.php:1781 admin.php:3100 admin.php:3134
+#: admin.php:3138 admin.php:4604 admin.php:4618
 msgid "OK"
 msgstr ""
 
@@ -3672,12 +3680,12 @@ msgstr "Nem jött frissítő token (vezérjel) a Google-től. Ez gyakran azt jel
 msgid "Authorization failed"
 msgstr "Hitelesítési hiba"
 
-#: methods/googledrive.php:325 methods/dropbox.php:504 addons/copycom.php:407
+#: methods/googledrive.php:325 methods/dropbox.php:508 addons/copycom.php:407
 msgid "Your %s quota usage: %s %% used, %s available"
 msgstr ""
 
 #: methods/googledrive.php:351 methods/openstack-base.php:416
-#: methods/cloudfiles.php:585 methods/stream-base.php:328 methods/s3.php:736
+#: methods/cloudfiles.php:585 methods/stream-base.php:328 methods/s3.php:767
 #: methods/addon-base.php:288 addons/sftp.php:504
 msgid "Success"
 msgstr "Siker"
@@ -3686,27 +3694,27 @@ msgstr "Siker"
 msgid "you have authenticated your %s account."
 msgstr ""
 
-#: methods/googledrive.php:486
+#: methods/googledrive.php:491
 msgid "Have not yet obtained an access token from Google - you need to authorise or re-authorise your connection to Google Drive."
 msgstr "Még nem szerzett be hozzáférési token-t (vezérlőjelet) a Google-től - hitelesítenie vagy újra hitelesítenie kell a kapcsolatát a Google Drive-val."
 
-#: restorer.php:387
+#: restorer.php:390
 msgid "wp-config.php from backup: restoring (as per user's request)"
 msgstr ""
 
-#: restorer.php:1098
+#: restorer.php:1101
 msgid "Warning: PHP safe_mode is active on your server. Timeouts are much more likely. If these happen, then you will need to manually restore the file via phpMyAdmin or another method."
 msgstr ""
 
-#: restorer.php:1122
+#: restorer.php:1125
 msgid "Failed to find database file"
 msgstr ""
 
-#: restorer.php:1143
+#: restorer.php:1146
 msgid "Failed to open database file"
 msgstr ""
 
-#: restorer.php:1148 addons/migrator.php:324
+#: restorer.php:1151 addons/migrator.php:324
 msgid "Database access: Direct MySQL access is not available, so we are falling back to wpdb (this will be considerably slower)"
 msgstr ""
 
@@ -3714,23 +3722,23 @@ msgstr ""
 msgid "Backup of:"
 msgstr ""
 
-#: restorer.php:1293 restorer.php:1386 restorer.php:1406
+#: restorer.php:1296 restorer.php:1389 restorer.php:1409
 msgid "Old table prefix:"
 msgstr ""
 
-#: admin.php:4573
+#: admin.php:4615
 msgid "Archive is expected to be size:"
 msgstr "Az archívum várható mérete:"
 
-#: admin.php:4581
+#: admin.php:4623
 msgid "The backup records do not contain information about the proper size of this file."
 msgstr "A mentési bejegyzés nem tartalmaz információt ennek a fájlnak az eredeti méretéről."
 
-#: admin.php:4655
+#: admin.php:4697
 msgid "Error message"
 msgstr "Hiba üzenet"
 
-#: admin.php:4584 admin.php:4585
+#: admin.php:4626 admin.php:4627
 msgid "Could not find one of the files for restoration"
 msgstr "A visszaállításhoz szükséges egyik fájl nem található"
 
@@ -3782,151 +3790,151 @@ msgstr ""
 msgid "Failed to write out the decrypted database to the filesystem"
 msgstr ""
 
-#: restorer.php:382
+#: restorer.php:385
 msgid "wp-config.php from backup: will restore as wp-config-backup.php"
 msgstr ""
 
-#: admin.php:3614
+#: admin.php:3656
 msgid "Choosing this option lowers your security by stopping UpdraftPlus from using SSL for authentication and encrypted transport at all, where possible. Note that some cloud storage providers do not allow this (e.g. Dropbox), so with those providers this setting will have no effect."
 msgstr ""
 
-#: admin.php:3638
+#: admin.php:3680
 msgid "Save Changes"
 msgstr "Változások mentése"
 
-#: methods/openstack-base.php:453 methods/cloudfiles.php:473 methods/s3.php:601
+#: methods/openstack-base.php:453 methods/cloudfiles.php:473 methods/s3.php:608
 msgid "Your web server's PHP installation does not included a required module (%s). Please contact your web hosting provider's support."
 msgstr ""
 
-#: admin.php:3675
+#: admin.php:3717
 msgid "Your web server's PHP/Curl installation does not support https access. Communications with %s will be unencrypted. ask your web host to install Curl/SSL in order to gain the ability for encryption (via an add-on)."
 msgstr ""
 
-#: admin.php:3677
+#: admin.php:3719
 msgid "Your web server's PHP/Curl installation does not support https access. We cannot access %s without this support. Please contact your web hosting provider's support. %s <strong>requires</strong> Curl+https. Please do not file any support requests; there is no alternative."
 msgstr ""
 
-#: admin.php:3680
+#: admin.php:3722
 msgid "Good news: Your site's communications with %s can be encrypted. If you see any errors to do with encryption, then look in the 'Expert Settings' for more help."
 msgstr ""
 
-#: admin.php:4089
+#: admin.php:4131
 msgid "Delete this backup set"
 msgstr ""
 
-#: admin.php:4003
+#: admin.php:4045
 msgid "Press here to download"
 msgstr "Kattintson ide letöltéshez"
 
-#: admin.php:4076
+#: admin.php:4118
 msgid "After pressing this button, you will be given the option to choose which components you wish to restore"
 msgstr "Miután rákattintott erre a gombra, választhat, hogy melyik összetevőt állítja vissza"
 
-#: admin.php:4398
+#: admin.php:4440
 msgid "This backup does not exist in the backup history - restoration aborted. Timestamp:"
 msgstr "Ez a mentés nincs a mentési előzményekben - a visszaállítás félbe szakadt. Időbélyeg:"
 
-#: admin.php:4438
+#: admin.php:4480
 msgid "UpdraftPlus Restoration: Progress"
 msgstr "UpdraftPlus visszaállítás: Folyamatban"
 
-#: admin.php:4484
+#: admin.php:4526
 msgid "ABORT: Could not find the information on which entities to restore."
 msgstr "FÉLBE SZAKADT: Nem található információ, melyik elemet állítsuk vissza."
 
-#: admin.php:4485
+#: admin.php:4527
 msgid "If making a request for support, please include this information:"
 msgstr ""
 
-#: admin.php:3608
+#: admin.php:3650
 msgid "Do not verify SSL certificates"
 msgstr ""
 
-#: admin.php:3609
+#: admin.php:3651
 msgid "Choosing this option lowers your security by stopping UpdraftPlus from verifying the identity of encrypted sites that it connects to (e.g. Dropbox, Google Drive). It means that UpdraftPlus will be using SSL only for encryption of traffic, and not for authentication."
 msgstr ""
 
-#: admin.php:3609
+#: admin.php:3651
 msgid "Note that not all cloud backup methods are necessarily using SSL authentication."
 msgstr ""
 
-#: admin.php:3613
+#: admin.php:3655
 msgid "Disable SSL entirely where possible"
 msgstr ""
 
-#: admin.php:3555
+#: admin.php:3597
 msgid "Expert settings"
 msgstr "Haladó beállítások"
 
-#: admin.php:3556
+#: admin.php:3598
 msgid "Show expert settings"
 msgstr "Mutassa a haladó beállításokat"
 
-#: admin.php:3556
+#: admin.php:3598
 msgid "click this to show some further options; don't bother with this unless you have a problem or are curious."
 msgstr "ha ide kattint, további beállításokat jeleníthet meg; ne bajlódjon ezzel, hacsak nincs valami probléma, vagy kiváncsi."
 
-#: admin.php:3576
+#: admin.php:3618
 msgid "Delete local backup"
 msgstr "Törölje a helyi mentéseket"
 
-#: admin.php:3581
+#: admin.php:3623
 msgid "Backup directory"
 msgstr "Mentési könyvtár"
 
-#: admin.php:3588
+#: admin.php:3630
 msgid "Backup directory specified is writable, which is good."
 msgstr "A megadott mentési könyvtár írható, ami helyes."
 
-#: admin.php:3596
+#: admin.php:3638
 msgid "Click here to attempt to create the directory and set the permissions"
 msgstr "Kattintson ide, hogy megkíséreljük a könyvtár létrehozását és a hozzáférési jogok beállítását"
 
-#: admin.php:3596
+#: admin.php:3638
 msgid "or, to reset this option"
 msgstr "vagy ezt a beállítást alaphelyzetbe állítsuk"
 
-#: admin.php:3596
+#: admin.php:3638
 msgid "click here"
 msgstr "kattintson ide"
 
-#: admin.php:3596
+#: admin.php:3638
 msgid "If that is unsuccessful check the permissions on your server or change it to another directory that is writable by your web server process."
 msgstr "Ha ez sikertelen, ellenőrizze a webszerveren a hozzáférési jogokat, vagy adjon meg másik könyvtárat, ami írható a webkiszolgáló folyamat által."
 
-#: admin.php:3603
+#: admin.php:3645
 msgid "Use the server's SSL certificates"
 msgstr ""
 
-#: admin.php:3604
+#: admin.php:3646
 msgid "By default UpdraftPlus uses its own store of SSL certificates to verify the identity of remote sites (i.e. to make sure it is talking to the real Dropbox, Amazon S3, etc., and not an attacker). We keep these up to date. However, if you get an SSL error, then choosing this option (which causes UpdraftPlus to use your web server's collection instead) may help."
 msgstr ""
 
-#: admin.php:3356
+#: admin.php:3398
 msgid "Use WordShell for automatic backup, version control and patching"
 msgstr "Használja a WordShell-t automatikus mentésekhez, verzió követéshez és patch-eléshez"
 
-#: admin.php:3447 udaddons/options.php:143
+#: admin.php:3489 udaddons/options.php:143
 msgid "Email"
 msgstr "E-mail"
 
-#: admin.php:3367
+#: admin.php:3409
 msgid "Database encryption phrase"
 msgstr "Adatbázis titkosítási kulcs"
 
-#: admin.php:3383
+#: admin.php:3425
 msgid "Manually decrypt a database backup file"
 msgstr ""
 
-#: admin.php:3463
+#: admin.php:3505
 msgid "Copying Your Backup To Remote Storage"
 msgstr "Mentések másolása a távoli tárhelyre"
 
-#: admin.php:3473
+#: admin.php:3515
 msgid "Choose your remote storage"
 msgstr "Válasszon távoli tárhelyet"
 
-#: admin.php:3482 addons/reporting.php:184
+#: admin.php:3524 addons/reporting.php:184
 msgid "None"
 msgstr "Egyik sem"
 
@@ -3938,191 +3946,187 @@ msgstr "Mégsem"
 msgid "Requesting start of backup..."
 msgstr ""
 
-#: admin.php:3551
+#: admin.php:3593
 msgid "Advanced / Debugging Settings"
 msgstr "Haladó / Hibakereső beállítások"
 
-#: admin.php:3566
+#: admin.php:3608
 msgid "Debug mode"
 msgstr "Hibakereső mód"
 
-#: admin.php:3355
+#: admin.php:3397
 msgid "The above directories are everything, except for WordPress core itself which you can download afresh from WordPress.org."
 msgstr ""
 
-#: admin.php:3252
+#: admin.php:3294
 msgid "Daily"
 msgstr "Naponta"
 
-#: admin.php:3253
+#: admin.php:3295
 msgid "Weekly"
 msgstr "Hetente"
 
-#: admin.php:3254
+#: admin.php:3296
 msgid "Fortnightly"
 msgstr "Kéthetente"
 
-#: admin.php:3255
+#: admin.php:3297
 msgid "Monthly"
 msgstr "Havonta"
 
-#: admin.php:3300
+#: admin.php:3342
 msgid "Database backup intervals"
 msgstr "Adatbázis mentési időköz"
 
-#: admin.php:3319
+#: admin.php:3361
 msgid "To fix the time at which a backup should take place,"
 msgstr "Hogy beállítsa, milyen időpontban kerül sor a mentésre,"
 
-#: admin.php:3319
+#: admin.php:3361
 msgid "e.g. if your server is busy at day and you want to run overnight"
 msgstr "pl. ha a webszervere nappal terhelt és éjjel kívája a mentést futtatni"
 
-#: admin.php:3323
+#: admin.php:3365
 msgid "Include in files backup"
 msgstr ""
 
-#: admin.php:3335
+#: admin.php:3377
 msgid "Any other directories found inside wp-content"
 msgstr ""
 
-#: admin.php:3341 addons/morefiles.php:254
+#: admin.php:3383 addons/morefiles.php:254
 msgid "Exclude these:"
 msgstr ""
 
-#: admin.php:2762
+#: admin.php:2804
 msgid "Debug Database Backup"
 msgstr "Hibakeresés az adatbázis mentésben"
 
-#: admin.php:2762
+#: admin.php:2804
 msgid "This will cause an immediate DB backup. The page will stall loading until it finishes (ie, unscheduled). The backup may well run out of time; really this button is only helpful for checking that the backup is able to get through the initial stages, or for small WordPress sites.."
 msgstr "Ez azonnal elindít egy adatbázis mentést. Az oldal betöltés fenn fog akadni (azaz ez nem ütemezett mentés). A mentés nagyon kifuthat az időből, amilyen hosszan egy oldal betöltés engedélyezve van. Valóban ez a gomb csak abban segít, hogy a mentés túljut-e a kezdezi fázisokon, vagy kis WordPress honlapoknál."
 
-#: admin.php:2768
+#: admin.php:2810
 msgid "Wipe Settings"
 msgstr "Beállítások kitörlése"
 
-#: admin.php:2769
+#: admin.php:2811
 msgid "This button will delete all UpdraftPlus settings (but not any of your existing backups from your cloud storage). You will then need to enter all your settings again. You can also do this before deactivating/deinstalling UpdraftPlus if you wish."
 msgstr "Ez a gomb minden UpdraftPlus beállítást kitöröl (de egyet sem a távoli tárhelyeken lévő mentések közül). Ezután minden beállítást újra meg kell adjon. Ezt a UpdraftPlus bővítmény kikapcsolása/törlése előtt megteheti, ha kívánja."
 
-#: admin.php:2772
+#: admin.php:2814
 msgid "Wipe All Settings"
 msgstr "Minden beállítás kitörlése"
 
-#: admin.php:2772
+#: admin.php:2814
 msgid "This will delete all your UpdraftPlus settings - are you sure you want to do this?"
 msgstr "Ez minden UpdraftPlus beállítást kitöröl - biztos benne?"
 
-#: admin.php:2995
+#: admin.php:3037
 msgid "show log"
 msgstr ""
 
-#: admin.php:2997
+#: admin.php:3039
 msgid "delete schedule"
 msgstr ""
 
-#: admin.php:179 admin.php:3052 admin.php:3085 admin.php:4089
+#: admin.php:179 admin.php:3094 admin.php:3127 admin.php:4131
 msgid "Delete"
 msgstr "Törlés"
 
-#: admin.php:3136
+#: admin.php:3178
 msgid "The request to the filesystem to create the directory failed."
 msgstr ""
 
-#: admin.php:3150
+#: admin.php:3192
 msgid "The folder was created, but we had to change its file permissions to 777 (world-writable) to be able to write to it. You should check with your hosting provider that this will not cause any problems"
 msgstr ""
 
-#: admin.php:3155
+#: admin.php:3197
 msgid "The folder exists, but your webserver does not have permission to write to it."
 msgstr ""
 
-#: admin.php:184 admin.php:3235
+#: admin.php:184 admin.php:3277
 msgid "Download log file"
 msgstr "Napló fájl letöltése"
 
-#: admin.php:3239
-msgid "No backup has been completed."
-msgstr "Még egy mentés sem készült el."
-
-#: admin.php:3268
+#: admin.php:3310
 msgid "File backup intervals"
 msgstr "Fájl mentési időköz"
 
-#: admin.php:2269
+#: admin.php:2290
 msgid "Go here for help."
 msgstr "Jöjjön ide segítségért."
 
-#: admin.php:2275
+#: admin.php:2296
 msgid "Multisite"
 msgstr "Multisite"
 
-#: admin.php:2279
+#: admin.php:2300
 msgid "Do you need WordPress Multisite support?"
 msgstr "Szüksége van WordPress Multisite támogatásra?"
 
-#: admin.php:2279
+#: admin.php:2300
 msgid "Please check out UpdraftPlus Premium, or the stand-alone Multisite add-on."
 msgstr "Kérem nézze meg az UpdraftPlus Premium-ot, vagy a Multisite kiterjesztést."
 
-#: admin.php:2292
+#: admin.php:2313
 msgid "Configure Backup Contents And Schedule"
 msgstr "Mentendő tartalmak és ütemezések beállítása"
 
-#: admin.php:2683
+#: admin.php:2725
 msgid "Web server:"
 msgstr ""
 
-#: admin.php:2691
+#: admin.php:2733
 msgid "Peak memory usage"
 msgstr "Memória használati csúcsérték"
 
-#: admin.php:2692
+#: admin.php:2734
 msgid "Current memory usage"
 msgstr "Pillanatnyi memória használat"
 
-#: admin.php:2694 admin.php:2695 admin.php:2702
+#: admin.php:2736 admin.php:2737 admin.php:2744
 msgid "%s version:"
 msgstr ""
 
-#: admin.php:2704 admin.php:2707 admin.php:2711
+#: admin.php:2746 admin.php:2749 admin.php:2753
 msgid "Yes"
 msgstr ""
 
-#: admin.php:2707 admin.php:2711
+#: admin.php:2749 admin.php:2753
 msgid "No"
 msgstr ""
 
-#: admin.php:2734
+#: admin.php:2776
 msgid "Total (uncompressed) on-disk data:"
 msgstr ""
 
-#: admin.php:2735
+#: admin.php:2777
 msgid "N.B. This count is based upon what was, or was not, excluded the last time you saved the options."
 msgstr ""
 
-#: admin.php:2743
+#: admin.php:2785
 msgid "count"
 msgstr ""
 
-#: admin.php:2757
+#: admin.php:2799
 msgid "Debug Full Backup"
 msgstr "Hibakeresés a teljes mentésben"
 
-#: admin.php:2757
+#: admin.php:2799
 msgid "This will cause an immediate backup. The page will stall loading until it finishes (ie, unscheduled)."
 msgstr "Ez azonnal elindít egy mentést. Az oldal betöltés fenn fog akadni (azaz ez nem ütemezett mentés)."
 
-#: admin.php:2544
+#: admin.php:2565
 msgid "UpdraftPlus - Upload backup files"
 msgstr "UpdraftPlus - Mentések feltöltése"
 
-#: admin.php:146 admin.php:2528
+#: admin.php:146 admin.php:2549
 msgid "calculating..."
 msgstr "számítás..."
 
-#: restorer.php:1060 admin.php:155 admin.php:4578 admin.php:4608
+#: restorer.php:1063 admin.php:155 admin.php:4620 admin.php:4650
 #: addons/cloudfiles-enhanced.php:88 addons/sftp.php:761
 #: addons/migrator.php:233 addons/migrator.php:467 addons/migrator.php:668
 #: addons/migrator.php:732 addons/migrator.php:802 addons/migrator.php:1016
@@ -4137,96 +4141,96 @@ msgstr ""
 msgid "Download error: the server sent us a response which we did not understand."
 msgstr ""
 
-#: admin.php:2582
+#: admin.php:2603
 msgid "Delete backup set"
 msgstr ""
 
-#: admin.php:2600
+#: admin.php:2621
 msgid "Restore backup"
 msgstr "Mentés visszaállítása"
 
-#: admin.php:2601
+#: admin.php:2622
 msgid "Restore backup from"
 msgstr "Mentés visszaállítása innen:"
 
-#: admin.php:2613
+#: admin.php:2634
 msgid "Restoring will replace this site's themes, plugins, uploads, database and/or other content directories (according to what is contained in the backup set, and your selection)."
 msgstr ""
 
-#: admin.php:2613
+#: admin.php:2634
 msgid "Choose the components to restore"
 msgstr "Válassza ki a visszaálítandó összetevőket"
 
-#: admin.php:2623
+#: admin.php:2644
 msgid "Your web server has PHP's so-called safe_mode active."
 msgstr ""
 
-#: admin.php:2623
+#: admin.php:2644
 msgid "This makes time-outs much more likely. You are recommended to turn safe_mode off, or to restore only one entity at a time, <a href=\"http://updraftplus.com/faqs/i-want-to-restore-but-have-either-cannot-or-have-failed-to-do-so-from-the-wp-admin-console/\">or to restore manually</a>."
 msgstr ""
 
-#: admin.php:2636
+#: admin.php:2657
 msgid "The following entity cannot be restored automatically: \"%s\"."
 msgstr ""
 
-#: admin.php:2636
+#: admin.php:2657
 msgid "You will need to restore it manually."
 msgstr ""
 
-#: admin.php:2643 addons/morefiles.php:63
+#: admin.php:2664 addons/morefiles.php:63
 msgid "%s restoration options:"
 msgstr ""
 
-#: admin.php:2651
+#: admin.php:2672
 msgid "You can search and replace your database (for migrating a website to a new location/URL) with the Migrator add-on - follow this link for more information"
 msgstr ""
 
-#: admin.php:2662
+#: admin.php:2683
 msgid "Do read this helpful article of useful things to know before restoring."
 msgstr ""
 
-#: admin.php:2258
+#: admin.php:2279
 msgid "Perform a one-time backup"
 msgstr ""
 
-#: admin.php:2227
+#: admin.php:2247
 msgid "Time now"
 msgstr "A pontos idő"
 
-#: admin.php:177 admin.php:2174
+#: admin.php:177 admin.php:2180
 msgid "Backup Now"
 msgstr "Mentés most"
 
-#: admin.php:183 admin.php:2177 admin.php:4078
+#: admin.php:183 admin.php:2183 admin.php:4120
 msgid "Restore"
 msgstr "Visszaállítás"
 
-#: admin.php:2474 admin.php:2479 addons/autobackup.php:228
+#: admin.php:2495 admin.php:2500 addons/autobackup.php:228
 #: addons/autobackup.php:322
 msgid "Last log message"
 msgstr "Utolsó log sor"
 
-#: admin.php:2475 admin.php:2481
+#: admin.php:2496 admin.php:2502
 msgid "(Nothing yet logged)"
 msgstr "(Még semmit sem került naplózásra)"
 
-#: admin.php:2476 admin.php:2482
+#: admin.php:2497 admin.php:2503
 msgid "Download most recently modified log file"
 msgstr ""
 
-#: admin.php:2522
+#: admin.php:2543
 msgid "Downloading"
 msgstr "Letöltés"
 
-#: admin.php:2531
+#: admin.php:2552
 msgid "More tasks:"
 msgstr "Több feladat:"
 
-#: admin.php:2538
+#: admin.php:2559
 msgid "Opera web browser"
 msgstr "Opera böngésző"
 
-#: admin.php:2538
+#: admin.php:2559
 msgid "If you are using this, then turn Turbo/Road mode off."
 msgstr "Ha ezt használja, kapcsolja ki a Turbo/Road módot."
 
@@ -4234,79 +4238,75 @@ msgstr "Ha ezt használja, kapcsolja ki a Turbo/Road módot."
 #: methods/googledrive.php:374 methods/googledrive.php:403
 #: methods/googledrive.php:410 methods/googledrive.php:420
 #: methods/googledrive.php:426 methods/googledrive.php:428
-#: methods/googledrive.php:839 methods/googledrive.php:851
-#: methods/googledrive.php:867 methods/googledrive.php:871
-#: methods/googledrive.php:882 methods/googledrive.php:892
+#: methods/googledrive.php:844 methods/googledrive.php:856
+#: methods/googledrive.php:872 methods/googledrive.php:876
+#: methods/googledrive.php:887 methods/googledrive.php:897
 #: addons/google-enhanced.php:72
 msgid "Google Drive"
 msgstr "Google Drive"
 
-#: admin.php:2528
+#: admin.php:2549
 msgid "This is a count of the contents of your Updraft directory"
 msgstr "Ez az Updraft könyvtár tartalmának mérete."
 
-#: admin.php:2528
+#: admin.php:2549
 msgid "Web-server disk space in use by UpdraftPlus"
 msgstr "Az UpdraftPlus által használt webszerver lemezterület."
 
-#: admin.php:2528
+#: admin.php:2549
 msgid "refresh"
 msgstr "frissítés"
 
-#: admin.php:1970
+#: admin.php:1975
 msgid "Lead developer's homepage"
 msgstr "A vezető fejlesztő honlapja"
 
-#: admin.php:1970
-msgid "Donate"
-msgstr "Adományozás"
-
-#: admin.php:1970
+#: admin.php:1976
 msgid "Version"
 msgstr "Verzió"
 
-#: admin.php:2092
+#: admin.php:2098
 msgid "Your backup has been restored."
 msgstr "A mentése visszaállításre került."
 
-#: admin.php:2109
+#: admin.php:2115
 msgid "Current limit is:"
 msgstr "Az aktuális limit:"
 
-#: admin.php:164 admin.php:2789
+#: admin.php:164 admin.php:2831
 msgid "Delete Old Directories"
 msgstr "Régi könyvtárak törlése"
 
-#: admin.php:2158
+#: admin.php:2164
 msgid "JavaScript warning"
 msgstr "Javascript figyelmeztetés"
 
-#: admin.php:2159
+#: admin.php:2165
 msgid "This admin interface uses JavaScript heavily. You either need to activate it within your browser, or to use a JavaScript-capable browser."
 msgstr "Ez a felület Javascript-et használ. Vagy kapcsolja be a böngészőjében a Javascript futtatását, vagy használjon Javascript-et futtatni képes böngészőt."
 
-#: admin.php:2194 admin.php:2207
+#: admin.php:2200 admin.php:2219 admin.php:2239
 msgid "Nothing currently scheduled"
 msgstr "Nincs semmi ütemezve"
 
-#: admin.php:2199
+#: admin.php:2210
 msgid "At the same time as the files backup"
 msgstr "A fájl mentésekkel egyidőben"
 
-#: admin.php:2219
+#: admin.php:2232
 msgid "All the times shown in this section are using WordPress's configured time zone, which you can set in Settings -> General"
 msgstr ""
 
-#: admin.php:2219
+#: admin.php:2232
 msgid "Next scheduled backups"
 msgstr "Következő ütemezett mentések"
 
-#: admin.php:2223
+#: admin.php:2243
 msgid "Files"
 msgstr "Fájlok"
 
-#: admin.php:978 admin.php:2225 admin.php:2641 admin.php:2643 admin.php:3921
-#: admin.php:4643 addons/reporting.php:196 addons/moredatabase.php:188
+#: admin.php:978 admin.php:2245 admin.php:2662 admin.php:2664 admin.php:3963
+#: admin.php:4685 addons/reporting.php:196 addons/moredatabase.php:188
 msgid "Database"
 msgstr "Adatbázis"
 
@@ -4338,8 +4338,8 @@ msgstr ""
 msgid "Could not find that job - perhaps it has already finished?"
 msgstr ""
 
-#: class-updraftplus.php:698 restorer.php:1692 restorer.php:1709
-#: restorer.php:1775 admin.php:1285 admin.php:4560 methods/stream-base.php:197
+#: class-updraftplus.php:698 restorer.php:1695 restorer.php:1712
+#: restorer.php:1778 admin.php:1285 admin.php:4602 methods/stream-base.php:197
 #: methods/addon-base.php:75 methods/addon-base.php:80
 #: methods/addon-base.php:175 methods/addon-base.php:195
 msgid "Error"
@@ -4369,57 +4369,57 @@ msgstr "Helytelen fájlnév - ez a fájl nem UpdraftPlus fájlnak néz ki"
 msgid "Bad filename format - this does not look like an encrypted database file created by UpdraftPlus"
 msgstr ""
 
-#: admin.php:1997
+#: admin.php:2003
 msgid "Restore successful!"
 msgstr "A visszaállítás sikerült!"
 
-#: admin.php:2007 admin.php:2016 admin.php:2053 admin.php:2164 admin.php:3026
-#: admin.php:3802
+#: admin.php:2013 admin.php:2022 admin.php:2059 admin.php:2170 admin.php:3068
+#: admin.php:3844
 msgid "Actions"
 msgstr "Akciók"
 
-#: admin.php:2007 admin.php:2016 admin.php:2053 admin.php:3026
+#: admin.php:2013 admin.php:2022 admin.php:2059 admin.php:3068
 #: addons/migrator.php:100 addons/migrator.php:112
 msgid "Return to UpdraftPlus Configuration"
 msgstr "Vissza az UpdraftPlus beállításához"
 
-#: admin.php:3019
+#: admin.php:3061
 msgid "Remove old directories"
 msgstr "Régi könyvtárak eltávolítása"
 
-#: admin.php:3022
+#: admin.php:3064
 msgid "Old directories successfully removed."
 msgstr "A régi könyvtárakat sikerült eltávolítani."
 
-#: admin.php:3024
+#: admin.php:3066
 msgid "Old directory removal failed for some reason. You may want to do this manually."
 msgstr "A régi könyvtárak eltávolítása valamilyen ok miatt nem sikerült. Kézzel eltávolíthatja."
 
-#: admin.php:2044
+#: admin.php:2050
 msgid "Backup directory could not be created"
 msgstr "A Backup könyvtárat nem sikerült létrehozni"
 
-#: admin.php:2051
+#: admin.php:2057
 msgid "Backup directory successfully created."
 msgstr "A Backup könyvtárat sikerült létrehozni."
 
-#: admin.php:2074
+#: admin.php:2080
 msgid "Your settings have been wiped."
 msgstr "A beállításai kitörlésre kerültek."
 
-#: class-updraftplus.php:2569
+#: class-updraftplus.php:2578
 msgid "Please help UpdraftPlus by giving a positive review at wordpress.org"
 msgstr "Kérem segítsen az UpdraftPlus-nak egy pozitív hangú ismertető írásával a wordpress.org-on"
 
-#: class-updraftplus.php:2576
+#: class-updraftplus.php:2585
 msgid "Need even more features and support? Check out UpdraftPlus Premium"
 msgstr "Még több funkcióra van szüksége és támogatásra? Nézze meg az UpdraftPlus Premium-ot"
 
-#: class-updraftplus.php:2586
+#: class-updraftplus.php:2595
 msgid "Check out UpdraftPlus.Com for help, add-ons and support"
 msgstr "Nézze meg az UpdraftPlus.Com webhelyet segítségért, kiterjesztésekért és támogatásért"
 
-#: backup.php:1569
+#: backup.php:1578
 msgid "Infinite recursion: consult your log for more information"
 msgstr "Végtelen rekurzió: nézze meg a naplót további információért"
 
@@ -4431,7 +4431,7 @@ msgstr "Nem sikerült létrehozni a %s zip-et. Tekintse meg a log fájlt tovább
 msgid "Allowed Files"
 msgstr "Engedélyezett fájlok"
 
-#: admin.php:482 admin.php:2136
+#: admin.php:482 admin.php:2142
 msgid "Settings"
 msgstr "Beállítások"
 
@@ -4440,10 +4440,10 @@ msgid "Add-Ons / Pro Support"
 msgstr "Kiterjesztések / Pro támogatás"
 
 #: admin.php:536 admin.php:540 admin.php:544 admin.php:548 admin.php:552
-#: admin.php:561 admin.php:2517 admin.php:3668 admin.php:3675 admin.php:3677
+#: admin.php:561 admin.php:2538 admin.php:3710 admin.php:3717 admin.php:3719
 #: udaddons/updraftplus-addons.php:177 methods/openstack-base.php:453
-#: methods/cloudfiles.php:473 methods/s3.php:601 methods/dropbox.php:399
-#: methods/ftp.php:301
+#: methods/cloudfiles.php:473 methods/s3.php:608 methods/dropbox.php:399
+#: methods/ftp.php:304
 msgid "Warning"
 msgstr "Figyelmeztetés"
 
@@ -4463,39 +4463,39 @@ msgstr "A WordPress mentés teljesen elkészült"
 msgid "Backup directory (%s) is not writable, or does not exist."
 msgstr "A backup könyvtár (%s) nem írható vagy nem létezik."
 
-#: class-updraftplus.php:2157
+#: class-updraftplus.php:2165
 msgid "Could not read the directory"
 msgstr ""
 
-#: class-updraftplus.php:2176
+#: class-updraftplus.php:2184
 msgid "Could not save backup history because we have no backup array. Backup probably failed."
 msgstr "Nem sikerült menteni a mentés előzményeket mert nincs mentés tömb. A mentés minden bizonnyal nem sikerült."
 
-#: backup.php:1476
+#: backup.php:1485
 msgid "Could not open the backup file for writing"
 msgstr "Nem sikerült írásra megnyitni a mentés fájlt"
 
-#: class-updraftplus.php:2410 restorer.php:275 admin.php:1491
+#: class-updraftplus.php:2419 restorer.php:275 admin.php:1491
 msgid "Decryption failed. The database file is encrypted, but you have no encryption key entered."
 msgstr ""
 
-#: class-updraftplus.php:2421 restorer.php:285 admin.php:1508
+#: class-updraftplus.php:2430 restorer.php:285 admin.php:1508
 msgid "Decryption failed. The most likely cause is that you used the wrong key."
 msgstr ""
 
-#: class-updraftplus.php:2421
+#: class-updraftplus.php:2430
 msgid "The decryption key used:"
 msgstr ""
 
-#: class-updraftplus.php:2461 methods/googledrive.php:774
+#: class-updraftplus.php:2470 methods/googledrive.php:779
 msgid "File not found"
 msgstr "Nincs meg a fájl"
 
-#: class-updraftplus.php:2561
+#: class-updraftplus.php:2570
 msgid "Can you translate? Want to improve UpdraftPlus for speakers of your language?"
 msgstr ""
 
-#: class-updraftplus.php:2569
+#: class-updraftplus.php:2578
 msgid "Like UpdraftPlus and can spare one minute?"
 msgstr "Kedveli az UpdraftPlus-t és van egy perce?"
 
@@ -4511,7 +4511,7 @@ msgstr "Feltöltések"
 msgid "Others"
 msgstr "Egyéb"
 
-#: class-updraftplus.php:1575
+#: class-updraftplus.php:1582
 msgid "Could not create files in the backup directory. Backup aborted - check your UpdraftPlus settings."
 msgstr "Nem sikerült fájl létrehozni a backup könyvtárban. A mentés félbe szakadt - ellenőrizze az UpdraftPlus beállításokat."
 
@@ -4519,11 +4519,11 @@ msgstr "Nem sikerült fájl létrehozni a backup könyvtárban. A mentés félbe
 msgid "Encryption error occurred when encrypting database. Encryption aborted."
 msgstr "Titkosítási hiba történt az adatbázis titkosítása közben. A titkosítás félbe szakadt."
 
-#: class-updraftplus.php:1746 admin.php:2839
+#: class-updraftplus.php:1753 admin.php:2881
 msgid "The backup apparently succeeded and is now complete"
 msgstr "Úgy látszik, a mentés teljesen sikerült."
 
-#: class-updraftplus.php:1760
+#: class-updraftplus.php:1767
 msgid "The backup attempt has finished, apparently unsuccessfully"
 msgstr "A mentési kísérlet befejeződött, látszólag sikertelenül."
 

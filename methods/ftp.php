@@ -25,7 +25,7 @@ class UpdraftPlus_BackupModule_ftp {
 	// Get FTP object with parameters set
 	private function getFTP($server, $user, $pass, $disable_ssl = false, $disable_verify = true, $use_server_certs = false, $passive = true) {
 
-		if (empty($server) || empty($user) || empty($pass)) return new WP_Error('no_settings', sprintf(__('No %s settings were found','updraftplus'), 'FTP'));
+		if ('' == trim($server) || '' == trim($user) || '' == trim($pass)) return new WP_Error('no_settings', sprintf(__('No %s settings were found','updraftplus'), 'FTP'));
 
 		if( !class_exists('UpdraftPlus_ftp_wrapper')) require_once(UPDRAFTPLUS_DIR.'/includes/ftp.class.php');
 

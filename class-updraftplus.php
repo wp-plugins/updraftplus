@@ -1133,7 +1133,14 @@ class UpdraftPlus {
 			if (!is_array($time_passed)) $time_passed = array();
 			foreach ($time_passed as $run => $passed) {
 				if (isset($runs_started[$run]) && $runs_started[$run] + $time_passed[$run] + 30 > $time_now) {
-					$this->terminate_due_to_activity('check-in', round($time_now,1), round($runs_started[$run] + $time_passed[$run],1));
+					// We don't want to increase the resumption if WP has started two copies of the same resumption off
+					if ($run && $run == $resumption_no) {
+						$increase_resumption = false;
+						$this->log("It looks like WordPress's scheduler has started multiple instances of this resumption");
+					} else {
+						$increase_resumption = true;
+					}
+					$this->terminate_due_to_activity('check-in', round($time_now, 1), round($runs_started[$run] + $time_passed[$run], 1), $increase_resumption);
 				}
 			}
 
@@ -1928,12 +1935,14 @@ class UpdraftPlus {
 	}
 
 	private function delete_local($file) {
+		$log = "Deleting local file: $file: ";
 		if (UpdraftPlus_Options::get_updraft_option('updraft_delete_local')) {
-			$log = "Deleting local file: $file: ";
 			$fullpath = $this->backups_dir_location().'/'.$file;
 			$deleted = unlink($fullpath);
 			$this->log($log.(($deleted) ? 'OK' : 'failed'));
 			return $deleted;
+		} else {
+			$this->log($log."skipped: user has unchecked updraft_delete_local option");
 		}
 		return true;
 	}
@@ -1959,8 +1968,9 @@ class UpdraftPlus {
 		$next_resumption = $this->current_resumption + 1;
 		wp_clear_scheduled_hook('updraft_backup_resume', array($next_resumption, $this->nonce));
 		// Add new event
-		# This next line may be too cautious; but until 14-Aug-2014, it was 300. Also, note that on the current coding of increase_resume_and_reschedule(), any time that we arrive through there, the value is already at least 300. So, this minimum check only kicks in if we came through another route.
-		if ($how_far_ahead < 180) $how_far_ahead=180;
+		# This next line may be too cautious; but until 14-Aug-2014, it was 300.
+		# Update 20-Mar-2015 - lowered from 180
+		if ($how_far_ahead < 120) $how_far_ahead=120;
 		$schedule_for = time() + $how_far_ahead;
 		$this->log("Rescheduling resumption $next_resumption: moving to $how_far_ahead seconds from now ($schedule_for)");
 		wp_schedule_single_event($schedule_for, 'updraft_backup_resume', array($next_resumption, $this->nonce));
@@ -1969,7 +1979,7 @@ class UpdraftPlus {
 
 	private function increase_resume_and_reschedule($howmuch = 120, $force_schedule = false) {
 
-		$resume_interval = max(intval($this->jobdata_get('resume_interval')), 300);
+		$resume_interval = max(intval($this->jobdata_get('resume_interval')), ($howmuch === 0) ? 120 : 300);
 
 		if (empty($this->newresumption_scheduled) && $force_schedule) {
 			$this->log("A new resumption will be scheduled to prevent the job ending");
@@ -2196,12 +2206,13 @@ class UpdraftPlus {
 		return (isset($backup_history[$timestamp])) ? $backup_history[$timestamp] : array();
 	}
 
-	public function terminate_due_to_activity($file, $time_now, $time_mod) {
+	public function terminate_due_to_activity($file, $time_now, $time_mod, $increase_resumption = true) {
 		# We check-in, to avoid 'no check in last time!' detectors firing
 		$this->record_still_alive();
 		$file_size = file_exists($file) ? round(filesize($file)/1024,1). 'Kb' : 'n/a';
 		$this->log("Terminate: ".basename($file)." exists with activity within the last 30 seconds (time_mod=$time_mod, time_now=$time_now, diff=".(floor($time_now-$time_mod)).", size=$file_size). This likely means that another UpdraftPlus run is at work; so we will exit.");
-		$this->increase_resume_and_reschedule(120, true);
+		$increase_by = ($increase_resumption) ? 120 : 0;
+		$this->increase_resume_and_reschedule($increase_by, true);
 		if (!defined('UPDRAFTPLUS_ALLOW_RECENT_ACTIVITY') || true != UPDRAFTPLUS_ALLOW_RECENT_ACTIVITY) die;
 	}
 
@@ -2569,7 +2580,7 @@ class UpdraftPlus {
 			return __('Like UpdraftPlus and can spare one minute?','updraftplus').$this->url_start($urls,'wordpress.org/support/view/plugin-reviews/updraftplus#postform').' '.__('Please help UpdraftPlus by giving a positive review at wordpress.org','updraftplus').$this->url_end($urls,'wordpress.org/support/view/plugin-reviews/updraftplus#postform');
 			break;
 		case 4:
-			return $this->url_start($urls,'www.simbahosting.co.uk', true).__("Need high-quality WordPress hosting from WordPress specialists? (Including automatic backups and 1-click installer). Get it from the creators of UpdraftPlus.", 'updraftplus').$this->url_end($urls,'www.simbahosting.co.uk', true);
+			return $this->url_start($urls,'updraftplus.com/newsletter-signup', true).__("Follow this link to sign up for the UpdraftPlus newsletter.", 'updraftplus').$this->url_end($urls,'updraftplus.com/newsletter-signup', true);
 			break;
 		case 5:
 			if (!defined('UPDRAFTPLUS_NOADS_B')) {

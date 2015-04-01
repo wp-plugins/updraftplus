@@ -429,16 +429,20 @@ class UpdraftPlus_BackupModule_dropbox {
 
 			<?php
 			// Legacy: only show this next setting to old users who had a setting stored
-			if (!empty($opts['appkey'])) {
+			if (!empty($opts['appkey']) || (defined('UPDRAFTPLUS_CUSTOM_DROPBOX_APP') && UPDRAFTPLUS_CUSTOM_DROPBOX_APP)) {
+
+				$appkey = empty($opts['appkey']) ? '' : $opts['appkey'];
+				$secret = empty($opts['secret']) ? '' : $opts['secret'];
+
 			?>
 
 				<tr class="updraftplusmethod dropbox">
 					<th>Your Dropbox App Key:</th>
-					<td><input type="text" autocomplete="off" style="width:332px" id="updraft_dropbox_appkey" name="updraft_dropbox[appkey]" value="<?php echo htmlspecialchars($opts['appkey']) ?>" /></td>
+					<td><input type="text" autocomplete="off" style="width:332px" id="updraft_dropbox_appkey" name="updraft_dropbox[appkey]" value="<?php echo esc_attr($appkey) ?>" /></td>
 				</tr>
 				<tr class="updraftplusmethod dropbox">
 					<th>Your Dropbox App Secret:</th>
-					<td><input type="text" style="width:332px" id="updraft_dropbox_secret" name="updraft_dropbox[secret]" value="<?php echo htmlspecialchars($opts['secret']); ?>" /></td>
+					<td><input type="text" style="width:332px" id="updraft_dropbox_secret" name="updraft_dropbox[secret]" value="<?php echo esc_attr($secret); ?>" /></td>
 				</tr>
 
 			<?php } ?>

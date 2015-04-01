@@ -227,11 +227,12 @@ function updraft_activejobs_update(force) {
 // 						jQuery(this).dialog("close");
 // 					};
 // 					jQuery('#updraft-backupnow-inpage-modal').dialog('option', 'buttons', updraft_inpage_modal_buttons);
-					jQuery('#updraft-backupnow-inpage-modal').dialog('close');
 					console.log('UpdraftPlus: the end of the requested backup job has been detected');
 					if (typeof updraft_inpage_success_callback !== 'undefined' && updraft_inpage_success_callback != '') {
 						// Move on to next page
 						updraft_inpage_success_callback.call(false);
+					} else {
+						jQuery('#updraft-backupnow-inpage-modal').dialog('close');
 					}
 				}
 				if ('' == lastlog_jobs) {
@@ -402,9 +403,11 @@ function updraft_check_same_times() {
 	var dbmanual = 0;
 	var file_interval = jQuery('#updraft_interval').val();
 	if (file_interval == 'manual') {
-		jQuery('#updraft_files_timings').css('opacity', '0.25');
+// 		jQuery('#updraft_files_timings').css('opacity', '0.25');
+		jQuery('#updraft_files_timings').hide();
 	} else {
-		jQuery('#updraft_files_timings').css('opacity', 1);
+// 		jQuery('#updraft_files_timings').css('opacity', 1);
+		jQuery('#updraft_files_timings').show();
 	}
 	
 	if ('weekly' == file_interval || 'fortnightly' == file_interval || 'monthly' == file_interval) {
@@ -416,7 +419,8 @@ function updraft_check_same_times() {
 	var db_interval = jQuery('#updraft_interval_database').val();
 	if (db_interval == 'manual') {
 		dbmanual = 1;
-		jQuery('#updraft_db_timings').css('opacity', '0.25');
+// 		jQuery('#updraft_db_timings').css('opacity', '0.25');
+		jQuery('#updraft_db_timings').hide();
 	}
 	
 	if ('weekly' == db_interval || 'fortnightly' == db_interval || 'monthly' == db_interval) {
@@ -426,9 +430,20 @@ function updraft_check_same_times() {
 	}
 	
 	if (db_interval == file_interval) {
-		jQuery('#updraft_db_timings').css('opacity','0.25');
+// 		jQuery('#updraft_db_timings').css('opacity','0.25');
+		jQuery('#updraft_db_timings').hide();
+// 		jQuery('#updraft_same_schedules_message').show();
+		if (0 == dbmanual) {
+			jQuery('#updraft_same_schedules_message').show();
+		} else {
+			jQuery('#updraft_same_schedules_message').hide();
+		}
 	} else {
-		if (0 == dbmanual) jQuery('#updraft_db_timings').css('opacity', '1');
+		jQuery('#updraft_same_schedules_message').hide();
+		if (0 == dbmanual) {
+// 			jQuery('#updraft_db_timings').css('opacity', '1');
+			jQuery('#updraft_db_timings').show();
+		}
 	}
 }
 
@@ -711,6 +726,7 @@ function updraft_backupnow_go(backupnow_nodb, backupnow_nofiles, backupnow_noclo
 			if (resp.hasOwnProperty('nonce')) {
 				// Can't return it from this context
 				updraft_backupnow_nonce = resp.nonce;
+				console.log("UpdraftPlus: ID of started job: "+updraft_backupnow_nonce);
 			}
 			setTimeout(function() {updraft_activejobs_update(true);}, 500);
 		} catch (err) {
@@ -732,6 +748,9 @@ jQuery(document).ready(function($){
 	//setTimeout(function(){updraft_showlastlog(true);}, 1200);
 	setInterval(function() {updraft_activejobs_update(false);}, 1250);
 
+	// Prevent profusion of notices
+	setTimeout(function(){jQuery('#setting-error-settings_updated').slideUp();}, 5000);
+	
 	jQuery('.updraftplusmethod').hide();
 	
 	jQuery('#updraft_restore_db').change(function(){
@@ -965,6 +984,7 @@ jQuery(document).ready(function($){
 		updraft_console_focussed_tab = 4;
 	});
 	jQuery('#updraft-navtab-settings, #updraft-navtab-settings2').click(function(e) {
+		jQuery(this).parents('.updraftmessage').remove();
 		e.preventDefault();
 		jQuery('#updraft-navtab-status-content').hide();
 		jQuery('#updraft-navtab-backups-content').hide();

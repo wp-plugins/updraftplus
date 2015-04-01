@@ -2,8 +2,8 @@
 Contributors: Backup with UpdraftPlus, DavidAnderson
 Tags: backup, backups, restore, amazon backup, s3 backup, dropbox backup, google drive backup, rackspace cloud files, rackspace backup, cloud files, dreamhost, dreamobjects backup, ftp backup, webdav backup, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp backup, ftps, scp, migrate, duplicate, copy, mysql backup, database backup, db backup, website backup, wordpress backup, full backup, openstack, swift
 Requires at least: 3.2
-Tested up to: 4.1
-Stable tag: 1.9.60
+Tested up to: 4.2
+Stable tag: 1.9.62
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -16,7 +16,7 @@ Backup and restoration made easy. Complete backups; manual or scheduled (backup 
 
 <strong>Top-quality:</strong> UpdraftPlus is the <a href="http://rankwp.com/plugins/updraftplus">highest-ranking backup plugin on rankwp.com</a> (ranks in the top 40 out of 30,000 WordPress plugins for quality on rankwp.com - last checked 21 September 2014).
 
-<strong>Tens of thousands of users:</strong> widely tested and reliable (over 1.8 million downloads). Ranks in the top 100 most used of all WordPress plugins on rankwp.com. Millions of backups completed!
+<strong>Hundreds of thousands of users:</strong> widely tested and reliable (over 2 million downloads). The #1 most installed scheduled backup plugin, according to wordpress.org. Millions of backups completed!
 
 * Supports WordPress backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP, OpenStack (Swift) and email. Also (via an add-on) Copy.Com, FTP over SSL, SFTP, SCP, and WebDAV (and compatible services, e.g. Yandex, Cubby). (Note: Microsoft forbid OneDrive/SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
 * Quick restore (both file and database backups)
@@ -66,7 +66,7 @@ Many thanks to the existing translators:
 * Ελληνική  / Greek (el): Κώστας Θερμογιάννης (Kostas Thermoyiannis) - http://tovivlio.net
 * Español / Spanish (es_ES): Pablo Laguna - laguna.sanchez at gmail.com and Fernando Villasmil - villasmil.fernando at gmail.com
 * Farsi / Persian (fa_IR): Jamshidpour, Ashkan Ghadimi, Mohammad (2online4.ir) and Nasiri Amirreza
-* Français / French translation (fr_FR): ufo3D - http://ufo-3d.fr and Thomas Jacobsen - http://123informatique.ch - with help from Françoise Lhermitte - http://www.ajwan.net
+* Français / French translation (fr_FR): Erwan François, ufo3D - http://ufo-3d.fr and Thomas Jacobsen - http://123informatique.ch - with help from Françoise Lhermitte - http://www.ajwan.net
 * Italiano / Italian (it_IT): Francesco Carpana - f.carpana at gmail.com
 * Nederlands / Dutch (nl_NL): Dennis Hunink - dennishunink at me.com and Hans van der Vlist - hansvandervlist at gmail.com
 * Norwegian / Bokmål (nb_NO): Axel Magnus Gaasø, Tommy (Flytende.no) and Oddvar Skrebergene
@@ -96,11 +96,11 @@ We hang out in the WordPress support forum for this plugin - http://wordpress.or
 
 == Installation ==
 
-<a href="http://updraftplus.com/download/">Please go here for full instructions for installing this plugin.</a>
+<a href="https://updraftplus.com/download/">Please go here for full instructions for installing this plugin.</a>
 
 == Frequently Asked Questions ==
 
-<a href="http://updraftplus.com/support/frequently-asked-questions/"><strong>Please go here for the full FAQs - there are many more than below.</strong></a> Below are just a handful which particularly apply to the free wordpress.org version, or which bear repeating.
+<a href="https://updraftplus.com/support/frequently-asked-questions/"><strong>Please go here for the full FAQs - there are many more than below.</strong></a> Below are just a handful which particularly apply to the free wordpress.org version, or which bear repeating.
 
 = Can UpdraftPlus do (something)? =
 
@@ -151,7 +151,31 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 
 == Changelog ==
 
-The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
+The <a href="https://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
+
+N.B. Paid versions of UpdraftPlus have a version number which is 1 higher in the first digit, and has an extra component on the end, but the changelog below still applies. i.e. changes listed for 1.9.60 of the free version correspond to changes made in 2.9.60.x of the paid version.
+
+= 1.9.62 - 2015-04-01 =
+
+* FEATURE: Automatic backups now integrate with the forthcoming WP 4.2's "shiny plugin updates"
+* COMPATIBILITY: Tested and marked compatible with the forthcoming WordPress 4.2 (tested up to beta 3)
+* FIX: Fix regression in 1.9.60 for corner-case of S3 users with no permission to check their bucket's location (but permission to write to it).
+* TWEAK: Make "settings saved" message disappear after a few seconds, to prevent UI clutter
+* TWEAK: Decrease UI clutter in backup time selection
+* TWEAK: Update to latest global SSL CA bundle, removing again 1024-bit root CAs (last attempted in 1.9.26, but S3 still had some legacy servers). Modern web browsers have not accepted these for 6 months now. (SSL verification can be turned off in the expert options).
+* TWEAK: Defeat WP Download Manager Google Drive plugin's loading of its SDK on all pages (conflicting with UD when UD attempts to backup to Google Drive)
+* TWEAK: Detect case of old MySQL on Windows with table prefix that varies by case (and hence WP actually only works by accident) - produce a consistent backup that can be restored on any MySQL server.
+* TWEAK: Add dashboard notice with links to more resources, for free users who've been installed >4 weeks (with option to dismiss notice)
+* TWEAK: Add itsec_log to the list of tables of non-essential/not-needing-search/replace + likely to be large tables for backup strategy
+* TWEAK: Improvement to scheduling algorithm in case where WP's scheduler starts same resumption multiple times - prevent next attempt being delayed longer than necessary
+* TWEAK: Add a header to report emails indicating the job ID - helps when debugging
+* TWEAK: Detect + show a more helpful error message if blocked by CloudFlare when connecting for updates (paid versions)
+* TWEAK: Make it easier to use custom Dropbox API keys, via UPDRAFTPLUS_CUSTOM_DROPBOX_APP constant (define to true in wp-config.php)
+* TWEAK: Tweak debug output of webserver information to avoid triggering a (silly) mod_security rule in some setups
+* TWEAK: Alert the user if using Amazon S3 if they do not have the PHP XML module available
+* TWEAK: Log the fact that local deletions are being skipped, if the user set that option.
+* TWEAK: Give timestamp of WP2B backups without relying upon location of SQL file
+* TRANSLATIONS: French translation updated from less than half to complete, thanks to Erwan François. Various other translations updated (many thanks to all translators).
 
 = 1.9.60 - 2015-02-24 =
 
@@ -173,6 +197,7 @@ The <a href="http://updraftplus.com/news/">UpdraftPlus backup blog</a> is the be
 * TWEAK: Add "Simple Visitor Stats" and "Simple Feed Stats" tables to the list of tables that may have large amounts of data, and which don't need search/replacing when migrating
 * TWEAK: When restoring plugins and themes, log the list of entities being restored (helps with tracing problems)
 * TWEAK: Deal with CloudFTP/StorageMadeEasy returning directory listings in a non-standard format, when rescanning remote backups
+* TWEAK: Version numbering scheme for paid versions changed; see: https://updraftplus.com/change-in-updraftpluss-version-numbering-scheme-for-paid-versions/
 * TRANSLATIONS: Updated translations in several languages (many thanks for our translators)
 * FIX: For imported 3rd-party backups, the 'Existing Backups' tab (only) was showing "Unknown Source" instead of the detected source.
 
@@ -1071,5 +1096,6 @@ We recognise and thank the following for code and/or libraries used and/or modif
 
 Furthermore, reliance upon any non-English translation is at your own risk. UpdraftPlus can give no guarantees that translations from the original English are accurate.
 
+
 == Upgrade Notice ==
-* 1.9.60 : New Amazon backend. New in-page autobackup widget. "Backup Now" can now overcome broken WP schedulers. Handle uncompresed dbs when restoring. Various minor tweaks.
+* 1.9.62 : WP 4.2 compatibility. Fix regression for corner-case of S3 users with no permission to check their bucket's location (but permission to write to it); various other minor tweaks.

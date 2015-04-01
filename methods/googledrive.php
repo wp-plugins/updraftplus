@@ -455,9 +455,14 @@ class UpdraftPlus_BackupModule_googledrive {
 			set_include_path(UPDRAFTPLUS_DIR.'/includes'.PATH_SEPARATOR.get_include_path());
 		}
 
-		# Workaround for Google Drive CDN plugin's autoloader
+		
 		$spl = spl_autoload_functions();
-		if (is_array($spl) && in_array('wpbgdc_autoloader', $spl)) spl_autoload_unregister('wpbgdc_autoloader');
+		if (is_array($spl)) {
+			// Workaround for Google Drive CDN plugin's autoloader
+			if (in_array('wpbgdc_autoloader', $spl)) spl_autoload_unregister('wpbgdc_autoloader');
+			// http://www.wpdownloadmanager.com/download/google-drive-explorer/
+			if (in_array('google_api_php_client_autoload', $spl)) spl_autoload_unregister('google_api_php_client_autoload');
+		}
 
 		if (!class_exists('Google_Config')) require_once 'Google/Config.php';
 		if (!class_exists('Google_Client')) require_once 'Google/Client.php';
