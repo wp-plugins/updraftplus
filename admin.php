@@ -128,7 +128,7 @@ class UpdraftPlus_Admin {
 
 	public function show_admin_notice_upgradead() {
 		?>
-		<div id="updraft-dashnotice" class="updated" style="padding: 6px 6px 6px 12px; margin:8px 0px; max-width: 800px;">
+		<div id="updraft-dashnotice" class="updated" style="padding: 6px 6px 6px 12px; margin:8px 0px;">
 			<div style="float:right;"><a href="#" onclick="jQuery('#updraft-dashnotice').slideUp(); jQuery.post(ajaxurl, {action: 'updraft_ajax', subaction: 'dismissdashnotice', nonce: '<?php echo wp_create_nonce('updraftplus-credentialtest-nonce');?>' });"><?php echo sprintf(__('Dismiss (for %s months)', 'updraftplus'), 12); ?></a></div>
 
 			<h3 style="margin-top: 0px;"><?php _e('Thank you for backing up with UpdraftPlus!', 'updraftplus');?></h3>
