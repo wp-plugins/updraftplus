@@ -46,7 +46,7 @@ class UpdraftPlus_Admin {
 				
 				$backup_dir = $updraftplus->backups_dir_location();
 				// N.B. Not an exact proxy for the installed time; they may have tweaked the expert option to move the directory
-				$installed = @filectime($backup_dir);
+				$installed = @filemtime($backup_dir.'/index.html');
 				$installed_for = time() - $installed;
 
 				if (($installed && time() > $dismissed_until && $installed_for > 28*86400  && !defined('UPDRAFTPLUS_NOADS_B')) || (defined('UPDRAFTPLUS_FORCE_DASHNOTICE') && UPDRAFTPLUS_FORCE_DASHNOTICE)) {
