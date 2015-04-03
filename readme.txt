@@ -3,7 +3,7 @@ Contributors: Backup with UpdraftPlus, DavidAnderson
 Tags: backup, backups, restore, amazon backup, s3 backup, dropbox backup, google drive backup, rackspace cloud files, rackspace backup, cloud files, dreamhost, dreamobjects backup, ftp backup, webdav backup, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp backup, ftps, scp, migrate, duplicate, copy, mysql backup, database backup, db backup, website backup, wordpress backup, full backup, openstack, swift
 Requires at least: 3.2
 Tested up to: 4.2
-Stable tag: 1.9.62
+Stable tag: 1.9.63
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -155,6 +155,10 @@ The <a href="https://updraftplus.com/news/">UpdraftPlus backup blog</a> is the b
 
 N.B. Paid versions of UpdraftPlus have a version number which is 1 higher in the first digit, and has an extra component on the end, but the changelog below still applies. i.e. changes listed for 1.9.60 of the free version correspond to changes made in 2.9.60.x of the paid version.
 
+= 1.9.63 - 2015-04-03 =
+
+* TWEAK: Revert to previous global SSL CA bundle: it seems Amazon S3 still has servers with 1024-bit SSL certificates
+
 = 1.9.62 - 2015-04-01 =
 
 * FEATURE: Automatic backups now integrate with the forthcoming WP 4.2's "shiny plugin updates"
@@ -172,8 +176,10 @@ N.B. Paid versions of UpdraftPlus have a version number which is 1 higher in the
 * TWEAK: Detect + show a more helpful error message if blocked by CloudFlare when connecting for updates (paid versions)
 * TWEAK: Make it easier to use custom Dropbox API keys, via UPDRAFTPLUS_CUSTOM_DROPBOX_APP constant (define to true in wp-config.php)
 * TWEAK: Tweak debug output of webserver information to avoid triggering a (silly) mod_security rule in some setups
-* TWEAK: Alert the user if using Amazon S3 if they do not have the PHP XML module available
+* TWEAK: Alert the user if using Amazon S3 if they do not have the PHP XML Writer module available
 * TWEAK: Log the fact that local deletions are being skipped, if the user set that option.
+* TWEAK: Give timestamp of WPB2D backups without relying upon location of SQL file
+* TWEAK: Detect a situation on migration where the uploads path is changed (from a site that began pre-WP 3.5) that was previously undetected
 * TRANSLATIONS: French translation updated from less than half to complete, thanks to Erwan François. Various other translations updated (many thanks to all translators).
 
 = 1.9.60 - 2015-02-24 =
@@ -1097,4 +1103,4 @@ Furthermore, reliance upon any non-English translation is at your own risk. Updr
 
 
 == Upgrade Notice ==
-* 1.9.62 : WP 4.2 compatibility. Fix regression for corner-case of S3 users with no permission to check their bucket's location (but permission to write to it); various other minor tweaks.
+* 1.9.63 : Revert updating of certificate roots in 1.9.62 (it seems some Amazon S3 servers are still using 1024-bit SSL certificates)
