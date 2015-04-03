@@ -283,7 +283,8 @@ class UpdraftPlus_Backup {
 			# Used when deciding whether to delete the local file
 			$this->last_service = ($ind+1 >= count($services) && $errors_before_uploads == $updraftplus->error_count()) ? true : false;
 
-			$updraftplus->log("Cloud backup selection: ".$service);
+			$log_extra = ($this->last_service) ? ' (last)' : '';
+			$updraftplus->log("Cloud backup selection (".($ind+1)."/".count($services)."): ".$service.$log_extra);
 			@set_time_limit(900);
 
 			$method_include = UPDRAFTPLUS_DIR.'/methods/'.$service.'.php';
