@@ -550,7 +550,7 @@ class UpdraftPlus_BackupModule_googledrive {
 
 	}
 
-	# Returns Google_Service_Drive_DriveFile object
+	// Returns array of Google_Service_Drive_DriveFile objects
 	private function get_subitems($parent_id, $type = 'any', $match = 'backup_') {
 		$q = '"'.$parent_id.'" in parents and trashed = false';
 		if ('dir' == $type) {
@@ -566,7 +566,29 @@ class UpdraftPlus_BackupModule_googledrive {
 				$q .= " and title = '$match'";
 			}
 		}
-		return $this->service->files->listFiles(array('q' => $q))->getItems();
+
+		$result = array();
+		$pageToken = NULL;
+
+		do {
+			try {
+				// Default for maxResults is 100
+				$parameters = array('q' => $q, 'maxResults' => 200);
+				if ($pageToken) {
+					$parameters['pageToken'] = $pageToken;
+				}
+				$files = $this->service->files->listFiles($parameters);
+
+				$result = array_merge($result, $files->getItems());
+				$pageToken = $files->getNextPageToken();
+			} catch (Exception $e) {
+				global $updraftplus;
+				$updraftplus->log("Google Drive: get_subitems: An error occurred (will not fetch further): " . $e->getMessage());
+				$pageToken = NULL;
+			}
+		} while ($pageToken);
+		
+		return $result;
     }
 
 	public function delete($files) {
@@ -747,7 +769,6 @@ class UpdraftPlus_BackupModule_googledrive {
 
 		global $updraftplus;
 		$opts = $this->get_opts();
-
 
 		try {
 			$parent_id = $this->get_parent_id($opts);
