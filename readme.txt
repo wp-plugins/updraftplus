@@ -158,6 +158,7 @@ N.B. Paid versions of UpdraftPlus have a version number which is 1 higher in the
 = 1.9.64 - 2015-04-20 =
 
 * FEATURE: (Premium) Added wizard to make it easier to create limited-access AWS users (requires PHP 5.3.3)
+* SECURITY: Fix non-persistent back-end XSS vulnerability, reported by Sucuri - https://updraftplus.com/new-security-vulnerability-found-across-significant-numbers-of-wordpress-plugins-including-updraftplus/
 * FIX: Fix failure to access some files (e.g. for downloading or deleting) in Google Drive folders that contained >100 UpdraftPlus backup archives (thanks to IanUK for his help)
 * TWEAK: Amazon S3 reduced redundancy storage (a feature of UpdraftPlus Premium) now requires use of PHP 5.3.3 or later.
 * TWEAK: Various fixes to bring automatic backups code up to date with WP 4.2 release candidate 1 (there were some changes since beta 3, which worked since UD 1.9.62)
@@ -1113,4 +1114,4 @@ Furthermore, reliance upon any non-English translation is at your own risk. Updr
 
 
 == Upgrade Notice ==
-* 1.9.64 : Make automatic updates work again on forthcoming WP 4.2 (rc1). Slovenian translation.
+* 1.9.64 : XSS Security fix. Make automatic updates work again on forthcoming WP 4.2 (rc1). Slovenian translation.
