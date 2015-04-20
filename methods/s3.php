@@ -63,7 +63,7 @@ class UpdraftPlus_BackupModule_s3 {
 	}
 
 	// Get an S3 object, after setting our options
-	protected function getS3($key, $secret, $useservercerts, $disableverify, $nossl, $endpoint = null) {
+	public function getS3($key, $secret, $useservercerts, $disableverify, $nossl, $endpoint = null) {
 
 		if (!empty($this->s3_object) && !is_wp_error($this->s3_object)) return $this->s3_object;
 
@@ -638,6 +638,13 @@ class UpdraftPlus_BackupModule_s3 {
 		<?php } else { ?>
 			<input type="hidden" id="updraft_<?php echo $key; ?>_endpoint" name="updraft_<?php echo $key; ?>_endpoint" value="">
 		<?php } ?>
+		<?php if ('s3' == $key && version_compare(PHP_VERSION, '5.3.3', '>=') && class_exists('UpdraftPlus_Addon_S3_Enhanced')) { ?>
+			<tr class="updraftplusmethod <?php echo $key; ?>">
+				<th></th>
+				<td><?php echo apply_filters('updraft_s3_apikeysetting', '<a href="https://updraftplus.com/shop/s3-enhanced/"><em>'.__('To create a new IAM sub-user and access key that has access only to this bucket, use this add-on.', 'updraftplus').'</em></a>'); ?></td>
+			</tr>
+		<?php } ?>
+
 		<tr class="updraftplusmethod <?php echo $key; ?>">
 			<th><?php echo sprintf(__('%s access key','updraftplus'), $whoweare_short);?>:</th>
 			<td><input type="text" autocomplete="off" style="width: 360px" id="updraft_<?php echo $key; ?>_apikey" name="updraft_<?php echo $key; ?>[accesskey]" value="<?php echo esc_attr($opts['accesskey']); ?>" /></td>
@@ -652,8 +659,8 @@ class UpdraftPlus_BackupModule_s3 {
 		</tr>
 		<?php do_action('updraft_'.$key.'_extra_storage_options', $opts); ?>
 		<tr class="updraftplusmethod <?php echo $key; ?>">
-		<th></th>
-		<td><p><button id="updraft-<?php echo $key; ?>-test" type="button" class="button-primary" style="font-size:18px !important"><?php echo htmlspecialchars(sprintf(__('Test %s Settings','updraftplus'),$whoweare_short));?></button></p></td>
+			<th></th>
+			<td><p><button id="updraft-<?php echo $key; ?>-test" type="button" class="button-primary" style="font-size:18px !important"><?php echo htmlspecialchars(sprintf(__('Test %s Settings','updraftplus'),$whoweare_short));?></button></p></td>
 		</tr>
 
 	<?php

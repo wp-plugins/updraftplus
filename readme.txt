@@ -3,7 +3,7 @@ Contributors: Backup with UpdraftPlus, DavidAnderson
 Tags: backup, backups, restore, amazon backup, s3 backup, dropbox backup, google drive backup, rackspace cloud files, rackspace backup, cloud files, dreamhost, dreamobjects backup, ftp backup, webdav backup, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, back up, multisite, restoration, sftp backup, ftps, scp, migrate, duplicate, copy, mysql backup, database backup, db backup, website backup, wordpress backup, full backup, openstack, swift
 Requires at least: 3.2
 Tested up to: 4.2
-Stable tag: 1.9.63
+Stable tag: 1.9.64
 Author URI: http://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -16,7 +16,7 @@ Backup and restoration made easy. Complete backups; manual or scheduled (backup 
 
 <strong>Top-quality:</strong> UpdraftPlus is the <a href="http://rankwp.com/plugins/updraftplus">highest-ranking backup plugin on rankwp.com</a> (ranks in the top 40 out of 30,000 WordPress plugins for quality on rankwp.com - last checked 21 September 2014).
 
-<strong>Hundreds of thousands of users:</strong> widely tested and reliable (over 2 million downloads). The #1 most installed scheduled backup plugin, according to wordpress.org. Millions of backups completed!
+<strong>Hundreds of thousands of users:</strong> widely tested and reliable (over 2.1 million downloads). The #1 most installed scheduled backup plugin, according to wordpress.org. Millions of backups completed!
 
 * Supports WordPress backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP, OpenStack (Swift) and email. Also (via an add-on) Copy.Com, FTP over SSL, SFTP, SCP, and WebDAV (and compatible services, e.g. Yandex, Cubby). (Note: Microsoft forbid OneDrive/SkyDrive to be used by backup software). Some examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
 * Quick restore (both file and database backups)
@@ -75,6 +75,7 @@ Many thanks to the existing translators:
 * Português / Portuguese (Brazilian) (pt_BR): Lucien Raven (lucienraven at yahoo.com.br) and Tom Fonseca (tomfonseca at gmail.com)
 * русский / Russian (ru_RU): Илья Худолей (Ilya Khudoley) - ironman_c at icloud.com and Igor Ocheretny (http://wpsells.com) - also see Igor's free training videos at: http://goodbackup.wpsells.com/
 * Romanian / Română (ro_RO): Augustin-Mihai Mufturel and Teodor Muraru
+* Slovenian / Slovenski (sl_SI): Clav Icula
 * Swedish / Svensk (sv_SE): Steve Sandström - http://www.brandicon.se
 * Tagalog (tl): Kristen Macasero / Mads Phikamphon - http://www.findhold.dk
 * Turk / Turkish (tr_TR): Various translators
@@ -83,7 +84,6 @@ And thanks to these (need updating or new translators) - varying from 50% down t
 
 * Chinese (zh_CN): K L Wang - http://klwang.info
 * Magyar / Hungarian (hu_HU): Szépe Viktor - http://www.szepe.net
-* Français / French translation (fr_FR)
 * Hebrew (he_IL) : Tomer Nagar
 * Bengali (bn_BD)
 * Catalan (ca)
@@ -144,9 +144,9 @@ No, there's no warranty or guarantee, etc. It's completely up to you to verify t
 
 Yes; especially before you submit any support requests.
 
-= Have you written any other free plugins? =
+= Do you have any other free plugins? =
 
-Thanks for asking - yes, I have. Check out my profile page - http://profiles.wordpress.org/DavidAnderson/ .
+Thanks for asking; yes, we've got our few. Check out this profile page - http://profiles.wordpress.org/DavidAnderson/ .
 
 
 == Changelog ==
@@ -154,6 +154,16 @@ Thanks for asking - yes, I have. Check out my profile page - http://profiles.wor
 The <a href="https://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
 N.B. Paid versions of UpdraftPlus have a version number which is 1 higher in the first digit, and has an extra component on the end, but the changelog below still applies. i.e. changes listed for 1.9.60 of the free version correspond to changes made in 2.9.60.x of the paid version.
+
+= 1.9.64 - 2015-04-20 =
+
+* FEATURE: (Premium) Added wizard to make it easier to create limited-access AWS users (requires PHP 5.3.3)
+* FIX: Fix failure to access some files (e.g. for downloading or deleting) in Google Drive folders that contained >100 UpdraftPlus backup archives (thanks to IanUK for his help)
+* TWEAK: Amazon S3 reduced redundancy storage (a feature of UpdraftPlus Premium) now requires use of PHP 5.3.3 or later.
+* TWEAK: Various fixes to bring automatic backups code up to date with WP 4.2 release candidate 1 (there were some changes since beta 3, which worked since UD 1.9.62)
+* TWEAK: Update to version 2.0 of plugin updater class (https://github.com/YahnisElsts/plugin-update-checker) - necessary on WP 4.2 to prevent shiny updates after the first failing when 3rd party plugins exist, and to suppress a PHP notice on the plugins page.
+* TWEAK: Add wp_rp_tags to the list of potentially huge tables that won't need search/replacing
+* TRANSLATION: New Slovenian translation, courtesy of Clav Icula
 
 = 1.9.63 - 2015-04-03 =
 
@@ -1103,4 +1113,4 @@ Furthermore, reliance upon any non-English translation is at your own risk. Updr
 
 
 == Upgrade Notice ==
-* 1.9.63 : Revert updating of certificate roots in 1.9.62 (it seems some Amazon S3 servers are still using 1024-bit SSL certificates)
+* 1.9.64 : Make automatic updates work again on forthcoming WP 4.2 (rc1). Slovak translation.
