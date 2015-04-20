@@ -1113,4 +1113,4 @@ Furthermore, reliance upon any non-English translation is at your own risk. Updr
 
 
 == Upgrade Notice ==
-* 1.9.64 : Make automatic updates work again on forthcoming WP 4.2 (rc1). Slovak translation.
+* 1.9.64 : Make automatic updates work again on forthcoming WP 4.2 (rc1). Slovenian translation.
