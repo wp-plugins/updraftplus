@@ -580,7 +580,7 @@ function updraft_restorer_checkstage2(doalert) {
 	}
 	// Allow pressing 'Restore' to proceed
 	jQuery('#updraft-restore-modal-stage2a').html(updraftlion.processing);
-	jQuery.get(ajaxurl, {
+	jQuery.post(ajaxurl, {
 		action: 'updraft_ajax',
 		subaction: 'restore_alldownloaded', 
 		nonce: updraft_credentialtest_nonce,
