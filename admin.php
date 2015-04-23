@@ -972,21 +972,21 @@ class UpdraftPlus_Admin {
 
 			echo json_encode($this->fetch_log($_REQUEST['backup_nonce']));
 
-		} elseif (isset($_GET['subaction']) && 'restore_alldownloaded' == $_GET['subaction'] && isset($_GET['restoreopts']) && isset($_GET['timestamp'])) {
+		} elseif (isset($_REQUEST['subaction']) && 'restore_alldownloaded' == $_REQUEST['subaction'] && isset($_REQUEST['restoreopts']) && isset($_REQUEST['timestamp'])) {
 
 			$backups = $updraftplus->get_backup_history();
 			$updraft_dir = $updraftplus->backups_dir_location();
 
-			$timestamp = (int)$_GET['timestamp'];
+			$timestamp = (int)$_REQUEST['timestamp'];
 			if (!isset($backups[$timestamp])) {
 				echo json_encode(array('m' => '', 'w' => '', 'e' => __('No such backup set exists', 'updraftplus')));
 				die;
 			}
 
 			$mess = array();
-			parse_str($_GET['restoreopts'], $res);
+			parse_str($_REQUEST['restoreopts'], $res);
 
-			if (isset($res['updraft_restore'])) {
+			if (isset($res['updraft_restore']) && is_array($res['updraft_restore']) && count($res['updraft_restore']) > 0) {
 
 				set_error_handler(array($this, 'get_php_errors'), E_ALL & ~E_STRICT);
 
