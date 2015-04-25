@@ -68,8 +68,13 @@ class UpdraftPlus_BackupModule_email {
 		<tr class="updraftplusmethod email">
 			<th><?php _e('Note:', 'updraftplus');?></th>
 			<td><?php
-				$used = apply_filters('updraftplus_email_whichaddresses', sprintf(__("Your site's admin email address (%s) will be used.", 'updraftplus'), get_bloginfo('admin_email')).' <a href="http://updraftplus.com/shop/reporting/">'.sprintf(__('For more options, use the "%s" add-on.', 'updraftplus'), __('Reporting', 'updraftplus')).'</a>');
-				echo str_replace('&gt;','>', str_replace('&lt;','<',htmlspecialchars($used.' '.sprintf(__('Be aware that mail servers tend to have size limits; typically around %s Mb; backups larger than any limits will likely not arrive.','updraftplus'), '10-20'))));?>
+
+				$used = apply_filters('updraftplus_email_whichaddresses',
+					sprintf(__("Your site's admin email address (%s) will be used.", 'updraftplus'), get_bloginfo('admin_email').' - <a href="'.esc_attr(admin_url('options-general.php')).'">'.__("configure it here", 'updraftplus').'</a>').
+					' <a href="https://updraftplus.com/shop/reporting/">'.sprintf(__('For more options, use the "%s" add-on.', 'updraftplus'), __('Reporting', 'updraftplus')).'</a>'
+				);
+
+				echo $used.' '.sprintf(__('Be aware that mail servers tend to have size limits; typically around %s Mb; backups larger than any limits will likely not arrive.','updraftplus'), '10-20');?>
 			</td>
 		</tr>
 		<?php

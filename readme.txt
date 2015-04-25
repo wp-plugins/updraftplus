@@ -33,7 +33,7 @@ Backup and restoration made easy. Complete backups; manual or scheduled (backup 
 * Debug mode that gives full logging of the backup
 * Internationalised (translations very welcome - see below)
 * <a href="http://updraftplus.com">Premium version and support available - http://updraftplus.com</a>
-* Tested and supported on all current PHP versions (5.2, 5.3, 5.4, 5.5)
+* Supported on all current PHP versions (5.2, 5.3, 5.4, 5.5, 5.6)
 
 = Don't Risk Anything Less =
 
@@ -155,9 +155,14 @@ The <a href="https://updraftplus.com/news/">UpdraftPlus backup blog</a> is the b
 
 N.B. Paid versions of UpdraftPlus have a version number which is 1 higher in the first digit, and has an extra component on the end, but the changelog below still applies. i.e. changes listed for 1.9.60 of the free version correspond to changes made in 2.9.60.x of the paid version.
 
+= Development version (not yet released/supported) =
+
+* TWEAK: Add woocommerce_order_items and relevanssi_log to the list of potentially huge tables that won't need search/replacing
+
 = 1.9.64 - 2015-04-20 =
 
 * FEATURE: (Premium) Added wizard to make it easier to create limited-access AWS users (requires PHP 5.3.3)
+* SECURITY: Fix non-persistent back-end XSS vulnerability, reported by Sucuri - https://updraftplus.com/new-security-vulnerability-found-across-significant-numbers-of-wordpress-plugins-including-updraftplus/
 * FIX: Fix failure to access some files (e.g. for downloading or deleting) in Google Drive folders that contained >100 UpdraftPlus backup archives (thanks to IanUK for his help)
 * TWEAK: Amazon S3 reduced redundancy storage (a feature of UpdraftPlus Premium) now requires use of PHP 5.3.3 or later.
 * TWEAK: Various fixes to bring automatic backups code up to date with WP 4.2 release candidate 1 (there were some changes since beta 3, which worked since UD 1.9.62)
@@ -1113,4 +1118,4 @@ Furthermore, reliance upon any non-English translation is at your own risk. Updr
 
 
 == Upgrade Notice ==
-* 1.9.64 : Make automatic updates work again on forthcoming WP 4.2 (rc1). Slovenian translation.
+* 1.9.64 : XSS Security fix. Make automatic updates work again on forthcoming WP 4.2 (rc1). Slovenian translation.
