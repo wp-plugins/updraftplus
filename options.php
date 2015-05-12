@@ -58,7 +58,15 @@ class UpdraftPlus_Options {
 
 		if (!$allow_autocomplete) echo ' autocomplete="off"';
 		echo '>';
-		if ($settings_fields) settings_fields('updraft-options-group');
+		if ($settings_fields) {
+			// This is settings_fields('updraft-options-group'), but with the referer pruned
+			echo "<input type='hidden' name='option_page' value='" . esc_attr('updraft-options-group') . "' />";
+			echo '<input type="hidden" name="action" value="update" />';
+			// $action = -1, $name = "_wpnonce", $referer = true , $echo = true 
+			wp_nonce_field("updraft-options-group-options", '_wpnonce', false);
+			$referer_field = '<input type="hidden" name="_wp_http_referer" value="'. esc_attr( wp_unslash( remove_query_arg( array('state', 'action'), $_SERVER['REQUEST_URI']) ) ) . '" />';
+			echo $referer_field;
+		}
 	}
 
 	public static function admin_init() {
@@ -82,6 +90,7 @@ class UpdraftPlus_Options {
 		register_setting('updraft-options-group', 'updraft_openstack');
 		register_setting('updraft-options-group', 'updraft_dropbox', array($updraftplus, 'dropbox_checkchange'));
 		register_setting('updraft-options-group', 'updraft_googledrive', array($updraftplus, 'googledrive_checkchange'));
+		register_setting('updraft-options-group', 'updraft_onedrive', array($updraftplus, 'onedrive_checkchange'));
 
 		register_setting('updraft-options-group', 'updraft_sftp_settings');
 		register_setting('updraft-options-group', 'updraft_webdav_settings', array($updraftplus, 'replace_http_with_webdav'));

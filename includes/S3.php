@@ -2089,16 +2089,19 @@ final class UpdraftPlus_S3Request
 				{
 					curl_setopt($curl, CURLOPT_PUT, true);
 					curl_setopt($curl, CURLOPT_INFILE, $this->fp);
-					if ($this->size >= 0)
+					if ($this->size >= 0) {
 						curl_setopt($curl, CURLOPT_INFILESIZE, $this->size);
+					}
 				}
 				elseif ($this->data !== false)
 				{
 					curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $this->verb);
 					curl_setopt($curl, CURLOPT_POSTFIELDS, $this->data);
+					curl_setopt($curl, CURLOPT_INFILESIZE, strlen($this->data));
 				}
-				else
+				else {
 					curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $this->verb);
+				}
 			break;
 			case 'HEAD':
 				curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'HEAD');

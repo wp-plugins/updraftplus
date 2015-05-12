@@ -84,7 +84,14 @@ class Google_IO_Stream extends Google_IO_Abstract
 // Added
 if (empty($this->options['disable_verify_peer'])) {
 	$requestSslContext['verify_peer'] = true;
-	if (!empty($cname)) $requestSslContext['CN_match'] = $cname;
+	if (version_compare(PHP_VERSION, '5.6.0', '>=')) {
+		if (!empty($cname)) $requestSslContext['peer_name'] = $cname;
+	} else {
+		if (!empty($cname)) {
+			$requestSslContext['CN_match'] = $cname;
+			$retry_on_fail = true;
+		}
+	}
 } else {
 	$requestSslContext['allow_self_signed'] = true;
 }
@@ -107,11 +114,16 @@ if (!empty($this->options['cafile'])) $requestSslContext['cafile'] = $this->opti
       $url = self::ZLIB . $url;
     }
 
-    // Not entirely happy about this, but supressing the warning from the
-    // fopen seems like the best situation here - we can't do anything
-    // useful with it, and failure to connect is a legitimate run
-    // time situation.
-    @$fh = fopen($url, 'r', false, $context);
+    $fh = fopen($url, 'r', false, $context);
+
+    if (!$fh && isset($retry_on_fail) && !empty($cname) && 'www.googleapis.com' == $cname) {
+	global $updraftplus;
+	$updraftplus->log("Using Stream, and fopen failed; retrying different CN match to try to overcome");
+	// www.googleapis.com does not match the cert now being presented - *.storage.googleapis.com; presumably, PHP's stream handler isn't handling alternative names properly. Rather than turn off all verification, let's retry with a new name to match.
+	$options['ssl']['CN_match'] = 'www.storage.googleapis.com';
+	$context = stream_context_create($options);
+	$fh = fopen($url, 'r', false, $context);
+    }
 
     $response_data = false;
     $respHttpCode = self::UNKNOWN_CODE;
@@ -169,14 +181,13 @@ if (!empty($this->options['cafile'])) $requestSslContext['cafile'] = $this->opti
   }
 
   /**
-   * Test for the presence of a cURL header processing bug
-   *
-   * {@inheritDoc}
-   *   * @return boolean
+   * Determine whether "Connection Established" quirk is needed
+   * @return boolean
    */
   protected function needsQuirk()
   {
-      return false;
+      // Stream needs the special quirk
+      return true;
   }
 
   protected function getHttpResponseCode($response_headers)

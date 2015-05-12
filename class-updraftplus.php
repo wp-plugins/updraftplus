@@ -14,6 +14,7 @@ class UpdraftPlus {
 		's3' => 'Amazon S3',
 		'cloudfiles' => 'Rackspace Cloud Files',
 		'googledrive' => 'Google Drive',
+		'onedrive' => 'Microsoft OneDrive',
 		'ftp' => 'FTP',
 		'copycom' => 'Copy.Com',
 		'sftp' => 'SFTP / SCP',
@@ -49,6 +50,9 @@ class UpdraftPlus {
 
 		# Bitcasa support is deprecated
 		if (is_file(UPDRAFTPLUS_DIR.'/addons/bitcasa.php')) $this->backup_methods['bitcasa'] = 'Bitcasa';
+
+		# Experimental/testing OneDrive support
+		if (is_file(UPDRAFTPLUS_DIR.'/addons/onedrive.php')) $this->backup_methods['onedrive'] = 'Microsoft OneDrive';
 
 		// Initialisation actions - takes place on plugin load
 
@@ -1189,8 +1193,11 @@ class UpdraftPlus {
 
 		// This works round a bizarre bug seen in one WP install, where delete_transient and wp_clear_scheduled_hook both took no effect, and upon 'resumption' the entire backup would repeat.
 		// Argh. In fact, this has limited effect, as apparently (at least on another install seen), the saving of the updated transient via jobdata_set() also took no effect. Still, it does not hurt.
-		if (($resumption_no >= 1 && 'finished' == $this->jobdata_get('jobstatus')) || ('backup' == $job_type && !empty($this->backup_is_already_complete))) {
-			$this->log('Terminate: This backup job is already finished.');
+		if ($resumption_no >= 1 && 'finished' == $this->jobdata_get('jobstatus')) {
+			$this->log('Terminate: This backup job is already finished (1).');
+			die;
+		} elseif ('backup' == $job_type && !empty($this->backup_is_already_complete)) {
+			$this->log('Terminate: This backup job is already finished (2).');
 			die;
 		}
 
@@ -1638,7 +1645,11 @@ class UpdraftPlus {
 		}
 
 		// Allow the resume interval to be more than 300 if last time we know we went beyond that - but never more than 600
-		$resume_interval = (int)min(max(300, get_site_transient('updraft_initial_resume_interval')), 600);
+		if (defined('UPDRAFTPLUS_INITIAL_RESUME_INTERVAL') && is_numeric(UPDRAFTPLUS_INITIAL_RESUME_INTERVAL)) {
+			$resume_interval = UPDRAFTPLUS_INITIAL_RESUME_INTERVAL;
+		} else {
+			$resume_interval = (int)min(max(300, get_site_transient('updraft_initial_resume_interval')), 600);
+		}
 		# We delete it because we only want to know about behaviour found during the very last backup run (so, if you move servers then old data is not retained)
 		delete_site_transient('updraft_initial_resume_interval');
 
@@ -2273,6 +2284,24 @@ class UpdraftPlus {
 		wp_schedule_event($first_time, $interval, 'updraft_backup_database');
 
 		return $interval;
+	}
+
+	// Acts as a Wordpress options filter
+	public function onedrive_checkchange($onedrive) {
+		$opts = UpdraftPlus_Options::get_updraft_option('updraft_onedrive');
+		if (!is_array($opts)) $opts = array();
+		if (!is_array($onedrive)) return $opts;
+		$old_client_id = (empty($opts['clientid'])) ? '' : $opts['clientid'];
+		if (!empty($opts['token']) && $old_client_id != $onedrive['clientid']) {
+			unset($opts['token']);
+			unset($opts['tokensecret']);
+			unset($opts['ownername']);
+		}
+		foreach ($onedrive as $key => $value) {
+			if ('folder' == $key) $value = trim(str_replace('\\', '/', $value), '/');
+			$opts[$key] = ('clientid' == $key || 'secret' == $key) ? trim($value) : $value;
+		}
+		return $opts;
 	}
 
 	// Acts as a WordPress options filter

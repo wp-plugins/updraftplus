@@ -1691,10 +1691,12 @@ class Updraft_Restorer extends WP_Upgrader {
 
 				$mprefix = (empty($matches[1])) ? '' : $matches[1];
 
+				$new_table_name = $import_table_prefix.$mprefix."options";
+
 				if ($import_table_prefix != $old_table_prefix) {
 					$updraftplus->log("Table prefix has changed: changing options table field(s) accordingly (".$mprefix."options)");
 					echo sprintf(__('Table prefix has changed: changing %s table field(s) accordingly:', 'updraftplus'),'option').' ';
-					if (false === $wpdb->query("UPDATE ${import_table_prefix}".$mprefix."options SET option_name='${import_table_prefix}".$mprefix."user_roles' WHERE option_name='${old_table_prefix}".$mprefix."user_roles' LIMIT 1")) {
+					if (false === $wpdb->query("UPDATE $new_table_name SET option_name='${import_table_prefix}".$mprefix."user_roles' WHERE option_name='${old_table_prefix}".$mprefix."user_roles' LIMIT 1")) {
 						echo __('Error','updraftplus');
 						$updraftplus->log("Error when changing options table fields: ".$wpdb->last_error);
 					} else {
@@ -1728,10 +1730,10 @@ class Updraft_Restorer extends WP_Upgrader {
 					}
 				}
 
-				# TODO: Do on all WPMU tables
+				# TODO:Do on all WPMU tables
 				if ($table == $import_table_prefix.'options') {
 					# Bad plugin that hard-codes path references - https://wordpress.org/plugins/custom-content-type-manager/
-					$cctm_data = $wpdb->get_row($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", 'cctm_data'));
+					$cctm_data = $wpdb->get_row($wpdb->prepare("SELECT option_value FROM $new_table_name WHERE option_name = %s LIMIT 1", 'cctm_data'));
 					if (!empty($cctm_data->option_value)) {
 						$cctm_data = maybe_unserialize($cctm_data->option_value);
 						if (is_array($cctm_data) && !empty($cctm_data['cache']) && is_array($cctm_data['cache'])) {
@@ -1741,7 +1743,7 @@ class Updraft_Restorer extends WP_Upgrader {
 						}
 					}
 					# Another - http://www.elegantthemes.com/gallery/elegant-builder/
-					$elegant_data = $wpdb->get_row($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", 'et_images_temp_folder'));
+					$elegant_data = $wpdb->get_row($wpdb->prepare("SELECT option_value FROM $new_table_name WHERE option_name = %s LIMIT 1", 'et_images_temp_folder'));
 					if (!empty($elegant_data->option_value)) {
 						$dbase = basename($elegant_data->option_value);
 						$wp_upload_dir = wp_upload_dir();
@@ -1750,10 +1752,17 @@ class Updraft_Restorer extends WP_Upgrader {
 						$updraftplus->log_e("Elegant themes theme builder plugin data detected: resetting temporary folder");
 						update_option('et_images_temp_folder', $edir.'/'.$dbase);
 					}
-					# The gantry menu plugin sometimes uses too-long transient names, causing the timeout option to be missing; and hence the transient becomes permanent.
-					# WP 3.4 onwards has $wpdb->delete(). But we support 3.2 onwards.
-					$wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '_transient_gantry-menu%' OR option_name LIKE '_transient_timeout_gantry-menu%'");
 				}
+
+				# The gantry menu plugin sometimes uses too-long transient names, causing the timeout option to be missing; and hence the transient becomes permanent.
+				# WP 3.4 onwards has $wpdb->delete(). But we support 3.2 onwards.
+				$wpdb->query("DELETE FROM $new_table_name WHERE option_name LIKE '_transient_gantry-menu%' OR option_name LIKE '_transient_timeout_gantry-menu%'");
+
+				# Jetpack: see: https://wordpress.org/support/topic/issues-with-dev-site
+				if ($this->old_siteurl != $this->our_siteurl) {
+					$wpdb->query("DELETE FROM $new_table_name WHERE option_name = 'jetpack_options'");
+				}
+
 			}
 
 		} elseif ($import_table_prefix != $old_table_prefix && preg_match('/^([\d+]_)?usermeta$/', substr($table, strlen($import_table_prefix)), $matches)) {

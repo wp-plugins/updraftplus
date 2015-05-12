@@ -31,6 +31,11 @@ function updraft_delete_old_dirs() {
 	return true;
 }
 
+function updraft_initiate_restore(whichset) {
+	jQuery('#updraft-migrate-modal').dialog('close');
+	jQuery("#restore-"+whichset).click();
+}
+
 function updraft_restore_setoptions(entities) {
 	var howmany = 0;
 	jQuery('input[name="updraft_restore[]"]').each(function(x,y){
@@ -75,6 +80,11 @@ var updraft_activejobs_nextupdate = (new Date).getTime() + 1000;
 // Bits: main tab displayed (1); restore dialog open (uses downloader) (2); tab not visible (4)
 var updraft_page_is_visible = 1;
 var updraft_console_focussed_tab = 1;
+
+var updraft_settings_form_changed = false;
+window.onbeforeunload = function(e) {
+	if (updraft_settings_form_changed) return updraftlion.unsavedsettings;
+}
 
 // N.B. This function works on both the UD settings page and elsewhere
 function updraft_check_page_visibility(firstload) {
@@ -738,6 +748,13 @@ function updraft_backupnow_go(backupnow_nodb, backupnow_nofiles, backupnow_noclo
 
 jQuery(document).ready(function($){
 
+	jQuery("#updraft-navtab-settings-content form input, #updraft-navtab-settings-content form select").change(function(e){
+		updraft_settings_form_changed = true;
+	});
+	jQuery("#updraft-navtab-settings-content form input[type='submit']").click(function (e) {
+		updraft_settings_form_changed = false;
+	});
+	
 	var bigbutton_width = 180;
 	jQuery('.updraft-bigbutton').each(function(x,y){
 		var bwid = jQuery(y).width();
@@ -903,8 +920,8 @@ jQuery(document).ready(function($){
 
 	var migrate_modal_buttons = {};
 	migrate_modal_buttons[updraftlion.close] = function() { jQuery(this).dialog("close"); };
-	jQuery( "#updraft-migrate-modal" ).dialog({
-		autoOpen: false, height: 295, width: 420, modal: true,
+	jQuery("#updraft-migrate-modal").dialog({
+		autoOpen: false, height: 355, width: 485, modal: true,
 		buttons: migrate_modal_buttons
 	});
 	

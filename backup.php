@@ -769,7 +769,8 @@ class UpdraftPlus_Backup {
 			# NOTYET: Possible amendment to original algorithm; not just no check-in, but if the check in was very early (can happen if we get a very early checkin for some trivial operation, then attempt something too big)
 
 			if (!empty($updraftplus->no_checkin_last_time)) {
-				if ($updraftplus->current_resumption - $updraftplus->last_successful_resumption > 2) {
+				// Apr 2015: !$updraftplus->newresumption_scheduled added after seeing a log where there was no activity on resumption 9, and extra resumption 10 then tried the same operation.
+				if ($updraftplus->current_resumption - $updraftplus->last_successful_resumption > 2 || !$updraftplus->newresumption_scheduled) {
 					$this->try_split = true;
 				} else {
 					$new_maxzipbatch = max(floor($maxzipbatch * 0.75), 20971520);
@@ -1102,54 +1103,58 @@ class UpdraftPlus_Backup {
 				$stitch_files[] = $table_file_prefix;
 			} else {
 				# === is needed, otherwise 'false' matches (i.e. prefix does not match)
-				if (empty($this->table_prefix) || ($this->duplicate_tables_exist == false && stripos($table, $this->table_prefix) === 0 ) || ($this->duplicate_tables_exist == true && strpos($table, $this->table_prefix) === 0 )) {
+				if (empty($this->table_prefix) || ($this->duplicate_tables_exist == false && stripos($table, $this->table_prefix) === 0 ) || ($this->duplicate_tables_exist == true && strpos($table, $this->table_prefix) === 0 ) ) {
 
-					// Open file, store the handle
-					$opened = $this->backup_db_open($this->updraft_dir.'/'.$table_file_prefix.'.tmp.gz', true);
-					if (false === $opened) return false;
-
-					// Create the SQL statements
-					$this->stow("# " . sprintf('Table: %s' ,$updraftplus->backquote($table)) . "\n");
-					$updraftplus->jobdata_set('dbcreating_substatus', array('t' => $table, 'i' => $total_tables, 'a' => $how_many_tables));
-
-					$table_status = $this->wpdb_obj->get_row("SHOW TABLE STATUS WHERE Name='$table'");
-					if (isset($table_status->Rows)) {
-						$rows = $table_status->Rows;
-						$updraftplus->log("Table $table: Total expected rows (approximate): ".$rows);
-						$this->stow("# Approximate rows expected in table: $rows\n");
-						if ($rows > UPDRAFTPLUS_WARN_DB_ROWS) {
-							$manyrows_warning = true;
-							$updraftplus->log(sprintf(__("Table %s has very many rows (%s) - we hope your web hosting company gives you enough resources to dump out that table in the backup", 'updraftplus'), $table, $rows), 'warning', 'manyrows_'.$this->whichdb_suffix.$table);
-						}
-					}
-
-					# Don't include the job data for any backups - so that when the database is restored, it doesn't continue an apparently incomplete backup
-					if  ('wp' == $this->whichdb && (!empty($this->table_prefix) && strtolower($this->table_prefix.'sitemeta') == strtolower($table))) {
-						$where = 'meta_key NOT LIKE "updraft_jobdata_%"';
-					} elseif ('wp' == $this->whichdb && (!empty($this->table_prefix) && strtolower($this->table_prefix.'options') == strtolower($table))) {
-						$where = 'option_name NOT LIKE "updraft_jobdata_%"';
+					if (!apply_filters('updraftplus_backup_table', true, $table, $this->table_prefix, $whichdb, $dbinfo)) {
+						$updraftplus->log("Skipping table (filtered): $table");
 					} else {
-						$where = '';
+
+						// Open file, store the handle
+						$opened = $this->backup_db_open($this->updraft_dir.'/'.$table_file_prefix.'.tmp.gz', true);
+						if (false === $opened) return false;
+
+						// Create the SQL statements
+						$this->stow("# " . sprintf('Table: %s' ,$updraftplus->backquote($table)) . "\n");
+						$updraftplus->jobdata_set('dbcreating_substatus', array('t' => $table, 'i' => $total_tables, 'a' => $how_many_tables));
+
+						$table_status = $this->wpdb_obj->get_row("SHOW TABLE STATUS WHERE Name='$table'");
+						if (isset($table_status->Rows)) {
+							$rows = $table_status->Rows;
+							$updraftplus->log("Table $table: Total expected rows (approximate): ".$rows);
+							$this->stow("# Approximate rows expected in table: $rows\n");
+							if ($rows > UPDRAFTPLUS_WARN_DB_ROWS) {
+								$manyrows_warning = true;
+								$updraftplus->log(sprintf(__("Table %s has very many rows (%s) - we hope your web hosting company gives you enough resources to dump out that table in the backup", 'updraftplus'), $table, $rows), 'warning', 'manyrows_'.$this->whichdb_suffix.$table);
+							}
+						}
+
+						# Don't include the job data for any backups - so that when the database is restored, it doesn't continue an apparently incomplete backup
+						if  ('wp' == $this->whichdb && (!empty($this->table_prefix) && strtolower($this->table_prefix.'sitemeta') == strtolower($table))) {
+							$where = 'meta_key NOT LIKE "updraft_jobdata_%"';
+						} elseif ('wp' == $this->whichdb && (!empty($this->table_prefix) && strtolower($this->table_prefix.'options') == strtolower($table))) {
+							$where = 'option_name NOT LIKE "updraft_jobdata_%"';
+						} else {
+							$where = '';
+						}
+
+						# If no check-in last time, then we could in future try the other method (but - any point in retrying slow method on large tables??)
+
+						# New Jul 2014: This attempt to use bindump instead at a lower threshold is quite conservative - only if the last successful run was exactly two resumptions ago - may be useful to expand
+						$bindump_threshold = (!$updraftplus->something_useful_happened && !empty($updraftplus->current_resumption) && ($updraftplus->current_resumption - $updraftplus->last_successful_resumption == 2 )) ? 1000 : 8000;
+
+						$bindump = (isset($rows) && ($rows>$bindump_threshold || (defined('UPDRAFTPLUS_ALWAYS_TRY_MYSQLDUMP') && UPDRAFTPLUS_ALWAYS_TRY_MYSQLDUMP)) && is_string($binsqldump)) ? $this->backup_table_bindump($binsqldump, $table, $where) : false;
+						if (true !== $bindump) $this->backup_table($table, $where);
+
+						if (!empty($manyrows_warning)) $updraftplus->log_removewarning('manyrows_'.$this->whichdb_suffix.$table);
+
+						$this->close();
+
+						$updraftplus->log("Table $table: finishing file (${table_file_prefix}.gz - ".round(filesize($this->updraft_dir.'/'.$table_file_prefix.'.tmp.gz')/1024,1)." Kb)");
+
+						rename($this->updraft_dir.'/'.$table_file_prefix.'.tmp.gz', $this->updraft_dir.'/'.$table_file_prefix.'.gz');
+						$updraftplus->something_useful_happened();
+						$stitch_files[] = $table_file_prefix;
 					}
-
-					# If no check-in last time, then we could in future try the other method (but - any point in retrying slow method on large tables??)
-
-					# New Jul 2014: This attempt to use bindump instead at a lower threshold is quite conservative - only if the last successful run was exactly two resumptions ago - may be useful to expand
-					$bindump_threshold = (!$updraftplus->something_useful_happened && !empty($updraftplus->current_resumption) && ($updraftplus->current_resumption - $updraftplus->last_successful_resumption == 2 )) ? 1000 : 8000;
-
-					$bindump = (isset($rows) && ($rows>$bindump_threshold || (defined('UPDRAFTPLUS_ALWAYS_TRY_MYSQLDUMP') && UPDRAFTPLUS_ALWAYS_TRY_MYSQLDUMP)) && is_string($binsqldump)) ? $this->backup_table_bindump($binsqldump, $table, $where) : false;
-					if (true !== $bindump) $this->backup_table($table, $where);
-
-					if (!empty($manyrows_warning)) $updraftplus->log_removewarning('manyrows_'.$this->whichdb_suffix.$table);
-
-					$this->close();
-
-					$updraftplus->log("Table $table: finishing file (${table_file_prefix}.gz - ".round(filesize($this->updraft_dir.'/'.$table_file_prefix.'.tmp.gz')/1024,1)." Kb)");
-
-					rename($this->updraft_dir.'/'.$table_file_prefix.'.tmp.gz', $this->updraft_dir.'/'.$table_file_prefix.'.gz');
-					$updraftplus->something_useful_happened();
-					$stitch_files[] = $table_file_prefix;
-
 				} else {
 					$total_tables--;
 					$updraftplus->log("Skipping table (lacks our prefix (".$this->table_prefix.")): $table");
