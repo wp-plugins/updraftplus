@@ -12,7 +12,7 @@ Backup and restoration made easy. Complete backups; manual or scheduled (backup 
 
 == Description ==
 
-<a href="https://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3 (or compatible), Dropbox, Google Drive, Microsoft OneDrive, Rackspace Cloud, DreamObjects, FTP, SFTP, SCP, WebDAV, OpenStack Swift and email) and restore with a single click. Backups of files and database can have separate schedules.
+<a href="https://updraftplus.com">UpdraftPlus</a> simplifies backups (and restoration). Backup into the cloud (Amazon S3 (or compatible), Dropbox, Google Drive, Rackspace Cloud, DreamObjects, FTP, Microsoft OneDrive, SFTP, SCP, WebDAV, OpenStack Swift and email) and restore with a single click. Backups of files and database can have separate schedules.
 
 <strong>Top-quality:</strong> UpdraftPlus is the <a href="http://rankwp.com/plugins/updraftplus">highest-ranking backup plugin on wordpress.org</a> (ranks in the top 40 out of 30,000 WordPress plugins for quality on rankwp.com - last checked Sep 2014).
 
