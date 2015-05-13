@@ -64,7 +64,15 @@ class UpdraftPlus_Options {
 			echo '<input type="hidden" name="action" value="update" />';
 			// $action = -1, $name = "_wpnonce", $referer = true , $echo = true 
 			wp_nonce_field("updraft-options-group-options", '_wpnonce', false);
-			$referer_field = '<input type="hidden" name="_wp_http_referer" value="'. esc_attr( wp_unslash( remove_query_arg( array('state', 'action'), $_SERVER['REQUEST_URI']) ) ) . '" />';
+
+			// wp_unslash() does not exist until after WP 3.5
+			if (function_exists('wp_unslash')) {
+				$referer = wp_unslash( remove_query_arg( array('state', 'action'), $_SERVER['REQUEST_URI']) );
+			} else {
+				$referer = stripslashes_deep( remove_query_arg( array('state', 'action'), $_SERVER['REQUEST_URI']) );
+			}
+
+			$referer_field = '<input type="hidden" name="_wp_http_referer" value="'. esc_attr($referer) . '" />';
 			echo $referer_field;
 		}
 	}
