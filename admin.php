@@ -223,12 +223,12 @@ class UpdraftPlus_Admin {
 			'cancel' => __('Cancel', 'updraftplus'),
 			'deletebutton' => __('Delete', 'updraftplus'),
 			'createbutton' => __('Create', 'updraftplus'),
+			'youdidnotselectany' => __('You did not select any components to restore. Please select at least one, and then try again.', 'updraftplus'),
 			'proceedwithupdate' => __('Proceed with update', 'updraftplus'),
 			'close' => __('Close', 'updraftplus'),
 			'restore' => __('Restore', 'updraftplus'),
 			'download' => __('Download log file', 'updraftplus'),
 			'automaticbackupbeforeupdate' => __('Automatic backup before update', 'updraftplus'),
-			'youdidnotselectany', __('You did not select any components to restore. Please select at least one, and then try again.', 'updraftplus'),
 			'unsavedsettings' => __('You have made changes to your settings, and not saved.', 'updraftplus'),
 		) );
 	}
