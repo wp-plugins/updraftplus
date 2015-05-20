@@ -1543,6 +1543,5 @@ Furthermore, reliance upon any non-English translation is at your own risk. Updr
 
 We recognise and thank the following for code and/or libraries used and/or modified under the terms of their open source licences; see: https://updraftplus.com/acknowledgements/
 
-
 == Upgrade Notice ==
 * 1.10.1 : Various tweaks and fixes. Google Drive backup support without curl. Microsoft OneDrive backup support (in UpdraftPlus Premium).
