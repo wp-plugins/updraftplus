@@ -26,6 +26,8 @@ class Updraft_Restorer extends WP_Upgrader {
 	private $line_last_logged = 0;
 	private $our_siteurl;
 
+	private $configuration_bundle;
+
 	public function __construct($skin = null, $info = null, $shortinit = false) {
 
 		global $wpdb;
@@ -894,9 +896,23 @@ class Updraft_Restorer extends WP_Upgrader {
 			case 'uploads':
 				$this->chmod_if_needed($wp_filesystem_dir, FS_CHMOD_DIR, false, $wp_filesystem);
 			break;
+			case 'themes':
+				// Cherry Framework needs its cache files removing after migration
+				if ((empty($this->old_siteurl) || ($this->old_siteurl != $this->our_siteurl)) && function_exists('glob')) {
+					$cherry_child = glob(WP_CONTENT_DIR.'/themes/theme*');
+					foreach ($cherry_child as $theme) {
+						if (file_exists($theme.'/style.less.cache')) unlink($theme.'/style.less.cache');
+						if (file_exists($theme.'/bootstrap/less/bootstrap.less.cache')) unlink($theme.'/bootstrap/less/bootstrap.less.cache');
+					}
+				}
+			break;
 			case 'db':
 				if (function_exists('wp_cache_flush')) wp_cache_flush();
-				do_action('updraftplus_restored_db', array('expected_oldsiteurl' => $this->old_siteurl, 'expected_oldhome' => $this->old_home, 'expected_oldcontent' => $this->old_content), $import_table_prefix);
+				do_action('updraftplus_restored_db', array(
+					'expected_oldsiteurl' => $this->old_siteurl,
+					'expected_oldhome' => $this->old_home,
+					'expected_oldcontent' => $this->old_content
+				), $import_table_prefix);
 				$this->flush_rewrite_rules();
 
 				# N.B. flush_rewrite_rules() causes $wp_rewrite to become up to date again
@@ -1276,6 +1292,9 @@ class Updraft_Restorer extends WP_Upgrader {
 					$this->old_siteurl = untrailingslashit($matches[1]);
 					$updraftplus->log_e('<strong>Backup of:</strong> %s', htmlspecialchars($this->old_siteurl));
 					do_action('updraftplus_restore_db_record_old_siteurl', $this->old_siteurl);
+
+					$this->save_configuration_bundle();
+
 				} elseif (false === $this->created_by_version && preg_match('/^\# Created by UpdraftPlus version ([\d\.]+)/', $buffer, $matches)) {
 					$this->created_by_version = trim($matches[1]);
 					echo '<strong>'.__('Backup created by:', 'updraftplus').'</strong> '.htmlspecialchars($this->created_by_version).'<br>';
@@ -1504,12 +1523,15 @@ class Updraft_Restorer extends WP_Upgrader {
 			} elseif (preg_match('/^use /i', $sql_line)) {
 				# WPB2D produces these, as do some phpMyAdmin dumps
 				$sql_type = 7;
+			} elseif (preg_match('#/\*\!40\d+ SET NAMES (\S+)#', $sql_line, $smatches)) {
+				$sql_type = 8;
+				$this->set_names = $smatches[1];
 			} else {
 				# Prevent the previous value of $sql_type being retained for an unknown type
 				$sql_type = 0;
 			}
 // 			if (5 !== $sql_type) {
-			if ($sql_type < 6) {
+			if ($sql_type != 6 && $sql_type != 7) {
 				$do_exec = $this->sql_exec($sql_line, $sql_type);
 				if (is_wp_error($do_exec)) return $do_exec;
 			} else {
@@ -1542,6 +1564,34 @@ class Updraft_Restorer extends WP_Upgrader {
 		$wp_filesystem->delete($working_dir.'/'.$db_basename, false, 'f');
 		return true;
 
+	}
+
+	// Save configuration bundle, ready to restore it once the options table has been restored
+	private function save_configuration_bundle() {
+		$this->configuration_bundle = array();
+		// Some items must always be saved + restored; others only on a migration
+		// Remember, if modifying this, that a restoration can include restoring a destroyed site from a backup onto a fresh WP install on the same URL. So, it is not necessarily desirable to retain the curerent settings and drop the ones in the backup.
+		$keys_to_save = array('updraft_remotesites', 'updraft_migrator_localkeys');
+
+		if ($this->old_siteurl != $this->our_siteurl) {
+			global $updraftplus;
+			$keys_to_save = array_merge($keys_to_save, $updraftplus->get_settings_keys());
+			$keys_to_save[] = 'updraft_backup_history';
+		}
+
+		foreach ($keys_to_save as $key) {
+			$this->configuration_bundle[$key] = UpdraftPlus_Options::get_updraft_option($key);
+		}
+	}
+
+	// The table here is just for logging/info. The actual restoration itself is done via the standard options class.
+	private function restore_configuration_bundle($table) {
+		global $updraftplus;
+		$updraftplus->log("Restoring prior UD configuration (table: $table; keys: ".count($this->configuration_bundle).")");
+		foreach ($this->configuration_bundle as $key => $value) {
+			UpdraftPlus_Options::delete_updraft_option($key, $value);
+			UpdraftPlus_Options::update_updraft_option($key, $value);
+		}
 	}
 
 	private function log_oversized_packet($sql_line) {
@@ -1627,7 +1677,12 @@ class Updraft_Restorer extends WP_Upgrader {
 			} elseif (2 == $sql_type && 0 == $this->tables_created && $this->drop_forbidden) {
 				// Decrease error counter again; otherwise, we'll cease if there are >=50 tables
 				if (!$ignore_errors) $this->errors--;
+			} elseif (8 == $sql_type && 1 == $this->errors) {
+				$updraftplus->log("Aborted: SET NAMES ".$this->set_names." failed: maintenance mode");
+				$this->maintenance_mode(false);
+				return new WP_Error('initial_db_error', sprintf(__('An error occurred on the first %s command - aborting run','updraftplus'), 'SET NAMES').'. '.sprintf(__('To use this backup, your database server needs to support the %s character set.', 'updraftplus'), $this->set_names));
 			}
+			
 			if ($this->errors>49) {
 				$this->maintenance_mode(false);
 				return new WP_Error('too_many_db_errors', __('Too many database errors have occurred - aborting','updraftplus'));
@@ -1684,8 +1739,8 @@ class Updraft_Restorer extends WP_Upgrader {
 
 		global $wpdb, $updraftplus;
 
-		// WordPress has an option name predicated upon the table prefix. Yuk.
-// 		if ($table == $import_table_prefix.'options') {
+		if ($table == $import_table_prefix.UpdraftPlus_Options::options_table()) $this->restore_configuration_bundle($table);
+
 		if (preg_match('/^([\d+]_)?options$/', substr($table, strlen($import_table_prefix)), $matches)) {
 			if (($this->is_multisite && !empty($matches[1])) || !$this->is_multisite && $table == $import_table_prefix.'options') {
 
@@ -1693,6 +1748,7 @@ class Updraft_Restorer extends WP_Upgrader {
 
 				$new_table_name = $import_table_prefix.$mprefix."options";
 
+				// WordPress has an option name predicated upon the table prefix. Yuk.
 				if ($import_table_prefix != $old_table_prefix) {
 					$updraftplus->log("Table prefix has changed: changing options table field(s) accordingly (".$mprefix."options)");
 					echo sprintf(__('Table prefix has changed: changing %s table field(s) accordingly:', 'updraftplus'),'option').' ';

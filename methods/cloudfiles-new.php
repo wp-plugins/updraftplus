@@ -119,7 +119,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 			<th><?php _e('Cloud Files Username','updraftplus');?>:</th>
 			<td><input type="text" autocomplete="off" style="width: 282px" id="updraft_cloudfiles_user" name="updraft_cloudfiles[user]" value="<?php echo htmlspecialchars($opts['user']) ?>" />
 			<div style="clear:both;">
-			<?php echo apply_filters('updraft_cloudfiles_apikeysetting', '<a href="http://updraftplus.com/shop/cloudfiles-enhanced/"><em>'.__('To create a new Rackspace API sub-user and API key that has access only to this Rackspace container, use this add-on.', 'updraftplus')).'</em></a>'; ?>
+			<?php echo apply_filters('updraft_cloudfiles_apikeysetting', '<a href="http://updraftplus.com/shop/cloudfiles-enhanced/"><em>'.__('To create a new Rackspace API sub-user and API key that has access only to this Rackspace container, use this add-on.', 'updraftplus').'</em></a>'); ?>
 			</div>
 			</td>
 		</tr>

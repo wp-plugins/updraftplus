@@ -4,7 +4,7 @@ Plugin Name: UpdraftPlus - Backup/Restore
 Plugin URI: https://updraftplus.com
 Description: Backup and restore: take backups locally, or backup to Amazon S3, Dropbox, Google Drive, Rackspace, (S)FTP, WebDAV & email, on automatic schedules.
 Author: UpdraftPlus.Com, DavidAnderson
-Version: 1.10.1
+Version: 1.10.3
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
 Text Domain: updraftplus
@@ -75,10 +75,10 @@ add_filter('cron_schedules', 'updraftplus_modify_cron_schedules', 30);
 
 // The checks here before loading are for performance only - unless one of those conditions is met, then none of the hooks will ever be used
 
-if (!is_admin() && (!defined('DOING_CRON') || !DOING_CRON) && (!defined('XMLRPC_REQUEST') || !XMLRPC_REQUEST) && empty($_SERVER['SHELL']) && empty($_SERVER['USER'])) {
+if (!is_admin() && (!defined('DOING_CRON') || !DOING_CRON) && (!defined('XMLRPC_REQUEST') || !XMLRPC_REQUEST) && empty($_SERVER['SHELL']) && empty($_SERVER['USER']) && empty($_POST['udrpc_message'])) {
 	// There is no good way to work out if the cron event is likely to be called under the ALTERNATE_WP_CRON system, other than re-running the calculation
 
-	// If ALTERNATE_WP_CRON is not active, then we are done
+	// If ALTERNATE_WP_CRON is not active (and a few other things), then we are done
 	if ( !defined('ALTERNATE_WP_CRON') || !ALTERNATE_WP_CRON || !empty($_POST) || defined('DOING_AJAX') || isset($_GET['doing_wp_cron'])) return;
 
 	// The check below is the one used by spawn_cron() to decide whether cron events should be run
@@ -128,7 +128,7 @@ if (!$updraftplus->memory_check(192)) {
 	if (!$updraftplus->memory_check($updraftplus->memory_check_current(WP_MAX_MEMORY_LIMIT))) {
 		$new = absint($updraftplus->memory_check_current(WP_MAX_MEMORY_LIMIT));
 		if ($new>32 && $new<100000) {
-			@ini_set('memory_limit', $new.'M'); //up the memory limit to the maximum WordPress is allowing for large backup files
+			@ini_set('memory_limit', $new.'M');
 		}
 	}
 }

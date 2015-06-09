@@ -1,4 +1,7 @@
 <?php
+
+if (!defined('UPDRAFTPLUS_DIR')) die('No direct access allowed.');
+
 /* Adapted from http://www.solutionbot.com/2009/01/02/php-ftp-class/ */
 class UpdraftPlus_ftp_wrapper {
 	private $conn_id;

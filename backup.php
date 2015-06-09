@@ -48,9 +48,18 @@ class UpdraftPlus_Backup {
 
 		global $updraftplus;
 
-		// Get the blog name and rip out all non-alphanumeric chars other than _
-		$blog_name = preg_replace('/[^A-Za-z0-9_]/','', str_replace(' ','_', substr(get_bloginfo(), 0, 32)));
-		if (!$blog_name) $blog_name = 'non_alpha_name';
+		// Get the blog name and rip out known-problematic characters. Remember that we may need to be able to upload this to any FTP server or cloud storage, where filename support may be unknown
+		$blog_name = str_replace('__', '_', preg_replace('/[^A-Za-z0-9_]/','', str_replace(' ','_', substr(get_bloginfo(), 0, 32))));
+		if (!$blog_name || preg_match('#^_+$#', $blog_name)) {
+			// Try again...
+			$parsed_url = parse_url(home_url(), PHP_URL_HOST);
+			$parsed_subdir = untrailingslashit(parse_url(home_url(), PHP_URL_PATH));
+			if ($parsed_subdir && '/' != $parsed_subdir) $parsed_url .= str_replace(array('/', '\\'), '_', $parsed_subdir);
+			$blog_name = str_replace('__', '_', preg_replace('/[^A-Za-z0-9_]/','', str_replace(' ','_', substr($parsed_url, 0, 32))));
+			if (!$blog_name || preg_match('#^_+$#', $blog_name)) $blog_name = 'WordPress_Backup';
+		}
+
+		// Allow an over-ride. Careful about introducing characters not supported by your filesystem or cloud storage.
 		$this->blog_name = apply_filters('updraftplus_blog_name', $blog_name);
 
 		# Decide which zip engine to begin with
@@ -336,6 +345,11 @@ class UpdraftPlus_Backup {
 
 		global $updraftplus, $wpdb;
 
+		if ($updraftplus->jobdata_get('remotesend_info') != '') {
+			$updraftplus->log("Prune old backups from local store: skipping, as this was a remote send operation");
+			return;
+		}
+
 		if (method_exists($wpdb, 'check_connection')) {
 			if (!$wpdb->check_connection(false)) {
 				$updraftplus->reschedule(60);
@@ -388,12 +402,14 @@ class UpdraftPlus_Backup {
 			$updraftplus->log(sprintf("Examining backup set with datestamp: %s (%s)", $backup_datestamp, gmdate('M d Y H:i:s', $backup_datestamp)));
 
 			if (isset($backup_to_examine['native']) && false == $backup_to_examine['native']) {
-				$updraftplus->log("This backup set ($backup_datestamp) was imported from remote storage, so will not be counted or pruned. Skipping.");
+				$updraftplus->log("This backup set ($backup_datestamp) was imported a remote location, so will not be counted or pruned. Skipping.");
 				continue;
 			}
 
 			// Auto-backups are only counted or deleted once we have reached the retain limit - before that, they are skipped
 			$is_autobackup = (isset($backup_to_examine['autobackup']) && true == $backup_to_examine['autobackup']);
+
+			$remote_sent = (!empty($backup_to_examine['service']) && ((is_array($backup_to_examine['service']) && in_array('remotesend', $backup_to_examine['service'])) || 'remotesend' === $backup_to_examine['service'])) ? true : false;
 
 			# Databases
 			foreach ($backup_to_examine as $key => $data) {
@@ -405,17 +421,37 @@ class UpdraftPlus_Backup {
 					continue;
 				}
 
-				$database_backups_found[$key] = (empty($database_backups_found[$key])) ? 1 : $database_backups_found[$key] + 1;
+				$prune_it = false;
 
-				$fname = (is_string($data)) ? $data : $data[0];
-				$updraftplus->log("$backup_datestamp: $key: this set includes a database (".$fname."); db count is now ".$database_backups_found[$key]);
-				if ($database_backups_found[$key] > $updraft_retain_db) {
-					$updraftplus->log("$backup_datestamp: $key: over retain limit ($updraft_retain_db); will delete this database");
-					if (!empty($data)) {
-						foreach ($services as $service => $sd) $this->prune_file($service, $data, $sd[0], $sd[1]);
+				if ($remote_sent) {
+					$prune_it = true;
+					$updraftplus->log("$backup_datestamp: $key: was sent to remote site; will remove from local record (only)");
+				} else {
+
+					$database_backups_found[$key] = (empty($database_backups_found[$key])) ? 1 : $database_backups_found[$key] + 1;
+
+					if ($database_backups_found[$key] > $updraft_retain_db) {
+						$prune_it = true;
+
+						$fname = (is_string($data)) ? $data : $data[0];
+						$updraftplus->log("$backup_datestamp: $key: this set includes a database (".$fname."); db count is now ".$database_backups_found[$key]);
+
+						$updraftplus->log("$backup_datestamp: $key: over retain limit ($updraft_retain_db); will delete this database");
 					}
-					unset($backup_to_examine[$key]);
-					$updraftplus->record_still_alive();
+				}
+				
+				if ($prune_it) {
+					// This should only be able to happen if you import backups with a future timestamp
+					if (!empty($backup_to_examine['nonce']) && $backup_to_examine['nonce'] == $updraftplus->nonce) {
+						$updraftplus->log("This backup set ($backup_datestamp) is the backup set just made, so will not be deleted.");
+					} else {
+
+						if (!empty($data)) {
+							foreach ($services as $service => $sd) $this->prune_file($service, $data, $sd[0], $sd[1]);
+						}
+						unset($backup_to_examine[$key]);
+						$updraftplus->record_still_alive();
+					}
 				}
 			}
 
@@ -428,15 +464,38 @@ class UpdraftPlus_Backup {
 						continue;
 					}
 
-					$file_entities_backups_found[$entity]++;
-					if ($file_entities_backups_found[$entity] > $updraft_retain) {
+					$prune_it = false;
+
+					if ($remote_sent) {
+						$prune_it = true;
+					} else {
+
+						$file_entities_backups_found[$entity]++;
+						if ($file_entities_backups_found[$entity] > $updraft_retain) {
+							$prune_it = true;
+						}
+					}
+
+					if ($prune_it) {
 						$prune_this = $backup_to_examine[$entity];
 						if (is_string($prune_this)) $prune_this = array($prune_this);
+
+						// This should only be able to happen if you import backups with a future timestamp
+						if (!empty($backup_to_examine['nonce']) && $backup_to_examine['nonce'] == $updraftplus->nonce) {
+							$updraftplus->log("This backup set ($backup_datestamp) is the backup set just made, so will not be deleted, despite being over the retain limit.");
+							continue;
+						}
+
 						foreach ($prune_this as $prune_file) {
-							$updraftplus->log("$entity: $backup_datestamp: over retain limit ($updraft_retain); will delete this file ($prune_file)");
+							if ($remote_sent) {
+								$updraftplus->log("$entity: $backup_datestamp: was sent to remote site; will remove from local record (only)");
+							} else {
+								$updraftplus->log("$entity: $backup_datestamp: over retain limit ($updraft_retain); will delete this file ($prune_file)");
+							}
 							$files_to_prune[] = $prune_file;
 						}
 						unset($backup_to_examine[$entity]);
+						
 					}
 				}
 			}
@@ -586,7 +645,7 @@ class UpdraftPlus_Backup {
 			$rss = $updraftplus->get_updraftplus_rssfeed();
 			$updraftplus->log('Fetched RSS news feed; result is a: '.get_class($rss));
 			if (is_a($rss, 'SimplePie')) {
-				$feed .= __('Email reports created by UpdraftPlus (free edition) bring you the latest UpdraftPlus.com news', 'updraftplus')." - ".sprintf(__('read more at %s', 'updraftplus'), 'http://updraftplus.com/news/')."\r\n\r\n";
+				$feed .= __('Email reports created by UpdraftPlus (free edition) bring you the latest UpdraftPlus.com news', 'updraftplus')." - ".sprintf(__('read more at %s', 'updraftplus'), 'https://updraftplus.com/news/')."\r\n\r\n";
 				foreach ($rss->get_items(0, 6) as $item) {
 					$feed .= '* ';
 					$feed .= $item->get_title();
@@ -1462,7 +1521,7 @@ class UpdraftPlus_Backup {
 		if (strlen($encryption) > 0) {
 			$result = apply_filters('updraft_encrypt_file', null, $file, $encryption, $this->whichdb, $this->whichdb_suffix);
 			if (null === $result) {
-// 				$updraftplus->log(sprintf(__("As previously warned (see: %s), encryption is no longer a feature of the free edition of UpdraftPlus", 'updraftplus'), 'http://updraftplus.com/next-updraftplus-release-ready-testing/ + http://updraftplus.com/shop/updraftplus-premium/'), 'warning', 'needpremiumforcrypt');
+// 				$updraftplus->log(sprintf(__("As previously warned (see: %s), encryption is no longer a feature of the free edition of UpdraftPlus", 'updraftplus'), 'https://updraftplus.com/next-updraftplus-release-ready-testing/ + https://updraftplus.com/shop/updraftplus-premium/'), 'warning', 'needpremiumforcrypt');
 // 				UpdraftPlus_Options::update_updraft_option('updraft_encryptionphrase', '');
 				return basename($file);
 			}
@@ -1516,7 +1575,7 @@ class UpdraftPlus_Backup {
 
 		if ('wp' == $this->whichdb) {
 			$this->stow("# WordPress MySQL database backup\n");
-			$this->stow("# Created by UpdraftPlus version ".$updraftplus->version." (http://updraftplus.com)\n");
+			$this->stow("# Created by UpdraftPlus version ".$updraftplus->version." (https://updraftplus.com)\n");
 			$this->stow("# WordPress Version: $wp_version, running on PHP ".phpversion()." (".$_SERVER["SERVER_SOFTWARE"]."), MySQL $mysql_version\n");
 			$this->stow("# Backup of: ".untrailingslashit(site_url())."\n");
 			$this->stow("# Home URL: ".untrailingslashit(home_url())."\n");
@@ -1527,7 +1586,7 @@ class UpdraftPlus_Backup {
 			$this->stow("# Site info: end\n");
 		} else {
 			$this->stow("# MySQL database backup (supplementary database ".$this->whichdb.")\n");
-			$this->stow("# Created by UpdraftPlus version ".$updraftplus->version." (http://updraftplus.com)\n");
+			$this->stow("# Created by UpdraftPlus version ".$updraftplus->version." (https://updraftplus.com)\n");
 			$this->stow("# WordPress Version: $wp_version, running on PHP ".phpversion()." (".$_SERVER["SERVER_SOFTWARE"]."), MySQL $mysql_version\n");
 			$this->stow("# ".sprintf('External database: (%s)', $this->dbinfo['user'].'@'.$this->dbinfo['host'].'/'.$this->dbinfo['name'])."\n");
 			$this->stow("# Backup created by: ".untrailingslashit(site_url())."\n");

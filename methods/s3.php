@@ -376,7 +376,7 @@ class UpdraftPlus_BackupModule_s3 {
 		);
 
 		if (is_wp_error($s3)) return $s3;
-		if (!is_a($s3, 'UpdraftPlus_S3') && !is_a($s3, 'UpdraftPlus_S3_Compat')) return new WP_Error('no_s3object', 'Failed to gain acccess to '.$config['whoweare']);
+		if (!is_a($s3, 'UpdraftPlus_S3') && !is_a($s3, 'UpdraftPlus_S3_Compat')) return new WP_Error('no_s3object', 'Failed to gain access to '.$config['whoweare']);
 
 		$bucket_name = untrailingslashit($config['path']);
 		$bucket_path = '';

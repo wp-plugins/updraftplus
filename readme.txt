@@ -1,9 +1,9 @@
 === UpdraftPlus Backup and Restoration ===
 Contributors: Backup with UpdraftPlus, DavidAnderson
-Tags: backup, backups, restore, amazon backup, s3 backup, dropbox backup, google drive backup, rackspace cloud files, rackspace backup, cloud files, dreamhost, dreamobjects backup, ftp backup, webdav backup, google cloud storage, cloudian, cloudn, connectria, constant cloud, eucalyptus, nifty, nimbula, onedrive, microsoft one drive, back up, multisite, restoration, sftp backup, ftps, scp, migrate, duplicate, copy, mysql backup, database backup, db backup, website backup, wordpress backup, full backup, openstack backup, swift, sicherung
+Tags: backup, backups, restore, amazon backup, s3 backup, dropbox backup, google drive backup, rackspace cloud files, rackspace backup, dreamhost, dreamobjects backup, ftp backup, webdav backup, google cloud storage, onedrive, microsoft one drive, back up, multisite, restoration, sftp backup, ftps, scp backup, migrate, duplicate, copy, mysql backup, database backup, db backups, website backup, wordpress backup, full backup, openstack backup, sicherung
 Requires at least: 3.2
 Tested up to: 4.2
-Stable tag: 1.10.1
+Stable tag: 1.10.3
 Author URI: https://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -16,7 +16,7 @@ Backup and restoration made easy. Complete backups; manual or scheduled (backup 
 
 <strong>Top-quality:</strong> UpdraftPlus is the <a href="http://rankwp.com/plugins/updraftplus">highest-ranking backup plugin on wordpress.org</a> (ranks in the top 40 out of 30,000 WordPress plugins for quality on rankwp.com - last checked Sep 2014).
 
-<strong>Hundreds of thousands of users:</strong> widely tested and reliable (over 2.2 million downloads). The #1 most installed scheduled backup plugin, according to wordpress.org. Millions of backups completed!
+<strong>Hundreds of thousands of users:</strong> widely tested and reliable (over 2.4 million downloads). The #1 most installed scheduled backup plugin, according to wordpress.org. Millions of backups completed!
 
 * Supports WordPress backups to Amazon S3 (or compatible), Dropbox, Rackspace Cloud Files, Google Drive, Google Cloud Storage, DreamHost DreamObjects, FTP, OpenStack (Swift) and email. Also (via a paid add-on) backup to Microsoft OneDrive, Copy.Com, FTP over SSL, SFTP, SCP, and WebDAV (and compatible services, e.g. Yandex, Cubby). Examples of S3-compatible providers: Cloudian, Connectria, Constant, Eucalyptus, Nifty, Nimbula, Cloudn.
 * Quick restore (both file and database backups)
@@ -114,19 +114,30 @@ Thanks for asking; yes, we've got a few. Check out this profile page - https://p
 
 The <a href="https://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
-N.B. Paid versions of UpdraftPlus Backup / Restore have a version number which is 1 higher in the first digit, and has an extra component on the end, but the changelog below still applies. i.e. changes listed for 1.10.1 of the free version correspond to changes made in 2.10.1.x of the paid version.
+N.B. Paid versions of UpdraftPlus Backup / Restore have a version number which is 1 higher in the first digit, and has an extra component on the end, but the changelog below still applies. i.e. changes listed for 1.10.3 of the free version correspond to changes made in 2.10.3.x of the paid version.
 
-= Development version (not yet released/supported) =
+= 1.10.3 - 2015-06-09 =
 
+* FEATURE: Migration component can now send backup data directly from one WP site to another - https://updraftplus.com/shop/updraftplus-premium/
+* FEATURE: Support active mode FTP servers (extremely rare)
 * FIX: The error message when choosing no components to restore was empty
 * FIX: Restore ability to run on WordPress 3.5 (actually fixed in downloads of 1.10.1 after 2015-05-13)
-* TWEAK: Alert the user earlier if they're trying to use a database with a character set not supported by MYSQL
+* FIX: Some automatic pre-upgrade backups were not marked internally as such, leading UD to delete the oldest scheduled backup prematurely backups prematurely
+* TWEAK: Reduce HTTP round-trips when checking presence + downloading backup archives in a restore/migrate operation
+* TWEAK: Alert the user earlier if they're trying to use a database with a character set not supported by MySQL
+* TWEAK: Use separate internal jobs for separate downloads, and thus avoid race conditions when updating job data (symptom: download widgets that don't show current information)
+* TWEAK: Add constant UPDRAFTPLUS_SFTP_TIMEOUT allowing users to over-ride (via wp-config.php) the default SFTP timeout (default now: 15 seconds).
 * TWEAK: Make Copy.Com filter out non-backups from remote file listings at an earlier stage
 * TWEAK: Log more information when a curl error occurs when getting a OneDrive access token
 * TWEAK: Code re-arrangement in OneDrive library to deal with apparently broken curl installations
 * TWEAK: Clearer message for users whose access to paid plugin updates has expired (paid versions)
 * TWEAK: Improve detection of started pre-upgrade automatic backups in case of webserver misbehaviour
 * TWEAK: Fix untranslated message when confirming the wiping of settings
+* TWEAK: Replace more non-SSL links to updraftplus.com with SSL links
+* TWEAK: Use a POST instead of a GET during one of the restore sub-stages (avoids a false positive on some mod_security setups)
+* TWEAK: Improve backup-file-naming routine to reduce the times when no ASCII name can be found (ASCII is preferred as not all cloud storage methods will accept arbitrary characters in filenames)
+* TWEAK: Don't keep a log file (unless debug mode is on) for scheduled tasks that result in the result that nothing needs backing up
+* TWEAK: Remove cache files from Cherry Framework child themes upon migration (framework misbehaves if cache files are present after URL change)
 
 = 1.10.1 - 2015-05-12 =
 
@@ -1543,5 +1554,6 @@ Furthermore, reliance upon any non-English translation is at your own risk. Updr
 
 We recognise and thank the following for code and/or libraries used and/or modified under the terms of their open source licences; see: https://updraftplus.com/acknowledgements/
 
+
 == Upgrade Notice ==
-* 1.10.1 : Various tweaks and fixes. Google Drive backup support without curl. Microsoft OneDrive backup support (in UpdraftPlus Premium).
+* 1.10.3 : Various tweaks and fixes. New feature for sending a backup directly to another site (in UpdraftPlus Premium).
