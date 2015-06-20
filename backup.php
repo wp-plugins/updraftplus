@@ -1785,10 +1785,22 @@ class UpdraftPlus_Backup {
 			# $j does not need to start at zero; it should start at the index which the current entity split at. However, this is not directly known, and can only be deduced from examining the filenames. And, for other indexes from before the current increment, the searched-for filename won't exist (even if there is no cloud storage). So, this indirectly results in the desired outcome when we start from $j=0.
 			$examine_zip = $this->updraft_dir.'/'.$backup_file_basename.'-'.$whichone.$jtext.'.zip'.(($j == $this->index) ? '.tmp' : '');
 
+			// This comes from https://wordpress.org/support/topic/updraftplus-not-moving-all-files-to-remote-server - where it appears that the jobdata's record of the split was done (i.e. database write), but the *earlier* rename of the .tmp file was not done (i.e. I/O lost). So, the sychnronicity apparently cannot be fully relied upon in some setups. The check for the index being one behind is being conservative - there's no inherent reason why it couldn't be done for other indexes.
+			if ($j != $this->index && !file_exists($examine_zip)) {
+				$alt_examine_zip = $this->updraft_dir.'/'.$backup_file_basename.'-'.$whichone.$jtext.'.zip'.(($j == $this->index - 1) ? '.tmp' : '');
+				if ($alt_examine_zip != $examine_zip && file_exists($alt_examine_zip) && is_readable($alt_examine_zip) && filesize($alt_examine_zip)>0) {
+					$updraftplus->log("Looked for zip file not found; but non-zero .tmp zip was, despite not being current index ($j != ".$this->index." - renaming zip (assume previous resumption's IO was lost before kill)");
+					if (rename($alt_examine_zip, $examine_zip)) {
+						clearstatcache();
+					} else {
+						$updraftplus->log("Rename failed - backup zips likely to not have sequential numbers (does not affect backup integrity, but can cause user confusion)");
+					}
+				}
+			}
+
 			// If the file exists, then we should grab its index of files inside, and sizes
 			// Then, when we come to write a file, we should check if it's already there, and only add if it is not
 			if (file_exists($examine_zip) && is_readable($examine_zip) && filesize($examine_zip)>0) {
-
 				$this->existing_zipfiles_size += filesize($examine_zip);
 				$zip = new $this->use_zip_object;
 				if (!$zip->open($examine_zip)) {
@@ -2310,7 +2322,10 @@ class UpdraftPlus_Backup {
 			}
 		}
 
-		if ($warn) {
+		// Always warn of this
+		if (strpos($msg, 'File Size Limit Exceeded') !== false && 'UpdraftPlus_BinZip' == $this->use_zip_object) {
+			$updraftplus->log(sprintf(__('The zip engine returned the message: %s.', 'updraftplus'), 'File Size Limit Exceeded').' <a href="https://updraftplus.com/what-should-i-do-if-i-see-the-message-file-size-limit-exceeded/">'.__('Go here for more information.','updraftplus').'</a>', 'warning', 'zipcloseerror-filesizelimit');
+		} elseif ($warn) {
 			$warn_msg = __('A zip error occurred', 'updraftplus').' - ';
 			if (!empty($quota_low)) {
 				$warn_msg = sprintf(__('your web hosting account appears to be full; please see: %s', 'updraftplus'), 'https://updraftplus.com/faqs/how-much-free-disk-space-do-i-need-to-create-a-backup/');
@@ -2342,7 +2357,7 @@ class UpdraftPlus_Backup {
 		# We touch the next zip before renaming the temporary file; this indicates that the backup for the entity is not *necessarily* finished
 		touch($next_full_path.'.tmp');
 
-		@rename($full_path.'.tmp', $full_path);
+		if (file_exists($full_path.'.tmp') && !rename($full_path.'.tmp', $full_path)) $updraftplus->log("Rename failed for $full_path.tmp");
 		$kbsize = filesize($full_path)/1024;
 		$rate = round($kbsize/$timetaken, 1);
 		$updraftplus->log("Created ".$this->whichone." zip (".$this->index.") - ".round($kbsize,1)." Kb in ".round($timetaken,1)." s ($rate Kb/s) (SHA1 checksum: ".$sha.")");

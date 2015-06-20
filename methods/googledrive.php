@@ -200,7 +200,7 @@ class UpdraftPlus_BackupModule_googledrive {
 				$updraftplus->log("Google Drive: successfully obtained access token");
 				return $json_values['access_token'];
 			} else {
-				$updraftplus->log("Google Drive error when requesting access token: response does not contain access_token");
+				$updraftplus->log("Google Drive error when requesting access token: response does not contain access_token. Response: ".(is_string($result['body']) ? str_replace("\n", '', $result['body']) : json_encode($result['body'])));
 				return false;
 			}
 		}
@@ -503,6 +503,8 @@ class UpdraftPlus_BackupModule_googledrive {
 		if (is_a($io, 'Google_IO_Curl')) {
 			$setopts[CURLOPT_SSL_VERIFYPEER] = UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify') ? false : true;
 			if (!UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts')) $setopts[CURLOPT_CAINFO] = UPDRAFTPLUS_DIR.'/includes/cacert.pem';
+			if (defined('UPDRAFTPLUS_IPV4_ONLY') && UPDRAFTPLUS_IPV4_ONLY) $setopts[CURLOPT_IPRESOLVE] = CURL_IPRESOLVE_V4;
+			
 		} elseif (is_a($io, 'Google_IO_Stream')) {
 			$setopts['timeout'] = 15;
 			# We had to modify the SDK to support this

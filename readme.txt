@@ -116,6 +116,14 @@ The <a href="https://updraftplus.com/news/">UpdraftPlus backup blog</a> is the b
 
 N.B. Paid versions of UpdraftPlus Backup / Restore have a version number which is 1 higher in the first digit, and has an extra component on the end, but the changelog below still applies. i.e. changes listed for 1.10.3 of the free version correspond to changes made in 2.10.3.x of the paid version.
 
+= Development version (not yet released or supported)
+
+* FEATURE: S3 enhanced wizard now allows the user to optionally deny the new Amazon Web Services IAM user download and/or delete permissions, for an even more secure setup (at the cost of some convenience - you will need to download/restore/delete S3 backups outside of UpdraftPlus).
+* TWEAK: Provide more direct help to the user if they are hosting with Strato and get the 'File Size Limit Exceeded' zip message
+* TWEAK: When migrating data directly to a remote site, if the remote site returns a 413 HTTP code ("Request Entity Too Large"), re-try using a smaller chunk size
+* TWEAK: Added UPDRAFTPLUS_IPV4_ONLY constant to prevent use of IPv6 (currently implemented by Google Drive only)
+* TWEAK: Deal with a case where the web host appears to be losing disk I/O near kill time, despite later database writes going through (so, the order of operations was insufficient to guarantee what had been completed). This issue was only cosmetic - backup sets were intact (hence "tweak", not "fix")
+
 = 1.10.3 - 2015-06-09 =
 
 * FEATURE: Migration component can now send backup data directly from one WP site to another - https://updraftplus.com/shop/updraftplus-premium/
@@ -129,7 +137,7 @@ N.B. Paid versions of UpdraftPlus Backup / Restore have a version number which i
 * TWEAK: Add constant UPDRAFTPLUS_SFTP_TIMEOUT allowing users to over-ride (via wp-config.php) the default SFTP timeout (default now: 15 seconds).
 * TWEAK: Make Copy.Com filter out non-backups from remote file listings at an earlier stage
 * TWEAK: Log more information when a curl error occurs when getting a OneDrive access token
-* TWEAK: Code re-arrangement in OneDrive library to deal with apparently broken curl installations
+* TWEAK: Code re-arrangement in OneDrive library to deal with sites using the obsolete PHP safe_mode
 * TWEAK: Clearer message for users whose access to paid plugin updates has expired (paid versions)
 * TWEAK: Improve detection of started pre-upgrade automatic backups in case of webserver misbehaviour
 * TWEAK: Fix untranslated message when confirming the wiping of settings

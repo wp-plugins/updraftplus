@@ -638,13 +638,6 @@ class UpdraftPlus {
 		$orig_file_size = filesize($fullpath);
 		if ($uploaded_size >= $orig_file_size) return true;
 
-		$fp = @fopen($fullpath, 'rb');
-		if (!$fp) {
-			$this->log("$logname: failed to open file: $fullpath");
-			$this->log("$file: ".sprintf(__('%s Error: Failed to open local file','updraftplus'), $logname), 'error');
-			return false;
-		}
-
 		$chunks = floor($orig_file_size / $chunk_size);
 		// There will be a remnant unless the file size was exactly on a 5Mb boundary
 		if ($orig_file_size % $chunk_size > 0) $chunks++;
@@ -656,6 +649,13 @@ class UpdraftPlus {
 		} elseif ($chunks < 2 && !$singletons) {
 			return 1;
 		} else {
+
+			if (false == ($fp = @fopen($fullpath, 'rb'))) {
+				$this->log("$logname: failed to open file: $fullpath");
+				$this->log("$file: ".sprintf(__('%s Error: Failed to open local file','updraftplus'), $logname), 'error');
+				return false;
+			}
+
 			$errors_so_far = 0;
 			for ($i = 1 ; $i <= $chunks; $i++) {
 
@@ -669,15 +669,25 @@ class UpdraftPlus {
 
 				$uploaded = $caller->chunked_upload($file, $fp, $i, $upload_size, $upload_start, $upload_end);
 
+				// This is the only supported case of a WP_Error - otherwise, a boolean must be returned
+				// Note that this is only allowed on the first chunk. The caller is responsible to remember its chunk size if it uses this facility.
+				if (1 == $i && is_wp_error($uploaded) && 'reduce_chunk_size' == $uploaded->get_error_code() && false != ($new_chunk_size = $uploaded->get_error_data()) && is_numeric($new_chunk_size)) {
+					$this->log("Re-trying with new chunk size: ".$new_chunk_size);
+					return $this->chunked_upload($caller, $file, $cloudpath, $logname, $new_chunk_size, $uploaded_size, $singletons=false);
+				}
+
 				if ($uploaded) {
 					$perc = round(100*((($i-1) * $chunk_size) + $upload_size)/max($orig_file_size, 1), 1);
 					# $perc = round(100*$i/$chunks,1); # Takes no notice of last chunk likely being smaller
 					$this->record_uploaded_chunk($perc, $i, $fullpath);
 				} else {
 					$errors_so_far++;
-					if ($errors_so_far>=3) return false;
+					if ($errors_so_far>=3) { @fclose($fp); return false; }
 				}
 			}
+
+			@fclose($fp);
+
 			if ($errors_so_far) return false;
 
 			// All chunks are uploaded - now combine the chunks
@@ -833,7 +843,7 @@ class UpdraftPlus {
 	}
 
 	# We require -@ and -u -r to work - which is the usual Linux binzip
-	function find_working_bin_zip($logit = true, $cacheit = true) {
+	public function find_working_bin_zip($logit = true, $cacheit = true) {
 		if ($this->detect_safe_mode()) return false;
 		// The hosting provider may have explicitly disabled the popen or proc_open functions
 		if (!function_exists('popen') || !function_exists('proc_open') || !function_exists('escapeshellarg')) {
@@ -954,7 +964,7 @@ class UpdraftPlus {
 		return false;
 	}
 
-	function remove_binzip_test_files($updraft_dir) {
+	private function remove_binzip_test_files($updraft_dir) {
 		@unlink($updraft_dir.'/binziptest/subdir1/subdir2/test.html');
 		@unlink($updraft_dir.'/binziptest/subdir1/subdir2/test2.html');
 		@rmdir($updraft_dir.'/binziptest/subdir1/subdir2');

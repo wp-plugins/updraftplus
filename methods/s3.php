@@ -76,6 +76,8 @@ class UpdraftPlus_BackupModule_s3 {
 			'nossl' => $nossl
 		);
 
+		if (is_wp_error($key)) return $key;
+
 		if ('' == $key || '' == $secret) return new WP_Error('no_settings', __('No settings were found','updraftplus'));
 
 		global $updraftplus;
@@ -218,7 +220,8 @@ class UpdraftPlus_BackupModule_s3 {
 			UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify'),
 			UpdraftPlus_Options::get_updraft_option('updraft_ssl_nossl')
 		);
-		if (is_wp_error($s3)) return $s3;
+
+		if (is_wp_error($s3)) return $updraftplus->log_wp_error($s3, false, true);
 
 		if (is_a($s3, 'UpdraftPlus_S3_Compat') && !class_exists('XMLWriter')) {
 			$updraftplus->log('The required XMLWriter PHP module is not installed');
@@ -366,7 +369,6 @@ class UpdraftPlus_BackupModule_s3 {
 		$config = $this->get_config();
 		$whoweare = $config['whoweare'];
 		$whoweare_key = $config['key'];
-		$whoweare_keys = substr($whoweare_key, 0, 3);
 
 		$s3 = $this->getS3(
 			$config['accesskey'],
@@ -614,21 +616,27 @@ class UpdraftPlus_BackupModule_s3 {
 			$use_s3_class = $this->indicate_s3_class();
 
 			if ('UpdraftPlus_S3_Compat' == $use_s3_class && !class_exists('XMLWriter')) {
-				$updraftplus_admin->show_double_warning('<strong>'.__('Warning','updraftplus').':</strong> '. sprintf(__("Your web server's PHP installation does not included a required module (%s). Please contact your web hosting provider's support and ask for them to enable it.", 'updraftplus'), 'XMLWriter'));
+				$updraftplus_admin->show_double_warning('<strong>'.__('Warning', 'updraftplus').':</strong> '. sprintf(__("Your web server's PHP installation does not included a required module (%s). Please contact your web hosting provider's support and ask for them to enable it.", 'updraftplus'), 'XMLWriter'));
 			}
 
 			if (!class_exists('SimpleXMLElement')) {
-				$updraftplus_admin->show_double_warning('<strong>'.__('Warning','updraftplus').':</strong> '.sprintf(__("Your web server's PHP installation does not included a required module (%s). Please contact your web hosting provider's support.", 'updraftplus'), 'SimpleXMLElement').' '.sprintf(__("UpdraftPlus's %s module <strong>requires</strong> %s. Please do not file any support requests; there is no alternative.",'updraftplus'),$whoweare_long, 'SimpleXMLElement'), $key);
+				$updraftplus_admin->show_double_warning('<strong>'.__('Warning', 'updraftplus').':</strong> '.sprintf(__("Your web server's PHP installation does not included a required module (%s). Please contact your web hosting provider's support.", 'updraftplus'), 'SimpleXMLElement').' '.sprintf(__("UpdraftPlus's %s module <strong>requires</strong> %s. Please do not file any support requests; there is no alternative.", 'updraftplus'),$whoweare_long, 'SimpleXMLElement'), $key);
 			}
 			$updraftplus_admin->curl_check($whoweare_long, true, $key);
 		?>
-			
+
 		</td>
 		</tr>
 		<tr class="updraftplusmethod <?php echo $key; ?>">
 		<th></th>
 		<td>
-			<p><?php if ($console_url) echo sprintf(__('Get your access key and secret key <a href="%s">from your %s console</a>, then pick a (globally unique - all %s users) bucket name (letters and numbers) (and optionally a path) to use for storage. This bucket will be created for you if it does not already exist.','updraftplus'), $console_url, $console_descrip, $whoweare_long);?> <a href="http://updraftplus.com/faqs/i-get-ssl-certificate-errors-when-backing-up-andor-restoring/"><?php _e('If you see errors about SSL certificates, then please go here for help.','updraftplus');?></a> <a href="http://updraftplus.com/faq-category/amazon-s3/"><?php if ('s3' == $key) echo sprintf(__('Other %s FAQs.', 'updraftplus'), 'S3');?></a></p>
+			<p>
+				<?php if ($console_url) echo sprintf(__('Get your access key and secret key <a href="%s">from your %s console</a>, then pick a (globally unique - all %s users) bucket name (letters and numbers) (and optionally a path) to use for storage. This bucket will be created for you if it does not already exist.','updraftplus'), $console_url, $console_descrip, $whoweare_long);?>
+
+				<a href="https://updraftplus.com/faqs/i-get-ssl-certificate-errors-when-backing-up-andor-restoring/"><?php _e('If you see errors about SSL certificates, then please go here for help.','updraftplus');?></a>
+
+				<a href="https://updraftplus.com/faq-category/amazon-s3/"><?php if ('s3' == $key) echo sprintf(__('Other %s FAQs.', 'updraftplus'), 'S3');?></a>
+			</p>
 		</td></tr>
 		<?php if ($include_endpoint_chooser) { ?>
 		<tr class="updraftplusmethod <?php echo $key; ?>">
@@ -791,11 +799,20 @@ class UpdraftPlus_BackupModule_s3 {
 					} else {
 						echo sprintf(__('The communication with %s was not encrypted.', 'updraftplus'), $comm_with);
 					}
-					@$s3->deleteObject($bucket, $path.$try_file);
+					$create_success = true;
 				}
 			} catch (Exception $e) {
 				echo __('Failure','updraftplus').": ${bucket_verb}".__('We successfully accessed the bucket, but the attempt to create a file in it failed.','updraftplus').' '.__('Please check your access credentials.','updraftplus').' ('.$e->getMessage().')';
 			}
+
+			if (!empty($create_success)) {
+				try {
+					@$s3->deleteObject($bucket, $path.$try_file);
+				} catch (Exception $e) {
+					echo ' '.__('Delete failed:', 'updraftplus').' '.$e->getMessage();
+				}
+			}
+
 		}
 
 	}
