@@ -35,6 +35,8 @@ Backup and restoration made easy. Complete backups; manual or scheduled (backup 
 * <a href="https://updraftplus.com">Premium version and support available - https://updraftplus.com</a>
 * Supported on all current PHP versions (5.2 - 5.6)
 
+https://www.youtube.com/watch?v=7ReY7Z19h2I&rel=0
+
 = Don't Risk Your Backups On Anything Less =
 
 Your WordPress backups are worth the same as your entire investment in your website. The day may come when you get hacked, or your hosting company does, or they go bust - without good backups, you lose everything. Do you really want to entrust all your work to a backup plugin with only a few thousand downloads, or that has no professional backup or support? Believe us - writing a reliable backup plugin that works consistently across the huge range of WordPress deployments is hard.
