@@ -67,11 +67,12 @@ class UpdraftPlus_BackupModule_dropbox {
 		global $updraftplus, $updraftplus_backup;
 		$updraftplus->log("Dropbox: begin cloud upload");
 
-		if (!function_exists('mcrypt_encrypt')) {
-			$updraftplus->log('The required mcrypt PHP module is not installed');
-			$updraftplus->log(sprintf(__('The required %s PHP module is not installed - ask your web hosting company to enable it', 'updraftplus'), 'mcrypt'), 'error');
-			return false;
-		}
+		// Since 1.10.4, we can use phpseclib
+// 		if (!function_exists('mcrypt_encrypt')) {
+// 			$updraftplus->log('The required mcrypt PHP module is not installed');
+// 			$updraftplus->log(sprintf(__('The required %s PHP module is not installed - ask your web hosting company to enable it', 'updraftplus'), 'mcrypt'), 'error');
+// 			return false;
+// 		}
 
 		$opts = $this->get_opts();
 
@@ -395,12 +396,10 @@ class UpdraftPlus_BackupModule_dropbox {
 			<?php
 			// Check requirements.
 			global $updraftplus_admin;
-			if (!function_exists('mcrypt_encrypt')) {
-				$updraftplus_admin->show_double_warning('<strong>'.__('Warning','updraftplus').':</strong> '. sprintf(__('Your web server\'s PHP installation does not included a required module (%s). Please contact your web hosting provider\'s support and ask for them to enable it.', 'updraftplus'), 'mcrypt'));
-				/*
-				.' '.sprintf(__("UpdraftPlus's %s module <strong>requires</strong> %s. Please do not file any support requests; there is no alternative.",'updraftplus'),'Dropbox', 'mcrypt'), 'dropbox')
-				*/
-			}
+			// Since 1.10.4, we can use phpseclib
+// 			if (!function_exists('mcrypt_encrypt')) {
+// 				$updraftplus_admin->show_double_warning('<strong>'.__('Warning','updraftplus').':</strong> '. sprintf(__('Your web server\'s PHP installation does not included a required module (%s). Please contact your web hosting provider\'s support and ask for them to enable it.', 'updraftplus'), 'mcrypt'));
+// 			}
 			$updraftplus_admin->curl_check('Dropbox', false, 'dropbox');
 			?>
 			</td>
