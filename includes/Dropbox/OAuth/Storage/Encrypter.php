@@ -9,12 +9,18 @@
  * @subpackage Storage
  */
 
+/* UpdraftPlus notes
+Using this was fairly pointless (it encrypts storage credentials at rest). But, it's implemented now, so needs supporting.
+Investigation shows that mcrypt and phpseclib native encryption using different padding schemes.
+As a result, that which is encrypted by phpseclib native can be decrypted by mcrypt, but not vice-versa. Each can (as you'd expect) decrypt the results of their own encryption.
+As a consequence, it makes sense to always encrypt with phpseclib native, and prefer decrypting with with mcrypt if it is available and otherwise fall back to phpseclib.
+We could deliberately re-encrypt all loaded information with phpseclib native, but there seems little need for that yet. There can only be a problem if mcrypt is disabled - which pre-July-2015 meant that Dropbox wouldn't work at all. Now, it will force a re-authorisation.
+*/
+
 class Dropbox_Encrypter
 {    
     // Encryption settings - default settings yield encryption to AES (256-bit) standard
     // @todo Provide PHPDOC for each class constant
-    const CIPHER = MCRYPT_RIJNDAEL_128;
-    const MODE = MCRYPT_MODE_CBC;
     const KEY_SIZE = 32;
     const IV_SIZE = 16;
     
@@ -31,9 +37,7 @@ class Dropbox_Encrypter
      */
     public function __construct($key)
     {
-        if (!extension_loaded('mcrypt')) {
-            throw new Dropbox_Exception('The storage encrypter requires the PHP MCrypt extension to be available. Please check your PHP configuration.');
-        } elseif (preg_match('/^[A-Za-z0-9]+$/', $key) && $length = strlen($key) === self::KEY_SIZE) {
+        if (preg_match('/^[A-Za-z0-9]+$/', $key) && $length = strlen($key) === self::KEY_SIZE) {
             # Short-cut so that the mbstring extension is not required
             $this->key = $key;
         } elseif (($length = mb_strlen($key, '8bit')) !== self::KEY_SIZE) {
@@ -51,23 +55,26 @@ class Dropbox_Encrypter
      */
     public function encrypt($token)
     {
-        // This now sends all Windows users to MCRYPT_RAND - used to send PHP>5.3 to MCRYPT_DEV_URANDOM, but we came across a user this failed for
-        // Only MCRYPT_RAND is available on Windows prior to PHP 5.3
-        if (version_compare(phpversion(), '5.3.0', '<') && strtoupper(substr(php_uname('s'), 0, 3)) === 'WIN') {
-            $crypt_source = MCRYPT_RAND;
-        } elseif (@is_readable("/dev/urandom")) {
-            // Note that is_readable is not a true test of whether the mcrypt_create_iv call would work, because when open_basedir restrictions exist, is_readable returns false, but mcrypt_create_iv is not subject to that restriction internally, so would actually have succeeded.
-            $crypt_source = MCRYPT_DEV_URANDOM;
-        } else {
-            $crypt_source = MCRYPT_RAND;
-        }
-        $iv = @mcrypt_create_iv(self::IV_SIZE, $crypt_source);
-        
-        if ($iv === false && $crypt_source != MCRYPT_RAND) {
-            $iv = mcrypt_create_iv(self::IV_SIZE, MCRYPT_RAND);
-        }
 
-        $cipherText = @mcrypt_encrypt(self::CIPHER, $this->key, $token, self::MODE, $iv);
+        // Encryption: we always use phpseclib for this
+
+        global $updraftplus;
+        $updraftplus->ensure_phpseclib('Crypt_AES', 'Crypt/AES');
+        $updraftplus->ensure_phpseclib('Crypt_Rijndael', 'Crypt/Rijndael');
+
+        if (!function_exists('crypt_random_string')) require_once(UPDRAFTPLUS_DIR.'/includes/phpseclib/Crypt/Random.php');
+        
+        $iv = crypt_random_string(self::IV_SIZE);
+        
+        // Defaults to CBC mode
+        $rijndael = new Crypt_Rijndael();
+        
+        $rijndael->setKey($this->key);
+        
+        $rijndael->setIV($iv);
+
+        $cipherText = $rijndael->encrypt($token);
+        
         return base64_encode($iv . $cipherText);
     }
     
@@ -78,10 +85,25 @@ class Dropbox_Encrypter
      */
     public function decrypt($cipherText)
     {
+    
+        // Decryption: prefer mcrypt, if available (since it can decrypt data encrypted by either mcrypt or phpseclib)
+
         $cipherText = base64_decode($cipherText);
         $iv = substr($cipherText, 0, self::IV_SIZE);
         $cipherText = substr($cipherText, self::IV_SIZE);
-        $token = @mcrypt_decrypt(self::CIPHER, $this->key, $cipherText, self::MODE, $iv);
+    
+        if (function_exists('mcrypt_decrypt')) {
+            $token = @mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $this->key, $cipherText, MCRYPT_MODE_CBC, $iv);
+        } else {
+            global $updraftplus;
+            $updraftplus->ensure_phpseclib('Crypt_Rijndael', 'Crypt/Rijndael');
+
+            $rijndael = new Crypt_Rijndael();
+            $rijndael->setKey($this->key);
+            $rijndael->setIV($iv);
+            $token = $rijndael->decrypt($cipherText);
+        }
+        
         return $token;
     }
 }
