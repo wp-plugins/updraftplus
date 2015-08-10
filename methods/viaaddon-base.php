@@ -34,7 +34,7 @@ class UpdraftPlus_BackupModule_ViaAddon {
 
 	}
 
-	public function delete($files, $method_obj = false) {
+	public function delete($files, $method_obj = false, $sizeinfo = array()) {
 
 		global $updraftplus;
 
@@ -44,7 +44,7 @@ class UpdraftPlus_BackupModule_ViaAddon {
 			return false;
 		}
 
-		return apply_filters('updraft_'.$this->method.'_delete_files', false, $files, $method_obj);
+		return apply_filters('updraft_'.$this->method.'_delete_files', false, $files, $method_obj, $sizeinfo);
 
 	}
 

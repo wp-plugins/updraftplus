@@ -1532,6 +1532,7 @@ class Updraft_Restorer extends WP_Upgrader {
 			}
 // 			if (5 !== $sql_type) {
 			if ($sql_type != 6 && $sql_type != 7) {
+
 				$do_exec = $this->sql_exec($sql_line, $sql_type);
 				if (is_wp_error($do_exec)) return $do_exec;
 			} else {
@@ -1570,7 +1571,7 @@ class Updraft_Restorer extends WP_Upgrader {
 	private function save_configuration_bundle() {
 		$this->configuration_bundle = array();
 		// Some items must always be saved + restored; others only on a migration
-		// Remember, if modifying this, that a restoration can include restoring a destroyed site from a backup onto a fresh WP install on the same URL. So, it is not necessarily desirable to retain the curerent settings and drop the ones in the backup.
+		// Remember, if modifying this, that a restoration can include restoring a destroyed site from a backup onto a fresh WP install on the same URL. So, it is not necessarily desirable to retain the current settings and drop the ones in the backup.
 		$keys_to_save = array('updraft_remotesites', 'updraft_migrator_localkeys');
 
 		if ($this->old_siteurl != $this->our_siteurl) {
@@ -1680,7 +1681,12 @@ class Updraft_Restorer extends WP_Upgrader {
 			} elseif (8 == $sql_type && 1 == $this->errors) {
 				$updraftplus->log("Aborted: SET NAMES ".$this->set_names." failed: maintenance mode");
 				$this->maintenance_mode(false);
-				return new WP_Error('initial_db_error', sprintf(__('An error occurred on the first %s command - aborting run','updraftplus'), 'SET NAMES').'. '.sprintf(__('To use this backup, your database server needs to support the %s character set.', 'updraftplus'), $this->set_names));
+				$extra_msg = '';
+				$dbv = $wpdb->db_version();
+				if (strtolower($this->set_names) == 'utf8mb4' && $dbv && version_compare($dbv, '5.2.0', '<=')) {
+					$extra_msg = ' '.__('This problem is caused by trying to restore a database on a very old MySQL version that is incompatible with the source database.', 'updraftplus').' '.sprintf(__('This database needs to be deployed on MySQL version %s or later.', 'updraftplus'), '5.5');
+				}
+				return new WP_Error('initial_db_error', sprintf(__('An error occurred on the first %s command - aborting run','updraftplus'), 'SET NAMES').'. '.sprintf(__('To use this backup, your database server needs to support the %s character set.', 'updraftplus'), $this->set_names).$extra_msg);
 			}
 			
 			if ($this->errors>49) {
@@ -1828,25 +1834,33 @@ class Updraft_Restorer extends WP_Upgrader {
 			$updraftplus->log("Table prefix has changed: changing usermeta table field(s) accordingly");
 			echo sprintf(__('Table prefix has changed: changing %s table field(s) accordingly:', 'updraftplus'),'usermeta').' ';
 
-			$um_sql = "SELECT umeta_id, meta_key 
-				FROM ${import_table_prefix}usermeta 
-				WHERE meta_key 
-				LIKE '".str_replace('_', '\_', $old_table_prefix)."%'";
-
-			$meta_keys = $wpdb->get_results($um_sql);
-			
-			$old_prefix_length = strlen($old_table_prefix);
-
 			$errors_occurred = false;
-			foreach ($meta_keys as $meta_key ) {
-				//Create new meta key
-				$new_meta_key = $import_table_prefix . substr($meta_key->meta_key, $old_prefix_length);
-				
-				$query = "UPDATE " . $import_table_prefix . "usermeta 
-					SET meta_key='".$new_meta_key."' 
-					WHERE umeta_id=".$meta_key->umeta_id;
 
-				if (false === $wpdb->query($query)) $errors_occurred = true;
+			if (false === strpos($old_table_prefix, '_')) {
+				// Old, slow way: do it row-by-row
+				// By Jul 2015, doing this on the updraftplus.com database took 20 minutes on a slow test machine
+				$old_prefix_length = strlen($old_table_prefix);
+
+				$um_sql = "SELECT umeta_id, meta_key 
+					FROM ${import_table_prefix}usermeta 
+					WHERE meta_key 
+					LIKE '".str_replace('_', '\_', $old_table_prefix)."%'";
+				$meta_keys = $wpdb->get_results($um_sql);
+
+				foreach ($meta_keys as $meta_key ) {
+					//Create new meta key
+					$new_meta_key = $import_table_prefix . substr($meta_key->meta_key, $old_prefix_length);
+					
+					$query = "UPDATE " . $import_table_prefix . "usermeta 
+						SET meta_key='".$new_meta_key."' 
+						WHERE umeta_id=".$meta_key->umeta_id;
+
+					if (false === $wpdb->query($query)) $errors_occurred = true;
+				}
+			} else {
+				// New, fast way: do it in a single query
+				$sql = "UPDATE ${import_table_prefix}usermeta SET meta_key = REPLACE(meta_key, '$old_table_prefix', '${import_table_prefix}') WHERE meta_key LIKE '".str_replace('_', '\_', $old_table_prefix)."%';";
+				if (false === $wpdb->query($sql)) $errors_occurred = true;
 			}
 
 			if ($errors_occurred) {

@@ -80,7 +80,7 @@ class UpdraftPlus_BackupModule_email {
 		<?php
 	}
 
-	public function delete($files) {
+	public function delete($files, $data = null, $sizeinfo = array()) {
 		return true;
 	}
 

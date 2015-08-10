@@ -33,7 +33,7 @@ class UpdraftPlus_BackupModule_s3generic extends UpdraftPlus_BackupModule_s3 {
 		return array('updraft_s3generic');
 	}
 
-	function get_config() {
+	protected function get_config() {
 		global $updraftplus;
 		$opts = $updraftplus->get_job_option('updraft_s3generic');
 		if (!is_array($opts)) $opts = array('accesskey' => '', 'secretkey' => '', 'path' => '');

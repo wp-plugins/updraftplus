@@ -125,7 +125,7 @@ class UpdraftPlus_BackupModule_openstack extends UpdraftPlus_BackupModule_openst
 
 		<tr class="updraftplusmethod <?php echo $this->method;?>">
 			<th><?php _e('Password', 'updraftplus');?>:</th>
-			<td><input type="<?php echo apply_filters('updraftplus_admin_secret_field_type', 'text'); ?>" autocomplete="off" style="width: 364px" id="updraft_openstack_password" name="updraft_openstack[password]" value="<?php echo htmlspecialchars($opts['password']); ?>" />
+			<td><input type="<?php echo apply_filters('updraftplus_admin_secret_field_type', 'password'); ?>" autocomplete="off" style="width: 364px" id="updraft_openstack_password" name="updraft_openstack[password]" value="<?php echo htmlspecialchars($opts['password']); ?>" />
 			</td>
 		</tr>
 

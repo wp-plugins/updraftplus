@@ -6,7 +6,9 @@ if (!defined('ABSPATH')) die ('No direct access allowed');
 class UpdraftPlus_Options {
 
 	public static function user_can_manage() {
-		return current_user_can(apply_filters('option_page_capability_updraft-options-group', 'manage_options'));
+		$user_can_manage = current_user_can(apply_filters('option_page_capability_updraft-options-group', 'manage_options'));
+		// false: not multisite add-on
+		return apply_filters('updraft_user_can_manage', $user_can_manage, false);
 	}
 
 	public static function options_table() {
@@ -70,12 +72,17 @@ class UpdraftPlus_Options {
 			// $action = -1, $name = "_wpnonce", $referer = true , $echo = true 
 			wp_nonce_field("updraft-options-group-options", '_wpnonce', false);
 
+			$remove_query_args = array('state', 'action', 'updraftcopycomparms', 'oauth_verifier');
+
 			// wp_unslash() does not exist until after WP 3.5
 			if (function_exists('wp_unslash')) {
-				$referer = wp_unslash( remove_query_arg( array('state', 'action'), $_SERVER['REQUEST_URI']) );
+				$referer = wp_unslash( remove_query_arg( $remove_query_args, $_SERVER['REQUEST_URI']) );
 			} else {
-				$referer = stripslashes_deep( remove_query_arg( array('state', 'action'), $_SERVER['REQUEST_URI']) );
+				$referer = stripslashes_deep( remove_query_arg( $remove_query_args, $_SERVER['REQUEST_URI']) );
 			}
+
+			// Add back the page parameter if it looks like we were on the settings page via an OAuth callback that has now had all parameters removed. This is likely unnecessarily conservative, but there's nothing requiring more than this at the current time.
+			if (substr($referer, -19, 19) == 'options-general.php' && false !== strpos($_SERVER['REQUEST_URI'], '?')) $referer .= '?page=updraftplus';
 
 			$referer_field = '<input type="hidden" name="_wp_http_referer" value="'. esc_attr($referer) . '" />';
 			echo $referer_field;

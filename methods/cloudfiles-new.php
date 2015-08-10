@@ -125,7 +125,7 @@ class UpdraftPlus_BackupModule_cloudfiles_opencloudsdk extends UpdraftPlus_Backu
 		</tr>
 		<tr class="updraftplusmethod <?php echo $this->method;?>">
 			<th><?php _e('Cloud Files API Key','updraftplus');?>:</th>
-			<td><input type="<?php echo apply_filters('updraftplus_admin_secret_field_type', 'text'); ?>" autocomplete="off" style="width: 282px" id="updraft_cloudfiles_apikey" name="updraft_cloudfiles[apikey]" value="<?php echo htmlspecialchars($opts['apikey']); ?>" />
+			<td><input type="<?php echo apply_filters('updraftplus_admin_secret_field_type', 'password'); ?>" autocomplete="off" style="width: 282px" id="updraft_cloudfiles_apikey" name="updraft_cloudfiles[apikey]" value="<?php echo htmlspecialchars(trim($opts['apikey'])); ?>" />
 			</td>
 		</tr>
 		<tr class="updraftplusmethod <?php echo $this->method;?>">

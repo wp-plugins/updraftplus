@@ -17,7 +17,7 @@ if (!is_array(UpdraftPlus_Options::get_updraft_option('updraft_s3')) && '' != Up
 
 // This class is used by both UpdraftPlus_S3 and UpdraftPlus_S3_Compat
 class UpdraftPlus_S3Exception extends Exception {
-	function __construct($message, $file, $line, $code = 0)
+	public function __construct($message, $file, $line, $code = 0)
 	{
 		parent::__construct($message, $code);
 		$this->file = $file;
@@ -29,6 +29,7 @@ class UpdraftPlus_BackupModule_s3 {
 
 	private $s3_object;
 	private $got_with;
+	protected $quota_used = null;
 
 	protected function get_config() {
 		global $updraftplus;
@@ -46,11 +47,11 @@ class UpdraftPlus_BackupModule_s3 {
 
 	protected function indicate_s3_class() {
 		// N.B. : The classes must have different names, as if multiple remote storage options are chosen, then we could theoretically need both (if both Amazon and a compatible-S3 provider are used)
-		// Conditional logic, for new AWS SDK
+		// Conditional logic, for new AWS SDK (N.B. 3.x branch requires PHP 5.5, so we're on 2.x - requires 5.3.3)
 
 		$opts = $this->get_config();
 		$class_to_use = 'UpdraftPlus_S3';
-		if (version_compare(PHP_VERSION, '5.3.3', '>=') && !empty($opts['key']) && 's3' == $opts['key'] && (!defined('UPDRAFTPLUS_S3_OLDLIB') || !UPDRAFTPLUS_S3_OLDLIB)) {
+		if (version_compare(PHP_VERSION, '5.3.3', '>=') && !empty($opts['key']) && ('s3' == $opts['key'] || 'updraftvault' == $opts['key']) && (!defined('UPDRAFTPLUS_S3_OLDLIB') || !UPDRAFTPLUS_S3_OLDLIB)) {
 			$class_to_use = 'UpdraftPlus_S3_Compat';
 		}
 
@@ -63,9 +64,12 @@ class UpdraftPlus_BackupModule_s3 {
 	}
 
 	// Get an S3 object, after setting our options
-	public function getS3($key, $secret, $useservercerts, $disableverify, $nossl, $endpoint = null) {
+	public function getS3($key, $secret, $useservercerts, $disableverify, $nossl, $endpoint = null, $sse = false) {
 
 		if (!empty($this->s3_object) && !is_wp_error($this->s3_object)) return $this->s3_object;
+
+		if (is_string($key)) $key = trim($key);
+		if (is_string($secret)) $secret = trim($secret);
 
 		// Saved in case the object needs recreating for the corner-case where there is no permission to look up the bucket location
 		$this->got_with = array(
@@ -73,12 +77,15 @@ class UpdraftPlus_BackupModule_s3 {
 			'secret' => $secret,
 			'useservercerts' => $useservercerts,
 			'disableverify' => $disableverify,
-			'nossl' => $nossl
+			'nossl' => $nossl,
+			'server_side_encryption' => $sse
 		);
 
 		if (is_wp_error($key)) return $key;
 
-		if ('' == $key || '' == $secret) return new WP_Error('no_settings', __('No settings were found','updraftplus'));
+		if ('' == $key || '' == $secret) {
+			return new WP_Error('no_settings', __('No settings were found','updraftplus'));
+		}
 
 		global $updraftplus;
 
@@ -162,6 +169,8 @@ class UpdraftPlus_BackupModule_s3 {
 // 			$updraftplus->log("SSL was disabled via the user's preference. Communications will not be encrypted.");
 // 		}
 
+		if (method_exists($s3, 'setServerSideEncryption') && (is_a($this, 'UpdraftPlus_BackupModule_updraftvault') || $sse)) $s3->setServerSideEncryption('AES256');
+
 		$this->s3_object = $s3;
 
 		return $this->s3_object;
@@ -210,15 +219,24 @@ class UpdraftPlus_BackupModule_s3 {
 		global $updraftplus, $updraftplus_backup;
 
 		$config = $this->get_config();
+
+		if (empty($config['accesskey']) && !empty($config['error_message'])) {
+			$err = new WP_Error('no_settings', $config['error_message']);
+			return $updraftplus->log_wp_error($err, false, true);
+		}
+
 		$whoweare = $config['whoweare'];
 		$whoweare_key = $config['key'];
 		$whoweare_keys = substr($whoweare_key, 0, 3);
+		$sse = (empty($config['server_side_encryption'])) ? false : true;
 
 		$s3 = $this->getS3(
 			$config['accesskey'],
 			$config['secretkey'],
 			UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify'),
-			UpdraftPlus_Options::get_updraft_option('updraft_ssl_nossl')
+			UpdraftPlus_Options::get_updraft_option('updraft_ssl_nossl'),
+			null,
+			$sse
 		);
 
 		if (is_wp_error($s3)) return $updraftplus->log_wp_error($s3, false, true);
@@ -248,18 +266,35 @@ class UpdraftPlus_BackupModule_s3 {
 
 			$updraft_dir = trailingslashit($updraftplus->backups_dir_location());
 
-			foreach($backup_array as $key => $file) {
+			foreach ($backup_array as $key => $file) {
 
 				// We upload in 5Mb chunks to allow more efficient resuming and hence uploading of larger files
 				// N.B.: 5Mb is Amazon's minimum. So don't go lower or you'll break it.
 				$fullpath = $updraft_dir.$file;
 				$orig_file_size = filesize($fullpath);
+
+				if (isset($config['quota']) && method_exists($this, 's3_get_quota_info')) {
+					$quota_used = $this->s3_get_quota_info('numeric', $config['quota']);
+					if (false === $quota_used) {
+						$updraftplus->log("Quota usage: count failed");
+					} else {
+						$this->quota_used = $quota_used;
+						if ($config['quota'] - $this->quota_used < $orig_file_size) {
+							if (method_exists($this, 's3_out_of_quota')) call_user_func(array($this, 's3_out_of_quota'), $config['quota'], $this->quota_used, $orig_file_size);
+							continue;
+						} else {
+							// We don't need to log this always - the s3_out_of_quota method will do its own logging
+							$updraftplus->log("$whoweare: Quota is available: used=$quota_used (".round($quota_used/1048576, 1)." Mb), total=".$config['quota']." (".round($config['quota']/1048576, 1)." Mb), needed=$orig_file_size (".round($orig_file_size/1048576, 1)." Mb)");
+						}
+					}
+				}
+
 				$chunks = floor($orig_file_size / 5242880);
 				// There will be a remnant unless the file size was exactly on a 5Mb boundary
 				if ($orig_file_size % 5242880 > 0) $chunks++;
 				$hash = md5($file);
 
-				$updraftplus->log("$whoweare upload ($region): $file (chunks: $chunks) -> s3://$bucket_name/$bucket_path$file");
+				$updraftplus->log("$whoweare upload ($region): $file (chunks: $chunks) -> $whoweare_key://$bucket_name/$bucket_path$file");
 
 				$filepath = $bucket_path.$file;
 
@@ -271,7 +306,13 @@ class UpdraftPlus_BackupModule_s3 {
 							$updraftplus->log("$whoweare regular upload: failed ($fullpath)");
 							$updraftplus->log("$file: ".sprintf(__('%s Error: Failed to upload','updraftplus'),$whoweare), 'error');
 						} else {
-							$updraftplus->log("$whoweare regular upload: success");
+							$this->quota_used += $orig_file_size;
+							if (method_exists($this, 's3_record_quota_info')) $this->s3_record_quota_info($this->quota_used, $config['quota']);
+							$extra_log = '';
+							if (method_exists($this, 's3_get_quota_info')) {
+								$extra_log = ', quota used now: '.round($this->quota_used / 1048576, 1).' Mb';
+							}
+							$updraftplus->log("$whoweare regular upload: success$extra_log");
 							$updraftplus->uploaded_file($file);
 						}
 					} catch (Exception $e) {
@@ -340,6 +381,8 @@ class UpdraftPlus_BackupModule_s3 {
 							if ($s3->completeMultipartUpload($bucket_name, $filepath, $uploadId, $etags)) {
 								$updraftplus->log("$whoweare upload ($key): re-assembly succeeded");
 								$updraftplus->uploaded_file($file);
+								$this->quota_used += $orig_file_size;
+								if (method_exists($this, 's3_record_quota_info')) $this->s3_record_quota_info($this->quota_used, $config['quota']);
 							} else {
 								$updraftplus->log("$whoweare upload ($key): re-assembly failed ($file)");
 								$updraftplus->log(sprintf(__('%s upload (%s): re-assembly failed (see log for more details)','updraftplus'),$whoweare, $key), 'error');
@@ -369,12 +412,15 @@ class UpdraftPlus_BackupModule_s3 {
 		$config = $this->get_config();
 		$whoweare = $config['whoweare'];
 		$whoweare_key = $config['key'];
+		$sse = (empty($config['server_side_encryption'])) ? false : true;
 
 		$s3 = $this->getS3(
 			$config['accesskey'],
 			$config['secretkey'],
 			UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify'),
-			UpdraftPlus_Options::get_updraft_option('updraft_ssl_nossl')
+			UpdraftPlus_Options::get_updraft_option('updraft_ssl_nossl'),
+			null,
+			$sse
 		);
 
 		if (is_wp_error($s3)) return $s3;
@@ -386,6 +432,23 @@ class UpdraftPlus_BackupModule_s3 {
 		if (preg_match("#^([^/]+)/(.*)$#", $bucket_name, $bmatches)) {
 			$bucket_name = $bmatches[1];
 			$bucket_path = trailingslashit($bmatches[2]);
+		}
+
+		if (!empty($config['is_new_bucket'])) {
+			if (method_exists($s3, 'waitForBucket')) {
+				$s3->setExceptions(true);
+				try {
+					$s3->waitForBucket($bucket_name);
+				} catch (Exception $e) {
+					// This seems to often happen - we get a 403 on a newly created user/bucket pair, even though the bucket was already waited for by the creator
+					// We could just sleep() - a sleep(5) seems to do it. However, given that it's a new bucket, that's unnecessary.
+					$s3->setExceptions(false);
+					return array();
+				}
+				$s3->setExceptions(false);
+			} else {
+				sleep(4);
+			}
 		}
 
 		$region = ($config['key'] == 'dreamobjects' || $config['key'] == 's3generic') ? 'n/a' : @$s3->getBucketLocation($bucket_name);
@@ -427,12 +490,13 @@ class UpdraftPlus_BackupModule_s3 {
 
 	}
 
-	public function delete($files, $s3arr = false) {
+	public function delete($files, $s3arr = false, $sizeinfo = array()) {
 
 		global $updraftplus;
 		if (is_string($files)) $files=array($files);
 
 		$config = $this->get_config();
+		$sse = (empty($config['server_side_encryption'])) ? false : true;
 		$whoweare = $config['whoweare'];
 
 		if ($s3arr) {
@@ -444,8 +508,13 @@ class UpdraftPlus_BackupModule_s3 {
 				$config['accesskey'],
 				$config['secretkey'],
 				UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify'),
-				UpdraftPlus_Options::get_updraft_option('updraft_ssl_nossl')
+				UpdraftPlus_Options::get_updraft_option('updraft_ssl_nossl'),
+				null,
+				$sse
 			);
+
+			if (is_wp_error($s3)) return $updraftplus->log_wp_error($s3, false, false);
+
 			$bucket_name = untrailingslashit($config['path']);
 			$orig_bucket_name = $bucket_name;
 
@@ -470,7 +539,7 @@ class UpdraftPlus_BackupModule_s3 {
 
 		$ret = true;
 
-		foreach ($files as $file) {
+		foreach ($files as $i => $file) {
 
 			if (preg_match("#^([^/]+)/(.*)$#", $orig_bucket_name, $bmatches)) {
 				$s3_bucket=$bmatches[1];
@@ -485,6 +554,9 @@ class UpdraftPlus_BackupModule_s3 {
 			try {
 				if (!$s3->deleteObject($s3_bucket, $s3_uri)) {
 					$updraftplus->log("$whoweare: Delete failed");
+				} elseif (null !== $this->quota_used && !empty($sizeinfo[$i]) && isset($config['quota']) && method_exists($this, 's3_record_quota_info')) {
+					$this->quota_used -= $sizeinfo[$i];
+					$this->s3_record_quota_info($this->quota_used, $config['quota']);
 				}
 			} catch (Exception $e) {
 				$updraftplus->log("$whoweare delete failed: ".$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
@@ -505,12 +577,15 @@ class UpdraftPlus_BackupModule_s3 {
 
 		$config = $this->get_config();
 		$whoweare = $config['whoweare'];
+		$sse = (empty($config['server_side_encryption'])) ? false : true;
 
 		$s3 = $this->getS3(
 			$config['accesskey'],
 			$config['secretkey'],
 			UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts'), UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify'),
-			UpdraftPlus_Options::get_updraft_option('updraft_ssl_nossl')
+			UpdraftPlus_Options::get_updraft_option('updraft_ssl_nossl'),
+			null,
+			$sse
 		);
 		if (is_wp_error($s3)) return $updraftplus->log_wp_error($s3, false, true);
 
@@ -569,6 +644,7 @@ class UpdraftPlus_BackupModule_s3 {
 				disableverify: (jQuery('#updraft_ssl_disableverify').is(':checked')) ? 1 : 0,
 				useservercerts: (jQuery('#updraft_ssl_useservercerts').is(':checked')) ? 1 : 0,
 				nossl: (jQuery('#updraft_ssl_nossl').is(':checked')) ? 1 : 0,
+				sse: jQuery('#updraft_<?php echo $key; ?>_server_side_encryption').is(':checked') ? 1 : 0,
 			};
 			jQuery.post(ajaxurl, data, function(response) {
 				jQuery('#updraft-<?php echo $key; ?>-test').html('<?php echo esc_js(sprintf(__('Test %s Settings', 'updraftplus'),$whoweare)); ?>');
@@ -682,7 +758,7 @@ class UpdraftPlus_BackupModule_s3 {
 	public function use_dns_bucket_name($s3, $bucket, $echo_errors = false) {
 		if (is_a($s3, 'UpdraftPlus_S3_Compat')) {
 			$this->s3_object = null;
-			$s3 = $this->getS3($this->got_with['key'], $this->got_with['secret'], $this->got_with['useservercerts'], $this->got_with['disableverify'], $this->got_with['nossl'], $bucket.".s3.amazonaws.com");
+			$s3 = $this->getS3($this->got_with['key'], $this->got_with['secret'], $this->got_with['useservercerts'], $this->got_with['disableverify'], $this->got_with['nossl'], $bucket.".s3.amazonaws.com", $this->got_with['server_side_encryption']);
 			if (is_wp_error($s3)) {
 				if ($echo_errors) {
 					foreach ($s3->get_error_messages() as $msg) { echo $msg."\n"; }
@@ -718,6 +794,7 @@ class UpdraftPlus_BackupModule_s3 {
 		$disableverify = (isset($_POST['disableverify'])) ? absint($_POST['disableverify']) : 0;
 		$nossl = (isset($_POST['nossl'])) ? absint($_POST['nossl']) : 0;
 		$endpoint = (isset($_POST['endpoint'])) ? $_POST['endpoint'] : '';
+		$sse = !empty($_POST['sse']) ? true : false;
 
 		if (preg_match("#^/*([^/]+)/(.*)$#", $path, $bmatches)) {
 			$bucket = $bmatches[1];
@@ -733,7 +810,7 @@ class UpdraftPlus_BackupModule_s3 {
 		}
 		$whoweare = $config['whoweare'];
 
-		$s3 = $this->getS3($key, $secret, $useservercerts, $disableverify, $nossl);
+		$s3 = $this->getS3($key, $secret, $useservercerts, $disableverify, $nossl, null, $sse);
 		if (is_wp_error($s3)) {
 			foreach ($s3->get_error_messages() as $msg) {
 				echo $msg."\n";

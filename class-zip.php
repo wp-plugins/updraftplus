@@ -62,7 +62,10 @@ class UpdraftPlus_BinZip extends UpdraftPlus_PclZip {
 			1 => array('pipe', 'w'),
 			2 => array('pipe', 'w')
 		);
-		$exec = $this->binzip." -v -@ ".escapeshellarg($this->path);
+		$exec = $this->binzip;
+		if (defined('UPDRAFTPLUS_BINZIP_OPTS') && UPDRAFTPLUS_BINZIP_OPTS) $exec .= ' '.UPDRAFTPLUS_BINZIP_OPTS;
+		$exec .= " -v -@ ".escapeshellarg($this->path);
+
 		$last_recorded_alive = time();
 		$something_useful_happened = $updraftplus->something_useful_happened;
 		$orig_size = file_exists($this->path) ? filesize($this->path) : 0;

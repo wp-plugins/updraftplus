@@ -280,7 +280,7 @@ class UpdraftPlus_BackupModule_dropbox {
 		return apply_filters('updraftplus_dropbox_defaults', array('Z3Q3ZmkwbnplNHA0Zzlx', 'bTY0bm9iNmY4eWhjODRt'));
 	}
 
-	public function delete($files) {
+	public function delete($files, $data = null, $sizeinfo = array()) {
 
 		global $updraftplus;
 		if (is_string($files)) $files=array($files);

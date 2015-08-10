@@ -44,6 +44,9 @@ class UpdraftPlus_Backup {
 	// Record of zip files created
 	private $backup_files_array = array();
 
+	// Used for reporting
+	private $remotestorage_extrainfo = array();
+
 	public function __construct($backup_files, $altered_since = -1) {
 
 		global $updraftplus;
@@ -66,6 +69,8 @@ class UpdraftPlus_Backup {
 		$this->debug = UpdraftPlus_Options::get_updraft_option('updraft_debug_mode');
 		$this->updraft_dir = $updraftplus->backups_dir_location();
 		$this->updraft_dir_realpath = realpath($this->updraft_dir);
+
+		add_action('updraft_report_remotestorage_extrainfo', array($this, 'report_remotestorage_extrainfo'), 10, 3);
 
 		if ('no' === $backup_files) {
 			$this->use_zip_object = 'UpdraftPlus_PclZip';
@@ -109,6 +114,10 @@ class UpdraftPlus_Backup {
 			$this->use_zip_object = 'UpdraftPlus_PclZip';
 		}
 
+	}
+
+	public function report_remotestorage_extrainfo($service, $info_html, $info_plain) {
+		$this->remotestorage_extrainfo[$service] = $info_plain;
 	}
 
 	// Public, because called from the 'More Files' add-on
@@ -241,6 +250,9 @@ class UpdraftPlus_Backup {
 			$updraftplus->clean_temporary_files('_'.$updraftplus->nonce."-$whichone", 0);
 		}
 
+		// Remove cache list files as well, if there are any
+		$updraftplus->clean_temporary_files('_'.$updraftplus->nonce."-$whichone", 0, true);
+
 		# Create the results array to send back (just the new ones, not any prior ones)
 		$files_existing = array();
 		$res_index = 0;
@@ -253,6 +265,36 @@ class UpdraftPlus_Backup {
 			$res_index++;
 		}
 		return $files_existing;
+	}
+
+	// This method is for calling outside of a cloud_backup() context. It constructs a list of services for which prune operations should be attempted, and then calls prune_retained_backups() if necessary upon them.
+	public function do_prune_standalone() {
+		global $updraftplus;
+
+		$services = $updraftplus->just_one($updraftplus->jobdata_get('service'));
+		if (!is_array($services)) $services = array($services);
+
+		$prune_services = array();
+
+		foreach ($services as $ind => $service) {
+			if ($service == "none" || '' == $service) continue;
+
+			$objname = "UpdraftPlus_BackupModule_${service}";
+			if (!class_exists($objname) && file_exists(UPDRAFTPLUS_DIR.'/methods/'.$service.'.php')) {
+
+				require_once(UPDRAFTPLUS_DIR.'/methods/'.$service.'.php');
+			}
+			if (class_exists($objname)) {
+				$remote_obj = new $objname;
+				$pass_to_prune = $null;
+				$prune_services[$service] = array($remote_obj, null);
+			} else {
+				$updraftplus->log("Could not prune from service $service: remote method not found");
+			}
+
+		}
+
+		if (!empty($prune_services)) $this->prune_retained_backups($prune_services);
 	}
 
 	// Dispatch to the relevant function
@@ -365,7 +407,9 @@ class UpdraftPlus_Backup {
 			return;
 		}
 
-		$updraftplus->jobdata_set('jobstatus', 'pruning');
+// 		$updraftplus->jobdata_set('jobstatus', 'pruning');
+// 		$updraftplus->jobdata_set('prune', 'begun');
+		call_user_func_array(array($updraftplus, 'jobdata_set_multi'), array('jobstatus', 'pruning', 'prune', 'begun'));
 
 		// Number of backups to retain - files
 		$updraft_retain = UpdraftPlus_Options::get_updraft_option('updraft_retain', 2);
@@ -402,7 +446,7 @@ class UpdraftPlus_Backup {
 			$updraftplus->log(sprintf("Examining backup set with datestamp: %s (%s)", $backup_datestamp, gmdate('M d Y H:i:s', $backup_datestamp)));
 
 			if (isset($backup_to_examine['native']) && false == $backup_to_examine['native']) {
-				$updraftplus->log("This backup set ($backup_datestamp) was imported a remote location, so will not be counted or pruned. Skipping.");
+				$updraftplus->log("This backup set ($backup_datestamp) was imported from a remote location, so will not be counted or pruned. Skipping.");
 				continue;
 			}
 
@@ -447,13 +491,17 @@ class UpdraftPlus_Backup {
 					} else {
 
 						if (!empty($data)) {
-							foreach ($services as $service => $sd) $this->prune_file($service, $data, $sd[0], $sd[1]);
+							$size_key = $key.'-size';
+							$size = isset($backup_to_examine[$size_key]) ? $backup_to_examine[$size_key] : null;
+							foreach ($services as $service => $sd) $this->prune_file($service, $data, $sd[0], $sd[1], array($size));
 						}
 						unset($backup_to_examine[$key]);
 						$updraftplus->record_still_alive();
 					}
 				}
 			}
+
+			$file_sizes = array();
 
 			# Files
 			foreach ($backupable_entities as $entity => $info) {
@@ -486,13 +534,16 @@ class UpdraftPlus_Backup {
 							continue;
 						}
 
-						foreach ($prune_this as $prune_file) {
+						foreach ($prune_this as $k => $prune_file) {
 							if ($remote_sent) {
 								$updraftplus->log("$entity: $backup_datestamp: was sent to remote site; will remove from local record (only)");
 							} else {
 								$updraftplus->log("$entity: $backup_datestamp: over retain limit ($updraft_retain); will delete this file ($prune_file)");
 							}
+							$size_key = (0 == $k) ? $entity.'-size' : $entity.$k.'-size';
+							$size = (isset($backup_to_examine[$size_key])) ? $backup_to_examine[$size_key] : null;
 							$files_to_prune[] = $prune_file;
+							$file_sizes[] = $size;
 						}
 						unset($backup_to_examine[$entity]);
 						
@@ -502,7 +553,7 @@ class UpdraftPlus_Backup {
 
 			# Actually delete the files
 			foreach ($services as $service => $sd) {
-				$this->prune_file($service, $files_to_prune, $sd[0], $sd[1]);
+				$this->prune_file($service, $files_to_prune, $sd[0], $sd[1], $file_sizes);
 				$updraftplus->record_still_alive();
 			}
 
@@ -545,15 +596,19 @@ class UpdraftPlus_Backup {
 			}
 		# Loop over backup sets
 		}
+
 		$updraftplus->log("Retain: saving new backup history (sets now: ".count($backup_history).") and finishing retain operation");
 		UpdraftPlus_Options::update_updraft_option('updraft_backup_history', $backup_history, false);
+
+		$updraftplus->jobdata_set('prune', 'finished');
+
 	}
 
 	# $dofiles: An array of files (or a single string for one file)
-	private function prune_file($service, $dofiles, $method_object = null, $object_passback = null) {
+	private function prune_file($service, $dofiles, $method_object = null, $object_passback = null, $file_sizes = array()) {
 		global $updraftplus;
 		if (!is_array($dofiles)) $dofiles=array($dofiles);
-		foreach ($dofiles as $dofile) {
+		foreach ($dofiles as $i => $dofile) {
 			if (empty($dofile)) continue;
 			$updraftplus->log("Delete file: $dofile, service=$service");
 			$fullpath = $this->updraft_dir.'/'.$dofile;
@@ -564,7 +619,7 @@ class UpdraftPlus_Backup {
 			}
 		}
 		// Despatch to the particular method's deletion routine
-		if (!is_null($method_object)) $method_object->delete($dofiles, $object_passback);
+		if (!is_null($method_object)) $method_object->delete($dofiles, $object_passback, $file_sizes);
 	}
 
 	# The jobdata is passed in instead of fetched, because the live jobdata may now differ from that which should be reported on (e.g. an incremental run was subsequently scheduled)
@@ -663,6 +718,10 @@ class UpdraftPlus_Backup {
 			foreach ($extra_messages as $msg) {
 				$extra_msg .= '<strong>'.$msg['key'].'</strong>: '.$msg['val']."\r\n";
 			}
+		}
+
+		foreach ($this->remotestorage_extrainfo as $service => $message) {
+			if (!empty($updraftplus->backup_methods[$service])) $extra_msg .= $updraftplus->backup_methods[$service].': '.$message."\r\n";
 		}
 
 		$body = apply_filters('updraft_report_body',
@@ -1519,6 +1578,7 @@ class UpdraftPlus_Backup {
 		global $updraftplus;
 		$encryption = UpdraftPlus_Options::get_updraft_option('updraft_encryptionphrase');
 		if (strlen($encryption) > 0) {
+			$updraftplus->log("Attempting to encrypt backup file");
 			$result = apply_filters('updraft_encrypt_file', null, $file, $encryption, $this->whichdb, $this->whichdb_suffix);
 			if (null === $result) {
 // 				$updraftplus->log(sprintf(__("As previously warned (see: %s), encryption is no longer a feature of the free edition of UpdraftPlus", 'updraftplus'), 'https://updraftplus.com/next-updraftplus-release-ready-testing/ + https://updraftplus.com/shop/updraftplus-premium/'), 'warning', 'needpremiumforcrypt');
@@ -1629,7 +1689,7 @@ class UpdraftPlus_Backup {
 	// $exclude is passed by reference so that we can remove elements as they are matched - saves time checking against already-dealt-with objects
 	private function makezip_recursive_add($fullpath, $use_path_when_storing, $original_fullpath, $startlevels = 1, &$exclude) {
 
-		$zipfile = $this->zip_basename.(($this->index == 0) ? '' : ($this->index+1)).'.zip.tmp';
+// 		$zipfile = $this->zip_basename.(($this->index == 0) ? '' : ($this->index+1)).'.zip.tmp';
 
 		global $updraftplus;
 
@@ -1686,55 +1746,54 @@ class UpdraftPlus_Backup {
 			}
 
 			while (false !== ($e = readdir($dir_handle))) {
-				if ('.' != $e && '..' != $e ) {
-					if (is_link($fullpath.'/'.$e)) {
-						$deref = realpath($fullpath.'/'.$e);
-						if (is_file($deref)) {
-							if (is_readable($deref)) {
-								$use_stripped = $stripped_storage_path.'/'.$e;
-								if (false !== ($fkey = array_search($use_stripped, $exclude))) {
-									$updraftplus->log("Entity excluded by configuration option: $use_stripped");
-									unset($exclude[$fkey]);
-								} else {
-									$mtime = filemtime($deref);
-									if ($mtime > 0 && $mtime > $if_altered_since) {
-										$this->zipfiles_batched[$deref] = $use_path_when_storing.'/'.$e;
-										$this->makezip_recursive_batchedbytes += @filesize($deref);
-										#@touch($zipfile);
-									} else {
-										$this->zipfiles_skipped_notaltered[$deref] = $use_path_when_storing.'/'.$e;
-									}
-								}
-							} else {
-								$updraftplus->log("$deref: unreadable file");
-								$updraftplus->log(sprintf(__("%s: unreadable file - could not be backed up"), $deref), 'warning');
-							}
-						} elseif (is_dir($deref)) {
-							$this->makezip_recursive_add($deref, $use_path_when_storing.'/'.$e, $original_fullpath, $startlevels, $exclude);
-						}
-					} elseif (is_file($fullpath.'/'.$e)) {
-						if (is_readable($fullpath.'/'.$e)) {
+				if ('.' == $e || '..' == $e) continue;
+				if (is_link($fullpath.'/'.$e)) {
+					$deref = realpath($fullpath.'/'.$e);
+					if (is_file($deref)) {
+						if (is_readable($deref)) {
 							$use_stripped = $stripped_storage_path.'/'.$e;
 							if (false !== ($fkey = array_search($use_stripped, $exclude))) {
 								$updraftplus->log("Entity excluded by configuration option: $use_stripped");
 								unset($exclude[$fkey]);
 							} else {
-								$mtime = filemtime($fullpath.'/'.$e);
+								$mtime = filemtime($deref);
 								if ($mtime > 0 && $mtime > $if_altered_since) {
-									$this->zipfiles_batched[$fullpath.'/'.$e] = $use_path_when_storing.'/'.$e;
-									$this->makezip_recursive_batchedbytes += @filesize($fullpath.'/'.$e);
+									$this->zipfiles_batched[$deref] = $use_path_when_storing.'/'.$e;
+									$this->makezip_recursive_batchedbytes += @filesize($deref);
+									#@touch($zipfile);
 								} else {
-									$this->zipfiles_skipped_notaltered[$fullpath.'/'.$e] = $use_path_when_storing.'/'.$e;
+									$this->zipfiles_skipped_notaltered[$deref] = $use_path_when_storing.'/'.$e;
 								}
 							}
 						} else {
-							$updraftplus->log("$fullpath/$e: unreadable file");
-							$updraftplus->log(sprintf(__("%s: unreadable file - could not be backed up", 'updraftplus'), $use_path_when_storing.'/'.$e), 'warning', "unrfile-$e");
+							$updraftplus->log("$deref: unreadable file");
+							$updraftplus->log(sprintf(__("%s: unreadable file - could not be backed up"), $deref), 'warning');
 						}
-					} elseif (is_dir($fullpath.'/'.$e)) {
-						// no need to addEmptyDir here, as it gets done when we recurse
-						$this->makezip_recursive_add($fullpath.'/'.$e, $use_path_when_storing.'/'.$e, $original_fullpath, $startlevels, $exclude);
+					} elseif (is_dir($deref)) {
+						$this->makezip_recursive_add($deref, $use_path_when_storing.'/'.$e, $original_fullpath, $startlevels, $exclude);
 					}
+				} elseif (is_file($fullpath.'/'.$e)) {
+					if (is_readable($fullpath.'/'.$e)) {
+						$use_stripped = $stripped_storage_path.'/'.$e;
+						if (false !== ($fkey = array_search($use_stripped, $exclude))) {
+							$updraftplus->log("Entity excluded by configuration option: $use_stripped");
+							unset($exclude[$fkey]);
+						} else {
+							$mtime = filemtime($fullpath.'/'.$e);
+							if ($mtime > 0 && $mtime > $if_altered_since) {
+								$this->zipfiles_batched[$fullpath.'/'.$e] = $use_path_when_storing.'/'.$e;
+								$this->makezip_recursive_batchedbytes += @filesize($fullpath.'/'.$e);
+							} else {
+								$this->zipfiles_skipped_notaltered[$fullpath.'/'.$e] = $use_path_when_storing.'/'.$e;
+							}
+						}
+					} else {
+						$updraftplus->log("$fullpath/$e: unreadable file");
+						$updraftplus->log(sprintf(__("%s: unreadable file - could not be backed up", 'updraftplus'), $use_path_when_storing.'/'.$e), 'warning', "unrfile-$e");
+					}
+				} elseif (is_dir($fullpath.'/'.$e)) {
+					// no need to addEmptyDir here, as it gets done when we recurse
+					$this->makezip_recursive_add($fullpath.'/'.$e, $use_path_when_storing.'/'.$e, $original_fullpath, $startlevels, $exclude);
 				}
 			}
 			closedir($dir_handle);
@@ -1744,6 +1803,25 @@ class UpdraftPlus_Backup {
 
 		return true;
 
+	}
+
+	private function unserialize_gz_cache_file($file) {
+		if (!$whandle = gzopen($file, 'r')) return false;
+		global $updraftplus;
+		$emptimes = 0;
+		$var = '';
+		while (!gzeof($whandle)) {
+			$bytes = @gzread($whandle, 1048576);
+			if (empty($bytes)) {
+				$emptimes++;
+				$updraftplus->log("Got empty gzread ($emptimes times)");
+				if ($emptimes>2) return false;
+			} else {
+				$var .= $bytes;
+			}
+		}
+		gzclose($whandle);
+		return unserialize($var);
 	}
 
 	// Caution: $source is allowed to be an array, not just a filename
@@ -1791,7 +1869,7 @@ class UpdraftPlus_Backup {
 			if ($j != $this->index && !file_exists($examine_zip)) {
 				$alt_examine_zip = $this->updraft_dir.'/'.$backup_file_basename.'-'.$whichone.$jtext.'.zip'.(($j == $this->index - 1) ? '.tmp' : '');
 				if ($alt_examine_zip != $examine_zip && file_exists($alt_examine_zip) && is_readable($alt_examine_zip) && filesize($alt_examine_zip)>0) {
-					$updraftplus->log("Looked for zip file not found; but non-zero .tmp zip was, despite not being current index ($j != ".$this->index." - renaming zip (assume previous resumption's IO was lost before kill)");
+					$updraftplus->log("Looked-for zip file not found; but non-zero .tmp zip was, despite not being current index ($j != ".$this->index." - renaming zip (assume previous resumption's IO was lost before kill)");
 					if (rename($alt_examine_zip, $examine_zip)) {
 						clearstatcache();
 					} else {
@@ -1872,16 +1950,153 @@ class UpdraftPlus_Backup {
 
 		$this->makezip_if_altered_since = (is_array($this->altered_since)) ? (isset($this->altered_since[$whichone]) ? $this->altered_since[$whichone] : -1) : -1;
 
+		// Uploads: can/should we get it back from the cache?
+		if ('uploads' == $whichone && function_exists('gzopen') && function_exists('gzread')) {
+			$use_cache_files = false;
+			$cache_file_base = $this->zip_basename.'-cachelist-'.$this->makezip_if_altered_since;
+			// Cache file suffixes: -zfd.gz.tmp, -zfb.gz.tmp, -info.tmp, (possible)-zfs.gz.tmp
+			if (file_exists($cache_file_base.'-zfd.gz.tmp') && file_exists($cache_file_base.'-zfb.gz.tmp') && file_exists($cache_file_base.'-info.tmp')) {
+				// Cache files exist; shall we use them?
+				$mtime = filemtime($cache_file_base.'-zfd.gz.tmp');
+				// Require < 30 minutes old
+				if (time() - $mtime < 1800) { $use_cache_files = true; }
+				$any_failures = false;
+				if ($use_cache_files) {
+					$var = $this->unserialize_gz_cache_file($cache_file_base.'-zfd.gz.tmp');
+					if (is_array($var)) {
+						$this->zipfiles_dirbatched = $var;
+						$var = $this->unserialize_gz_cache_file($cache_file_base.'-zfb.gz.tmp');
+						if (is_array($var)) {
+							$this->zipfiles_batched = $var;
+							if (file_exists($cache_file_base.'-info.tmp')) {
+								$var = maybe_unserialize(file_get_contents($cache_file_base.'-info.tmp'));
+								if (is_array($var) && isset($var['makezip_recursive_batchedbytes'])) {
+									$this->makezip_recursive_batchedbytes = $var['makezip_recursive_batchedbytes'];
+									if (file_exists($cache_file_base.'-zfs.gz.tmp')) {~
+										$var = $this->unserialize_gz_cache_file($cache_file_base.'-zfs.gz.tmp');
+										if (is_array($var)) {
+											$this->zipfiles_skipped_notaltered = $var;
+										} else {
+											$any_failures = true;
+										}
+									} else {
+										$this->zipfiles_skipped_notaltered = array();
+									}
+								} else {
+									$any_failures = true;
+								}
+							}
+						} else {
+							$any_failures = true;
+						}
+					} else {
+						$any_failures = true;
+					}
+					if ($any_failures) {
+						$updraftplus->log("Failed to recover file lists from existing cache files");
+						// Reset it all
+						$this->zipfiles_skipped_notaltered = array();
+						$this->makezip_recursive_batchedbytes = 0;
+						$this->zipfiles_batched = array();
+						$this->zipfiles_dirbatched = array();
+					} else {
+						$updraftplus->log("File lists recovered from cache files; sizes: ".count($this->zipfiles_batched).", ".count($this->zipfiles_batched).", ".count($this->zipfiles_skipped_notaltered).")");
+						$got_uploads_from_cache = true;
+					}
+				}
+			}
+		}
+
+		$time_counting_began = time();
+
 		foreach ($source as $element) {
 			#makezip_recursive_add($fullpath, $use_path_when_storing, $original_fullpath, $startlevels = 1, $exclude_array)
 			if ('uploads' == $whichone) {
-				$dirname = dirname($element);
-				$basename = $this->basename($element);
-				$add_them = $this->makezip_recursive_add($element, basename($dirname).'/'.$basename, $element, 2, $exclude);
+				if (empty($got_uploads_from_cache)) {
+					$dirname = dirname($element);
+					$basename = $this->basename($element);
+					$add_them = $this->makezip_recursive_add($element, basename($dirname).'/'.$basename, $element, 2, $exclude);
+				} else {
+					$add_them = true;
+				}
 			} else {
 				$add_them = $this->makezip_recursive_add($element, $this->basename($element), $element, 1, $exclude);
 			}
 			if (is_wp_error($add_them) || false === $add_them) $error_occurred = true;
+		}
+
+		$time_counting_ended = time();
+
+		// Cache the file scan, if it looks like it'll be useful
+		// We use gzip to reduce the size as on hosts which limit disk I/O, the cacheing may make things worse
+		if ('uploads' == $whichone && !$error_occurred && function_exists('gzopen') && function_exists('gzwrite')) {
+			$cache_file_base = $this->zip_basename.'-cachelist-'.$this->makezip_if_altered_since;
+
+			// Just approximate - we're trying to avoid an otherwise-unpredictable PHP fatal error. Cacheing only happens if file enumeration took a long time - so presumably there are very many.
+			$memory_needed_estimate = 0;
+			foreach ($this->zipfiles_batched as $k => $v) { $memory_needed_estimate += strlen($k)+strlen($v)+12; }
+			// Let us suppose we need 15% overhead for gzipping
+			$memory_needed_estimate = $memory_needed_estimate * 0.15;
+
+			// We haven't bothered to check if we just fetched the files from cache, as that shouldn't take a long time and so shouldn't trigger this
+			if ($time_counting_ended-$time_counting_began > 20 && $updraftplus->verify_free_memory($memory_needed_estimate) && $whandle = gzopen($cache_file_base.'-zfb.gz.tmp', 'w')) {
+				$updraftplus->log("File counting took a long time (".($time_counting_ended - $time_counting_began)."s); will attempt to cache results");
+				if (!gzwrite($whandle, serialize($this->zipfiles_batched))) {
+					@unlink($cache_file_base.'-zfb.gz.tmp');
+					@gzclose($whandle);
+				} else {
+					gzclose($whandle);
+					if (!empty($this->zipfiles_skipped_notaltered)) {
+						if ($shandle = gzopen($cache_file_base.'-zfs.gz.tmp', 'w')) {
+							if (!gzwrite($shandle, serialize($this->zipfiles_skipped_notaltered))) {
+								$aborted_on_skipped = true;
+							}
+							gzclose($shandle);
+						} else {
+							$aborted_on_skipped = true;
+						}
+					}
+					if (!empty($aborted_on_skipped)) {
+						@unlink($cache_file_base.'-zfs.gz.tmp');
+						@unlink($cache_file_base.'-zfb.gz.tmp');
+					} else {
+						$info_array = array('makezip_recursive_batchedbytes' => $this->makezip_recursive_batchedbytes);
+						if (!file_put_contents($cache_file_base.'-info.tmp', serialize($info_array))) {
+							@unlink($cache_file_base.'-zfs.gz.tmp');
+							@unlink($cache_file_base.'-zfb.gz.tmp');
+						}
+						if ($dhandle = gzopen($cache_file_base.'-zfd.gz.tmp', 'w')) {
+							if (!gzwrite($dhandle, serialize($this->zipfiles_dirbatched))) {
+								$aborted_on_dirbatched = true;
+							}
+							gzclose($dhandle);
+						} else {
+							$aborted_on_dirbatched = true;
+						}
+						if (!empty($aborted_on_dirbatched)) {
+							@unlink($cache_file_base.'-zfs.gz.tmp');
+							@unlink($cache_file_base.'-zfd.gz.tmp');
+							@unlink($cache_file_base.'-zfb.gz.tmp');
+							@unlink($cache_file_base.'-info.tmp');
+						} else {
+							// Success.
+						}
+					}
+				}
+			}
+
+/*
+		Class variables that get altered:
+		zipfiles_batched
+		makezip_recursive_batchedbytes
+		zipfiles_skipped_notaltered
+		zipfiles_dirbatched
+		
+		Class variables that the result depends upon (other than the state of the filesystem):
+		makezip_if_altered_since
+		existing_files
+		*/
+
 		}
 
 		// Any not yet dispatched? Under our present scheme, at this point nothing has yet been despatched. And since the enumerating of all files can take a while, we can at this point do a further modification check to reduce the chance of overlaps.
@@ -2049,10 +2264,15 @@ class UpdraftPlus_Backup {
 		// Go through all those batched files
 		foreach ($this->zipfiles_batched as $file => $add_as) {
 
+			if (!file_exists($file)) {
+				$updraftplus->log("File has vanished from underneath us; dropping: ".$add_as);
+				continue;
+			}
+
 			$fsize = filesize($file);
 
 			if ($fsize > UPDRAFTPLUS_WARN_FILE_SIZE) {
-				$updraftplus->log(sprintf(__('A very large file was encountered: %s (size: %s Mb)', 'updraftplus'), $add_as, round($fsize/1048576, 1)), 'warning');
+				$updraftplus->log(sprintf(__('A very large file was encountered: %s (size: %s Mb)', 'updraftplus'), $add_as, round($fsize/1048576, 1)), 'warning', 'vlargefile_'.md5($this->whichone.'#'.$add_as));
 			}
 
 			// Skips files that are already added
@@ -2359,7 +2579,13 @@ class UpdraftPlus_Backup {
 		# We touch the next zip before renaming the temporary file; this indicates that the backup for the entity is not *necessarily* finished
 		touch($next_full_path.'.tmp');
 
-		if (file_exists($full_path.'.tmp') && !rename($full_path.'.tmp', $full_path)) $updraftplus->log("Rename failed for $full_path.tmp");
+		if (file_exists($full_path.'.tmp') && filesize($full_path.'.tmp') > 0) {
+			if (!rename($full_path.'.tmp', $full_path)) {
+				$updraftplus->log("Rename failed for $full_path.tmp");
+			} else {
+				$updraftplus->something_useful_happened();
+			}
+		}
 		$kbsize = filesize($full_path)/1024;
 		$rate = round($kbsize/$timetaken, 1);
 		$updraftplus->log("Created ".$this->whichone." zip (".$this->index.") - ".round($kbsize,1)." Kb in ".round($timetaken,1)." s ($rate Kb/s) (SHA1 checksum: ".$sha.")");

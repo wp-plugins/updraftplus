@@ -172,7 +172,7 @@ class UpdraftPlus_BackupModule_ftp {
 
 	}
 
-	public function delete($files, $ftparr = array()) {
+	public function delete($files, $ftparr = array(), $sizeinfo = array()) {
 
 		global $updraftplus;
 		if (is_string($files)) $files=array($files);
@@ -336,7 +336,7 @@ class UpdraftPlus_BackupModule_ftp {
 		</tr>
 		<tr class="updraftplusmethod ftp">
 			<th><?php _e('FTP password','updraftplus');?>:</th>
-			<td><input type="<?php echo apply_filters('updraftplus_admin_secret_field_type', 'text'); ?>" size="40" id="updraft_ftp_pass" name="updraft_ftp[pass]" value="<?php echo htmlspecialchars($opts['pass']); ?>" /></td>
+			<td><input type="<?php echo apply_filters('updraftplus_admin_secret_field_type', 'password'); ?>" size="40" id="updraft_ftp_pass" name="updraft_ftp[pass]" value="<?php echo htmlspecialchars(trim($opts['pass'], "\n\r\0\x0B")); ?>" /></td>
 		</tr>
 		<tr class="updraftplusmethod ftp">
 			<th><?php _e('Remote path','updraftplus');?>:</th>

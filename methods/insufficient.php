@@ -35,7 +35,7 @@ class UpdraftPlus_BackupModule_insufficientphp {
 	}
 
 	// delete method: takes an array of file names (base name) or a single string, and removes them from the cloud storage
-	public function delete($files, $data = false) {
+	public function delete($files, $data = false, $sizeinfo = array()) {
 		return $this->log_error();
 	}
 

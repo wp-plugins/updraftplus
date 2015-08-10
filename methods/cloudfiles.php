@@ -43,7 +43,7 @@ class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 
 		if (!defined('UPDRAFTPLUS_SSL_DISABLEVERIFY')) define('UPDRAFTPLUS_SSL_DISABLEVERIFY', UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify'));
 
-		$auth = new UpdraftPlus_CF_Authentication($user, $apikey, NULL, $authurl);
+		$auth = new UpdraftPlus_CF_Authentication($user, trim($apikey), NULL, $authurl);
 
 		$updraftplus->log("Cloud Files authentication URL: $authurl");
 
@@ -265,7 +265,7 @@ class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 
 	}
 
-	public function delete($files, $cloudfilesarr = false) {
+	public function delete($files, $cloudfilesarr = false, $sizeinfo = array()) {
 
 		global $updraftplus;
 		if (is_string($files)) $files=array($files);
@@ -509,7 +509,7 @@ class UpdraftPlus_BackupModule_cloudfiles_oldsdk {
 		</tr>
 		<tr class="updraftplusmethod cloudfiles">
 			<th><?php _e('Cloud Files API key','updraftplus');?>:</th>
-			<td><input type="<?php echo apply_filters('updraftplus_admin_secret_field_type', 'text'); ?>" autocomplete="off" style="width: 282px" id="updraft_cloudfiles_apikey" name="updraft_cloudfiles[apikey]" value="<?php echo htmlspecialchars($opts['apikey']); ?>" /></td>
+			<td><input type="<?php echo apply_filters('updraftplus_admin_secret_field_type', 'password'); ?>" autocomplete="off" style="width: 282px" id="updraft_cloudfiles_apikey" name="updraft_cloudfiles[apikey]" value="<?php echo htmlspecialchars(trim($opts['apikey'])); ?>" /></td>
 		</tr>
 		<tr class="updraftplusmethod cloudfiles">
 			<th><?php echo apply_filters('updraftplus_cloudfiles_location_description',__('Cloud Files container','updraftplus'));?>:</th>

@@ -70,6 +70,8 @@ class UpdraftPlus_S3_Compat
 	public $useSSLValidation = true;
 	public $useExceptions = false;
 
+	private $_serverSideEncryption = null;
+
 	// SSL CURL SSL options - only needed if you are experiencing problems with your OpenSSL configuration
 	public $sslKey = null;
 	public $sslCert = null;
@@ -128,6 +130,13 @@ class UpdraftPlus_S3_Compat
 	{
 		$this->__accessKey = $accessKey;
 		$this->__secretKey = $secretKey;
+	}
+
+	// Example value: 'AES256'. See: https://docs.aws.amazon.com/AmazonS3/latest/dev/SSEUsingPHPSDK.html
+	// Or, false to turn off.
+	public function setServerSideEncryption($value)
+	{
+		$this->_serverSideEncryption = $value;
 	}
 
 	/**
@@ -391,6 +400,18 @@ class UpdraftPlus_S3_Compat
 		}
 	}
 
+	// This is crude - nothing is returned
+	public function waitForBucket($bucket) {
+		try {
+			$this->client->waitUntil('BucketExists', array('Bucket' => $bucket));
+		} catch (Exception $e) {
+			if ($this->useExceptions) {
+				throw $e;
+			} else {
+				return $this->trigger_from_exception($e);
+			}
+		}
+	}
 
 	/**
 	* Put a bucket
@@ -446,6 +467,8 @@ class UpdraftPlus_S3_Compat
 		);
 
 		$vars['ContentType'] = ('.gz' == strtolower(substr($uri, -3, 3))) ? 'application/octet-stream' : 'application/zip';
+
+		if (!empty($this->_serverSideEncryption)) $vars['ServerSideEncryption'] = $this->_serverSideEncryption;
 
 		try {
 			$result = $this->client->createMultipartUpload($vars);
@@ -581,6 +604,7 @@ class UpdraftPlus_S3_Compat
 				'ACL' => $acl
 			);
 			if ($contentType) $options['ContentType'] = $contentType;
+			if (!empty($this->_serverSideEncryption)) $options['ServerSideEncryption'] = $this->_serverSideEncryption;
 			if (!empty($metaHeaders)) $options['Metadata'] = $metaHeaders;
 			$result = $this->client->putObject($options);
 			if (is_object($result) && method_exists($result, 'get') && '' != $result->get('RequestId')) return true;
@@ -730,6 +754,22 @@ class UpdraftPlus_S3_Compat
 			}
 		}
 		return false;
+	}
+
+	public function setCORS($policy)
+	{
+		try {
+			$cors = $this->client->putBucketCors($policy);
+			if (is_object($cors) && method_exists($cors, 'get') && '' != $cors->get('RequestId')) return true;
+		} catch (Exception $e) {
+			if ($this->useExceptions) {
+				throw $e;
+			} else {
+				return $this->trigger_from_exception($e);
+			}
+		}
+		return false;
+		
 	}
 
 }

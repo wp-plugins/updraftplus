@@ -44,7 +44,7 @@ class UpdraftPlus_BackupModule_googledrive {
 		return array('updraft_googledrive');
 	}
 
-	public function get_opts() {
+	public static function get_opts() {
 		# parentid is deprecated since April 2014; it should not be in the default options (its presence is used to detect an upgraded-from-previous-SDK situation). For the same reason, 'folder' is also unset; which enables us to know whether new-style settings have ever been set.
 		global $updraftplus;
 		$opts = $updraftplus->get_job_option('updraft_googledrive');
@@ -111,7 +111,14 @@ class UpdraftPlus_BackupModule_googledrive {
 			return $current_parent;
 
 		} catch (Exception $e) {
-			$updraftplus->log("Google Drive id_from_path failure: exception: ".$e->getMessage().' (line: '.$e->getLine().', file: '.$e->getFile().')');
+			$msg = $e->getMessage();
+			$updraftplus->log("Google Drive id_from_path failure: exception (".get_class($e)."): ".$msg.' (line: '.$e->getLine().', file: '.$e->getFile().')');
+			if (is_a($e, 'Google_Service_Exception') && false !== strpos($msg, 'Invalid json in service response') && function_exists('mb_strpos')) {
+				// Aug 2015: saw a case where the gzip-encoding was not removed from the result
+				// https://stackoverflow.com/questions/10975775/how-to-determine-if-a-string-was-compressed
+				$is_gzip = false !== mb_strpos($msg , "\x1f" . "\x8b" . "\x08");
+				if ($is_gzip) $updraftplus->log("Error: Response appears to be gzip-encoded still; something is broken in the client HTTP stack, and you should define UPDRAFTPLUS_GOOGLEDRIVE_DISABLEGZIP as true in your wp-config.php to overcome this.");
+			}
 			# One retry
 			return ($retry) ? $this->id_from_path($path, false) : false;
 		}
@@ -472,7 +479,7 @@ class UpdraftPlus_BackupModule_googledrive {
 		$config = new Google_Config();
 		$config->setClassConfig('Google_IO_Abstract', 'request_timeout_seconds', 15);
 		# In our testing, $service->about->get() fails if gzip is not disabled when using the stream wrapper
-		if (!function_exists('curl_version') || !function_exists('curl_exec')) {
+		if (!function_exists('curl_version') || !function_exists('curl_exec') || (defined('UPDRAFTPLUS_GOOGLEDRIVE_DISABLEGZIP') && UPDRAFTPLUS_GOOGLEDRIVE_DISABLEGZIP)) {
 			$config->setClassConfig('Google_Http_Request', 'disable_gzip', true);
 		}
 
@@ -504,7 +511,6 @@ class UpdraftPlus_BackupModule_googledrive {
 			$setopts[CURLOPT_SSL_VERIFYPEER] = UpdraftPlus_Options::get_updraft_option('updraft_ssl_disableverify') ? false : true;
 			if (!UpdraftPlus_Options::get_updraft_option('updraft_ssl_useservercerts')) $setopts[CURLOPT_CAINFO] = UPDRAFTPLUS_DIR.'/includes/cacert.pem';
 			if (defined('UPDRAFTPLUS_IPV4_ONLY') && UPDRAFTPLUS_IPV4_ONLY) $setopts[CURLOPT_IPRESOLVE] = CURL_IPRESOLVE_V4;
-			
 		} elseif (is_a($io, 'Google_IO_Stream')) {
 			$setopts['timeout'] = 15;
 			# We had to modify the SDK to support this
@@ -593,7 +599,7 @@ class UpdraftPlus_BackupModule_googledrive {
 		return $result;
     }
 
-	public function delete($files) {
+	public function delete($files, $data=null, $sizeinfo = array()) {
 
 		if (is_string($files)) $files=array($files);
 
@@ -897,7 +903,7 @@ class UpdraftPlus_BackupModule_googledrive {
 			</tr>
 			<tr class="updraftplusmethod googledrive">
 				<th><?php echo __('Google Drive','updraftplus').' '.__('Client Secret', 'updraftplus'); ?>:</th>
-				<td><input type="<?php echo apply_filters('updraftplus_admin_secret_field_type', 'text'); ?>" style="width:442px" name="updraft_googledrive[secret]" value="<?php echo htmlspecialchars($opts['secret']); ?>" /></td>
+				<td><input type="<?php echo apply_filters('updraftplus_admin_secret_field_type', 'password'); ?>" style="width:442px" name="updraft_googledrive[secret]" value="<?php echo htmlspecialchars($opts['secret']); ?>" /></td>
 			</tr>
 
 			<?php
