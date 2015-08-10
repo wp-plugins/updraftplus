@@ -232,7 +232,7 @@ class UpdraftPlus_BackupModule_updraftvault extends UpdraftPlus_BackupModule_s3 
 						<button id="updraftvault_connect" class="button-primary" style="font-size:18px;"><?php _e('Connect', 'updraftplus');?></button>
 					</div>
 					<p style="clear:left; padding-top:20px;">
-						<em><?php _e("UpdraftPlus Vault is built on top of Amazon's world-leading data-centres, with redundant data storage to achieve 99.999999999% reliability.", 'updraftplus');?> <a href="<?php echo esc_attr($this->get_url('more_vault_info_landing')); ?>"><?php _e('Read more about it here.', 'updraftplus');?></a> <a href="<?php echo esc_attr($this->get_url('more_vault_info_faqs')); ?>"><?php _e('Read the FAQs here.', 'updraftplus');?></a></em>
+						<em><?php _e("UpdraftPlus Vault is built on top of Amazon's world-leading data-centres, with redundant data storage to achieve 99.999999999% reliability.", 'updraftplus');?> <a target="_blank" href="<?php echo esc_attr($this->get_url('more_vault_info_landing')); ?>"><?php _e('Read more about it here.', 'updraftplus');?></a> <a target="_blank" href="<?php echo esc_attr($this->get_url('more_vault_info_faqs')); ?>"><?php _e('Read the FAQs here.', 'updraftplus');?></a></em>
 					</p>
 				</div>
 
@@ -243,23 +243,23 @@ class UpdraftPlus_BackupModule_updraftvault extends UpdraftPlus_BackupModule_s3 
 					<div style="float: left; clear:left; width:33%; text-align:center;">
 						<div style="font-size: 200%;">5 Gb</div>
 						<div style="clear:both;font-size: 150%;"><?php printf(__('%s per quarter', 'updraftplus'), '$10'); ?></div>
-						<div style="clear:both;font-size: 150%;"><a href="https://updraftplus.com/shop/updraftplus-vault-storage-5-gb/"><?php _e('Buy It Now', 'updraftplus');?></a></div>
+						<div style="clear:both;font-size: 150%;"><a target="_blank" href="https://updraftplus.com/shop/updraftplus-vault-storage-5-gb/"><?php _e('Buy It Now', 'updraftplus');?></a></div>
 					</div>
 					<div style="float: left; width:33%; text-align:center;">
 						<div style="font-size: 200%;">15 Gb</div>
 						<div style="clear:both;font-size: 150%;"><?php printf(__('%s per quarter', 'updraftplus'), '$20'); ?></div>
-						<div style="clear:both;font-size: 150%;"><a href="https://updraftplus.com/shop/updraftplus-vault-storage-15-gb/"><?php _e('Buy It Now', 'updraftplus');?></a></div>
+						<div style="clear:both;font-size: 150%;"><a target="_blank" href="https://updraftplus.com/shop/updraftplus-vault-storage-15-gb/"><?php _e('Buy It Now', 'updraftplus');?></a></div>
 					</div>
 					<div style="float: left; width:33%; text-align:center;">
 						<div style="font-size: 200%;">50 Gb</div>
 						<div style="clear:both;font-size: 150%;"><?php printf(__('%s per quarter', 'updraftplus'), '$50'); ?></div>
-						<div style="clear:both;font-size: 150%;"><a href="https://updraftplus.com/shop/updraftplus-vault-storage-50-gb/"><?php _e('Buy It Now', 'updraftplus');?></a></div>
+						<div style="clear:both;font-size: 150%;"><a target="_blank" href="https://updraftplus.com/shop/updraftplus-vault-storage-50-gb/"><?php _e('Buy It Now', 'updraftplus');?></a></div>
 					</div>
 					<p style="clear:left; padding-top:20px;">
 						<?php echo __('Payments can be made in US dollars, euros or GB pounds sterling, via card or PayPal.', 'updraftplus').' '. __('Subscriptions can be cancelled at any time.', 'updraftplus');?>
 					</p>
 					<p style="clear:left; padding-top:20px;">
-						<em><?php _e("UpdraftPlus Vault is built on top of Amazon's world-leading data-centres, with redundant data storage to achieve 99.999999999% reliability.", 'updraftplus');?> <a href="<?php echo esc_attr($this->get_url('more_vault_info_landing')); ?>"><?php _e('Read more about it here.', 'updraftplus');?></a> <a href="<?php echo esc_attr($this->get_url('more_vault_info_faqs')); ?>"><?php _e('Read the FAQs here.', 'updraftplus');?></a></em>
+						<em><?php _e("UpdraftPlus Vault is built on top of Amazon's world-leading data-centres, with redundant data storage to achieve 99.999999999% reliability.", 'updraftplus');?> <a target="_blank" href="<?php echo esc_attr($this->get_url('more_vault_info_landing')); ?>"><?php _e('Read more about it here.', 'updraftplus');?></a> <a target="_blank" href="<?php echo esc_attr($this->get_url('more_vault_info_faqs')); ?>"><?php _e('Read the FAQs here.', 'updraftplus');?></a></em>
 					</p>
 					<p>
 						<a href="#" class="updraftvault_backtostart"><?php _e('Back...', 'updraftplus');?></a>
