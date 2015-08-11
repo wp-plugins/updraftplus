@@ -1797,8 +1797,8 @@ class UpdraftPlus_Admin {
 				}
 			} else {
 				$backupable_entities = $updraftplus->get_backupable_file_entities(true);
-				$type = $matches[3];
-				if ('db' != $type && !isset($backupable_entities[$type]) && !preg_match('/^log\.[a-f0-9]{12}\.txt/', $file)) {
+				$type = isset($matches[3]) ? $matches[3] : '';
+				if (!preg_match('/^log\.[a-f0-9]{12}\.txt/', $file) && 'db' != $type && !isset($backupable_entities[$type])) {
 					@unlink($status['file']);
 					echo json_encode(array('e' => sprintf(__('Error: %s', 'updraftplus'),sprintf(__('This looks like a file created by UpdraftPlus, but this install does not know about this type of object: %s. Perhaps you need to install an add-on?','updraftplus'), htmlspecialchars($type)))));
 					exit;

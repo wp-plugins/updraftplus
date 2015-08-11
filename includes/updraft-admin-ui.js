@@ -892,6 +892,10 @@ jQuery(document).ready(function($){
 			}
 			if (resp.hasOwnProperty('e')) {
 				updraft_html_modal('<h4 style="margin-top:0px; padding-top:0px;">'+updraftlion.errornocolon+'</h4><p>'+resp.e+'</p>', updraftlion.disconnect, 400, 250);
+				if (resp.hasOwnProperty('code') && resp.code == 'no_quota') {
+					jQuery('#updraftvault_settings_connect').slideUp();
+					jQuery('#updraftvault_settings_default').slideDown();
+				}
 			} else if (resp.hasOwnProperty('connected') && resp.connected && resp.hasOwnProperty('html')) {
 				jQuery('#updraftvault_settings_connect').slideUp();
 				jQuery('#updraftvault_settings_connected').html(resp.html).slideDown();

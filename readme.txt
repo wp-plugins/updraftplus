@@ -3,7 +3,7 @@ Contributors: Backup with UpdraftPlus, DavidAnderson
 Tags: backup, backups, restore, amazon backup, s3 backup, dropbox backup, google drive backup, rackspace cloud files, rackspace backup, dreamhost, dreamobjects backup, ftp backup, webdav backup, google cloud storage, onedrive, microsoft one drive, back up, multisite, restoration, sftp backup, ftps, scp backup, migrate, duplicate, copy, mysql backup, database backup, db backups, website backup, wordpress backup, full backup, openstack backup, sicherung
 Requires at least: 3.2
 Tested up to: 4.3
-Stable tag: 1.11.1
+Stable tag: 1.11.2
 Author URI: https://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -119,6 +119,10 @@ Thanks for asking; yes, we've got a few. Check out this profile page - https://p
 The <a href="https://updraftplus.com/news/">UpdraftPlus backup blog</a> is the best place to learn in more detail about any important changes.
 
 N.B. Paid versions of UpdraftPlus Backup / Restore have a version number which is 1 higher in the first digit, and has an extra component on the end, but the changelog below still applies. i.e. changes listed for 1.10.3 of the free version correspond to changes made in 2.10.3.x of the paid version.
+
+= 1.11.2 - 11/Aug/2015
+
+* TWEAK: Handle the results when someone with no UpdraftPlus Vault quota attempts to connect more gracefully
 
 = 1.11.1 - 10/Aug/2015
 
@@ -1598,4 +1602,4 @@ We recognise and thank the following for code and/or libraries used and/or modif
 
 
 == Upgrade Notice ==
-* 1.11.1 : UpdraftPlus Vault. Speed improvements. S3 improvements. Many tweaks and small fixes.
+* 1.11.2 : UpdraftPlus Vault. Speed improvements. S3 improvements. Many tweaks and small fixes.
