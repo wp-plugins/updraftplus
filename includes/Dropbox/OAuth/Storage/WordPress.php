@@ -19,6 +19,12 @@ class Dropbox_WordPress implements Dropbox_StorageInterface
     protected $option_name_prefix = 'dropbox_token';
     
     /**
+     * Option name (array storage)
+     * @var string
+     */
+    protected $option_array = '';
+    
+    /**
      * Encyption object
      * @var Encrypter|null
      */
@@ -28,13 +34,14 @@ class Dropbox_WordPress implements Dropbox_StorageInterface
      * Check if an instance of the encrypter is passed, set the encryption object
      * @return void
      */
-    public function __construct(Dropbox_Encrypter $encrypter = null, $option_name_prefix = 'dropbox_token')
+    public function __construct(Dropbox_Encrypter $encrypter = null, $option_name_prefix = 'dropbox_token', $option_array = 'dropbox')
     {
         if ($encrypter instanceof Dropbox_Encrypter) {
             $this->encrypter = $encrypter;
         }
 
 	$this->option_name_prefix = $option_name_prefix;
+	$this->option_array = $option_array;
 
     }
     
@@ -49,9 +56,12 @@ class Dropbox_WordPress implements Dropbox_StorageInterface
         if ($type != 'request_token' && $type != 'access_token') {
             throw new Dropbox_Exception("Expected a type of either 'request_token' or 'access_token', got '$type'");
         } else {
-            if (false !== ($gettoken = UpdraftPlus_Options::get_updraft_option($this->option_name_prefix.$type))) {
-                $token = $this->decrypt($gettoken);
-                return $token;
+            if (false !== ($opts = UpdraftPlus_Options::get_updraft_option($this->option_array))) {
+                if (!empty($opts[$this->option_name_prefix.$type])) {
+                    $gettoken = $opts[$this->option_name_prefix.$type];
+                    $token = $this->decrypt($gettoken);
+                    return $token;
+                }
             }
             return false;
         }
@@ -70,7 +80,9 @@ class Dropbox_WordPress implements Dropbox_StorageInterface
             throw new Dropbox_Exception("Expected a type of either 'request_token' or 'access_token', got '$type'");
         } else {
             $token = $this->encrypt($token);
-            UpdraftPlus_Options::update_updraft_option($this->option_name_prefix.$type, $token);
+            $opts = UpdraftPlus_Options::get_updraft_option($this->option_array);
+            $opts[$this->option_name_prefix.$type] = $token;
+            UpdraftPlus_Options::update_updraft_option($this->option_array, $opts);
         }
     }
     
@@ -80,8 +92,10 @@ class Dropbox_WordPress implements Dropbox_StorageInterface
      */
     public function delete()
     {
-        UpdraftPlus_Options::delete_updraft_option($this->option_name_prefix.'request_token');
-        UpdraftPlus_Options::delete_updraft_option($this->option_name_prefix.'access_token');
+        $opts = UpdraftPlus_Options::get_updraft_option($this->option_array);
+        $opts[$this->option_name_prefix.'request_token'] = '';
+        $opts[$this->option_name_prefix.'access_token'] = '';
+        UpdraftPlus_Options::update_updraft_option($this->option_array, $opts);
         return true;
     }
     
