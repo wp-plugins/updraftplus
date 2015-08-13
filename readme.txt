@@ -3,7 +3,7 @@ Contributors: Backup with UpdraftPlus, DavidAnderson
 Tags: backup, backups, restore, amazon backup, s3 backup, dropbox backup, google drive backup, rackspace cloud files, rackspace backup, dreamhost, dreamobjects backup, ftp backup, webdav backup, google cloud storage, onedrive, microsoft one drive, back up, multisite, restoration, sftp backup, ftps, scp backup, migrate, duplicate, copy, mysql backup, database backup, db backups, website backup, wordpress backup, full backup, openstack backup, sicherung
 Requires at least: 3.2
 Tested up to: 4.3
-Stable tag: 1.11.2
+Stable tag: 1.11.3
 Author URI: https://updraftplus.com
 Donate link: http://david.dw-perspective.org.uk/donate
 License: GPLv3 or later
@@ -120,11 +120,16 @@ The <a href="https://updraftplus.com/news/">UpdraftPlus backup blog</a> is the b
 
 N.B. Paid versions of UpdraftPlus Backup / Restore have a version number which is 1 higher in the first digit, and has an extra component on the end, but the changelog below still applies. i.e. changes listed for 1.10.3 of the free version correspond to changes made in 2.10.3.x of the paid version.
 
-= 1.11.2 - 11/Aug/2015
+= 1.11.3 - 13/Aug/2015 =
+
+* FIX: Fix access to S3 for PHP 5.2 users using buckets in the US-WEST-1 region
+* FIX: Fix access to UpdraftPlus Vault for some PHP 5.2 users
+
+= 1.11.2 - 11/Aug/2015 =
 
 * TWEAK: Handle the results when someone with no UpdraftPlus Vault quota attempts to connect more gracefully
 
-= 1.11.1 - 10/Aug/2015
+= 1.11.1 - 10/Aug/2015 =
 
 * FEATURE: UpdraftPlus Vault storage - simple to set up storage from your trusted provider: https://updraftplus.com/landing/vault - with 1Gb of free storage for UpdraftPlus Premium customers ( https://updraftplus.com/shop/updraftplus-premium/ ) - and more storage available for anyone to purchase. All other storage options (Dropbox, Google Drive, etc.) remain available, of course!
 * FEATURE: S3 enhanced wizard now allows the user to optionally deny the new Amazon Web Services IAM user download and/or delete permissions, for an even more secure setup (at the cost of some convenience - you will need to download/restore/delete S3 backups outside of UpdraftPlus).
@@ -1602,4 +1607,4 @@ We recognise and thank the following for code and/or libraries used and/or modif
 
 
 == Upgrade Notice ==
-* 1.11.2 : UpdraftPlus Vault. Speed improvements. S3 improvements. Many tweaks and small fixes.
+* 1.11.3 : Fixes for PHP 5.2 users for S3/Vault storage in some regions

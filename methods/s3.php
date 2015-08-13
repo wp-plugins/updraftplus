@@ -176,7 +176,7 @@ class UpdraftPlus_BackupModule_s3 {
 		return $this->s3_object;
 	}
 
-	protected function set_region($obj, $region) {
+	protected function set_region($obj, $region, $bucket_name = '') {
 		global $updraftplus;
 		switch ($region) {
 			case 'EU':
@@ -210,6 +210,12 @@ class UpdraftPlus_BackupModule_s3 {
 			}
 
 			$updraftplus->log("Set endpoint: $endpoint");
+
+			if ($region == 'us-west-1') {
+				$obj->useDNSBucketName(true, $bucket_name);
+				return;
+			}
+
 			return $obj->setEndpoint($endpoint);
 		}
 	}
@@ -257,12 +263,12 @@ class UpdraftPlus_BackupModule_s3 {
 		}
 
 		// This needs to cope with both original S3 and others (where there is no getBucketLocation())
-		$region = ($config['key'] == 's3') ? @$s3->getBucketLocation($bucket_name) : 'n/a';
+		$region = ($config['key'] == 's3' || $config['key'] == 'updraftvault') ? @$s3->getBucketLocation($bucket_name) : 'n/a';
 
 		// See if we can detect the region (which implies the bucket exists and is ours), or if not create it
 		if (!empty($region) || @$s3->putBucket($bucket_name, 'private') || ('s3' == $config['key'] && false !== ($s3 = $this->use_dns_bucket_name($s3, $bucket_name)) && false !== @$s3->getBucket($bucket_name, null, null, 1))) {
-			if (empty($region) && $config['key'] == 's3') $region = $s3->getBucketLocation($bucket_name);
-			if (!empty($region)) $this->set_region($s3, $region);
+			if (empty($region) && ($config['key'] == 's3' || $config['key'] == 'updraftvault')) $region = $s3->getBucketLocation($bucket_name);
+			if (!empty($region)) $this->set_region($s3, $region, $bucket_name);
 
 			$updraft_dir = trailingslashit($updraftplus->backups_dir_location());
 
@@ -453,7 +459,7 @@ class UpdraftPlus_BackupModule_s3 {
 
 		$region = ($config['key'] == 'dreamobjects' || $config['key'] == 's3generic') ? 'n/a' : @$s3->getBucketLocation($bucket_name);
 		if (!empty($region)) {
-			$this->set_region($s3, $region);
+			$this->set_region($s3, $region, $bucket_name);
 		} else {
 			# Final thing to attempt - see if it was just the location request that failed
 			$s3 = $this->use_dns_bucket_name($s3, $bucket_name);
@@ -525,7 +531,7 @@ class UpdraftPlus_BackupModule_s3 {
 
 			$region = ($config['key'] == 'dreamobjects' || $config['key'] == 's3generic') ? 'n/a' : @$s3->getBucketLocation($bucket_name);
 			if (!empty($region)) {
-				$this->set_region($s3, $region);
+				$this->set_region($s3, $region, $bucket_name);
 			} else {
 				# Final thing to attempt - see if it was just the location request that failed
 				$s3 = $this->use_dns_bucket_name($s3, $bucket_name);
@@ -608,7 +614,7 @@ class UpdraftPlus_BackupModule_s3 {
 		}
 
 		if (!empty($region) || !empty($keep_going)) {
-			$this->set_region($s3, $region);
+			$this->set_region($s3, $region, $bucket_name);
 			$fullpath = $updraftplus->backups_dir_location().'/'.$file;
 			if (!$s3->getObject($bucket_name, $bucket_path.$file, $fullpath, true)) {
 				$updraftplus->log("$whoweare Error: Failed to download $file. Check your permissions and credentials.");
@@ -818,9 +824,9 @@ class UpdraftPlus_BackupModule_s3 {
 			return;
 		}
 
-		$location = ('s3' == $config['key']) ? @$s3->getBucketLocation($bucket) : 'n/a';
+		$location = ('s3' == $config['key'] || 'updraftvault' == $config['key']) ? @$s3->getBucketLocation($bucket) : 'n/a';
 
-		if ('s3' != $config['key']) $this->set_region($s3, $endpoint);
+		if ('s3' != $config['key']) $this->set_region($s3, $endpoint, $bucket);
 
 		if ($location && 'n/a' != $location) {
 			if ('s3' == $config['key']) {
@@ -863,7 +869,7 @@ class UpdraftPlus_BackupModule_s3 {
 
 		if (isset($bucket_exists)) {
 			$try_file = md5(rand());
-			if ($config['key'] != 'dreamobjects' && $config['key'] != 's3generic') $this->set_region($s3, $location);
+			if ($config['key'] != 'dreamobjects' && $config['key'] != 's3generic') $this->set_region($s3, $location, $bucket);
 			$s3->setExceptions(true);
 			try {
 				if (!$s3->putObjectString($try_file, $bucket, $path.$try_file)) {
